@@ -266,7 +266,7 @@ def test_configure_ntp_server():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_system_authentication():
+def test_ntp_system_authentication(engines):
     """
     validate:
     - Show NTP authentication keys inventory
@@ -306,11 +306,16 @@ def test_ntp_system_authentication():
     26. Validate show system ntp output (expect ntp auth disabled and clock sync)
     """
     system = System()
-    server_name = NtpConsts.AUTH_SERVER_HOSTNAME
+    player_engine = engines['sonic_mgmt']
+    server_name = player_engine.ip
     ntp_dict = dict(NtpConsts.NTP_DEFAULT_DICT)
     ntp_key_dict = dict(NtpConsts.KEY_CONFIGURED_DICT)
 
     try:
+        with allure.step("Create ntp server on sonic-mgmt docker"):
+            logging.info("Create ntp server on sonic-mgmt docker")
+            create_ntp_server(player_engine)
+
         with allure.step("Clear all ntp configurations"):
             logging.info("Clear all ntp configurations")
             system.ntp.unset().verify_result()
@@ -391,7 +396,7 @@ def test_ntp_system_authentication():
             # Update ntp_dict with the configured ntp values
             ntp_dict[NtpConsts.SERVER] = {server_name: {}}
             ntp_dict[NtpConsts.OFFSET] = ntp_show[NtpConsts.OFFSET]
-            ntp_dict[NtpConsts.REFERENCE] = NtpConsts.AUTH_SERVER_IPV4
+            ntp_dict[NtpConsts.REFERENCE] = server_name
             ntp_dict[NtpConsts.STATUS] = NtpConsts.Status.SYNCHRONISED.value
             ValidationTool.compare_nested_dictionary_content(ntp_show, ntp_dict).verify_result()
 
@@ -478,8 +483,7 @@ def test_ntp_system_authentication():
         with allure.step("Validate show system ntp key output"):
             logging.info("Validate show system ntp key output")
             key_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.keys.show()).get_returned_value()
-            ntp_key_dict = dict(NtpConsts.KEY_DEFAULT_DICT)
-            ValidationTool.compare_dictionary_content(key_list, ntp_key_dict).verify_result()
+            assert key_list == "", "Key list should be empty"
 
         with allure.step("Disable ntp authentication"):
             logging.info("Disable ntp authentication")
@@ -1129,6 +1133,12 @@ def get_hostname_from_ip(ip):
     return hostname_str.split('.')[host_name_index] + NtpConsts.HOSTNAME_SUFFIX
 
 
+def create_ntp_server(player_engine):
+    player_engine.run_cmd("apt-get install ntp")
+    player_engine.run_cmd(f"cp {NtpConsts.NTP_SERVER_FILES} /etc/")
+    player_engine.run_cmd("service ntp restart")
+
+
 # ------------ Open API tests -----------------
 @pytest.mark.openapi
 @pytest.mark.system
@@ -1143,9 +1153,9 @@ def test_configure_ntp_server_openapi():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_system_authentication_openapi():
+def test_ntp_system_authentication_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_ntp_system_authentication()
+    test_ntp_system_authentication(engines)
 
 
 @pytest.mark.openapi

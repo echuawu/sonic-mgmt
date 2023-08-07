@@ -14,19 +14,23 @@ import logging
 import re
 import os
 import json
+from paramiko.ssh_exception import SSHException
 from dotted_dict import DottedDict
 
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst, NvosCliTypes
+from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
 from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
+from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -358,6 +362,37 @@ def is_sanitizer_image(topology_obj):
     return pytest.is_sanitizer
 
 
+@pytest.fixture(scope='session', autouse=True)
+def is_code_coverage_run(topology_obj):
+    pytest.is_code_coverage = False
+    try:
+        pytest.is_code_coverage = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
+    except SSHException as err:
+        logger.warning(f'Unable to check if its code coverage run. Assuming that the device is not reachable. '
+                       f'Setting the is_code_coverage_run as False, '
+                       f'Got error: {err}')
+    return pytest.is_code_coverage
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_debug_kernel_run(engines):
+    pytest.is_debug_kernel = False
+    try:
+        output = engines.dut.run_cmd(f"sudo ls {DebugKernelConsts.KMEMLEAK_PATH}")
+        pytest.is_debug_kernel = False if "No such file or directory" in output else True    # only in debug kernel version we have this file
+    except SSHException as err:
+        logger.warning(f'Unable to check if its debug kernel run. Assuming that the device is not reachable. '
+                       f'Setting the is_debug_kernel_run as False, '
+                       f'Got error: {err}')
+    return pytest.is_debug_kernel
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_ci_run(setup_name):
+    pytest.is_ci_run = "_CI_" in setup_name
+    return pytest.is_ci_run
+
+
 @pytest.fixture(scope="session", autouse=True)
 def mars_key_id(request):
     return request.config.getoption("--mars_key_id")
@@ -476,3 +511,25 @@ def test_name(request):
     """
     pytest.test_name = request.node.name
     return pytest.test_name
+
+
+@pytest.fixture(scope='function', autouse=True)
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_summary):
+    """
+    fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
+    """
+    yield
+    run_log_analyzer_bug_handler = False
+    branch = topology_obj.players['dut']['branch']
+    cli_type = os.environ['CLI_TYPE']
+    version = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(cli_type)
+    system_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
+
+    if cli_type == 'NVUE':
+        branch = TestToolkit.version_to_release(version)
+        run_log_analyzer_bug_handler = TestToolkit.is_release_version_in_mars_regular_run(version, topology_obj, setup_name)
+
+    if run_log_analyzer_bug_handler:
+        res = handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type)
+        logger.info(f"Log Analyzer result: {res}")
+        # TODO - if 'create' in dict - fail test , else no

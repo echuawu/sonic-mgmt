@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
@@ -32,6 +34,7 @@ def test_interface_ib0_autoconfig_disabled_sm(engines, topology_obj, stop_sm):
     with allure.step('Set autoconf = {value} for ib0'.format(value=new_value)):
         ipoib_port.interface.ip.set(op_param_name='autoconf', op_param_value=new_value,
                                     apply=True, ask_for_confirmation=True)
+        time.sleep(1)
         ip_dict = OutputParsingTool.parse_json_str_to_dictionary(ipoib_port.interface.ip.show()).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(
             ip_dict, IbInterfaceConsts.AUTOCONFIG, new_value).verify_result()

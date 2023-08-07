@@ -243,14 +243,14 @@ def test_system_snmp_functional(engines, topology_obj):
         NvueGeneralCli.apply_config(engines.dut)
 
     with allure.step('Set possible description on mgmt port'):
-        mgmt_port.interface.set(op_param_name='description', op_param_value='"eth0 description"',
+        mgmt_port.interface.set(op_param_name='description', op_param_value='nvosdescription',
                                 apply=True).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                           field_name=IbInterfaceConsts.DESCRIPTION,
-                                                          expected_value='eth0 description')
+                                                          expected_value='nvosdescription')
 
         with allure.step("Snmpwalk after autorefresh"):
             host_output = HostMethods.host_snmp_walk(host_engine, ip_address, param='| grep nvosdescription')
@@ -258,6 +258,7 @@ def test_system_snmp_functional(engines, topology_obj):
 
     with allure.step("SNMP unset"):
         system.snmp_server.unset(apply=True).verify_result()
+        mgmt_port.interface.unset(op_param="description", apply=True).verify_result()
 
 
 def test_system_snmp_redis_crash(engines, topology_obj):

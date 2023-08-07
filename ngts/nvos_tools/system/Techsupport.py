@@ -1,5 +1,5 @@
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
@@ -22,13 +22,11 @@ class TechSupport(BaseComponent):
 
     def action_upload(self, upload_path, file_name):
         with allure.step("Upload techsupport {file} to '{path}".format(file=file_name, path=upload_path)):
-            logging.info("Upload techsupport {file} to '{path}".format(file=file_name, path=upload_path))
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload, TestToolkit.engines.dut,
                                                    self.get_resource_path(), file_name, upload_path)
 
     def action_delete(self, file_name):
         with allure.step("Delete tech-support: {}".format(file_name)):
-            logging.info("Delete tech-support: {}".format(file_name))
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete, TestToolkit.engines.dut,
                                                    self.get_resource_path(), file_name)
 
@@ -52,9 +50,10 @@ class TechSupport(BaseComponent):
     def get_techsupport_folder_name(techsupport_res):
         if 'Command failed' in techsupport_res.info:
             return techsupport_res.info
-        techsupport_folder = techsupport_res.returned_value.split('\n')
-        file_name = "".join([name for name in techsupport_folder if '.tar.gz' in name])
-        return file_name.replace('Generated tech-support ', '').replace(' ', '')
+        techsupport_res_list = techsupport_res.returned_value.split('\n')
+        files_name = "".join([name for name in techsupport_res_list if '.tar.gz' in name])
+        files_name = files_name.replace('Generated tech-support', '').split(' ')
+        return files_name[-1]
 
     @staticmethod
     def get_techsupport_log_files_names(engine, techsupport):

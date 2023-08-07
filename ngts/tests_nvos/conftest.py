@@ -5,9 +5,13 @@ import time
 import os
 import re
 import math
+import smtplib
 from retry import retry
+from email.mime.text import MIMEText
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
@@ -22,9 +26,10 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
-from ngts.constants.constants import DbConstants, CliType
+from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
 
 logger = logging.getLogger()
 
@@ -87,6 +92,14 @@ def traffic_available(request):
     :return: True/False
     """
     return bool(request.config.getoption('--traffic_available'))
+
+
+@pytest.fixture(scope='function')
+def serial_engine(topology_obj):
+    """
+    :return: serial connection
+    """
+    return ConnectionTool.create_serial_connection(topology_obj)
 
 
 @pytest.fixture
@@ -174,7 +187,6 @@ def log_test_wrapper(request, engines):
     if 'no_log_test_wrapper' in request.keywords:
         return
     try:
-        check_switch_capacity(engines.dut)
         SendCommandTool.execute_command(LinuxGeneralCli(engines.dut).clear_history)
     except BaseException as exc:
         logger.error(" the command 'history -c' failed and this is the exception info : {}".format(exc))
@@ -203,6 +215,9 @@ def clear_config(markers):
 
         if not(len(set_comp.keys()) == 1 and "system" in set_comp.keys() and
                len(set_comp["system"].keys()) == 1 and "timezone" in set_comp["system"]):
+            should_wait_for_nvued_after_apply = 'aaa' in set_comp["system"].keys() \
+                                                and 'authentication' in set_comp["system"]['aaa'].keys() \
+                                                and 'order' in set_comp["system"]['aaa']['authentication'].keys()
             if len(set_comp["system"].keys()) > 1:
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'system')
             if "ib" in set_comp.keys():
@@ -214,8 +229,14 @@ def clear_config(markers):
                     active_port = result.returned_value[0]
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=False)
+            system = System()
+            system.aaa.authentication.restrictions.set(RestrictionsConsts.LOCKOUT_STATE, RestrictionsConsts.DISABLED)\
+                .verify_result()
+            system.aaa.authentication.restrictions.set(RestrictionsConsts.FAIL_DELAY, 0).verify_result()
+            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, system, apply=False)
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+            if should_wait_for_nvued_after_apply:
+                DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
             if active_port:
                 active_port.ib_interface.wait_for_port_state(state='up').verify_result()
 
@@ -254,7 +275,6 @@ def save_results_and_clear_after_test(item):
     markers = item.keywords._markers
     try:
         logging.info(' ---------------- The test completed successfully ---------------- ')
-        check_switch_capacity(TestToolkit.engines.dut)
         run_cli_coverage(item, markers)
     except KeyboardInterrupt:
         raise
@@ -263,6 +283,32 @@ def save_results_and_clear_after_test(item):
         raise AssertionError(err)
     finally:
         clear_config(markers)
+
+
+@pytest.fixture(scope='function', autouse=True)
+def debug_kernel_check(engines, test_name, setup_name, session_id):
+    yield
+    if pytest.is_debug_kernel:
+        engines.dut.run_cmd("sudo dmesg | grep {}".format(DebugKernelConsts.KMEMLEAK))
+        engines.dut.run_cmd("sudo echo scan | sudo tee {}".format(DebugKernelConsts.KMEMLEAK_PATH))
+        mem_leaks_output = engines.dut.run_cmd("sudo cat {}".format(DebugKernelConsts.KMEMLEAK_PATH))
+        if mem_leaks_output:
+            logger.info("kernel memory leaks were found, will send mail with the leaks")
+            context = f"Kernel memory leaks were found during test:{test_name}\n" \
+                      f"Setup: {setup_name}\n" \
+                      f"Session ID: {session_id}\n" \
+                      f"{mem_leaks_output}"
+            try:
+                s = smtplib.SMTP(InfraConst.NVIDIA_MAIL_SERVER)
+                email_contents = MIMEText(context)
+                email_contents['Subject'] = "debug kernel issue nvos"
+                email_contents['To'] = ", ".join(['bshpigel@nvidia.com', 'ncaro@nvidia.com', 'yport@nvidia.com'])
+                s.sendmail('noreply@debugkernel.com', email_contents['To'], email_contents.as_string())
+                logger.info("Mail was sent to: {}".format(email_contents['To']))
+            finally:
+                s.quit()
+
+            engines.dut.run_cmd("sudo echo clear | sudo tee {}".format(DebugKernelConsts.KMEMLEAK_PATH))
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -279,7 +325,7 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
             type = platform_params['filtered_platform']
             version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
             release_name = TestToolkit.version_to_release(version)
-            if not TestToolkit.is_special_run(topology_obj) and pytest.is_mars_run and release_name and ("_CI_" not in setup_name):
+            if not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run:
                 insert_operation_duration_to_db(setup_name, type, version, session_id, release_name)
         except Exception as err:
             logger.warning("Failed to save operation duration data, because: {}".format(err))

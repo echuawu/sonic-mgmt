@@ -7,7 +7,10 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger(__name__)
 
@@ -63,25 +66,6 @@ def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
 
 
 @pytest.fixture(scope='function')
-def serial_engine(topology_obj):
-    """
-    :return: serial connection
-    """
-    att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
-    # add connection options to pass connection problems
-    extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
-    extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
-    extended_rcon_command = ' '.join(extended_rcon_command)
-    serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                        username=att['Topology Conn.']['CONN_USER'],
-                                        password=att['Topology Conn.']['CONN_PASSWORD'],
-                                        rcon_command=extended_rcon_command,
-                                        timeout=30)
-    serial_engine.create_serial_engine()
-    return serial_engine
-
-
-@pytest.fixture(scope='function')
 def post_test_remote_reboot(topology_obj):
     '''
     @summary: perform remote reboot from the physical server using the noga remote reboot command,
@@ -116,3 +100,16 @@ def is_secure_boot_enabled(engines):
     if res != "1":
         logging.info("The test is skipped - secure boot is disabled")
         pytest.skip("The test is skipped - secure boot is disabled")
+
+
+@pytest.fixture(scope='module', autouse=True)
+def show_sys_version(engines):
+    """
+    For regression analysis, show the system info (and version) before each test case/file
+    """
+    with allure.step('Before test case: show system info'):
+        system = System()
+        system.show(output_format=OutputFormat.auto)
+        system.show()
+        system.version.show()
+        NvueGeneralCli.show_config(engines.dut)

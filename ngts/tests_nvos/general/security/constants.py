@@ -1,4 +1,32 @@
 
+# aaa constants
+class AaaConsts:
+    USER = 'user'
+    PASSWORD = 'password'
+    ROLE = 'role'
+    ADMIN = 'admin'
+    MONITOR = 'monitor'
+    USERNAME = 'username'
+
+    LOCALADMIN = 'localadmin'
+    LOCALMONITOR = 'localmonitor'
+    STRONG_PASSWORD = 'Your_password1'
+
+    LOCAL_ONLY_TEST_USERS = [
+        {
+            USERNAME: LOCALADMIN,
+            PASSWORD: STRONG_PASSWORD,
+            ROLE: ADMIN
+        },
+        {
+            USERNAME: LOCALMONITOR,
+            PASSWORD: STRONG_PASSWORD,
+            ROLE: MONITOR
+        }
+    ]
+
+
+# aaa authentication constants
 class AuthConsts:
     ORDER = 'order'
     LOCAL = 'local'
@@ -6,3 +34,8 @@ class AuthConsts:
     RADIUS = 'radius'
     FALLBACK = 'fallback'
     FAILTHROUGH = 'failthrough'
+
+    SHOW_COMMAND = 'nv show system'
+    SET_COMMAND = 'nv set system security password-hardening len-min 6'
+    SWITCH_PROMPT_PATTERN = '.+@.+:.+\\$'
+    PERMISSION_ERROR = 'Error: You do not have permission to execute that command.'

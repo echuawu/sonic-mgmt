@@ -3,7 +3,7 @@ import itertools
 import random
 import string
 import time
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pexpect
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
@@ -31,7 +31,6 @@ class PwhTools:
         @return: a random valid pw (str), according to the given pwh conf rules
         """
         with allure.step('First verify that parameter is valid pwh configuration'):
-            logging.info('First verify that parameter is valid pwh configuration')
             PwhTools.assert_is_pwh_conf(pwh_conf)
 
         with allure.step('Generating strong password according to the password hardening configuration'):
@@ -70,7 +69,6 @@ class PwhTools:
                 pw += RandomizationTool.get_random_string(length=1)
 
         with allure.step('Finished generating strong pw: "{}"'.format(pw)):
-            logging.info('Finished generating strong pw: "{}"'.format(pw))
             return pw
 
     @staticmethod
@@ -84,7 +82,6 @@ class PwhTools:
         @return: a random valid pw (str), according to the given pwh conf rules
         """
         with allure.step('First verify that parameter is valid pwh configuration'):
-            logging.info('First verify that parameter is valid pwh configuration')
             PwhTools.assert_is_pwh_conf(pwh_conf)
 
         with allure.step('Generating weak password according to the password hardening configuration'):
@@ -94,8 +91,6 @@ class PwhTools:
 
             if generate_short_pw:
                 with allure.step('Generating password shorter than min-len'):
-                    logging.info('Generating password shorter than min-len ({})'
-                                 .format(int(pwh_conf[PwhConsts.LEN_MIN])))
                     pw_len = random.randint(0, int(pwh_conf[PwhConsts.LEN_MIN]) - 1) \
                         if int(pwh_conf[PwhConsts.LEN_MIN]) >= 0 else 0
                     logging.info('Random len for pw: {}'.format(pw_len))
@@ -108,7 +103,6 @@ class PwhTools:
             logging.info('Random len for pw: {}'.format(pw_len))
 
             with allure.step('Generating random weak password of length {}'.format(pw_len)):
-                logging.info('Generating random weak password of length {}'.format(pw_len))
 
                 pw = RandomizationTool.get_random_string(length=pw_len)
                 logging.info('Random string of len {} : "{}"'.format(pw_len, pw))
@@ -136,7 +130,6 @@ class PwhTools:
                     logging.info('everithing else disabled. chose random pw from history: {}'.format(pw))
 
         with allure.step('Finished generating weak pw: "{}"'.format(pw)):
-            logging.info('Finished generating weak pw: "{}"'.format(pw))
             return pw
 
     @staticmethod
@@ -189,16 +182,13 @@ class PwhTools:
             logging.info("PwhTools.assert_is_pwh_conf(obj) :  obj = \n{o}".format(o=obj))
 
         with allure.step("checking that obj is dict"):
-            logging.info("checking that obj is dict")
             assert isinstance(obj, dict), 'Error: the given parameter is not a dict'
 
         with allure.step("checking that obj has all fields"):
-            logging.info("checking that obj has all fields")
             assert sorted(obj.keys()) == sorted(PwhConsts.DEFAULTS.keys()), \
                 "Error: the given parameter doesn't have all pwh configuration fields"
 
         with allure.step("checking that obj has valid values"):
-            logging.info("checking that obj has valid values")
             invalid_values = {}
             for field, val in obj.items():
                 if obj[field] not in PwhConsts.VALID_VALUES[field]:
@@ -216,8 +206,6 @@ class PwhTools:
         @param usr_should_exist: true - verify that the username exists; false - verify doesn't exist
         """
         with allure.step('Verify that user "{}" {}'.format(usrname, 'exist' if usr_should_exist else 'does not exist')):
-            logging.info('Verify that user "{}" {}'.format(usrname, 'exist' if usr_should_exist else 'does not exist'))
-
             show_output = system_obj.aaa.show(PwhConsts.USER + ' ' + usrname)
             cond = show_output != PwhConsts.ERR_ITEM_NOT_EXIST
             logging.info('show cmd output: {}\ncond: {}\nusr_should_exist: {}'
@@ -238,20 +226,14 @@ class PwhTools:
         """
         with allure.step('Verify that login with user "{}" and pw "{}" {}'
                          .format(usrname, pw, 'succeeds' if login_should_succeed else 'does not succeed')):
-            logging.info('Verify that login with user "{}" and pw "{}" {}'
-                         .format(usrname, pw, 'succeeds' if login_should_succeed else 'does not succeed'))
+            with allure.step('Check ssh connection with username "{}" and password "{}"'.format(usrname, pw)):
+                cond = PwhTools.check_ssh_connection(dut_engine_obj, usrname, pw)
 
-        with allure.step('Check ssh connection with username "{}" and password "{}"'.format(usrname, pw)):
-            logging.info('Check ssh connection with username "{}" and password "{}"'.format(usrname, pw))
-            cond = PwhTools.check_ssh_connection(dut_engine_obj, usrname, pw)
-
-        with allure.step('Assert cond ( {} ) == login_should_succeed ( {} )\nAssert result: {}'
-                         .format(cond, login_should_succeed, cond == login_should_succeed)):
-            logging.info('Assert cond ( {} ) == login_should_succeed ( {} )\nAssert result: {}'
-                         .format(cond, login_should_succeed, cond == login_should_succeed))
-            assert cond == login_should_succeed, 'Error: PwhTools.verify_login() asserts that login with user "{}" ' \
-                                                 'and pw "{}" should{} succeed, but it did{}' \
-                .format(usrname, pw, '' if login_should_succeed else ' not', '.' if cond else ' not.')
+            with allure.step('Assert cond ( {} ) == login_should_succeed ( {} )\nAssert result: {}'
+                             .format(cond, login_should_succeed, cond == login_should_succeed)):
+                assert cond == login_should_succeed, 'Error: PwhTools.verify_login() asserts that login with user "{}" ' \
+                                                     'and pw "{}" should{} succeed, but it did{}' \
+                    .format(usrname, pw, '' if login_should_succeed else ' not', '.' if cond else ' not.')
 
     @staticmethod
     def check_ssh_connection(dut_engine_obj, usr, pw):
@@ -278,12 +260,10 @@ class PwhTools:
         @param expected_value: given value to check
         """
         with allure.step('Get current password hardening configuration'):
-            logging.info('Get current password hardening configuration')
             cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
             logging.info('Current (orig) password hardening configuration:\n{}'.format(cur_pwh_conf))
 
         with allure.step('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value)):
-            logging.info('Verify that current "{}" is set to "{} in show output'.format(setting, expected_value))
             ValidationTool.compare_values(cur_pwh_conf[setting], expected_value).verify_result()
 
     @staticmethod
@@ -294,7 +274,6 @@ class PwhTools:
         @param error_should_contain: the given string that should be contained in the error message
         """
         with allure.step('Verify that op failed with error that contains "{}"'.format(error_should_contain)):
-            logging.info('Verify that op failed with error that contains "{}"'.format(error_should_contain))
             logging.info('Expected substring: {}\nResult: {}\nInfo: {}\n Returned value: {}'
                          .format(error_should_contain, res_obj.result, res_obj.info, res_obj.returned_value))
             err_msg = 'Error: operation message is not as expected.\n' \
@@ -312,12 +291,10 @@ class PwhTools:
         @param value: given value
         """
         with allure.step('Verify that given field "{}" is actually a password hardening field'.format(field)):
-            logging.info('Verify that given field "{}" is actually a password hardening field'.format(field))
             assert field in PwhConsts.FIELDS, 'Error: given field "{}" is not one of the password hardening fields.\n' \
                                               'Pwh fields: {}'.format(field, PwhConsts.FIELDS)
 
         with allure.step('Verify that given value "{}" is valid for field "{}"'.format(value, field)):
-            logging.info('Verify that given value "{}" is valid for field "{}"'.format(value, field))
             assert value in PwhConsts.VALID_VALUES[field], 'Error: given value "{v}" is not one of the valid values ' \
                                                            'of the field "{f}" .\n' \
                                                            'Valid values for field "{f}" : {fvv}' \
@@ -342,10 +319,8 @@ class PwhTools:
             logging.info('orig pwh configuration:\n{}'.format(orig_pwh_conf))
 
         with allure.step('Setting the desired password hardening configuration'):
-            logging.info('Setting the desired password hardening configuration')
             for field in pwh_conf.keys():
                 with allure.step('Set field "{}" to "{}"'.format(field, pwh_conf[field])):
-                    logging.info('Set field "{}" to "{}"'.format(field, pwh_conf[field]))
 
                     PwhTools.assert_valid_password_hardening_field_value(field=field, value=pwh_conf[field])
 
@@ -353,12 +328,10 @@ class PwhTools:
                         pwh_obj.set(field, pwh_conf[field], apply=False).verify_result()
 
         with allure.step('Apply all changes'):
-            logging.info('Apply all changes')
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
                                             True)
 
         with allure.step('Verify desired configuration'):
-            logging.info('Verify desired configuration')
             new_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
             logging.info('New password hardening configuration:\n{}'.format(new_pwh_conf))
             new_conf_relevant_fields = {field: val for field, val in new_pwh_conf.items() if field in pwh_conf.keys()}
@@ -388,7 +361,6 @@ class PwhTools:
         @return: list of all of these password hardening configurations
         """
         with allure.step('Generate all combinations of 5 values of ["disabled", "enabled"]'):
-            logging.info('Generate all combinations of 5 values of ["disabled", "enabled"]')
             options = [PwhConsts.DISABLED, PwhConsts.ENABLED]
             combinations = list(itertools.product(options, repeat=5))
             logging.info('Received {} combinations'.format(len(combinations)))
@@ -397,7 +369,6 @@ class PwhTools:
                                                 'expected num of combinations: {}'.format(len(combinations), 2 ** 5)
 
         with allure.step('Generate password hardening configuration according to each combination'):
-            logging.info('Generate password hardening configuration according to each combination')
             confs = [
                 {
                     PwhConsts.STATE: PwhConsts.ENABLED,
@@ -431,7 +402,6 @@ class PwhTools:
         @return: password hardening configuration (dict)
         """
         with allure.step('Generate random password hardening configuration'):
-            logging.info('Generate random password hardening configuration')
             conf = {
                 PwhConsts.STATE: PwhConsts.ENABLED,
                 PwhConsts.EXPIRATION: '-1',
@@ -464,7 +434,6 @@ class PwhTools:
         @return: list of invalid inputs (strings) for the given field
         """
         with allure.step('Generating invalid input values for setting "{}"'.format(field)):
-            logging.info('Generating invalid input values for setting "{}"'.format(field))
             # invalid values: 1.empty value; 2.just a random string; 3.another value which is not in valid values list
             invalid_values_to_test = ['']  # empty value
 
@@ -484,7 +453,6 @@ class PwhTools:
             invalid_values_to_test.append(another_value)
 
         with allure.step('Verify that generated values are indeed invalid'):
-            logging.info('Verify that generated values are indeed invalid')
             for val in invalid_values_to_test:
                 assert val not in PwhConsts.VALID_VALUES[field], \
                     'Error: Something went wrong with randomizing invalid value for field "{}".\n' \
@@ -506,7 +474,6 @@ class PwhTools:
         @return:
         """
         with allure.step('Get the expected error messages for password "{}"'.format(new_pw)):
-            logging.info('Get the expected error messages for password "{}"'.format(new_pw))
             expected_errors = PwhTools.get_expected_errors(pwh_conf, user_obj.username, new_pw, pw_history)
 
         should_succeed = expected_errors == []
@@ -514,11 +481,9 @@ class PwhTools:
 
         if should_succeed:
             with allure.step('Try to set password "{}" to user "{}" and expect success'.format(new_pw, user_obj.username)):
-                logging.info('Try to set password "{}" to user "{}" and expect success'.format(new_pw, user_obj.username))
                 user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True).verify_result()
         else:
             with allure.step('Try to set password "{}" to user "{}" and expect errors'.format(new_pw, user_obj.username)):
-                logging.info('Try to set password "{}" to user "{}" and expect errors'.format(new_pw, user_obj.username))
                 PwhTools.set_pw_expect_pwh_error(user_obj, new_pw, expected_errors)
 
     @staticmethod
@@ -533,7 +498,6 @@ class PwhTools:
         @return: a list containing (substrings of) the expected error messages
         """
         with allure.step('Checking what the expected errors are'):
-            logging.info('Checking what the expected errors are')
             expected_errors = []
 
             if pwh_conf[PwhConsts.LOWER_CLASS] == PwhConsts.ENABLED and set(pw).isdisjoint(set(PwhConsts.LOWER_CHARS)):
@@ -584,26 +548,21 @@ class PwhTools:
         n = len(n) if isinstance(n, list) else n
 
         with allure.step('Set N ( {} ) new passwords to user "{}" and verify success'.format(n, username)):
-            logging.info('Set N ( {} ) new passwords to user "{}" and verify success'.format(n, username))
             for i in range(n):
                 if passwords is None:
                     with allure.step('Generating new random strong password #{}'.format(i)):
-                        logging.info('Generating new random strong password #{}'.format(i))
                         new_pw = PwhTools.generate_strong_pw(pwh_conf, username, pw_history)
                         logging.info('New (strong) password - "{}"'.format(new_pw))
                 else:
                     with allure.step('Given password #{} to set is "{}"'.format(i, passwords[i])):
-                        logging.info('Given password #{} to set is "{}"'.format(i, passwords[i]))
                         new_pw = passwords[i]
 
                 if should_succeed:
                     with allure.step('Set user "{}" with password "{}" and expect success'.format(username, new_pw)):
-                        logging.info('Set user "{}" with password "{}" and expect success'.format(username, new_pw))
                         user_obj.set(PwhConsts.PW, '"' + new_pw + '"', apply=True).verify_result()
                         pw_history.append(new_pw)
                 else:
                     with allure.step('Set user "{}" with password "{}" and expect error'.format(username, new_pw)):
-                        logging.info('Set user "{}" with password "{}" and expect error'.format(username, new_pw))
                         PwhTools.set_pw_expect_pwh_error(user_obj, new_pw,
                                                          [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
 
@@ -617,7 +576,6 @@ class PwhTools:
         @param system: System object
         """
         with allure.step('Moving current date by {} days from now'.format(num_of_days)):
-            logging.info('Moving current date by {} days from now'.format(num_of_days))
             if num_of_days == 0:
                 return
 
@@ -641,7 +599,6 @@ class PwhTools:
             'expiration-warning' to verify that only received expiration-warning.
         """
         with allure.step('Verify expiration - verifying expiration_type param: {}'.format(expiration_type)):
-            logging.info('Verify expiration - verifying expiration_type param: {}'.format(expiration_type))
             assert expiration_type in [PwhConsts.EXPIRATION, PwhConsts.EXPIRATION_WARNING], \
                 'Error in verify_expiration.\n' \
                 'Expected expiration_type param: "{}" or "{}".\n' \
@@ -658,18 +615,15 @@ class PwhTools:
         expected_patterns = []
         try:
             with allure.step('Composing the ssh command to pexpect process'):
-                logging.info('Composing the ssh command to pexpect process')
                 _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
                 _ssh_command += ['-p', str(PwhConsts.SSH_PORT)]
                 _ssh_command += ['-l', username, ip]
 
             with allure.step('Running ssh command with user "{}" to ip "{}"'.format(username, ip)):
-                logging.info('Running ssh command with user "{}" to ip "{}"'.format(username, ip))
                 child = pexpect.spawn(' '.join(_ssh_command))
                 child.delaybeforesend = DefaultConnectionValues.PEXPECT_DELAYBEFORESEND
 
             with allure.step('Expect shell to prompt "password" (tell the user to enter password)'):
-                logging.info('Expect shell to prompt "password" (tell the user to enter password)')
                 expected_patterns = [PwhConsts.PW]
                 respond_index = child.expect(expected_patterns, timeout=PwhConsts.EXPECT_TIMEOUT)
                 output_received = child.before.decode() + child.match.group(0).decode()
@@ -678,13 +632,11 @@ class PwhTools:
                              'Output received:\n{}'.format(respond_index, output_received))
 
             with allure.step('Entering password "{}"'.format(password)):
-                logging.info('Entering password "{}"'.format(password))
                 child.sendline(password + '\r')  # enter current password of the switch
 
             expected_patterns = PwhConsts.PROMPT_PW_EXPIRED if expiration_type == PwhConsts.EXPIRATION \
                 else PwhConsts.PROMPT_EXPIRATION_WARNING
             with allure.step('Expect shell to prompt {}'.format(expected_patterns)):
-                logging.info('Expect shell to prompt {}'.format(expected_patterns))
                 respond_index = child.expect(expected_patterns, timeout=PwhConsts.EXPECT_TIMEOUT)
                 output_received = child.before.decode() + child.match.group(0).decode()
                 logging.info('Match success.\n'
@@ -692,7 +644,6 @@ class PwhTools:
                              'Output received:\n{}'.format(respond_index, output_received))
 
             with allure.step('Verify prompted message'):
-                logging.info('Verify prompted message')
                 final_output = output_received
 
                 if expiration_type == PwhConsts.EXPIRATION:
@@ -715,7 +666,6 @@ class PwhTools:
             assert False, err_msg
         finally:
             with allure.step('Closing ssh process'):
-                logging.info('Closing ssh process')
                 if child.isalive():
                     child.terminate()
                 child.close()
@@ -729,7 +679,6 @@ class PwhTools:
         """
         cmd = 'sudo chage -l {}'.format(username)
         with allure.step('Running command: "{}"'.format(cmd)):
-            logging.info('Running command: "{}"'.format(cmd))
             return dut_obj.run_cmd(cmd)
 
     @staticmethod
@@ -741,10 +690,8 @@ class PwhTools:
         @param expected_errors: the expected password hardening policy error/s
         """
         with allure.step('Try to set the password "{}"'.format(password)):
-            logging.info('Try to set the password "{}"'.format(password))
             res_obj = user_obj.set(PwhConsts.PW, '"' + password + '"', apply=False)
 
         with allure.step('Expect errors'):
-            logging.info('Expect errors')
             for error in expected_errors:
                 PwhTools.verify_error(res_obj, error)

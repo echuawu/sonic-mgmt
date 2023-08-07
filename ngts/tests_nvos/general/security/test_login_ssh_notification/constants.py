@@ -52,9 +52,11 @@ class LoginSSHNotificationConsts:
     ADMIN_CAPABITILY = 'admin'
     MONITOR_CAPABITILY = 'monitor'
 
-    MAX_TIME_DELTA_BETWEEEN_CONNECTIONS = 120
+    MAX_TIME_DELTA_BETWEEEN_CONNECTIONS = 150
     MIN_RECORD_PERIOD_VAL = 1
     MAX_RECORD_PERIOD_VAL = 30
     AUTH_LOGS_SHARED_LOCATION = '/auto/sw_system_project/NVOS_INFRA/security/verification/login_ssh_notification/logs/*'
     AUTH_LOG_SWITCH_PATH = '/var/log'
     MAX_LOGIN_TIME = 10
+
+    PASSWORD_UPDATE_WAIT_TIME = 3

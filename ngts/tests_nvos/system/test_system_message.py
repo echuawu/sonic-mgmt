@@ -4,11 +4,13 @@ import pytest
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.tests_nvos.general.security.conftest import ssh_to_device_and_retrieve_raw_login_ssh_notification
 
-import time
 logger = logging.getLogger()
 
 
@@ -118,6 +120,14 @@ def test_set_system_message_pre_login(engines, devices):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                         new_pre_login_msg).verify_result()
 
+        with allure.step('Verify pre-login changed to new message upon connecting via SSH'):
+            output = ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                                           username=SystemConsts.DEFAULT_USER_ADMIN,
+                                                                           password=engines.dut.password)
+            pre_login_output = output.split('\n')[1].strip()
+            assert new_pre_login_msg == pre_login_output,\
+                "Failed to set pre-login message to {pre_login}".format(pre_login=pre_login_output)
+
         with allure.step('Verify post-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                         SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
@@ -133,6 +143,241 @@ def test_set_system_message_pre_login(engines, devices):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                         SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        with allure.step('Verify pre-login changed to default upon connecting via SSH'):
+            output = ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                                           username=SystemConsts.DEFAULT_USER_ADMIN,
+                                                                           password=engines.dut.password)
+            pre_login_output = output.split('\n')[1].strip()
+            assert pre_login_output == SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE,\
+                "Failed to set pre-login message to {pre_login}".format(pre_login=pre_login_output)
+
+    finally:
+        clear_system_messages(system, engines)
+
+
+@pytest.mark.banner
+@pytest.mark.system
+@pytest.mark.simx
+def test_set_system_message_post_login(engines, devices):
+    """
+    Run show/set/unset system message command and verify the required pre-login message
+        Test flow:
+            1. Set post-login message[run cmd + apply conf]
+            2. verify post-login changed to new message in show system
+            3. Verify pre-login was not affected in show system
+            4. Verify post-logout was not affected in show system
+            5. Verify post-login changed to new message upon connecting via SSH
+            6. Verify post-login changed to new message upon connecting via Serial
+            7. Unset post-login message[run cmd + apply conf]
+            8. verify post-login changed to default in show system
+            9. Verify post-login changed to default upon connecting via SSH
+            10. Verify pre-login changed to default upon connecting via Serial
+    """
+    new_post_login_msg = "Testing POST LOGIN MESSAGE"
+    system = System()
+
+    try:
+        with allure.step('Run set system message post-login command and apply config'):
+            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+
+        with allure.step('Verify post-login changed to new message in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        new_post_login_msg).verify_result()
+
+        with allure.step('Verify post-login changed to new message upon connecting via SSH'):
+            output = ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+                                                                           username=SystemConsts.DEFAULT_USER_ADMIN,
+                                                                           password=engines.dut.password)
+            post_login_output = output.split('\n')[4].strip()
+            assert new_post_login_msg in post_login_output,\
+                "Failed to set post-login message to {post_login}\n post_login_output={post_login_output}".format(
+                    post_login=new_post_login_msg, post_login_output=post_login_output)
+
+        with allure.step('Verify pre-login did not change in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        with allure.step('Run unset system message post-login command and apply config'):
+            system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+
+        with allure.step('Verify post-login changed to default in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        # TBA : SSH test for default post-login message
+
+    finally:
+        clear_system_messages(system, engines)
+
+
+@pytest.mark.banner
+@pytest.mark.system
+@pytest.mark.simx
+def test_set_system_message_post_logout(engines, devices):
+    """
+    Run show/set/unset system message command and verify the required post-login message
+        Test flow:
+            1. Set post-login message[run cmd + apply conf]
+            2. verify post-logout changed to new message in show system
+            3. Verify pre-login was not affected in show system
+            4. Verify post-login was not affected in show system
+            5. Verify post-login changed to new message upon connecting via SSH
+            6. Verify post-login changed to new message upon connecting via Serial
+            7. Unset post-login message[run cmd + apply conf]
+            8. verify post-login changed to default in show system
+            9. Verify post-login changed to default upon connecting via SSH
+            10. Verify post-login changed to default upon connecting via Serial
+    """
+    new_post_logout_msg = "Testing POST LOGOUT MESSAGE"
+    system = System()
+
+    try:
+        with allure.step('Run set system message post-logout command and apply config'):
+            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+
+        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+        with allure.step('Verify post-logout changed to new message in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        new_post_logout_msg).verify_result()
+
+        # TBA : SSH Test
+
+        with allure.step('Verify pre-login did not change in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        with allure.step('Verify post-login did not change in show system'):
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        with allure.step('Run unset system message post-login command and apply config'):
+            system.message.unset(engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+
+        with allure.step('Verify post-logout changed to default in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
+
+        # TBA : SSH Test
+
+    finally:
+        clear_system_messages(system, engines)
+
+
+@pytest.mark.banner
+@pytest.mark.system
+@pytest.mark.simx
+def test_factory_reset_for_system_message(engines, devices):
+    """
+    Run factory reset system message command and verify the system messages are changed to default
+        Test flow:
+            1. Run 'nv set system message pre-login'
+            2. Run 'nv set system message post-login'
+            3. Run 'nv set system message post-logout'
+            4. Run 'nv show system message' and verify system messages are set
+            5. Run system factory reset
+            6. Run 'nv show system message' and verify systems messages are set to defaults
+    """
+    new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
+    new_post_login_msg = "Testing POST LOGIN MESSAGE"
+    new_post_logout_msg = "Testing POST LOGOUT MESSAGE"
+    system = System()
+
+    try:
+        with allure.step('Run set system message pre-login command and apply config'):
+            system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+
+        with allure.step('Run set system message post-login command and apply config'):
+            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+
+        with allure.step('Run set system message post-logout command and apply config'):
+            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+
+        with allure.step('Verify system messages are changed to new messages in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        new_pre_login_msg).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        new_post_login_msg).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        new_post_logout_msg).verify_result()
+
+        with allure.step('Run reset factory command and apply config'):
+            system.message.unset(engines.dut).verify_result()
+
+        with allure.step('Verify system messages are changed to default in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
+
+    finally:
+        clear_system_messages(system, engines)
+
+
+@pytest.mark.banner
+@pytest.mark.system
+@pytest.mark.simx
+def test_system_reload_for_system_message(engines, devices):
+    """
+    Run reload system  command and verify the system messages are changed to default
+        Test flow:
+            1. Run 'nv set system message pre-login'
+            2. Run 'nv set system message post-login'
+            3. Run 'nv set system message post-logout'
+            4. Run 'nv show system message' and verify system messages are set
+            5. Run system reload
+            6. Run 'nv show system message' and verify systems messages are set to defaults
+    """
+    new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
+    new_post_login_msg = "Testing POST LOGIN MESSAGE"
+    new_post_logout_msg = "Testing POST LOGOUT MESSAGE"
+    system = System()
+
+    try:
+        with allure.step('Run set system message pre-login command and apply config'):
+            system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+
+        with allure.step('Run set system message post-login command and apply config'):
+            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+
+        with allure.step('Run set system message post-logout command and apply config'):
+            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+
+        with allure.step('Verify system messages are changed to new messages in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        new_pre_login_msg).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        new_post_login_msg).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        new_post_logout_msg).verify_result()
+
+        with allure.step('Run system reload command and apply config'):
+            reload_cmd_set = "nv action reboot system"
+            DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
+                                should_wait_till_system_ready=False).verify_result()
+            # Reconnect
+            ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
+            # Wait until the system is ready
+            DutUtilsTool.wait_for_nvos_to_become_functional(ssh_connection).verify_result()
+
+        with allure.step('Verify system messages are changed to default in show system'):
+            message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
+                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+            ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
+                                                        SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
+
     finally:
         clear_system_messages(system, engines)
 
@@ -153,3 +398,35 @@ def test_system_show_message_openapi(engines, devices):
 def test_set_system_message_pre_login_openapi(engines, devices):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_set_system_message_pre_login(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_set_system_message_post_login_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_message_post_login(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_set_system_message_post_logout_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_message_post_logout(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_factory_reset_for_system_message_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_message_post_logout(engines, devices)
+
+
+@pytest.mark.openapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_system_reload_for_system_message_openapi(engines, devices):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_set_system_message_post_logout(engines, devices)

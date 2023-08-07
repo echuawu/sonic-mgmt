@@ -84,7 +84,8 @@ class Image(BaseComponent):
             assert images[ImageConsts.NEXT_IMG] == images[partition_id], "Failed to set the new image to boot next"
 
     def verify_show_images_output(self, expected_keys_values):
-        output = self.get_image_field_values()
-        for field, value in expected_keys_values.items():
-            assert field in output.keys(), field + " can't be found int the output"
-            assert value == output[field], "The value of {} is not {}".format(field, value)
+        with allure.step("verify expected values"):
+            output = self.get_image_field_values()
+            for field, value in expected_keys_values.items():
+                assert field in output.keys(), field + " can't be found int the output"
+                assert value == output[field], "The value of {} is not {}".format(field, value)

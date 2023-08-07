@@ -3,11 +3,15 @@ import random
 import re
 import os
 import time
-import allure
+
+from infra.tools.linux_tools.linux_tools import scp_file
+from ngts.tools.test_utils import allure_utils as allure
 import pexpect
 import logging
 import pytest
 import json
+
+from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
 from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -60,9 +64,10 @@ def parse_ssh_login_notification(dut_ip, username, password):
     '''
     result = {}
 
-    notification_login_message = ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
-                                                                                       username,
-                                                                                       password)
+    _, _, notification_login_message = SshAuthenticator(username, password, dut_ip).attempt_login_success(return_output=True)
+    # notification_login_message = ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
+    #                                                                                    username,
+    #                                                                                    password)
     for key, regex in LoginSSHNotificationConsts.LOGIN_SSH_NOTIFICATION_REGEX_DICT.items():
         match = re.findall(regex, notification_login_message)
         if regex == LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE_REGEX:
@@ -92,13 +97,12 @@ def change_username_password(engines, username, curr_password, new_password):
         logger.info("Changing password for user: {}\n"
                     "Current password: {}\n"
                     "New password proposed: {}".format(username, curr_password, new_password))
+        system = System()
+        system.aaa.user.set_username(username=username)
+        system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
 
-    # create system class
-    system = System()
-    system.aaa.user.set_username(username=username)
-    system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
-    logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
-    time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+    with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
+        time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
@@ -131,29 +135,29 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
     :param last_successful_login: datetime object of the time since last successful login
     '''
     random_number_of_connection_fails = random.randint(5, 15)
-    with allure.step("Fail connecting to device {}".format(random_number_of_connection_fails)):
-        logger.info("Fail connecting to device {}".format(random_number_of_connection_fails))
+    with allure.step("Fail {} times connecting to device".format(random_number_of_connection_fails)):
         logger.info("Attempting {} wrong password attempts".format(random_number_of_connection_fails))
+        authenticator = SshAuthenticator(username, password, engines.dut.ip)
         for index in range(random_number_of_connection_fails):
-            try:
-                connection = create_ssh_login_engine(engines.dut.ip, username)
-                connection.expect(DefaultConnectionValues.PASSWORD_REGEX)
-                random_password = RandomizationTool.get_random_string(random.randint(LoginSSHNotificationConsts.PASSWORD_MIN_LEN,
-                                                                                     LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
-                logger.info("Iteration {} - connecting using random password: {}".format(index, random_password))
-                connection.sendline(random_password)
-                connection.expect(["Permission denied", "permission denied"])
-            finally:
-                connection.close()
+            logger.info(f'Attempt number {index + 1}')
+            authenticator.attempt_login_failure()
+            # try:
+            #     connection = create_ssh_login_engine(engines.dut.ip, username)
+            #     connection.expect(DefaultConnectionValues.PASSWORD_REGEX)
+            #     random_password = RandomizationTool.get_random_string(random.randint(LoginSSHNotificationConsts.PASSWORD_MIN_LEN,
+            #                                                                          LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
+            #     logger.info("Iteration {} - connecting using random password: {}".format(index, random_password))
+            #     connection.sendline(random_password)
+            #     connection.expect(["Permission denied", "permission denied"])
+            # finally:
+            #     connection.close()
 
     with allure.step("Connect for the second time to switch and store details"):
-        logger.info("Connect for the second time to switch and store details")
         second_login_notification_message = parse_ssh_login_notification(engines.dut.ip, username,
                                                                          password)
 
     if last_successful_login:
         with allure.step("Validating same date"):
-            logger.info("Validating same date")
             time_delta_seconds = (abs(second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE] - last_successful_login)).seconds
             assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
                                                                                                         "The time difference is {}".format(time_delta_seconds)
@@ -162,7 +166,6 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                                                                                                         "The time difference is {}".format(time_delta_seconds)
 
     with allure.step("Validating {} failed attempts in the second connection".format(random_number_of_connection_fails)):
-        logger.info("Validating {} failed attempts in the second connection".format(random_number_of_connection_fails))
         assert int(second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN]) == random_number_of_connection_fails, \
             "Number of failed connections is not the same, \n" \
             "Expected : {} \n" \
@@ -170,16 +173,13 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                                    random_number_of_connection_fails)
 
     with allure.step("Validating IP address is same as this test IP address"):
-        logger.info("Validating IP address is same as this test IP address")
         with allure.step("Validating successful IP address"):
-            logger.info("Validating successful IP address")
             assert second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
                 "Not same login IP Address, \n" \
                 "Expected : {} \n" \
                 "Actual : {}".format(second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_IP],
                                      login_source_ip_address)
         with allure.step("Validating unsuccessful IP address"):
-            logger.info("Validating unsuccessful IP address")
             assert second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
                 "Not same unsuccessful login IP Address\n" \
                 "Expected : {} \n" \
@@ -188,7 +188,6 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
                     login_source_ip_address)
 
     with allure.step("Validating password or capability changes"):
-        logger.info("Validating password or capability changes")
         if check_password_change_msg:
             assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is not None, \
                 "Password change message did not appear when it should"
@@ -233,9 +232,10 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(System().show())
-        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-                                                              username=DefaultConnectionValues.ADMIN,
-                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
+        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip)
+        # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+        #                                                       username=DefaultConnectionValues.ADMIN,
+        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
     validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                     username=DefaultConnectionValues.ADMIN,
                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD,
@@ -253,11 +253,11 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
     system.aaa.user.set_username(DefaultConnectionValues.ADMIN)
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
-        logger.info("Connecting to switch before validation to clear all failed messages")
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-                                                              username=DefaultConnectionValues.ADMIN,
-                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
+        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip).attempt_login_success()
+        # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+        #                                                       username=DefaultConnectionValues.ADMIN,
+        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
     try:
         change_username_password(engines, username=DefaultConnectionValues.ADMIN,
                                  curr_password=DefaultConnectionValues.DEFAULT_PASSWORD,
@@ -270,11 +270,9 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
                                                         last_successful_login=successful_login_time)
     finally:
         with allure.step('Restoring original password'):
-            logger.info('Restoring original password')
-        system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
-        with allure.step("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME)):
-            logger.info("Sleeping {} secs to allow password change".format(DefaultConnectionValues.PASSWORD_UPDATE_TIME))
-        time.sleep(DefaultConnectionValues.PASSWORD_UPDATE_TIME)
+            system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
+        with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
+            time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 @pytest.mark.login_ssh_notification
@@ -287,19 +285,17 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
     try:
         system = System(None)
         with allure.step("Creating a new username"):
-            logger.info("Creating a new username")
-        user_name, password = system.create_new_user(engine=engines.dut)
-        system.aaa.user.set_username(user_name)
-        system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR, apply=True, ask_for_confirmation=True)
-        logging.info("User created: \nuser_name: {} \npassword: {}\ncapability: {}".format(user_name, password, SystemConsts.ROLE_CONFIGURATOR))
+            user_name, password = system.create_new_user(engine=engines.dut)
+            system.aaa.user.set_username(user_name)
+            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR, apply=True, ask_for_confirmation=True)
+            logging.info("User created: \nuser_name: {} \npassword: {}\ncapability: {}".format(user_name, password, SystemConsts.ROLE_CONFIGURATOR))
 
         with allure.step("Connecting to switch with the new user for first time"):
-            logger.info("Connecting to switch with the new user for first time")
             successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-            ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
+            SshAuthenticator(user_name, password, engines.dut.ip).attempt_login_success()
+            # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
 
         with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
-            logger.info("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER))
             system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER, apply=True, ask_for_confirmation=True)
 
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
@@ -311,7 +307,6 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
                                                         last_successful_login=successful_login_time)
     finally:
         with allure.step('Delete created user {}'.format(user_name)):
-            logger.info('Delete created user {}'.format(user_name))
             if system and system.aaa and system.aaa.user:
                 system.aaa.user.unset(apply=True, ask_for_confirmation=True)
 
@@ -331,17 +326,16 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
     system = System(None)
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
-        logger.info("Connecting to switch before validation to clear all failed messages")
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-        ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-                                                              username=DefaultConnectionValues.ADMIN,
-                                                              password=DefaultConnectionValues.DEFAULT_PASSWORD)
+        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip).attempt_login_success()
+        # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
+        #                                                       username=DefaultConnectionValues.ADMIN,
+        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
 
     with allure.step("Validating ssh login record period set command"):
-        logger.info("Validating ssh login record period set command")
+        pass
 
     with allure.step("Setting new value for login record period"):
-        logger.info("Setting new value for login record period")
         record_days = random.randint(LoginSSHNotificationConsts.MIN_RECORD_PERIOD_VAL, LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL)
         system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD, record_days, apply=True, ask_for_confirmation=True)
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
@@ -354,7 +348,6 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
                                                         last_successful_login=successful_login_time)
 
     with allure.step("Validating Validating show system ssh-server command"):
-        logger.info("Validating Validating show system ssh-server command")
         output = json.loads(system.ssh_server.show())
         # assert output[LoginSSHNotificationConsts.RECORD_PERIOD] == str(record_days), \
         #     "Could not match same login record period ib the show system ssh-server command\n" \
@@ -373,22 +366,20 @@ def test_login_ssh_notification_performance(engines, login_source_ip_address, re
     system = System(None)
 
     with allure.step("Setting max value for login record period"):
-        logger.info("Setting max value for login record period")
         system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD,
                               LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL,
                               apply=True, ask_for_confirmation=False).verify_result()
 
     with allure.step("populating auth. logs by uploading from previously created files"):
-        logger.info("populating auth. logs by uploading from previously created files")
-        player_engine = engines['sonic_mgmt']
-        player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                            dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-                                            dest_folder=LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH,
-                                            dest_ip=engines.dut.ip,
-                                            local_file_path=LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION)
+        scp_file(engines.dut, LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION, LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH)
+        # player_engine = engines['sonic_mgmt']
+        # player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+        #                                     dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+        #                                     dest_folder=LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH,
+        #                                     dest_ip=engines.dut.ip,
+        #                                     local_file_path=LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION)
 
     with allure.step("Measuring login time"):
-        logger.info("Measuring login time")
         start_time = datetime.datetime.now()
         ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip)
         end_time = datetime.datetime.now()

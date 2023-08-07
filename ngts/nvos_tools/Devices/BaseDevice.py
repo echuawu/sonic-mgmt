@@ -115,7 +115,6 @@ class BaseDevice:
         :param dut_engine: ssh dut engine
         Return result_obj with True result if all tables exists, False and a relevant info if one or more tables are missing
         """
-        time.sleep(10)
         result_obj = ResultObj(True, "")
         for db_name, db_id in self.available_databases.items():
             if db_name == DatabaseConst.STATE_DB_NAME:
@@ -138,10 +137,11 @@ class BaseDevice:
                                                  NvosConst.PORT_STATUS_LABEL, expected_port_state)
         return result_obj
 
-    def verify_dockers(self, dut_engine):
+    def verify_dockers(self, dut_engine, dockers_list=""):
         result_obj = ResultObj(True, "")
         cmd_output = dut_engine.run_cmd('docker ps --format \"table {{.Names}}\"')
-        for docker in self.available_dockers:
+        list_of_dockers = dockers_list if dockers_list else self.available_dockers
+        for docker in list_of_dockers:
             if docker not in cmd_output:
                 result_obj.result = False
                 result_obj.info += "{} docker is not active.\n".format(docker)
@@ -313,7 +313,7 @@ class BaseSwitch(BaseDevice, ABC):
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
-                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS, SystemConsts.DATE_TIME],
+                       SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS, SystemConsts.DATE_TIME, SystemConsts.STATUS],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_REASON],
             'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
@@ -354,8 +354,8 @@ class BaseSwitch(BaseDevice, ABC):
         self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
 
     def _init_temperature(self):
-        self.temperature_list = ["ASIC", "Ambient Fan Side Temp", "Ambient Port Side Temp", "CPU Core 0 Temp",
-                                 "CPU Core 1 Temp", "CPU Pack Temp", "PSU-1 Temp"]
+        self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
+                                 "CPU-Core-1-Temp", "CPU-Pack-Temp", "PSU-1-Temp"]
 
     def _init_health_components(self):
         self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \
@@ -540,6 +540,44 @@ class MarlinSwitch(MultiAsicSwitch):
     MARLIN_IB_PORT_NUM = 128
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DISABLED_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+    }
+    CATEGORY_LIST_DEFAULT_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+    }
 
     def __init__(self):
         MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
@@ -597,7 +635,7 @@ class AnacondaSwitch(BaseSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
         self.platform_environment_list = self.fan_list + self.fan_led_list + ["PSU1", "PSU2"] \
             + self.psu_fan_list
 
@@ -624,7 +662,7 @@ class GorillaSwitch(MultiAsicSwitch):
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
     ASIC_AMOUNT = 1
-    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
         StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -652,7 +690,8 @@ class GorillaSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
     }
     CATEGORY_LIST_DEFAULT_DICT = {
         CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
@@ -660,7 +699,8 @@ class GorillaSwitch(MultiAsicSwitch):
         CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
         CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
-        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
     }
 
     def __init__(self):
@@ -684,7 +724,7 @@ class GorillaSwitch(MultiAsicSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU Core 2 Temp", "CPU Core 3 Temp", "PCH Temp", "PSU-2 Temp"]
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
