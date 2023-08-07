@@ -51,9 +51,9 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         cli_obj.general.ls(SharedConsts.SOURCES_PATH, validate=True)
 
     if is_nvos:
-        extract_c_coverage_for_nvos(dest, engines, engine, cli_obj)
+        extract_c_coverage(dest, engines, engine, cli_obj, NvosConsts.GCOV_CONTAINERS_NVOS, False)
     else:
-        extract_c_coverage_for_sonic(c_dest, engines, engine, cli_obj)
+        extract_c_coverage(c_dest, engines, engine, cli_obj, SonicConsts.GCOV_CONTAINERS_SONIC, True)
 
 
 def get_coverage_file_names(sudo_cli_general, containers):
@@ -96,7 +96,7 @@ def extract_c_coverage_for_nvos(dest, engines, engine, cli_obj):
         sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.info", flags='-f')
 
 
-def extract_c_coverage_for_sonic(dest, engines, engine, cli_obj):
+def extract_c_coverage(dest, engines, engine, cli_obj, containers, install_gcov_for_container=True):
     with allure.step('Restart system services to get coverage for running services'):
         engines.dut.reload('sudo systemctl restart sonic.target')
         system_helpers.wait_for_all_jobs_done(engine)
@@ -105,11 +105,11 @@ def extract_c_coverage_for_sonic(dest, engines, engine, cli_obj):
         sudo_cli_general = get_sudo_cli_obj(engine)
 
     with allure.step("Get coverage file names"):
-        gcov_filename_prefix, lcov_filename_prefix = get_coverage_file_names(engine, SonicConsts.GCOV_CONTAINERS_SONIC)
+        gcov_filename_prefix, lcov_filename_prefix = get_coverage_file_names(engine, containers)
 
-    with allure.step(f'Collect GCOV coverage from docker containers: {SonicConsts.GCOV_CONTAINERS_SONIC}'):
-        for container in SonicConsts.GCOV_CONTAINERS_SONIC:
-            collect_gcov_for_container_sonic(engine, cli_obj, container, gcov_filename_prefix)
+    with allure.step(f'Collect GCOV coverage from docker containers: {containers}'):
+        for container in containers:
+            collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, install_gcov_for_container)
 
     with allure.step("install gcov"):
         install_gcov(sudo_cli_general)
@@ -121,6 +121,7 @@ def extract_c_coverage_for_sonic(dest, engines, engine, cli_obj):
             create_and_copy_xml_coverage_file(engine, sudo_cli_general, gcov_report_file, dest, gcov_filename_prefix)
         with allure.step("Delete JSON and LCOV files"):
             sudo_cli_general.rm(gcov_report_file, flags='-f')
+            sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.json", flags='-f')
 
 
 def get_sudo_cli_obj(engine):
@@ -340,7 +341,7 @@ def create_coverage_xml(cli_general, coverage_file, coverage_xml_file):
         cli_general.coverage_xml(coverage_xml_file)
 
 
-def collect_gcov_for_container_sonic(engine, cli_obj, container, gcov_filename_prefix):
+def collect_gcov_for_container(engine, cli_obj, container, gcov_filename_prefix, install_gcov_for_container=True):
     """
     Collect GCOV coverage from a container running on the system, and creates a
     JSON report from it. This JSON report may later be combined with other JSON
@@ -353,8 +354,9 @@ def collect_gcov_for_container_sonic(engine, cli_obj, container, gcov_filename_p
     with allure.step("Create docker cli object"):
         docker_cli_obj = create_docker_cli_obj(engine, container)
 
-    with allure.step(f"Install gcov on container {container}"):
-        install_gcov(docker_cli_obj)
+    if install_gcov_for_container:
+        with allure.step(f"Install gcov on container {container}"):
+            install_gcov(docker_cli_obj)
 
     with allure.step(f'Create GCOV JSON report for {container} container'):
         container_gcov_json_file = create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, container)
@@ -379,6 +381,7 @@ def collect_gcov_for_container_nvos(engine, cli_obj, container, gcov_filename_pr
         container_gcov_json_file = create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, container)
         container_lcov_file = create_lcov_report_for_container(docker_cli_obj, lcov_filename_prefix, container)
         cli_obj.general.copy_from_docker(container, container_lcov_file, container_lcov_file)
+        cli_obj.general.copy_from_docker(container, container_gcov_json_file, container_gcov_json_file)
         docker_cli_obj.rm(container_lcov_file, flags='-f')
         docker_cli_obj.rm(container_gcov_json_file, flags='-f')
 
