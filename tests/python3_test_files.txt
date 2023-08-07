@@ -69,6 +69,7 @@ dualtor_mgmt/test_grpc_periodical_sync.py
 dualtor_mgmt/test_ingress_drop.py
 dualtor_mgmt/test_server_failure.py
 dualtor_mgmt/test_toggle_mux.py
+dualtor_mgmt/test_egress_drop_nvidia.py
 dut_console/test_console_baud_rate.py
 dut_console/test_escape_character.py
 dut_console/test_idle_timeout.py
