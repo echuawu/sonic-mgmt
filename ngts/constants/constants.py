@@ -1142,6 +1142,14 @@ class BugHandlerConst:
     BUG_HANDLER_DECISION_ABORT = "abort"
     BUG_HANDLER_DECISION_REOPEN = "reopen"
     RC_ABORT = 2
+    DECISION = "decision"
+    NEW_BUGS = "new_bugs"
+    EXISTING_BUGS = "existing_bugs"
+    UPDATE_BUG = "update_bug"
+    SKIP_UPDATE_BUG = "skip_update_bug"
+    LA_ERROR = "la_error"
+    BUG_HANDLER_FAILURE = "bug_handler_failure"
+    LOG_ERRORS_FILE_PATH = "/tmp/loganalyzer/{hostname}/log_error.json"
 
 
 class DebugKernelConsts:

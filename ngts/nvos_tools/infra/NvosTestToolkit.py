@@ -111,7 +111,7 @@ class TestToolkit:
         return result
 
     @staticmethod
-    def is_release_version_in_mars_regular_run(version, topology_obj, setup_name):
+    def run_log_analyzer_bug_handler(version):
         """
         check if all the following conditions are met
             * it is not special run (sanitizer /code coverage)

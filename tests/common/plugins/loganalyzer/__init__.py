@@ -9,6 +9,8 @@ from tests.common.helpers.parallel import parallel_run, reset_ansible_local_tmp
 def pytest_addoption(parser):
     parser.addoption("--disable_loganalyzer", action="store_true", default=False,
                      help="disable loganalyzer analysis for 'loganalyzer' fixture")
+    parser.addoption("--store_and_silently_ignore_la_failure", action="store_true", default=False,
+                     help="store loganalyzer errors and do not fail the test if new bugs were found")
 
 
 @reset_ansible_local_tmp
@@ -34,9 +36,9 @@ def analyzer_add_marker(analyzers, node=None, results=None):
 
 
 @reset_ansible_local_tmp
-def analyze_logs(analyzers, markers, node=None, results=None):
+def analyze_logs(analyzers, markers, node=None, results=None, fail_test=True):
     dut_analyzer = analyzers[node.hostname]
-    dut_analyzer.analyze(markers[node.hostname])
+    dut_analyzer.analyze(markers[node.hostname], fail_test)
 
 
 @pytest.fixture(autouse=True)
@@ -47,6 +49,7 @@ def loganalyzer(duthosts, request):
         return
 
     # Analyze all the duts
+    fail_test = not (request.config.getoption("--store_and_silently_ignore_la_failure"))
     analyzers = {}
     parallel_run(analyzer_logrotate, [], {}, duthosts, timeout=120)
     for duthost in duthosts:
@@ -66,4 +69,4 @@ def loganalyzer(duthosts, request):
             "rep_setup" in request.node.__dict__ and request.node.rep_setup.skipped:
         return
     logging.info("Starting to analyse on all DUTs")
-    parallel_run(analyze_logs, [analyzers, markers], {}, duthosts, timeout=120)
+    parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test}, duthosts, timeout=120)

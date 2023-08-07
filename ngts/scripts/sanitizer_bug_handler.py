@@ -23,8 +23,8 @@ def test_sanitizer_bug_handler(topology_obj, setup_name, engines, cli_objects, d
     os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
     if sanitizer_dumps_paths:
         with allure.step("Call bug handler on found sanitizer dumps"):
-            bug_handler_dumps_results = handle_sanitizer_dumps(sanitizer_dumps_paths,
-                                                               cli_type, branch, version, setup_name)
+            bug_handler_dumps_results = handle_sanitizer_dumps(sanitizer_dumps_paths, cli_type, branch, version,
+                                                               setup_name, topology_obj)
             bug_handler_summary = create_summary_html_report(session_id, setup_name, dumps_folder,
                                                              bug_handler_dumps_results)
             allure.attach.file(bug_handler_summary,

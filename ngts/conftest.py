@@ -19,7 +19,7 @@ from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_na
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts
+from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, BugHandlerConst
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
@@ -549,26 +549,47 @@ def disable_loganalyzer(request):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_summary, disable_loganalyzer):
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer):
     """
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
-
-    if disable_loganalyzer:
-        return
-
-    run_log_analyzer_bug_handler = False
-    branch = topology_obj.players['dut']['branch']
-    cli_type = os.environ['CLI_TYPE']
-    version = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(cli_type)
-
-    if cli_type == 'NVUE':
-        branch = TestToolkit.version_to_release(version)
-        run_log_analyzer_bug_handler = TestToolkit.is_release_version_in_mars_regular_run(version, topology_obj, setup_name)
-
+    run_log_analyzer_bug_handler, log_analyzer_handler_info = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
     if run_log_analyzer_bug_handler:
-        system_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
-        res = handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type)
-        logger.info(f"Log Analyzer result: {res}")
-        # TODO - if 'create' in dict - fail test , else no
+        logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
+        bug_handler_dict = {'test_description': request.node.function.__doc__,
+                            'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
+                            'system_type': topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type'],
+                            'detected_in_version': log_analyzer_handler_info['version'],
+                            'setup_name': setup_name,
+                            'report_url': request.node.config.cache.get('allure_report_url', '')}
+        log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
+                                                      log_analyzer_handler_info['branch'], test_name, topology_obj,
+                                                      bug_handler_dict)
+        logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
+        error_msg = ''
+        if log_analyzer_res[BugHandlerConst.NEW_BUGS]:
+            error_msg = f"New {len(log_analyzer_res[BugHandlerConst.NEW_BUGS])} Log Analyzer bugs were opened: {log_analyzer_res[BugHandlerConst.NEW_BUGS].keys()}\n"
+            for i, bug_info in enumerate(log_analyzer_res[BugHandlerConst.NEW_BUGS], start=1):
+                error_msg += f"{i}) {json.dumps(bug_info, indent=2)}\n"
+        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
+            error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
+                                    f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
+        assert not error_msg, error_msg
+
+
+def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):
+    run_log_analyzer_bug_handler = False
+    log_analyzer_handler_info = {'branch': '', 'cli_type': '', 'version': ''}
+    if disable_loganalyzer:
+        logger.info("Log analyzer is disabled, thus the LA bug handler is disabled")
+        return run_log_analyzer_bug_handler, log_analyzer_handler_info
+
+    log_analyzer_handler_info['branch'] = topology_obj.players['dut']['branch']
+    log_analyzer_handler_info['cli_type'] = os.environ['CLI_TYPE']
+    log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(log_analyzer_handler_info['cli_type'])
+
+    if log_analyzer_handler_info['cli_type'] == 'NVUE':
+        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler(log_analyzer_handler_info['version'])
+
+    return run_log_analyzer_bug_handler, log_analyzer_handler_info

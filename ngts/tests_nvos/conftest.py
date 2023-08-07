@@ -385,3 +385,20 @@ def run_cli_coverage(item, markers):
             not pytest.disable_cli_coverage:
         logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
         NVUECliCoverage.run(item, pytest.s_time)
+
+
+@pytest.fixture(scope='session', autouse=True)
+def store_and_manage_loganalyzer(request):
+    ignore_failure = request.config.getoption("--store_and_silently_ignore_la_failure")
+    if not ignore_failure:
+        request.config.option.store_and_silently_ignore_la_failure = True
+
+
+@pytest.fixture(scope='function', autouse=True)
+def extend_log_analyzer_match_regex(topology_obj, log_analyzer_bug_handler, loganalyzer):
+    """
+    Extend the loganalyzer match_regex list.
+    """
+    if loganalyzer:
+        for hostname in loganalyzer.keys():
+            loganalyzer[hostname].match_regex.extend(["\\.*\\s+WARNING\\s+\\.*"])

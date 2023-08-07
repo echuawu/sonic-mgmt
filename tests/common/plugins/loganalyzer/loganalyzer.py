@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import re
@@ -7,8 +8,8 @@ import pprint
 from . import system_msg_handler
 
 from .system_msg_handler import AnsibleLogAnalyzer as ansible_loganalyzer
-from tests.common.mellanox_data import is_mellanox_device
 from os.path import join, split
+from pathlib import Path
 
 ANSIBLE_LOGANALYZER_MODULE = system_msg_handler.__file__.replace(r".pyc", ".py")
 COMMON_MATCH = join(split(__file__)[0], "loganalyzer_common_match.txt")
@@ -137,8 +138,6 @@ class LogAnalyzer:
         else:
             result_str = self._results_repr(result)
             if result["total"]["match"] != 0 or result["total"]["expected_missing_match"] != 0:
-                if is_mellanox_device(self.ansible_host):
-                    self.save_match_errors(result["match_messages"].values())
                 raise LogAnalyzerError(result_str)
 
             # Check for negative case
@@ -153,7 +152,7 @@ class LogAnalyzer:
                     .format(self.expected_matches_target, len(self.expect_regex))
                 raise LogAnalyzerError(err_target + result_str)
 
-    def save_match_errors(self, result_log_errors):
+    def save_matching_errors(self, result_log_errors):
         """
         save all the log errors in a file on the player
         :param result_log_errors: list of all the errors we found in the log - result["match_messages"].values()
@@ -163,13 +162,13 @@ class LogAnalyzer:
             for error_list in result_log_errors:
                 log_errors += ''.join(error_list)
 
-            tmp_folder = "/tmp/loganalyzer/{}".format(self.ansible_host.hostname)
-            os.makedirs(tmp_folder, exist_ok=True)
-            file_path = os.path.join(tmp_folder, "log_error.txt")
+            tmp_folder = Path(f"/tmp/loganalyzer/{self.ansible_host.hostname}")
+            tmp_folder.mkdir(parents=True, exist_ok=True)
+            file_path = tmp_folder / "log_error.json"
             logging.info("Log errors will be saved in file: {}".format(file_path))
-            with open(file_path, "w+") as file:
-                file.write(log_errors)
-            logging.info("File content:\n{}".format(log_errors))
+            data = {'log_errors': log_errors}
+            with file_path.open("w+") as file:
+                json.dump(data, file)
 
     def _results_repr(self, result):
         """
@@ -401,6 +400,8 @@ class LogAnalyzer:
         analyzer_summary["total"]["expected_missing_match"] = len(unused_regex_messages)
         analyzer_summary["unused_expected_regexp"] = unused_regex_messages
         logging.debug("Analyzer summary: {}".format(pprint.pformat(analyzer_summary)))
+        if analyzer_summary["total"]["match"] != 0 and not fail:
+            self.save_matching_errors(analyzer_summary["match_messages"].values())
 
         if fail:
             self._verify_log(analyzer_summary)

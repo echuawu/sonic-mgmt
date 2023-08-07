@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 import yaml
 import json
 import logging
@@ -8,17 +9,13 @@ from ngts.tools.test_utils.allure_utils import step as allure_step
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime, timedelta
-from ngts.constants.constants import BugHandlerConst, InfraConst
-from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from infra.tools.general_constants.constants import DefaultSTMCred
+from ngts.constants.constants import BugHandlerConst, InfraConst, PytestConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 
 logger = logging.getLogger()
 
-STM_IP = "10.209.104.106"
 
-
-def handle_sanitizer_dumps(dump_paths, cli_type, branch, version, setup_name):
+def handle_sanitizer_dumps(dump_paths, cli_type, branch, version, setup_name, topology_obj):
     """
     Call bug handler on all sanitizer files in each dump in dump_paths,
     and return list with results
@@ -38,48 +35,33 @@ def handle_sanitizer_dumps(dump_paths, cli_type, branch, version, setup_name):
     },...]
     """
     bug_handler_dumps_results = []
-    stm_engine = LinuxSshEngine(STM_IP,
-                                DefaultSTMCred.DEFAULT_USERNAME,
-                                DefaultSTMCred.DEFAULT_PASS)
     session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
-    create_session_tmp_folder(stm_engine, session_id)
+    create_session_tmp_folder(session_id)
     redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
-    bug_handler_conf_file = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
-    conf_path_at_stm = configure_stm_for_bug_handler(stm_engine, bug_handler_conf_file)
+    conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
     for sanitizer_dump_path in dump_paths:
         with allure.step(f"Run Bug Handler on Sanitizer Dump: {sanitizer_dump_path}"):
-            bug_handler_dumps_results.append(handle_sanitizer_dump(stm_engine, conf_path_at_stm,
-                                                                   sanitizer_dump_path, redmine_project,
+            bug_handler_dumps_results.append(handle_sanitizer_dump(conf_path, sanitizer_dump_path, redmine_project,
                                                                    branch, version, setup_name))
-    clear_files(stm_engine, session_id)
+    clear_files(session_id)
     return bug_handler_dumps_results
 
 
-def create_session_tmp_folder(stm_engine, session_id):
-    stm_engine.run_cmd(f"sudo mkdir /tmp/{session_id}")
-    stm_engine.run_cmd(f"sudo chmod 777 /tmp/{session_id}")
+def create_session_tmp_folder(session_id):
+    os.system(f"sudo mkdir /tmp/{session_id}")
+    os.system(f"sudo chmod 777 /tmp/{session_id}")
     return f"/tmp/{session_id}"
 
 
-def clear_files(stm_engine, session_id):
-    stm_engine.run_cmd(f"sudo rm -rf /tmp/{session_id}")
+def clear_files(session_id):
+    os.system(f"sudo rm -rf /tmp/{session_id}")
     os.system("rm -rf /tmp/parsed_sanitizer_dumps/")
 
 
-def configure_stm_for_bug_handler(stm_engine, bug_handler_conf_file):
-    logging.info(f"Copy Bug Handler Conf file to STM: {STM_IP}")
-    conf_path_at_stm = scp_file_to_stm(bug_handler_conf_file)
-    logger.info("Set Environment variable LOG_FORMAT_JSON to get bug handle output in JSON")
-    stm_engine.run_cmd("export LOG_FORMAT_JSON=1")
-    return conf_path_at_stm
-
-
-def handle_sanitizer_dump(stm_engine, conf_path_at_stm, dump_path,
-                          redmine_project, branch, version, setup_name):
+def handle_sanitizer_dump(conf_path, dump_path, redmine_project, branch, version, setup_name):
     """
     Call bug handler with ASAN dump files and send email with results
-    :param stm_engine: ssh engine for STM
-    :param conf_path_at_stm: i.e, /tmp/sonic_bug_handler.conf
+    :param conf_path: i.e, /tmp/sonic_bug_handler.conf
     :param dump_path: path to sanitizer dump
     :param redmine_project: i.e, SONiC-Design
     :param branch: i.e 202205
@@ -101,11 +83,10 @@ def handle_sanitizer_dump(stm_engine, conf_path_at_stm, dump_path,
     bug_handler_dump_result["results"] = list()
     yaml_parsed_files_dict = parse_sanitizer_dump(dump_path, redmine_project, version, setup_name)
     for sanitizer_file_name, yaml_parsed_file in yaml_parsed_files_dict.items():
-        yaml_parsed_file_path_at_stm = scp_file_to_stm(yaml_parsed_file)
         with allure.step(f"Run Bug Handler on sanitizer file: {sanitizer_file_name}"):
-            bug_handler_dump_result["results"].append(bug_handler_wrapper(stm_engine, conf_path_at_stm,
+            bug_handler_dump_result["results"].append(bug_handler_wrapper(conf_path,
                                                                           redmine_project, branch, sanitizer_file_name,
-                                                                          yaml_parsed_file_path_at_stm,
+                                                                          yaml_parsed_file,
                                                                           BugHandlerConst.BUG_HANDLER_SANITIZER_USER,
                                                                           BugHandlerConst.BUG_HANDLER_SCRIPT))
     return bug_handler_dump_result
@@ -146,7 +127,7 @@ def parse_sanitizer_dump(dump_path, project, version, setup_name):
 
 def parse_sanitizer_file(file_path, dump_path, project, version, setup_name):
     """
-    function will create a YAML file in the needed format for bug handler script
+    The function will create a YAML file in the needed format for bug handler script
     :param file_path: path to sanitizer file
     :param dump_path: path to sanitizer dump
     :param project: i.e SONiC-Design
@@ -155,8 +136,6 @@ def parse_sanitizer_file(file_path, dump_path, project, version, setup_name):
     :return: path to parsed YAML file
     """
     file_base_dir, file_name = os.path.split(file_path)
-    sanitizer_file_path_at_stm = scp_file_to_stm(file_path)
-    dump_path_at_stm = scp_file_to_stm(dump_path)
     yaml_file_dir = os.path.join(file_base_dir, "yaml_parsed_files")
     yaml_file_path = os.path.join(file_base_dir, "yaml_parsed_files", f"{file_name}.yaml")
     Path(yaml_file_dir).mkdir(parents=True, exist_ok=True)
@@ -164,7 +143,7 @@ def parse_sanitizer_file(file_path, dump_path, project, version, setup_name):
     contents_without_prefix = remove_error_prefix_from_sanitizer_file(contents)
     yaml_content_as_dict = {'description': contents_without_prefix,
                             'project': project,
-                            'uploads': [sanitizer_file_path_at_stm, dump_path_at_stm],
+                            'uploads': [file_path, dump_path],
                             'detected_in_version': version,
                             'session_id': os.environ.get(InfraConst.ENV_SESSION_ID),
                             'setup_name': setup_name,
@@ -183,31 +162,13 @@ def remove_error_prefix_from_sanitizer_file(contents):
     return contents_without_prefix
 
 
-def scp_file_to_stm(file_path):
-    """
-    will copy given file to stm
-    :param file_path: path to file to copy
-    :return: copied file path at STM
-    """
-    file_base_dir, file_name = os.path.split(file_path)
-    with allure.step(f"Copy file: {file_name} to STM"):
-        file_path_at_stm = os.path.join("/tmp", os.environ.get(InfraConst.ENV_SESSION_ID), file_name)
-        cmd = f'sudo sshpass -p "{DefaultSTMCred.DEFAULT_PASS}" scp -o StrictHostKeyChecking=no {file_path} ' \
-              f'{DefaultSTMCred.DEFAULT_USERNAME}@{STM_IP}:{file_path_at_stm}'
-        logger.info("Copy to STM. CMD: %s" % cmd)
-        os.system(cmd)
-    return file_path_at_stm
-
-
-def bug_handler_wrapper(stm_engine, conf_path_at_stm, redmine_project, branch, upload_file_path_at_stm,
-                        yaml_parsed_file, user, bug_handler_path):
+def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path):
     """
     call bug handler on sanitizer file and return results as dictionary
-    :param stm_engine: ssh engine to STM
-    :param conf_path_at_stm: bug handler cfg file path at STM
+    :param conf_path: i.e, /tmp/sonic_bug_handler.conf
     :param redmine_project: i.e SONiC-Design
     :param branch: i.e 202205
-    :param upload_file_path_at_stm: i.e, 2023-04-02_16-35-19_wjhd-asan.log.22
+    :param upload_file_path: i.e, 2023-04-02_16-35-19_wjhd-asan.log.22
     :param yaml_parsed_file: i.e, 2023-04-02_16-35-19_wjhd-asan.log.22.yaml
     :param user: i.e log_analyzer
     :param bug_handler_path: i.e /auto/sw_tools/Internal/BugHandling/bin/handle_bug.py
@@ -219,16 +180,14 @@ def bug_handler_wrapper(stm_engine, conf_path_at_stm, redmine_project, branch, u
     'decision': 'update',
     'recommended_action': "Bug handler updated an existing bug, no additional action needed"}
     """
-    bug_handler_cmd = f"sudo -E {BugHandlerConst.BUG_HANDLER_PYTHON_PATH} {bug_handler_path} " \
-                      f"--cfg {conf_path_at_stm} --project {redmine_project} " \
-                      f"--user {user} --branch {branch} " \
-                      f"--debug_level 2 --parsed_data {yaml_parsed_file}"
+    bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
+                      f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file}"
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
-    bug_handler_output = stm_engine.run_cmd(bug_handler_cmd)
+    bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     bug_handler_messages, bug_handler_rc, bug_handler_decision, recommended_action = \
         parse_bug_handler_output(bug_handler_output)
     bug_handler_file_result = dict()
-    bug_handler_file_result["file_name"] = upload_file_path_at_stm
+    bug_handler_file_result["file_name"] = upload_file_path
     bug_handler_file_result["messages"] = bug_handler_messages
     bug_handler_file_result["rc"] = bug_handler_rc
     bug_handler_file_result["decision"] = bug_handler_decision
@@ -331,15 +290,14 @@ def review_bug_handler_results(bug_handler_results):
                 raise AssertionError("Bug handler found undetected issues, please review summary attached to allure")
 
 
-def handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type):
+def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_analyzer_bug_metadata):
     """
     Call bug handler on all log errors and return list of dictionaries with results
     :param cli_type: i.e, Sonic
     :param branch: i.e 202211
-    :param version: i.e, SONiC-OS-202211_RC15.1-7ceec30cc_Internal
-    :param setup_name: i.e, sonic_lionfish_r-lionfish-14
     :param test_name: i.e, test_lags_scale
     :param topology_obj: topology object
+    :param log_analyzer_bug_metadata: dictionary with info that we want to add to log analyzer bug
     :return: A list of dictionaries with results for each optional bug
     i.e., ['test_name': 'test_lags_scale',
             'results':
@@ -352,42 +310,40 @@ def handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name,
 
     with allure_step("Log Analyzer bug handler"):
         bug_handler_dumps_results = []
-        stm_engine = LinuxSshEngine(STM_IP, DefaultSTMCred.DEFAULT_USERNAME, DefaultSTMCred.DEFAULT_PASS)
         hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        file_path = f"/tmp/loganalyzer/{hostname}/log_error.txt"
-        if os.path.exists(file_path):
+        log_errors_path = Path(BugHandlerConst.LOG_ERRORS_FILE_PATH.format(hostname=hostname))
+        if log_errors_path.exists():
             session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
-            session_tmp_folder = create_session_tmp_folder(stm_engine, session_id)
+            session_tmp_folder = create_session_tmp_folder(session_id)
             redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
-            bug_handler_conf_file = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
-            conf_path_at_stm = configure_stm_for_bug_handler(stm_engine, bug_handler_conf_file)
-            tar_file_path_at_stm = get_tech_support_from_switch(topology_obj, session_tmp_folder, stm_engine)
+            conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
+            tar_file_path = get_tech_support_from_switch(topology_obj)
 
-            file_path_at_stm = scp_file_to_stm(file_path)
-            os.remove(file_path)   # delete file from player
-            log_errors = stm_engine.run_cmd(f"cat {file_path_at_stm}")
-            error_groups = group_log_errors_by_timestamp(log_errors)
+            with log_errors_path.open("r") as log_errors_file:
+                data = json.load(log_errors_file)
+            error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
+            log_errors_path.unlink()
 
             for error_group in error_groups:
-                yaml_file_at_stm = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
-                                                                 version, setup_name, test_name, tar_file_path_at_stm,
-                                                                 system_type, hostname)
+                yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
+                                                               test_name, tar_file_path, hostname, log_analyzer_bug_metadata)
 
-                with allure.step(f"Run Bug Handler on Log Analyzer error: {error_group}"):
-                    bug_handler_dumps_results.append(bug_handler_wrapper(stm_engine, conf_path_at_stm,
-                                                                         redmine_project, branch,
-                                                                         tar_file_path_at_stm,
-                                                                         yaml_file_at_stm,
-                                                                         BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                                         BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_SCRIPT))
+                with allure.step("Run Bug Handler on Log Analyzer error"):
+                    logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
+                    error_dict = {BugHandlerConst.LA_ERROR: error_group}
+                    error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
+                                                          tar_file_path, yaml_file_path,
+                                                          BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
+                                                          BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_SCRIPT))
+                    bug_handler_dumps_results.append(error_dict)
 
-            clear_files(stm_engine, session_id)
+            clear_files(session_id)
         else:
-            logger.info(f"File {file_path} does not exist - means there are no errors in the log")
-        return bug_handler_dumps_results
+            logger.info(f"File {log_errors_path} does not exist - means there are no errors in the log")
+        return summarize_la_bug_handler(bug_handler_dumps_results)
 
 
-def create_log_analyzer_yaml_path(test_name, dump_path):
+def get_log_analyzer_yaml_path(test_name, dump_path):
     yaml_file_dir = os.path.join(dump_path, "yaml_parsed_files")
     Path(yaml_file_dir).mkdir(parents=True, exist_ok=True)
     date_time = datetime.now().strftime("%m_%d_%Y_%H-%M-%S-%f")
@@ -396,45 +352,39 @@ def create_log_analyzer_yaml_path(test_name, dump_path):
     return yaml_file_path
 
 
-def create_log_analyzer_yaml_file(log_errors, dump_path, project, version, setup_name, test_name, tar_file_path_at_stm,
-                                  system_type, hostname):
+def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar_file_path, hostname, bug_info_dictionary):
     """
-    function will create a YAML file in the needed format for bug handler script
+    The function will create a YAML file in the needed format for bug handler script
     :param log_errors: list with log errors
     :param dump_path: path to dumps
     :param project: i.e, NVOS - Design
-    :param version: version
-    :param setup_name: i.e, NVOS_gorilla_10_7_144_153
     :param test_name: name of the test
-    :param tar_file_path_at_stm: path of tar file at stm
+    :param tar_file_path: path of tar file
     :param hostname: i.e, gorilla-153
     :return: path to parsed YAML file
     """
-    yaml_file_path = create_log_analyzer_yaml_path(test_name, dump_path)
-
-    # remove date, time and hostname before create the regex!
+    yaml_file_path = get_log_analyzer_yaml_path(test_name, dump_path)
+    # remove date, time and hostname before creating the regex!
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
-    line = re.sub(rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s', '', log_errors[0])
-    bug_regex = '.*' + error_to_regex(line).replace("\\", "\\\\")
+    log_prefix = rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s'
+    bug_title = re.sub(log_prefix, '', log_errors[0])
+    bug_regex = '.*' + error_to_regex(bug_title).replace("\\", "\\\\")
 
     description = '| \n' + '\n'.join(log_errors)
-    yaml_content_as_dict = {'search_regex': bug_regex,
-                            'bug_title': line,
-                            'description': f"{description}",
-                            'project': project,
-                            'attachments': [tar_file_path_at_stm],
-                            'detected_in_version': version,
-                            'session_id': os.environ.get(InfraConst.ENV_SESSION_ID),
-                            'setup_name': setup_name,
-                            'system_type': system_type,
-                            'test_name': test_name}
-    yaml_content = yaml.dump(yaml_content_as_dict)
+    bug_info_dictionary.update({'search_regex': bug_regex,
+                                'bug_title': bug_title,
+                                'description': f"{description}",
+                                'project': project,
+                                'attachments': [tar_file_path],
+                                'session_id': os.environ.get(InfraConst.ENV_SESSION_ID),
+                                'test_name': test_name})
+    yaml_content = yaml.dump(bug_info_dictionary)
     yaml_content = yaml_content.replace(bug_regex, f"\"{bug_regex}\"")
     logger.info("yaml file content: {}".format(yaml_content))
     with open(yaml_file_path, "w+") as file:
         file.write(yaml_content)
 
-    return scp_file_to_stm(yaml_file_path)
+    return yaml_file_path
 
 
 def error_to_regex(error_string):
@@ -458,31 +408,24 @@ def error_to_regex(error_string):
     return error_string
 
 
-def get_tech_support_from_switch(topology_obj, dest_folder, stm_engine):
+def get_tech_support_from_switch(topology_obj):
     """
-    generate tech support from the switch and copy it to STM
+    generate tech support from the switch and copy it to player
     :param topology_obj: topology object
-    :param dest_folder: folder to copy the file to, on the stm
-    :param stm_engine: engine obj
-    :return: file path at stm
+    :return: file path
     """
-    logger.info("generate tech support file from the last hour to add to the bug")
     tar_file_path_on_switch = topology_obj.players['dut']['cli'].general.generate_techsupport(duration='0')
     tar_file_name = tar_file_path_on_switch.split('/')[-1]
-    tar_file_path_at_stm = dest_folder + '/'
+    dumps_folder = os.getenv(InfraConst.ENV_LOG_FOLDER)
+    tar_file_path = dumps_folder + '/'
     switch_engine_ip = topology_obj.players['dut']['engine'].ip
     cmd = f'sudo sshpass -p {DefaultConnectionValues.DEFAULT_PASSWORD} ' \
           f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ' \
-          f'{DefaultConnectionValues.DEFAULT_USER}@{switch_engine_ip}:{tar_file_path_on_switch} ' \
-          f'{tar_file_path_at_stm}'
-    logger.info("Copy to STM. CMD: %s" % cmd)
-    stm_engine.run_cmd(cmd)
-    return os.path.join(dest_folder, tar_file_name)
-
-
-def remove_empty_lines(text):
-    pattern = r'^\s*\n'
-    return re.sub(pattern, '', text, flags=re.MULTILINE)
+          f'{DefaultConnectionValues.DEFAULT_USER}@{switch_engine_ip}:{tar_file_path_on_switch} {tar_file_path}'
+    logger.info("Copy CMD: %s" % cmd)
+    os.system(cmd)
+    os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
+    return os.path.join(dumps_folder, tar_file_name)
 
 
 def group_log_errors_by_timestamp(log_errors):
@@ -492,7 +435,7 @@ def group_log_errors_by_timestamp(log_errors):
     :param log_errors: list of log errors
     :return: error_groups, list of lists. each list is the log errors bug that related to a bug.
     """
-    error_line_list = remove_empty_lines(log_errors).split("\n")
+    error_line_list = [line for line in log_errors.splitlines() if line.strip()]
     error_groups = []   # list of optional bugs, each element here is a list with log errors.
     current_group = []  # single bug log errors
     time_pattern = r'(\w+\s+\d+\s+\d{2}:\d{2}:\d{2})'
@@ -512,3 +455,38 @@ def group_log_errors_by_timestamp(log_errors):
     if current_group:
         error_groups.append(current_group)
     return error_groups
+
+
+def summarize_la_bug_handler(la_bug_handler_result):
+    """
+    summarize the log analyzer bug handler result.
+    :param la_bug_handler_result: result from the la bug handler function.
+    :return: dictionary
+            {
+                new_bugs: {<bug_id>: <errors>},
+                existing_bugs: {
+                                    update_bug: {<bug_id>: <errors>},
+                                    skip_update_bug: {<bug_id>: <errors>}
+                                }
+            }
+    """
+    create_and_update_bugs_dict = {BugHandlerConst.NEW_BUGS: {},
+                                   BugHandlerConst.EXISTING_BUGS: {BugHandlerConst.UPDATE_BUG: {}, BugHandlerConst.SKIP_UPDATE_BUG: {}},
+                                   BugHandlerConst.BUG_HANDLER_FAILURE: []}
+
+    for bug_handler_result_dict in la_bug_handler_result:
+        msg = '\n'.join(bug_handler_result_dict['messages'])
+
+        if bug_handler_result_dict[BugHandlerConst.DECISION] == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
+            bug_id = re.findall(r"created bug with id=(\d+)", msg)
+            assert bug_id, f"didn't find the bug id in msg: \n{msg}"
+            create_and_update_bugs_dict[BugHandlerConst.NEW_BUGS].update({bug_id[0]: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
+
+        elif bug_handler_result_dict[BugHandlerConst.DECISION] == BugHandlerConst.BUG_HANDLER_DECISION_UPDATE:
+            bug_id = re.findall(r"updating bug\s+(\d+)", msg)
+            assert bug_id, f"didn't find the bug id in msg: \n{msg}"
+            bug_updated = BugHandlerConst.SKIP_UPDATE_BUG if re.findall(rf"'{bug_id[0]}' was updated.*skipping", msg) else BugHandlerConst.UPDATE_BUG
+            create_and_update_bugs_dict[BugHandlerConst.EXISTING_BUGS][bug_updated].update({bug_id[0]: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
+        else:
+            create_and_update_bugs_dict[BugHandlerConst.BUG_HANDLER_FAILURE].append(bug_handler_result_dict)
+    return create_and_update_bugs_dict

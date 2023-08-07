@@ -27,7 +27,8 @@ SONIC_MGMT_MOUNTPOINTS = {
     '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS',
     '/auto/sw_regression/system/NVOS/MARS': '/auto/sw_regression/system/NVOS/MARS',
     '/.autodirect/sw_regression/system/NVOS/MARS': '/.autodirect/sw_regression/system/NVOS/MARS',
-    '/etc/localtime': '/etc/localtime'
+    '/etc/localtime': '/etc/localtime',
+    '/auto/sw_tools/Internal/BugHandling/RELEASES': '/auto/sw_tools/Internal/BugHandling/RELEASES'
 }
 
 SONIC_MGMT_MOUNTPOINTS_MTBC = {
