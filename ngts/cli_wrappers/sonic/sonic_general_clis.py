@@ -630,7 +630,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 self.save_configuration()
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
-                           disable_ztp=False, configure_dns=False):
+                           disable_ztp=False, configure_dns=True):
         with allure.step("Upload port_config.ini and config_db.json with reboot of dut"):
             retry_call(self.apply_config_files,
                        fargs=[topology_obj, setup_name, platform_params],
