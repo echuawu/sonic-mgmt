@@ -124,6 +124,9 @@ class QosParamMellanox(object):
                         pkts_num_trig_pfc_shp.append(occupancy_per_port + xon + hysteresis)
                         occupancy_per_port //= 2
                 ingress_ports_list_shp.append(testPortIds[i])
+                # For a new port it should be treated as a smaller pool with the occupancy being 0
+                pool_size -= occupied_buffer
+                occupied_buffer = 0
             self.qos_parameters['pkts_num_trig_pfc_shp'] = pkts_num_trig_pfc_shp
             self.qos_parameters['src_port_ids'] = ingress_ports_list_shp
             self.qos_parameters['pkts_num_hdrm_full'] = xoff - 2
