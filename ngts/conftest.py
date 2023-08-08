@@ -523,13 +523,13 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_
     branch = topology_obj.players['dut']['branch']
     cli_type = os.environ['CLI_TYPE']
     version = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(cli_type)
-    system_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
 
     if cli_type == 'NVUE':
         branch = TestToolkit.version_to_release(version)
         run_log_analyzer_bug_handler = TestToolkit.is_release_version_in_mars_regular_run(version, topology_obj, setup_name)
 
     if run_log_analyzer_bug_handler:
+        system_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
         res = handle_log_analyzer_errors(cli_type, branch, version, setup_name, test_name, topology_obj, system_type)
         logger.info(f"Log Analyzer result: {res}")
         # TODO - if 'create' in dict - fail test , else no
