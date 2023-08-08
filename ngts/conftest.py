@@ -514,11 +514,24 @@ def test_name(request):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_summary):
+def disable_loganalyzer(request):
+    if request.config.getoption("--disable_loganalyzer", default=False) \
+            or "disable_loganalyzer" in request.keywords:
+        logging.info("Log analyzer is disabled")
+        return True
+    return False
+
+
+@pytest.fixture(scope='function', autouse=True)
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, show_platform_summary, disable_loganalyzer):
     """
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
+
+    if disable_loganalyzer:
+        return
+
     run_log_analyzer_bug_handler = False
     branch = topology_obj.players['dut']['branch']
     cli_type = os.environ['CLI_TYPE']

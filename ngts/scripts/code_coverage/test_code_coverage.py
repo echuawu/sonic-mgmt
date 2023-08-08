@@ -51,7 +51,8 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         cli_obj.general.ls(SharedConsts.SOURCES_PATH, validate=True)
 
     if is_nvos:
-        extract_c_coverage(dest, engines, engine, cli_obj, NvosConsts.GCOV_CONTAINERS_NVOS, False)
+        c_dest = get_dest_path(engine, dest) + SharedConsts.C_DIR
+        extract_c_coverage(c_dest, engines, engine, cli_obj, NvosConsts.GCOV_CONTAINERS_NVOS, False)
     else:
         extract_c_coverage(c_dest, engines, engine, cli_obj, SonicConsts.GCOV_CONTAINERS_SONIC, True)
 
@@ -105,7 +106,7 @@ def extract_c_coverage(dest, engines, engine, cli_obj, containers, install_gcov_
         sudo_cli_general = get_sudo_cli_obj(engine)
 
     with allure.step("Get coverage file names"):
-        gcov_filename_prefix, lcov_filename_prefix = get_coverage_file_names(engine, containers)
+        gcov_filename_prefix, lcov_filename_prefix = get_coverage_file_names(sudo_cli_general, containers)
 
     with allure.step(f'Collect GCOV coverage from docker containers: {containers}'):
         for container in containers:
