@@ -163,7 +163,7 @@ class LogAnalyzer:
             for error_list in result_log_errors:
                 log_errors += ''.join(error_list)
 
-            tmp_folder = f"/tmp/loganalyzer/{self.ansible_host.hostname}"
+            tmp_folder = "/tmp/loganalyzer/{}".format(self.ansible_host.hostname)
             os.makedirs(tmp_folder, exist_ok=True)
             file_path = os.path.join(tmp_folder, "log_error.txt")
             logging.info("Log errors will be saved in file: {}".format(file_path))
