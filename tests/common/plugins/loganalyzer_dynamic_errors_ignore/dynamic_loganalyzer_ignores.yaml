@@ -2900,6 +2900,8 @@
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - FileNotFoundError.*No such file or directory.*'
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - ValueError.*invalid literal for int.* with base.*'
     - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - ValueError.*invalid literal for int.* with base.*'
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_present]
@@ -2944,6 +2946,13 @@
     - Affected_test_cases:
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_blacklist
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_service.py::test_operate_tc_service
 
 # NVOS : Errors - Bug 3493347 related
 - Errors_list:
