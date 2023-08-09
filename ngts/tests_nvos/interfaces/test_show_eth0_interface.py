@@ -14,6 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.ib_interfaces
+@pytest.mark.nvos_chipsim_ci
 def test_mgmt_show_interface(engines):
     """
     Run show interface eth0 command and verify the required fields are exist
@@ -30,6 +31,7 @@ def test_mgmt_show_interface(engines):
 
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_mgmt_show_interface_link(engines):
     """
     Run show interface eth0 link command and verify the required fields are exist
@@ -51,6 +53,7 @@ def test_mgmt_show_interface_link(engines):
 
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_stats(engines):
     """
     Run show interface command and verify the required fields exist
@@ -68,6 +71,7 @@ def test_ib_show_interface_stats(engines):
 
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_ip(engines):
     """
     Run show interface command and verify the required fields exist
@@ -109,6 +113,7 @@ def check_dhcp(mgmt_port, ipv4=True):
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.interfaces
+@pytest.mark.nvos_chipsim_ci
 def test_show_interface_ip_dhcp(engines):
     """
     Run show interface command and verify the required fields exist
@@ -182,6 +187,7 @@ def validate_ip_fields(output_dictionary):
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.ib_interfaces
+@pytest.mark.nvos_chipsim_ci
 def test_mgmt_show_interface_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_mgmt_show_interface(engines)
@@ -190,6 +196,7 @@ def test_mgmt_show_interface_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_mgmt_show_interface_link_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_mgmt_show_interface_link(engines)
@@ -198,6 +205,7 @@ def test_mgmt_show_interface_link_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_stats_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib_show_interface_stats(engines)
@@ -206,6 +214,7 @@ def test_ib_show_interface_stats_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_ip_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib_show_interface_ip(engines)
@@ -215,6 +224,7 @@ def test_ib_show_interface_ip_openapi(engines):
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.interfaces
+@pytest.mark.nvos_chipsim_ci
 def test_show_interface_ip_dhcp_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_show_interface_ip_dhcp(engines)

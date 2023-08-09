@@ -408,6 +408,12 @@ gorilla-simx-95-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,serv
 gorilla-simx-96-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-96,Mellanox MTR testbed
 gorilla-simx-97-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-97,Mellanox MTR testbed
 gorilla-simx-98-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-98,Mellanox MTR testbed
+gorilla-chipsim-62-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-62,Mellanox MTR testbed
+gorilla-chipsim-63-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-63,Mellanox MTR testbed
+gorilla-chipsim-67-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-67,Mellanox MTR testbed
+gorilla-chipsim-69-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-69,Mellanox MTR testbed
+gorilla-chipsim-71-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-71,Mellanox MTR testbed
+gorilla-chipsim-73-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-73,Mellanox MTR testbed
 jaguar-113-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-113,Mellanox MTR testbed
 jaguar-112-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,jaguar-112,Mellanox MTR testbed
 gorilla-126-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-126,Mellanox MTR testbed

@@ -4,7 +4,7 @@ import allure
 import os
 import time
 from retry import retry
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 
 logger = logging.getLogger()
 
@@ -14,7 +14,10 @@ path_to_source_code = "/auto/sw_system_project/NVOS_INFRA/ChipSim/nvos/simx"
 @pytest.mark.platform
 def test_run_nvos_simx_docker(topology_obj, base_version):
     dut_engine = topology_obj.players['dut']['engine']
-    server_engine = topology_obj.players['server']['engine']
+
+    server_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['serial_conn_command'].split()[1]
+    server_engine = ConnectionTool.create_ssh_conn(server_name, os.getenv("TEST_SERVER_USER"), os.getenv("TEST_SERVER_PASSWORD")).returned_value
+
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
 
     with allure.step("Check existence of relevant files"):

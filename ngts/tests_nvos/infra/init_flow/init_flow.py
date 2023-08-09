@@ -8,6 +8,7 @@ logger = logging.getLogger()
 
 @pytest.mark.init_flow
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_system_services(engines, devices):
     """
     Verifying the NVOS system services are in active state
@@ -22,6 +23,7 @@ def test_system_services(engines, devices):
 
 @pytest.mark.init_flow
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_system_dockers(engines, devices):
     """
     Verifying the NVOS system dockers are up

@@ -14,6 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_show_log(engines):
     """
     Write to log file on switch, run nv show system log command and verify system/image are exist
@@ -82,6 +83,7 @@ def test_show_log_continues(engines):
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_show_log_files(engines):
     """
     Check all fields in files commands, write to log check it exist in show files command
@@ -125,6 +127,7 @@ def test_show_log_files(engines):
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_show_debug_log(engines):
     """
     Check version on switch, run nv show system log command and verify the image method are exist
@@ -189,6 +192,7 @@ def test_show_debug_log_continues(engines):
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_show_debug_log_files(engines):
     """
     Check all fields in debug-log files command

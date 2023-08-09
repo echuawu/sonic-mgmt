@@ -14,6 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
+@pytest.mark.nvos_chipsim_ci
 def test_show_platform(engines):
     """
     Show platform hardware test
@@ -50,6 +51,7 @@ def test_show_platform(engines):
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
+@pytest.mark.nvos_chipsim_ci
 def test_show_platform_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_show_platform(engines)

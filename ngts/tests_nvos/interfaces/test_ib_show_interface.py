@@ -113,6 +113,7 @@ def test_ib_show_interface_all_state_up(engines):
 
 @pytest.mark.ib_interfaces
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_all_state_down(engines):
     """
     Run show interface command and verify the required fields are exist
@@ -350,6 +351,7 @@ def test_ib_show_interface_all_state_up_openapi(engines):
 @pytest.mark.openapi
 @pytest.mark.ib_interfaces
 @pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_ib_show_interface_all_state_down_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib_show_interface_all_state_down(engines)

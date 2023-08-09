@@ -13,6 +13,7 @@ logger = logging.getLogger()
 
 @pytest.mark.platform
 @pytest.mark.nvos_ci
+@pytest.mark.nvos_chipsim_ci
 def test_show_platform_firmware(engines):
     """
     Show platform firmware test
@@ -68,6 +69,7 @@ def _compare_general_output_to_comp_output(platform, comp_name, general_comp_out
 @pytest.mark.openapi
 @pytest.mark.platform
 @pytest.mark.nvos_ci
+@pytest.mark.nvos_chipsim_ci
 def test_show_platform_firmware_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_show_platform_firmware(engines)
