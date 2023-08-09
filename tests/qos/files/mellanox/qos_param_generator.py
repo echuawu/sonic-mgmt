@@ -112,21 +112,24 @@ class QosParamMellanox(object):
             self.qos_parameters['dst_port_id'] = testPortIds[0]
             pgs_per_port = 2 if not self.dualTor else 4
             occupied_buffer = 0
-            for i in range(1, ingress_ports_num_shp):
-                for j in range(pgs_per_port):
-                    if self.asic_type == "spc4":
+            if self.asic_type == "spc4":
+                for i in range(1, ingress_ports_num_shp):
+                    for j in range(pgs_per_port):
                         pg_occupancy = int(math.ceil(
                             (pg_q_alpha*port_alpha*(pool_size - occupied_buffer) - pg_q_alpha*occupied_buffer)/(
                                     1 + pg_q_alpha*port_alpha + pg_q_alpha)))
                         pkts_num_trig_pfc_shp.append(pg_occupancy + xon + hysteresis)
                         occupied_buffer += pg_occupancy
-                    else:
+                    # For a new port it should be treated as a smaller pool with the occupancy being 0
+                    pool_size -= occupied_buffer
+                    occupied_buffer = 0
+                ingress_ports_list_shp.append(testPortIds[i])
+            else:
+                for i in range(1, ingress_ports_num_shp):
+                    for j in range(pgs_per_port):
                         pkts_num_trig_pfc_shp.append(occupancy_per_port + xon + hysteresis)
                         occupancy_per_port //= 2
                 ingress_ports_list_shp.append(testPortIds[i])
-                # For a new port it should be treated as a smaller pool with the occupancy being 0
-                pool_size -= occupied_buffer
-                occupied_buffer = 0
             self.qos_parameters['pkts_num_trig_pfc_shp'] = pkts_num_trig_pfc_shp
             self.qos_parameters['src_port_ids'] = ingress_ports_list_shp
             self.qos_parameters['pkts_num_hdrm_full'] = xoff - 2
