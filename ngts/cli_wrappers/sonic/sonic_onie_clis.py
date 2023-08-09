@@ -10,6 +10,7 @@ from ngts.constants.constants import InfraConst, PlatformTypesConstants
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.helpers.json_file_helper import extract_fw_data
 from ngts.helpers.run_process_on_host import run_process_on_host
+from ngts.constants.constants import MarsConstants
 
 logger = logging.getLogger()
 
@@ -126,9 +127,9 @@ class SonicOnieCli:
 
         prompts = ["Installed.*base\\s+image.*successfully", pexpect.TIMEOUT]
 
-        image_path = self.download_image(image_path, platform_params, topology_obj)
+        full_image_path = f"{MarsConstants.HTTP_SERVER_NBU_NFS}{image_path}"
 
-        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {image_path}"], prompts)
+        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {full_image_path}"], prompts)
 
         while num_retry > 0:
             if pexpect_entry == 0:
