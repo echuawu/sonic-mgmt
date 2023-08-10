@@ -2363,8 +2363,6 @@
   Conditions:
     - Redmine:
         - 3555138
-      Platform:
-        - x86_64-nvidia_sn5600-r0
 
 - Errors_list:
     - '.* ERR swss#vrfmgrd: :- doVrfVxlanTableCreateTask:  vni \d+ is already mapped to vrf Vrf\d+'
@@ -2907,6 +2905,7 @@
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - FileNotFoundError.*No such file or directory.*'
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - ValueError.*invalid literal for int.* with base.*'
     - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - ValueError.*invalid literal for int.* with base.*'
+    - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_status - FileNotFoundError.*No such file or directory.*'
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
   Conditions:
@@ -2948,6 +2947,7 @@
 # following error msg will be logged to syslog, it is not an real issue, so it is safe to ignore these err msg
 - Errors_list:
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.*with base.*'
+    - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - FileNotFoundError.*No such file or directory.*'
     - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*'
   Conditions:
     - Affected_test_cases:

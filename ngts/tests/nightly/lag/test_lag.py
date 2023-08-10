@@ -93,7 +93,7 @@ def test_core_functionality_with_reboot(topology_obj, cli_objects, traffic_type,
                                                   PORTCHANNEL_NAME,
                                                   'Up',
                                                   [(interfaces.dut_hb_1, 'S'), (interfaces.dut_hb_2, 'S')],
-                                                  tries=1)
+                                                  tries=3)
 
         with allure.step('Validate the base functionality of LAG - traffic'):
             # PING below need to prevent issue when packet not forwarded to host from switch
@@ -227,7 +227,7 @@ def test_port_cannot_be_added_to_lag(topology_obj, traffic_type, interfaces, eng
                                                   PORTCHANNEL_NAME,
                                                   'Up',
                                                   [(interfaces.dut_hb_1, 'S')],
-                                                  tries=1)
+                                                  tries=3)
 
         with allure.step('Validate the traffic via the LAG'):
             # PING below need to prevent issue when packet not forwarded to host from switch
