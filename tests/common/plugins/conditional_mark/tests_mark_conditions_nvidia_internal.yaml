@@ -1673,9 +1673,9 @@ arp/test_neighbor_mac_noptf.py::TestNeighborMacNoPtf::testNeighborMacNoPtf:
 
 bfd/test_bfd.py::test_bfd_multihop:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419018"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572851"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419018"
+      - "https://redmine.mellanox.com/issues/3572851"
 
 drop_packets/test_drop_counters.py::test_src_ip_is_loopback_addr:
   skip:

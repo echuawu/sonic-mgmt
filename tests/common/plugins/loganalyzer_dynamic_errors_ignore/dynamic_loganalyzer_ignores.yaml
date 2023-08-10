@@ -999,6 +999,21 @@
         - 3537514
 
 - Errors_list:
+    - '.*ERR kernel: \[ \d+.\d+\] Failed to bind BFD socket to local_addr.*'
+    - '.*ERR kernel: \[ \d+.\d+\] Failed to create TX socket for session.*'
+    - '.*ERR kernel: \[ \d+.\d+\] Parsing BFD command \d+ failed.*'
+    - '.*ERR syncd#SDK: \[BFD.ERR\] ioctl failed, error description: Input/output error'
+    - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed in bfd_offload_set().* error:.*'
+    - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
+    - '.*ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE'
+    - '.*ERR syncd#SDK: :- processQuadEvent: attr: SAI_BFD_SESSION_ATTR_.*'
+  Conditions:
+    - Affected_test_cases:
+      - bfd/test_bfd.py
+      Redmine:
+      - 3536554
+
+- Errors_list:
     - '.* ERR swss#orchagent: message repeated \d+ times: \[ :- update: Failed to get port by bridge port ID 0x.*.\]'
   Conditions:
     - Affected_test_cases:
