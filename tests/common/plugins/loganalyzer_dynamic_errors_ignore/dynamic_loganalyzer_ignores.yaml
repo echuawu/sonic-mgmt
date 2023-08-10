@@ -2880,6 +2880,12 @@
         - 3488969
 
 - Errors_list:
+    - '.*ERR pmon#thermalctld: Got wrong value \d+ for fan direction \/var\/run\/hw-management\/thermal\/fan\d_dir.*'
+  Conditions:
+    - Redmine:
+        - 3571776
+
+- Errors_list:
     - '.*ERR syncd#SDK: .*- sai_set_attribute: Failed to set the attribute..*'
   Conditions:
     - Affected_test_cases:
