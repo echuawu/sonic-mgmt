@@ -1,5 +1,5 @@
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import random
 from ngts.nvos_tools.system.System import System

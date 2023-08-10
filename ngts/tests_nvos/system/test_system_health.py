@@ -1,7 +1,7 @@
 import logging
 import time
 from retry import retry
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import random
 import math

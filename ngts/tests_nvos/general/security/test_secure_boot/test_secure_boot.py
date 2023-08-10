@@ -10,7 +10,7 @@ import time
 import random
 import string
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import os
 from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBootConsts

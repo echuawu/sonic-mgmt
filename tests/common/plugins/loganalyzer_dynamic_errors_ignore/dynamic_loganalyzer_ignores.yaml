@@ -2574,6 +2574,13 @@
 
 # NVOS
 - Errors_list:
+    - '.*ERR systemd[1]: Failed to start ib-utils container.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+
+# NVOS
+- Errors_list:
     - '.* ERR rsyslogd: omfwd: could not get addrinfo for hostname .*'
   Conditions:
     - Affected_test_cases:

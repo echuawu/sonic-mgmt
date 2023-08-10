@@ -1,5 +1,5 @@
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts

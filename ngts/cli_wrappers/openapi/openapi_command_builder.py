@@ -60,14 +60,19 @@ class OpenApiRequest:
 
     @staticmethod
     def create_nvue_changest(request_data):
-        with allure.step("Create NVUE change-set"):
+        req_type = 'POST'
+        with allure.step(f"Send {req_type} request to create NVUE change-set"):
+            logging.info(f"Send {req_type} request to create NVUE change-set")
             r = requests.post(url=OpenApiRequest._get_endpoint_url(request_data) + "/revision",
                               auth=OpenApiRequest._get_http_auth(request_data), verify=False)
             OpenApiRequest.print_request(r.request)
-            OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
+            OpenApiRequest.print_response(r, req_type)
             response = r.json()
             OpenApiRequest.changeset = response.popitem()[0]
+
             logging.info("Using NVUE change-set: '{}'".format(OpenApiRequest.changeset))
+
+            return OpenApiRequest._validate_response(r, req_type)
 
     @staticmethod
     def apply_nvue_changeset(request_data, op_param_name, add_approve=True):
@@ -177,7 +182,12 @@ class OpenApiRequest:
                 OpenApiRequest.payload = OpenApiRequest._create_json_payload(split_path, request_data.param_value)
 
             if OpenApiRequest.changeset is None:
-                OpenApiRequest.create_nvue_changest(request_data)
+                res = OpenApiRequest.create_nvue_changest(request_data)
+                if not res.result:
+                    logging.info(f'Failed to create revision. Abort the current request\nInfo: {res.info}')
+                    OpenApiRequest.changeset = None
+                    OpenApiRequest.payload = {}
+                    return res.info
 
             rev_string = {"rev": OpenApiRequest.changeset}
             req_type = OpenApiReqType.PATCH
@@ -203,7 +213,12 @@ class OpenApiRequest:
                 return OpenApiRequest.send_patch_request(request_data, op_params)
             else:
                 if OpenApiRequest.changeset is None:
-                    OpenApiRequest.create_nvue_changest(request_data)
+                    res = OpenApiRequest.create_nvue_changest(request_data)
+                    if not res.result:
+                        logging.info(f'Failed to create revision. Abort the current request\nInfo: {res.info}')
+                        OpenApiRequest.changeset = None
+                        OpenApiRequest.payload = {}
+                        return res.info
 
                 rev_string = {"rev": OpenApiRequest.changeset}
                 req_type = OpenApiReqType.DELETE

@@ -1,5 +1,5 @@
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 
 from ngts.nvos_constants.constants_nvos import ApiType

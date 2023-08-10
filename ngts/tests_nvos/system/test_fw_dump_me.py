@@ -2,7 +2,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from infra.tools.general_constants.constants import DefaultConnectionValues
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
 import time

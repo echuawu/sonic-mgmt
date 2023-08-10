@@ -1,6 +1,6 @@
 import logging
 import random
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 from infra.tools.general_constants.constants import DefaultConnectionValues
 

@@ -1,6 +1,6 @@
 import logging
 import pytest
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import random
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
@@ -159,8 +159,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         values_to_verify = [SystemConsts.PROFILE_STATE_ENABLED, 1792, SystemConsts.PROFILE_STATE_ENABLED,
                             SystemConsts.PROFILE_STATE_DISABLED, SystemConsts.DEFAULT_NUM_SWIDS]
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        values_to_verify,
-                                                        system_profile_output).verify_result()
+                                                        values_to_verify, system_profile_output).verify_result()
         logging.info("All expected values were found")
 
     with allure.step("Start OpenSM and check traffic port up"):

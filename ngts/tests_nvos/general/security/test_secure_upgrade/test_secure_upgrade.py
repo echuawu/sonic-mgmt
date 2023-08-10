@@ -9,7 +9,7 @@ In order to run this test, you need to specify the following argument:
     --target_image_list (to contain one non-secure image path e.g. /tmp/images/my_non_secure_img.bin)
 """
 import logging
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pytest
 from ngts.nvos_constants.constants_nvos import NvosConst, ImageConsts
 from ngts.constants.constants import InfraConst

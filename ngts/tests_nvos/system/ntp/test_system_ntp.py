@@ -1,4 +1,4 @@
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
 import socket

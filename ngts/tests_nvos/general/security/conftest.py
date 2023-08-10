@@ -1,5 +1,5 @@
 import time
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import pexpect
 import logging
 import pytest

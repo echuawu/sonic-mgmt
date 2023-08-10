@@ -27,6 +27,7 @@ from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
+from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
@@ -213,8 +214,8 @@ def clear_config(markers):
 
         set_comp = {k: v for comp in show_config_output for k, v in comp.get("set", {}).items()}
 
-        if not(len(set_comp.keys()) == 1 and "system" in set_comp.keys() and
-               len(set_comp["system"].keys()) == 1 and "timezone" in set_comp["system"]):
+        if not (len(set_comp.keys()) == 1 and "system" in set_comp.keys() and
+                len(set_comp["system"].keys()) == 1 and "timezone" in set_comp["system"]):
             should_wait_for_nvued_after_apply = 'aaa' in set_comp["system"].keys() \
                                                 and 'authentication' in set_comp["system"]['aaa'].keys() \
                                                 and 'order' in set_comp["system"]['aaa']['authentication'].keys()
@@ -230,11 +231,13 @@ def clear_config(markers):
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
             system = System()
-            system.aaa.authentication.restrictions.set(RestrictionsConsts.LOCKOUT_STATE, RestrictionsConsts.DISABLED)\
-                .verify_result()
+            system.aaa.authentication.restrictions.set(RestrictionsConsts.LOCKOUT_STATE,
+                                                       RestrictionsConsts.DISABLED).verify_result()
             system.aaa.authentication.restrictions.set(RestrictionsConsts.FAIL_DELAY, 0).verify_result()
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, system, apply=False)
+            system.set(ClockConsts.TIMEZONE, LinuxConsts.JERUSALEM_TIMEZONE, apply=True).verify_result()
+
             NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+
             if should_wait_for_nvued_after_apply:
                 DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
             if active_port:
@@ -323,7 +326,8 @@ def insert_operation_time_to_db(setup_name, session_id, platform_params, topolog
     if len(pytest.operation_list) > 0:
         try:
             type = platform_params['filtered_platform']
-            version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()['image']
+            version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()[
+                'image']
             release_name = TestToolkit.version_to_release(version)
             if not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run:
                 insert_operation_duration_to_db(setup_name, type, version, session_id, release_name)

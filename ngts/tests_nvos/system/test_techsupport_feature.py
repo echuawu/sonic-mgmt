@@ -1,7 +1,7 @@
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
 import time

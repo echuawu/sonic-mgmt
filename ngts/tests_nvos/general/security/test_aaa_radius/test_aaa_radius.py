@@ -1,6 +1,6 @@
 import logging
 import time
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import random
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System

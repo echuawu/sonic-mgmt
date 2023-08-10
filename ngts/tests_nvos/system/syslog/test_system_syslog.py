@@ -1,7 +1,7 @@
 import logging
 import pytest
 import random
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import string
 import time
 import re

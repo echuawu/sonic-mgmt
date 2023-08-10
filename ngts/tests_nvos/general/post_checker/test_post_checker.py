@@ -1,6 +1,6 @@
 import os
 import pytest
-import allure
+from ngts.tools.test_utils import allure_utils as allure
 import logging
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
