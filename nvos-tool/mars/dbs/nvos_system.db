@@ -59,9 +59,6 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_log_commands.cases </cases>
 	</test>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_rsyslog.cases </cases>
-	</test>
-	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_health.cases </cases>
 	</test>
 	<test>

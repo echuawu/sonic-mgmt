@@ -18,7 +18,7 @@ def test_show_platform_environment_voltage(engines):
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
         voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show().get_returned_value()).verify_result()
-        sensors_count = engines.dut.run_cmd('redis-cli -n 6 keys * | grep VOLTAGE').splitlines()
+        sensors_count = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
 
     assert len(sensors_count) == len(voltage_output.keys())
     with allure.step("pick random sensor to check the out put of the two show commands"):
@@ -59,7 +59,7 @@ def test_database_platform_environment_voltage(engines):
         logger.info("the expected sensors are: {}".format(sensors_list))
 
     with allure.step("get all the tabled with SENSOR in STATE_DB"):
-        database_output = engines.dut.run_cmd('redis-cli -n 6 keys * | grep VOLTAGE').splitlines()
+        database_output = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
 
     with allure.step("Check the Sensors tables"):
         with allure.step("Verify for every sensor: VOLTAGE_INFO|<sensor_name> table exist in STATE_DB"):
