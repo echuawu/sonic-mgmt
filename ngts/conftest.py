@@ -8,7 +8,6 @@ NOTE: Add here only fixtures and methods that can be used for canonical and comm
 if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
-
 import pytest
 import logging
 import re
@@ -16,7 +15,6 @@ import os
 import json
 from paramiko.ssh_exception import SSHException
 from dotted_dict import DottedDict
-
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
@@ -115,6 +113,8 @@ def pytest_addoption(parser):
                      help="Current topology for example: t0, t1, t1-lag, ptf32, ...")
     parser.addoption("--expected_topo", dest="expected_topo",
                      help="Expected topology, for example: t0, t1, t1-lag, ptf32, ...")
+    parser.addoption("--skip_auto_checks", action="store_true", default=False, required=False,
+                     help="Whether to skip 'is debug-kernel/coverage/sanitizer' auto checks for the session, or not")
 
 
 def pytest_runtest_call(item):
@@ -356,15 +356,35 @@ def sonic_branch(topology_obj):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def is_sanitizer_image(topology_obj):
+def should_skip_checking_fixture(request):
+    if request.config.getoption("--skip_auto_checks"):
+        logger.info('NVOS: Should skip auto test pre-checks')
+        return True
+    else:
+        return False
+
+
+@pytest.fixture(scope='session', autouse=True)
+def is_sanitizer_image(topology_obj, should_skip_checking_fixture):
+    pytest.is_sanitizer = False
+
+    if should_skip_checking_fixture:
+        logger.info('NVOS: Skip sanitizer run check')
+        return pytest.is_sanitizer
+
     update_sanitizer_in_topology(topology_obj)
     pytest.is_sanitizer = topology_obj.players['dut']['sanitizer']
     return pytest.is_sanitizer
 
 
 @pytest.fixture(scope='session', autouse=True)
-def is_code_coverage_run(topology_obj):
+def is_code_coverage_run(topology_obj, should_skip_checking_fixture):
     pytest.is_code_coverage = False
+
+    if should_skip_checking_fixture:
+        logger.info('NVOS: Skip coverage run check')
+        return pytest.is_code_coverage
+
     try:
         pytest.is_code_coverage = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
     except SSHException as err:
@@ -375,8 +395,13 @@ def is_code_coverage_run(topology_obj):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def is_debug_kernel_run(engines):
+def is_debug_kernel_run(engines, should_skip_checking_fixture):
     pytest.is_debug_kernel = False
+
+    if should_skip_checking_fixture:
+        logger.info('NVOS: Skip debug kernel run check')
+        return pytest.is_debug_kernel
+
     try:
         output = engines.dut.run_cmd(f"sudo ls {DebugKernelConsts.KMEMLEAK_PATH}")
         pytest.is_debug_kernel = False if "No such file or directory" in output else True    # only in debug kernel version we have this file
