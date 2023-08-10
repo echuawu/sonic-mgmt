@@ -571,6 +571,12 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
       - "https://redmine.mellanox.com/issues/3518820 and 'sn27' in platform"
 
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3518706 on MSN4410 Platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
+
 tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag_without_fdb:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416551"
