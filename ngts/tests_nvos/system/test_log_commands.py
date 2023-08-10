@@ -142,7 +142,7 @@ def test_show_debug_log(engines):
 
     with allure.step("Write debug_log message to debug-log"):
         logging.info("Write debug_log message to debug-log")
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     with allure.step("Run nv show system debug-log command follow to view system logs"):
         logging.info("Run nv show system debug-log command follow to view system logs")
@@ -174,11 +174,11 @@ def test_show_debug_log_continues(engines):
         system = System()
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     with allure.step("Write to the logs debug_log message"):
         logging.info("Write to the logs debug_log message")
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     with allure.step("Run nv show system log command --view follow to view system logs"):
         logging.info("Run nv show system log command --view follow to view system logs")
@@ -204,7 +204,7 @@ def test_show_debug_log_files(engines):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     with allure.step("Run show command log files command to check fields"):
         logging.info("Run show command log files command to check fields")
@@ -231,7 +231,7 @@ def test_rotate_debug_log_files(engines):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     with allure.step("Rotate debug-log 5 times to create log files"):
         logging.info("Rotate log 5 times to create log files")
@@ -290,7 +290,7 @@ def test_debug_log_files_rotation_default_fields(engines):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     _log_files_rotation_default_fields(system.debug_log, "10", "20.0")
 
@@ -357,7 +357,7 @@ def test_debug_log_files_set_unset_log_rotation_frequency(engines):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     _log_files_set_unset_log_rotation_frequency(engines, system.debug_log)
 
@@ -433,7 +433,7 @@ def test_debug_log_files_set_unset_log_rotation_size_disk_percentage(engines):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     _log_files_set_unset_log_rotation_size_disk_percentage(engines, system.debug_log)
 
@@ -540,7 +540,7 @@ def test_debug_log_files_set_unset_log_rotation_max_number(engines):
         system = System(None)
 
     with allure.step("Write to debug log file"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     _log_files_set_unset_log_rotation_max_number(engines, system.debug_log)
 
@@ -566,7 +566,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         logging.info("Rotate log 5 times to check functionality of max-number")
         for i in range(0, 5):
             system_log_obj.rotate_logs()
-            system_log_obj.write_to_debug_log()
+            system_log_obj.write_to_log()
 
         logging.info("Check we have 5 log files")
         show_output = system_log_obj.files.show()
@@ -584,7 +584,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
 
         logging.info("Rotate log 1 time to check functionality of max-number")
         system_log_obj.rotate_logs()
-        system_log_obj.write_to_debug_log()
+        system_log_obj.write_to_log()
 
         logging.info("Check we have 1 log files")
         show_output = system_log_obj.files.show()
@@ -701,7 +701,7 @@ def test_log_components(engines):
 
     with allure.step("Unset log components"):
         logging.info("Unset log components")
-        system.log.component.unset_system_log_component()
+        system.log.component.unset_system_log_component('')
 
 
 @pytest.mark.system
@@ -740,7 +740,7 @@ def test_upload_debug_log_files(engines, topology_obj):
         system = System(None)
 
     with allure.step("Create System object"):
-        system.debug_log.write_to_debug_log()
+        system.debug_log.write_to_log()
 
     _upload_log_files(topology_obj, system.debug_log)
 

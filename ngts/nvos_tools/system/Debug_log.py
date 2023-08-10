@@ -25,9 +25,6 @@ class DebugLog(BaseComponent):
     def set(self, op_param_name="", op_param_value=""):
         raise Exception("set is not implemented for /debug_log")
 
-    def unset(self, op_param=""):
-        raise Exception("unset is not implemented for /debug_log")
-
     def show_log(self, log_type='', param='', exit_cmd=''):
         with allure.step('Execute nv show system {type}log {param} and exit_cmd {exit_cmd}'.format(type=log_type,
                                                                                                    param=param,
@@ -36,7 +33,7 @@ class DebugLog(BaseComponent):
                                                    TestToolkit.engines.dut, log_type,
                                                    param, exit_cmd).get_returned_value()
 
-    def write_to_debug_log(self):
+    def write_to_log(self):
         with allure.step('Write content to debug-logs'):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_write_to_debug_logs,
                                                    TestToolkit.engines.dut).get_returned_value()
