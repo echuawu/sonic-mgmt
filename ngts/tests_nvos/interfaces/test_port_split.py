@@ -161,7 +161,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
                                                         values_to_verify,
                                                         system_profile_output).verify_result()
-           logging.info("All expected values were found")
+        logging.info("All expected values were found")
 
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
