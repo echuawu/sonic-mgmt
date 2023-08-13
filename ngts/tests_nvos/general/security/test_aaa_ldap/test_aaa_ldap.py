@@ -1,22 +1,10 @@
-import logging
-import random
-import time
 from itertools import product
-
 import pytest
-
 from infra.tools.linux_tools.linux_tools import scp_file
-from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.constants import AaaConsts
-from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
-    validate_authentication_fail_with_credentials, set_local_users, user_lists_difference, mutual_users
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
+from ngts.tests_nvos.general.security.security_test_utils import validate_authentication_fail_with_credentials, \
+    set_local_users, user_lists_difference, mutual_users
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from ngts.tools.test_utils import allure_utils as allure
@@ -309,17 +297,19 @@ def test_ldap_authentication(test_api, connection_method, encryption_mode, engin
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
 
     with allure.step('Enable and set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL])
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], apply=True)
+        LdapTestTool.active_ldap_server = ldap_server_info
 
     with allure.step(f'Verify authentication with the current setup'):
         user_to_validate = random.choice(ldap_server_info[LdapConsts.USERS])
-        validate_users_authorization_and_role(engines=engines, users=[user_to_validate], check_nslcd_if_login_failed=True)
+        validate_users_authorization_and_role(engines=engines, users=[user_to_validate],
+                                              check_nslcd_if_login_failed=True)
 
-    with allure.step(f'Disable ldap'):
-        disable_ldap(engines, ldap_server_info)
+    with allure.step('Disable ldap'):
+        disable_ldap(engines)
 
 
-@pytest.mark.bug  # opened bug for permissions traceback exception 3519743
+@pytest.mark.bug  # permissions traceback exception 3519743, wrong permission of ldap-local mutual user 3557998
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
@@ -344,29 +334,16 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
     logging.info(f'Test setup: {test_api}, {encryption_mode}')
     TestToolkit.tested_api = test_api
 
-    with allure.step('Configure invalid ldap servers'):
-        aaa = System().aaa
-        ldap_obj = aaa.ldap
-        invalid_servers = [LdapConsts.PHYSICAL_LDAP_SERVER.copy() for _ in range(3)]
-        i = 4
-        for server in invalid_servers:
-            server[LdapConsts.HOSTNAME] = f'{1 + i}.{2 + i}.{3 + i}.{4 + i}'
-            server[LdapConsts.PRIORITY] = str(i)
-            configure_ldap_server(engines, ldap_obj, server)
-            i -= 1
-
-    with allure.step(f'Configure encryption mode: {encryption_mode}'):
-        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
-
-    with allure.step('Set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL])
-
     with allure.step('Set local users for the test'):
+        invalid_servers = [LdapConsts.DOCKER_LDAP_SERVER_DNS.copy() for _ in range(3)]
+
+        TestToolkit.tested_api = ApiType.NVUE  # todo: remove after fix set user with password in openapi
+
         ldap1_user = random.choice(invalid_servers[0][LdapConsts.USERS])
 
         with allure.step('Set local-only users'):
             local_user = random.choice(AaaConsts.LOCAL_ONLY_TEST_USERS)
-            set_local_users(engines, [local_user])
+            set_local_users(engines, [local_user], apply=False)
 
         with allure.step(f'Set ldap-local mutual user "{ldap1_user[AaaConsts.USERNAME]}" in local'):
             mutual_user = {
@@ -374,39 +351,65 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
                 AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
                 AaaConsts.ROLE: AaaConsts.MONITOR if ldap1_user[AaaConsts.ROLE] == AaaConsts.ADMIN else AaaConsts.ADMIN
             }
-            set_local_users(engines, [mutual_user])
+            set_local_users(engines, [mutual_user], apply=True)
+
+        TestToolkit.tested_api = test_api  # todo: remove after fix set user with password in openapi
+
+    with allure.step('Configure invalid ldap servers'):
+        aaa = System().aaa
+        ldap_obj = aaa.ldap
+        configure_ldap_common_fields(engines, ldap_obj)
+        i = 4
+        for server in invalid_servers:
+            server[LdapConsts.HOSTNAME] = f'{1 + i}.{2 + i}.{3 + i}.{4 + i}'
+            server[LdapConsts.PRIORITY] = str(i)
+            ldap_obj.hostname.set_priority(hostname=server[LdapConsts.HOSTNAME], priority=i).verify_result()
+            i -= 1
+
+    with allure.step(f'Configure encryption mode: {encryption_mode}'):
+        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
+
+    with allure.step('Set ldap as main authentication method'):
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], apply=True)
 
     with allure.step('Verify authentication and authorization are done via next in line - local'):
-        with allure.step('Verify ldap-only user can not login'):
+        with allure.step('Verify ldap-only user can not auth'):
             validate_users_authorization_and_role(engines=engines, users=[ldap1_user], login_should_succeed=False)
 
-        with allure.step('Verify mutual user can be authenticated and authorized (via local)'):
+        with allure.step('Verify mutual user can auth (via local)'):
             validate_users_authorization_and_role(engines=engines, users=[mutual_user], check_nslcd_if_login_failed=True)
 
-        with allure.step('Verify local-only user be authenticated and authorized (via local)'):
+        with allure.step('Verify local-only user can auth'):
             validate_users_authorization_and_role(engines=engines, users=[local_user])
 
     with allure.step('Add valid ldap server server'):
-        ldap2_server_info = LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()
+        ldap2_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
         ldap2_server_info[LdapConsts.PRIORITY] = 1
-        configure_ldap_server(engines, ldap_obj, ldap2_server_info)
+        ldap_obj.hostname.set_priority(hostname=ldap2_server_info[LdapConsts.HOSTNAME], priority=1,
+                                       apply=True).verify_result()
+        LdapTestTool.active_ldap_server = ldap2_server_info
 
     with allure.step('Verify authentication and authorization are done via next in line - valid ldap server'):
-        ldap1_user = random.choice(mutual_users(invalid_servers[0][LdapConsts.USERS],
-                                                ldap2_server_info[LdapConsts.USERS]))
+        ldap1_only_user = random.choice(user_lists_difference(invalid_servers[0][LdapConsts.USERS],
+                                                              ldap2_server_info[LdapConsts.USERS]))
+        ldap_ldap_mutual_user = random.choice(mutual_users(ldap2_server_info[LdapConsts.USERS],
+                                                           invalid_servers[0][LdapConsts.USERS]))
         ldap2_user = random.choice(ldap2_server_info[LdapConsts.USERS])
 
-        with allure.step(f'Verify 1st server only user "{ldap1_user[AaaConsts.USERNAME]}" can not login'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap1_user], login_should_succeed=False)
+        with allure.step(f'Verify 1st server only user "{ldap1_only_user[AaaConsts.USERNAME]}" can not auth'):
+            validate_users_authorization_and_role(engines=engines, users=[ldap1_only_user], login_should_succeed=False)
 
-        with allure.step(f'Verify 2nd server user "{ldap2_user[AaaConsts.USERNAME]}" can login'):
+        with allure.step(f'Verify 1st and 2nd servers mutual user "{ldap_ldap_mutual_user[AaaConsts.USERNAME]}" can auth (via valid server)'):
+            validate_users_authorization_and_role(engines=engines, users=[ldap_ldap_mutual_user], check_nslcd_if_login_failed=True)
+
+        with allure.step(f'Verify 2nd server user "{ldap2_user[AaaConsts.USERNAME]}" can auth'):
             validate_users_authorization_and_role(engines=engines, users=[ldap2_user], check_nslcd_if_login_failed=True)
 
-        with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not login'):
+        with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not auth'):
             validate_users_authorization_and_role(engines=engines, users=[local_user], login_should_succeed=False)
 
-    with allure.step(f'Disable ldap'):
-        disable_ldap(engines, ldap2_server_info)
+    with allure.step('Disable ldap'):
+        disable_ldap(engines)
 
 
 @pytest.mark.bug  # opened bug for fail through 3501518
@@ -432,8 +435,10 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
     TestToolkit.tested_api = test_api
 
     with allure.step('Set local-only user'):
+        TestToolkit.tested_api = ApiType.NVUE  # todo: remove after fix set user with password in openapi
         local_user = random.choice(AaaConsts.LOCAL_ONLY_TEST_USERS)
-        set_local_users(engines, [local_user])
+        set_local_users(engines, [local_user], apply=True)
+        TestToolkit.tested_api = test_api  # todo: remove after fix set user with password in openapi
 
     with allure.step('Configure 2 ldap servers'):
         server1 = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
@@ -441,15 +446,17 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
         server1[LdapConsts.PRIORITY] = str(2)
         server2[LdapConsts.PRIORITY] = str(1)
         ldap_obj = System().aaa.ldap
-        configure_ldap_server(engines, ldap_obj, server1)
-        configure_ldap_server(engines, ldap_obj, server2)
+        configure_ldap_common_fields(engines, ldap_obj)
+        ldap_obj.hostname.set_priority(hostname=server1[LdapConsts.HOSTNAME], priority=2).verify_result()
+        ldap_obj.hostname.set_priority(hostname=server2[LdapConsts.HOSTNAME], priority=1).verify_result()
 
     with allure.step(f'Configure encryption mode: {encryption_mode}'):
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
 
     with allure.step('Configure authentication order and disable failthrough'):
         configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
-                                 failthrough=LdapConsts.DISABLED)
+                                 failthrough=LdapConsts.DISABLED, apply=True)
+        LdapTestTool.active_ldap_server = server1
 
     with allure.step('Verify only 1st server user can login'):
         server1_user = random.choice(server1[LdapConsts.USERS])
@@ -464,12 +471,10 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
         with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not login'):
             validate_users_authorization_and_role(engines=engines, users=[local_user], login_should_succeed=False)
 
-    with allure.step(f'Disable ldap'):
-        disable_ldap(engines, server1)
-
     with allure.step('Set failthrough on'):
+        active_engine = get_active_dut_engine(engines)
         configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
-                                 failthrough=LdapConsts.ENABLED)
+                                 failthrough=LdapConsts.ENABLED, apply=True, dut_engine=active_engine)
 
     with allure.step('Verify all users can login'):
         with allure.step(f'Verify 1st server user "{server1_user[AaaConsts.USERNAME]}" can login'):
@@ -480,6 +485,9 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
 
         with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can login'):
             validate_users_authorization_and_role(engines=engines, users=[local_user])
+
+    with allure.step('Disable ldap'):
+        disable_ldap(engines)
 
 
 @pytest.mark.security
@@ -501,12 +509,12 @@ def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_res
     with allure.step(f'Configure encryption mode: {encryption_mode}'):
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)
 
-    with allure.step('Enable and set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
-                                 failthrough=LdapConsts.ENABLED)
-
     with allure.step('Enable cert-verify'):
         configure_resource(engines, ldap_obj.ssl, conf={LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED})
+
+    with allure.step('Enable and set ldap as main authentication method'):
+        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
+                                 failthrough=LdapConsts.ENABLED, apply=True)
 
     with allure.step(f'Verify authentication fail when there is no certificate in the switch'):
         user_to_validate = random.choice(ldap_server_info[LdapConsts.USERS])
@@ -514,6 +522,10 @@ def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_res
 
     with allure.step('Add the server certificate to the switch'):
         add_ldap_server_certificate_to_switch(engines)
+        LdapTestTool.active_ldap_server = ldap_server_info
 
     with allure.step(f'Verify authentication success'):
         validate_users_authorization_and_role(engines=engines, users=[user_to_validate], check_nslcd_if_login_failed=True)
+
+    with allure.step('Disable ldap'):
+        disable_ldap(engines)

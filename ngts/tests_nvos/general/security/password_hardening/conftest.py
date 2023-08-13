@@ -39,7 +39,7 @@ def testing_users(engines, system):
     """
     with allure.step("Before test: set local test users"):
         users_info = AaaConsts.LOCAL_ONLY_TEST_USERS
-        set_local_users(engines, users_info)
+        set_local_users(engines, users_info, apply=True)
 
         users = {
             user[AaaConsts.USERNAME]: {

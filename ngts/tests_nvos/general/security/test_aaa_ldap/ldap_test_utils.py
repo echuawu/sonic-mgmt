@@ -17,9 +17,30 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.constants import AuthConsts, AaaConsts
 from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
-    configure_authentication, validate_services_and_dockers_availability
+    configure_authentication, validate_services_and_dockers_availability, find_server_admin_user, configure_resource
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tools.test_utils import allure_utils as allure
+
+
+class LdapTestTool:
+    active_ldap_server = None
+
+
+def configure_ldap_common_fields(engines, ldap_obj, apply=False):
+    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
+    with allure.step('Configure general settings to match our test servers'):
+        conf_to_set = {
+            LdapConsts.PORT: ldap_server_info[LdapConsts.PORT],
+            LdapConsts.BASE_DN: ldap_server_info[LdapConsts.BASE_DN],
+            LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
+            LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
+            # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
+            LdapConsts.BIND_PASSWORD: ldap_server_info[LdapConsts.BIND_PASSWORD],
+            LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
+            LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
+            LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]
+        }
+        configure_resource(engines, ldap_obj, conf_to_set, apply=apply)
 
 
 def configure_ldap(ldap_server_info):
@@ -67,37 +88,6 @@ def configure_ldap(ldap_server_info):
         system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME],
                                               priority=priority,
                                               apply=True).verify_result()
-
-
-def disable_ldap(engines, ldap_server_info):
-    """
-    @summary: Remove ldap from authentication order configuration using an admin user from the given ldap server
-    """
-    with allure.step(f'Turning api to NVUE'):
-        orig_tested_api = TestToolkit.tested_api
-        TestToolkit.tested_api = ApiType.NVUE
-
-    with allure.step(f'Find admin user in ldap server {ldap_server_info[LdapConsts.HOSTNAME]}'):
-        ldap_admin_user_info = find_server_admin_user(ldap_server_info)
-        logging.info(f'Found admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}')
-
-    with allure.step(f'Remove ldap from authentication order using admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}'):
-        with allure.step(f"Creating engine to switch with username: {ldap_admin_user_info[AaaConsts.USERNAME]}"):
-            new_engine = ProxySshEngine(device_type=engines.dut.device_type, ip=engines.dut.ip,
-                                        username=ldap_admin_user_info[AaaConsts.USERNAME],
-                                        password=ldap_admin_user_info[AaaConsts.PASSWORD])
-        with allure.step('Unset authentication order configuration through new engine'):
-            System(None).aaa.authentication.unset(op_param=AuthConsts.ORDER, apply=True,
-                                                  dut_engine=new_engine).verify_result()
-
-    with allure.step(f'Restore to test api: {orig_tested_api}'):
-        TestToolkit.tested_api = orig_tested_api
-
-
-def find_server_admin_user(ldap_server_info):
-    for user in ldap_server_info[LdapConsts.USERS]:
-        if user[AaaConsts.ROLE] == AaaConsts.ADMIN:
-            return user
 
 
 def validate_ldap_configurations(ldap_server_info):
@@ -153,7 +143,7 @@ def enable_ldap_feature(engines, devices):
     """
     with allure.step("Enabling LDAP by setting LDAP auth. method as first auth. method"):
         configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
-                                 failthrough=LdapConsts.ENABLED, fallback=LdapConsts.ENABLED)
+                                 failthrough=LdapConsts.ENABLED, fallback=LdapConsts.ENABLED, apply=True)
 
 
 def configure_ldap_and_validate(engines, ldap_server_list, devices, should_validate_conf=True):
@@ -193,7 +183,7 @@ def randomize_ldap_server():
     return randomized_ldap_server_info
 
 
-def configure_ldap_server(engines, ldap_obj, ldap_server_info):
+def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
     """
     @summary: Configure ldap server according to the given server information
     @param engines: engines object
@@ -215,15 +205,15 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info):
                 LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
                 LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]
             }
-            configure_resource(engines, ldap_obj, conf_to_set)
+            configure_resource(engines, ldap_obj, conf_to_set, apply=False)
 
         with allure.step('Configure the given server with its priority'):
             priority = int(ldap_server_info[LdapConsts.PRIORITY])
             ldap_obj.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME], priority=priority,
-                                           apply=True).verify_result()
+                                           apply=apply).verify_result()
 
 
-def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
+def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False):
     """
     @summary: Configure ldap settings according to the given encryption mode
     @param engines: engines object
@@ -238,43 +228,7 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode):
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.SSL
         elif encryption_mode == LdapConsts.NONE:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.NONE
-        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set)
-
-
-def configure_resource(engines, resource_obj: BaseComponent, conf, apply=True):
-    """
-    @summary: Configure resource according to the given desired configuration
-        * Configuration example:
-            if we want:
-            ldap
-                bind-dn = abc
-                auth-port = 123
-            then configuration dictionary should be:
-            {
-                bind-dn: abc,
-                auth-port: 123
-            }
-    @param engines: engines object
-    @param resource_obj: resource object
-    @param conf: the desired configuration (dictionary)
-    @param apply: whether to apply the changes or not
-    """
-    if not conf:
-        return
-
-    with allure.step(f'Set configuration for resource: {resource_obj.get_resource_path()}'):
-        logging.info(f'Given configuration to set:\n{conf}')
-
-        with allure.step('Set fields'):
-            for key, value in conf.items():
-                logging.info(f'Set field "{key}" to value "{value}"')
-                value = int(value) if value.isnumeric() else value
-                resource_obj.set(key, value, apply=False).verify_result()
-
-        if apply:
-            with allure.step('Apply all changes'):
-                SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                engines.dut, True).verify_result()
+        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply)
 
 
 def add_ldap_server_certificate_to_switch(engines):
@@ -288,3 +242,43 @@ def add_ldap_server_certificate_to_switch(engines):
     with allure.step('Restart nslcd service'):
         engines.dut.run_cmd('sudo service nslcd restart')
         time.sleep(3)
+
+
+def get_active_dut_engine(engines):
+    with allure.step('Get active engine'):
+        with allure.step(f'Check active ldap server from LdapTestActiveServer'):
+            ldap_server_info = LdapTestTool.active_ldap_server
+
+        if not ldap_server_info:
+            logging.info('Active engine to use: default dut engine')
+            active_engine = engines.dut
+        else:
+            logging.info('Active engine to use: New engine with ldap admin user')
+            with allure.step(f'Find admin user in ldap server {ldap_server_info[LdapConsts.HOSTNAME]}'):
+                ldap_admin_user_info = find_server_admin_user(ldap_server_info)
+                logging.info(f'Found admin user: {ldap_admin_user_info[AaaConsts.USERNAME]}')
+
+            with allure.step(f"Creating engine to switch with username: {ldap_admin_user_info[AaaConsts.USERNAME]}"):
+                active_engine = ProxySshEngine(device_type=engines.dut.device_type,
+                                               ip=engines.dut.ip,
+                                               username=ldap_admin_user_info[AaaConsts.USERNAME],
+                                               password=ldap_admin_user_info[AaaConsts.PASSWORD])
+        return active_engine
+
+
+def disable_ldap(engines):
+    """
+    @summary: Remove ldap from authentication order configuration using an admin user from the given ldap server
+    """
+    with allure.step('Get active engine to use to disable ldap'):
+        active_engine = get_active_dut_engine(engines)
+
+    with allure.step('Remove ldap from authentication order using active engine'):
+        with allure.step('Unset authentication order configuration through new engine'):
+            orig_api = TestToolkit.tested_api
+            TestToolkit.tested_api = ApiType.NVUE
+            System().aaa.authentication.unset(op_param=AuthConsts.ORDER, apply=True, dut_engine=active_engine)
+            TestToolkit.tested_api = orig_api
+
+    with allure.step('Reset active ldap server info in LdapTestTool'):
+        LdapTestTool.active_ldap_server = None

@@ -21,7 +21,7 @@ def test_user(engines):
     with allure.step('Configure test user'):
         user_details = random.choice(RestrictionsConsts.TEST_USERS).copy()
         user_details[AaaConsts.USERNAME] += str(random.randint(0, 9999))
-        set_local_users(engines, [user_details])
+        set_local_users(engines, [user_details], apply=True)
 
     yield user_details
 
@@ -41,7 +41,7 @@ def test_users(engines):
         for _ in range(2):
             user_details = random.choice(RestrictionsConsts.TEST_USERS).copy()
             user_details[AaaConsts.USERNAME] += str(random.randint(0, 9999))
-            set_local_users(engines, [user_details])
+            set_local_users(engines, [user_details], apply=True)
             users.append(user_details)
 
     yield users
