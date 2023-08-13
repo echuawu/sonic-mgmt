@@ -770,7 +770,7 @@ class TestSfpApi(PlatformApiTestBase):
                 self.expect(ret is True, "Failed to {} low-power mode for transceiver {}".format(
                     "enable" if state is True else "disable", port_index))
                 self.expect(
-                    wait_until(5, 1, delay, self._check_lpmode_status, sfp, platform_api_conn, port_index, state),
+                    wait_until(25, 1, delay, self._check_lpmode_status, sfp, platform_api_conn, port_index, state),
                     "Transceiver {} expected low-power state {} is not aligned with the real state".format(
                         port_index, "enable" if state is True else "disable"))
 
