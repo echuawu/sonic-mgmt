@@ -1,5 +1,6 @@
 import logging
 import random
+import time
 import pytest
 from retry import retry
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -8,7 +9,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.authentication_restrictions.auth_restrictions_test_utils import *
 from ngts.tests_nvos.general.security.constants import AaaConsts, AuthConsts
-from ngts.tests_nvos.general.security.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_utils import set_local_users, configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap, enable_ldap_feature
@@ -97,7 +98,7 @@ def test_auth_restrictions_set_unset(test_api, engines):
         for resource_to_unset in [system, system.aaa, system.aaa.authentication,
                                   system.aaa.authentication.restrictions]:
             with allure.step('Change all fields'):
-                configure_resource(engines, restrictions, new_conf)
+                configure_resource(engines, restrictions, new_conf, apply=True)
 
             with allure.step('Verify new configuration'):
                 output = OutputParsingTool.parse_json_str_to_dictionary(restrictions.show()).get_returned_value()
@@ -171,12 +172,12 @@ def test_auth_restrictions_lockout(test_api, engines, test_user):
         lockout_attempts = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_ATTEMPTS])
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
 
-        configure_resource(engines, restrictions, configuration={
+        configure_resource(engines, restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: lockout_attempts,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.DISABLED
-        })
+        }, apply=True)
 
     with allure.step(f'Make {lockout_attempts} auth failures'):
         attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -241,12 +242,12 @@ def test_auth_restrictions_action_clear_user(test_api, engines, test_user):
         restrictions = System().aaa.authentication.restrictions
         lockout_attempts = 3
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
-        configure_resource(engines, restrictions, configuration={
+        configure_resource(engines, restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: lockout_attempts,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        })
+        }, apply=True)
 
     with allure.step('Block user'):
         attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -292,12 +293,12 @@ def test_auth_restrictions_action_clear_all(test_api, engines, test_users):
         restrictions = System().aaa.authentication.restrictions
         lockout_attempts = 3
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
-        configure_resource(engines, restrictions, configuration={
+        configure_resource(engines, restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: lockout_attempts,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        })
+        }, apply=True)
 
         user1, user2 = test_users[0], test_users[1]
 
@@ -367,22 +368,22 @@ def test_auth_restrictions_multi_user(test_api, engines):
     TestToolkit.tested_api = test_api
 
     with allure.step('Set 2 users (test_admin and TEST_ADMIN)'):
-        TestToolkit.tested_api = ApiType.NVUE
+        TestToolkit.tested_api = ApiType.NVUE  # todo: remove after fix set user with password in openapi
         test_admin_lower = RestrictionsConsts.TEST_ADMIN
         test_admin_upper = RestrictionsConsts.TEST_ADMIN.copy()
         test_admin_upper[AaaConsts.USERNAME] = test_admin_upper[AaaConsts.USERNAME].upper()
-        set_local_users(engines, [test_admin_lower, test_admin_upper])
-        TestToolkit.tested_api = test_api
+        set_local_users(engines, [test_admin_lower, test_admin_upper], apply=True)
+        TestToolkit.tested_api = test_api  # todo: remove after fix set user with password in openapi
 
     with allure.step('Enable lockout'):
         lockout_attempts = 3
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
-        configure_resource(engines, System().aaa.authentication.restrictions, configuration={
+        configure_resource(engines, System().aaa.authentication.restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: lockout_attempts,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        })
+        }, apply=True)
 
     with allure.step('Verify the configuration'):
         fd = RestrictionsConsts.FAIL_DELAY
@@ -434,12 +435,12 @@ def test_auth_restrictions_auth_success_clears_user(test_api, engines, test_user
     with allure.step('Enable lockout'):
         lockout_attempts = 3
         lockout_reattempt = random.randint(20, 30)
-        configure_resource(engines, System().aaa.authentication.restrictions, configuration={
+        configure_resource(engines, System().aaa.authentication.restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: lockout_attempts,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        })
+        }, apply=True)
 
     with allure.step(f'Make {lockout_attempts} auth failures'):
         attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -489,12 +490,12 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
     with allure.step('Configure lockout-attempts to 4'):
         restrictions = System().aaa.authentication.restrictions
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
-        configure_resource(engines, restrictions, configuration={
+        configure_resource(engines, restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: 4,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt
-        })
+        }, apply=True)
 
     with allure.step('Verify user is not blocked before'):
         openapi_attempter = OpenapiAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -547,12 +548,12 @@ def test_auth_restrictions_remote_counting(test_api, engines, devices, test_user
     with allure.step('Configure lockout and enable it'):
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
 
-        configure_resource(engines, aaa.authentication.restrictions, configuration={
+        configure_resource(engines, aaa.authentication.restrictions, conf={
             RestrictionsConsts.FAIL_DELAY: 0,
             RestrictionsConsts.LOCKOUT_ATTEMPTS: 3,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        })
+        }, apply=True)
 
     with allure.step('Make 1 authentication failure'):
         attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)

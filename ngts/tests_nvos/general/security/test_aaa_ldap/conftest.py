@@ -1,11 +1,6 @@
-import logging
 from time import sleep
-
-from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
-
-from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 
 

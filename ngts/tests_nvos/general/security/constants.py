@@ -39,3 +39,10 @@ class AuthConsts:
     SET_COMMAND = 'nv set system security password-hardening len-min 6'
     SWITCH_PROMPT_PATTERN = '.+@.+:.+\\$'
     PERMISSION_ERROR = 'Error: You do not have permission to execute that command.'
+
+    LOGIN_FAIL_ERR = 'login fail'
+    SHOW_FAIL_ERR = 'show fail'
+    SET_FAIL_ERR = 'set fail'
+    UNSET_FAIL_ERR = 'unset fail'
+
+    USERS = 'users'
