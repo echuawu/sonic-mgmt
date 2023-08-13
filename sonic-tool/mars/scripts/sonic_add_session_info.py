@@ -133,6 +133,9 @@ class SonicAddSessionInfo(SessionAddInfo):
             conn.modules.os.chdir(os.path.join(remote_workspace, repo_name, "ansible"))
             conn.modules.os.environ["HOME"] = "/root"
 
+            if 'gorilla' in dut_name:
+                conn.modules.execute.run_process("nv action enable fae sonic-cli", shell=True)
+
             p = conn.modules.execute.run_process(cmd, shell=True)
             (rc, output) = conn.modules.execute.wait_process(p)
             print "rc=" + str(rc)
