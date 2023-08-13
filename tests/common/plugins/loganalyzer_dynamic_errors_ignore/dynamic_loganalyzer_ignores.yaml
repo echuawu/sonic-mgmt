@@ -2508,6 +2508,15 @@
         - 3430838
 
 - Errors_list:
+    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Rif Counter 0x[a-f0-9]+: -1.*'
+    - '.* ERR syncd#SDK: \[SAI_RIF.ERR\] ./src/mlnx_sai_rif.c\[\d+\]- mlnx_rif_oid_data_fetch: RIF entry at index \d+ is removed or not created yet'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py
+      Redmine:
+        - 3574039
+
+- Errors_list:
     - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] ./src/mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Resource availability for object type \d+ is not implemented'
   Conditions:
     - Redmine:
