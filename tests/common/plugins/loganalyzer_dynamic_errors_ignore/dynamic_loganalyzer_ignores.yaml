@@ -3088,14 +3088,37 @@
     - Redmine:
       - 3512321
 
-# NVOS - warning in traffic test
+# NVOS - traffic test
 - Errors_list:
-    - '.*WARNING kernel: \[ \d+.\d+\] NOHZ tick-stop error: Non-RCU local softirq.*'
+    - '.*monit: service is not ready.*'
+    - '.*ERR health-statsd: unexpected exception.*'
+    - '.*Failed to get target speed date for psu.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
+      - tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids
+      - tests_nvos/general/config_commands/test_replace_patch.py
+      - tests_nvos/general/config_commands/test_apply_detac.py::test_apply_assume
+      - tests_nvos/general/config_commands/test_apply_detac.py::test_apply_rev_id
       Redmine:
-        - 3512421
+        - 3544169
+
+# NVOS - expected errors during init done event
+- Errors_list:
+    - '.*Failed to start ib-utils container.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+
+# NVOS - expected errors during thermal algo tests
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is missing.*'
+    - '.*ERR health-statsd#health_history: ASIC: Invalid temperature data.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: speed is out of range.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm/TestNewTc.py
 
 # NVOS
 - Errors_list:

@@ -75,7 +75,7 @@ def test_ib0_interface_state_invalid(engines):
 
 
 @pytest.mark.ib
-def test_ib0_interface_state_unset(engines):
+def test_ib0_interface_state_unset(engines, start_sm):
     """
     Configure port interface state using an invalid value
     Relevant cli commands:
@@ -89,7 +89,6 @@ def test_ib0_interface_state_unset(engines):
     3. Verify the value remain original by running “show” command
     """
     ib0_port = MgmtPort('ib0')
-    NvueOpenSmCli.enable(engines.dut)
     ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
                                       ask_for_confirmation=True).verify_result()
 
@@ -107,9 +106,9 @@ def test_ib0_interface_state_unset(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib
-def test_ib0_interface_state_openapi(engines):
+def test_ib0_interface_state_openapi(engines, start_sm):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib0_interface_state(engines)
+    test_ib0_interface_state(engines, start_sm)
 
 
 @pytest.mark.openapi
@@ -121,6 +120,6 @@ def test_ib0_interface_state_invalid_openapi(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib
-def test_ib0_interface_state_unset_openapi(engines):
+def test_ib0_interface_state_unset_openapi(engines, start_sm):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib0_interface_state_unset(engines)
+    test_ib0_interface_state_unset(engines, start_sm)

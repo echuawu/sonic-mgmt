@@ -88,19 +88,9 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Run reset factory without params"):
-            date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
-            current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
-            logging.info("Current time: " + str(current_time))
-            OperationTime.save_duration('reset factory', '', pytest.test_name, system.factory_default.action_reset).verify_result()
+            execute_reset_factory(engines, system, "")
 
-        with allure.step('Configure timezone'):
-            logger.info(
-                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
-            with allure.step('Save configuration'):
-                NvueGeneralCli.save_config(engines.dut)
-            with allure.step('Set timezone using timedatectl command'):
-                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        update_timezone()
 
         if machine_type != 'MQM9520':
             with allure.step("Validate health status and report"):
@@ -168,21 +158,9 @@ def test_reset_factory_keep_basic(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Run reset factory with keep basic param"):
-            date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
-            current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
-            logging.info("Current time: " + str(current_time))
-            NvueGeneralCli.save_config(engines.dut)
-            OperationTime.save_duration('reset factory', "keep basic", pytest.test_name,
-                                        system.factory_default.action_reset, param="keep basic").verify_result()
+            execute_reset_factory(engines, system, "keep basic")
 
-        with allure.step('Configure timezone'):
-            logger.info(
-                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
-            with allure.step('Save configuration'):
-                NvueGeneralCli.save_config(engines.dut)
-            with allure.step('Set timezone using timedatectl command'):
-                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        update_timezone()
 
         with allure.step("Validate health status and report"):
             _validate_health_status_report(system, last_status_line)
@@ -195,12 +173,7 @@ def test_reset_factory_keep_basic(engines):
                                                               expected_value='nvosdescription')
             mgmt_port.interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
 
-        with allure.step('Configure timezone'):
-            logger.info(
-                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
-            with allure.step('Save configuration'):
-                NvueGeneralCli.save_config(engines.dut)
+        update_timezone()
 
         with allure.step("Verify the setup is functional"):
             _verify_the_setup_is_functional(system, engines)
@@ -266,20 +239,9 @@ def test_reset_factory_keep_all_config(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Run reset factory with keep all-config param"):
-            date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
-            current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
-            logging.info("Current time: " + str(current_time))
-            OperationTime.save_duration('reset factory', "keep all-config", pytest.test_name,
-                                        system.factory_default.action_reset, param="keep all-config").verify_result()
+            execute_reset_factory(engines, system, "keep all-config")
 
-        with allure.step('Configure timezone'):
-            logger.info(
-                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
-            with allure.step('Save configuration'):
-                NvueGeneralCli.save_config(engines.dut)
-            with allure.step('Set timezone using timedatectl command'):
-                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        update_timezone()
 
         with allure.step('Validate ports description after reset factory'):
             logger.info("Validate ports description after reset factory")
@@ -361,20 +323,9 @@ def test_reset_factory_keep_only_files(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Run reset factory without params"):
-            date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
-            current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
-            logging.info("Current time: " + str(current_time))
-            OperationTime.save_duration('reset factory', "keep only-files", pytest.test_name,
-                                        system.factory_default.action_reset, param="keep only-files").verify_result()
+            execute_reset_factory(engines, system, "keep only-files")
 
-        with allure.step('Configure timezone'):
-            logger.info(
-                "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
-            ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, System(), apply=True).verify_result()
-            with allure.step('Save configuration'):
-                NvueGeneralCli.save_config(engines.dut)
-            with allure.step('Set timezone using timedatectl command'):
-                os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+        update_timezone()
 
         with allure.step("Validate health status and report"):
             _validate_health_status_report(system, last_status_line)
@@ -682,6 +633,40 @@ def test_error_flow_reset_factory_with_params(engines, devices, topology_obj):
         output = engines.dut.run_cmd("nv action reset system factory-default only-config")
         assert "is not one of" in output, "Reset factory with param should fail"
         # system.factory_default.action_reset(param="only-config").verify_result(should_succeed=False)
+
+
+def update_timezone(system):
+    with allure.step('Configure timezone'):
+        logger.info(
+            "Configuring same time zone for dut and local engine to {}".format(LinuxConsts.JERUSALEM_TIMEZONE))
+        ClockTools.set_timezone(LinuxConsts.JERUSALEM_TIMEZONE, system, apply=True).verify_result()
+        with allure.step('Set timezone using timedatectl command'):
+            os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
+
+
+def execute_reset_factory(engines, system, flag):
+    date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
+    current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
+    logging.info("Current time: " + str(current_time))
+
+    with allure.step("Get log analyzer marker"):
+        marker = get_loganalyzer_marker(engines.dut)
+
+    OperationTime.save_duration('reset factory', flag, pytest.test_name,
+                                system.factory_default.action_reset, param=flag).verify_result()
+
+    '''with allure.step("Get log analyzer marker"):
+        add_loganalyzer_marker(engines.dut, marker)'''
+
+
+def get_loganalyzer_marker(engine):
+    markers = engine.run_cmd('grep "INFO start-LogAnalyzer-" /var/log/syslog')
+    return markers.split("/n")[-1]
+
+
+def add_loganalyzer_marker(engine, marker):
+    if marker:
+        engine.run_cmd_set(f"echo '{marker}' | cat - /var/log/syslog > temp_syslog && mv temp_syslog /var/log/syslog")
 
 
 # ------------ Open API tests -----------------

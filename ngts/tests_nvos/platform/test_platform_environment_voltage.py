@@ -19,8 +19,8 @@ def test_show_platform_environment_voltage(engines):
     with allure.step("Execute show platform environment and make sure all the components exist"):
         voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show().get_returned_value()).verify_result()
         sensors_count = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
+        assert len(sensors_count) == len(voltage_output.keys())
 
-    assert len(sensors_count) == len(voltage_output.keys())
     with allure.step("pick random sensor to check the out put of the two show commands"):
         random_sensor = random.choice(list(voltage_output.keys()))
 

@@ -30,9 +30,10 @@ class Component(BaseComponent):
                                             TestToolkit.engines.dut, component, log_level).get_returned_value()
             TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
 
-    def unset_system_log_component(self, component):
+    def unset_system_log_component(self, component, apply=True):
         with allure.step("Unset {component} component to default log level".format(component=component)):
             logging.info("Unset {component} component to default log level".format(component=component))
             SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_unset_system_log_component,
                                             TestToolkit.engines.dut, component).get_returned_value()
-            TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)
+            if apply:
+                TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(TestToolkit.engines.dut)

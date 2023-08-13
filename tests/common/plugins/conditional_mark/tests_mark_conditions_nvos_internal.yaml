@@ -270,4 +270,18 @@ tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete:
     conditions:
       - https://redmine.mellanox.com/issues/3546936
 
+tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive:
+  skip:
+    reason: "Testcase skipped till config fetch feature will be merged to master"
+
+tests_nvos/general/config_commands/test_config_fetch.py:
+  skip:
+    reason: "Testcase skipped till config fetch feature will be merged to master"
+
+tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3571962"
+    conditions:
+      - https://redmine.mellanox.com/issues/3571962
+
 ########################## NVOS IGNORE END ##########################

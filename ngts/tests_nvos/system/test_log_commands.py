@@ -317,9 +317,6 @@ def _log_files_rotation_default_fields(system_log_obj, default_max_number, defau
         ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                     field_name='size', expected_value=default_size).verify_result()
 
-    with allure.step("Verify unset system log"):
-        system_log_obj.unset()
-
 
 @pytest.mark.system
 @pytest.mark.log
