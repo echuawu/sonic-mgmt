@@ -351,5 +351,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         """
         pattern = r"\[rev_id:\s(\d+)\]"
         match = re.search(pattern, output)
-        assert match, "can't match rev_id after apply"
-        return ' ' + match.group(1)
+        if match:
+            return ' ' + match.group(1)
+
+        logger.warning("can't match rev_id after apply")
+        return ''

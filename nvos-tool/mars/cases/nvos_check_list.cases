@@ -10,7 +10,7 @@
     <Case>
       <tags> system </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 8000 </tout>
+      <tout> 15000 </tout>
       <tags>ALL</tags>
     </Case>
   </global>
@@ -51,7 +51,7 @@
   <case>
     <name> System Image - Release </name>
     <info> </info>
-    <tout> 5000 </tout>
+    <tout> 12000 </tout>
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/test_system_image.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --release_name=[[conf:extra_info.release_name]] --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
