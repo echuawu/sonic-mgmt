@@ -30,7 +30,7 @@ def test_techsupport_show(engines, test_name):
         output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
 
-        validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions)
+        validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions, 2)
 
     with allure.step('Validate show tech-support command format'):
         show_output = system.techsupport.show()
@@ -215,10 +215,11 @@ def test_techsupport_size(engines, test_name):
         assert size_in_MB < 50, f"{tech_support_folder} size ({size_in_MB}MB) should be less than 50MB"
 
 
-def validate_techsupport_output(output_dictionary_before, output_dictionary_after):
+def validate_techsupport_output(output_dictionary_before, output_dictionary_after, number_of_expected_files):
     with allure.step('Validating the generate command and show command working as expected'):
         new_folders = [file for file in output_dictionary_after if file not in output_dictionary_before]
-        assert len(new_folders) == 2, "at least one of the new tech-support folders not found"
+        assert len(new_folders) == number_of_expected_files + 1, \
+            "at least one of the new tech-support folders not found"
 
 
 def validate_techsupport_since(output_dictionary, substring):

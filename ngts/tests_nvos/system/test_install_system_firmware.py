@@ -112,8 +112,7 @@ def get_original_fw_path(engines, original_fw):
 
 
 def verify_field_value_in_output_for_each_asic(output_dictionary, field, value):
-    for asic_name in output_dictionary:
-        ValidationTool.verify_field_value_in_output(output_dictionary[asic_name], field, value).verify_result()
+    ValidationTool.verify_field_value_in_output(output_dictionary, field, value).verify_result()
 
 
 def validate_all_asics_have_same_info():

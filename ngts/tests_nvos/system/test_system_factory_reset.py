@@ -1,5 +1,7 @@
 import logging
 import os
+import re
+
 import pytest
 import time
 from datetime import datetime
@@ -87,10 +89,13 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
         with allure.step("Add data before reset factory"):
             username = _add_verification_data(engines.dut, system)
 
-        with allure.step("Run reset factory without params"):
-            execute_reset_factory(engines, system, "")
+        with allure.step("Get current time"):
+            current_time = get_current_time(engines)
 
-        update_timezone()
+        with allure.step("Run reset factory without params"):
+            execute_reset_factory(engines, system, "", current_time)
+
+        update_timezone(system)
 
         if machine_type != 'MQM9520':
             with allure.step("Validate health status and report"):
@@ -157,10 +162,13 @@ def test_reset_factory_keep_basic(engines):
         with allure.step("Add data before reset factory"):
             username = _add_verification_data(engines.dut, system)
 
-        with allure.step("Run reset factory with keep basic param"):
-            execute_reset_factory(engines, system, "keep basic")
+        with allure.step("Get current time"):
+            current_time = get_current_time(engines)
 
-        update_timezone()
+        with allure.step("Run reset factory with keep basic param"):
+            execute_reset_factory(engines, system, "keep basic", current_time)
+
+        update_timezone(system)
 
         with allure.step("Validate health status and report"):
             _validate_health_status_report(system, last_status_line)
@@ -238,10 +246,13 @@ def test_reset_factory_keep_all_config(engines):
         with allure.step("Add data before reset factory"):
             username = _add_verification_data(engines.dut, system)
 
-        with allure.step("Run reset factory with keep all-config param"):
-            execute_reset_factory(engines, system, "keep all-config")
+        with allure.step("Get current time"):
+            current_time = get_current_time(engines)
 
-        update_timezone()
+        with allure.step("Run reset factory with keep all-config param"):
+            execute_reset_factory(engines, system, "keep all-config", current_time)
+
+        update_timezone(system)
 
         with allure.step('Validate ports description after reset factory'):
             logger.info("Validate ports description after reset factory")
@@ -322,13 +333,16 @@ def test_reset_factory_keep_only_files(engines):
         with allure.step("Add data before reset factory"):
             username = _add_verification_data(engines.dut, system)
 
-        with allure.step("Run reset factory without params"):
-            execute_reset_factory(engines, system, "keep only-files")
+        with allure.step("Get current time"):
+            current_time = get_current_time(engines)
 
-        update_timezone()
+        with allure.step("Run reset factory without params"):
+            execute_reset_factory(engines, system, "keep only-files", current_time)
+
+        update_timezone(system)
 
         with allure.step("Validate health status and report"):
-            _validate_health_status_report(system, last_status_line)
+            _validate_health_status_report(system, last_status_line, False)
 
     finally:
         with allure.step("Verify the cleanup done successfully"):
@@ -338,7 +352,7 @@ def test_reset_factory_keep_only_files(engines):
             _verify_the_setup_is_functional(system, engines)
 
 
-def _validate_health_status_report(system, last_status_line):
+def _validate_health_status_report(system, last_status_line, should_change=True):
     start_time = time.time()
     system.health.wait_until_health_status_change_after_reboot(HealthConsts.OK)
     end_time = time.time()
@@ -348,8 +362,9 @@ def _validate_health_status_report(system, last_status_line):
 
     with allure.step("Validate new health file"):
         logger.info("Validate new health file")
+        expected_num = 0 if should_change else 1
         system.health.history.validate_new_summary_line_in_history_file_after_boot(last_status_line)
-        assert len(system.health.history.search_line(last_status_line, system.health.history.show())) == 0, \
+        assert len(system.health.history.search_line(last_status_line, system.health.history.show())) == expected_num, \
             "Health file has not changed after reset factory"
 
 
@@ -644,9 +659,13 @@ def update_timezone(system):
             os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
 
 
-def execute_reset_factory(engines, system, flag):
+def get_current_time(engines):
     date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
     current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
+    return current_time
+
+
+def execute_reset_factory(engines, system, flag, current_time):
     logging.info("Current time: " + str(current_time))
 
     with allure.step("Get log analyzer marker"):
@@ -655,18 +674,25 @@ def execute_reset_factory(engines, system, flag):
     OperationTime.save_duration('reset factory', flag, pytest.test_name,
                                 system.factory_default.action_reset, param=flag).verify_result()
 
-    '''with allure.step("Get log analyzer marker"):
-        add_loganalyzer_marker(engines.dut, marker)'''
+    with allure.step("Get log analyzer marker"):
+        add_loganalyzer_marker(engines.dut, marker)
 
 
 def get_loganalyzer_marker(engine):
-    markers = engine.run_cmd('grep "INFO start-LogAnalyzer-" /var/log/syslog')
-    return markers.split("/n")[-1]
+    try:
+        markers = engine.run_cmd('grep " start-LogAnalyzer-" /var/log/syslog')
+        last_marker = markers.split("/n")[-1]
+        return re.findall(r'\bstart-LogAnalyzer-\S+', last_marker)[0]
+    except BaseException:
+        return ""
 
 
 def add_loganalyzer_marker(engine, marker):
-    if marker:
-        engine.run_cmd_set(f"echo '{marker}' | cat - /var/log/syslog > temp_syslog && mv temp_syslog /var/log/syslog")
+    try:
+        if marker:
+            engine.run_cmd(f"logger -p info '{marker}'")
+    except BaseException:
+        logging.warning("Failed to add log analyzer marker")
 
 
 # ------------ Open API tests -----------------

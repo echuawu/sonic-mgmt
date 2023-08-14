@@ -226,7 +226,7 @@ def clear_config(markers):
             if "interface" in set_comp.keys():
                 result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
                 if result.result:
-                    active_port = result.returned_value[0]
+                    active_port = result.returned_value[-1]
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
             system = System()

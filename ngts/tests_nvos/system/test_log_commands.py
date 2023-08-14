@@ -516,7 +516,7 @@ def test_log_files_set_unset_log_rotation_max_number(engines):
     with allure.step("Create System object"):
         system = System(None)
 
-    _log_files_set_unset_log_rotation_max_number(engines, system.log)
+    _log_files_set_unset_log_rotation_max_number(engines, system.log, "syslog")
 
 
 @pytest.mark.system
@@ -539,10 +539,10 @@ def test_debug_log_files_set_unset_log_rotation_max_number(engines):
     with allure.step("Write to debug log file"):
         system.debug_log.write_to_log()
 
-    _log_files_set_unset_log_rotation_max_number(engines, system.debug_log)
+    _log_files_set_unset_log_rotation_max_number(engines, system.debug_log, 'debug')
 
 
-def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
+def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj, log_name_prefix):
     with allure.step("Negative validation for log rotation max-number"):
         logging.info("Negative validation for log rotation max-number")
         show_output = system_log_obj.rotation.show()
@@ -569,7 +569,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj):
         show_output = system_log_obj.files.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         assert len(output_dictionary.keys()) >= 6
-        assert list(output_dictionary.keys())[-1] == 'debug.5.gz'
+        assert list(output_dictionary.keys())[-1] == f'{log_name_prefix}.5.gz'
 
     with allure.step("Validate set max-number 1"):
         logging.info("Validate set max-number 1")

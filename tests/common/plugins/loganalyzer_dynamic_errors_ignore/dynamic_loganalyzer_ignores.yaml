@@ -3090,6 +3090,14 @@
       Redmine:
         - 3498811
 
+# NVOS - bug https://redmine.mellanox.com/issues/3554784
+- Errors_list:
+    - '.*Loading Cached Option:enable_crashd = FALSE.*'
+    - '.*mlnx_create_port: Failed convert attribute list to string.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py
+
 # NVOS - log issue
 - Errors_list:
     - ".*ERR rsyslogd: file size limit cmd for file '\/var\/log\/nvued.log' did no resolve situation.*"
@@ -3304,19 +3312,6 @@
       - tests_nvos/general/config_commands/test_replace_patch.py::test_apply_assume
       Redmine:
         - 3558065
-
-# NVOS
-- Errors_list:
-    - '.*was not found in \/var\/log.*'
-  Conditions:
-    - Affected_test_cases:
-      - tests_nvos/interfaces/test_port_split.py::test_ib_split_port_no_breakout_profile
-      - tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash
-      - tests_nvos/system/test_system_profile_change.py::test_system_profile_changes_stress
-      - tests_nvos/system/test_system_profile_change.py::test_system_profile_change_breakout_mode
-      - tests_nvos/system/test_system_profile_change.py::test_system_profile_adaptive_routing
-      Redmine:
-        - 3549505
 
 # NVOS
 - Errors_list:
