@@ -709,7 +709,6 @@ class TestEverflowV4EgressAclIngressMirror(EverflowIPv4Tests):
 
 
 class TestEverflowV4EgressAclEgressMirror(EverflowIPv4Tests):
-    @pytest.fixture(scope="class", autouse=True)
     def acl_stage(self):
         return "egress"
 

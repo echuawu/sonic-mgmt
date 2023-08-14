@@ -776,12 +776,6 @@ everflow/test_everflow_testbed.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5' in platform"
 
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3499866"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3499866"
-
 # SONiC can't enable loop-back filter feature
 # Test case is skipped, because SONiC does not have a control to adjust loop-back filter settings.
 # Default SONiC behavior is to forward the traffic, so loop-back filter does not triggers for IP packets.
