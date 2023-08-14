@@ -44,3 +44,13 @@ def recover_tc_service(skipping_new_hw_tc_tests, engines, cli_objects):
     if not cli_objects.dut.hw_mgmt.is_thermal_control_running():
         logger.warning("tc is not running, please check the reason")
         cli_objects.dut.hw_mgmt.start_thermal_control()
+
+
+@pytest.fixture(scope='function', autouse=True)
+def print_test_start_end_tc_log(engines):
+    get_last_one_line_tc_log = f'tail {TC_CONST.TC_LOG_FILE}  -n 1'
+    logger.info(f"tc_log_start: {engines.dut.run_cmd(get_last_one_line_tc_log)}")
+
+    yield
+
+    logger.info(f"tc_log_end: {engines.dut.run_cmd(get_last_one_line_tc_log)}")
