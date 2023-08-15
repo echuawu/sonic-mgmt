@@ -134,5 +134,6 @@ def verify_firmware_with_system_and_fae_cmd(system, fae, installed_fw, actual_fw
     verify_field_value_in_output_for_each_asic(output_dictionary, "actual-firmware", actual_fw)
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
         fae.firmware.asic.show()).get_returned_value()
-    verify_field_value_in_output_for_each_asic(output_dictionary, "installed-firmware", installed_fw)
-    verify_field_value_in_output_for_each_asic(output_dictionary, "actual-firmware", actual_fw)
+    for asic in output_dictionary:
+        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "installed-firmware", installed_fw)
+        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "actual-firmware", actual_fw)

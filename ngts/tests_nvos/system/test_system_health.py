@@ -307,7 +307,7 @@ def test_simulate_fan_speed_fault(devices, engines):
         real_speed = HWSimulator.simulate_fan_speed_fault(engines.dut, fan_id)
         fan_display_name = get_fan_display_name(fan_id)
         health_issue_dict = {fan_display_name: "speed is out of range"}
-        validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
+        retry_validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:
         date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
@@ -315,9 +315,7 @@ def test_simulate_fan_speed_fault(devices, engines):
         with allure.step("Fix the health issues"):
             logger.info("Fix the health issues")
             HWSimulator.simulate_fix_fan_speed_fault(engines.dut, fan_id, real_speed)
-            logger.info("Sleep 10 second")
-            time.sleep(10)
-            validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
+            retry_validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
 
 
 @pytest.mark.system
@@ -516,6 +514,11 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                 NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output,
                 search_since_datetime)) > 0, "Didn't find health status line in the system log since specific time :{}\n" \
                                              "System Log:\n {}".format(search_since_datetime, log_output)
+
+
+@retry(Exception, tries=6, delay=10)
+def retry_validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix, expected_in_monitor_list=True):
+    validate_health_fix_or_issue(system, health_issue_dict, search_since_datetime, is_fix, expected_in_monitor_list)
 
 
 def system_health_files_test(engines, devices, check_rotation=False):
