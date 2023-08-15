@@ -102,7 +102,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
         if is_evpn_support(base_sonic_branch):
             with allure.step('Setting "docker_routing_config_mode": "split" in config_db.json'):
-                cli_objects.dut.general.update_config_db_docker_routing_config_mode()
+                cli_objects.dut.general.update_config_db_docker_routing_config_mode(topology_obj)
 
         with allure.step('Check that links in UP state'):
             retry_call(cli_objects.dut.interface.check_ports_status, fargs=[ports_list], tries=10,
@@ -339,7 +339,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if is_evpn_support(base_sonic_branch):
             with allure.step('Removing "docker_routing_config_mode" from config_db.json'):
                 cli_objects.dut.general.update_config_db_docker_routing_config_mode(
-                    remove_docker_routing_config_mode=True)
+                    topology_obj, remove_docker_routing_config_mode=True)
             logger.info('Check that links in UP state')
             cli_objects.dut.interface.check_link_state(ports_list)
 

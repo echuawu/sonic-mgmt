@@ -10,6 +10,7 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from ngts.config_templates.route_config_template import RouteConfigTemplate
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
+from ngts.constants.constants import SonicConst
 from retry.api import retry_call
 import logging
 
@@ -111,11 +112,12 @@ PORT_NUM_LIST = [1]
 
 
 @pytest.mark.parametrize("ports_num", PORT_NUM_LIST)
-def test_dynamic_port_counters(request, cli_objects, engines, ports_num, interfaces, players, ha_dut_1_mac, orig_ifaces):
+def test_dynamic_port_counters(request, cli_objects, topology_obj, engines, ports_num, interfaces, players, ha_dut_1_mac, orig_ifaces):
     """
     Test dynamically adding ports or deleting ports
     :param request: pytest request fixture object
     :param engines: engines fixture object
+    :param topology_obj: topology_obj fixture object
     :param interfaces: interfaces fixture object
     :param players: players fixture object
     :param ha_dut_1_mac: ha_dut_1_mac fixture object
@@ -156,10 +158,7 @@ def test_dynamic_port_counters(request, cli_objects, engines, ports_num, interfa
                 verify_traffic(interfaces, players, ha_dut_1_mac)
     except Exception as e:
         with allure.step("Reload config after failure"):
-            cli_objects.dut.general.reload_configuration()
-        with allure.step("Verify ports are added back after reload config"):
-            retry_call(verify_ifaces_status, fargs=[cli_objects.dut, orig_ifaces],
-                       tries=10, delay=10, logger=logger)
+            cli_objects.dut.general.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj)
         pytest.fail("test_dynamic_port_counters failed due to".format(e))
 
 

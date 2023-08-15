@@ -144,12 +144,17 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def download_file_from_http_url(self, url, target_file_path):
         self.engine.run_cmd('sudo curl {} -o {}'.format(url, target_file_path), validate=True)
 
+    def check_and_apply_dns(self):
+        if not self.cli_obj.ip.is_static_dns_supported():
+            with allure.step('Apply DNS servers configuration after reboot/reload'):
+                self.cli_obj.ip.apply_dns_servers_into_resolv_conf()
+
     def reboot_reload_flow(self, r_type='reboot', ports_list=None, topology_obj=None, wait_after_ping=45,
                            reload_force=False):
         """
         Wrapper for reboot and reload methods - which executes appropriate method based on reboot/reload type
         """
-        if r_type == 'config reload -y':
+        if r_type == SonicConst.CONFIG_RELOAD_CMD:
             self.reload_flow(ports_list, topology_obj, reload_force)
         else:
             self.reboot_flow(r_type, ports_list, topology_obj, wait_after_ping)
@@ -170,6 +175,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
+            self.check_and_apply_dns()
 
     def safe_reboot_flow(self, topology_obj, reboot_type='reboot', wait_after_ping=45):
         self.engine.reload([f'sudo {reboot_type}'], wait_after_ping=wait_after_ping)
@@ -195,6 +201,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
             self.port_reload_reboot_checks(ports_list)
+            self.check_and_apply_dns()
 
     def port_reload_reboot_checks(self, ports_list):
         self.verify_dockers_are_up()
@@ -801,7 +808,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             localhost_type
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
-    def update_config_db_docker_routing_config_mode(self, mode='split', remove_docker_routing_config_mode=False):
+    def update_config_db_docker_routing_config_mode(self, topology_obj, mode='split', remove_docker_routing_config_mode=False):
         config_db = self.get_config_db()
         config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
 
@@ -811,8 +818,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_localhost.update({ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: mode})
 
         save_config_db_json(self.engine, config_db)
-        self.reload_configuration(force=True)
-        self.verify_dockers_are_up()
+        self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj)
 
     def update_config_db_metadata_mgmt_port(self, setup_name, config_db_json_file_name):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)

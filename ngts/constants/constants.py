@@ -85,6 +85,8 @@ class SonicConst:
     MIN_SHAPER_RATE_BPS = 25000000
     MAX_SHAPER_RATE_BPS = 0
 
+    CONFIG_RELOAD_CMD = 'config reload -y'
+
 
 class CliType:
     NVUE = 'NVUE'

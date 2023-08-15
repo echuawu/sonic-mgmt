@@ -18,6 +18,7 @@ from ngts.cli_util.verify_cli_show_cmd import verify_show_cmd
 from ngts.conftest import cleanup_last_config_in_stack
 from ngts.helpers.reboot_reload_helper import get_supported_reboot_reload_types_list
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
+from ngts.constants.constants import SonicConst
 
 logger = logging.getLogger()
 PORTCHANNEL_NAME = 'PortChannel1111'
@@ -459,9 +460,7 @@ def test_lags_scale(topology_obj, engines, cleanup_list):
 
         with allure.step('Reloading the DUT config using cmd: "config reload -y"'):
             dut_cli.general.save_configuration()
-            dut_cli.general.reload_configuration()
-            dut_cli.general.verify_dockers_are_up()
-            dut_cli.interface.check_link_state(ifaces=topology_obj.players_all_ports['dut'])
+            dut_cli.general.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj)
 
         with allure.step('Validation for bug 2435254 - validate lags and ips'
                          ' are configured properly after config reload'):
