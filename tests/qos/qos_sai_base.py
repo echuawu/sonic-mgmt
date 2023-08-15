@@ -637,7 +637,7 @@ class QosSaiBase(QosBase):
 
         testPortIds = []
         # LAG ports in T1 TOPO need to be removed in Mellanox devices
-        if topo in self.SUPPORTED_T0_TOPOS or isMellanoxDevice(duthost):
+        if topo in self.SUPPORTED_T0_TOPOS:
             pytest_assert(
                 not duthost.sonichost.is_multi_asic, "Fixture not supported on T0 multi ASIC"
             )
@@ -729,7 +729,8 @@ class QosSaiBase(QosBase):
                         uplinkPortIps.append(addr["peer_ipv4"])
                         uplinkPortNames.append(portName)
 
-            testPortIds = sorted(dutPortIps.keys())
+            testPortIds = self.select_port_ids_for_mellnaox_device(duthost, mgFacts, sorted(dutPortIps.keys())) \
+                if isMellanoxDevice(duthost) else sorted(dutPortIps.keys())
 
         elif tbinfo["topo"]["type"] == "t2":
             for iface, addr in list(dut_asic.get_active_ip_interfaces(tbinfo).items()):
@@ -1728,3 +1729,36 @@ class QosSaiBase(QosBase):
         dut_asic.command("sleep 70")
         dut_asic.command("counterpoll watermark disable")
         dut_asic.command("counterpoll queue disable")
+
+    def select_port_ids_for_mellnaox_device(self, duthost, mgFacts, testPortIds):
+        """
+        For Nvidia devices, the tested ports must have the same cable length and speed.
+        Firstly, categorize the ports by the same cable length and speed.
+        Secondly, select the port group with the largest number of ports as test ports from the above results.
+        """
+        ptf_port_dut_port_dict = dict(zip(mgFacts["minigraph_ptf_indices"].values(),
+                                          mgFacts["minigraph_ptf_indices"].keys()))
+        get_interface_cable_length_info = f'redis-cli -n 4 hgetall "CABLE_LENGTH|AZURE" '
+        interface_cable_length_list = duthost.shell(get_interface_cable_length_info)['stdout_lines']
+        interface_status = duthost.show_interface(command="status")["ansible_facts"]['int_status']
+
+        cable_length_speed_interface_dict = {}
+        for ptf_port in testPortIds:
+            dut_port = ptf_port_dut_port_dict[ptf_port]
+            if dut_port in interface_cable_length_list:
+                cable_length = interface_cable_length_list[interface_cable_length_list.index(dut_port) + 1]
+                speed = interface_status[dut_port]['speed']
+                cable_length_speed = f"{cable_length}_{speed}"
+                if cable_length_speed in cable_length_speed_interface_dict:
+                    cable_length_speed_interface_dict[cable_length_speed].append(ptf_port)
+                else:
+                    cable_length_speed_interface_dict[cable_length_speed] = [ptf_port]
+        max_port_num = 0
+        test_port_ids = []
+        # Find the port group with the largest number of ports as test ports
+        for _, port_list in cable_length_speed_interface_dict.items():
+            if max_port_num < len(port_list):
+                test_port_ids = port_list
+                max_port_num = len(port_list)
+        logger.info(f"Test ports ids is{test_port_ids}")
+        return test_port_ids
