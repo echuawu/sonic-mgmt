@@ -170,11 +170,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
-        if not self.cli_obj.ip.is_static_dns_supported():
-            #  WA to apply dns configuration after reboot
-            with allure.step('Apply DNS servers configuration after reboot'):
-                self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
-                    is_air_setup=platform_params.setup_name.startswith('air'))
 
     def safe_reboot_flow(self, topology_obj, reboot_type='reboot', wait_after_ping=45):
         self.engine.reload([f'sudo {reboot_type}'], wait_after_ping=wait_after_ping)
@@ -200,11 +195,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
             self.port_reload_reboot_checks(ports_list)
-        if not self.cli_obj.ip.is_static_dns_supported():
-            #  WA to apply dns configuration after config reload
-            with allure.step('Apply DNS servers configuration after reload'):
-                self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
-                    is_air_setup=platform_params.setup_name.startswith('air'))
 
     def port_reload_reboot_checks(self, ports_list):
         self.verify_dockers_are_up()
