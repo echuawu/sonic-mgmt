@@ -786,6 +786,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         for feature, feature_properties in image_supported_features.items():
             if feature not in current_features:
                 config_db_json[ConfigDbJsonConst.FEATURE][feature] = feature_properties
+            has_timer_value = config_db_json[ConfigDbJsonConst.FEATURE][feature].pop("has_timer", None)
+            if has_timer_value:
+                config_db_json[ConfigDbJsonConst.FEATURE][feature]["delayed"] = has_timer_value
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_router(self, setup_name, config_db_json_file_name):
