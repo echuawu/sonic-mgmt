@@ -225,6 +225,8 @@
       <Device Hostname="gorilla-chipsim-69" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-chipsim-71" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-chipsim-73" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="gorilla-chipsim-75" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="gorilla-chipsim-77" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="jaguar-113" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="jaguar-112" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="gorilla-126" HwSku="ACS-MQM9700" Type="DevSonic"/>

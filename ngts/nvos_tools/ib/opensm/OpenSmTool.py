@@ -66,6 +66,57 @@ class OpenSmTool:
                 logging.info("OpenSM is disabled")
                 return False
 
+    @staticmethod
+    def start_open_sm_on_server(engines):
+        """
+        Start open sm if it's not running
+        """
+        if not hasattr(engines, "ha"):
+            logging.warning("HA can't be found in topology")
+            return ResultObj(False, "HA can't be found in topology")
+
+        is_running, port_name = OpenSmTool.is_sm_running_on_server(engines)
+
+        if is_running:
+            logging.info("Open SM is already running")
+            return ResultObj(True, "Open SM is already running")
+
+        with allure.step("Get GUID to start OpenSM"):
+            output = engines.ha.run_cmd("ibstat {}".format(port_name))
+            guid = ''
+            for line in output.splitlines():
+                if "System image GUID" in line:
+                    guid = line.split(":")[1]
+                    logging.info("GUID: " + guid)
+                    break
+            if not guid:
+                return ResultObj(False, "Failed to find GUID to start OpenSM")
+
+        with allure.step("Start OpenSM"):
+            engines.ha.run_cmd("opensm -g {} -B".format(guid))
+            time.sleep(5)
+
+        with allure.step("Verify OpenSM is running"):
+            return ResultObj(OpenSmTool.verify_open_sm_is_running_on_server(engines), "Failed to start OpenSM")
+
+    @staticmethod
+    def stop_open_sm_on_server(engines):
+        engines.ha.run_cmd("reset")
+        return ResultObj(True, "")
+
+    @staticmethod
+    def is_sm_running_on_server(engines):
+        with allure.step("Check if OpenSM is running on a server"):
+            output = engines.ha.run_cmd("ibdev2netdev")
+            is_running = "(Up)" in output
+            port_name = output.split()[0]
+            return is_running, port_name
+
+    @staticmethod
+    def verify_open_sm_is_running_on_server(engines):
+        is_running, port_name = OpenSmTool.is_sm_running_on_server(engines)
+        return is_running
+
 
 @retry(Exception, tries=25, delay=4)
 def _wait_until_sm_is_running(ib):

@@ -123,7 +123,7 @@ def start_sm(engines, traffic_available):
     if traffic_available:
         result = OpenSmTool.start_open_sm(engines.dut)
         if not result.result:
-            logging.warning("Failed to start openSM using NVUE commands")
+            logging.warning("Failed to start openSM")
     else:
         logging.warning("Traffic is not available on this setup")
 
@@ -135,7 +135,7 @@ def stop_sm(engines):
     """
     result = OpenSmTool.stop_open_sm(engines.dut)
     if not result.result:
-        logging.warning("Failed to stop openSM using NVUE commands")
+        logging.warning("Failed to stop openSM")
 
 
 @pytest.fixture(scope="session")
