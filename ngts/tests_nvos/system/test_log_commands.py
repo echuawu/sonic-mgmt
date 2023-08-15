@@ -587,7 +587,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj, log_na
         show_output = system_log_obj.files.show()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
         assert len(output_dictionary.keys()) == 2
-        assert list(output_dictionary.keys())[-1] == 'debug.1'
+        assert list(output_dictionary.keys())[-1] == f'{log_name_prefix}.1'
 
     with allure.step("Validate unset log rotation"):
         logging.info("Validate unset log rotation")

@@ -125,3 +125,22 @@ class TestToolkit:
         """
         release_name = TestToolkit.version_to_release(version)
         return (not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run)
+
+    @staticmethod
+    def get_loganalyzer_marker(engine):
+        with allure.step("Get log analyzer marker"):
+            try:
+                markers = engine.run_cmd('grep " start-LogAnalyzer-" /var/log/syslog')
+                last_marker = markers.split("/n")[-1]
+                return re.findall(r'\bstart-LogAnalyzer-\S+', last_marker)[0]
+            except BaseException:
+                return ""
+
+    @staticmethod
+    def add_loganalyzer_marker(engine, marker):
+        with allure.step("Get log analyzer marker"):
+            try:
+                if marker:
+                    engine.run_cmd(f"logger -p info '{marker}'")
+            except BaseException:
+                logging.warning("Failed to add log analyzer marker")

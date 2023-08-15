@@ -181,7 +181,7 @@ def test_reset_factory_keep_basic(engines):
                                                               expected_value='nvosdescription')
             mgmt_port.interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
 
-        update_timezone()
+        update_timezone(system)
 
         with allure.step("Verify the setup is functional"):
             _verify_the_setup_is_functional(system, engines)
@@ -668,31 +668,8 @@ def get_current_time(engines):
 def execute_reset_factory(engines, system, flag, current_time):
     logging.info("Current time: " + str(current_time))
 
-    with allure.step("Get log analyzer marker"):
-        marker = get_loganalyzer_marker(engines.dut)
-
     OperationTime.save_duration('reset factory', flag, pytest.test_name,
                                 system.factory_default.action_reset, param=flag).verify_result()
-
-    with allure.step("Get log analyzer marker"):
-        add_loganalyzer_marker(engines.dut, marker)
-
-
-def get_loganalyzer_marker(engine):
-    try:
-        markers = engine.run_cmd('grep " start-LogAnalyzer-" /var/log/syslog')
-        last_marker = markers.split("/n")[-1]
-        return re.findall(r'\bstart-LogAnalyzer-\S+', last_marker)[0]
-    except BaseException:
-        return ""
-
-
-def add_loganalyzer_marker(engine, marker):
-    try:
-        if marker:
-            engine.run_cmd(f"logger -p info '{marker}'")
-    except BaseException:
-        logging.warning("Failed to add log analyzer marker")
 
 
 # ------------ Open API tests -----------------

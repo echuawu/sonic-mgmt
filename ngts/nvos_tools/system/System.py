@@ -233,11 +233,17 @@ class FactoryDefault(BaseComponent):
             logging.info("Execute factory reset {}".format(param))
             if not engine:
                 engine = TestToolkit.engines.dut
+
+            marker = TestToolkit.get_loganalyzer_marker(engine)
+
             start_time = time.time()
+
             res_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_reset,
                                                       engine, "factory-default", param)
             end_time = time.time()
             duration = end_time - start_time
+
+            TestToolkit.add_loganalyzer_marker(engine, marker)
 
             with allure.step("Reset factory takes: {} seconds".format(duration)):
                 logger.info("Reset factory takes: {} seconds".format(duration))
