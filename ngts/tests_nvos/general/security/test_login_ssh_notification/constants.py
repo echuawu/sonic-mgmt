@@ -56,7 +56,9 @@ class LoginSSHNotificationConsts:
     MIN_RECORD_PERIOD_VAL = 1
     MAX_RECORD_PERIOD_VAL = 30
     AUTH_LOGS_SHARED_LOCATION = '/auto/sw_system_project/NVOS_INFRA/security/verification/login_ssh_notification/logs/*'
-    AUTH_LOG_SWITCH_PATH = '/var/log'
+    AUTH_LOG_DIR_SWITCH_PATH = '/var/log'
+    AUTH_LOG_FILE_SWITCH_PATH = f'{AUTH_LOG_DIR_SWITCH_PATH}/auth.log'
+    TMP_TEST_DIR_SWITCH_PATH = '/tmp/test_dir'
     MAX_LOGIN_TIME = 10
 
     PASSWORD_UPDATE_WAIT_TIME = 3

@@ -62,6 +62,10 @@ def delete_auth_logs(engines):
     '''
     @summary: will be used to delete all the auth.logs under /var/log/
     '''
-    dut_engine = engines.dut
     logger.info("Deleting all the auth. logs in the switch")
-    dut_engine.run_cmd('sudo rm -f /var/log/auth.log*')
+    engines.dut.run_cmd('sudo rm -f /var/log/auth.log*')
+
+    yield
+
+    logger.info("Deleting all the auth. logs in the switch (after test)")
+    engines.dut.run_cmd('sudo rm -f /var/log/auth.log*')

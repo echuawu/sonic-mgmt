@@ -12,7 +12,7 @@ import pytest
 import json
 
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
-from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts
+from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts as Consts
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import System
@@ -68,17 +68,17 @@ def parse_ssh_login_notification(dut_ip, username, password):
     # notification_login_message = ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
     #                                                                                    username,
     #                                                                                    password)
-    for key, regex in LoginSSHNotificationConsts.LOGIN_SSH_NOTIFICATION_REGEX_DICT.items():
+    for key, regex in Consts.LOGIN_SSH_NOTIFICATION_REGEX_DICT.items():
         match = re.findall(regex, notification_login_message)
-        if regex == LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE_REGEX:
+        if regex == Consts.LAST_SUCCESSFUL_LOGIN_DATE_REGEX:
             # there will be always output to catch it
-            result[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
-        elif regex == LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE_REGEX:
+            result[Consts.LAST_SUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
+        elif regex == Consts.LAST_UNSUCCESSFUL_LOGIN_DATE_REGEX:
             # not always the message will appear
             if len(match) != 0:
-                result[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
+                result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
             else:
-                result[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE] = None
+                result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = None
         else:
             result[key] = match[0] if match else None
 
@@ -101,8 +101,8 @@ def change_username_password(engines, username, curr_password, new_password):
         system.aaa.user.set_username(username=username)
         system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
 
-    with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
-        time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
+    with allure.step("Sleeping {} secs to allow password change".format(Consts.PASSWORD_UPDATE_WAIT_TIME)):
+        time.sleep(Consts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 def validate_ssh_login_notifications_default_fields(engines, login_source_ip_address, username, password, capability,
@@ -144,8 +144,8 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
             # try:
             #     connection = create_ssh_login_engine(engines.dut.ip, username)
             #     connection.expect(DefaultConnectionValues.PASSWORD_REGEX)
-            #     random_password = RandomizationTool.get_random_string(random.randint(LoginSSHNotificationConsts.PASSWORD_MIN_LEN,
-            #                                                                          LoginSSHNotificationConsts.PASSWORD_MAX_LEN))
+            #     random_password = RandomizationTool.get_random_string(random.randint(Consts.PASSWORD_MIN_LEN,
+            #                                                                          Consts.PASSWORD_MAX_LEN))
             #     logger.info("Iteration {} - connecting using random password: {}".format(index, random_password))
             #     connection.sendline(random_password)
             #     connection.expect(["Permission denied", "permission denied"])
@@ -158,56 +158,56 @@ def validate_ssh_login_notifications_default_fields(engines, login_source_ip_add
 
     if last_successful_login:
         with allure.step("Validating same date"):
-            time_delta_seconds = (abs(second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_DATE] - last_successful_login)).seconds
-            assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                        "The time difference is {}".format(time_delta_seconds)
-            time_delta_seconds = (second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_DATE] - last_successful_login).seconds
-            assert time_delta_seconds < LoginSSHNotificationConsts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
-                                                                                                        "The time difference is {}".format(time_delta_seconds)
+            time_delta_seconds = (abs(second_login_notification_message[Consts.LAST_SUCCESSFUL_LOGIN_DATE] - last_successful_login)).seconds
+            assert time_delta_seconds < Consts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                "The time difference is {}".format(time_delta_seconds)
+            time_delta_seconds = (second_login_notification_message[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] - last_successful_login).seconds
+            assert time_delta_seconds < Consts.MAX_TIME_DELTA_BETWEEEN_CONNECTIONS, "Time Delta between current time and successful login ssh time is not under 120 secs, \n" \
+                "The time difference is {}".format(time_delta_seconds)
 
     with allure.step("Validating {} failed attempts in the second connection".format(random_number_of_connection_fails)):
-        assert int(second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN]) == random_number_of_connection_fails, \
+        assert int(second_login_notification_message[Consts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN]) == random_number_of_connection_fails, \
             "Number of failed connections is not the same, \n" \
             "Expected : {} \n" \
-            "Actually : {}".format(second_login_notification_message[LoginSSHNotificationConsts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN],
+            "Actually : {}".format(second_login_notification_message[Consts.NUMBER_OF_UNSUCCESSFUL_ATTEMPTS_SINCE_LAST_LOGIN],
                                    random_number_of_connection_fails)
 
     with allure.step("Validating IP address is same as this test IP address"):
         with allure.step("Validating successful IP address"):
-            assert second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
+            assert second_login_notification_message[Consts.LAST_SUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
                 "Not same login IP Address, \n" \
                 "Expected : {} \n" \
-                "Actual : {}".format(second_login_notification_message[LoginSSHNotificationConsts.LAST_SUCCESSFUL_LOGIN_IP],
+                "Actual : {}".format(second_login_notification_message[Consts.LAST_SUCCESSFUL_LOGIN_IP],
                                      login_source_ip_address)
         with allure.step("Validating unsuccessful IP address"):
-            assert second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
+            assert second_login_notification_message[Consts.LAST_UNSUCCESSFUL_LOGIN_IP] == login_source_ip_address, \
                 "Not same unsuccessful login IP Address\n" \
                 "Expected : {} \n" \
                 "Actual : {}".format(
-                    second_login_notification_message[LoginSSHNotificationConsts.LAST_UNSUCCESSFUL_LOGIN_IP],
+                    second_login_notification_message[Consts.LAST_UNSUCCESSFUL_LOGIN_IP],
                     login_source_ip_address)
 
     with allure.step("Validating password or capability changes"):
         if check_password_change_msg:
-            assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is not None, \
+            assert second_login_notification_message[Consts.PASSWORD_CHANGED_MESSAGE] is not None, \
                 "Password change message did not appear when it should"
         else:
-            assert second_login_notification_message[LoginSSHNotificationConsts.PASSWORD_CHANGED_MESSAGE] is None, \
+            assert second_login_notification_message[Consts.PASSWORD_CHANGED_MESSAGE] is None, \
                 "Password change message appeared when it should not"
 
         if check_role_change_msg:
-            assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is not None, \
+            assert second_login_notification_message[Consts.ROLE_CHANGED_MESSAGE] is not None, \
                 "Capability change message did not appear when it should"
         else:
-            assert second_login_notification_message[LoginSSHNotificationConsts.ROLE_CHANGED_MESSAGE] is None, \
+            assert second_login_notification_message[Consts.ROLE_CHANGED_MESSAGE] is None, \
                 "Capability change message appeared when it should not"
 
     # if expected_login_record_period:
     #     with allure.step("Validating login-record-period value"):
     #         logger.info("Validating login-record-period value")
-    #         assert second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD] == str(expected_login_record_period), \
+    #         assert second_login_notification_message[Consts.RECORD_PERIOD] == str(expected_login_record_period), \
     #             "Not same login record period value, expected: {}, actual: {}".format(expected_login_record_period,
-    #                                                                                   second_login_notification_message[LoginSSHNotificationConsts.RECORD_PERIOD])
+    #                                                                                   second_login_notification_message[Consts.RECORD_PERIOD])
 
 
 def get_current_time_in_secs():
@@ -216,7 +216,7 @@ def get_current_time_in_secs():
     :return:
     '''
     output = os.popen("date").read()
-    current_date_string = re.findall(LoginSSHNotificationConsts.LINUX_DATE_REGEX, output)[0]
+    current_date_string = re.findall(Consts.LINUX_DATE_REGEX, output)[0]
     logger.info("Linux date is {}".format(current_date_string))
     current_date = convert_linux_date_output_to_datetime_object(current_date_string)
     return current_date
@@ -239,7 +239,7 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                     username=DefaultConnectionValues.ADMIN,
                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD,
-                                                    capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY,
+                                                    capability=Consts.ADMIN_CAPABITILY,
                                                     last_successful_login=successful_login_time)
 
 
@@ -265,14 +265,14 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                         username=DefaultConnectionValues.ADMIN,
                                                         password=DefaultConnectionValues.SIMPLE_PASSWORD,
-                                                        capability=LoginSSHNotificationConsts.ADMIN_CAPABITILY,
+                                                        capability=Consts.ADMIN_CAPABITILY,
                                                         check_password_change_msg=True,
                                                         last_successful_login=successful_login_time)
     finally:
         with allure.step('Restoring original password'):
             system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
-        with allure.step("Sleeping {} secs to allow password change".format(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)):
-            time.sleep(LoginSSHNotificationConsts.PASSWORD_UPDATE_WAIT_TIME)
+        with allure.step("Sleeping {} secs to allow password change".format(Consts.PASSWORD_UPDATE_WAIT_TIME)):
+            time.sleep(Consts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 @pytest.mark.login_ssh_notification
@@ -336,8 +336,8 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
         pass
 
     with allure.step("Setting new value for login record period"):
-        record_days = random.randint(LoginSSHNotificationConsts.MIN_RECORD_PERIOD_VAL, LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL)
-        system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD, record_days, apply=True, ask_for_confirmation=True)
+        record_days = random.randint(Consts.MIN_RECORD_PERIOD_VAL, Consts.MAX_RECORD_PERIOD_VAL)
+        system.ssh_server.set(Consts.RECORD_PERIOD, record_days, apply=True, ask_for_confirmation=True)
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
                                                         username=DefaultConnectionValues.ADMIN,
                                                         password=DefaultConnectionValues.DEFAULT_PASSWORD,
@@ -349,9 +349,9 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
 
     with allure.step("Validating Validating show system ssh-server command"):
         output = json.loads(system.ssh_server.show())
-        # assert output[LoginSSHNotificationConsts.RECORD_PERIOD] == str(record_days), \
+        # assert output[Consts.RECORD_PERIOD] == str(record_days), \
         #     "Could not match same login record period ib the show system ssh-server command\n" \
-        #     "expected: {}, actual: {}".format(record_days, output[LoginSSHNotificationConsts.RECORD_PERIOD])
+        #     "expected: {}, actual: {}".format(record_days, output[Consts.RECORD_PERIOD])
 
 
 @pytest.mark.simx
@@ -366,18 +366,25 @@ def test_login_ssh_notification_performance(engines, login_source_ip_address, re
     system = System(None)
 
     with allure.step("Setting max value for login record period"):
-        system.ssh_server.set(LoginSSHNotificationConsts.RECORD_PERIOD,
-                              LoginSSHNotificationConsts.MAX_RECORD_PERIOD_VAL,
+        system.ssh_server.set(Consts.RECORD_PERIOD,
+                              Consts.MAX_RECORD_PERIOD_VAL,
                               apply=True, ask_for_confirmation=False).verify_result()
 
     with allure.step("populating auth. logs by uploading from previously created files"):
-        scp_file(engines.dut, LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION, LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH)
+        logging.info('Create temp directory in the switch')
+        engines.dut.run_cmd(f'mkdir {Consts.TMP_TEST_DIR_SWITCH_PATH}')
+        logging.info('Upload auth log files using SCP')
+        scp_file(engines.dut, Consts.AUTH_LOGS_SHARED_LOCATION, Consts.TMP_TEST_DIR_SWITCH_PATH)
+        logging.info('Move files from temp directory to correct path using sudo')
+        engines.dut.run_cmd(f'sudo mv {Consts.TMP_TEST_DIR_SWITCH_PATH}/auth.log* {Consts.AUTH_LOG_DIR_SWITCH_PATH}')
+        logging.info('Remove temp directory from the switch')
+        engines.dut.run_cmd(f'rmdir {Consts.TMP_TEST_DIR_SWITCH_PATH}')
         # player_engine = engines['sonic_mgmt']
         # player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
         #                                     dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-        #                                     dest_folder=LoginSSHNotificationConsts.AUTH_LOG_SWITCH_PATH,
+        #                                     dest_folder=Consts.AUTH_LOG_DIR_SWITCH_PATH,
         #                                     dest_ip=engines.dut.ip,
-        #                                     local_file_path=LoginSSHNotificationConsts.AUTH_LOGS_SHARED_LOCATION)
+        #                                     local_file_path=Consts.AUTH_LOGS_SHARED_LOCATION)
 
     with allure.step("Measuring login time"):
         start_time = datetime.datetime.now()
@@ -385,6 +392,6 @@ def test_login_ssh_notification_performance(engines, login_source_ip_address, re
         end_time = datetime.datetime.now()
         login_time_sec = end_time.second - start_time.second
         logger.info("Login time is: {} secs".format(login_time_sec))
-        assert login_time_sec <= LoginSSHNotificationConsts.MAX_LOGIN_TIME, \
+        assert login_time_sec <= Consts.MAX_LOGIN_TIME, \
             "Took too long to login to switch using ssh, max threshold: {}," \
-            "actual: {}".format(LoginSSHNotificationConsts.MAX_LOGIN_TIME, login_time_sec)
+            "actual: {}".format(Consts.MAX_LOGIN_TIME, login_time_sec)
