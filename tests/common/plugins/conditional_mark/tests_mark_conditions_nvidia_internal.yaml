@@ -971,6 +971,12 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_route
       - "https://redmine.mellanox.com/issues/3419711 and '202211' in release"
       - "https://redmine.mellanox.com/issues/3421654 and '202211' in release and 'msn3800' in platform"
 
+sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3576473"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3576473"
+
 span/test_port_mirroring.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and branch 202211 and platform msn3800"
