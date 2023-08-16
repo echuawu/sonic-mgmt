@@ -278,4 +278,22 @@ tests_nvos/general/config_commands/test_config_fetch.py:
   skip:
     reason: "Testcase skipped till config fetch feature will be merged to master"
 
+tests_nvos/system/test_system_image.py::test_image_install:
+  skip:
+    reason: "Testcase skipped due to image install is not supported yet for Marlin"
+    conditions:
+      - "'marlin' in testbed"
+
+tests_nvos/system/test_system_image.py::test_image_uninstall_openapi:
+  skip:
+    reason: "Testcase skipped due to image install is not supported yet for Marlin"
+    conditions:
+      - "'marlin' in testbed"
+
+tests_nvos/system/test_system_image.py::test_image_uninstall_force_openapi:
+  skip:
+    reason: "Testcase skipped due to image install is not supported yet for Marlin"
+    conditions:
+      - "'marlin' in testbed"
+
 ########################## NVOS IGNORE END ##########################
