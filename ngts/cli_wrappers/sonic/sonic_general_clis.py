@@ -818,7 +818,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_localhost.update({ConfigDbJsonConst.DOCKER_ROUTING_CONFIG_MODE: mode})
 
         save_config_db_json(self.engine, config_db)
-        self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj)
+        self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj, reload_force=True)
 
     def update_config_db_metadata_mgmt_port(self, setup_name, config_db_json_file_name):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
