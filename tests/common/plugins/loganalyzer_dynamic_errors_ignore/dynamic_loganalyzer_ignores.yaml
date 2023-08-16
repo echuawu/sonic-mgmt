@@ -2807,6 +2807,13 @@
         - 3472796
 
 - Errors_list:
+    - ".*ERR mlnx-fw-upgrade.sh: FW (Query|Update) command.*"
+
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+
+- Errors_list:
     - '.* ERR swss#buffermgrd: :- isHeadroomResourceValid: Unable to update profile for port Ethernet\d+. Accumulative headroom size exceeds limit.*'
     - '.* ERR swss#buffermgrd: :- doUpdateBufferProfileForSize: BUFFER_PROFILE headroom-override cannot be updated because Ethernet.* referencing it violates the resource limitation.*'
   Conditions:
