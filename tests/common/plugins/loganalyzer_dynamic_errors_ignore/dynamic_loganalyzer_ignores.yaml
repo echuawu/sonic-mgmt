@@ -1540,8 +1540,6 @@
   Conditions:
     - Affected_test_cases:
       - generic_config_updater/test_pfcwd_interval.py::test_stop_pfcwd
-      Redmine:
-      - 3449977
 
 - Errors_list:
     - ".* ERR teamd#tlm_teamd: :- process_add_queue: Can't connect to teamd after 10 attempts. LAG.*"
