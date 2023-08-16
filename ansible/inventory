@@ -644,7 +644,7 @@ r-moose-01-t1-lag  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-
 r-moose-01-ptf32  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-ptf-any  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 
-# MTR community testbed mtvr-moose-02_setup topologies
+# MTVR community testbed mtvr-moose-02_setup topologies
 mtvr-moose-02  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7011 10.245.2.8" ptf_host=ptf-mtvr-moose-02 ptf_portmap="roles/test/files/mlnx/mtvr-moose-02_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-02-t0  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7011 10.245.2.8" ptf_host=ptf-mtvr-moose-02 ptf_portmap="roles/test/files/mlnx/mtvr-moose-02_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-02-t1  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7011 10.245.2.8" ptf_host=ptf-mtvr-moose-02 ptf_portmap="roles/test/files/mlnx/mtvr-moose-02_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
@@ -652,7 +652,7 @@ mtvr-moose-02-t1-lag  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=AC
 mtvr-moose-02-ptf32  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7011 10.245.2.8" ptf_host=ptf-mtvr-moose-02 ptf_portmap="roles/test/files/mlnx/mtvr-moose-02_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-02-ptf-any  ansible_host=10.245.20.40 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7011 10.245.2.8" ptf_host=ptf-mtvr-moose-02 ptf_portmap="roles/test/files/mlnx/mtvr-moose-02_interface_to_front_map.ini" pdu_host=pdu-pdu-10-245-2-49
 
-# MTR community testbed mtvr-moose-03_setup topologies
+# MTVR community testbed mtvr-moose-03_setup topologies
 mtvr-moose-03  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7048 10.245.2.8" ptf_host=ptf-mtvr-moose-03 ptf_portmap="roles/test/files/mlnx/mtvr-moose-03_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-03-t0  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7048 10.245.2.8" ptf_host=ptf-mtvr-moose-03 ptf_portmap="roles/test/files/mlnx/mtvr-moose-03_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-03-t1  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7048 10.245.2.8" ptf_host=ptf-mtvr-moose-03 ptf_portmap="roles/test/files/mlnx/mtvr-moose-03_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
@@ -660,13 +660,23 @@ mtvr-moose-03-t1-lag  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=AC
 mtvr-moose-03-ptf32  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7048 10.245.2.8" ptf_host=ptf-mtvr-moose-03 ptf_portmap="roles/test/files/mlnx/mtvr-moose-03_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-03-ptf-any  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7048 10.245.2.8" ptf_host=ptf-mtvr-moose-03 ptf_portmap="roles/test/files/mlnx/mtvr-moose-03_interface_to_front_map.ini" pdu_host=pdu-pdu-10-245-2-49
 
-# MTR community testbed mtvr-moose-04_setup topologies
+# MTVR community testbed mtvr-moose-04_setup topologies
 mtvr-moose-04  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t0  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t1  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t1-lag  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-ptf32  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-ptf-any  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-pdu-10-245-2-49
+
+# MTVR testbed mtvr-leopard-01 topologies
+mtvr-leopard-01  ansible_host=10.245.20.49  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-t0  ansible_host=10.245.20.49  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-t0-64-32  ansible_host=10.245.20.49  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-t1  ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-t1-lag  ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-t1-28-lag  ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-ptf32   ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
+mtvr-leopard-01-ptf-any   ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host=pdu-10-245-2-49
 
 
 # MTR testbed r-tigris-04 topologies
@@ -941,6 +951,7 @@ r-liger-12 ansible_host=r-liger-12 ansible_ssh_user="{{ lookup('env','ONYX_SWITC
 mtvr-liger-01 ansible_host=mtvr-liger-01 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 mtvr-liger-02 ansible_host=mtvr-liger-02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 mtvr-liger-03 ansible_host=mtvr-liger-03 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+mtvr-leopard-02 ansible_host=mtvr-leopard-02 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-tigris-28 ansible_host=r-tigris-28 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-tigon-19 ansible_host=r-tigon-19 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-tigon-22 ansible_host=r-tigon-22 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
@@ -1304,6 +1315,16 @@ mtvr-moose-04-t1
 mtvr-moose-04-t1-lag
 mtvr-moose-04-ptf32
 mtvr-moose-040-ptf-any
+
+# MTVR mtvr-leopard-01 topologies
+mtvr-leopard-01
+mtvr-leopard-01-t0
+mtvr-leopard-01-t0-64-32
+mtvr-leopard-01-t1
+mtvr-leopard-01-t1-lag
+mtvr-leopard-01-t1-28-lag
+mtvr-leopard-01-ptf32
+mtvr-leopard-01-ptf-any
 
 moose-42-ptf-any
 moose-42
@@ -2043,17 +2064,21 @@ ptf-r-leopard-72 ansible_host=10.215.34.62 ansible_ssh_user="{{ lookup('env','PT
 ptf-r-moose-01 ansible_host=10.215.22.3 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.22.3 ansible_host=10.215.22.3 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
-# MTR mtvr-moose-02 PTF host
+# MTVR mtvr-moose-02 PTF host
 ptf-mtvr-moose-02 ansible_host=10.245.20.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.245.20.122 ansible_host=10.245.20.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
-# MTR mtvr-moose-03 PTF host
+# MTVR mtvr-moose-03 PTF host
 ptf-mtvr-moose-03 ansible_host=10.245.20.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.245.20.182 ansible_host=10.245.20.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
-# MTR mtvr-moose-04 PTF host
+# MTVR mtvr-moose-04 PTF host
 ptf-mtvr-moose-04 ansible_host=10.245.20.62 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.245.20.62 ansible_host=10.245.20.62 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
+# MTVR mtvr-leopard-01 PTF host
+ptf-mtvr-leopard-01 ansible_host=10.245.32.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.245.32.122 ansible_host=10.245.32.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-tigris-04 PTF host
 ptf-r-tigris-04 ansible_host=10.213.104.5 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
@@ -2204,3 +2229,4 @@ pdu-10-208-2-47 ansible_host=10.208.2.47 protocol=snmp
 pdu-10-245-2-49 ansible_host=10.245.2.49 protocol=snmp
 pdu-10-7-219-120 ansible_host=10.7.219.120 protocol=snmp
 pdu-10-245-2-40 ansible_host=10.245.2.49 protocol=snmp
+pdu-10-245-2-25 ansible_host=10.245.2.25 protocol=snmp
