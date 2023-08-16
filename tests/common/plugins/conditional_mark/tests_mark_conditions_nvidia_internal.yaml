@@ -718,9 +718,9 @@ platform_tests/test_memory_exhaustion.py:
 
 show_techsupport/test_auto_techsupport.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3147554 and platform nvda_bf"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3579376 and platform ptf-any"
     conditions:
-      - "https://redmine.mellanox.com/issues/3147554 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3579376 and 'ptf' in topo_name"
 
 process_monitoring/test_critical_process_monitoring.py:
   skip:
