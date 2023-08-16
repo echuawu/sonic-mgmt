@@ -123,7 +123,7 @@ class PwhConsts:
     REGEX_NUMERIC = r"^-?\d+$"
 
     # expiration prompted warnings
-    PROMPT_PW_EXPIRED = ['Current password', 'You must change your password now and login again']
+    PROMPT_PW_EXPIRED = ['New password', 'You must change your password now!']
     PROMPT_EXPIRATION_WARNING = ['Warning: your password will expire in']  # ['$']
     MSG_PW_EXPIRED = 'You must change your password now and login again'
     MSG_EXPIRATION_WARNING = 'Warning: your password will expire in'

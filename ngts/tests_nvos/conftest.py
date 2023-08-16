@@ -31,6 +31,7 @@ from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
 
 logger = logging.getLogger()
 
@@ -230,13 +231,8 @@ def clear_config(markers):
                     active_port = result.returned_value[-1]
                 NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
 
-            system = System()
-            system.aaa.authentication.restrictions.set(RestrictionsConsts.LOCKOUT_STATE,
-                                                       RestrictionsConsts.DISABLED).verify_result()
-            system.aaa.authentication.restrictions.set(RestrictionsConsts.FAIL_DELAY, 0).verify_result()
-            system.set(ClockConsts.TIMEZONE, LinuxConsts.JERUSALEM_TIMEZONE, apply=True).verify_result()
-
-            NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+            set_base_configurations(dut_engine=TestToolkit.engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE,
+                                    apply=True)
 
             if should_wait_for_nvued_after_apply:
                 DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()

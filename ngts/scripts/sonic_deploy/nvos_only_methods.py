@@ -5,8 +5,10 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 import shutil
 import os
 from ngts.constants.constants import LinuxConsts
+from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
 
 logger = logging.getLogger()
 
@@ -43,15 +45,11 @@ class NvosInstallationSteps:
 
         with allure.step('Configure timezone'):
             try:
-                logger.info("Configuring same time zone for dut and local engine to {}"
-                            .format(LinuxConsts.JERUSALEM_TIMEZONE))
-                logger.info('Set timezone using NVUE')
-                System().set(ClockConsts.TIMEZONE, LinuxConsts.JERUSALEM_TIMEZONE, apply=True, dut_engine=dut_engine)\
-                    .verify_result()
-                with allure.step('Save configuration'):
-                    logger.info('Save configuration')
-                    NvueGeneralCli.save_config(dut_engine)
+                set_base_configurations(dut_engine=dut_engine, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
+                                        save_conf=True)
                 with allure.step('Set timezone using timedatectl command'):
+                    logger.info("Configuring same time zone for dut and local engine to {}"
+                                .format(LinuxConsts.JERUSALEM_TIMEZONE))
                     logger.info('Set timezone using linux command')
                     os.popen('sudo timedatectl set-timezone {}'.format(LinuxConsts.JERUSALEM_TIMEZONE))
             except BaseException as ex:
