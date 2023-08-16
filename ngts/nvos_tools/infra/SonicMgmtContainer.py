@@ -15,7 +15,7 @@ class SonicMgmtContainer:
     def restart_rsyslog(sonic_mgmt_engine):
         with allure.step("Restart rsyslog over sonic-mgmt container"):
             logging.info("Restart rsyslog over sonic-mgmt container")
-            sonic_mgmt_engine.run_cmd('/etc/init.d/rsyslog stop')
+            sonic_mgmt_engine.run_cmd('sudo pkill rsyslogd')
             sonic_mgmt_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
             sonic_mgmt_engine.run_cmd('rsyslogd')
 
