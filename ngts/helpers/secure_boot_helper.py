@@ -399,13 +399,13 @@ class SonicSecureBootHelper(SecureBootHelper):
     def is_secure_boot_enabled(boot_config):
         return 'Secure Boot: enabled' in boot_config
 
-    def check_secure_boot_status(self):
+    @staticmethod
+    def check_secure_boot_status(boot_config_status):
         """
         This function will check
             1. whether secure boot is supported at current switch, if not, skip the test
             2. whether secure boot is enabled at current switch, if not, skip the test
         """
-        boot_config_status = self.cli_objects.dut.general.get_bootctl_status()
         with allure.step('Check if Secure Boot is supported'):
             if not SonicSecureBootHelper.is_secure_boot_supported(boot_config_status):
                 pytest.skip(SonicSecureBootConsts.SECURE_BOOT_NOT_SUPPORTED_MESSAGE)
