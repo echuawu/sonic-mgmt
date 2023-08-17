@@ -565,11 +565,13 @@ def verify_pwd_ge_than_expected_value(mock_sensor, tc_config_dict, sensor_type, 
             expected_pwm = calculate_pwm(tc_config_dict, dev_parameter, temperature)
         poll_time = int(tc_config_dict["dev_parameters"][dev_parameter]['poll_time'])
 
-        # cpu_pack is a special case, whn the pwm can be adjusted to the expected one,
-        # the max wait time is 15*poll_time.
+        # cpu_pack and sodimm are special cases, when the pwm can be adjusted to the expected one,
+        # the max wait time is 15*poll_time and 150 respectively.
         # for the remaining sensor, it just need wait poll_time + TC_CONST.PWM_GROW_TIME),
         # the pwm should be adjusted to the expected one
-        try_times = 15 * poll_time if sensor_type == "cpu_pack" else poll_time + TC_CONST.PWM_GROW_TIME
+        sepcial_sensor_try_times = {"cpu_pack": 15 * poll_time,
+                                    "sodimm": 150}
+        try_times = sepcial_sensor_try_times.get(sensor_type, poll_time + TC_CONST.PWM_GROW_TIME)
 
         @retry(Exception, tries=try_times, delay=1)
         def check_cpu_pack_pwm():
@@ -635,10 +637,12 @@ def get_sensor_temperature_file_name(sensor_type, platform_params):
         if sensor_type == "module":
             sensor_index = random.choice(SENSOR_DATA[sensor_type]["index supporting sensor"])
         elif sensor_type == "voltmon":
-            # For ACS-MSN2100 and ACS-MSN4600, the voltmon numbering has gaps.
+            # For ACS-MSN2100, ACS-MSN4600, ACS-MSN2410 and Mellanox-SN2700 the voltmon numbering has gaps.
             # it is by design, Hardware will not fix it.
             hwsku_voltmon_index_map = {'ACS-MSN2100': [1, 2, 6],
-                                       'ACS-MSN4600': [1, 2, 3, 5, 7]}
+                                       'ACS-MSN4600': [1, 2, 3, 5, 7],
+                                       'ACS-MSN2410': [1, 2, 6],
+                                       'Mellanox-SN2700': [1, 2, 6]}
             default_voltmon_index_list = [str(index) for index in range(SENSOR_DATA[sensor_type]["start_index"],
                                                                         SENSOR_DATA[sensor_type]["total_number"] + 1)]
             voltmon_index_list = hwsku_voltmon_index_map.get(platform_params.hwsku, default_voltmon_index_list)
