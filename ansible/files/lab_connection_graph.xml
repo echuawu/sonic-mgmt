@@ -139,6 +139,7 @@
       <Device Hostname="r-ocelot-02" HwSku="ACS-MSN4410" Type="DevSonic"/>
       <Device Hostname="r-panther-13" HwSku="Mellanox-SN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-23" HwSku="Mellanox-SN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-36" HwSku="Mellanox-SN2700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-129" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-134" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="r-anaconda-simx-139" HwSku="ACS-MSN3700" Type="DevSonic"/>
@@ -3766,11 +3767,12 @@
 
       <PowerControlLinkInfo EndDevice="r-alligator-04" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.4"/>
       <PowerControlLinkInfo EndDevice="r-alligator-04" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.9"/>
-
       <PowerControlLinkInfo EndDevice="r-tigris-26" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.14"/>
       <PowerControlLinkInfo EndDevice="r-tigris-26" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.15"/>
       <PowerControlLinkInfo EndDevice="r-tigris-27" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.19"/>
       <PowerControlLinkInfo EndDevice="r-tigris-27" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.20"/>
+      <PowerControlLinkInfo EndDevice="r-panther-36" EndPort="PSU1" StartDevice="pdu-10-208-0-18" StartPort="1.13"/>
+      <PowerControlLinkInfo EndDevice="r-panther-36" EndPort="PSU2" StartDevice="pdu-10-208-0-18" StartPort="1.16"/>
 
       <PowerControlLinkInfo EndDevice="r-anaconda-15" EndPort="PSU1" StartDevice="pdu-10-208-0-19" StartPort="1.5"/>
       <PowerControlLinkInfo EndDevice="r-anaconda-15" EndPort="PSU2" StartDevice="pdu-10-208-0-19" StartPort="1.16"/>
