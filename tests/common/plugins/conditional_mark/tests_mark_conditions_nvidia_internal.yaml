@@ -74,9 +74,15 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
 
 tests/nightly/copp/test_copp.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3128004 on SIMX platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3580021 on SIMX platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3128004 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3580021 and 'simx' in platform"
+
+tests/nightly/secure/test_secure_corrupt_fw/test_secure_corrupt_fw.py:
+  skip:
+    reason: "Not supported on SIMX platform"
+    conditions:
+      - "'simx' in platform"
 
 tests/nightly/sflow/test_sflow.py:
   skip:
