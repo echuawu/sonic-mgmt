@@ -75,9 +75,6 @@ class TestAutoTechSupport:
         for feature in auto_tech_support_features_list:
             if is_docker_enabled(system_features_status, feature):
                 if feature not in self.dockers_list:
-                    # Temporary removed telemetry from dockers list due to RM issue: 3522436
-                    if feature == 'telemetry':
-                        continue
                     self.dockers_list.append(feature)
 
         self.number_of_test_dockers = len(self.dockers_list)

@@ -2555,6 +2555,15 @@
       Redmine:
         - 3565916
 
+- Errors_list:
+    - '.*ERR swss#orchagent: :- meta_generic_validation_remove: object.*'
+    - '.*ERR swss#orchagent: :- meta_sai_validate_eni_ether_address_map_entry: object key SAI_OBJECT_TYPE_ENI_ETHER_ADDRESS_MAP_ENTRY.*exist.*'
+  Conditions:
+    - Redmine:
+        - 3537984
+      Platform:
+        - nvda_bf
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
