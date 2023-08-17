@@ -50,7 +50,7 @@ class ConnectionTool:
             return ResultObj(running_processes, "", "connected to {number}".format(number=running_processes))
 
     @staticmethod
-    def create_serial_connection(topology_obj):
+    def create_serial_connection(topology_obj, ip=None, username=None, password=None):
         """
 
         :param topology_obj:
@@ -62,9 +62,14 @@ class ConnectionTool:
             extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
             extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
             extended_rcon_command = ' '.join(extended_rcon_command)
-            serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                                username=att['Topology Conn.']['CONN_USER'],
-                                                password=att['Topology Conn.']['CONN_PASSWORD'],
+
+            ip = att['Specific']['ip'] if not ip else ip
+            username = att['Topology Conn.']['CONN_USER'] if not username else username
+            password = att['Topology Conn.']['CONN_PASSWORD'] if not password else password
+
+            serial_engine = PexpectSerialEngine(ip=ip,
+                                                username=username,
+                                                password=password,
                                                 rcon_command=extended_rcon_command,
                                                 timeout=30)
             serial_engine.create_serial_engine()

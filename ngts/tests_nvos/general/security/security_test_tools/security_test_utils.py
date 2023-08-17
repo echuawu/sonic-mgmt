@@ -1,6 +1,8 @@
 import time
 import logging
 
+from typing import List
+
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import SystemConsts
@@ -10,6 +12,8 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import AuthVerifier
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -31,6 +35,58 @@ def check_nslcd_service(engines):
             with allure.step('Check nslcd service status again'):
                 output = engines.dut.run_cmd([status_cmd, exit_cmd])
                 logging.info(f'Service nslcd is active: {"Active: active (running)" in output}')
+
+
+def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success: bool = True):
+    """
+    @summary: Verify authentication and authorization for the given user.
+        Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
+    @param engines: test engines object
+    @param topology_obj: test topology object
+    @param user: Details of the given user.
+        User is a dictionary in the format:
+        {
+            username: str,
+            password: str,
+            role: admin/monitor (str)
+        }
+    @param expect_login_success: boolean flg, whether login expected to succeed (True) or fail (False).
+        Default is True.
+    """
+    with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
+                     f'Expect login success: {expect_login_success}'):
+        # for ssh, openapi, rcon: test authentication, and then verify role by running show, set, unset commands
+        for medium in AuthConsts.AUTH_MEDIUMS:
+            with allure.step(f'Verify auth with medium: {medium}'):
+                medium_obj = AuthVerifier(medium, user.username, user.password, engines, topology_obj)
+
+                with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
+                    medium_obj.verify_authentication(expect_login_success)
+
+                with allure.step(f'Verify authorization. Role: {user.role}'):
+                    medium_obj.verify_authorization(user_is_admin=user.role == AaaConsts.ADMIN)
+
+
+def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login_success: List[bool] = None):
+    """
+    @summary: Verify authentication and authorization for the given users.
+        Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
+    @param engines: test engines object
+    @param topology_obj: test topology object
+    @param users: list of users to verify.
+        User is a dictionary in the format:
+        {
+            username: str,
+            password: str,
+            role: admin/monitor (str)
+        }
+    @param expect_login_success: list of boolean flags, whether login expected to succeed (True) or fail (False).
+        Default is True for all users.
+    """
+    expect_login_success = [True] * len(users) if not expect_login_success else expect_login_success
+
+    for i, user in enumerate(users):
+        verify_user_auth(engines, topology_obj, user, expect_login_success[i])
 
 
 def validate_users_authorization_and_role(engines, users, login_should_succeed=True, check_nslcd_if_login_failed=False):
@@ -148,7 +204,8 @@ def validate_services_and_dockers_availability(engines, devices):
         devices.dut.verify_services(engines.dut).verify_result()
 
 
-def configure_authentication(engines, devices, order=None, failthrough=None, fallback=None, apply=False, dut_engine=None):
+def configure_authentication(engines, devices, order=None, failthrough=None, fallback=None, apply=False,
+                             dut_engine=None):
     """
     @summary:
         Configure different authentication settings as given
@@ -173,7 +230,8 @@ def configure_authentication(engines, devices, order=None, failthrough=None, fal
 
     if apply:
         with allure.step('Apply settings'):
-            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, dut_engine, True)
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, dut_engine,
+                                            True)
 
         if order:
             with allure.step('Validate that services and dockers are up'):
@@ -246,7 +304,8 @@ def set_local_users(engines, users, apply=False):
 
     if apply:
         with allure.step('Apply changes together'):
-            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
+            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
+                                            True)
 
 
 def configure_resource(engines, resource_obj: BaseComponent, conf, apply=False):
