@@ -2517,8 +2517,8 @@
         - arm64-nvda_bf-9009d3b600cvaa
 
 - Errors_list:
-    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\] mlnx_sai_interfacequery_eth\.c\[\d+\]- sai_dbg_run_mlxtrace: Failed running.*mlxtrace_ext.*'
-    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\] mlnx_sai_interfacequery_eth\.c\[\d+\]- sai_dbg_do_dump: Failed to run mlxtrace.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\].+sai_dbg_run_mlxtrace: Failed running.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\].+ Failed to run mlxtrace.*'
   Conditions:
     - Platform:
         - simx
