@@ -3261,12 +3261,17 @@
 - Errors_list:
     - '.*ERR health-statsd#health_history: Fan: Failed to get fan information.*'
     - '.*ERR health-statsd#health_history: PSU: Failed to get information.*'
+    - '.*ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: memory_check: is not Status ok.*'
     - '.*ERR health-statsd#health_history: Summary: Not OK.*'
     - '.*Could not get info about psus.*'
     - '.*Could not get info about fans.*'
     - '.*Could not get info about sensors.*'
     - '.*ERR systemd\[1\]: Failed to start Platform monitor container.*'
     - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Start request repeated too quickly.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
   Conditions:
     - Redmine:
         - 3540710
