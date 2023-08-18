@@ -783,6 +783,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         default_mtu = "9100"
         self.update_config_db_port_mtu_config(setup_name, default_mtu, config_db_file_name)
         self.update_config_db_breakout_cfg(topology_obj, setup_name, hwsku, config_db_file_name)
+        # TODO: WA for the PR: https://github.com/sonic-net/sonic-buildimage/pull/16116,
+        #  after the PR merged, it can be removed
+        self.update_database_version(setup_name, config_db_file_name)
         return config_db_file_name
 
     def update_config_db_features(self, setup_name, hwsku, config_db_json_file_name):
@@ -842,6 +845,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
         for k, _ in config_db_json[ConfigDbJsonConst.PORT].items():
             config_db_json[ConfigDbJsonConst.PORT][k]["mtu"] = mtu
+        return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
+
+    def update_database_version(self, setup_name, config_db_json_file_name):
+        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        if 'VERSIONS' not in config_db_json.keys():
+            config_db_json['VERSIONS'] = {}
+        if 'DATABASE'not in config_db_json['VERSIONS'].keys():
+            config_db_json['VERSIONS']['DATABASE'] = {}
+        config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_4_0_0"
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_mgmt_ip(self, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):
