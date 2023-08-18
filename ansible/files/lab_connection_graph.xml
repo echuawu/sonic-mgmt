@@ -123,6 +123,7 @@
       <Device Hostname="r-leopard-50" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-70" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="r-leopard-72" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="mtvr-moose-01" HwSku="ACS-SN5600" Type="DevSonic"/>
       <Device Hostname="mtvr-moose-02" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="mtvr-moose-03" HwSku="ACS-MSN4700" Type="DevSonic"/>
       <Device Hostname="mtvr-moose-04" HwSku="ACS-MSN4700" Type="DevSonic"/>
@@ -3921,14 +3922,17 @@
       <PowerControlLinkInfo EndDevice="r-moose-02" EndPort="PSU1" StartDevice="pdu-10-208-2-47" StartPort="28"/>
       <PowerControlLinkInfo EndDevice="r-moose-02" EndPort="PSU2" StartDevice="pdu-10-208-2-47" StartPort="32"/>
 
+      <PowerControlLinkInfo EndDevice="mtvr-moose-01" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="8"/>
+      <PowerControlLinkInfo EndDevice="mtvr-moose-01" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="10"/>
+
       <PowerControlLinkInfo EndDevice="mtvr-moose-02" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="26"/>
       <PowerControlLinkInfo EndDevice="mtvr-moose-02" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="28"/>
 
       <PowerControlLinkInfo EndDevice="mtvr-moose-05" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="12"/>
       <PowerControlLinkInfo EndDevice="mtvr-moose-05" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="14"/>
 
-      <PowerControlLinkInfo EndDevice="mtvr-moose-06" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="8"/>
-      <PowerControlLinkInfo EndDevice="mtvr-moose-06" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="10"/>
+      <PowerControlLinkInfo EndDevice="mtvr-moose-06" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="16"/>
+      <PowerControlLinkInfo EndDevice="mtvr-moose-06" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="18"/>
 
       <PowerControlLinkInfo EndDevice="mtvr-moose-07" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="34"/>
       <PowerControlLinkInfo EndDevice="mtvr-moose-07" EndPort="PSU2" StartDevice="pdu-10-245-2-49" StartPort="36"/>

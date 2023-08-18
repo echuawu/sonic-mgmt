@@ -430,7 +430,7 @@ def is_mars_run(mars_key_id):
 
 
 @pytest.fixture(scope='session')
-def platform_params(show_platform_summary, setup_name):
+def platform_params(show_platform_summary, setup_name, topology_obj):
     """
     Method for getting all platform related data
     :return: dictionary with platform data
@@ -443,6 +443,7 @@ def platform_params(show_platform_summary, setup_name):
     platform_data.setup_name = setup_name
     platform_data.asic_type = show_platform_summary["asic_type"]
     platform_data.asic_count = show_platform_summary["asic_count"]
+    platform_data.host_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
     return platform_data
 
 

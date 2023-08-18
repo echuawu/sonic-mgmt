@@ -219,7 +219,8 @@ class SonicOnieCli:
             if '9600' in onie_version_output or '115200' in onie_version_output:
                 break
             time.sleep(1)
-        self.latest_onie_version, self.latest_onie_url = get_latest_onie_version(self.fw_pkg_path, self.platform_params)
+        self.latest_onie_version, self.latest_onie_url = get_latest_onie_version(self.fw_pkg_path,
+                                                                                 self.platform_params)
         return self.latest_onie_version not in onie_version_output
 
 
@@ -231,8 +232,18 @@ def get_latest_onie_version(fw_pkg_path, platform_params):
     else:
         logger.info(f"Get latest ONIE version from specified file {fw_pkg_path}")
         fw_data = extract_fw_data(fw_pkg_path)
-        if platform_params.filtered_platform.upper() in fw_data["chassis"]:
-            onie_info_list = fw_data["chassis"][platform_params.filtered_platform.upper()]["component"]["ONIE"]
+        chassis = platform_params.filtered_platform.upper()
+        if chassis in fw_data["chassis"]:
+            component = fw_data["chassis"][chassis]["component"]
+        else:
+            component = {}
+        hostname = platform_params.host_name
+        if "host" in fw_data and hostname in fw_data["host"]:
+            for component_type in list(fw_data["host"][hostname]["component"].keys()):
+                component[component_type] = fw_data["host"][hostname]["component"][component_type]
+
+        if "ONIE" in component:
+            onie_info_list = component["ONIE"]
             for onie_version_info in onie_info_list:
                 if latest_onie_version < onie_version_info["version"]:
                     latest_onie_version = onie_version_info["version"]
