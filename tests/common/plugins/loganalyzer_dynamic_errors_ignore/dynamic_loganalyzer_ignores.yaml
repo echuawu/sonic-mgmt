@@ -1998,7 +1998,15 @@
     - '.* ERR hostcfgd: \[''systemctl'', ''(start|restart)'', ''.*''\] - failed: return code - \d+, output:.*'
   Conditions:
     - Redmine:
-        - 3507983
+        - 3580484
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_DBG\.ERR\].+CR-Space dump faile.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG_AMBER\.ERR\].+Failed to create dump file.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG\.ERR\].+AMBER dump failed.*'
+  Conditions:
+    - Redmine:
+        - 3580534
 
 - Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/fan1_speed_get - OSError.*'
