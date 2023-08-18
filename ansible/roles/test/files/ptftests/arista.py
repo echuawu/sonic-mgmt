@@ -6,6 +6,7 @@ import re
 import paramiko
 import pickle
 import ast
+import _strptime
 
 from operator import itemgetter
 from collections import defaultdict
@@ -286,8 +287,12 @@ class Arista(object):
             m = re_compiled.match(line)
             if not m:
                 continue
+            # This below print will be removed, once the verification for this fix passes
+            self.log("extract_from_logs before strptime : {}".format(line))
             raw_data.append((datetime.datetime.strptime(
                 m.group(1), "%b %d %X"), m.group(2), m.group(3)))
+            # This below print will be removed, once the verification for this fix passes
+            self.log("extract_from_logs after strptime : {}".format(line))
 
         if len(raw_data) > 0:
             initial_time = raw_data[0][0]
