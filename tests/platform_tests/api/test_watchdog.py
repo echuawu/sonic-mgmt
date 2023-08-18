@@ -18,7 +18,7 @@ pytestmark = [
 logger = logging.getLogger(__name__)
 
 TEST_CONFIG_FILE = os.path.join(os.path.split(__file__)[0], "watchdog.yml")
-TEST_WAIT_TIME_SECONDS = 2
+TEST_WAIT_TIME_SECONDS = 4
 TIMEOUT_DEVIATION = 2
 
 
