@@ -50,8 +50,6 @@ def inbound_vnet_packets(dash_config_info):
     pa_mismatch_vxlan_packet["IP"].src = str(remote_pa_ip + 1)
 
     masked_exp_packet = Mask(expected_packet)
-    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
-    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
 
@@ -88,8 +86,6 @@ def outbound_vnet_packets(dash_config_info):
     )
 
     masked_exp_packet = Mask(expected_packet)
-    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
-    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
     return inner_packet, vxlan_packet, masked_exp_packet
