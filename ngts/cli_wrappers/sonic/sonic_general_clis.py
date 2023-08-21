@@ -969,6 +969,17 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                                                           parse_by_breakout_modes=True)
         split_ports_for_update = get_all_split_ports_parents(config_db_json)
         unsplit_ports_for_update = get_all_unsplit_ports(config_db_json)
+        # TODO this is WA for virtual smartswitch, when last 4 ports connected to DPU and supports only 1x200G
+        if hwsku == 'Mellanox-SN4700-O28':
+            for i in range(1, 6):
+                port = unsplit_ports_for_update[-i]
+                parsed_platform_json_by_breakout_modes[port][1] = {'1x200G[100G,50G,40G,25G,10G,1G]'}
+                config_db_json['PORT'][port]['speed'] = '200000'
+                # TODO add condition when the name of virtual setup is know: "if not virtual_setup"
+                # For CI/Build and regression on canonical setups. Last port connected to host with max 100G
+                port = unsplit_ports_for_update[-1]
+                parsed_platform_json_by_breakout_modes[port][1] = {'1x100G[50G,25G,10G,1G]'}
+                config_db_json['PORT'][port]['speed'] = '100000'
         self.update_breakout_mode_for_split_ports(split_ports_for_update, hwsku, breakout_cfg_dict,
                                                   config_db_json, parsed_platform_json_by_breakout_modes)
         self.update_breakout_mode_for_unsplit_ports(unsplit_ports_for_update, breakout_cfg_dict,
