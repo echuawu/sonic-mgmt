@@ -248,4 +248,10 @@ tests_nvos/system/test_system_image.py::test_image_uninstall_force_openapi:
     conditions:
       - "'marlin' in testbed"
 
+tests_nvos/system/test_log_commands.py::test_log_components:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3582407"
+    conditions:
+      - https://redmine.mellanox.com/issues/3582407
+
 ########################## NVOS IGNORE END ##########################
