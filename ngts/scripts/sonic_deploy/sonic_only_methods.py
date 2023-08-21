@@ -320,6 +320,7 @@ class SonicInstallationSteps:
             with allure.step('Apply DNS servers configuration'):
                 for dut in setup_info['duts']:
                     general_cli_obj = dut['cli_obj']
+                    topology_obj.players[dut['dut_alias']]['engine'].disconnect()
                     general_cli_obj.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                         is_air_setup=platform_params.setup_name.startswith('air'))
                     general_cli_obj.save_configuration()
