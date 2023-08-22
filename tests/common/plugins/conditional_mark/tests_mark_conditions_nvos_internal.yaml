@@ -68,14 +68,6 @@ tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interf
     conditions:
       - https://redmine.mellanox.com/issues/3424265
 
-tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication:
-  skip:
-    reason: "Testcase skipped till ntp server will be available"
-
-tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication_openapi:
-  skip:
-    reason: "Testcase skipped till ntp server will be available"
-
 tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
