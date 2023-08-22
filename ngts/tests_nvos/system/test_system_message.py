@@ -361,12 +361,11 @@ def test_system_reload_for_system_message(engines, devices):
 
         with allure.step('Run system reload command and apply config'):
             reload_cmd_set = "nv action reboot system"
+            # Reload system and wait until the system is ready
             DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
-                                should_wait_till_system_ready=False).verify_result()
+                                should_wait_till_system_ready=True).verify_result()
             # Reconnect
             ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
-            # Wait until the system is ready
-            DutUtilsTool.wait_for_nvos_to_become_functional(ssh_connection).verify_result()
 
         with allure.step('Verify system messages are changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
