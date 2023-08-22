@@ -202,7 +202,7 @@ def test_ibdiagnet_delete(engines):
         assert 'File delete successfully' in output.returned_value, "ibdiagnet delete action failed"
 
         with allure.step('verify ibdiagnet file does not exist using show command'):
-            paths_keys = json.loads(ib.ibdiagnet.show()).keys()
+            paths_keys = json.loads(ib.ibdiagnet.show())['files'].keys()
             assert 'ibdiagnet2.log' in paths_keys and len(list(paths_keys)) == 1, "the ibdiagnet file should not be deleted"
 
         with allure.step('Validate ibdiagnet directory does not exist anymore'):

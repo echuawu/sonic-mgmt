@@ -208,7 +208,7 @@ def test_set_sysrq_capabilities(engines):
                                   ask_for_confirmation=True).verify_result()
 
     with allure.step("Verify default values"):
-        sysrq_output = engines.dut.run_cmd('cat /proc/sys/kernel/ sysrq')
+        sysrq_output = engines.dut.run_cmd('cat /proc/sys/kernel/sysrq')
         assert not sysrq_output or "1" in sysrq_output, "Kernel value isn't as we expected"
         serial_output = OutputParsingTool.parse_json_str_to_dictionary(system.serial_console.show())\
             .get_returned_value()
@@ -218,7 +218,7 @@ def test_set_sysrq_capabilities(engines):
 
     with allure.step("Verify default values after unset"):
         system.serial_console.unset(apply=True, ask_for_confirmation=True).verify_result()
-        sysrq_output = engines.dut.run_cmd('cat /proc/sys/kernel/ sysrq')
+        sysrq_output = engines.dut.run_cmd('cat /proc/sys/kernel/sysrq')
         assert not sysrq_output or "0" in sysrq_output, "Kernel value isn't as we expected"
         serial_output = OutputParsingTool.parse_json_str_to_dictionary(system.serial_console.show())\
             .get_returned_value()
