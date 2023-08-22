@@ -3164,9 +3164,13 @@
     - '.*ERR health-statsd#health_history: FAN\d\/\d: is missing.*'
     - '.*ERR health-statsd#health_history: ASIC: Invalid temperature data.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: speed is out of range.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: Invalid fan speed data.*'
+
   Conditions:
     - Affected_test_cases:
-      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm/TestNewTc.py
+        - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_temperature_sweep
+        - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors
+        - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_blacklist
 
 # NVOS
 - Errors_list:
