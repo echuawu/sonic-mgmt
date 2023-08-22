@@ -138,8 +138,11 @@ class NvueGeneralCli(SonicGeneralCliDefault):
 
         logging.info("Running 'nv config apply {} ' on dut".format(rev_id))
         if ask_for_confirmation:
-            output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
-                                        tries_after_run_cmd=1)
+            if isinstance(engine, PexpectSerialEngine):
+                output = engine.run_cmd_and_get_output('nv config apply --assume-yes')
+            else:
+                output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
+                                            tries_after_run_cmd=1)
             if 'Declined apply after warnings' in output:
                 output = "Error: " + output
             elif 'y: command not found' in output and 'applied' in output:

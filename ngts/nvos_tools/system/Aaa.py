@@ -3,6 +3,7 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Authentication import Authentication
+from ngts.nvos_tools.system.Tacacs import Tacacs
 from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Role import Role
 from ngts.nvos_tools.system.Radius import Radius
@@ -18,6 +19,7 @@ class Aaa(BaseComponent):
         self.radius = Radius(self)
         self.ldap = Ldap(self)
         self.authentication = Authentication(self)
+        self.tacacs = Tacacs(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/aaa'
         self.parent_obj = parent_obj

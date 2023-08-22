@@ -75,10 +75,14 @@ class OpenApiRequest:
             return OpenApiRequest._validate_response(r, req_type)
 
     @staticmethod
-    def apply_nvue_changeset(request_data, op_param_name, add_approve=True):
-        res = OpenApiRequest._apply_config(request_data, add_approve)
+    def clear_changeset_and_payload():
         OpenApiRequest.changeset = None
         OpenApiRequest.payload = {}
+
+    @staticmethod
+    def apply_nvue_changeset(request_data, op_param_name, add_approve=True):
+        res = OpenApiRequest._apply_config(request_data, add_approve)
+        OpenApiRequest.clear_changeset_and_payload()
         return res.info
 
     @staticmethod

@@ -8,6 +8,9 @@ import math
 import smtplib
 from retry import retry
 from email.mime.text import MIMEText
+
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
+from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -27,6 +30,7 @@ from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
@@ -204,9 +208,22 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
-def clear_config(markers):
+def clear_config(markers, active_aaa_server=None):
     try:
         TestToolkit.update_apis(ApiType.NVUE)
+
+        if active_aaa_server:
+            logging.info('Test configured aaa authentication. find remote admin user to use')
+            remote_admin = [user for user in active_aaa_server.users if user.role == 'admin'][0]
+            logging.info(f'Create engine with remote user: {remote_admin.username}')
+            remote_admin_engine = ProxySshEngine(device_type=TestToolkit.engines.dut.device_type,
+                                                 ip=TestToolkit.engines.dut.ip,
+                                                 username=remote_admin.username,
+                                                 password=remote_admin.password)
+            logging.info('Enable failthrough to allow local admin user engine continue')
+            System().aaa.authentication.set(AuthConsts.FAILTHROUGH, AaaConsts.ENABLED, apply=True,
+                                            dut_engine=remote_admin_engine).verify_result()
+
         if 'system_profile_cleanup' in markers:
             clear_system_profile_config()
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
@@ -241,6 +258,10 @@ def clear_config(markers):
 
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
+
+    finally:
+        logging.info('Clear global OpenApi changeset and payload')
+        OpenApiRequest.clear_changeset_and_payload()
 
 
 def clear_system_profile_config():
@@ -281,7 +302,9 @@ def save_results_and_clear_after_test(item):
         logging.exception(' ---------------- The test failed - an exception occurred: ---------------- ')
         raise AssertionError(err)
     finally:
-        clear_config(markers)
+        active_aaa_server = item.active_remote_aaa_server if hasattr(item, 'active_remote_aaa_server') else None
+        item.active_remote_aaa_server = None
+        clear_config(markers, active_aaa_server)
 
 
 @pytest.fixture(scope='function', autouse=True)

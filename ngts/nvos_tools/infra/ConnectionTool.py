@@ -50,13 +50,11 @@ class ConnectionTool:
             return ResultObj(running_processes, "", "connected to {number}".format(number=running_processes))
 
     @staticmethod
-    def create_serial_connection(topology_obj, ip=None, username=None, password=None):
+    def create_serial_engine(topology_obj, ip=None, username=None, password=None):
         """
-
-        :param topology_obj:
-        :return:
+        @summary: Create and return a pexpect serial engine
         """
-        with allure.step("create serial connection"):
+        with allure.step("create serial engine"):
             att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
             # add connection options to pass connection problems
             extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
@@ -72,5 +70,14 @@ class ConnectionTool:
                                                 password=password,
                                                 rcon_command=extended_rcon_command,
                                                 timeout=30)
-            serial_engine.create_serial_engine()
+            return serial_engine
+
+    @staticmethod
+    def create_serial_connection(topology_obj, ip=None, username=None, password=None, force_new_login=False):
+        """
+        @summary: Create serial pexpect engine and initiate connection (login)
+        """
+        with allure.step("create serial connection"):
+            serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip, username, password)
+            serial_engine.create_serial_engine(force_new_login=force_new_login)
             return serial_engine

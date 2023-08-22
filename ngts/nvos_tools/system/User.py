@@ -1,4 +1,6 @@
 import logging
+from typing import Dict
+
 import allure
 import random
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -9,6 +11,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Role import Role
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.DefaultDict import DefaultDict
 
 logger = logging.getLogger()
 
@@ -26,7 +29,8 @@ class User(BaseComponent):
         self.parent_obj = parent_obj
 
     def get_lslogins(self, engine, username):
-        return OutputParsingTool.parse_lslogins_cmd(engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
+        return OutputParsingTool.parse_lslogins_cmd(
+            engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
 
     def verify_user_label(self, username, label, new_full_name):
         with allure.step('verify the user {username} {label} value'.format(username=username, label=label)):
@@ -40,7 +44,10 @@ class User(BaseComponent):
 
     def action_disconnect(self, username=''):
         self.set_username(username)
-        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_disconnect, "Action succeeded", TestToolkit.engines.dut, self.get_resource_path().replace('/', ' ')).get_returned_value()
+        return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_disconnect,
+                                                            "Action succeeded", TestToolkit.engines.dut,
+                                                            self.get_resource_path().replace('/',
+                                                                                             ' ')).get_returned_value()
 
     def set_username(self, username):
         self.username = username

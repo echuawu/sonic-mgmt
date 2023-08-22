@@ -1,4 +1,10 @@
 import time
+
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.SecurityTestToolKit import SecurityTestToolKit
 from ngts.tools.test_utils import allure_utils as allure
 import pexpect
 import logging
@@ -113,3 +119,35 @@ def show_sys_version(engines):
         system.show()
         system.version.show()
         NvueGeneralCli.show_config(engines.dut)
+
+
+@pytest.fixture(scope='function')
+def local_adminuser(engines):
+    adminuser = AaaConsts.LOCAL_TEST_ADMIN
+    set_local_users(engines, [adminuser], apply=True)
+    return adminuser
+
+
+# @pytest.fixture(scope='function')
+# def disable_remote_auth_after_test(engines):
+#     """
+#     @summary: disable remote authentication after test
+#         * aaa tests should update SecurityTestToolKit.active_remote_server each time configuring a remote server.
+#     """
+#     yield
+#
+#     active_remote_server = SecurityTestToolKit.active_remote_server
+#     if not active_remote_server:
+#         return
+#
+#     active_admin_user = [user for user in active_remote_server.users if user.role == AaaConsts.ADMIN][0]
+#     orig_username, orig_password = engines.dut.username, engines.dut.password
+#     engines.dut.update_credentials(username=active_admin_user.username, password=active_admin_user.password)
+#
+#     System().aaa.unset(apply=True)
+#     if isinstance(active_remote_server, LdapServerInfo):
+#         DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
+#
+#     engines.dut.update_credentials(username=orig_username, password=orig_password)
+#
+#     TestToolkit.active_remote_auth_server = None
