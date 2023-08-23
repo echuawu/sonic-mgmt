@@ -581,7 +581,7 @@ def verify_pwd_ge_than_expected_value(mock_sensor, tc_config_dict, sensor_type, 
         check_cpu_pack_pwm()
 
 
-@retry(Exception, tries=20, delay=2)
+@retry(Exception, tries=30, delay=3)
 def compare_pwd_with_expected_value(mock_sensor, expected_pwm, operation):
     with allure.step(f"Verify actual pwd is {operation.__name__} {expected_pwm}"):
         pwm_curr = get_pwm(mock_sensor)

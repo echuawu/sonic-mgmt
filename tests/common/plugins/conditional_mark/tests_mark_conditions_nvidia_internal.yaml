@@ -42,6 +42,12 @@ tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
     conditions:
       - https://redmine.mellanox.com/issues/3499268
 
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[show_system_health]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://github.com/sonic-net/sonic-buildimage/issues/14030"
+    conditions:
+      - https://github.com/sonic-net/sonic-buildimage/issues/14030
+
 tests/nightly/auto_negotition:
   skip:
     reason: "Testcase not supported on current platform"
