@@ -358,6 +358,7 @@ def test_split_port_n_times(engines, interfaces, start_sm):
             parent_port.show_interface()).get_returned_value()
 
 
+@pytest.mark.system_profile_cleanup
 @pytest.mark.ib_interfaces
 def test_split_all_ports(engines, interfaces, start_sm):
     """
@@ -410,13 +411,27 @@ def test_split_all_ports(engines, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
-@pytest.mark.system_profile_cleanup
 def test_ib_split_port_stress(engines, interfaces, start_sm):
     """
     Test flow:
         1. Stress system
         2. Check that we can split/unsplit
     """
+    system = System(None)
+    with allure.step('Change system profile to breakout'):
+        system.profile.action_profile_change(
+            params='adaptive-routing enabled breakout-mode enabled')
+        with allure.step('Verify changed values'):
+            system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
+                .get_returned_value()
+            values_to_verify = [SystemConsts.PROFILE_STATE_ENABLED, 1792,
+                                SystemConsts.PROFILE_STATE_ENABLED, SystemConsts.PROFILE_STATE_DISABLED,
+                                SystemConsts.DEFAULT_NUM_SWIDS]
+            ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
+                                                            values_to_verify,
+                                                            system_profile_output).verify_result()
+            logging.info("All expected values were found")
+
     logging.info("*********** CLI Stress Test ({}) *********** ".format(engines.dut.ip))
     num_of_iterations = 10
 
