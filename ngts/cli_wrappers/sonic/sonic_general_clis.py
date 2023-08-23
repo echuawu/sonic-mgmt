@@ -875,7 +875,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_json['VERSIONS'] = {}
         if 'DATABASE'not in config_db_json['VERSIONS'].keys():
             config_db_json['VERSIONS']['DATABASE'] = {}
-        config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_4_0_0"
+        config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_mgmt_ip(self, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):
