@@ -3397,3 +3397,11 @@
     - Affected_test_cases:
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
         - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*FW SOS EVENT LOG START.*'
+    - '.*FW SOS EVENT LOG END.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
