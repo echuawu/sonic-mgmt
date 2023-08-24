@@ -1,5 +1,5 @@
 import logging
-from ngts.nvos_tools.Devices.BaseDevice import GorillaSwitch, MarlinSwitch, AnacondaSwitch
+from ngts.nvos_tools.Devices.BaseDevice import GorillaSwitch, MarlinSwitch, AnacondaSwitch, GorillaSwitchBF3
 
 logger = logging.getLogger()
 
@@ -8,6 +8,7 @@ class DeviceFactory:
     device_type_dict = \
         {
             'MQM9700 - Gorilla Blackbird': GorillaSwitch,
+            'MQM9700 - Gorilla BF3': GorillaSwitchBF3,
             'MQM9700': GorillaSwitch,
             'MQM9520 - marlin': MarlinSwitch,
             'MQM9520': MarlinSwitch,

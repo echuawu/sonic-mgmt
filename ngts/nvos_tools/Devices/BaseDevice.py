@@ -758,3 +758,12 @@ class GorillaSwitch(MultiAsicSwitch):
                  "KDUMP": 0}
         }
         self.available_tables.update({'database0': available_tables_per_asic})
+
+
+# -------------------------- Gorilla Switch ----------------------------
+class GorillaSwitchBF3(GorillaSwitch):
+    SWITCH_CORE_COUNT = 16
+
+    def _init_temperature(self):
+        self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "PSU-1-Temp", "PSU-2-Temp",
+                                 "xSFP-module-26-Temp", "xSFP-module-29-Temp"]
