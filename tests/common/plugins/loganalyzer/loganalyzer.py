@@ -9,7 +9,6 @@ from . import system_msg_handler
 
 from .system_msg_handler import AnsibleLogAnalyzer as ansible_loganalyzer
 from os.path import join, split
-from pathlib import Path
 
 ANSIBLE_LOGANALYZER_MODULE = system_msg_handler.__file__.replace(r".pyc", ".py")
 COMMON_MATCH = join(split(__file__)[0], "loganalyzer_common_match.txt")
@@ -162,12 +161,12 @@ class LogAnalyzer:
             for error_list in result_log_errors:
                 log_errors += ''.join(error_list)
 
-            tmp_folder = Path(f"/tmp/loganalyzer/{self.ansible_host.hostname}")
-            tmp_folder.mkdir(parents=True, exist_ok=True)
-            file_path = tmp_folder / "log_error.json"
+            tmp_folder = "/tmp/loganalyzer/{}".format(self.ansible_host.hostname)
+            os.makedirs(tmp_folder, exist_ok=True)
+            file_path = os.path.join(tmp_folder, "log_error.json")
             logging.info("Log errors will be saved in file: {}".format(file_path))
             data = {'log_errors': log_errors}
-            with file_path.open("w+") as file:
+            with open(file_path, "w+") as file:
                 json.dump(data, file)
 
     def _results_repr(self, result):
