@@ -2560,6 +2560,7 @@
   Conditions:
     - Affected_test_cases:
         - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream[active-active]
+        - vxlan/test_vnet_route_leak.py::test_vnet_route_leak
       Redmine:
         - 3521394
 
