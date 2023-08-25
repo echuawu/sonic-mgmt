@@ -3040,6 +3040,15 @@
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_blacklist
 
+- Errors_list:
+    - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/timeout - FileNotFoundError.*No such file or directory.*'
+    - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/state - FileNotFoundError.*No such file or directory*'
+  Conditions:
+    - Redmine:
+        - 3584706
+      Platform:
+        - simx
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
