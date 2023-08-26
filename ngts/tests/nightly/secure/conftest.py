@@ -162,9 +162,9 @@ def dut_secure_type(platform_params, engines):
     if not device:
         pytest.fail(f"The mst device is not found.")
     mst_info = engines.dut.run_cmd(f'sudo flint -d /dev/mst/{device} q full')
-    if "Security Attributes:   secure-fw, dev" in mst_info:
+    if SonicSecureBootConsts.SECURE_FW_DEV_MSG in mst_info:
         return 'dev'
-    elif "Security Attributes:   secure-fw, prod" in mst_info:
+    elif SonicSecureBootConsts.SECURE_FW_MSG in mst_info:
         return 'prod'
     else:
         pytest.fail("Failed to get the secure type of the device.")
