@@ -26,6 +26,17 @@
   </case>
 
   <case>
+    <name> ntp_system_authentication </name>
+    <info> </info>
+    <tout> 3300 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/ntp/test_system_ntp.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -k test_ntp_system_authentication -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
     <name> Configure_ntp_multiple_servers </name>
     <info> </info>
     <tout> 3300 </tout>
@@ -87,6 +98,17 @@
     <cmd>
       <params>
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/ntp/test_system_ntp.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -k test_configure_ntp_server_openapi -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> ntp_system_authentication_openapi </name>
+    <info> </info>
+    <tout> 3300 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/system/ntp/test_system_ntp.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -k test_ntp_system_authentication_openapi -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --clean-alluredir  --disable_loganalyzer --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
