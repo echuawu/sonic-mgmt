@@ -222,8 +222,6 @@ def get_interface_cable_width(type_string, expected_speed=None):
     match = re.search(r"\w+(\d+)", type_string)
     if match:
         width = int(match.group(1))
-    if expected_speed == '400G':
-        width = 8
     return width
 
 
