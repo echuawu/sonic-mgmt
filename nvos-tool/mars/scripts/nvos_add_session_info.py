@@ -24,6 +24,7 @@
 #######################################################################
 import os
 import re
+import json
 
 #######################################################################
 # Local imports
@@ -57,15 +58,15 @@ class NvosAddSessionInfo(SessionAddInfo):
         """
         SessionAddInfo.__init__(self, conf_obj, extra_info, session_info)
 
-    def _parse_sonic_version(self, output):
-        version = re.compile(r"nvos software version: +([^\s]+)\s", re.IGNORECASE)
-        platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
-        asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
-
+    def _parse_system_version(self, show_system_output, show_device_output, topology):
+        version = re.compile(r'"product-release": "(.*)"', re.IGNORECASE)
+        platform_re = re.compile(r"platform\s+(.+)", re.IGNORECASE)
+        asic = re.compile(r'"type": "(.*)"', re.IGNORECASE)
         res = {
-            "version": version.findall(output)[0] if version.search(output) else "",
-            "platform": platform.findall(output)[0] if platform.search(output) else "",
-            "asic": asic.findall(output)[0] if asic.search(output) else ""
+            "version": version.findall(show_system_output)[0] if version.search(show_system_output) else "",
+            "platform": platform_re.findall(show_system_output)[0] if platform_re.search(show_system_output) else "",
+            "topology": topology,
+            "asic": asic.findall(show_device_output)[0] if asic.search(show_device_output) else "",
         }
 
         return res
@@ -81,16 +82,17 @@ class NvosAddSessionInfo(SessionAddInfo):
         @return:
             Tuple with return code and dictionary of additional info to add.
         """
-        print("Run NvosAddSessionInfo.get_dynamic_info")
+        print("Run NVOS AddSessionInfo.get_dynamic_info")
+
         machines_players = self.conf_obj.get_active_players()
         print("machine_players=" + str(machines_players))
 
-        if isinstance(machines_players, list):
+        if type(machines_players) is list:
             machine = machines_players[0]
         else:
             machine = machines_players
-
         print("machine=" + str(machine))
+
         remote_workspace = SONIC_MGMT_WORKSPACE
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
@@ -101,9 +103,12 @@ class NvosAddSessionInfo(SessionAddInfo):
         topology = self.conf_obj.get_extra_info().get("topology")
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
 
-        cmd = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'show version'"
-        cmd = cmd.format(DUT_NAME=dut_name, TOPOLOGY=topology)
-        print("cmd=" + cmd)
+        cmd_system = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show system -o json'"
+        cmd_device = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show ib device -o json'"
+        cmd_system = cmd_system.format(DUT_NAME=dut_name, TOPOLOGY=topology)
+        cmd_device = cmd_device.format(DUT_NAME=dut_name, TOPOLOGY=topology)
+        print("cmd=" + cmd_system)
+        print("cmd=" + cmd_device)
 
         try:
             conn = RemoteRPC(machine)
@@ -113,12 +118,22 @@ class NvosAddSessionInfo(SessionAddInfo):
             conn.modules.os.chdir(os.path.join(remote_workspace, repo_name, "ansible"))
             conn.modules.os.environ["HOME"] = "/root"
 
-            p = conn.modules.execute.run_process(cmd, shell=True)
-            (rc, output) = conn.modules.execute.wait_process(p)
-            print("rc=" + str(rc))
-            print("output=" + str(output))
-            if rc != 0:
-                print("Execute command failed!")
-                return (1, {})
+            p_system = conn.modules.execute.run_process(cmd_system, shell=True)
+            p_device = conn.modules.execute.run_process(cmd_device, shell=True)
+            rc_system, system_output = conn.modules.execute.wait_process(p_system)
 
-            return (0, self._parse_sonic_version(output))
+            rc_device, device_output = conn.modules.execute.wait_process(p_device)
+            print("rc_system=" + str(rc_system))
+            print("output_system=" + str(system_output))
+            print("rc_device=" + str(rc_device))
+            print("output_device" + str(device_output))
+
+            if rc_system != 0:
+                print("Execute command failed!")
+                return 1, {}
+            res = self._parse_system_version(system_output, device_output, topology)
+            return 0, res
+        except Exception as e:
+            logger.error("Failed to execute command: %s" % cmd_system)
+            logger.error("Exception error: %s" % repr(e))
+            return 1, {}
