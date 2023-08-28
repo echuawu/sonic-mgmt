@@ -1165,3 +1165,7 @@ class GnmiConsts:
     GNMI_IS_RUNNING_FIELD = 'is-running'
     GNMI_IS_RUNNING = 'yes'
     GNMI_IS_NOT_RUNNING = 'no'
+    GNMI_VERSION_FIELD = 'version'
+    GNMI_VERSION = '1.0.0'
+    GNMI_DEFAULT_PORT = '9339'
+    GNMI_CLIENT_CMD = '/auto/UFM/NetQ/agent/gnmi_client'
