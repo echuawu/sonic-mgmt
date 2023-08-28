@@ -223,6 +223,7 @@ class DefaultCredentialConstants:
 
 class PlatformTypesConstants:
     FILTERED_PLATFORM_ALLIGATOR = 'SN2201'
+    FILTERED_PLATFORM_PANTHER = 'MSN2700'
     FILTERED_PLATFORM_ANACONDA = "MSN3700"
     FILTERED_PLATFORM_ANACONDA_C = "MSN3700C"
     FILTERED_PLATFORM_LIONFISH = "MSN3420"
@@ -256,6 +257,12 @@ class InterfacesTypeConstants:
             SonicConst.PORT_LANE_NUM_1: {'CR': ['10M', '100M', '1000M', '1G', '10G', '25G']},
             SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G']},
             SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G']}
+        },
+        PlatformTypesConstants.FILTERED_PLATFORM_PANTHER: {
+            "PANTHER_AOC": {
+                SonicConst.PORT_LANE_NUM_1: {'SR': ['1G', '10G', '25G']},
+                SonicConst.PORT_LANE_NUM_2: {'SR2': ['50G']},
+                SonicConst.PORT_LANE_NUM_4: {'SR4': ['40G', '100G']}}
         },
         'default': {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G']},

@@ -4,7 +4,7 @@ import os
 import re
 import json
 
-from ngts.constants.constants import InterfacesTypeConstants, SonicConst
+from ngts.constants.constants import InterfacesTypeConstants, PlatformTypesConstants, SonicConst
 from ngts.tests.conftest import get_dut_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 
@@ -120,15 +120,25 @@ def tested_dut_host_lb_dict(topology_obj, interfaces, split_mode_supported_speed
 
 
 @pytest.fixture(scope='session')
-def interfaces_types_dict(platform_params, chip_type):
+def interfaces_types_dict(engines, platform_params, chip_type):
     """
 
     """
     platform = platform_params.filtered_platform
+    logger.info("platform is: {}".format(platform))
     if chip_type == "SPC":
-        supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(platform.upper())
+        if platform.upper() == PlatformTypesConstants.FILTERED_PLATFORM_PANTHER:
+            if is_aoc_cable(engines):
+                supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
+                    platform.upper()).get("PANTHER_AOC")
+            else:
+                supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC['default']
+        else:
+            supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
+                platform.upper())
         if not supported_speed:
             supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC['default']
+
     elif chip_type == "SPC2":
         supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC2[platform.upper()]
     elif chip_type == "SPC3":
@@ -157,11 +167,19 @@ def interfaces_types_port_dict(engines, cli_objects, platform_params, chip_type,
      ...
      }
     """
+    platform = platform_params.filtered_platform
     supported_speed = {}
     # For SPC1, the sdk dose not support to get port rate cap .
     if chip_type == "SPC":
-        port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
-            platform_params.filtered_platform.upper())
+        if platform.upper() == PlatformTypesConstants.FILTERED_PLATFORM_PANTHER:
+            if is_aoc_cable(engines):
+                port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
+                    platform.upper()).get("PANTHER_AOC")
+            else:
+                port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC['default']
+        else:
+            port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC.get(
+                platform.upper())
         if not port_supported_speed:
             port_supported_speed = InterfacesTypeConstants.INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC['default']
         for intf, alias in ports_aliases_dict.items():
@@ -299,3 +317,10 @@ def get_all_advertised_speeds_sorted_string(speeds_list, physical_interface_type
     else:
         speeds_in_str_format = list(map(lambda speed: "{}G".format(int(int(speed) / 1000)), speeds_list))
     return ",".join(speeds_in_str_format)
+
+
+def is_aoc_cable(engines):
+    extended_spc = engines.dut.run_cmd("show interfaces transceiver eeprom Ethernet0 | grep \"Extended Specification Compliance\"")
+    if re.search("AOC", extended_spc):
+        return True
+    return False
