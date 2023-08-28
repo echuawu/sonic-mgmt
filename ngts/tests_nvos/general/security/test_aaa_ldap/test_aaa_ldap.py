@@ -1,10 +1,12 @@
 from itertools import product
 import pytest
 from infra.tools.linux_tools.linux_tools import scp_file
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.tests_nvos.general.security.security_test_utils import validate_authentication_fail_with_credentials, \
-    set_local_users, user_lists_difference, mutual_users
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
+    validate_authentication_fail_with_credentials, \
+    set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from ngts.tools.test_utils import allure_utils as allure

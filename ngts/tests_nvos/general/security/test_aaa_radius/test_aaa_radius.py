@@ -4,7 +4,7 @@ from ngts.tools.test_utils import allure_utils as allure
 import random
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import validate_users_authorization_and_role, \
     validate_authentication_fail_with_credentials
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusConstants
 from ngts.nvos_tools.infra.Tools import Tools

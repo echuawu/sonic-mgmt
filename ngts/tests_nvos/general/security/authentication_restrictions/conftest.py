@@ -6,8 +6,8 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
-from ngts.tests_nvos.general.security.constants import AaaConsts
-from ngts.tests_nvos.general.security.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tools.test_utils import allure_utils as allure
 
 
