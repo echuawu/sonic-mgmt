@@ -1,4 +1,4 @@
-from ngts.tests_nvos.general.security.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 
 
 class RestrictionsConsts:

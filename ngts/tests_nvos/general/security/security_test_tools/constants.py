@@ -46,3 +46,10 @@ class AuthConsts:
     UNSET_FAIL_ERR = 'unset fail'
 
     USERS = 'users'
+
+    # possible authentication mediums
+    SSH = 'SSH'
+    OPENAPI = 'OpenApi'
+    RCON = 'RCON'
+    SCP = 'SCP'
+    AUTH_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
