@@ -300,7 +300,7 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_dockers(self):
         BaseDevice._init_dockers(self)
-        self.available_dockers.extend(('pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils'))
+        self.available_dockers.extend(('pmon', 'syncd-ibv0', 'swss-ibv0', 'database', 'ib-utils', 'gnmi-server'))
 
     def _init_dependent_dockers(self):
         BaseDevice._init_dependent_dockers(self)

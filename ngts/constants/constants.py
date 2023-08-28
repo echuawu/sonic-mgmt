@@ -1155,3 +1155,13 @@ class BugHandlerConst:
 class DebugKernelConsts:
     KMEMLEAK_PATH = '/sys/kernel/debug/kmemleak'
     KMEMLEAK = 'kmemleak'
+
+
+class GnmiConsts:
+    GNMI_DOCKER = 'gnmi-server'
+    GNMI_STATE_FIELD = 'state'
+    GNMI_STATE_ENABLED = 'enabled'
+    GNMI_STATE_DISABLED = 'disabled'
+    GNMI_IS_RUNNING_FIELD = 'is-running'
+    GNMI_IS_RUNNING = 'yes'
+    GNMI_IS_NOT_RUNNING = 'no'
