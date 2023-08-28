@@ -4,7 +4,7 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, PlatformConsts
 import time
 
 logger = logging.getLogger()
@@ -309,7 +309,7 @@ class BaseSwitch(BaseDevice, ABC):
 
     def _init_constants(self):
         BaseDevice._init_constants(self)
-        Constants = namedtuple('Constants', ['system', 'dump_files'])
+        Constants = namedtuple('Constants', ['system', 'dump_files', 'firmware'])
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
@@ -332,7 +332,8 @@ class BaseSwitch(BaseDevice, ABC):
                       'saidump', 'sensors', 'services.summary', 'ssdhealth', 'STATE_DB.json', 'swapon', 'sysctl',
                       'syseeprom', 'systemd.analyze.blame', 'systemd.analyze.dump', 'systemd.analyze.plot.svg',
                       'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
-        self.constants = Constants(system_dic, dump_files)
+        firmware = [PlatformConsts.FW_BIOS, PlatformConsts.FW_ONIE, PlatformConsts.FW_SSD, PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
+        self.constants = Constants(system_dic, dump_files, firmware)
 
     def _init_ib_speeds(self):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
@@ -765,5 +766,8 @@ class GorillaSwitchBF3(GorillaSwitch):
     SWITCH_CORE_COUNT = 16
 
     def _init_temperature(self):
+        GorillaSwitch._init_temperature(self)
         self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "PSU-1-Temp", "PSU-2-Temp",
                                  "xSFP-module-26-Temp", "xSFP-module-29-Temp"]
+        GorillaSwitch._init_constants(self)
+        self.constants.firmware.remove(PlatformConsts.FW_BIOS)
