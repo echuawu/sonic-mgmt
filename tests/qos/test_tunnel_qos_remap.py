@@ -11,6 +11,7 @@ from tests.common.fixtures.ptfhost_utils import run_icmp_responder        # noqa
 from tests.common.fixtures.ptfhost_utils import run_garp_service          # noqa F401
 from tests.common.fixtures.ptfhost_utils import set_ptf_port_mapping_mode  # noqa F401
 from tests.common.fixtures.ptfhost_utils import ptf_portmap_file_module   # noqa F401
+from tests.common.fixtures.duthost_utils import dut_qos_maps # noqa F401
 from tests.common.fixtures.duthost_utils import separated_dscp_to_tc_map_on_uplink
 from tests.common.helpers.assertions import pytest_require, pytest_assert
 
