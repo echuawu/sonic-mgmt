@@ -118,6 +118,14 @@
       - dhcp_relay/test_dhcp_relay.py::test_interface_binding
       - autorestart/test_container_autorestart.py
       - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
+      - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream
+      - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downstream
+      - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_link_up_upstream
+      - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_link_up_downstream_standby
+      - dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream
+      - dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream
+      - dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor
+      - dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
