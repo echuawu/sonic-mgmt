@@ -154,7 +154,7 @@ def test_system_health_files_with_rotation(engines, devices):
 
 @pytest.mark.system
 @pytest.mark.health
-def test_ignore_health_issue(engines, devices):
+def test_ignore_health_issue(engines, devices, loganalyzer):
     """
     Validate we can ignore all health issue and status will change to OK
     steps:
@@ -180,6 +180,13 @@ def test_ignore_health_issue(engines, devices):
             psu_fan_config_name = "psu{}_fan1".format(psu_id)
             fan_display_name = get_fan_display_name(fan_id)
             fan_config_name = "fan{}".format(fan_id)
+            if loganalyzer:
+                for hostname in loganalyzer.keys():
+                    loganalyzer[hostname].ignore_regex.extend(
+                        [f"\\.*Fan fault warning: {fan_config_name} is broken\\.*",
+                         f"\\.*Fan removed warning: {psu_fan_config_name} was removed from the system, potential overheat hazard\\.*",
+                         f"\\.*PSU absence warning: PSU {psu_id} is not present.\\.*",
+                         f"\\.*Insufficient number of working fans warning\\.*"])
 
         with allure.step("Validate health status and report"):
             logger.info("Validate health status and report")
@@ -282,7 +289,7 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
 
 @pytest.mark.system
 @pytest.mark.health
-def test_simulate_fan_speed_fault(devices, engines):
+def test_simulate_fan_speed_fault(devices, engines, loganalyzer):
     """
     Validate health monitoring when having a fan speed fault.
         Test flow:
@@ -302,6 +309,11 @@ def test_simulate_fan_speed_fault(devices, engines):
     verify_health_status_and_led(system, OK)
     fan_id = random.randrange(1, len(devices.dut.fan_list) + 1)
     logger.info("Chosen fan : {}  - {}".format(fan_id, get_fan_display_name(fan_id)))
+    if loganalyzer:
+        for hostname in loganalyzer.keys():
+            loganalyzer[hostname].ignore_regex.extend([f"\\.*Fan low speed warning: fan{fan_id} current speed\\.*",
+                                                       f"\\.*Fan fault warning: fan{fan_id} is broken\\.*",
+                                                       f"\\.*Insufficient number of working fans warning\\.*"])
 
     try:
         real_speed = HWSimulator.simulate_fan_speed_fault(engines.dut, fan_id)
