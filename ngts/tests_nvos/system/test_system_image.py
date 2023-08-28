@@ -15,6 +15,7 @@ from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.nvos_tools.actions.Actions import Action
 
 from infra.tools.redmine.redmine_api import *
 
@@ -426,7 +427,7 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
     try:
         with allure.step("Create SSH Engine to login to the switch"):
-            logging.info("ACreate SSH Engine to login to the switch")
+            logging.info("Create SSH Engine to login to the switch")
             child = create_ssh_login_engine(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN)
             assert isinstance(child.pid, int), "SSH login process failed to be spawned"
             respond = child.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
@@ -443,6 +444,10 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
         with allure.step("Attempt install image and reject the prompt"):
             logging.info("Attempt install image and reject the prompt")
+            # Get the last action-job-id
+            action = Action()
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            action_job_id = int(list(output)[-1])
             # Since the install is to be aborted, using a dummy image name nvos.bin
             child.sendline('nv action install system image files nvos.bin')
             respond = child.expect('.*continue.*')
@@ -453,19 +458,14 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
         with allure.step("Verify install command was executed successfully"):
             logging.info("Verify install command was executed successfully")
+            # Increment action-job-id for latest command status
+            action_job_id = action_job_id + 1
             # extract last command execution status
-            child.sendline('nv show action 1')
-            respond = child.expect('.*detail.*')
-            assert respond == 0, "Install image confirmation prompt did not come up"
-            output1 = child.after.decode('utf-8')
-            output2 = output1.split("\n")
-            for line in output2:
-                if "detail" in line:
-                    assert "Image install aborted by user" in line, "Image install command failed"
-                if "https_status" in line:
-                    assert "200" in line, "Image install command failed"
-                if "state" in line:
-                    assert "action_success" in line, "Image install command failed"
+            action = Action(action_job_id)
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            assert output['detail'] == 'Image install aborted by user' and \
+                output['http_status'] == 200 and \
+                output['state'] == 'action_success', "Image install command failed:{out}".format(out=output)
 
         with allure.step("Verify image is unchanged"):
             logging.info("Verify image is unchanged")
