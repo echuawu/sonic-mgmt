@@ -29,6 +29,7 @@ from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from infra.tools.redmine.redmine_api import REDMINE_ISSUES_URL
 
 logger = logging.getLogger()
 
@@ -568,14 +569,16 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
                                                       bug_handler_dict)
         logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
         error_msg = ''
-        if log_analyzer_res[BugHandlerConst.NEW_BUGS]:
-            error_msg = f"New {len(log_analyzer_res[BugHandlerConst.NEW_BUGS])} Log Analyzer bugs were opened: {log_analyzer_res[BugHandlerConst.NEW_BUGS].keys()}\n"
-            for i, bug_info in enumerate(log_analyzer_res[BugHandlerConst.NEW_BUGS], start=1):
-                error_msg += f"{i}) {json.dumps(bug_info, indent=2)}\n"
+        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
+            error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
+                        f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE].keys())}\n"
+            for i, (bug_id, bug_title) in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
+                error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
             error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
                                     f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
-        assert not error_msg, error_msg
+        if error_msg:
+            raise Exception(error_msg)
 
 
 def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):

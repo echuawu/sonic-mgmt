@@ -164,7 +164,7 @@ def remove_error_prefix_from_sanitizer_file(contents):
 
 def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path):
     """
-    call bug handler on sanitizer file and return results as dictionary
+    call bug handler on sanitizer or log analyzer file and return results as dictionary
     :param conf_path: i.e, /tmp/sonic_bug_handler.conf
     :param redmine_project: i.e SONiC-Design
     :param branch: i.e 202205
@@ -177,51 +177,19 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     {'file_name': '2022-06-21_23-24-07_orchagent-asan.log.40',
     'messages': ['INFO:handle_bug:reading configuration from', ...],
     'rc': 0,
-    'decision': 'update',
-    'recommended_action': "Bug handler updated an existing bug, no additional action needed"}
+    'action': 'update',
+    'bug_id': '1122554'}
     """
     bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
                       f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file}"
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
-    bug_handler_messages, bug_handler_rc, bug_handler_decision, recommended_action = \
-        parse_bug_handler_output(bug_handler_output)
-    bug_handler_file_result = dict()
+    logger.info(bug_handler_output)
+    bug_handler_file_result = json.loads(bug_handler_output)
     bug_handler_file_result["file_name"] = upload_file_path
-    bug_handler_file_result["messages"] = bug_handler_messages
-    bug_handler_file_result["rc"] = bug_handler_rc
-    bug_handler_file_result["decision"] = bug_handler_decision
-    bug_handler_file_result["recommended_action"] = recommended_action
+    logger.info(f"Bug Handler RC: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_RC]}")
+    logger.info(f"Bug Handler Action: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_ACTION]}")
     return bug_handler_file_result
-
-
-def parse_bug_handler_output(bug_handler_output):
-    json_output = json.loads(bug_handler_output)
-    bug_handler_messages = json_output["messages"]
-    messages = "\n".join(bug_handler_messages)
-    bug_handler_rc = json_output["rc"]
-    bug_handler_decision = parse_bug_handler_messages(bug_handler_rc, messages)
-    recommended_action = get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, messages)
-    logger.info(f"Bug Handler RC: {bug_handler_rc}")
-    logger.info(f"Bug Handler Decision: {bug_handler_decision}")
-    return bug_handler_messages, bug_handler_rc, bug_handler_decision, recommended_action
-
-
-def parse_bug_handler_messages(bug_handler_rc, bug_handler_messages):
-    if bug_handler_rc == InfraConst.RC_SUCCESS:
-        decision = re.search(r"decision:\s*(.*)", bug_handler_messages, re.IGNORECASE)
-        action_res = re.search(r"bug action:\s*(.*)", bug_handler_messages, re.IGNORECASE)
-        if decision:
-            bug_handler_decision = decision.group(1)
-        if action_res:
-            action = action_res.group(1)
-            if action == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
-                bug_handler_decision = BugHandlerConst.BUG_HANDLER_DECISION_REOPEN
-    elif bug_handler_rc == BugHandlerConst.RC_ABORT:
-        bug_handler_decision = BugHandlerConst.BUG_HANDLER_DECISION_ABORT
-    else:
-        bug_handler_decision = "not found"
-    return bug_handler_decision
 
 
 def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_handler_messages):
@@ -285,7 +253,8 @@ def get_xml_template(template_name):
 def review_bug_handler_results(bug_handler_results):
     for dump_info in bug_handler_results:
         for bug_handler_result in dump_info["results"]:
-            if bug_handler_result["decision"] != BugHandlerConst.BUG_HANDLER_DECISION_UPDATE\
+            if bug_handler_result["action"] not in [BugHandlerConst.BUG_HANDLER_DECISION_UPDATE,
+                                                    BugHandlerConst.BUG_HANDLER_DECISION_SKIP]\
                     or bug_handler_result["rc"] != InfraConst.RC_SUCCESS:
                 raise AssertionError("Bug handler found undetected issues, please review summary attached to allure")
 
@@ -334,7 +303,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_an
                     error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
                                                           tar_file_path, yaml_file_path,
                                                           BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                          BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_SCRIPT))
+                                                          BugHandlerConst.BUG_HANDLER_SCRIPT))
                     bug_handler_dumps_results.append(error_dict)
 
             clear_files(session_id)
@@ -470,23 +439,14 @@ def summarize_la_bug_handler(la_bug_handler_result):
                                 }
             }
     """
-    create_and_update_bugs_dict = {BugHandlerConst.NEW_BUGS: {},
-                                   BugHandlerConst.EXISTING_BUGS: {BugHandlerConst.UPDATE_BUG: {}, BugHandlerConst.SKIP_UPDATE_BUG: {}},
-                                   BugHandlerConst.BUG_HANDLER_FAILURE: []}
+    create_and_update_bugs_dict = {BugHandlerConst.BUG_HANDLER_DECISION_CREATE: {}, BugHandlerConst.BUG_HANDLER_DECISION_UPDATE: {},
+                                   BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {}, BugHandlerConst.BUG_HANDLER_FAILURE: []}
 
     for bug_handler_result_dict in la_bug_handler_result:
-        msg = '\n'.join(bug_handler_result_dict['messages'])
-
-        if bug_handler_result_dict[BugHandlerConst.DECISION] == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
-            bug_id = re.findall(r"created bug with id=(\d+)", msg)
-            assert bug_id, f"didn't find the bug id in msg: \n{msg}"
-            create_and_update_bugs_dict[BugHandlerConst.NEW_BUGS].update({bug_id[0]: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
-
-        elif bug_handler_result_dict[BugHandlerConst.DECISION] == BugHandlerConst.BUG_HANDLER_DECISION_UPDATE:
-            bug_id = re.findall(r"updating bug\s+(\d+)", msg)
-            assert bug_id, f"didn't find the bug id in msg: \n{msg}"
-            bug_updated = BugHandlerConst.SKIP_UPDATE_BUG if re.findall(rf"'{bug_id[0]}' was updated.*skipping", msg) else BugHandlerConst.UPDATE_BUG
-            create_and_update_bugs_dict[BugHandlerConst.EXISTING_BUGS][bug_updated].update({bug_id[0]: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
+        if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST:
+            bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
+            create_and_update_bugs_dict[bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION]].update(
+                {bug_id: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
         else:
             create_and_update_bugs_dict[BugHandlerConst.BUG_HANDLER_FAILURE].append(bug_handler_result_dict)
     return create_and_update_bugs_dict

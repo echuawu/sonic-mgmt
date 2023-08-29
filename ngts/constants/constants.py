@@ -1139,12 +1139,12 @@ class BugHandlerConst:
     BUG_HANDLER_CONF_FILE = {"SONiC-Design": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf"),
                              "'NVOS - Design'": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf")}
     BUG_HANDLER_PYTHON_PATH = "/mswg/projects/swvt/MARS/scripts/python37_wrapper.sh"
-    BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/bin/handle_bug.py"
-    BUG_HANDLER_LOG_ANALYZER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/RELEASES/0_8/bin/handle_bug.py"
+    BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/RELEASES/0_9/bin/handle_bug.py"
     BUG_HANDLER_SANITIZER_USER = "asan"
     BUG_HANDLER_LOG_ANALYZER_USER = "log_analyzer"
     SANITIZER_PARSED_DUMPS_FOLDER = "/tmp/parsed_sanitizer_dumps/"
     BUG_HANDLER_DECISION_UPDATE = "update"
+    BUG_HANDLER_DECISION_SKIP = "skip"
     BUG_HANDLER_DECISION_CREATE = "create"
     BUG_HANDLER_DECISION_ABORT = "abort"
     BUG_HANDLER_DECISION_REOPEN = "reopen"
@@ -1157,6 +1157,11 @@ class BugHandlerConst:
     LA_ERROR = "la_error"
     BUG_HANDLER_FAILURE = "bug_handler_failure"
     LOG_ERRORS_FILE_PATH = "/tmp/loganalyzer/{hostname}/log_error.json"
+    BUG_HANDLER_RC = "rc"
+    BUG_HANDLER_ACTION = "action"
+    BUG_HANDLER_BUG_ID = "bug_id"
+    BUG_HANDLER_MESSAGES = "messages"
+    BUG_HANDLER_SUCCESS_ACTIONS_LIST = [BUG_HANDLER_DECISION_CREATE, BUG_HANDLER_DECISION_UPDATE, BUG_HANDLER_DECISION_SKIP]
 
 
 class DebugKernelConsts:
