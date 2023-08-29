@@ -5,7 +5,6 @@ from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import random
 import math
-
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -14,6 +13,7 @@ from ngts.nvos_tools.infra.Simulator import HWSimulator
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, NvosConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.nvos_tools.infra.RedisTool import RedisTool
 
 logger = logging.getLogger()
 
@@ -393,7 +393,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
 
     try:
         with allure.step("stop {} docker auto restart".format(docker_to_stop)):
-            engines.dut.run_cmd('redis-cli -n 4 HSET "FEATURE|{}" auto_restart disabled'.format(docker_to_stop))
+            RedisTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_DISABLED)
         with allure.step("stop {} docker".format(docker_to_stop)):
             output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
             assert docker_to_stop in output, "Failed to stop docker"
@@ -407,7 +407,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
             with allure.step("restart docker"):
                 output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
                 with allure.step("restart docker auto start"):
-                    engines.dut.run_cmd('redis-cli -n 4 HSET "FEATURE|{}" auto_restart enabled'.format(docker_to_stop))
+                    RedisTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
                 assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)

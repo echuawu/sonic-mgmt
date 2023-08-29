@@ -4,6 +4,9 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, PlatformConsts
 import time
 
@@ -132,10 +135,13 @@ class BaseDevice:
         return result_obj
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
-        result_obj = self._verify_value_in_table(dut_engine, DatabaseConst.CONFIG_DB_NAME,
-                                                 NvosConst.PORT_CONFIG_DB_TABLES_PREFIX,
-                                                 NvosConst.PORT_STATUS_LABEL, expected_port_state)
-        return result_obj
+        output_dict = OutputParsingTool.parse_json_str_to_dictionary(Port.show_interface(dut_engine, '--applied')).returned_value
+        err_msg = ""
+        for key, value in output_dict.items():
+            if value[IbInterfaceConsts.TYPE] == IbInterfaceConsts.IB_PORT_TYPE and expected_port_state not in value[IbInterfaceConsts.LINK][IbInterfaceConsts.DHCP_STATE].keys():
+                err_msg += "{} state is {}".format(key, value[IbInterfaceConsts.LINK][IbInterfaceConsts.DHCP_STATE].keys())
+
+        return ResultObj(False, err_msg) if err_msg else ResultObj(True, "", "")
 
     def verify_dockers(self, dut_engine, dockers_list=""):
         result_obj = ResultObj(True, "")

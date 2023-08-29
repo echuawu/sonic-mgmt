@@ -51,6 +51,9 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
                 6.3.    Run set command & apply
     """
     try:
+        with allure.step("Get current time"):
+            current_time = get_current_time(engines)
+
         with allure.step('Create System object'):
             system = System()
             machine_type = platform_params['filtered_platform']
