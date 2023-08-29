@@ -374,8 +374,9 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
     Health status should change to "Not OK" when we simulate a problem and return to "OK" if status fixed or ignored.
         Test flow:
             1. Simulate health problem with user config file
-            2. validate health status changed to "Not OK"
-            3. validate new devices appear in the detailed cmd
+            2. stop docker auto restart
+            3. validate health status changed to "Not OK"
+            4. validate new devices appear in the detailed cmd
             5. validate status has changed in the log
             6. fix the health issue
             7. validate health status changed to "Not OK"
@@ -391,8 +392,11 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
     docker_to_stop = "ib-utils"
 
     try:
-        output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
-        assert docker_to_stop in output, "Failed to stop docker"
+        with allure.step("stop {} docker auto restart".format(docker_to_stop)):
+            engines.dut.run_cmd('redis-cli -n 4 HSET "FEATURE|{}" auto_restart disabled'.format(docker_to_stop))
+        with allure.step("stop {} docker".format(docker_to_stop)):
+            output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
+            assert docker_to_stop in output, "Failed to stop docker"
         health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
@@ -400,9 +404,11 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         date_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
         time.sleep(1)
         with allure.step("Fix the health issue "):
-            logger.info("Fix the health issue ")
-            output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
-            assert docker_to_stop in output, "Failed to start docker"
+            with allure.step("restart docker"):
+                output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
+                with allure.step("restart docker auto start"):
+                    engines.dut.run_cmd('redis-cli -n 4 HSET "FEATURE|{}" auto_restart enabled'.format(docker_to_stop))
+                assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)
             validate_health_fix_or_issue(system, health_issue_dict, date_time, True)
@@ -481,7 +487,6 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
         system.wait_until_health_status_change_to(status)
 
         with allure.step("Validate health output issues"):
-            logger.info("Validate health output issues")
             health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
             verify_health_status_and_led(system, status, health_output)
             health_issues = health_output[HealthConsts.ISSUES]
@@ -494,7 +499,6 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
 
         if expected_in_monitor_list:
             with allure.step("Validate detailed health report"):
-                logger.info("Validate detailed health report")
                 detail_health_output = OutputParsingTool.parse_json_str_to_dictionary(
                     Fae().health.show()).get_returned_value()
                 verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
@@ -507,7 +511,6 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                         assert issue in detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
 
         with allure.step("Validate health history file"):
-            logger.info("Validate health history file")
             health_history_output = system.health.history.show()
             assert system.health.history.get_last_status_from_health_file(
                 health_history_output) == status, "Last status in the health report file is not {}, as we expect".format(status)
@@ -520,7 +523,6 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                     regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issue), health_history_output, search_since_datetime)) > 0
 
         with allure.step("Validate health status change appears in system log"):
-            logger.info("Validate health status change appears in system log")
             log_output = system.log.show_log(exit_cmd='q', expected_str="Health DB change cache")
             assert len(TestToolkit.search_line_after_a_specific_date_time(
                 NvosConst.DATE_TIME_REGEX + HealthConsts.SYSTEM_LOG_HEALTH_REGEX.format(status), log_output,

@@ -58,15 +58,17 @@ class NvosAddSessionInfo(SessionAddInfo):
         """
         SessionAddInfo.__init__(self, conf_obj, extra_info, session_info)
 
-    def _parse_system_version(self, show_system_output, show_device_output, topology):
+    def _parse_system_version(self, show_system_output, show_device_output, topology, code_coverage_run, sanitizer_run):
         version = re.compile(r'"product-release": "(.*)"', re.IGNORECASE)
-        platform_re = re.compile(r"platform\s+(.+)", re.IGNORECASE)
+        platform_re = re.compile(r'"platform": "(.*)"', re.IGNORECASE)
         asic = re.compile(r'"type": "(.*)"', re.IGNORECASE)
         res = {
             "version": version.findall(show_system_output)[0] if version.search(show_system_output) else "",
             "platform": platform_re.findall(show_system_output)[0] if platform_re.search(show_system_output) else "",
             "topology": topology,
             "asic": asic.findall(show_device_output)[0] if asic.search(show_device_output) else "",
+            "is_code_coverage_run": code_coverage_run,
+            "is_sanitizer_run": sanitizer_run,
         }
 
         return res
@@ -101,6 +103,8 @@ class NvosAddSessionInfo(SessionAddInfo):
 
         dut_name = self.conf_obj.get_extra_info().get("dut_name")
         topology = self.conf_obj.get_extra_info().get("topology")
+        code_coverage_run = self.conf_obj.get_extra_info().get("code_coverage_run")
+        sanitizer_run = self.conf_obj.get_extra_info().get("sanitizer_run")
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
 
         cmd_system = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show system -o json'"
@@ -131,7 +135,7 @@ class NvosAddSessionInfo(SessionAddInfo):
             if rc_system != 0:
                 print("Execute command failed!")
                 return 1, {}
-            res = self._parse_system_version(system_output, device_output, topology)
+            res = self._parse_system_version(system_output, device_output, topology, code_coverage_run, sanitizer_run)
             return 0, res
         except Exception as e:
             logger.error("Failed to execute command: %s" % cmd_system)
