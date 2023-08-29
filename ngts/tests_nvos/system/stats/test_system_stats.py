@@ -202,6 +202,7 @@ def test_system_stats_generation(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
+    player = engines['sonic_mgmt']
     category_list = devices.dut.CATEGORY_LIST
     category_list_default = devices.dut.CATEGORY_LIST_DEFAULT_DICT
 
@@ -284,7 +285,7 @@ def test_system_stats_generation(engines, devices, test_api):
             validate_external_file_timestamps(file_name, clear_time)
 
         with allure.step("Delete uploaded file"):
-            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            player.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
         with allure.step("Select a random category and set its configuration to minimum values"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
@@ -428,7 +429,7 @@ def test_system_stats_performance(engines, devices, test_api):
             validate_external_file_timestamps(file_name, history_time)
 
         with allure.step("Delete uploaded file"):
-            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            player_engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
         with allure.step("Clear all external files"):
             engine.run_cmd("sudo rm -f /host/stats/*.csv")
@@ -462,7 +463,7 @@ def test_system_stats_performance(engines, devices, test_api):
             #     assert name in output, f"{name} external file is missing in tar file"
 
         with allure.step("Delete uploaded file"):
-            engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
+            player_engine.run_cmd(cmd='rm -f {}{}'.format(NvosConst.MARS_RESULTS_FOLDER, file_name))
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -918,6 +919,7 @@ def test_validate_category_file_values(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
+    player = engines['sonic_mgmt']
     category_list = devices.dut.CATEGORY_LIST
 
     try:
@@ -967,7 +969,7 @@ def test_validate_category_file_values(engines, devices, test_api):
                     validate_external_file_header_and_data(name, file_path, hostname, start_time, end_time)
 
                 with allure.step("Delete uploaded file"):
-                    engine.run_cmd(cmd='rm -f {}'.format(file_path))
+                    player.run_cmd(cmd='rm -f {}'.format(file_path))
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -1239,6 +1241,8 @@ def validate_external_file_timestamps(file_name, clear_time):
 
 
 def validate_number_of_lines_in_external_file(engines, system, cat_name, min_lines, max_lines):
+    player = engines['sonic_mgmt']
+
     with allure.step("Clear external files"):
         engines.dut.run_cmd("sudo rm -f /host/stats/*.csv")
 
@@ -1257,6 +1261,9 @@ def validate_number_of_lines_in_external_file(engines, system, cat_name, min_lin
         num_of_lines = len(file1.readlines())
         assert min_lines < num_of_lines < max_lines,\
             f"Number of lines: {num_of_lines} is not as expected: {min_lines}-{max_lines}"
+
+    with allure.step("Delete uploaded file"):
+        player.run_cmd(cmd='rm -f {}'.format(full_path))
 
 
 def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
