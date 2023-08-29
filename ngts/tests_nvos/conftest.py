@@ -402,3 +402,8 @@ def extend_log_analyzer_match_regex(topology_obj, log_analyzer_bug_handler, loga
     if loganalyzer:
         for hostname in loganalyzer.keys():
             loganalyzer[hostname].match_regex.extend(["\\.*\\s+WARNING\\s+\\.*"])
+
+
+@pytest.fixture(scope='session', autouse=True)
+def disable_loganalyzer_rotate_logs(request):
+    request.config.option.loganalyzer_rotate_logs = False
