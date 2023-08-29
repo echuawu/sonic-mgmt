@@ -323,6 +323,7 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_even
     conditions:
       - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3587386 and 'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3588187"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
