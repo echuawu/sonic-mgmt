@@ -1012,9 +1012,10 @@
     - '.*ERR kernel: \[ \d+.\d+\] Parsing BFD command \d+ failed.*'
     - '.*ERR syncd#SDK: \[BFD.ERR\] ioctl failed, error description: Input/output error'
     - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed in bfd_offload_set().* error:.*'
-    - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
+    - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] .*mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
     - '.*ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE'
     - '.*ERR syncd#SDK: :- processQuadEvent: attr: SAI_BFD_SESSION_ATTR_.*'
+    - '.*ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
   Conditions:
     - Affected_test_cases:
       - bfd/test_bfd.py
