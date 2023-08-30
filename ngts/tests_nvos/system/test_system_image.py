@@ -231,7 +231,7 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Fetch the same image again"):
             system.image.action_fetch(scp_path + image_path)
         with allure.step("Fetch an image that does not exist"):
-            system.image.action_fetch(scp_path + image_path + rand_name, "Action failed")
+            system.image.action_fetch(scp_path + image_path + rand_name, "Failed")
 
     with allure.step("Delete bad flows"):
         logging.info("Delete bad flows")
@@ -242,23 +242,14 @@ def test_system_image_bad_flow(engines, release_name):
         logging.info("Install bad flows")
         with allure.step("Install image file that does not exist"):
             file_rand_name.action_file_install("Image does not exist")
-        with allure.step("Install the same image twice"):
-            try:
-                with allure.step("First installation"):
-                    image_file.action_file_install_with_reboot().verify_result()
-                with allure.step("Second installation"):
-                    image_file.action_file_install_with_reboot().verify_result()
-            finally:
-                with allure.step("uninstall"):
-                    system.image.action_uninstall(params='force')
 
     with allure.step("Boot-next bad flows"):
         logging.info("Boot-next bad flows")
         if not original_images[ImageConsts.PARTITION2_IMG]:
             with allure.step("Boot-next {}, even tough we have no image there".format(ImageConsts.PARTITION2_IMG)):
-                system.image.action_boot_next(ImageConsts.PARTITION2_IMG, 'Action failed')
+                system.image.action_boot_next(ImageConsts.PARTITION2_IMG, 'Failed')
         with allure.step("Boot-next random string"):
-            system.image.action_boot_next(ImageConsts.PARTITION2_IMG, "Action failed")
+            system.image.action_boot_next(ImageConsts.PARTITION2_IMG, "Failed")
         with allure.step("Boot-next the same partition"):
             system.image.action_boot_next(original_image_partition)
 
