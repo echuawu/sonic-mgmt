@@ -1064,11 +1064,11 @@ ecmp/inner_hashing:
 
 vxlan/test_vxlan_ecmp.py:
   skip:
-    reason: "Testcase ignored due to branch 202106"
+    reason: "Testcase ignored due to branch 202106 and github sonic-mgmt issue 9769"
     conditions_logical_operator: or
     conditions:
       - "'202106' in release"
-      - https://github.com/sonic-net/sonic-mgmt/issues/8599
+      - https://github.com/sonic-net/sonic-mgmt/issues/9769
 
 vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_a[v6_in:
   skip:
