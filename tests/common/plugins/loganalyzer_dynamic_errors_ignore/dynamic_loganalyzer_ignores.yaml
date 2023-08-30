@@ -3045,10 +3045,17 @@
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.*with base.*'
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - FileNotFoundError.*No such file or directory.*'
     - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*'
+    - '.*ERR pmon#psud: message repeated \d+ times:.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - FileNotFoundError.*No such file or directory.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_blacklist
+
+- Errors_list:
+    - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*invalid value.*'
+  Conditions:
+    - Redmine:
+      - 3589197
 
 - Errors_list:
     - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/timeout - FileNotFoundError.*No such file or directory.*'
