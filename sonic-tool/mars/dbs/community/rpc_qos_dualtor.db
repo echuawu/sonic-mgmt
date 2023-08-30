@@ -12,9 +12,9 @@
             <tags> RPC_QOS_DUALTOR </tags>
             <ignore>
                 <condition>
-                    <key> run_rpc_image </key>
-                    <op> == </op>
-                    <value>  no </value>
+                    <key> dut_name </key>
+                    <op> not in </op>
+                    <value> ["r-tigon-20"] </value>
                 </condition>
             </ignore>
 
