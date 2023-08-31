@@ -81,7 +81,8 @@ class SonicSecureBootConsts(SecureBootConsts):
     PROD_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/OPN/prod_corrupted_bin.mfa'
     DEV_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/IPN/dev_corrupted_bin.mfa'
     MFA_FILE_PATH = "/etc/mlnx"
-    CORRUPT_MFA_ERR_MSG = "Rejected authentication"
+    DEV_CORRUPT_MFA_ERR_MSG = "Rejected authentication"
+    PROD_CORRUPT_MFA_ERR_MSG = "Bad parameter"
     SECURE_FW_MSG = "Security Attributes:   secure-fw"
     SECURE_FW_DEV_MSG = "Security Attributes:   secure-fw, dev"
 
