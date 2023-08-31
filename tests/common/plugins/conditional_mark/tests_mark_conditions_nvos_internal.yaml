@@ -108,8 +108,9 @@ tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_o
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3482418"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194 (and 3482418)"
     conditions:
+      - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi:
