@@ -54,7 +54,8 @@ tests/nightly/auto_negotition:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform or '3800' in platform"
-      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform "
+      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform"
+      - "https://redmine.mellanox.com/issues/3587862 and 'r-panther-13' in testbed"
 
 tests/nightly/dynamic_port_breakout:
   skip:
@@ -566,7 +567,6 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
-      - "https://redmine.mellanox.com/issues/3518820 and 'sn27' in platform"
 
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
   skip:
