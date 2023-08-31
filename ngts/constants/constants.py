@@ -1169,3 +1169,4 @@ class GnmiConsts:
     GNMI_VERSION = '1.0.0'
     GNMI_DEFAULT_PORT = '9339'
     GNMI_CLIENT_CMD = '/auto/UFM/NetQ/agent/gnmi_client'
+    SLEEP_TIME_FOR_UPDATE = 35
