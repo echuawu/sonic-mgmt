@@ -131,7 +131,7 @@ class TestToolkit:
         with allure.step("Get log analyzer marker"):
             try:
                 markers = engine.run_cmd('grep " start-LogAnalyzer-" /var/log/syslog')
-                last_marker = markers.split("/n")[-1]
+                last_marker = markers.split("\n")[-1]
                 return re.findall(r'\bstart-LogAnalyzer-\S+', last_marker)[0]
             except BaseException:
                 return ""
