@@ -236,16 +236,6 @@ def test_system_profile_change_breakout_mode(engines):
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_ib_routing_mode(engines):
-    """
-    TBD
-    Test flow:
-        1.
-    """
-
-
-@pytest.mark.system
-@pytest.mark.system_profile_cleanup
 def test_system_profile_changes_stress(engines):
     """
     Test flow:
@@ -323,52 +313,6 @@ def test_system_profile_redis_db_crash(engines):
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
                                                         values_to_verify,
                                                         system_profile_output).verify_result()
-
-    with allure.step('Change system profile to default'):
-        system.profile.action_profile_change(
-            params='adaptive-routing enabled adaptive-routing-groups 2048 breakout-mode disabled')
-        system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
-            .get_returned_value()
-        ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
-                                                        system_profile_output).verify_result()
-        logging.info("All values returned successfully")
-
-    update_timezone(engines)
-
-
-@pytest.mark.system
-@pytest.mark.system_profile_cleanup
-def test_system_profile_change_upgrade_not_default_profile(engines):
-    """
-    TBD, to do after fetch feature work
-    Test flow:
-        1. Change profile to not default
-        2. Upgrade
-        3. Verify no changes after upgrade
-        4. Return to default profile
-    """
-    system = System(None)
-    with allure.step('Change system profile to breakout-mode enabled, adaptive-routing disabled and verify'):
-        with allure.step("Disable adaptive-routing and enable breakout-mode "):
-            system.profile.action_profile_change(params='adaptive-routing disabled breakout-mode enabled')
-
-        with allure.step('Verify changed values'):
-            system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
-                .get_returned_value()
-            values_to_verify = [SystemConsts.PROFILE_STATE_DISABLED, '', SystemConsts.PROFILE_STATE_ENABLED,
-                                SystemConsts.PROFILE_STATE_DISABLED, SystemConsts.DEFAULT_NUM_SWIDS]
-            ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                            values_to_verify,
-                                                            system_profile_output).verify_result()
-            logging.info("All expected values were found")
-
-    with allure.step("Fetch and image which support system profile"):
-        with allure.step("Fetch an image"):
-            support_profile_image_path = ''
-            scp_path = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
-                                               InfraConst.HTTP_SERVER.replace("http://", ""))
-            system.image.action_fetch(scp_path + support_profile_image_path)
 
     with allure.step('Change system profile to default'):
         system.profile.action_profile_change(
