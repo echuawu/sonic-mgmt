@@ -10,6 +10,7 @@ import allure
 import pytest
 import copy
 import socket
+from retry import retry
 
 logger = logging.getLogger()
 
@@ -252,6 +253,7 @@ class AllureServer:
         else:
             logger.info('Allure project {} already exist on server. No need to create project'.format(self.project_id))
 
+    @retry(Exception, tries=5, delay=1)
     def upload_results_to_allure_server(self):
         """
         This method uploads files from allure results folder to allure server
@@ -261,8 +263,11 @@ class AllureServer:
 
         logger.info('Sending allure results to allure server')
         response = requests.post(url, json=data, headers=self.http_headers)
-        if response.raise_for_status():
-            logger.error('Failed to upload results to allure server, error: {}'.format(response.content))
+        if response.status_code != 200:
+            logger.error(f'Failed to upload results to allure server, error: {response.content}.'
+                         f' \n status_code, {response.status_code}, headers is :{self.http_headers}, '
+                         f'\n Data is :{data}')
+        response.raise_for_status()
 
     def get_allure_files_content(self):
         """
