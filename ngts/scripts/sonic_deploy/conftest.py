@@ -9,6 +9,7 @@ Defines the methods and fixtures which will be used by pytest
 import pytest
 import logging
 import re
+import os
 
 from ngts.constants.constants import MarsConstants
 
@@ -261,7 +262,12 @@ def fw_pkg_path(request):
     :param request: pytest builtin
     :return: path to firmware package
     """
-    return request.config.getoption('--fw_pkg_path')
+    fw_pkg_path = request.config.getoption('--fw_pkg_path')
+    if fw_pkg_path and not os.path.exists(fw_pkg_path):
+        # if the fw_pkg_path give does not exist, then use the default one
+        sonic_mgmt_path = os.path.dirname(os.path.abspath(__file__)).split('ngts')[0]
+        fw_pkg_path = os.path.join(sonic_mgmt_path, MarsConstants.UPDATED_FW_TAR_PATH)
+    return fw_pkg_path
 
 
 @pytest.fixture(scope='session')

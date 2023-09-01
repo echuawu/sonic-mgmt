@@ -1,0 +1,730 @@
+{
+	"images":{
+        "master.351-dee765552_Internal": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sonic/master.351-dee765552_Internal/Mellanox/sonic-mellanox.bin",
+		"master.355-392899682_Internal": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sonic/master.355-392899682_Internal/Mellanox/sonic-mellanox.bin"
+    },
+	"chassis": {
+		"MSN2010": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/AtomRangeley/0ACIF007_02.02.x02/Release_9600/0ACIF007.rom",
+						"version": "0ACIF007_02.02.002_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/AtomRangeley/0ACIF007_02.01.x01/Release/0ACIF007.rom",
+						"version": "0ACIF007_02.01.001",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				]
+			}
+		},
+		"MSN2100": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/AtomRangeley/0ACIF007_02.02.x02/Release_9600/0ACIF007.rom",
+						"version": "0ACIF007_02.02.002_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware":"http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/AtomRangeley/0ACIF007_02.01.x01/Release/0ACIF007.rom",
+						"version": "0ACIF007_02.01.001",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2100/FUI000027/FUI000027.mpfa",
+						"version": "CPLD000075_REV0600",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2100/FUI000003/FUI000003.mpfa",
+						"version": "CPLD000075_REV0500",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"SN2201": {
+            "component":{
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/sn2201/2021.08-nvidia_sn2201_v1.1/115200/onie-updater-x86_64-nvidia_sn2201-r0",
+						"force_reboot": true,
+						"version": "2021.08-nvidia_sn2201_v1.1-115200",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/sn2201/2021.08-nvidia_sn2201_v1.0/115200/onie-updater-x86_64-nvidia_sn2201-r0",
+						"force_reboot": true,
+						"version": "2021.08-nvidia_sn2201_v1.0-115200",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD1": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2201/FUI_CPLD000299_REV07/FUI_CPLD000300_REV03.mpfa",
+						"version": "CPLD000299_REV0700",
+						"reboot": ["power off","cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2201/FUI_CPLD000299_REV07/FUI_CPLD000300_REV03.mpfa",
+						"version": "CPLD000300_REV0300",
+						"reboot": ["power off","cold"]
+					}
+				]
+			}
+		},
+		"MSN2410": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/IvyBridge/0ABZS017_02.02.x04/Release_9600/0ABZS017.rom",
+						"version": "0ABZS017_02.02.004_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/IvyBridge/0ABZS017_02.02.x03/Release_9600/0ABZS017.rom",
+						"version": "0ABZS017_02.02.003_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.2.0022/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.2.0022-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD1": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2410/FUI000192/FUI000192.mpfa",
+						"version": "CPLD000085_REV1900",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2410/FUI000077/FUI000077.mpfa",
+						"version": "CPLD000085_REV1700",
+						"reboot": ["power off","cold"]
+					}
+				]
+			}
+		},
+		"MSN2700": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/IvyBridge/0ABZS017_02.02.x04/Release_9600/0ABZS017.rom",
+						"version": "0ABZS017_02.02.004_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/IvyBridge/0ABZS017_02.02.x03/Release_9600/0ABZS017.rom",
+						"version": "0ABZS017_02.02.003_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.2.0022/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.2.0022-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD1": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2700/FUI000193/FUI000193.mpfa",
+						"version": "CPLD000085_REV2000",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2700/FUI000076/FUI000076.mpfa",
+						"version": "CPLD000085_REV1700",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN3420": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3420/FUI000168/FUI000168.mpfa",
+						"version": "CPLD000198_REV0500",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3420/FUI000159/FUI000159.mpfa",
+						"version": "CPLD000198_REV0400",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN3700C": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3700C/FUI000191/FUI000191.mpfa",
+						"version": "CPLD000310_REV0200",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3700C/FUI000214/FUI000214.mpfa",
+						"version": "CPLD000162_REV1000",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN3700": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3700/FUI000191/FUI000191.mpfa",
+						"version": "CPLD000310_REV0200",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3700/FUI000214/FUI000214.mpfa",
+						"version": "CPLD000162_REV1000",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN3800": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3800/FUI000160/FUI000160.mpfa",
+						"version": "CPLD000165_REV0600",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3800/FUI000064/FUI000064.mpfa",
+						"version": "CPLD000165_REV0200",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN4410": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4410/FUI000156/FUI000156.mpfa",
+						"version": "CPLD000254_REV0600",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4410/FUI000120/FUI000120.mpfa",
+						"version": "CPLD000254_REV0500",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN4600C": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600C/FUI000154/FUI000154.mpfa",
+						"version": "CPLD000296_REV0300",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600C/FUI000103/FUI000103.mpfa",
+						"version": "CPLD000208_REV0200",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN4600": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600/FUI000157/FUI000157.mpfa",
+						"version": "CPLD000208_REV0700",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600/FUI000128/FUI000128.mpfa",
+						"version": "CPLD000208_REV0600",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"MSN4700": {
+			"component":{
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x10/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.010_9600",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_release/sw_system/sx_mlnx_bios/Broadwell/0ACLH004_02.02.x09/Release_9600/0ACLH004.rom",
+						"version": "0ACLH004_02.02.009_9600",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4700/FUI000155/FUI000155.mpfa",
+						"version": "CPLD000254_REV0600",
+						"reboot": ["power off","cold"]
+					},
+					{
+						"firmware":  "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4700/FUI000123/FUI000123.mpfa",
+						"version": "CPLD000254_REV0500",
+						"reboot": ["power off","cold"]
+					}
+				]
+
+			}
+		},
+		"SN4800": {
+			"component":{
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/sx_mlnx_os/onie_release/2020.11-5.3.0005/115200/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2020.11-5.3.0005-115200",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/115200/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-115200",
+						"reboot": ["cold"]
+					}
+				]
+			}
+		},
+		"SN5600": {
+			"component": {
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010-dev/115200/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-dev-115200-dev",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000225/FUI000225.mpfa",
+						"version": "CPLD000330_REV0500",
+						"reboot": ["power off", "cold"]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000228/FUI000228.mpfa",
+						"version": "CPLD000330_REV0600",
+						"reboot": ["power off", "cold"]
+					}
+				]
+			}
+		}
+	},
+	"host": {
+		"r-tigon-15": {
+			"component": {
+				"CPLD1": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600C/FUI000186/FUI000186.mpfa",
+						"version": "CPLD000120_REV1200",
+						"reboot": [
+							"power off",
+							"cold"
+						]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4600C/FUI000154/FUI000154.mpfa",
+						"version": "CPLD000120_REV0900",
+						"reboot": [
+							"power off",
+							"cold"
+						]
+					}
+				]
+			}
+		},
+		"r-anaconda-15": {
+			"component": {
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN3700C/FUI000191/FUI000191.mpfa",
+						"version": "CPLD000310_REV0200",
+						"reboot": ["power off","cold"]
+					}
+				]
+			}
+		},
+		"mtvr-moose-01": {
+			"component": {
+				"ONIE": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/115200/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2022.08-5.3.0010-115200",
+						"reboot": [
+							"cold"
+						]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000227/FUI000227.mpfa",
+						"version": "CPLD000330_REV0500",
+						"reboot": [
+							"power off",
+							"cold"
+						]
+					},
+					{
+						"firmware": "http://fit69.mtl.labs.mlnx//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000229/FUI000229.mpfa",
+						"version": "CPLD000330_REV0600",
+						"reboot": [
+							"power off",
+							"cold"
+						]
+					}
+				]
+			}
+		}
+	},
+	"unsigned":{
+		"SN5600":{
+			"component":{
+				"CPLD2": [
+                    {
+                            "firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI060225/FUI060225.mpfa",
+                            "version": "CPLD060330_REV0400",
+                            "reboot": ["power off","cold"]
+                    }
+				]
+			}
+		}
+	},
+    "key_mismatched_signed":{
+        "SN5600":{
+            "component":{
+                "ONIE":[
+                    {
+                            "firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/115200/onie-updater-x86_64-mlnx_x86-r0",
+                            "version": "2022.08-5.3.0010-115200",
+							"type": "prod"
+                    },
+					{
+                            "firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010-dev/115200/onie-updater-x86_64-mlnx_x86-r0",
+                            "version": "2022.08-5.3.0010-115200",
+							"type": "dev"
+                    }
+				],
+                "BIOS": [
+                    {
+                            "firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_05.02.x02/Release/0ACQF.cab",
+                            "version": "0ACQF_05.02.x02",
+							"type": "dev"
+                    },
+					{
+                            "firmware": "http://fit69.mtl.labs.mlnx/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_05.02.x02/Release/0ACQF.cab",
+                            "version": "0ACQF_05.02.x02",
+							"type": "prod"
+                    }
+				],
+                "CPLD2": [
+                    {
+                            "firmware":  "http://fit69.mtl.labs.mlnx/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000227/FUI000227.mpfa",
+                            "version": "CPLD000330_REV0500",
+							"type": "prod"
+                    },
+					{
+                            "firmware":  "http://fit69.mtl.labs.mlnx/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000225/FUI000225.mpfa",
+                            "version": "CPLD000330_REV0500",
+							"type": "dev"
+                    }
+                ]
+            }
+        }
+    }
+}

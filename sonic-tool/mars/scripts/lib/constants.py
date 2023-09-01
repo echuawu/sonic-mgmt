@@ -9,7 +9,7 @@ NGTS_DEVICE_ID = "NGTS"
 DUT_DEVICE_ID = "DUT"
 FANOUT_DEVICE_ID = "FANOUT"
 SONIC_MGMT_DIR = '/root/mars/workspace/sonic-mgmt/'
-UPDATED_FW_TAR_PATH = 'tests/platform_tests/fwutil/updated-fw.tar.gz'
+UPDATED_FW_TAR_PATH = 'tests/platform_tests/fwutil/firmware.json'
 HTTP_SERVER_NBU_NFS = 'http://nbu-nfs.mellanox.com'
 
 DOCKER_SONIC_MGMT_IMAGE_NAME = "docker-sonic-mgmt"
