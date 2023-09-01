@@ -227,7 +227,10 @@ def topology_obj(setup_name, request):
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
     topology.players['dut']['is_nvos'] = topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes
-
+    if request.config.option.ports_number == "max":
+        # This is used for the fast reboot with max ports
+        config_db = topology.players['dut']['cli'].general.get_config_db()
+        topology.players_all_ports['dut'] = list(config_db['PORT'].keys())
     yield topology
 
     logger.debug('Cleaning-up the topology object')
