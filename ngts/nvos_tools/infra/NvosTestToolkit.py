@@ -111,20 +111,16 @@ class TestToolkit:
         return result
 
     @staticmethod
-    def run_log_analyzer_bug_handler(version):
+    def run_log_analyzer_bug_handler():
         """
         check if all the following conditions are met
             * it is not special run (sanitizer /code coverage)
             * it is mars run
-            * version from release and not private version
-            * not ci run
-        :param version: string of the system version
         :param topology_obj: topology object
         :param setup_name: name of the setup
         :return: True if all the conditions are met, else false
         """
-        release_name = TestToolkit.version_to_release(version)
-        return (not TestToolkit.is_special_run() and pytest.is_mars_run and release_name and not pytest.is_ci_run)
+        return pytest.is_mars_run and not TestToolkit.is_special_run()
 
     @staticmethod
     def get_loganalyzer_marker(engine):

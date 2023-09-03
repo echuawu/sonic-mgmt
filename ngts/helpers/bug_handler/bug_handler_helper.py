@@ -162,7 +162,8 @@ def remove_error_prefix_from_sanitizer_file(contents):
     return contents_without_prefix
 
 
-def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path):
+def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path,
+                        bug_handler_no_action):
     """
     call bug handler on sanitizer or log analyzer file and return results as dictionary
     :param conf_path: i.e, /tmp/sonic_bug_handler.conf
@@ -180,8 +181,9 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     'action': 'update',
     'bug_id': '1122554'}
     """
+    bug_handler_no_action = '--no_action' if bug_handler_no_action else ''
     bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
-                      f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file}"
+                      f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file} {bug_handler_no_action}"
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     logger.info(bug_handler_output)
@@ -259,7 +261,7 @@ def review_bug_handler_results(bug_handler_results):
                 raise AssertionError("Bug handler found undetected issues, please review summary attached to allure")
 
 
-def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_analyzer_bug_metadata):
+def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_analyzer_bug_metadata, bug_handler_no_action):
     """
     Call bug handler on all log errors and return list of dictionaries with results
     :param cli_type: i.e, Sonic
@@ -303,7 +305,8 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_an
                     error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
                                                           tar_file_path, yaml_file_path,
                                                           BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                          BugHandlerConst.BUG_HANDLER_SCRIPT))
+                                                          BugHandlerConst.BUG_HANDLER_SCRIPT,
+                                                          bug_handler_no_action))
                     bug_handler_dumps_results.append(error_dict)
 
             clear_files(session_id)

@@ -8,6 +8,7 @@ NOTE: Add here only fixtures and methods that can be used for canonical and comm
 if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
+
 import pytest
 import logging
 import re
@@ -15,6 +16,7 @@ import os
 import json
 from paramiko.ssh_exception import SSHException
 from dotted_dict import DottedDict
+
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
@@ -558,7 +560,7 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
-    run_log_analyzer_bug_handler, log_analyzer_handler_info = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
+    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
     if run_log_analyzer_bug_handler:
         logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
         bug_handler_dict = {'test_description': request.node.function.__doc__,
@@ -569,7 +571,7 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
                             'report_url': request.node.config.cache.get('allure_report_url', '')}
         log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
                                                       log_analyzer_handler_info['branch'], test_name, topology_obj,
-                                                      bug_handler_dict)
+                                                      bug_handler_dict, bug_handler_no_action)
         logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
         error_msg = ''
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
@@ -586,16 +588,18 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
 
 def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):
     run_log_analyzer_bug_handler = False
+    bug_handler_no_action = False
     log_analyzer_handler_info = {'branch': '', 'cli_type': '', 'version': ''}
     if disable_loganalyzer:
         logger.info("Log analyzer is disabled, thus the LA bug handler is disabled")
-        return run_log_analyzer_bug_handler, log_analyzer_handler_info
+        return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
 
     log_analyzer_handler_info['branch'] = topology_obj.players['dut']['branch']
     log_analyzer_handler_info['cli_type'] = os.environ['CLI_TYPE']
     log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(log_analyzer_handler_info['cli_type'])
 
     if log_analyzer_handler_info['cli_type'] == 'NVUE':
-        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler(log_analyzer_handler_info['version'])
+        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler()
+        bug_handler_no_action = pytest.is_ci_run   # no_action flag in ci run, so it will not open new bugs
 
-    return run_log_analyzer_bug_handler, log_analyzer_handler_info
+    return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action

@@ -3441,3 +3441,12 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
+
+# NVOS gorilla-100 PSU2 is missing.
+- Errors_list:
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2: is missing or not available.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2/FAN: is missing.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Redmine:
+        - 3593772
