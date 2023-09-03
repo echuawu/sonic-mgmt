@@ -3425,3 +3425,11 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
+
+# NVOS
+- Errors_list:
+    - ".*ERR health-statsd#health_history: gnmi-server: Container 'gnmi-server' is not running.*"
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_gnmi_server.py::test_simulate_gnmi_server_failure

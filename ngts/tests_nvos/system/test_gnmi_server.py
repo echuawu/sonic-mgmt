@@ -119,16 +119,12 @@ def test_simulate_gnmi_server_failure(test_api, engines):
             sleep_time_for_health_issue = 6
             logger.info(f"sleep {sleep_time_for_health_issue} seconds until the health output will be updated")
             time.sleep(sleep_time_for_health_issue)
-            system.validate_health_status(HealthConsts.NOT_OK)
-            health_issues = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[HealthConsts.ISSUES]
-            assert GnmiConsts.GNMI_DOCKER in list(health_issues.keys()), f"{GnmiConsts.GNMI_DOCKER} is not in the " \
-                                                                         f"health issues as we expect, after the " \
-                                                                         f"gnmi-server failure"
+            validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=True)
             logger.info(f"{GnmiConsts.GNMI_DOCKER} appears in the health issues as we expect, "
                         f"after the gnmi-server failure")
     finally:
         with allure_step('re-enable gnmi server'):
-            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "enable")
+            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "enabled")
             engines.dut.run_cmd("docker start gnmi-server")
             validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
 
@@ -231,7 +227,7 @@ def test_simulate_gnmi_client_failure(engines):
         with allure_step('Kill gnmi client command'):
             os.system(f"kill {background_process.pid}")
         validate_gnmi_enabled_and_running(gnmi_server_obj, engines)
-        system.validate_health_status(HealthConsts.OK)
+        validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
 
 
 # ------------ test functions -----------------
@@ -265,7 +261,7 @@ def gnmi_basic_flow(engines, flags='', ipv6=False):
     with allure_step('Disable gnmi'):
         gnmi_server_obj.disable_gnmi_server()
         validate_gnmi_disabled_and_not_running(gnmi_server_obj, engines)
-        system.validate_health_status(HealthConsts.OK)
+        validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
 
     with allure_step('Enable gnmi'):
         gnmi_server_obj.enable_gnmi_server()
@@ -277,7 +273,7 @@ def gnmi_basic_flow(engines, flags='', ipv6=False):
 def validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, flags=''):
     with allure_step('Validate gnmi is running and stream updates'):
         validate_gnmi_enabled_and_running(gnmi_server_obj, engines)
-        system.validate_health_status(HealthConsts.OK)
+        validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
         port_description = Tools.RandomizationTool.get_random_string(7)
         change_port_description_and_validate_gnmi_updates(engines, port_description=port_description,
                                                           target_ip=target_ip, flags=flags)
@@ -351,3 +347,14 @@ def change_port_description_and_validate_gnmi_updates(engines, port_description,
         "we expect to see the new port description in the gnmi-client output but we didn't.\n" \
         f"port description: {port_description}\n" \
         f"but got: {list(gnmi_stream_updates.values())}"
+
+
+@retry(Exception, tries=3, delay=3)
+def validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue):
+    health_issues = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()[
+        HealthConsts.ISSUES]
+    error_msg = "gnmi-server is {} in the health issues".format("not" if expected_gnmi_health_issue else "")
+    if expected_gnmi_health_issue:
+        assert GnmiConsts.GNMI_DOCKER in list(health_issues.keys()), error_msg
+    else:
+        assert GnmiConsts.GNMI_DOCKER not in list(health_issues.keys()), error_msg
