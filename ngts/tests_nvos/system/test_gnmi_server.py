@@ -4,6 +4,7 @@ import re
 import time
 import subprocess
 import os
+import signal
 
 from retry import retry
 from ngts.nvos_tools.system.System import System
@@ -12,7 +13,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.tools.test_utils.allure_utils import step as allure_step
-from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst
+from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.constants.constants import GnmiConsts
 
@@ -112,7 +113,7 @@ def test_simulate_gnmi_server_failure(test_api, engines):
 
     try:
         with allure_step('Simulate gnmi server failure'):
-            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "disabled")
+            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_ID, "FEATURE|gnmi-server", "auto_restart", "disabled")
             engines.dut.run_cmd("docker stop gnmi-server")
             validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
                                gnmi_is_running=GnmiConsts.GNMI_IS_NOT_RUNNING)
@@ -124,8 +125,12 @@ def test_simulate_gnmi_server_failure(test_api, engines):
                         f"after the gnmi-server failure")
     finally:
         with allure_step('re-enable gnmi server'):
-            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "enabled")
+            Tools.RedisTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_ID, "FEATURE|gnmi-server", "auto_restart", "enabled")
             engines.dut.run_cmd("docker start gnmi-server")
+            gnmi_server_obj.disable_gnmi_server()
+            gnmi_server_obj.enable_gnmi_server()
+            logger.info("sleep 90 sec until validate stream updates")
+            time.sleep(90)
             validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
 
 
@@ -159,7 +164,7 @@ def test_updates_on_gnmi_stream_mode(engines):
         with allure_step('Kill gnmi client command and verify updates'):
             logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until verify gnmi updates")
             time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
-            os.system(f"kill {background_process.pid}")
+            os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
         gnmi_client_output, error = background_process.communicate()
         assert port_description in str(gnmi_client_output), \
             "we expect to see the new port description in the gnmi-client output but we didn't.\n" \
@@ -225,16 +230,71 @@ def test_simulate_gnmi_client_failure(engines):
             background_process = run_gnmi_client_in_the_background(engines.dut.ip, '/interfaces')
             time.sleep(3)
         with allure_step('Kill gnmi client command'):
-            os.system(f"kill {background_process.pid}")
+            os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
         validate_gnmi_enabled_and_running(gnmi_server_obj, engines)
         validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
 
 
+@pytest.mark.system
+@pytest.mark.gnmi
+def test_gnmi_performance(engines):
+    """
+    Run 10 gnmi-client process to the same switch, validate stream updates and switch state.
+        Test flow:
+            1. create 10 gnmi_clients
+            2. change port description
+            3. validate gnmi-server stream updates
+    """
+    num_engines = 10
+    gnmi_clients_without_updates = 0
+    threads = []
+    result = []
+    port_description = Tools.RandomizationTool.get_random_string(7)
+    selected_port = Tools.RandomizationTool.select_random_port().returned_value
+
+    with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
+        for engine_id in range(num_engines):
+            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"/interfaces/interface[name={selected_port.name}]/state/description"))
+
+    with allure_step("validate memory and CPU utilization"):
+        validate_memory_and_cpu_utilization()
+
+    with allure_step(f"change port description"):
+        selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+        selected_port.update_output_dictionary()
+        Tools.ValidationTool.verify_field_value_in_output(selected_port.show_output_dictionary, NvosConst.DESCRIPTION,
+                                                          port_description).verify_result()
+        logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")
+        time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
+
+    with allure_step(f"stop the gnmi_client sessions and validate updates"):
+        for thread in threads:
+            os.killpg(os.getpgid(thread.pid), signal.SIGTERM)
+            output, error = thread.communicate()
+            result.append(output)
+            if port_description not in str(output):
+                gnmi_clients_without_updates += 1
+        assert gnmi_clients_without_updates == 0, f"{gnmi_clients_without_updates} gnmi clients didn't get updates.."
+
+
 # ------------ test functions -----------------
+def validate_memory_and_cpu_utilization():
+    system = System()
+    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("memory")).get_returned_value()
+    memory_util = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["utilization"]
+    assert SystemConsts.MEMORY_PERCENT_THRESH_MIN < memory_util < SystemConsts.MEMORY_PERCENT_THRESH_MAX, \
+        "Physical utilization percentage is out of range"
+    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("cpu")).get_returned_value()
+    cpu_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+    assert cpu_utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
+        "CPU utilization: {actual}% is higher than the maximum limit of: {expected}%" \
+        "".format(actual=cpu_utilization, expected=SystemConsts.CPU_PERCENT_THRESH_MAX)
+
+
 def run_gnmi_client_in_the_background(target_ip, xpath):
     command = f"{GnmiConsts.GNMI_CLIENT_CMD} -target_addr {target_ip}:{GnmiConsts.GNMI_DEFAULT_PORT} -xpath '{xpath}'"
     # Use the subprocess.Popen function to run the command in the background
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     return process
 
 
