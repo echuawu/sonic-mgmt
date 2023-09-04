@@ -24,6 +24,7 @@ from ngts.cli_util.cli_parsers import generic_sonic_output_parser
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.helpers.interface_helpers import get_dut_default_ports_list
 from ngts.helpers.config_db_utils import save_config_db_json
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 from ngts.tests.nightly.app_extension.app_extension_helper import get_installed_mellanox_extensions
 from ngts.cli_wrappers.sonic.sonic_onie_clis import SonicOnieCli, OnieInstallationError, get_latest_onie_version
 from infra.tools.utilities.onie_sonic_clis import SonicOnieCli as SonicOnieCliDevts
@@ -33,6 +34,7 @@ from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_stor
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 from infra.tools.general_constants.constants import DefaultTestServerCred, NogaConstants
 from infra.tools.topology_tools.nogaq import upload_data_to_noga
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 logger = logging.getLogger()
@@ -682,6 +684,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
             self.verify_dockers_are_up(dockers_list=['swss'])
+            if is_redmine_issue_active([3589124]) and get_sonic_branch(topology_obj) == '202012':
+                time.sleep(120)
             self.cli_obj.qos.stop_buffermgrd()
             self.cli_obj.qos.start_buffermgrd()
 

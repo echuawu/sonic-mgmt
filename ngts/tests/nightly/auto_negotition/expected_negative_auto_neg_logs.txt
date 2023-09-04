@@ -1,4 +1,4 @@
-r, ".*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] - Interface_Type\[.*\]\] configuration is invalid.*"
+r, ".*ERR syncd#SDK: \[SAI_PORT.ERR\].*mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] - Interface_Type\[.*\]\] configuration is invalid.*"
 r, ".*ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ AN from 0 to 1.*"
 r, ".*ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation, task failed, SAI API: SAI_API_PORT, status: SAI_STATUS_INVALID_ATTR_VALUE_0"
-r, ".*ERR syncd#SDK: \[SAI_UTILS\.ERR\] mlnx_sai_utils\.c\[\d+\]- sai_set_attribute: Failed to set the attribute.*"
+r, ".*ERR syncd#SDK: \[SAI_UTILS\.ERR\].*mlnx_sai_utils\.c\[\d+\]- sai_set_attribute: Failed to set the attribute.*"

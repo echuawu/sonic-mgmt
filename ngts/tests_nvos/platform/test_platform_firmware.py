@@ -14,7 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.nvos_ci
 @pytest.mark.nvos_chipsim_ci
-def test_show_platform_firmware(engines):
+def test_show_platform_firmware(engines, devices):
     """
     Show platform firmware test
     """
@@ -29,14 +29,15 @@ def test_show_platform_firmware(engines):
         with allure.step("Verify text output"):
             logging.info("Verify text output")
             output = platform.firmware.show(output_format=OutputFormat.auto)
-            logging.info("Required comp: " + str(PlatformConsts.FW_COMP))
-            assert not any(comp not in output for comp in PlatformConsts.FW_COMP), \
+            fw_list = devices.dut.constants.firmware
+            logging.info("Required comp: " + str(fw_list))
+            assert not any(comp not in output for comp in fw_list), \
                 "Not all required component were found"
 
         with allure.step("Verify json output"):
             logging.info("Verify json output")
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).get_returned_value()
-            Tools.ValidationTool.verify_field_exist_in_json_output(output, PlatformConsts.FW_COMP, True).verify_result()
+            Tools.ValidationTool.verify_field_exist_in_json_output(output, fw_list, True).verify_result()
 
         with allure.step("Compare general output to each firmware component"):
             logging.info("Compare general output to each firmware component")
@@ -70,6 +71,6 @@ def _compare_general_output_to_comp_output(platform, comp_name, general_comp_out
 @pytest.mark.platform
 @pytest.mark.nvos_ci
 @pytest.mark.nvos_chipsim_ci
-def test_show_platform_firmware_openapi(engines):
+def test_show_platform_firmware_openapi(engines, devices):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_firmware(engines)
+    test_show_platform_firmware(engines, devices)

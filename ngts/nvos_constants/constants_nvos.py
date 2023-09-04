@@ -56,7 +56,9 @@ class NvosConst:
     DESCRIPTION = 'description'
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
-
+    DOCKER_AUTO_RESTART = 'auto_restart'
+    DOCKER_STATUS_ENABLED = 'enabled'
+    DOCKER_STATUS_DISABLED = 'disabled'
     DOCKER_STATUS_UP = 'Up'
     SERVICE_STATUS_ACTIVE = 'active'
 

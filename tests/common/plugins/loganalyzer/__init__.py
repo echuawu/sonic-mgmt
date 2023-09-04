@@ -11,6 +11,8 @@ def pytest_addoption(parser):
                      help="disable loganalyzer analysis for 'loganalyzer' fixture")
     parser.addoption("--store_and_silently_ignore_la_failure", action="store_true", default=False,
                      help="store loganalyzer errors and do not fail the test if new bugs were found")
+    parser.addoption("--loganalyzer_rotate_logs", action="store_true", default=True,
+                     help="rotate log on all the dut engines at the beginning of the log analyzer fixture")
 
 
 @reset_ansible_local_tmp
@@ -51,7 +53,9 @@ def loganalyzer(duthosts, request):
     # Analyze all the duts
     fail_test = not (request.config.getoption("--store_and_silently_ignore_la_failure"))
     analyzers = {}
-    parallel_run(analyzer_logrotate, [], {}, duthosts, timeout=120)
+    should_rotate_log = request.config.getoption("--loganalyzer_rotate_logs")
+    if should_rotate_log:
+        parallel_run(analyzer_logrotate, [], {}, duthosts, timeout=120)
     for duthost in duthosts:
         analyzer = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name)
         analyzer.load_common_config()

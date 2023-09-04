@@ -48,14 +48,6 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_and_global_s
     conditions:
       - https://redmine.mellanox.com/issues/3317752
 
-tests_nvos/system/test_system_profile_change.py::test_system_profile_ib_routing_mode:
-  skip:
-    reason: "Not implemented command"
-
-tests_nvos/system/test_system_profile_change.py::test_system_profile_change_upgrade_not_default_profile:
-  skip:
-    reason: "Not implemented command"
-
 tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_basic:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3383943"
@@ -108,8 +100,9 @@ tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_o
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3482418"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194 (and 3482418)"
     conditions:
+      - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi:

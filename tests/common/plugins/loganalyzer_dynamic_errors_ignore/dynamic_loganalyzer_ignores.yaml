@@ -1012,9 +1012,10 @@
     - '.*ERR kernel: \[ \d+.\d+\] Parsing BFD command \d+ failed.*'
     - '.*ERR syncd#SDK: \[BFD.ERR\] ioctl failed, error description: Input/output error'
     - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed in bfd_offload_set().* error:.*'
-    - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
+    - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] .*mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
     - '.*ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE'
     - '.*ERR syncd#SDK: :- processQuadEvent: attr: SAI_BFD_SESSION_ATTR_.*'
+    - '.*ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
   Conditions:
     - Affected_test_cases:
       - bfd/test_bfd.py
@@ -1108,6 +1109,14 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3061632
+
+- Errors_list:
+    - '.*ERR hw-management-tc: ERROR - Read PWM error. Possible hw-management is not running.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3587869
 
 - Errors_list:
     - '.*ERR systemd\[\d+\]: Failed to start Rotate log files.*'
@@ -3044,10 +3053,17 @@
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.*with base.*'
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - FileNotFoundError.*No such file or directory.*'
     - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*'
+    - '.*ERR pmon#psud: message repeated \d+ times:.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - FileNotFoundError.*No such file or directory.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_blacklist
+
+- Errors_list:
+    - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*invalid value.*'
+  Conditions:
+    - Redmine:
+      - 3589197
 
 - Errors_list:
     - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/timeout - FileNotFoundError.*No such file or directory.*'
@@ -3425,6 +3441,15 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
+
+# NVOS gorilla-100 PSU2 is missing.
+- Errors_list:
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2: is missing or not available.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2/FAN: is missing.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Redmine:
+        - 3593772
 
 # NVOS
 - Errors_list:

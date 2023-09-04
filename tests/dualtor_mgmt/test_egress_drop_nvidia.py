@@ -23,7 +23,7 @@ pytestmark = [
 
 logger = logging.getLogger(__name__)
 
-PKT_NUM = 1000
+PKT_NUM = 5000
 
 # Nvidia uses egress drop instead of ingress drop for the upstream traffic when the port is standby.
 # These two test cases are to cover the test gap introduced by the egress drop.

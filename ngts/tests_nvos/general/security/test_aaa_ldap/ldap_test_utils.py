@@ -1,23 +1,16 @@
 import random
 import time
-import subprocess
 import logging
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.constants import AuthConsts, AaaConsts
-from ngts.tests_nvos.general.security.security_test_utils import validate_users_authorization_and_role, \
-    configure_authentication, validate_services_and_dockers_availability, find_server_admin_user, configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_authentication, validate_services_and_dockers_availability, find_server_admin_user, configure_resource
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tools.test_utils import allure_utils as allure
 

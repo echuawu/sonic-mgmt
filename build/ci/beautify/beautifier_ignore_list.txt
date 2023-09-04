@@ -10,3 +10,4 @@
 - tests
 - ansible
 - sonic-tool
+- nvos-tool

@@ -8,6 +8,7 @@ from dash_utils import render_template_to_host, apply_swssconfig_file
 
 ACL_GROUP_TEMPLATE = "dash_acl_group"
 ACL_RULE_TEMPLATE = "dash_acl_rule"
+ACL_TAG_TEMPLATE = "dash_acl_tag"
 BIND_ACL_IN = "dash_bind_acl_in"
 BIND_ACL_OUT = "dash_bind_acl_out"
 DEFAULT_ACL_GROUP = "default_acl_group"
@@ -49,6 +50,20 @@ class AclGroup(object):
     def unbind(self):
         apply_acl_config(self.duthost, BIND_ACL_OUT, self.bind_conf, op="DEL")
         apply_acl_config(self.duthost, BIND_ACL_IN, self.bind_conf, op="DEL")
+
+
+class AclTag(object):
+    def __init__(self, duthost, acl_tag, acl_prefix_list, ip_version="ipv4"):
+        self.duthost = duthost
+        self.tag_conf = {
+            ACL_TAG: acl_tag,
+            IP_VERSION: ip_version,
+            ACL_PREFIX_LIST: acl_prefix_list
+        }
+        apply_acl_config(self.duthost, ACL_TAG_TEMPLATE, self.tag_conf, op="SET")
+
+    def __del__(self):
+        apply_acl_config(self.duthost, ACL_TAG_TEMPLATE, self.tag_conf, op="DEL")
 
 
 class AclTestPacket(object):
@@ -352,8 +367,179 @@ class AclPortTest(AclRuleTest):
                                         expected_receiving=True))
 
 
+class AclTagTest(AclRuleTest):
+    def __init__(self, duthost, dash_config_info):
+        super(AclTagTest, self).__init__(duthost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.acl_tag = AclTag(self.duthost, "AclTag", "10.0.0.5/32,10.0.0.6/32")
+
+    def config(self):
+        self.add_rule({
+            ACL_GROUP: self.acl_group,
+            ACL_RULE: "allow_tag",
+            ACL_PRIORITY: 1,
+            ACL_ACTION: "allow",
+            ACL_TERMINATING: "false",
+            ACL_PROTOCOL: "17",
+            ACL_SRC_ADDR: "AclTag",
+            ACL_SRC_PORT: "6"
+        })
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.5"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.6"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.7"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=False))
+
+    def teardown(self):
+        super(AclTagTest, self).teardown()
+        del self.acl_tag
+
+
+class AclMultiTagTest(AclRuleTest):
+    def __init__(self, duthost, dash_config_info):
+        super(AclMultiTagTest, self).__init__(duthost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.acl_tag1 = AclTag(self.duthost, "AclMultiTag1", "10.0.0.8/32")
+        self.acl_tag2 = AclTag(self.duthost, "AclMultiTag2", "10.0.0.9/32")
+
+    def config(self):
+        self.add_rule({
+            ACL_GROUP: self.acl_group,
+            ACL_RULE: "allow_multi_tag",
+            ACL_PRIORITY: 1,
+            ACL_ACTION: "allow",
+            ACL_TERMINATING: "false",
+            ACL_PROTOCOL: "17",
+            ACL_SRC_ADDR: "AclMultiTag1,AclMultiTag2",
+            ACL_SRC_PORT: "6"
+        })
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.8"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.9"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+
+    def teardown(self):
+        super(AclMultiTagTest, self).teardown()
+        del self.acl_tag1
+        del self.acl_tag2
+
+
+class AclTagOrderTest(AclRuleTest):
+    def __init__(self, duthost, dash_config_info):
+        super(AclTagOrderTest, self).__init__(duthost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.acl_tag = None
+
+    def config(self):
+        self.add_rule({
+            ACL_GROUP: self.acl_group,
+            ACL_RULE: "allow_tag_order",
+            ACL_PRIORITY: 1,
+            ACL_ACTION: "allow",
+            ACL_TERMINATING: "false",
+            ACL_PROTOCOL: "17",
+            ACL_SRC_ADDR: "AclTagOrder",
+            ACL_SRC_PORT: "6"
+        })
+        self.acl_tag = AclTag(self.duthost, "AclTagOrder", "10.0.0.10/32")
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.10"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+
+    def teardown(self):
+        del self.acl_tag
+        super(AclTagOrderTest, self).teardown()
+
+
+class AclMultiTagOrderTest(AclRuleTest):
+    def __init__(self, duthost, dash_config_info):
+        super(AclMultiTagOrderTest, self).__init__(duthost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.acl_tag1 = None
+        self.acl_tag2 = None
+
+    def config(self):
+        self.add_rule({
+            ACL_GROUP: self.acl_group,
+            ACL_RULE: "allow_multi_tag_order",
+            ACL_PRIORITY: 1,
+            ACL_ACTION: "allow",
+            ACL_TERMINATING: "false",
+            ACL_PROTOCOL: "17",
+            ACL_SRC_ADDR: "AclMultiTagOrder1,AclMultiTagOrder2",
+            ACL_SRC_PORT: "6"
+        })
+        self.acl_tag1 = AclTag(self.duthost, "AclMultiTagOrder1", "10.0.0.11/32")
+        self.acl_tag2 = AclTag(self.duthost, "AclMultiTagOrder2", "10.0.0.12/32")
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.11"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.12"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+
+    def teardown(self):
+        del self.acl_tag1
+        del self.acl_tag2
+        super(AclMultiTagOrderTest, self).teardown()
+
+
+class AclTagUpdateTest(AclRuleTest):
+    def __init__(self, duthost, dash_config_info):
+        super(AclTagUpdateTest, self).__init__(duthost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.acl_tag = AclTag(self.duthost, "AclTagUpdate", "10.10.10.10/32")
+
+    def config(self):
+        self.add_rule({
+            ACL_GROUP: self.acl_group,
+            ACL_RULE: "allow_update_tag",
+            ACL_PRIORITY: 1,
+            ACL_ACTION: "allow",
+            ACL_TERMINATING: "false",
+            ACL_PROTOCOL: "17",
+            ACL_SRC_ADDR: "AclTagUpdate",
+            ACL_SRC_PORT: "6"
+        })
+        self.acl_tag = AclTag(self.duthost, "AclTagUpdate", "10.0.0.13/32")
+        dash_config_info = copy.deepcopy(self.dash_config_info)
+        dash_config_info[LOCAL_CA_IP] = "10.0.0.13"
+        self.add_test_pkt(AclTestPacket(dash_config_info,
+                                        inner_extra_conf={"udp_sport": 6},
+                                        expected_receiving=True))
+
+    def teardown(self):
+        super(AclTagUpdateTest, self).teardown()
+        del self.acl_tag
+
+
 @pytest.fixture(scope="module")
 def acl_test_conf(duthost, dash_config_info):
+    # Feature limitation: the group  can't be changed
+    # after ENI configuration(dash_basic_config.j2).
+    # All tests rules should be configured before.
     testcases = []
     testcases.append(DefaultAclGroupTest(duthost, dash_config_info))
     testcases.append(DefaultAclRule(duthost, dash_config_info))
@@ -363,6 +549,11 @@ def acl_test_conf(duthost, dash_config_info):
     # testcases.append(AclProtocolTest(duthost, dash_config_info))
     # testcases.append(AclAddressTest(duthost, dash_config_info))
     # testcases.append(AclPortTest(duthost, dash_config_info))
+    # testcases.append(AclTagTest(duthost, dash_config_info))
+    # testcases.append(AclMultiTagTest(duthost, dash_config_info))
+    # testcases.append(AclTagOrderTest(duthost, dash_config_info))
+    # testcases.append(AclMultiTagOrderTest(duthost, dash_config_info))
+    # testcases.append(AclTagUpdateTest(duthost, dash_config_info))
 
     for t in testcases:
         t.config()

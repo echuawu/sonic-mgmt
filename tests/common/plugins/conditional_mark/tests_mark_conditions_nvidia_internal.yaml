@@ -54,7 +54,8 @@ tests/nightly/auto_negotition:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform or '3800' in platform"
-      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform "
+      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform"
+      - "https://redmine.mellanox.com/issues/3587862 and 'r-panther-13' in testbed"
 
 tests/nightly/dynamic_port_breakout:
   skip:
@@ -318,10 +319,11 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_event_sdk_dump:
   skip:
     reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3585683"
-    conditions_logical_operator: and
+    conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3585683"
-      - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
+      - "'sn5' in platform"
+      - "https://redmine.mellanox.com/issues/3585634"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
@@ -445,9 +447,9 @@ tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_r
 
 tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3546963"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3593724"
     conditions:
-      - "https://redmine.mellanox.com/issues/3546963"
+      - "https://redmine.mellanox.com/issues/3593724"
 
 tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
   skip:
@@ -565,7 +567,6 @@ tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_sca
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
-      - "https://redmine.mellanox.com/issues/3518820 and 'sn27' in platform"
 
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
   skip:
@@ -767,8 +768,17 @@ copp/test_copp.py:
     conditions:
       - https://redmine.mellanox.com/issues/3130627
 
+arp/test_wr_arp.py::TestWrArp::testWrArp:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 on sn5600 platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3431638 and 'sn5600' in platform"
 
-
+autorestart/test_container_autorestart.py::test_containers_autorestart[r-tigris-26-None-teamd]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3587377"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3587377"
 
 snmp/test_snmp_memory.py::test_snmp_memory:
   skip:
@@ -1053,11 +1063,11 @@ ecmp/inner_hashing:
 
 vxlan/test_vxlan_ecmp.py:
   skip:
-    reason: "Testcase ignored due to branch 202106"
+    reason: "Testcase ignored due to branch 202106 and github sonic-mgmt issue 9769"
     conditions_logical_operator: or
     conditions:
       - "'202106' in release"
-      - https://github.com/sonic-net/sonic-mgmt/issues/8599
+      - https://github.com/sonic-net/sonic-mgmt/issues/9769
 
 vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_a[v6_in:
   skip:

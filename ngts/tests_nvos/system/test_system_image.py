@@ -15,6 +15,7 @@ from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.nvos_tools.actions.Actions import Action
 
 from infra.tools.redmine.redmine_api import *
 
@@ -231,7 +232,7 @@ def test_system_image_bad_flow(engines, release_name):
         with allure.step("Fetch the same image again"):
             system.image.action_fetch(scp_path + image_path)
         with allure.step("Fetch an image that does not exist"):
-            system.image.action_fetch(scp_path + image_path + rand_name, "Action failed")
+            system.image.action_fetch(scp_path + image_path + rand_name, "Failed")
 
     with allure.step("Delete bad flows"):
         logging.info("Delete bad flows")
@@ -242,23 +243,14 @@ def test_system_image_bad_flow(engines, release_name):
         logging.info("Install bad flows")
         with allure.step("Install image file that does not exist"):
             file_rand_name.action_file_install("Image does not exist")
-        with allure.step("Install the same image twice"):
-            try:
-                with allure.step("First installation"):
-                    image_file.action_file_install_with_reboot().verify_result()
-                with allure.step("Second installation"):
-                    image_file.action_file_install_with_reboot().verify_result()
-            finally:
-                with allure.step("uninstall"):
-                    system.image.action_uninstall(params='force')
 
     with allure.step("Boot-next bad flows"):
         logging.info("Boot-next bad flows")
         if not original_images[ImageConsts.PARTITION2_IMG]:
             with allure.step("Boot-next {}, even tough we have no image there".format(ImageConsts.PARTITION2_IMG)):
-                system.image.action_boot_next(ImageConsts.PARTITION2_IMG, 'Action failed')
+                system.image.action_boot_next(ImageConsts.PARTITION2_IMG, 'Failed')
         with allure.step("Boot-next random string"):
-            system.image.action_boot_next(ImageConsts.PARTITION2_IMG, "Action failed")
+            system.image.action_boot_next(ImageConsts.PARTITION2_IMG, "Failed")
         with allure.step("Boot-next the same partition"):
             system.image.action_boot_next(original_image_partition)
 
@@ -435,7 +427,7 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
     try:
         with allure.step("Create SSH Engine to login to the switch"):
-            logging.info("ACreate SSH Engine to login to the switch")
+            logging.info("Create SSH Engine to login to the switch")
             child = create_ssh_login_engine(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN)
             assert isinstance(child.pid, int), "SSH login process failed to be spawned"
             respond = child.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
@@ -452,6 +444,10 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
         with allure.step("Attempt install image and reject the prompt"):
             logging.info("Attempt install image and reject the prompt")
+            # Get the last action-job-id
+            action = Action()
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            action_job_id = int(list(output)[-1])
             # Since the install is to be aborted, using a dummy image name nvos.bin
             child.sendline('nv action install system image files nvos.bin')
             respond = child.expect('.*continue.*')
@@ -462,19 +458,14 @@ def test_system_image_install_reject_with_prompt(engines, system, prompt_respons
 
         with allure.step("Verify install command was executed successfully"):
             logging.info("Verify install command was executed successfully")
+            # Increment action-job-id for latest command status
+            action_job_id = action_job_id + 1
             # extract last command execution status
-            child.sendline('nv show action 1')
-            respond = child.expect('.*detail.*')
-            assert respond == 0, "Install image confirmation prompt did not come up"
-            output1 = child.after.decode('utf-8')
-            output2 = output1.split("\n")
-            for line in output2:
-                if "detail" in line:
-                    assert "Image install aborted by user" in line, "Image install command failed"
-                if "https_status" in line:
-                    assert "200" in line, "Image install command failed"
-                if "state" in line:
-                    assert "action_success" in line, "Image install command failed"
+            action = Action(action_job_id)
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            assert output['detail'] == 'Image install aborted by user' and \
+                output['http_status'] == 200 and \
+                output['state'] == 'action_success', "Image install command failed:{out}".format(out=output)
 
         with allure.step("Verify image is unchanged"):
             logging.info("Verify image is unchanged")

@@ -50,14 +50,15 @@ def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type)
     :param loganalyzer: loganalyzer fixture
     """
     engine = engines.dut
-
-    for dut in loganalyzer:
-        loganalyzer[dut].expect_regex.extend([SonicSecureBootConsts.CORRUPT_MFA_ERR_MSG])
-
     if dut_secure_type == "prod":
+        currupt_mfa_err_msg = SonicSecureBootConsts.PROD_CORRUPT_MFA_ERR_MSG
         corrupt_mfa_file = SonicSecureBootConsts.PROD_CORRUPT_MFA_FILE
     else:
         corrupt_mfa_file = SonicSecureBootConsts.DEV_CORRUPT_MFA_FILE
+        currupt_mfa_err_msg = SonicSecureBootConsts.DEV_CORRUPT_MFA_ERR_MSG
+
+    for dut in loganalyzer:
+        loganalyzer[dut].expect_regex.extend([currupt_mfa_err_msg])
 
     with allure.step("Copy the corrupt mfa file to the switch"):
         engine.copy_file(source_file=corrupt_mfa_file, dest_file=mfa_file_name, file_system="/tmp",
@@ -66,5 +67,5 @@ def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type)
 
     fw_upgrade_cmd = "sudo /usr/bin/mlnx-fw-upgrade.sh"
     output = engine.run_cmd(fw_upgrade_cmd)
-    assert SonicSecureBootConsts.CORRUPT_MFA_ERR_MSG in output, \
-        f"The expected err msg: '{SonicSecureBootConsts.CORRUPT_MFA_ERR_MSG}' not shown in the output"
+    assert currupt_mfa_err_msg in output, \
+        f"The expected err msg: '{currupt_mfa_err_msg}' not shown in the output"

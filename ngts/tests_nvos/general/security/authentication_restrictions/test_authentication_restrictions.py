@@ -2,14 +2,12 @@ import logging
 import random
 import time
 import pytest
-from retry import retry
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.authentication_restrictions.auth_restrictions_test_utils import *
-from ngts.tests_nvos.general.security.constants import AaaConsts, AuthConsts
-from ngts.tests_nvos.general.security.security_test_utils import set_local_users, configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users, configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap, enable_ldap_feature

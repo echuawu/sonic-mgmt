@@ -58,7 +58,11 @@ def pytest_collection_modifyitems(session, config, items):
         cli_object = SonicCli(topology)
         platform = get_platform_info(topology)['platform']
         if platform not in max_pors_num_per_platform.keys():
-            pytest.skip(f'{platform} platform does not support split to maximum ports')
+            skip = pytest.mark.skip(reason=f'{platform} platform does not support split to maximum ports')
+            for item in items:
+                item.add_marker(skip)
+                return
+
         platform_max_ports_num = max_pors_num_per_platform[platform]
         if config.option.ports_number == "max":
             expected_ports_num = platform_max_ports_num
@@ -66,10 +70,17 @@ def pytest_collection_modifyitems(session, config, items):
             expected_ports_num = int(config.option.ports_number)
 
         if expected_ports_num < minimum_ports_number:
-            pytest.skip(f'Expected number of ports: {expected_ports_num}, but it must be >= {minimum_ports_number}')
+            skip = pytest.mark.skip(reason=f'Expected number of ports: {expected_ports_num}, '
+                                           f'but it must be >= {minimum_ports_number}')
+            for item in items:
+                item.add_marker(skip)
+                return
         if expected_ports_num > platform_max_ports_num:
-            pytest.skip(f'Platform: {platform} expected number of ports: {expected_ports_num}, '
-                        f'but it must be <= {platform_max_ports_num}')
+            skip = pytest.mark.skip(reason=f'Platform: {platform} expected number of ports: {expected_ports_num}, '
+                                           f'but it must be <= {platform_max_ports_num}')
+            for item in items:
+                item.add_marker(skip)
+                return
         logger.info(f'Setup will be configured with {expected_ports_num} ports')
         # Get config from shared location
         shared_path = f'{InfraConst.MARS_TOPO_FOLDER_PATH}{setup_name}'
@@ -87,7 +98,10 @@ def pytest_collection_modifyitems(session, config, items):
         if expected_ports_num != existing_ports_num:
             if platform in UNSUPPORTED_SPLIT_PLATFORMS:
                 msg = f'Platform {platform} can\'t split ports to reach total number of ports: {expected_ports_num}'
-                pytest.skip(msg)
+                skip = pytest.mark.skip(reason=msg)
+                for item in items:
+                    item.add_marker(skip)
+                    return
 
             dut_to_host_ports_list = [port for alias, port in topology.ports.items() if alias.startswith('dut-h')]
             modified_config = generate_config_db(original_config_db, dut_engine, expected_ports_num, platform,
@@ -99,8 +113,9 @@ def pytest_collection_modifyitems(session, config, items):
 def pytest_sessionfinish(session, exitstatus):
 
     if len(session.items) == 1 and session.items[0].name == REBOOT_TEST_NAME and session.config.option.ports_number:
-        if not session.testscollected:
-            return  # No need to do cleanup, test did not run
+        skip_marker = [marker for marker in session.items[0].own_markers if marker.name == "skip"]
+        if len(skip_marker):
+            return  # No need to do cleanup, test skipped
 
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_engine = topology.players['dut']['engine']

@@ -8,6 +8,7 @@ NOTE: Add here only fixtures and methods that can be used for canonical and comm
 if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
+
 import pytest
 import logging
 import re
@@ -15,6 +16,7 @@ import os
 import json
 from paramiko.ssh_exception import SSHException
 from dotted_dict import DottedDict
+
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
@@ -29,6 +31,7 @@ from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from infra.tools.redmine.redmine_api import REDMINE_ISSUES_URL
 
 logger = logging.getLogger()
 
@@ -226,7 +229,10 @@ def topology_obj(setup_name, request):
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
     topology.players['dut']['is_nvos'] = topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes
-
+    if request.config.option.ports_number == "max":
+        # This is used for the fast reboot with max ports
+        config_db = topology.players['dut']['cli'].general.get_config_db()
+        topology.players_all_ports['dut'] = list(config_db['PORT'].keys())
     yield topology
 
     logger.debug('Cleaning-up the topology object')
@@ -554,7 +560,7 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
-    run_log_analyzer_bug_handler, log_analyzer_handler_info = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
+    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
     if run_log_analyzer_bug_handler:
         logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
         bug_handler_dict = {'test_description': request.node.function.__doc__,
@@ -565,31 +571,35 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
                             'report_url': request.node.config.cache.get('allure_report_url', '')}
         log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
                                                       log_analyzer_handler_info['branch'], test_name, topology_obj,
-                                                      bug_handler_dict)
+                                                      bug_handler_dict, bug_handler_no_action)
         logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
         error_msg = ''
-        if log_analyzer_res[BugHandlerConst.NEW_BUGS]:
-            error_msg = f"New {len(log_analyzer_res[BugHandlerConst.NEW_BUGS])} Log Analyzer bugs were opened: {log_analyzer_res[BugHandlerConst.NEW_BUGS].keys()}\n"
-            for i, bug_info in enumerate(log_analyzer_res[BugHandlerConst.NEW_BUGS], start=1):
-                error_msg += f"{i}) {json.dumps(bug_info, indent=2)}\n"
+        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
+            error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
+                        f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE].keys())}\n"
+            for i, (bug_id, bug_title) in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
+                error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
             error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
                                     f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
-        assert not error_msg, error_msg
+        if error_msg:
+            raise Exception(error_msg)
 
 
 def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):
     run_log_analyzer_bug_handler = False
+    bug_handler_no_action = False
     log_analyzer_handler_info = {'branch': '', 'cli_type': '', 'version': ''}
     if disable_loganalyzer:
         logger.info("Log analyzer is disabled, thus the LA bug handler is disabled")
-        return run_log_analyzer_bug_handler, log_analyzer_handler_info
+        return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
 
     log_analyzer_handler_info['branch'] = topology_obj.players['dut']['branch']
     log_analyzer_handler_info['cli_type'] = os.environ['CLI_TYPE']
     log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(log_analyzer_handler_info['cli_type'])
 
     if log_analyzer_handler_info['cli_type'] == 'NVUE':
-        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler(log_analyzer_handler_info['version'])
+        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler()
+        bug_handler_no_action = pytest.is_ci_run   # no_action flag in ci run, so it will not open new bugs
 
-    return run_log_analyzer_bug_handler, log_analyzer_handler_info
+    return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
