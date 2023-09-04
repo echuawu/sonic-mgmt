@@ -22,9 +22,19 @@ MAX_PSUS = None
 
 
 @pytest.fixture
-# We can not set it as module because mocker_factory is function scope
-def mock_power_threshold(request, duthosts, rand_one_dut_hostname, mocker_factory):  # noqa F811
+def mock_ambient_temp_threshold(duthosts, rand_one_dut_hostname, mocker_factory):
     global mocker
+    ambient_temp_critical_threshold = 60000
+    ambient_temp_warning_threshold = 50000
+    duthost = duthosts[rand_one_dut_hostname]
+    mocker = mocker_factory(duthost, 'PsuPowerThresholdMocker')
+    mocker.mock_ambient_temp_critical_threshold(ambient_temp_critical_threshold)
+    mocker.mock_ambient_temp_warning_threshold(ambient_temp_warning_threshold)
+
+
+@pytest.fixture
+# We can not set it as module because mocker_factory is function scope
+def mock_power_threshold(request, duthosts, rand_one_dut_hostname, mocker_factory, mock_ambient_temp_threshold):  # noqa F811
     global MAX_PSUS
 
     psudaemon_restarted = False
@@ -32,8 +42,6 @@ def mock_power_threshold(request, duthosts, rand_one_dut_hostname, mocker_factor
     duthost = duthosts[rand_one_dut_hostname]
     platform_data = get_platform_data(duthost)
     MAX_PSUS = platform_data['psus']['number']
-
-    mocker = mocker_factory(duthost, 'PsuPowerThresholdMocker')
 
     all_psus_supporting_thresholds = True
 
