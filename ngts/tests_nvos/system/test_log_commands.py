@@ -743,7 +743,7 @@ def test_upload_debug_log_files(engines, topology_obj):
 
 
 def _upload_log_files(topology_obj, system_log_obj):
-    player = topology_obj.players['ha']['engine']
+    player = topology_obj.players['sonic-mgmt']['engine']
 
     with allure.step("Get and upload log file"):
         logging.info("Get and upload log file")
