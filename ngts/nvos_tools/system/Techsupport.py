@@ -77,8 +77,9 @@ class TechSupport(BaseComponent):
         :return: list of the dump stats files in the tech-support
         """
         with allure.step('Get all tech-support stats dump files'):
-            engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
-            folder_name = techsupport.replace('.tar.gz', "")
-            output = engine.run_cmd('sudo ls ' + folder_name + '/stats')
-            engine.run_cmd('sudo rm -rf ' + folder_name)
+            full_path = '/host/dump/' + techsupport
+            engine.run_cmd('sudo tar -xf ' + full_path + ' -C /host/dump')
+            full_path = full_path.replace('.tar.gz', "")
+            output = engine.run_cmd('sudo ls ' + full_path + '/stats')
+            engine.run_cmd('sudo rm -rf ' + full_path)
             return output.split()
