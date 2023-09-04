@@ -135,8 +135,8 @@ def test_diff_history_revision_ids(engines):
         history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
             .get_returned_value()
 
-        one_configs_back_revision = ConfigTool.read_from_history(history_output, 1, 'rev_id').get_returned_value()
-        two_configs_back_revision = ConfigTool.read_from_history(history_output, 2, 'rev_id').get_returned_value()
+        one_configs_back_revision = ConfigTool.read_from_history(history_output, 1, ConfigConsts.REVISION_ID).get_returned_value()
+        two_configs_back_revision = ConfigTool.read_from_history(history_output, 2, ConfigConsts.REVISION_ID).get_returned_value()
 
     with allure.step('get the history of the with a specific rev_id'):
         rev_output_id3 = OutputParsingTool.parse_config_history(
@@ -168,7 +168,7 @@ def validate_history_labels(history_list, username):
     :return: err message
     """
     err_message = ''
-    apply_id = ConfigTool.read_from_history(history_list, 0, "rev_id").get_returned_value()
+    apply_id = ConfigTool.read_from_history(history_list, 0, ConfigConsts.REVISION_ID).get_returned_value()
     user = ConfigTool.read_from_history(history_list, 0, ConfigConsts.HISTORY_USER).get_returned_value()
 
     if user != username:

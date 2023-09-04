@@ -207,14 +207,6 @@ tests_nvos/system/test_system_message.py::test_system_reload_for_system_message_
     conditions:
       - https://redmine.mellanox.com/issues/3555202
 
-tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive:
-  skip:
-    reason: "Testcase skipped till config fetch feature will be merged to master"
-
-tests_nvos/general/config_commands/test_config_fetch.py:
-  skip:
-    reason: "Testcase skipped till config fetch feature will be merged to master"
-
 tests_nvos/system/test_system_image.py::test_image_install:
   skip:
     reason: "Testcase skipped due to image install is not supported yet for Marlin"

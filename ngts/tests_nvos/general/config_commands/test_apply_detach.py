@@ -159,9 +159,9 @@ def verify_history_value(configs_list, expected_id, expected_ref):
     """
     err_msg = ""
     for rev, id, ref in zip(configs_list, expected_id, expected_ref):
-        if rev['rev_id'] != id:
-            err_msg += "the expected rev id = {} but the value now = {}\n".format(id, rev['rev_id'])
-        if rev['ref'] != ref:
-            err_msg += "the expected rev ref = {} but the value now = {}\n".format(id, rev['ref'])
+        if rev[ConfigConsts.REVISION_ID] != id:
+            err_msg += "the expected rev id = {} but the value now = {}\n".format(id, rev[ConfigConsts.REVISION_ID])
+        if rev[ConfigConsts.REF] != ref:
+            err_msg += "the expected rev ref = {} but the value now = {}\n".format(id, rev[ConfigConsts.REF])
 
     assert not err_msg, err_msg

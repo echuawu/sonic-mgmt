@@ -356,6 +356,8 @@ class IpConsts:
 
 class ConfigConsts:
     HISTORY_APPLY_ID = 'apply-id'
+    REVISION_ID = 'rev-id'
+    REF = 'ref'
     HISTORY_USER = 'user'
     APPLY_YES = '-y'
     APPLY_ASSUME_YES = '--assume-yes'

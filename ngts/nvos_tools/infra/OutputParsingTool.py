@@ -305,39 +305,49 @@ class OutputParsingTool:
         :param output_json: the output after running nv config history --output json
         :return: list of dictionaries
         Example:
-        input:
-            [
-              {
-                "apply-id": "n/2",
-                "apply-meta": {
-                  "method": "CLI",
-                  "reason": "Config update",
-                  "rev_id": "changeset/admin/2022-08-01_07.51.40_HN1G",
-                  "state_controls": {},
-                  "user": "admin"
-                },
-                "date": "2022-08-01T10:51:46+03:00",
-                "message": "Config update by admin via CLI",
-                "ref": "apply/2022-08-01_07.51.45_HN1H/done"
-              },
-              ...
-            ]
+        input =
+            {
+                'rev_8_apply_1':
+                    {
+                        date': '2023-09-05 10:29:25',
+                        'interface': 'CLI',
+                        'message': 'Config update by admin',
+                        'reason': 'Config update',
+                        'rev-id': '8',
+                        'user': 'admin'
+                    },
+                'rev_7_apply_1':
+                    {
+                        'date': '2023-09-05 10:29:02',
+                        'interface': 'CLI',
+                        'message': 'Config update by admin',
+                        'reason': 'Config update',
+                        'rev-id': '7',
+                        'user': 'admin'
+                    }
+            }
 
         output:
         [
-              {
-                "apply-id": "n/2",
-                "method": "CLI",
-                "reason": "Config update",
-                "rev_id": "changeset/admin/2022-08-01_07.51.40_HN1G",
-                "state_controls": {},
-                "user": "admin"
-                "date": "2022-08-01T10:51:46+03:00",
-                "message": "Config update by admin via CLI",
-                "ref": "apply/2022-08-01_07.51.45_HN1H/done"
-              },
-              ...
-            ]
+            {
+                'ref': 'rev_8_apply_1',
+                date': '2023-09-05 10:29:25',
+                'interface': 'CLI',
+                'message': 'Config update by admin',
+                'reason': 'Config update',
+                'rev-id': '8',
+                'user': 'admin'
+            },
+            {
+                'ref': 'rev_7_apply_1'',
+                date': '2023-09-05 10:29:02',
+                'interface': 'CLI', 'message':
+                'Config update by admin',
+                'reason': 'Config update',
+                'rev-id': '7',
+                'user': 'admin'
+            }
+        ]
         """
         with allure.step('Create a list of dictionaries according to provided JSON output of "config history" command'):
             if output_json == '' or output_json == []:
@@ -346,16 +356,9 @@ class OutputParsingTool:
             if output_json.startswith("Currently pending"):
                 output_json = output_json.split('\n', 1)[1]
 
-            output_list = json.loads(output_json)
-            list_to_return = []
-            for item in output_list:
-                dictionary_to_return = {}
-                for key, value in item.items():
-                    if isinstance(value, dict):
-                        dictionary_to_return.update(value)
-                    else:
-                        dictionary_to_return[key] = value
-                list_to_return.append(dictionary_to_return)
+            output_dict = json.loads(output_json)
+            list_to_return = [{'ref': key, **value} for key, value in output_dict.items()]
+
         return ResultObj(True, "", list_to_return)
 
     @staticmethod
