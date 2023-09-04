@@ -10,6 +10,7 @@ import allure
 import pytest
 import copy
 import socket
+from retry import retry
 
 logger = logging.getLogger()
 
@@ -252,17 +253,33 @@ class AllureServer:
         else:
             logger.info('Allure project {} already exist on server. No need to create project'.format(self.project_id))
 
+    @retry(Exception, tries=2, delay=5)
     def upload_results_to_allure_server(self):
         """
         This method uploads files from allure results folder to allure server
         """
         data = {'results': self.get_allure_files_content()}
         url = self.base_url + '/send-results?project_id=' + self.project_id
-
         logger.info('Sending allure results to allure server')
         response = requests.post(url, json=data, headers=self.http_headers)
-        if response.raise_for_status():
-            logger.error('Failed to upload results to allure server, error: {}'.format(response.content))
+        if response.status_code != 200:
+            logger.error('Failed to upload results to allure server, error: {}. status_code: {}, headers is :{}'.format(
+                         response.content,response.status_code, self.http_headers))
+            for result in data["results"]:
+                if "json" in result["file_name"]:
+                    logger.info(result)
+            import shutil
+            import datetime
+            import os
+            now_str = datetime.datetime.now().strftime("%y-%m-%d-%H-%M-%S")
+            dest_folder = "/auto/sw_regression/system/SONIC/MARS/results/allure_400_log/{}/{}".format(self.project_id, now_str)
+            os.makedirs(dest_folder)
+            logger.info("dest folder :{}".format(dest_folder))
+            for result in data["results"]:
+                file_name = '/tmp/allure-results/{}'.format(result["file_name"])
+                logger.info("file name:{}".format(file_name))
+                shutil.copy(file_name, dest_folder)
+        response.raise_for_status()
 
     def get_allure_files_content(self):
         """
