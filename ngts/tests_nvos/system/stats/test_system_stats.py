@@ -1055,8 +1055,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         assert row[0].startswith(StatsConsts.HEADER_TIME), "unexpected started time text in file header"
 
         if start_time and end_time:
-            export_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
-                                            StatsConsts.TIMESTAMP_FORMAT)
+            export_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''), StatsConsts.TIMESTAMP_FORMAT)
             assert start_time < export_time < end_time,\
                 f"External file started sampling time: {export_time} should be between {start_time}-{end_time}"
 
@@ -1083,7 +1082,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         if name == 'cpu':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1100,7 +1099,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'disk':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1132,7 +1131,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'fan':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1147,7 +1146,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'temperature':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1162,7 +1161,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'mgmt-interface':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1177,7 +1176,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'power':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1198,7 +1197,7 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
         elif name == 'voltage':
             for row in reader:
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                                 StatsConsts.TIMESTAMP_FORMAT)
                 expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
                 time_low_thresh = expected_time - timedelta(seconds=5)
@@ -1235,7 +1234,7 @@ def validate_external_file_timestamps(file_name, clear_time):
         assert start_data_idx >= 0, "did not find data start line"
 
         for row in reader:
-            sample_time = datetime.strptime(row[0].strip(StatsConsts.HEADER_TIME).split(",")[0],
+            sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
                                             StatsConsts.TIMESTAMP_FORMAT)
             assert sample_time > clear_time, "Samples time is earlier than clear time"
 

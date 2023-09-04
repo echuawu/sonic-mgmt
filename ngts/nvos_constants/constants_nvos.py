@@ -802,7 +802,7 @@ class StatsConsts:
     TEMP_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
     HEADER_HOSTNAME = "# Hostname:         "
     HEADER_GROUP = "# Statistic group:  "
-    HEADER_TIME = "# Started sampling:"
+    HEADER_TIME = "# Started sampling: "
     TIMESTAMP_FORMAT = "%b-%d %Y %H:%M:%S"
     SYSTEM_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
     MAX_ROWS_TO_SCAN = 300
