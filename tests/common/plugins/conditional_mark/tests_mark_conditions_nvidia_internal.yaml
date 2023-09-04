@@ -274,11 +274,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored by bug 3561922 or simx in platform"
+    reason: "Testcase ignored by bug 3592124 or simx in platform"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3561922 and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3592124 and '202211' in release"
 
 tests/nightly/fec:
   skip:
