@@ -1271,7 +1271,7 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     """
     tech_support_folder = system.techsupport.action_generate(engine=engine)
     logger.info("The techsupport file name is : " + tech_support_folder)
-    techsupport_files_list = system.techsupport.get_techsupport_stats_files_names(engine, tech_support_folder)
+    techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'stats')
     for stat_file in stats_files:
         assert "{}.gz".format(stat_file) in techsupport_files_list, \
             "Expect to have {} file, in the tech support stats files {}".format(stat_file, techsupport_files_list)

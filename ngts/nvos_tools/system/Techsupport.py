@@ -56,30 +56,16 @@ class TechSupport(BaseComponent):
         return files_name[-1]
 
     @staticmethod
-    def get_techsupport_log_files_names(engine, techsupport):
+    def get_techsupport_files_list(engine, techsupport, tech_folder):
         """
         :param engine: engine
         :param techsupport: the techsupport .tar.gz name
-        :return: list of the dump files in the tech-support
+        :return: list of the required dump files in the tech-support
         """
         with allure.step('Get all tech-support dump files'):
-            engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
-            folder_name = techsupport.replace('.tar.gz', "")
-            output = engine.run_cmd('ls ' + folder_name + '/log')
-            engine.run_cmd('sudo rm -rf ' + folder_name)
-            return output.split()
-
-    @staticmethod
-    def get_techsupport_stats_files_names(engine, techsupport):
-        """
-        :param engine: engine
-        :param techsupport: the techsupport .tar.gz name
-        :return: list of the dump stats files in the tech-support
-        """
-        with allure.step('Get all tech-support stats dump files'):
             full_path = '/host/dump/' + techsupport
             engine.run_cmd('sudo tar -xf ' + full_path + ' -C /host/dump')
             full_path = full_path.replace('.tar.gz', "")
-            output = engine.run_cmd('sudo ls ' + full_path + '/stats')
+            output = engine.run_cmd('sudo ls ' + full_path + '/' + tech_folder)
             engine.run_cmd('sudo rm -rf ' + full_path)
             return output.split()
