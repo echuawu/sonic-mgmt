@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 ENABLE_GNMI_API = True
 
 
+def pytest_generate_tests(metafunc):
+    if 'inner_packet_type' in metafunc.fixturenames:
+        if metafunc.module.__name__ == 'test_dash_vnet':
+            metafunc.parametrize("inner_packet_type", ['udp', 'tcp', 'echo_request', 'echo_reply'])
+        else:
+            metafunc.parametrize("inner_packet_type", ['udp'])
+
+
 def pytest_addoption(parser):
     """
     Adds pytest options that are used by DASH tests

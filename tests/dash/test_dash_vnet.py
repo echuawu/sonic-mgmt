@@ -18,14 +18,33 @@ pytestmark = [
 ]
 
 
+def generate_inner_packet(packet_type):
+    if packet_type == 'udp':
+        return testutils.simple_udp_packet
+    elif packet_type == 'tcp':
+        return testutils.simple_tcp_packet
+    elif packet_type == 'echo_request'or packet_type == 'echo_reply':
+        return testutils.simple_icmp_packet
+
+    return None
+
+
+def set_sub_type(packet, packet_type):
+    if packet_type == 'echo_request':
+        packet[scapy.ICMP].type = 8
+    elif packet_type == 'echo_reply':
+        packet[scapy.ICMP].type = 0
+
+
 @pytest.fixture
-def inbound_vnet_packets(dash_config_info):
-    inner_packet = testutils.simple_udp_packet(
+def inbound_vnet_packets(dash_config_info, inner_packet_type):
+    inner_packet = generate_inner_packet(inner_packet_type)(
         eth_src=dash_config_info[REMOTE_ENI_MAC],
         eth_dst=dash_config_info[LOCAL_ENI_MAC],
         ip_src=dash_config_info[REMOTE_CA_IP],
         ip_dst=dash_config_info[LOCAL_CA_IP],
     )
+    set_sub_type(inner_packet, inner_packet_type)
     pa_match_vxlan_packet = testutils.simple_vxlan_packet(
         eth_src=dash_config_info[REMOTE_PTF_MAC],
         eth_dst=dash_config_info[DUT_MAC],
@@ -60,13 +79,14 @@ def inbound_vnet_packets(dash_config_info):
 
 
 @pytest.fixture
-def outbound_vnet_packets(dash_config_info):
-    inner_packet = testutils.simple_udp_packet(
+def outbound_vnet_packets(dash_config_info, inner_packet_type):
+    inner_packet = generate_inner_packet(inner_packet_type)(
         eth_src=dash_config_info[LOCAL_ENI_MAC],
         eth_dst=dash_config_info[REMOTE_ENI_MAC],
         ip_src=dash_config_info[LOCAL_CA_IP],
         ip_dst=dash_config_info[REMOTE_CA_IP],
     )
+    set_sub_type(inner_packet, inner_packet_type)
     vxlan_packet = testutils.simple_vxlan_packet(
         eth_src=dash_config_info[LOCAL_PTF_MAC],
         eth_dst=dash_config_info[DUT_MAC],
