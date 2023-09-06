@@ -29,6 +29,7 @@ from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Health import Health
+from ngts.nvos_tools.system.Gnmi_server import Gnmi_server
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
@@ -85,6 +86,7 @@ class System(BaseComponent):
         self.health = Health(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self.datetime = DateTime(self)
+        self.gnmi_server = Gnmi_server(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """

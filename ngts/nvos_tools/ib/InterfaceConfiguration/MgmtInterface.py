@@ -104,3 +104,11 @@ class MgmtInterface(BaseComponent):
             result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].
                                                          action_clear_counters, engine)
             return result_obj
+
+    def get_ipv6_address(self):
+        output = OutputParsingTool.parse_show_interface_output_to_dictionary(self.show()).get_returned_value()
+        assert output, "show mgmt interface output is empty"
+        addresses = output['ip']['address'].keys()
+        for address in addresses:
+            if ":" in address and len(address) >= 32:
+                return address.split("/")[0]

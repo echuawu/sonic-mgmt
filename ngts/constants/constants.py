@@ -1167,3 +1167,18 @@ class BugHandlerConst:
 class DebugKernelConsts:
     KMEMLEAK_PATH = '/sys/kernel/debug/kmemleak'
     KMEMLEAK = 'kmemleak'
+
+
+class GnmiConsts:
+    GNMI_DOCKER = 'gnmi-server'
+    GNMI_STATE_FIELD = 'state'
+    GNMI_STATE_ENABLED = 'enabled'
+    GNMI_STATE_DISABLED = 'disabled'
+    GNMI_IS_RUNNING_FIELD = 'is-running'
+    GNMI_IS_RUNNING = 'yes'
+    GNMI_IS_NOT_RUNNING = 'no'
+    GNMI_VERSION_FIELD = 'version'
+    GNMI_VERSION = '1.0.0'
+    GNMI_DEFAULT_PORT = '9339'
+    GNMI_CLIENT_CMD = '/auto/UFM/NetQ/agent/gnmi_client'
+    SLEEP_TIME_FOR_UPDATE = 35
