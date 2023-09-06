@@ -388,7 +388,7 @@ def test_system_image_install_reject_with_smallcase_n(engines):
     """
     system = System()
     prompt_response = 'n'
-    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+    system_image_install_reject_with_prompt(engines, system, prompt_response)
 
 
 @pytest.mark.system
@@ -404,7 +404,7 @@ def test_system_image_install_reject_with_uppercase_n(engines):
     """
     system = System()
     prompt_response = 'N'
-    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+    system_image_install_reject_with_prompt(engines, system, prompt_response)
 
 
 @pytest.mark.system
@@ -420,10 +420,10 @@ def test_system_image_install_reject_with_random_char(engines):
     """
     system = System()
     prompt_response = 't'
-    test_system_image_install_reject_with_prompt(engines, system, prompt_response)
+    system_image_install_reject_with_prompt(engines, system, prompt_response)
 
 
-def test_system_image_install_reject_with_prompt(engines, system, prompt_response):
+def system_image_install_reject_with_prompt(engines, system, prompt_response):
 
     try:
         with allure.step("Create SSH Engine to login to the switch"):
