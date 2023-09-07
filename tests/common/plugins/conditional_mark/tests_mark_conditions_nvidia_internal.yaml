@@ -892,11 +892,11 @@ platform_tests/test_memory_exhaustion.py:
 
 show_techsupport/test_auto_techsupport.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3579376 and platform ptf-any, or https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in topo_name"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3579376 and platform ptf-any, or https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in platform"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3579376 and 'ptf' in topo_name"
-      - "https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in topo_name"
+      - "https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in platform"
 
 process_monitoring/test_critical_process_monitoring.py:
   skip:
