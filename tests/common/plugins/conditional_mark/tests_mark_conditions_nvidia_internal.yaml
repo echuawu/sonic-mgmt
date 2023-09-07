@@ -1503,6 +1503,12 @@ platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
     conditions:
       - "https://redmine.mellanox.com/issues/3172507 and '202205' in release"
 
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_error_status:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3600093 and branch 202305"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3600093 and '202305' in release"
+
 qos/test_qos_sai_dual_tor.py:
   skip:
     reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64 and Mellanox-SN2700-D48C8"
