@@ -1,7 +1,8 @@
 COMMON_BAT_ONLY:
   - tests/platform_tests
+  - tests/common/plugins
+  - sonic-tool
   - ngts
-  - sonic-tool/mars
 
 NVOS_BAT_ONLY:
   - nvos-tool
@@ -11,4 +12,5 @@ NVOS_BAT_ONLY:
 
 SONIC_BAT_ONLY:
   - ngts/tests
-  - sonic-tool
+  - tests
+  - ansible
