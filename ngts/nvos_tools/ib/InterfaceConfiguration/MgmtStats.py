@@ -12,7 +12,7 @@ class MgmtStats(BaseComponent):
         self._resource_path = '/counters'
         self.parent_obj = port_obj
 
-    def clear_stats(self, dut_engine):
+    def clear_stats(self, dut_engine, fae_param=""):
         """
         Clears interface counters
         """
@@ -21,4 +21,4 @@ class MgmtStats(BaseComponent):
 
         with allure.step('Clear stats for {port_name}'.format(port_name=self.parent_obj.parent_obj.parent_obj.name)):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].clear_stats,
-                                                   dut_engine, self.parent_obj.parent_obj.parent_obj.name)
+                                                   dut_engine, self.parent_obj.parent_obj.parent_obj.name, fae_param)

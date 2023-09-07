@@ -13,7 +13,7 @@ from ngts.nvos_tools.infra.Simulator import HWSimulator
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, NvosConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
-from ngts.nvos_tools.infra.RedisTool import RedisTool
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 
 logger = logging.getLogger()
 
@@ -393,7 +393,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
 
     try:
         with allure.step("stop {} docker auto restart".format(docker_to_stop)):
-            RedisTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_DISABLED)
+            DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_DISABLED)
         with allure.step("stop {} docker".format(docker_to_stop)):
             output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
             assert docker_to_stop in output, "Failed to stop docker"
@@ -407,7 +407,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
             with allure.step("restart docker"):
                 output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
                 with allure.step("restart docker auto start"):
-                    RedisTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
+                    DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
                 assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)

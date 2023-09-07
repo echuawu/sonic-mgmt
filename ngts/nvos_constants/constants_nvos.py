@@ -848,3 +848,52 @@ class StatsConsts:
     DELETE = 'delete'
     UPLOAD = 'upload'
     CLEAR = 'clear'
+
+
+class MultiPlanarConsts:
+    INTERNAL_PATH = "/tmp"
+    SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
+    ORIGIN_FILES_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/origin/"
+    SIMULATION_FILE = "platform.json"
+    PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
+    MULTI_PLANAR_KEYS = ['aport-number', 'asic', 'parent-alias', 'planarized-ports']
+
+    PHYSICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_PHYSICAL_STATE'
+    PHYSICAL_DISABLED = '0'  # disabled
+    PHYSICAL_SLEEP = '1'  # sleep
+    PHYSICAL_POLLING = '2'  # polling
+    PHYSICAL_LINKUP = '3'  # linkup
+    LOGICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_LOGICAL_STATE'
+    LOGICAL_DOWN = '0'  # down
+    LOGICAL_INIT = '1'  # init
+    LOGICAL_ARMED = '2'  # armed
+    LOGICAL_ACTIVE = '3'  # active
+    SYNC_TIME = 5  # [sec]
+    PHYSICAL_STATE_AGG_TABLE = [{"p1": 'PHYSICAL_DISABLED', "p2": 'PHYSICAL_DISABLED', "exp": 'PHYSICAL_DISABLED'},
+                                {"p1": 'PHYSICAL_DISABLED', "p2": 'PHYSICAL_SLEEP', "exp": 'PHYSICAL_DISABLED'},
+                                {"p1": 'PHYSICAL_DISABLED', "p2": 'PHYSICAL_POLLING', "exp": 'PHYSICAL_DISABLED'},
+                                {"p1": 'PHYSICAL_DISABLED', "p2": 'PHYSICAL_LINKUP', "exp": 'PHYSICAL_DISABLED'},
+                                {"p1": 'PHYSICAL_SLEEP', "p2": 'PHYSICAL_SLEEP', "exp": 'PHYSICAL_SLEEP'},
+                                {"p1": 'PHYSICAL_SLEEP', "p2": 'PHYSICAL_POLLING', "exp": 'PHYSICAL_SLEEP'},
+                                {"p1": 'PHYSICAL_SLEEP', "p2": 'PHYSICAL_LINKUP', "exp": 'PHYSICAL_SLEEP'},
+                                {"p1": 'PHYSICAL_POLLING', "p2": 'PHYSICAL_POLLING', "exp": 'PHYSICAL_POLLING'},
+                                {"p1": 'PHYSICAL_POLLING', "p2": 'PHYSICAL_LINKUP', "exp": 'PHYSICAL_POLLING'},
+                                {"p1": 'PHYSICAL_LINKUP', "p2": 'PHYSICAL_LINKUP', "exp": 'PHYSICAL_LINKUP'}]
+    LOGICAL_STATE_AGG_TABLE = [{"p1": 'LOGICAL_DOWN', "p2": 'LOGICAL_DOWN', "exp": 'LOGICAL_DOWN'},
+                               {"p1": 'LOGICAL_DOWN', "p2": 'LOGICAL_INIT', "exp": 'LOGICAL_DOWN'},
+                               {"p1": 'LOGICAL_DOWN', "p2": 'LOGICAL_ARMED', "exp": 'LOGICAL_DOWN'},
+                               {"p1": 'LOGICAL_DOWN', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_DOWN'},
+                               {"p1": 'LOGICAL_INIT', "p2": 'LOGICAL_INIT', "exp": 'LOGICAL_INIT'},
+                               {"p1": 'LOGICAL_INIT', "p2": 'LOGICAL_ARMED', "exp": 'LOGICAL_INIT'},
+                               {"p1": 'LOGICAL_INIT', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_INIT'},
+                               {"p1": 'LOGICAL_ARMED', "p2": 'LOGICAL_ARMED', "exp": 'LOGICAL_ARMED'},
+                               {"p1": 'LOGICAL_ARMED', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_ARMED'},
+                               {"p1": 'LOGICAL_ACTIVE', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_ACTIVE'}]
+    CONFIG_MANAGER_SERVICE = 'configmgrd'
+    SERVICE_RECOVERY_MAX_TIME = 60  # [sec] TODO: update to accurate value
+    NON_AGGREGATED_PORT_CONFIG_TIME = 2.5  # [sec] TODO: - update time measured in Gorilla.
+    DATABASE_TABLES = ['APPL_DB', 'ASIC_DB', 'COUNTERS_DB', 'COUNTERS_DB_1',
+                       'COUNTERS_DB_2', 'CONFIG_DB', 'STATE_DB', 'FLEX_COUNTER_DB']
+    LOG_MSG_UNSET_FAE_INTERFACE = "PATCH..."  # TODO: complete
+    LOG_MSG_SET_FAE_INTERFACE = "PATCH..."  # TODO: complete
+    LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "PATCH..."  # TODO: complete

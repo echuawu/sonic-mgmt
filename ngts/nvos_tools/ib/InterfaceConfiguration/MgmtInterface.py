@@ -94,7 +94,7 @@ class MgmtInterface(BaseComponent):
             assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".\
                 format(current_mtu, mtu_to_verify)
 
-    def action_clear_counter_for_all_interfaces(self, engine=None):
+    def action_clear_counter_for_all_interfaces(self, engine=None, fae_param=""):
         with allure.step("Clear counters for all interfaces"):
             logging.info("Clear counters for all interfaces")
 
@@ -102,7 +102,7 @@ class MgmtInterface(BaseComponent):
                 engine = TestToolkit.engines.dut
 
             result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].
-                                                         action_clear_counters, engine)
+                                                         action_clear_counters, engine, fae_param)
             return result_obj
 
     def get_ipv6_address(self):

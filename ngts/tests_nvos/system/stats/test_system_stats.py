@@ -10,7 +10,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, NvosConst, StatsConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.infra.RedisTool import RedisTool
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
@@ -101,7 +101,7 @@ def test_system_stats_configuration(engines, devices, test_api):
                 verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
         with allure.step("Update category configuration"):
             system.stats.category.categoryName[name].set(
@@ -218,7 +218,7 @@ def test_system_stats_generation(engines, devices, test_api):
                 "stats state parameter is expected to be 'enabled'"
 
         with allure.step("Update cache duration to 3 minutes"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 3)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 3)
 
         with allure.step("Update all categories interval values to minimum and states to enable"):
             for name in category_list:
@@ -377,7 +377,7 @@ def test_system_stats_performance(engines, devices, test_api):
             clear_all_internal_and_external_files(system, category_list)
 
         with allure.step("Update cache duration to 1 minute"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
         with allure.step("Select a random category"):
             name = RandomizationTool.select_random_value(list(category_disabled_dict.keys())). \
@@ -503,7 +503,7 @@ def test_stats_reliability(engines, devices, test_api):
             system.stats.unset(apply=True).verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
         with allure.step("Update all categories stats states"):
             for name in category_list:
@@ -804,7 +804,7 @@ def test_system_stats_big_files(engines, devices, test_api):
                 verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
         with allure.step("Restart process..."):
             engine.run_cmd("sudo systemctl restart stats-reportd")
@@ -938,7 +938,7 @@ def test_validate_category_file_values(engines, devices, test_api):
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
+            DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 1)
 
         with allure.step("Clear all system stats and delete stats files"):
             system_show = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
@@ -996,8 +996,8 @@ def set_system_stats_to_default(engine, system):
         system.stats.unset(apply=True).verify_result()
 
     with allure.step("Update cache general configuration to default"):
-        RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 10)
-        RedisTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cleanup_interval", 1)
+        DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cache_duration", 10)
+        DatabaseTool.redis_cli_hset(engine, 4, "STATS_CONFIG|GENERAL", "cleanup_interval", 1)
 
 
 def clear_all_internal_and_external_files(system, category_list):

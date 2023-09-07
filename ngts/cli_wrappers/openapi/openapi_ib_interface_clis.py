@@ -19,19 +19,21 @@ class OpenApiIbInterfaceCli(OpenApiBaseCli):
         assert "Not implemented"
 
     @staticmethod
-    def show_interface(engine, port_name, interface_hierarchy="", output_format=OutputFormat.json):
+    def show_interface(engine, port_name, interface_hierarchy="", fae_param="", output_format=OutputFormat.json):
         """
         Displays the configuration and the status of the interface
         :param engine: ssh engine object
         :param port_name: the name of the port/ports
-        :param output_format: format of the output: auto(table), json or yaml. OutputFormat object is expected
         :param interface_hierarchy: the show level
+        :param fae_param: optional - to command with fae
+        :param output_format: format of the output: auto(table), json or yaml. OutputFormat object is expected
         :return: output str
         """
         resource_path = interface_hierarchy.replace(' ', '/')
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, OpenApiReqType.GET,
                                                    engine.ip,
-                                                   '/interface{interface_id}{resource_path}'.format(
+                                                   '/{fae}interface{interface_id}{resource_path}'.format(
+                                                       fae=fae_param + "/" if fae_param else '',
                                                        interface_id="/" + port_name if port_name else '',
                                                        resource_path="/" + resource_path if resource_path else ''))
 

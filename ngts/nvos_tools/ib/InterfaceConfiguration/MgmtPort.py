@@ -16,14 +16,14 @@ class MgmtPort(BaseComponent):
     name_in_redis = ""
     interface = None
 
-    def __init__(self, name='eth0'):
+    def __init__(self, name='eth0', parent_obj=None):
         self.name = name
         self.show_output_dictionary = None
         self.name_in_redis = ''
         self.interface = MgmtInterface(self, name)
         self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
         self._resource_path = ''
-        self.parent_obj = None
+        self.parent_obj = parent_obj
 
     def update_output_dictionary(self):
         """

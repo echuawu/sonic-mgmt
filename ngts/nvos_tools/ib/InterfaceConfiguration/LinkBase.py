@@ -19,3 +19,17 @@ class Diagnostics(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
         self._resource_path = '/diagnostics'
         self.parent_obj = port_obj
+
+
+class Counters(BaseComponent):
+    def __init__(self, port_obj):
+        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
+        self._resource_path = '/counters'
+        self.parent_obj = port_obj
+
+
+class PlanPorts(BaseComponent):
+    def __init__(self, port_obj):
+        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
+        self._resource_path = '/plan-ports'
+        self.parent_obj = port_obj

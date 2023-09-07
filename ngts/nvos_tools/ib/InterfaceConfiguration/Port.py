@@ -143,11 +143,12 @@ class Port(BaseComponent):
                 Port.show_interface(dut_engine, self.name)).get_returned_value()
 
     @staticmethod
-    def show_interface(dut_engine=None, port_names="", output_format=OutputFormat.json):
+    def show_interface(dut_engine=None, port_names="", fae_param="", output_format=OutputFormat.json):
         """
         Executes show interface
         :param output_format: OutputFormat
         :param port_names: ports on which to run show command
+        :param fae_param: optional - to command with fae
         :param dut_engine: ssh engine
         :return: str/json output
         """
@@ -158,6 +159,7 @@ class Port(BaseComponent):
             logging.info("Executing show interface for {port_names}".format(port_names=port_names))
             return Port.api_obj[TestToolkit.tested_api].show_interface(engine=dut_engine,
                                                                        port_name=port_names,
+                                                                       fae_param=fae_param,
                                                                        output_format=output_format)
 
     @staticmethod

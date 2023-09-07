@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ib_interfaces
-def test_ib_clear_counters(engines, players, interfaces, start_sm):
+def test_ib_clear_counters(engines, players, interfaces, start_sm, fae_param=""):
     """
     Clear counters test
     Commands:
@@ -30,20 +30,20 @@ def test_ib_clear_counters(engines, players, interfaces, start_sm):
     5. Make sure the counters were cleared
     6. Run traffic and make sure the counters are not 0
     """
-    _clear_counters_test_flow(engines, players, interfaces, False)
+    _clear_counters_test_flow(engines, players, interfaces, False, fae_param)
 
 
 @pytest.mark.ib_interfaces
-def test_clear_all_counters(engines, players, interfaces, start_sm):
+def test_clear_all_counters(engines, players, interfaces, start_sm, fae_param=""):
     """
     Clear counters for all interfaces
     Commands:
         > nv action clear interface counters
     """
-    _clear_counters_test_flow(engines, players, interfaces, True)
+    _clear_counters_test_flow(engines, players, interfaces, True, fae_param)
 
 
-def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
+def _clear_counters_test_flow(engines, players, interfaces, all_counters=False, fae_param=""):
     with allure.step("Get a random active port"):
         temp_selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
     user_name, password, user_id, file_name = "", "", "", ""
@@ -64,7 +64,8 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
                                                                 user_name, password).get_returned_value()
 
         with allure.step("Clear counters for the default user"):
-            temp_selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
+            temp_selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut, fae_param).\
+                verify_result()
 
             with allure.step('Send traffic through selected port'):
                 Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
@@ -86,9 +87,11 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
 
         with allure.step("Clear counters for the a new user '{}'".format(user_name)):
             if all_counters:
-                selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(ssh_connection).verify_result()
+                selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(ssh_connection, fae_param).\
+                    verify_result()
             else:
-                clear_counters_for_user(ssh_connection, user_name, engines.dut.username, engines.dut, selected_ports[0])
+                clear_counters_for_user(ssh_connection, user_name, engines.dut.username, engines.dut,
+                                        selected_ports[0], fae_param)
 
             with allure.step("Verify {} was created".format(file_name)):
                 output = engines.dut.run_cmd("ls -l {}".format(file_name))
@@ -120,10 +123,11 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False):
 
 
 def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_name,
-                            inactive_ssh_engine, selected_port):
+                            inactive_ssh_engine, selected_port, fae_param=""):
     with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.name,
                                                                                active_ssh_engine.username)):
-        selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine).verify_result()
+        selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine, fae_param=fae_param).\
+            verify_result()
         with allure.step('Check selected port counters for user ' + active_user_name):
             check_port_counters(selected_port, True, active_ssh_engine).verify_result()
         with allure.step('Check selected port counters for user ' + inactive_user_name):

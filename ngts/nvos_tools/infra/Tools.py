@@ -8,7 +8,7 @@ from .IpTool import IpTool
 from .ConfigTool import ConfigTool
 from .SonicMgmtContainer import SonicMgmtContainer
 from .HostMethods import HostMethods
-from .RedisTool import RedisTool
+from .DatabaseTool import DatabaseTool
 
 
 class Tools:
@@ -22,4 +22,4 @@ class Tools:
     ConfigTool = ConfigTool()
     SonicMgmtContainer = SonicMgmtContainer()
     HostMethods = HostMethods()
-    RedisTool = RedisTool()
+    DatabaseTool = DatabaseTool()
