@@ -2513,12 +2513,12 @@
 
 - Errors_list:
     - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse (LLDPd|lldp) .*does not match format ''%H:%M:%S'''
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse lldp age 0 day.*'
   Conditions:
     - Redmine:
-        - 3431874
+        - 3597463
       Platform:
-        - arm64-nvda_bf-mbf2h536c
-        - arm64-nvda_bf-9009d3b600cvaa
+        - nvda_bf
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[HOST_INTERFACE\.ERR\] FW health event device:\[1\] FW cause:\[1,FW CR SPACE TIMEOUT EVENT\] severity:\[3,FW NORMAL SEVERITY\] register\[0x5028\], long_process:\[0\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[write\].*'
