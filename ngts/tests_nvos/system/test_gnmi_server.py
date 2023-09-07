@@ -148,7 +148,7 @@ def test_updates_on_gnmi_stream_mode(engines):
     validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
 
     with allure_step("Change port description and wait until gnmi-client gets description update"):
-        selected_port = Tools.RandomizationTool.select_random_port().returned_value
+        selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
         xpath = f'/interfaces/interface[name={selected_port.name}]/state/description'
 
         with allure_step('Run gnmi client command in the background'):
@@ -250,7 +250,7 @@ def test_gnmi_performance(engines):
     threads = []
     result = []
     port_description = Tools.RandomizationTool.get_random_string(7)
-    selected_port = Tools.RandomizationTool.select_random_port().returned_value
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
 
     with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
         for engine_id in range(num_engines):
@@ -393,7 +393,7 @@ def run_gnmi_client_and_parse_output(engines, xpath, target_ip, target_port=Gnmi
 
 
 def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, flags=''):
-    selected_port = Tools.RandomizationTool.select_random_port().returned_value
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
     selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
     Tools.ValidationTool.verify_field_value_in_output(selected_port.show_output_dictionary, NvosConst.DESCRIPTION,
