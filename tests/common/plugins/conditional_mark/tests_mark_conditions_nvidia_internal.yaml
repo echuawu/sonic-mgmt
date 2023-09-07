@@ -222,11 +222,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3357378"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3599997 and simx platform"
     conditions:
-      - https://redmine.mellanox.com/issues/3357378
+      - "'simx' in platform and '202305' in release and https://redmine.mellanox.com/issues/3599997"
 
 tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py:
   skip:
