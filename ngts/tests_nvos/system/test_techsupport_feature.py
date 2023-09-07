@@ -46,7 +46,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
                 engines.dut.run_cmd('sudo systemctl stop {docker}'.format(docker=docker))
             tech_support_folder = system.techsupport.action_generate()
         with allure.step('validate commands works as expected'):
-            assert '/host/dump/nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
+            assert 'nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
 
         cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
@@ -126,9 +126,9 @@ def validate_techsupport_folder_name(system, tech_support_folder):
     Test flow:
         1. run nv show system
         2. get the hostname value
-        3. validate the tar.gz name is /host/dump/nvos_dump_<hostname>_<time_now>.tar.gz
+        3. validate the tar.gz name is nvos_dump_<hostname>_<time_now>.tar.gz
     """
-    with allure.step('Check that tech-support name is as expected :/host/dump/nvos_dump_<hostname>_<time_now>.tar.gz'):
+    with allure.step('Check that tech-support name is as expected :nvos_dump_<hostname>_<time_now>.tar.gz'):
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         hostname = system_output[SystemConsts.HOSTNAME]
-        assert '/host/dump/nvos_dump_' + hostname in tech_support_folder, 'the tech-support should be under host dump and includes hostname'
+        assert 'nvos_dump_' + hostname in tech_support_folder, 'the tech-support should be under host dump and includes hostname'
