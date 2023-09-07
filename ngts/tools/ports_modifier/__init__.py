@@ -105,7 +105,7 @@ def pytest_collection_modifyitems(session, config, items):
 
             dut_to_host_ports_list = [port for alias, port in topology.ports.items() if alias.startswith('dut-h')]
             modified_config = generate_config_db(original_config_db, dut_engine, expected_ports_num, platform,
-                                                 dut_to_host_ports_list)
+                                                 dut_to_host_ports_list, topology)
             save_config_db_json(dut_engine, modified_config)
             cli_object.general.reload_configuration(force=True)
 
@@ -169,7 +169,7 @@ def modify_lanes_per_platform(platform, port_lanes):
     return port_lanes
 
 
-def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_host_ports):
+def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_host_ports, topology):
     # Get DUT physical ports
     physical_dut_ports = get_dut_physical_ports_config(engine, platform)
 
@@ -179,7 +179,7 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
     if platform == PlatformTypesConstants.PLATFORM_MOOSE:
         # Remove service port from list of ports which will be split
         physical_dut_ports.pop('Ethernet512')
-
+    nonsplitable_ports = get_nonsplitable_ports(platform, topology, physical_dut_ports)
     target_ports = {}
     # Add ports connected from DUT to hosts
     for port in dut_host_ports:
@@ -196,8 +196,14 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
         port_speed = '25000'
         port_mtu = '9100'
         port_lanes = port_data['lanes'].split(',')
+        if port in nonsplitable_ports:
+            if len(port_lanes) == 1:
+                port_lanes = port_lanes
+            else:
+                port_lanes = [','.join(port_lanes)]
+        else:
+            port_lanes = modify_lanes_per_platform(platform, port_lanes)
 
-        port_lanes = modify_lanes_per_platform(platform, port_lanes)
         for lane in port_lanes:
             if expected_num_of_ports != added_ports_counter:
 
@@ -224,3 +230,26 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
     config_db['PORT'] = target_ports
 
     return config_db
+
+
+def get_nonsplitable_ports(platform, topology, physical_dut_ports):
+    nonsplitable_ports = []
+    if platform == PlatformTypesConstants.PLATFORM_LIONFISH:
+        for noga_alias, peer_noga_alias in topology.ports_interconnects.items():
+            if noga_alias.startswith("dut") and peer_noga_alias.startswith("dut"):
+                port = topology.ports[noga_alias]
+                peer_port = topology.ports[peer_noga_alias]
+
+                if port in nonsplitable_ports or peer_port in nonsplitable_ports:
+                    continue
+                if port not in physical_dut_ports or peer_port not in physical_dut_ports:
+                    continue
+
+                port_lanes = physical_dut_ports[port]['lanes'].split(',')
+                peer_port_lanes = physical_dut_ports[peer_port]['lanes'].split(',')
+
+                if len(port_lanes) != len(peer_port_lanes):
+                    nonsplitable_ports.append(port)
+                    nonsplitable_ports.append(peer_port)
+
+    return nonsplitable_ports
