@@ -2560,7 +2560,13 @@
     - '.*ERR pmon#sensord: Error getting sensor data: dps460.*'
   Conditions:
     - Redmine:
-        - 3447925
+        - 3434840
+
+- Errors_list:
+    - '.* ERR sonic-db-cli: :- getDbInfo: Failed to find CHASSIS_APP_DB database in  namespace.*'
+  Conditions:
+    - Redmine:
+        - 3599794
 
 - Errors_list:
     - '.* ERR neighbor_advertiser: EVERFLOW table does not exist.*'
