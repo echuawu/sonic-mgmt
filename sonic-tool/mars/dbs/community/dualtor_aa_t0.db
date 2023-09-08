@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DBDEF>
+    <global>
+        <!-- parameters passed to setup steps commands-->
+        <default_params_type> basic_setup_step_params </default_params_type>
+        <DB>
+            <info> Dual-Tor AA T0 Tests </info>
+            <owner> SONiC </owner>
+            <group> SONiC </group>
+
+            <!-- OPTIONAL TAGS -->
+            <tags> dualtor-aa, t0 </tags>
+
+            <!-- pre db commands - executed once before DB run -->
+            <pre>
+            </pre>
+
+            <!-- post db commands - executed once after DB run -->
+            <post>
+            </post>
+        </DB>
+        <Test>
+            <!--Must reset any dynamic ignore tags created by other tests-->
+            <pre>
+                <type> reg_exec_func </type>
+                <name> reset dynamic ignore tags </name>
+                <mars_cmd_func> reset_dynamic_tags </mars_cmd_func>
+                <tout> 60 </tout>
+                <params>
+                    <tags_type> ignore_tags </tags_type>
+                </params>
+            </pre>
+            <post>
+            </post>
+        </Test>
+        <Case>
+            <on_not_success>
+                <name> Generate sysdump on not success </name>
+                <type> setup_mode </type>
+                <cmd>
+                    <type> reg_exec_cmd </type>
+                    <players_selection>
+                        <ep_targets> SONIC_MGMT </ep_targets>
+                    </players_selection>
+                    <name> run_on_stm </name>
+                    <tout> 600 </tout>
+                    <params>
+                        <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py  --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=7200  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
+                    </params>
+                </cmd>
+            </on_not_success>
+        </Case>
+    </global>
+
+    <!-- Test cases in tests/bgp/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_allow_list.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_fact.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_speaker.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_slb.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_multipath_relax.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_gr_helper.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_bbr.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_bounce.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_monitor.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_traffic_shift.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_suppress_fib_pending.cases </cases>
+    </test>
+
+    <!-- Test cases in tests/fib/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/fib.cases </cases>
+    </test>
+
+    <!-- Test cases in tests/fdb/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/fdb.cases </cases>
+    </test>
+
+    <!-- Test cases in tests/vlan/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/vlan_trunk.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/host_vlan.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/vlan.cases </cases>
+    </test>
+
+    <!-- Test cases in tests/pc/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/lag_2.cases </cases>
+    </test>
+
+    <!-- Test cases in tests/decap/ -->
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/ip_in_ip.cases </cases>
+    </test>
+
+</DBDEF>
