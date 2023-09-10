@@ -2939,6 +2939,15 @@
         - simx
 
 - Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to write \d+ to file \/var\/run\/hw-management\/thermal\/cooling_cur_state - OSError.*Invalid argument.*'
+    - '.*ERR pmon#thermalctld: Caught exception while running thermal policy - OSError.*Invalid argument.*'
+  Conditions:
+    - Redmine:
+      - 3602063
+      Platform:
+        - sn2
+
+- Errors_list:
     - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'
   Conditions:
     - Affected_test_cases:
