@@ -190,6 +190,7 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     bug_handler_file_result = json.loads(bug_handler_output)
     bug_handler_file_result["file_name"] = upload_file_path
     logger.info(f"Bug Handler RC: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_RC]}")
+    logger.info(f"Bug Handler Status: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_STATUS]}")
     logger.info(f"Bug Handler Action: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_ACTION]}")
     return bug_handler_file_result
 
@@ -370,6 +371,9 @@ def error_to_regex(error_string):
     error_string = re.escape(error_string)
     # -- Replaces a white space with the white space regular expression
     error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)
+    # -- Replaces date time with regular expressions
+    error_string = re.sub(r" [A-Za-z]{3} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z]{3} ",
+                          " [A-Za-z]{3} \\\\d{4}-\\\\d{2}-\\\\d{2} \\\\d{2}:\\\\d{2}:\\\\d{2} [A-Z]{3} ", error_string)
     # -- Replaces full numbers with digits regular expressions
     error_string = re.sub(r"\b\d+\b", "\\\\d+", error_string)
     # -- Replaces a hex number with the hex regular expression
@@ -448,7 +452,8 @@ def summarize_la_bug_handler(la_bug_handler_result):
                                    BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {}, BugHandlerConst.BUG_HANDLER_FAILURE: []}
 
     for bug_handler_result_dict in la_bug_handler_result:
-        if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST:
+        if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
+                and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] == 'done':
             bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
             create_and_update_bugs_dict[bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION]].update(
                 {bug_id: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
