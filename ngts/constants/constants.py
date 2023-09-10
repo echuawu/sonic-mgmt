@@ -1180,5 +1180,7 @@ class GnmiConsts:
     GNMI_VERSION_FIELD = 'version'
     GNMI_VERSION = '1.0.0'
     GNMI_DEFAULT_PORT = '9339'
-    GNMI_CLIENT_CMD = '/auto/UFM/NetQ/agent/gnmi_client'
     SLEEP_TIME_FOR_UPDATE = 35
+    REDIS_CMD_KEY = 'redis_cmd'
+    XPATH_KEY = 'xpath_gnmi_cmd'
+    COMPARISON_KEY = 'comparison_dict'
