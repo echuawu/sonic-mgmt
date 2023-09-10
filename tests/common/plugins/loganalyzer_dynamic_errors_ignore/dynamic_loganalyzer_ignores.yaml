@@ -2948,6 +2948,16 @@
         - sn2
 
 - Errors_list:
+    - '.*ERR syncd#syncd: \[SAI_INTERFACE_QUERY.ERR\] .\/src\/mlnx_sai_interfacequery.c\[\d+\]- sai_log_level_save: .\/src\/mlnx_sai_interfacequery.c\[\d+\]- sai_log_level_save: SAI API \d+ is out of range.*'
+    - '.*ERR syncd#SAI: \[SAI_INTERFACE_QUERY_ETH.ERR\] .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_api_query_eth: .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_api_query_eth: SAI API \d+ is out of range.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_log_set_eth: SAI API \d+ is out of range.*'
+  Conditions:
+    - Redmine:
+      - 3602168
+      Platform:
+        - simx
+
+- Errors_list:
     - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'
   Conditions:
     - Affected_test_cases:
