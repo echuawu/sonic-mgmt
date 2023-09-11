@@ -249,7 +249,7 @@ tests_nvos/system/stats/test_system_stats.py:
     conditions:
       - "'marlin' in testbed"
 
-tests_nvos/system/test_gnmi_server.py:
+tests_nvos/system/gnmi/test_gnmi_server.py:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599682"
     conditions:
