@@ -36,7 +36,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             since = 'since' if add_the_since_option else ''
             since_time = f"\"-{duration} seconds\"" if add_the_since_option else ''
             output = NvueSystemCli.action_generate_techsupport(self.engine, f'system tech-support {since} {since_time}')
-            return output.splitlines()[-2].split(" ")[-1]
+            return SystemConsts.TECHSUPPORT_FILES_PATH + output.splitlines()[-2].split(" ")[-1]
 
     @retry(Exception, tries=25, delay=10)
     def verify_dockers_are_up(self, dockers_list=NvosConst.DOCKERS_LIST):

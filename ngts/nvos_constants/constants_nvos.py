@@ -160,6 +160,7 @@ class SystemConsts:
     VERSION = 'version'
     SECURITY = 'security'
     DATE_TIME = 'date-time'
+    TECHSUPPORT_FILES_PATH = '/host/dump/'
 
     MIN_SYSTEM_YEAR = '1970'
     MAX_SYSTEM_YEAR = '2037'
