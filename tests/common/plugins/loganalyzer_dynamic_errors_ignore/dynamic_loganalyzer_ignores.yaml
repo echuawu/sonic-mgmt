@@ -3484,3 +3484,10 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/gnmi/test_gnmi_server.py::test_simulate_gnmi_server_failure
+
+# NVOS bug will not fix
+- Errors_list:
+    - '.*WARNING kernel: .*: supply vcc not found, using dummy regulator.*'
+  Conditions:
+    - Redmine:
+        - 3427602
