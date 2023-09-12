@@ -400,8 +400,6 @@ def get_tech_support_from_switch(topology_obj):
     dumps_folder = os.getenv(InfraConst.ENV_LOG_FOLDER)
     tar_file_path = dumps_folder + '/'
     switch_engine_ip = topology_obj.players['dut']['engine'].ip
-    if "/" not in tar_file_path_on_switch:
-        tar_file_path_on_switch = "/host/dump/" + tar_file_path_on_switch
     cmd = f'sudo sshpass -p {DefaultConnectionValues.DEFAULT_PASSWORD} ' \
           f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ' \
           f'{DefaultConnectionValues.DEFAULT_USER}@{switch_engine_ip}:{tar_file_path_on_switch} {tar_file_path}'

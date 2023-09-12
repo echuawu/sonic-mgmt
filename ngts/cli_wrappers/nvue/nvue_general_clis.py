@@ -2,7 +2,7 @@ from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts, SystemConsts
 from ngts.constants.constants import InfraConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine

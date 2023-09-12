@@ -5,7 +5,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 logger = logging.getLogger()
@@ -53,19 +53,18 @@ class TechSupport(BaseComponent):
         techsupport_res_list = techsupport_res.returned_value.split('\n')
         files_name = "".join([name for name in techsupport_res_list if '.tar.gz' in name])
         files_name = files_name.replace('Generated tech-support', '').split(' ')
-        return files_name[-1]
+        return SystemConsts.TECHSUPPORT_FILES_PATH + files_name[-1]
 
     @staticmethod
-    def get_techsupport_files_list(engine, techsupport, tech_folder):
+    def get_techsupport_files_list(engine, tech_support_folder, tech_folder):
         """
         :param engine: engine
         :param techsupport: the techsupport .tar.gz name
         :return: list of the required dump files in the tech-support
         """
         with allure.step('Get all tech-support dump files'):
-            full_path = '/host/dump/' + techsupport
-            engine.run_cmd('sudo tar -xf ' + full_path + ' -C /host/dump')
-            full_path = full_path.replace('.tar.gz', "")
+            engine.run_cmd('sudo tar -xf ' + tech_support_folder + ' -C /host/dump')
+            full_path = tech_support_folder.replace('.tar.gz', "")
             output = engine.run_cmd('sudo ls ' + full_path + '/' + tech_folder)
             engine.run_cmd('sudo rm -rf ' + full_path)
             return output.split()

@@ -114,7 +114,7 @@ def test_techsupport_delete(engines):
             second_file = system.techsupport.action_generate()
 
         with allure.step('Delete the first created tech-support file'):
-            output = system.techsupport.action_delete(first_file).get_returned_value()
+            output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
 
         assert success_message in output, 'failed to delete'
         output_dictionary_after_delete = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
@@ -122,7 +122,7 @@ def test_techsupport_delete(engines):
 
         with allure.step('Check {} has been deleted and {} still exist'.format(first_file, second_file)):
             assert first_file not in output_dictionary_after_delete, "{} still exist even after deleting it".format(first_file)
-            assert second_file in output_dictionary_after_delete, "{} does not exist".format(first_file)
+            assert second_file in output_dictionary_after_delete, "{} does not exist".format(second_file)
 
         with allure.step('Delete non exist tech-support file {}'.format(first_file)):
             res_obj = system.techsupport.action_delete(first_file.replace('/host/dump/', ''))
@@ -159,7 +159,7 @@ def test_techsupport_upload(engines):
         assert "File not found: nonexist" in output.info, "we can not upload a non exist file!"
 
     with allure.step('Generate tech-support file'):
-        tech_file = system.techsupport.action_generate()
+        tech_file = system.techsupport.action_generate().replace('/host/dump/', '')
 
     with allure.step('try to upload techsupport {} to {} - Positive Flow'.format(tech_file, upload_path)):
         output = system.techsupport.action_upload(upload_path, tech_file).verify_result()
