@@ -97,16 +97,12 @@ class AuthConsts:
     SWITCH_NON_PRIVILEGED_PATH = '/tmp'
     SWITCH_PRIVILEGED_PATH = '/var/log'  # todo: check its admin only!
 
-    LOGIN_FAIL_ERR = 'login fail'
-    SHOW_FAIL_ERR = 'show fail'
-    SET_FAIL_ERR = 'set fail'
-    UNSET_FAIL_ERR = 'unset fail'
+    SWITCH_SCP_TEST_DIR = '/tmp/scp_test_dir'
+    SWITCH_ADMIN_USERS_DIR = f'{SWITCH_SCP_TEST_DIR}/admin_users_dir'
+    SWITCH_NON_PRIVILEGED_DIR = f'{SWITCH_SCP_TEST_DIR}/non_privileged_dir'
+    SWITCH_SCP_TEST_FILE_NAME = 'switch_scp_test_file'
+    SWITCH_ADMIN_SCP_TEST_FILE = f'{SWITCH_ADMIN_USERS_DIR}/{SWITCH_SCP_TEST_FILE_NAME}'
+    SWITCH_NON_PRIVILEGED_SCP_TEST_FILE = f'{SWITCH_NON_PRIVILEGED_DIR}/{SWITCH_SCP_TEST_FILE_NAME}'
 
-    USERS = 'users'
-
-    # possible authentication mediums
-    SSH = 'SSH'
-    OPENAPI = 'OpenApi'
-    RCON = 'RCON'
-    SCP = 'SCP'
-    AUTH_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
+    SWITCH_ROOT_DIR = '/etc'
+    SWITCH_ROOT_FILE = f'{SWITCH_ROOT_DIR}/shadow'

@@ -6,15 +6,27 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AuthC
 
 
 @pytest.fixture(scope='session', autouse=True)
-def upload_dummy_file_to_switch(engines):
+def prepare_scp_test(engines):
     """
     @summary: Upload a dummy text file to the switch, that will be used in tests for scp verification
     """
-    engines.dut.run_cmd('')
-    logging.info('Upload a dummy text file to the switch')
-    scp_file(engines.dut, AuthConsts.DUMMY_FILE_SHARED_LOCATION, AuthConsts.SWITCH_NON_PRIVILEGED_PATH)
+    admin_monitor_mutual_group = 'adm'
+
+    logging.info('Prepare directory for admin users only')
+    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_SCP_TEST_DIR}')
+    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_ADMIN_USERS_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_ADMIN_USERS_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_ADMIN_SCP_TEST_FILE}')
+
+    logging.info('Prepare non-privileged directory')
+    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
 
     yield
 
-    logging.info('Remove dummy file from the switch')
-    engines.dut.run_cmd(f'rm -f {AuthConsts.SWITCH_NON_PRIVILEGED_PATH}/{AuthConsts.DUMMY_FILE_NAME}')
+    logging.info('Clean scp test files')
+    engines.dut.run_cmd(f'rm -rf {AuthConsts.SWITCH_SCP_TEST_DIR}')

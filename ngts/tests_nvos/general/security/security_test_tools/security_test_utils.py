@@ -12,7 +12,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import AuthVerifier
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
@@ -62,7 +62,7 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
         user_is_admin = user.role == AaaConsts.ADMIN
         for medium in AuthConsts.AUTH_MEDIUMS:
             with allure.step(f'Verify auth with medium: {medium}'):
-                medium_obj = AuthVerifier(medium, user.username, user.password, engines, topology_obj)
+                medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
 
                 with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
                     medium_obj.verify_authentication(expect_login_success)
