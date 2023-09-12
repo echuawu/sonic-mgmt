@@ -2954,8 +2954,6 @@
   Conditions:
     - Redmine:
       - 3602168
-      Platform:
-        - simx
 
 - Errors_list:
     - '.*ERR kernel: .* mlxsw_minimal 2-0048: Failed to write PWM.*'
