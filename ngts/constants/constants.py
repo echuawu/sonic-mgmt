@@ -222,6 +222,7 @@ class DefaultCredentialConstants:
 
 
 class PlatformTypesConstants:
+    FILTERED_PLATFORM_BULLDOG = 'SN2100'
     FILTERED_PLATFORM_ALLIGATOR = 'SN2201'
     FILTERED_PLATFORM_PANTHER = 'MSN2700'
     FILTERED_PLATFORM_ANACONDA = "MSN3700"
@@ -234,6 +235,7 @@ class PlatformTypesConstants:
     FILTERED_PLATFORM_OCELOT = "MSN4410"
     FILTERED_PLATFORM_MOOSE = "SN5600"
 
+    PLATFORM_BULLDOG = 'x86_64-mlnx_msn2100-r0'
     PLATFORM_ALLIGATOR = 'x86_64-nvidia_sn2201-r0'
     PLATFORM_ANACONDA = 'x86_64-mlnx_msn3700-r0'
     PLATFORM_ANACONDA_C = 'x86_64-mlnx_msn3700c-r0'
@@ -247,6 +249,8 @@ class PlatformTypesConstants:
     PLATFORM_TIGON = 'x86_64-mlnx_msn4600c-r0'
     PLATFORM_TIGRIS = 'x86_64-mlnx_msn3800-r0'
     PLATFORM_MOOSE = 'x86_64-nvidia_sn5600-r0'
+
+    LOGS_ON_TMPFS_PLATFORMS = [PLATFORM_PANTHER, PLATFORM_BULLDOG]
 
 
 class InterfacesTypeConstants:

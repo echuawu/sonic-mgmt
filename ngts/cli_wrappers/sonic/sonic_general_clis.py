@@ -17,7 +17,7 @@ from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
-    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants
+    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, PlatformTypesConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -68,6 +68,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.engine = engine
         self.cli_obj = cli_obj
         self.dut_alias = dut_alias
+        self.backup_logs_stored = False
 
     def show_feature_status(self):
         """
@@ -181,7 +182,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.check_and_apply_dns()
 
     def safe_reboot_flow(self, topology_obj, reboot_type='reboot', wait_after_ping=45):
+        logs_in_tmpfs = self.is_logs_in_tmpfs()
+        self.copy_logs_before_reboot(logs_in_tmpfs)
         self.engine.reload([f'sudo {reboot_type}'], wait_after_ping=wait_after_ping)
+        self.restore_logs_after_reboot(logs_in_tmpfs)
         sanitizer = topology_obj.players['dut']['sanitizer']
         if sanitizer:
             test_name = os.environ.get('PYTEST_CURRENT_TEST').split(':')[-1].split(' ')[0]
@@ -209,6 +213,41 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def port_reload_reboot_checks(self, ports_list):
         self.verify_dockers_are_up()
         self.cli_obj.interface.check_link_state(ports_list)
+
+    def is_logs_in_tmpfs(self):
+        log_filesystem = self.engine.run_cmd("df --output=fstype -h /var/log")
+        logs_in_tmpfs = log_filesystem and "tmpfs" in log_filesystem
+        config_db = self.get_config_db()
+        platform = config_db['DEVICE_METADATA']['localhost']['platform']
+        return logs_in_tmpfs or platform in PlatformTypesConstants.LOGS_ON_TMPFS_PLATFORMS
+
+    def copy_logs_before_reboot(self, logs_in_tmpfs):
+        if logs_in_tmpfs:
+            # If it is not the first reboot in this test run, needs to backup also syslog.99
+            if not self.backup_logs_stored:
+                syslogs_99 = ''
+                sairedis_99 = ''
+                swss_99 = ''
+            else:
+                syslogs_99 = '/host/syslog.99'
+                sairedis_99 = '/var/log/swss/sairedis.rec.99'
+                swss_99 = '/var/log/swss/swss.rec.99'
+            backup_log_cmds = ["sudo su",
+                               f"cat {syslogs_99} /var/log/syslog.1 /var/log/syslog > /host/syslog.99 || true",
+                               f"cat {sairedis_99} /var/log/swss/sairedis.rec.1 /var/log/swss/sairedis.rec > /host/sairedis.rec.99 || true",
+                               f"cat {swss_99} /var/log/swss/swss.rec.1 /var/log/swss/swss.rec > /host/swss.rec.99 || true",
+                               "exit"]
+            self.engine.run_cmd_set(backup_log_cmds)
+            self.backup_logs_stored = True
+
+    def restore_logs_after_reboot(self, logs_in_tmpfs):
+        if logs_in_tmpfs:
+            restore_backup_cmds = ["sudo su",
+                                   "mv /host/syslog.99 /var/log/",
+                                   "mv /host/sairedis.rec.99 /var/log/swss/",
+                                   "mv /host/swss.rec.99 /var/log/swss/",
+                                   "exit"]
+            self.engine.run_cmd_set(restore_backup_cmds)
 
     def validate_dockers_are_up_reboot_if_fail(self, retries=2):
         """
