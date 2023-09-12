@@ -8,7 +8,7 @@ NOTE: Add here only fixtures and methods that can be used for canonical and comm
 if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
-
+import time
 import pytest
 import logging
 import re
@@ -21,7 +21,7 @@ from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_na
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, BugHandlerConst
+from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, BugHandlerConst, InfraConst
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
@@ -562,13 +562,16 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
     yield
     run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
     if run_log_analyzer_bug_handler:
+        current_time = str(time.time()).replace('.', '')
+        request.session.config.option.allure_server_project_id = current_time
+        allure_report_url = f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
         logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
         bug_handler_dict = {'test_description': request.node.function.__doc__,
                             'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
                             'system_type': topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type'],
                             'detected_in_version': log_analyzer_handler_info['version'],
                             'setup_name': setup_name,
-                            'report_url': request.node.config.cache.get('allure_report_url', '')}
+                            'report_url': allure_report_url}
         log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
                                                       log_analyzer_handler_info['branch'], test_name, topology_obj,
                                                       bug_handler_dict, bug_handler_no_action)
