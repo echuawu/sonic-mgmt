@@ -6,6 +6,7 @@ from retry.api import retry_call
 import re
 import logging
 import tarfile
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +31,8 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
         pre_stuck_dumps = '0'
 
     try:
-        with allure.step('Stop all iRISICs to halt FW'):
-            stop_irisics(chip_type, duthost)
+        with allure.step('Trigger fw fatal event'):
+            duthost.run_cmd("echo health_check_trigger sx_dbg_test_fw_fatal_event 1 > /proc/mlx_sx/sx_core")
 
         with allure.step('Wait for DumpMe dump to be created'):
             retry_call(
@@ -43,7 +44,7 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
             )
 
         with allure.step('Validate that the DumpMe dump contain all of the SDK extended dump files'):
-            check_all_dumps_file_exsits(duthost)
+            check_all_dumps_file_exsits(duthost, chip_type)
 
         # with allure.step('Count number of SDK extended dumps on dut after stuck occurred'):
         #     number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
@@ -101,6 +102,7 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
 @allure.title('Tests that health check event dump contains all the expected dumps when health check event occurs')
 def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, cli_objects):
     duthost = engines.dut
+    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
     pre_stuck_dumps = duthost.run_cmd('ls -t {}/*.tar | wc -l'.format(SDK_DUMP_DIR))
     if "No such file or directory" in pre_stuck_dumps:
         pre_stuck_dumps = '0'
@@ -139,7 +141,7 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
                     "Health check counter was not restarted")
 
         with allure.step('Validate that the health check dump contain all of the SDK extended dump files'):
-            check_all_dumps_file_exsits(duthost)
+            check_all_dumps_file_exsits(duthost, chip_type)
 
         with allure.step("Verify basic container is up before orchagent core dump generated"):
             cli_objects.dut.general.verify_dockers_are_up()
@@ -223,7 +225,7 @@ def stop_irisics(chip_type, host):
         raise ValueError("Not supported chip type: {}".format(chip_type))
 
 
-def check_all_dumps_file_exsits(engine):
+def check_all_dumps_file_exsits(engine, chip_type):
     # DumpMe dumps should contain the following dumps:
     # 3 CR space dumps
     # SDK dump
@@ -239,7 +241,8 @@ def check_all_dumps_file_exsits(engine):
     # Check SDK dump:
     assert 'sai_sdk_dump.txt' in output_fw_dump, 'Missing SDK dump'
     # Check mlxtrace dump:
-    assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
+    if not(is_redmine_issue_active([3587386]) and chip_type == "SPC4"):
+        assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
     # Check FW core dump:
     # This should be uncommented when FW stuck event level would change to critical
     # assert 'ir_core_dump_' in output, 'Missing FW core dump'
