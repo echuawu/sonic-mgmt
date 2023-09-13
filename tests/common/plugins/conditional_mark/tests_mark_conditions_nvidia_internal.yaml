@@ -318,11 +318,8 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_event_sdk_dump:
   skip:
     reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3585683"
-    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
-      - "'sn5' in platform"
-      - "https://redmine.mellanox.com/issues/3585634"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
