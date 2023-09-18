@@ -253,7 +253,7 @@ def test_rsyslog_configurations():
 @pytest.mark.system
 @pytest.mark.syslog
 @pytest.mark.simx
-def test_rsyslog_server_severity_levels(engines):
+def test_rsyslog_server_severity_levels(engines, loganalyzer):
     """
     Will validate all the severity options:  debug, info, notice, warning, error, critical, alert, emerg, none.
     Will configure the severity level, validate it in the show command and validate that the server catch the relevant
@@ -288,7 +288,7 @@ def test_rsyslog_server_severity_levels(engines):
         with allure.step("Validate all severity levels"):
             logging.info("Validate all severity levels")
             for severity_level in SyslogSeverityLevels.SEVERITY_LEVEL_LIST:
-                config_and_verify_trap(system.syslog, server, remote_server_ip, remote_server_engine, severity_level,
+                config_and_verify_trap(loganalyzer, system.syslog, server, remote_server_ip, remote_server_engine, severity_level,
                                        global_severity_level=SyslogSeverityLevels.NOTICE)
 
             with allure.step("Validate none as severity level"):
@@ -846,7 +846,7 @@ def config_and_verify_rsyslog_port(server, remote_server_engine, remote_server_i
             raise err
 
 
-def config_and_verify_trap(syslog, server, server_name, server_engine, severity_level,
+def config_and_verify_trap(loganalyzer, syslog, server, server_name, server_engine, severity_level,
                            global_severity_level=SyslogSeverityLevels.NOTICE):
     with allure.step("Configure and verify severity level: {}".format(severity_level)):
         logging.info("Validate severity level: {}".format(severity_level))
@@ -856,6 +856,9 @@ def config_and_verify_trap(syslog, server, server_name, server_engine, severity_
 
         random_msg = RandomizationTool.get_random_string(40, ascii_letters=string.ascii_letters + string.digits)
         severity_level_index = SyslogSeverityLevels.SEVERITY_LEVEL_LIST.index(severity_level)
+        if loganalyzer:
+            for hostname in loganalyzer.keys():
+                loganalyzer[hostname].ignore_regex.extend([f"\\.*{random_msg}\\.*"])
         send_msg_to_server(random_msg, server_name, server_engine, priority=severity_level,
                            verify_msg_received=True,
                            verify_msg_didnt_received=False)

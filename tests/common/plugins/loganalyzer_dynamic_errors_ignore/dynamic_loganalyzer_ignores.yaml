@@ -2653,11 +2653,14 @@
         - tests_nvos/interfaces/test_ib_interface_configuration.py
         - tests_nvos/ib/test_set_unset_sm_state.py
         - tests_nvos/ib/test_unset_ib.py
+        - tests_nvos/system/test_system_factory_reset.py
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up_openapi
         - tests_nvos/interfaces/test_ib_interface_counters.py
         - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
         - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_folder_name
+        - tests_nvos/system/test_system_profile_change.py::test_system_profile_adaptive_routing
 
 # NVOS
 - Errors_list:
@@ -3440,16 +3443,6 @@
 
 # NVOS
 - Errors_list:
-    - '.*INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
-        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_folder_name
-      Redmine:
-        - 3544158
-
-# NVOS
-- Errors_list:
     - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
@@ -3489,3 +3482,10 @@
   Conditions:
     - Redmine:
         - 3427602
+
+# NVOS
+- Errors_list:
+    - '.*apt-daily-upgrade.timer: Not using persistent file timestamp .* as it is in the future.*'
+  Conditions:
+    - Redmine:
+        - 3585813
