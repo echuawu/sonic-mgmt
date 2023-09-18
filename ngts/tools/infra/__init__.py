@@ -8,6 +8,7 @@ import json
 from ngts.constants.constants import InfraConst, PytestConst
 
 logger = logging.getLogger()
+DEVICE_PLATFORM_INFO_PATH = '/root/mars/workspace/sonic-mgmt/ngts/common/device_platform_info.json'
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -71,6 +72,21 @@ def create_result_dir(setup_name, session_id, suffix_path_name, topology_obj):
 
 
 def get_platform_info(topology_obj):
+    hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+    platform_info = get_platform_info_from_file(hostname)
+    if not platform_info:
+        platform_info = get_platform_info_from_noga(topology_obj)
+        update_platform_info_file(hostname, platform_info)
+    return platform_info
+
+
+def get_platform_info_from_file(hostname):
+    with open(DEVICE_PLATFORM_INFO_PATH, 'r') as platform_info_f:
+        platform_info = json.load(platform_info_f)
+    return platform_info.get(hostname, None)
+
+
+def get_platform_info_from_noga(topology_obj):
     switch_attributes = topology_obj.players['dut']['attributes'].noga_query_data['attributes']
     devinfo = get_devinfo(switch_attributes)
     try:
@@ -81,6 +97,19 @@ def get_platform_info(topology_obj):
                   '"x86_64-mlnx_msn3700-r0"}'.format(devinfo)
         raise Exception(err_msg)
     return show_platform_summary_dict
+
+
+def update_platform_info_file(hostname, platform_params):
+    platform_params = {k.lower(): v for k, v in platform_params.items()}
+    platform_params = {"_".join(k.split()): v for k, v in platform_params.items()}
+    if "asic" in platform_params:
+        value = platform_params.pop("asic")
+        platform_params["asic_type"] = value
+    with open(DEVICE_PLATFORM_INFO_PATH, "r") as platform_info_f:
+        data = json.load(platform_info_f)
+    data.update({hostname: platform_params})
+    with open(DEVICE_PLATFORM_INFO_PATH, "w") as platform_info_f:
+        json.dump(data, platform_info_f)
 
 
 def get_devinfo(switch_attributes):

@@ -32,9 +32,9 @@ from infra.tools.general_constants.constants import SonicSimxConstants, SonicHos
 from ngts.cli_wrappers.sonic.sonic_chassis_clis import SonicChassisCli
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
-from infra.tools.general_constants.constants import DefaultTestServerCred, NogaConstants
-from infra.tools.topology_tools.nogaq import upload_data_to_noga
+from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.tools.infra import update_platform_info_file
 
 
 logger = logging.getLogger()
@@ -396,7 +396,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Init telemetry keys"):
             self.init_telemetry_keys()
 
-        self.update_platform_params(topology_obj, platform_params)
+        self.update_platform_params(platform_params)
 
         if apply_base_config:
             with allure.step("Apply basic config"):
@@ -680,24 +680,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                            logger=logger)
                 self.save_configuration()
 
-    def update_platform_params(self, topology_obj, platform_params):
-        if hasattr(self, 'cli_obj'):  # sonic only
+    def update_platform_params(self, platform_params):
+        if hasattr(self, 'cli_obj'):  # SONiC only
             current_platform_summry = self.cli_obj.chassis.parse_platform_summary()
-            if platform_params["hwsku"] != current_platform_summry["HwSKU"]:
+            if platform_params["hwsku"] != current_platform_summry["HwSKU"] \
+                    or platform_params["platform"] != current_platform_summry["Platform"]:
                 platform_params["hwsku"] = current_platform_summry["HwSKU"]
-                device_attr = topology_obj.players['dut']['attributes']
-                resource_id = device_attr.noga_query_data['resource_id']
-                switch_name = device_attr.noga_query_data['attributes']['Common']['Name']
-                devdescription = device_attr.noga_query_data['attributes']['Specific']['devdescription']
-                devdescription = json.loads(devdescription)
-                devdescription['hwsku'] = current_platform_summry["HwSKU"]
-                devdescription = json.dumps(devdescription)
-
-                data_query = {"update": {"devdescription": devdescription},
-                              "filter": {"resource_id": resource_id, "name": switch_name},
-                              "params": {"login_user": NogaConstants.NOGA_USER, "api_key": NogaConstants.NOGA_API_KEY}}
-                logger.info(data_query)
-                upload_data_to_noga(data_query)
+                platform_params["platform"] = current_platform_summry["Platform"]
+                hostname = self.cli_obj.chassis.get_hostname()
+                update_platform_info_file(hostname, current_platform_summry)
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False, configure_dns=True):
@@ -842,6 +833,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
         self.update_config_db_metadata_router(setup_name, config_db_file_name)
         self.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
+        self.update_config_db_metadata_hwsku(setup_name, hwsku, config_db_file_name)
         self.update_config_db_features(setup_name, hwsku, config_db_file_name)
         self.update_config_db_feature_config(setup_name, "database", "auto_restart", "always_enabled",
                                              config_db_file_name)
@@ -892,6 +884,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
 
         config_db_json[ConfigDbJsonConst.MGMT_PORT] = json.loads(ConfigDbJsonConst.MGMT_PORT_VALUE)
+        return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
+
+    def update_config_db_metadata_hwsku(self, setup_name, hwsku, config_db_json_file_name):
+        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.HWSKU] = \
+            hwsku
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_hostname(self, setup_name, hostname, config_db_json_file_name):
