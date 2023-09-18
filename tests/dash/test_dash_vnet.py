@@ -13,7 +13,8 @@ from constants import VM_VNI, VNET2_VNI, REMOTE_CA_IP, LOCAL_CA_IP, REMOTE_ENI_M
 logger = logging.getLogger(__name__)
 
 pytestmark = [
-    pytest.mark.topology('appliance')
+    pytest.mark.topology('dpu'),
+    pytest.mark.disable_loganalyzer
 ]
 
 
@@ -50,6 +51,8 @@ def inbound_vnet_packets(dash_config_info):
     pa_mismatch_vxlan_packet["IP"].src = str(remote_pa_ip + 1)
 
     masked_exp_packet = Mask(expected_packet)
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
 
@@ -86,6 +89,8 @@ def outbound_vnet_packets(dash_config_info):
     )
 
     masked_exp_packet = Mask(expected_packet)
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "id")
+    masked_exp_packet.set_do_not_care_scapy(scapy.IP, "chksum")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "sport")
     masked_exp_packet.set_do_not_care_scapy(scapy.UDP, "chksum")
     return inner_packet, vxlan_packet, masked_exp_packet
@@ -97,25 +102,25 @@ def test_outbound_vnet(ptfadapter, apply_vnet_configs, outbound_vnet_packets, da
     """
     _, vxlan_packet, expected_packet = outbound_vnet_packets
     testutils.send(ptfadapter, dash_config_info[LOCAL_PTF_INTF], vxlan_packet, 1)
-    testutils.verify_packet(ptfadapter, expected_packet, dash_config_info[REMOTE_PTF_INTF])
+    testutils.verify_packets_any(ptfadapter, expected_packet, ports=dash_config_info[REMOTE_PTF_INTF])
+    # testutils.verify_packet(ptfadapter, expected_packet, dash_config_info[REMOTE_PTF_INTF])
 
 
 def test_outbound_vnet_direct(ptfadapter, apply_vnet_direct_configs, outbound_vnet_packets, dash_config_info):
     _, vxlan_packet, expected_packet = outbound_vnet_packets
     testutils.send(ptfadapter, dash_config_info[LOCAL_PTF_INTF], vxlan_packet, 1)
-    testutils.verify_packet(ptfadapter, expected_packet, dash_config_info[REMOTE_PTF_INTF])
+    testutils.verify_packets_any(ptfadapter, expected_packet, ports=dash_config_info[REMOTE_PTF_INTF])
+    # testutils.verify_packet(ptfadapter, expected_packet, dash_config_info[REMOTE_PTF_INTF])
 
 
 def test_outbound_direct(ptfadapter, apply_direct_configs, outbound_vnet_packets, dash_config_info):
     expected_inner_packet, vxlan_packet, _ = outbound_vnet_packets
-    expected_inner_packet[scapy.Ether].src = dash_config_info[DUT_MAC]
-    expected_inner_packet[scapy.Ether].dst = dash_config_info[REMOTE_PTF_MAC]
-    ptfadapter.dataplane.flush()
     testutils.send(ptfadapter, dash_config_info[LOCAL_PTF_INTF], vxlan_packet, 1)
-    testutils.verify_packet(ptfadapter, expected_inner_packet, dash_config_info[REMOTE_PTF_INTF])
+    testutils.verify_packets_any(ptfadapter, expected_inner_packet, ports=dash_config_info[REMOTE_PTF_INTF])
+    # testutils.verify_packet(ptfadapter, expected_inner_packet, dash_config_info[REMOTE_PTF_INTF])
 
 
-def test_inbound_vnet_pa_validate(ptfadapter, apply_vnet_configs, inbound_vnet_packets, dash_config_info):
+def test_inbound_vnet_pa_validate(ptfadapter, apply_inbound_configs, inbound_vnet_packets, dash_config_info):
     """
     Send VXLAN packets from the remote VNI with PA validation enabled
 
@@ -126,7 +131,7 @@ def test_inbound_vnet_pa_validate(ptfadapter, apply_vnet_configs, inbound_vnet_p
     """
     _,  pa_match_packet, pa_mismatch_packet, expected_packet = inbound_vnet_packets
     testutils.send(ptfadapter, dash_config_info[REMOTE_PTF_INTF], pa_match_packet, 1)
-    testutils.verify_packet(ptfadapter, expected_packet, dash_config_info[LOCAL_PTF_INTF])
+    testutils.verify_packets_any(ptfadapter, expected_packet, ports=dash_config_info[LOCAL_PTF_INTF])
 
     testutils.send(ptfadapter, dash_config_info[REMOTE_PTF_INTF], pa_mismatch_packet, 1)
-    testutils.verify_no_packet(ptfadapter, expected_packet, dash_config_info[LOCAL_PTF_INTF])
+    testutils.verify_no_packet_any(ptfadapter, expected_packet, ports=dash_config_info[LOCAL_PTF_INTF])

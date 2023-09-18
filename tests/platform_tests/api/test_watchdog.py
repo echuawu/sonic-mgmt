@@ -6,7 +6,7 @@ import yaml
 import pytest
 from tests.common.helpers.platform_api import watchdog
 from tests.common.helpers.assertions import pytest_assert
-from platform_api_test_base import PlatformApiTestBase
+from .platform_api_test_base import PlatformApiTestBase
 
 from collections import OrderedDict
 
@@ -18,7 +18,7 @@ pytestmark = [
 logger = logging.getLogger(__name__)
 
 TEST_CONFIG_FILE = os.path.join(os.path.split(__file__)[0], "watchdog.yml")
-TEST_WAIT_TIME_SECONDS = 4
+TEST_WAIT_TIME_SECONDS = 2
 TIMEOUT_DEVIATION = 2
 
 

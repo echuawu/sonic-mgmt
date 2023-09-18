@@ -1,9 +1,7 @@
 import json
 import logging
 import re
-import allure
 import pytest
-import tests.arp.test_wr_arp as test_wr_arp
 
 from datetime import datetime
 from tests.common.helpers.assertions import pytest_assert
@@ -22,7 +20,6 @@ from tests.flow_counter.flow_counter_utils import RouteFlowCounterTestContext,\
 import tests.arp.test_wr_arp as test_wr_arp
 
 from tests.common.config_reload import config_reload
-from infra.tools.redmine.redmine_api import is_redmine_issue_active  # nvidia internal
 
 logger = logging.getLogger(__name__)
 
@@ -34,31 +31,14 @@ pytestmark = [
 vlan_tagging_mode = ""
 
 
-@allure.step
-def skip_unsupported_for_scaled_test(duthost, request):
+@pytest.fixture(scope='module', autouse=True)
+def load_minigraph_after_test(rand_selected_dut):
     """
-        default: --num_vnet=8 --num_routes=16000 --num_endpoints=4000, see conftest.py
-        3k test: --num_vnet=32 --num_routes=3000 --num_endpoints=512
-        33k test: --num_vnet=32 --num_routes=33000 --num_endpoints=33000
-    :return: True/False
+    Restore config_db as vnet with wram-reboot will write testing config into
+    config_db.json
     """
-    sonic_release = duthost.sonic_release
-    dut_hwsku = duthost.sonichost.facts["hwsku"]
-    is_33k_scale_test = request.config.option.num_vnet > 8 and \
-                        request.config.option.num_routes > 3000 and \
-                        request.config.option.num_endpoints > 512
-    unsupported_scale_releases = ["201811", "201911", "202012", "202106", "202111"]
-    unsupported_scale_hwskus = ["ACS-MSN2700", "ACS-MSN2740", "ACS-MSN2100", "ACS-MSN2410", "ACS-MSN2010",
-                                "Mellanox-SN2700", "Mellanox-SN2700-D48C8"]
-    is_supported = True
-    if is_33k_scale_test:
-        if sonic_release in unsupported_scale_releases:
-            pytest.skip("The scaled test with more than 3k routes isn't supported on {} branch.".format(sonic_release))
-            is_supported = False
-        elif dut_hwsku in unsupported_scale_hwskus:
-            pytest.skip("The scaled test with more than 3k routes isn't supported on HwSKU: {}".format(dut_hwsku))
-            is_supported = False
-    return is_supported
+    yield
+    config_reload(rand_selected_dut, config_source='minigraph')
 
 
 def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
@@ -107,7 +87,7 @@ def prepare_ptf(ptfhost, mg_facts, dut_facts, vnet_config):
 
 
 @pytest.fixture(scope="module")
-def setup(duthosts, request, rand_one_dut_hostname, ptfhost, minigraph_facts, vnet_config, vnet_test_params):
+def setup(duthosts, rand_one_dut_hostname, ptfhost, minigraph_facts, vnet_config, vnet_test_params):
     """
     Prepares DUT and PTF hosts for testing
 
@@ -119,7 +99,7 @@ def setup(duthosts, request, rand_one_dut_hostname, ptfhost, minigraph_facts, vn
         vnet_test_params: Dictionary holding vnet test parameters
     """
     duthost = duthosts[rand_one_dut_hostname]
-    is_supported = skip_unsupported_for_scaled_test(duthost, request)
+
     dut_facts = duthost.facts
 
     vnet_json_data = prepare_ptf(
@@ -128,12 +108,7 @@ def setup(duthosts, request, rand_one_dut_hostname, ptfhost, minigraph_facts, vn
     generate_dut_config_files(duthost, minigraph_facts,
                               vnet_test_params, vnet_config)
 
-    yield minigraph_facts, vnet_json_data
-
-    if is_supported:
-        with allure.step("Reloading configuration after the test"):
-            # Not reloading in case the test is skipped - saves ~5 minutes
-            config_reload(duthost, config_source='minigraph')
+    return minigraph_facts, vnet_json_data
 
 
 @pytest.fixture(params=["Disabled", "Enabled", "WR_ARP", "Cleanup"])
@@ -184,13 +159,6 @@ def vxlan_status(setup, request, duthosts, rand_one_dut_hostname,
         cleanup_dut_vnets(duthost, vnet_config)
         cleanup_vxlan_tunnels(duthost, vnet_test_params)
     elif request.param == "WR_ARP":
-        if is_redmine_issue_active([3201571]):
-            # TODO: local change to skip only 33k WR_ARP test. Please remove when the issue will be fixed.
-            is_scale_test = request.config.option.num_vnet > 8 and \
-                            request.config.option.num_routes >= 3000 and \
-                            request.config.option.num_endpoints >= 512
-            if is_scale_test:
-                pytest.skip("The test is skipped due to RM issue: https://redmine.mellanox.com/issues/3201571")
         testWrArp = test_wr_arp.TestWrArp()
         testWrArp.Setup(duthost, ptfhost, tbinfo)
         try:

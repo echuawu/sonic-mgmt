@@ -140,12 +140,12 @@ class InnerHashTest(BaseTest):
                                                        src_port, ip_src, ip_dst, sport, dport, ip_proto)
                 except Exception as err:
                     # To avoid static sleep, added this retry only for first failed traffic.
-                    # With a low possibility, happens a failure, in which the PBH config are still not completed.
+                    # With a low possibility, happens a failure, in which the PBH config is still not completed.
                     if not first_traffic_failure:
                         raise err
 
                     logging.warning("The 'check_ip_route_symmetric_hash' method failed. "
-                                    "Waiting 10 sec and send the same packet again")
+                                    "Waiting 10 sec and sending the same packet again")
                     time.sleep(10)
                     self.check_ip_route_symmetric_hash(hit_count_map, hash_key, outer_encap_format,
                                                        src_port, ip_src, ip_dst, sport, dport, ip_proto)
@@ -161,7 +161,7 @@ class InnerHashTest(BaseTest):
                     self.next_hop.get_next_hop(), hit_count_map, hash_key)
 
     def check_ip_route_symmetric_hash(self, hit_count_map, hash_key, outer_encap_format,
-                    src_port, ip_src, ip_dst, sport, dport, ip_proto):
+                                      src_port, ip_src, ip_dst, sport, dport, ip_proto):
         (matched_port, _) = self.check_ip_route(
             hash_key, outer_encap_format, src_port, ip_src, ip_dst, sport, dport, ip_proto)
         if self.symmetric_hashing and hash_key != 'ip-proto':
