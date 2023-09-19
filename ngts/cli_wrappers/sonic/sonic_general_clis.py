@@ -63,6 +63,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     """
     This class is for general cli commands for sonic only
     """
+    _is_simx_moose = None
 
     def __init__(self, engine, cli_obj, dut_alias):
         self.engine = engine
@@ -1133,6 +1134,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         platform = cli_object.chassis.get_platform()
         # if sn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
         return 'sn2' in platform
+
+    @classmethod
+    def is_simx_moose(cls, engine):
+
+        if cls._is_simx_moose is None:
+            platform = engine.run_cmd("show platform summary | grep Platform | awk '{print $2}'")
+            cls._is_simx_moose = all(condition in platform for condition in ('sn5', 'simx'))
+        return cls._is_simx_moose
 
     def show_version(self, validate=False):
         return self.engine.run_cmd('show version', validate=validate)

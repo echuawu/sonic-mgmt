@@ -5,6 +5,7 @@ import allure
 import json
 from retry.api import retry_call
 from ngts.cli_wrappers.common.interface_clis_common import InterfaceCliCommon
+from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCliDefault
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser, parse_show_interfaces_transceiver_eeprom
 from ngts.constants.constants import AutonegCommandConstants, SonicConst
 
@@ -272,6 +273,14 @@ class SonicInterfaceCli(InterfaceCliCommon):
             result[port] = port_sonic_alias
         return result
 
+    def get_tries_num(self):
+        tries_num = 32
+        is_simx_moose = SonicGeneralCliDefault.is_simx_moose(self.engine)
+        if is_simx_moose:
+            #  Adding extra minute for simx SPC4 due to scale limitations
+            tries_num = 44
+        return tries_num
+
     def check_link_state(self, ifaces=None, expected_status='up'):
         """
         Verify that links in UP state. Default interface is  Ethernet0, this link exist in each Canonical setup
@@ -281,12 +290,12 @@ class SonicInterfaceCli(InterfaceCliCommon):
         """
         if ifaces is None:
             ifaces = ['Ethernet0']
+        tries_num = self.get_tries_num()
         with allure.step('Check that link in UP state'):
-            # TODO: Added WA for RM#3413776 by increasing the tries to 16, change it back to 8 after the issue is closed
             retry_call(self.check_ports_status,
                        fargs=[ifaces, expected_status],
-                       tries=16,
-                       delay=10,
+                       tries=tries_num,
+                       delay=5,
                        logger=logger)
 
     def check_ports_status(self, ports_list, expected_status='up'):
