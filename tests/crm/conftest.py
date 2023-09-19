@@ -172,8 +172,9 @@ def check_interface_status(duthost, intf_list, expected_oper='up'):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def shutdown_unnecessary_intf(duthost, tbinfo, enum_frontend_asic_index):
+def shutdown_unnecessary_intf(duthosts, tbinfo, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname):
     """ Shutdown unused interfaces to avoid fdb entry influenced by mac learning """
+    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
     intfs_connect_with_ptf = get_intf_list(duthost, tbinfo, enum_frontend_asic_index)
     if intfs_connect_with_ptf:
         logger.info("Shutdown interfaces: {}".format(intfs_connect_with_ptf))
