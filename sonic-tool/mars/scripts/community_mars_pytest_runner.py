@@ -177,9 +177,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         except Exception as e:
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
 
-        pytest_bin_name = "py.test"
-        if self.is_python3_test or self.is_python3_script(test_script_path, python3_file_path):
-            pytest_bin_name = "/var/AzDevOps/env-python3/bin/python3 -m pytest"
+        pytest_bin_name = "/var/AzDevOps/env-python3/bin/python3 -m pytest"
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \

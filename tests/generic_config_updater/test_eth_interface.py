@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(autouse=True)
-def ensure_dut_readiness(duthost, request):
+def ensure_dut_readiness(duthost):
     """
     Setup/teardown fixture for each ipv6 test
     rollback to check if it goes back to starting config
@@ -25,11 +25,7 @@ def ensure_dut_readiness(duthost, request):
     Args:
         duthost: DUT host object under test
     """
-    # Ethernet0 doesn't have a default fec mode on some setups, need to configure it before the replace fec test
-    if request.function.__name__ == 'test_replace_fec':
-        fec_status = check_interface_status(duthost, "FEC")
-        if fec_status == 'N/A':
-            duthost.shell('config interface fec Ethernet0 none')
+
     create_checkpoint(duthost)
 
     yield
@@ -209,7 +205,7 @@ def test_toggle_pfc_asym(duthost, ensure_dut_readiness, pfc_asym):
 def test_replace_fec(duthost, ensure_dut_readiness, fec):
     json_patch = [
         {
-            "op": "replace",
+            "op": "add",
             "path": "/PORT/Ethernet0/fec",
             "value": "{}".format(fec)
         }
@@ -301,6 +297,7 @@ def test_update_speed(duthost, ensure_dut_readiness):
             if is_valid:
                 expect_op_success(duthost, output)
                 current_status_speed = check_interface_status(duthost, "Speed").replace("G", "000")
+                current_status_speed = current_status_speed.replace("M", "")
                 pytest_assert(current_status_speed == speed,
                               "Failed to properly configure interface speed to requested value {}".format(speed))
             else:

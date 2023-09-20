@@ -370,7 +370,6 @@ def apply_tunnel_table_to_dut(cleanup_mocked_configs, rand_selected_dut, mock_pe
     dut = rand_selected_dut
 
     dut_loopback = (mock_peer_switch_loopback_ip - 1).ip
-
     tunnel_params = {
         'TUNNEL': {
             'MuxTunnel0': {
