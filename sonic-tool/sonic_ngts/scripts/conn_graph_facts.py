@@ -497,6 +497,38 @@ def build_results(lab_graph, hostnames):
     return results
 
 
+def find_graph(hostnames, part=False):
+    """
+    Find a graph file contains all devices in testbed.
+    duts are spcified by hostnames
+
+    Parameters:
+        hostnames: list of duts in the target testbed.
+        part: select the graph file if over 80% of hosts are found in conn_graph when part is True
+    """
+    filename = os.path.join(LAB_GRAPHFILE_PATH, 'graph_files.yml')
+    with open(filename) as fd:
+        file_list = yaml.safe_load(fd)
+
+    # Finding the graph file contains all duts from hostnames,
+    for fn in file_list:
+        logging.debug("Looking at conn graph file: %s for hosts %s" % (fn, hostnames))
+        filename = os.path.join(LAB_GRAPHFILE_PATH, fn)
+        lab_graph = Parse_Lab_Graph(filename)
+        lab_graph.parse_graph()
+        logging.debug("For file %s, got hostnames %s" % (fn, lab_graph.devices))
+        if lab_graph.contains_hosts(hostnames, part):
+            logging.debug("Returning lab graph from conn graph file: %s for hosts %s" % (fn, hostnames))
+            return lab_graph
+    # Fallback to return an empty connection graph, this is
+    # needed to bridge the kvm test needs. The KVM test needs
+    # A graph file, which used to be whatever hardcoded file.
+    # Here we provide one empty file for the purpose.
+    lab_graph = Parse_Lab_Graph(os.path.join(LAB_GRAPHFILE_PATH, EMPTY_GRAPH_FILE))
+    lab_graph.parse_graph()
+    return lab_graph
+
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -512,6 +544,7 @@ def main():
     )
     m_args = module.params
 
+    anchor = m_args['anchor']
     if m_args['hosts']:
         hostnames = m_args['hosts']
     elif m_args['host']:
@@ -529,6 +562,12 @@ def main():
             filename = os.path.join(LAB_GRAPHFILE_PATH, m_args['filename'])
             lab_graph = Parse_Lab_Graph(filename)
             lab_graph.parse_graph()
+        else:
+            # When calling passed in anchor instead of hostnames,
+            # the caller is asking to return the whole graph. This
+            # is needed when configuring the root fanout switch.
+            target = anchor if anchor else hostnames
+            lab_graph = find_graph(target)
 
         # early return for the whole graph or empty graph file(vtestbed)
         if (
@@ -551,3 +590,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

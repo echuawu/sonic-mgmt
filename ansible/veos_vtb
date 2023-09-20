@@ -11,7 +11,6 @@ all:
         topologies:
           - t1
           - t1-lag
-          - t1-28-lag
           - t1-56-lag
           - t1-64-lag
           - t1-8-lag
@@ -37,6 +36,7 @@ all:
           - dualtor-mixed-120
           - dualtor-aa
           - dualtor-aa-56
+          - dualtor-aa-64
           - dualtor-aa-120
           - wan-pub
           - wan-4link
@@ -45,6 +45,7 @@ all:
           - wan-3link-tg
           - wan-ecmp
           - wan-pub-isis
+          - dpu
       children:
         server_1:
     lab:

@@ -3,7 +3,7 @@ import logging
 import scapy
 import re
 import random
-from drop_packets import *
+from tests.drop_packets.drop_packets import *
 from ptf.testutils import verify_no_packet_any, simple_ip_only_packet, simple_ipv4ip_packet, simple_tcp_packet, simple_vxlan_packet
 from tests.common.helpers.assertions import pytest_assert
 from collections import OrderedDict
@@ -508,7 +508,7 @@ def verify_l1_agg_drop_exists(duthost, cmd, port, state):
     for entry in table:
         if (entry['State'] == state and
             entry['Port'] == port and
-            entry['State Change'] > 0):
+            int(entry['State Change']) > 0):
             entry_exists = True
             break
 
@@ -536,7 +536,7 @@ def test_l1_agg_port_down(duthost):
 
     duthost.command("config interface shutdown {}".format(port))
     try:
-        entry = run_until(1, 5, ('Port', port), verify_l1_agg_drop_exists, duthost, SHOW_L1_AGGREGATE, port, "Down")
+        entry = run_until(2, 1, 5, ('Port', port), verify_l1_agg_drop_exists, duthost, SHOW_L1_AGGREGATE, port, "Down")
         if (entry['Down Reason - Recommended Action'] != 'Port admin down - Validate port configuration' and
             entry['Down Reason - Recommended Action'] != 'N/A'):
             pytest.fail("Could not find L1 drop on WJH aggregated table.")

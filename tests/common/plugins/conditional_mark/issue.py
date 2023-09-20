@@ -16,10 +16,9 @@ logger = logging.getLogger(__name__)
 CREDENTIALS_FILE = 'credentials.yaml'
 
 
-class IssueCheckerBase(object):
+class IssueCheckerBase(six.with_metaclass(ABCMeta, object)):
     """Base class for issue checker
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, url):
         self.url = url
@@ -36,23 +35,17 @@ class RedmineIssueChecker(IssueCheckerBase):
     """
     Redmine issue state checker
     """
-
     NAME = 'Redmine'
-
     def __init__(self, url):
         super(RedmineIssueChecker, self).__init__(url)
-
     def is_active(self):
         """Check if the issue is still active.
-
         If unable to get issue state, always consider it as active.
-
         Returns:
             bool: False if the issue is closed else True.
         """
         issue_id = self.url.split('/issues/')[1]
         is_issue_active, issue_id = is_redmine_issue_active([int(issue_id)])
-
         return is_issue_active
 
 
@@ -62,11 +55,12 @@ class GitHubIssueChecker(IssueCheckerBase):
 
     NAME = 'GitHub'
 
-    def __init__(self, url):
+    def __init__(self, url, proxies):
         super(GitHubIssueChecker, self).__init__(url)
         self.user = ''
         self.api_token = ''
         self.api_url = url.replace('github.com', 'api.github.com/repos')
+        self.proxies = proxies
         self.get_cred()
 
     def get_cred(self):
@@ -96,7 +90,7 @@ class GitHubIssueChecker(IssueCheckerBase):
             bool: False if the issue is closed else True.
         """
         try:
-            response = requests.get(self.api_url, auth=(self.user, self.api_token), timeout=10)
+            response = requests.get(self.api_url, auth=(self.user, self.api_token), proxies=self.proxies, timeout=10)
             response.raise_for_status()
             issue_data = response.json()
             if issue_data.get('state', '') == 'closed':
@@ -113,7 +107,7 @@ class GitHubIssueChecker(IssueCheckerBase):
         return True
 
 
-def issue_checker_factory(url):
+def issue_checker_factory(url, proxies):
     """Factory function for creating issue checker object based on the domain name in the issue URL.
 
     Args:
@@ -126,7 +120,7 @@ def issue_checker_factory(url):
     if m and len(m.groups()) > 0:
         domain_name = m.groups()[0].lower()
         if 'github' in domain_name:
-            return GitHubIssueChecker(url)
+            return GitHubIssueChecker(url, proxies)
         elif 'redmine' in domain_name:
             return RedmineIssueChecker(url)
         else:
@@ -135,7 +129,7 @@ def issue_checker_factory(url):
     return None
 
 
-def check_issues(issues):
+def check_issues(issues, proxies=None):
     """Check state of the specified issues.
 
     Because issue state checking may involve sending HTTP request. This function uses parallel run to speed up
@@ -147,7 +141,7 @@ def check_issues(issues):
     Returns:
         dict: Issue state check result. Key is issue URL, value is either True or False based on issue state.
     """
-    checkers = [c for c in [issue_checker_factory(issue) for issue in issues] if c is not None]
+    checkers = [c for c in [issue_checker_factory(issue, proxies) for issue in issues] if c is not None]
     if not checkers:
         logger.error('No checker created for issues: {}'.format(issues))
         return {}
@@ -167,3 +161,4 @@ def check_issues(issues):
         proc.join(timeout=60)
 
     return dict(check_results)
+
