@@ -53,3 +53,23 @@ class AuthConsts:
     RCON = 'RCON'
     SCP = 'SCP'
     AUTH_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
+
+    # path consts
+    SECURITY_VERIFICATION_SHARED_LOCATION = '/auto/sw_system_project/NVOS_INFRA/security/verification/'
+    DUMMY_FILE_SHARED_LOCATION = f'{SECURITY_VERIFICATION_SHARED_LOCATION}/scp/scp_test_file.txt'
+    SWITCH_NON_PRIVILEGED_PATH = '/tmp'
+    SWITCH_PRIVILEGED_PATH = '/var/log'  # todo: check its admin only!
+
+    LOGIN_FAIL_ERR = 'login fail'
+    SHOW_FAIL_ERR = 'show fail'
+    SET_FAIL_ERR = 'set fail'
+    UNSET_FAIL_ERR = 'unset fail'
+
+    USERS = 'users'
+
+    # possible authentication mediums
+    SSH = 'SSH'
+    OPENAPI = 'OpenApi'
+    RCON = 'RCON'
+    SCP = 'SCP'
+    AUTH_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
