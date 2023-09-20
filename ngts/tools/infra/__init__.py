@@ -8,7 +8,7 @@ import json
 from ngts.constants.constants import InfraConst, PytestConst
 
 logger = logging.getLogger()
-DEVICE_PLATFORM_INFO_PATH = '/root/mars/workspace/sonic-mgmt/ngts/common/device_platform_info.json'
+DEVICE_PLATFORM_INFO_PATH = os.path.join(os.path.dirname(__file__), '../../common/device_platform_info.json')
 
 
 @pytest.fixture(scope='session', autouse=True)
