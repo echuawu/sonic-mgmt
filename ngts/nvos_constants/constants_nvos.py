@@ -460,6 +460,7 @@ class ImageConsts:
     INSTALLED_FIRMWARE = 'installed-firmware'
     TYPE = 'type'
     ASIC = 'asic'
+    SWID = 'swid'
     FW_ASIC = 'ASIC'
     FW_STABLE_VERSION = 'rel-31_2010_4100-004-EVB.mfa'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,

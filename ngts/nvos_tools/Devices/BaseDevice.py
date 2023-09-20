@@ -547,6 +547,11 @@ class MarlinSwitch(MultiAsicSwitch):
     MARLIN_IB_PORT_NUM = 128
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum2'
+    PRIMARY_ASIC = "ASIC2"
+    PRIMARY_SWID = 'SWID1'
+    PRIMARY_IPOIB_INTERFACE = "ib1"
+    SECONDARY_IPOIB_INTERFACE = "ib0"
+    MULTI_ASIC_SYSTEM = True
     CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
@@ -669,6 +674,10 @@ class GorillaSwitch(MultiAsicSwitch):
     ASIC_TYPE = 'Quantum2'
     DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
     ASIC_AMOUNT = 1
+    PRIMARY_ASIC = "ASIC1"
+    PRIMARY_SWID = 'SWID0'
+    PRIMARY_IPOIB_INTERFACE = "ib0"
+    MULTI_ASIC_SYSTEM = False
     CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
     CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
     CATEGORY_DEFAULT_DISABLED_DICT = {
