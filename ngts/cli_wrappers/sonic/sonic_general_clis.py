@@ -36,7 +36,6 @@ from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tools.infra import update_platform_info_file
 
-
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
 
@@ -233,11 +232,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 syslogs_99 = '/host/syslog.99'
                 sairedis_99 = '/var/log/swss/sairedis.rec.99'
                 swss_99 = '/var/log/swss/swss.rec.99'
-            backup_log_cmds = ["sudo su",
-                               f"cat {syslogs_99} /var/log/syslog.1 /var/log/syslog > /host/syslog.99 || true",
-                               f"cat {sairedis_99} /var/log/swss/sairedis.rec.1 /var/log/swss/sairedis.rec > /host/sairedis.rec.99 || true",
-                               f"cat {swss_99} /var/log/swss/swss.rec.1 /var/log/swss/swss.rec > /host/swss.rec.99 || true",
-                               "exit"]
+            backup_log_cmds = [
+                "sudo su",
+                f"cat {syslogs_99} /var/log/syslog.1 /var/log/syslog > /host/syslog.99 || true",
+                f"cat {sairedis_99} /var/log/swss/sairedis.rec.1 /var/log/swss/sairedis.rec > "
+                f"/host/sairedis.rec.99 || true",
+                f"cat {swss_99} /var/log/swss/swss.rec.1 /var/log/swss/swss.rec > /host/swss.rec.99 || true",
+                "exit"
+            ]
             self.engine.run_cmd_set(backup_log_cmds)
             self.backup_logs_stored = True
 
@@ -371,7 +373,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                      set_timezone='Israel', disable_ztp=False, configure_dns=False):
 
         if image_path.startswith('http'):
-            image_path = '/auto' + image_path.split('/auto')[1]
+            image_path = '/auto/' + image_path.split('/auto/')[1]
 
         try:
             with allure.step("Trying to install sonic image"):
@@ -779,7 +781,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
         default_sai_xml_file_name = 'sai.profile'
 
-        logger.info(f'Get SAI init config file path')
+        logger.info('Get SAI init config file path')
         output = self.engine.run_cmd(
             f"sudo cat {switch_sai_xml_path}/{default_sai_xml_file_name} | grep \"SAI_INIT_CONFIG_FILE\"")
 
@@ -790,13 +792,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         logger.info(f'Get SAI actual config file name {actual_sai_xml_file_name}')
         actual_switch_sai_xml_path = switch_sai_xml_path + '/' + actual_sai_xml_file_name
 
-        logger.info(f'Copy actual SAI config file to sonic-mgmt')
+        logger.info('Copy actual SAI config file to sonic-mgmt')
         self.engine.copy_file(source_file=f"{actual_switch_sai_xml_path}",
                               dest_file=f'/tmp/{actual_sai_xml_file_name}', file_system='/tmp/', direction='get')
         logger.info(f'Add appropriate flags to actual sai.xml {actual_switch_sai_xml_path}')
         self.modify_xml(f"/tmp/{actual_sai_xml_file_name}", global_flag=global_flag, local_flags=local_flags)
 
-        logger.info(f'Copy modified file to DUT /tmp/ folder')
+        logger.info('Copy modified file to DUT /tmp/ folder')
         self.engine.copy_file(source_file=f"/tmp/{actual_sai_xml_file_name}",
                               dest_file=actual_sai_xml_file_name, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
@@ -810,13 +812,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         child_node = root_node.find('platform_info')
         if global_flag:
             # Add global flag to child node
-            logger.info(f'Add global flag to child node')
+            logger.info('Add global flag to child node')
             global_flag = ET.Element("late-create-all-ports")
             global_flag.text = "1"
             child_node.append(global_flag)
 
         if local_flags:
-            logger.info(f'Add local flag to child node')
+            logger.info('Add local flag to child node')
             # Add local flag to all ports
             local_flag = ET.Element("late-create")
             local_flag.text = "true"
@@ -869,7 +871,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             localhost_type
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
-    def update_config_db_docker_routing_config_mode(self, topology_obj, mode='split', remove_docker_routing_config_mode=False):
+    def update_config_db_docker_routing_config_mode(self, topology_obj, mode='split',
+                                                    remove_docker_routing_config_mode=False):
         config_db = self.get_config_db()
         config_db_localhost = config_db[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST]
 
@@ -915,7 +918,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
         if 'VERSIONS' not in config_db_json.keys():
             config_db_json['VERSIONS'] = {}
-        if 'DATABASE'not in config_db_json['VERSIONS'].keys():
+        if 'DATABASE' not in config_db_json['VERSIONS'].keys():
             config_db_json['VERSIONS']['DATABASE'] = {}
         config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
@@ -947,7 +950,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         config_db_json = self.get_config_db()
         mask = _get_subnet_mask(ip, self.cli_obj.ip.get_interface_ips('eth0'))
         default_gw = _get_default_gw()
-        config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] =\
+        config_db_json[ConfigDbJsonConst.MGMT_INTERFACE] = \
             json.loads(ConfigDbJsonConst.MGMT_INTERFACE_VALUE % (ip, mask, default_gw))
 
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name)
