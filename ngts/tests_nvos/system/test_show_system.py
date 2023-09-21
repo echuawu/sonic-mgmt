@@ -7,6 +7,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 import time
 logger = logging.getLogger()
@@ -15,7 +16,7 @@ logger = logging.getLogger()
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-def test_system(engines, devices, topology_obj):
+def test_system(engines, devices, topology_obj, test_name):
     """
     Run show system message command and verify the required message
         Test flow:
@@ -51,7 +52,8 @@ def test_system(engines, devices, topology_obj):
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             dhcp_hostname).verify_result()
 
-        system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True).verify_result()
+        OperationTime.save_duration('set hostname', '', test_name, system.set, SystemConsts.HOSTNAME, new_hostname_value,
+                                    apply=True, ask_for_confirmation=True).verify_result()
         time.sleep(3)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
@@ -248,9 +250,9 @@ def test_show_system_cpu(engines, devices):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-def test_system_openapi(engines, devices, topology_obj):
+def test_system_openapi(engines, devices, topology_obj, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_system(engines, devices, topology_obj)
+    test_system(engines, devices, topology_obj, test_name)
 
 
 @pytest.mark.openapi
