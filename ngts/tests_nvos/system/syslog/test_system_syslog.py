@@ -1036,9 +1036,9 @@ def test_rsyslog_server_and_global_severity_levels_openapi():
 @pytest.mark.system
 @pytest.mark.syslog
 @pytest.mark.simx
-def test_rsyslog_server_severity_levels_openapi(engines):
+def test_rsyslog_server_severity_levels_openapi(engines, loganalyzer):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_rsyslog_server_severity_levels(engines)
+    test_rsyslog_server_severity_levels(engines, loganalyzer)
 
 
 @pytest.mark.openapi

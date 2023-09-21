@@ -142,7 +142,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 output = engine.run_cmd_and_get_output('nv config apply --assume-yes')
             else:
                 output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
-                                            tries_after_run_cmd=1)
+                                            tries_after_run_cmd=2)
             if 'Declined apply after warnings' in output:
                 output = "Error: " + output
             elif 'y: command not found' in output and 'applied' in output:

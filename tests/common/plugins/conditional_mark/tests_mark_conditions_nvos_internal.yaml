@@ -256,4 +256,22 @@ tests_nvos/system/gnmi/test_gnmi_server.py:
     conditions:
       - https://redmine.mellanox.com/issues/3599682
 
+tests_nvos/system/test_system_image.py::test_image_uninstall_force_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3610263"
+    conditions:
+      - https://redmine.mellanox.com/issues/3610263
+
+tests_nvos/system/test_system_image.py::test_image_uninstall_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3610263"
+    conditions:
+      - https://redmine.mellanox.com/issues/3610263
+
+tests_nvos/system/test_system_image.py::test_system_image_rename_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3610263"
+    conditions:
+      - https://redmine.mellanox.com/issues/3610263
+
 ########################## NVOS IGNORE END ##########################
