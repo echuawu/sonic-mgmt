@@ -281,6 +281,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 logger.info("Sending one arrow down")
                 serial_engine.run_cmd("\x1b[B", expected_value='.*', send_without_enter=True)
                 time.sleep(0.3)
+            logger.info("Onie option selected")
 
             if "MLNX_" in topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', ''):
                 serial_engine.run_cmd('\r', 'Due to security constraints, this option will uninstall your current OS',
@@ -288,11 +289,13 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
 
         logger.info("Pressing Enter to enter ONIE menu")
-        serial_engine.run_cmd('\r', expected_value='.*', timeout=5, send_without_enter=True)
+        serial_engine.run_cmd('\r', expected_value='.*', timeout=15, send_without_enter=True)
+        logger.info("Enter sent")
         for i in range(2):
             logger.info("Sending one arrow up")
             serial_engine.run_cmd("\x1b[A", expected_value='.*', send_without_enter=True)
             time.sleep(0.3)
+        logger.info("Waiting for onie prompt")
         self.wait_for_onie_prompt(serial_engine)
 
         logger.info("Send 'onie-stop'")
