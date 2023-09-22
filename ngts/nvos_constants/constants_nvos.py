@@ -324,6 +324,18 @@ class SystemConsts:
 
     HEALTH_STATUS = "health-status"
 
+    EXTERNAL_API_STATE = 'state'
+    EXTERNAL_API_STATE_ENABLED = 'enabled'
+    EXTERNAL_API_STATE_DISABLED = 'disabled'
+    EXTERNAL_API_LISTEN = 'listening-address'
+    EXTERNAL_API_PORT = 'port'
+    EXTERNAL_API_RULE = 'rule'
+    EXTERNAL_API_STATE_DEFAULT = 'enabled'
+    EXTERNAL_API_PORT_DEFAULT = '443'
+    EXTERNAL_API_PORT_NON_DEFAULT = '442'
+    EXTERNAL_API_LISTEN_DEFAULT = {}
+    EXTERNAL_API_LISTEN_LOCALHOST = 'localhost'
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000

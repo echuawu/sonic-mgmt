@@ -87,6 +87,7 @@ class System(BaseComponent):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self.datetime = DateTime(self)
         self.gnmi_server = Gnmi_server(self)
+        self.web_server_api = WebServerAPI(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
@@ -283,3 +284,15 @@ class DateTime(BaseComponent):
 
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_change,
                                                    TestToolkit.engines.dut, rsrc_path, params)
+
+
+class WebServerAPI(BaseComponent):
+
+    def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/api'
+        self.parent_obj = parent_obj
+
+    def get_expected_fields(self, device):
+        return device.constants.system['web_server_api']
