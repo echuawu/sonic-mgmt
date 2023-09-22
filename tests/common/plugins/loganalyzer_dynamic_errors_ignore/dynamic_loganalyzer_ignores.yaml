@@ -3114,6 +3114,14 @@
       Platform:
         - simx
 
+- Errors_list:
+    - '.*ERR hostcfgd: \[.systemctl., .restart., .resolv-config.\] - failed: return code - \d, output:#\d+None.*'
+  Conditions:
+    - Redmine:
+      - 3607570
+      Branch:
+        - master
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
