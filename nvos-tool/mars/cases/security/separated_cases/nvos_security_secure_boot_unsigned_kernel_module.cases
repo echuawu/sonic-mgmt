@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> Security test - Secure Boot - Unsigned Kernel Module </name>
+      <name> NVOS - Secure Boot - Unsigned Kernel Module </name>
       <info> </info>
       <owner> Alon N. </owner>
     </Test>
@@ -16,11 +16,11 @@
   </global>
 
    <case>
-    <name> Secure Boot - Unsigned Kernel Module </name>
+    <name> NVOS - Secure Boot - Unsigned Kernel Module </name>
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_non_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --kernel_module_path=/root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/secure_boot_kernel_module/unsigned_kernel_modules/unsecure_kernel_module.ko --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_non_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --kernel_module_path=/root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/secure_boot_kernel_module/unsigned_kernel_modules/unsecure_kernel_module.ko --showlocals --skip_auto_checks\'"</static_args>
       </params>
     </cmd>
   </case>

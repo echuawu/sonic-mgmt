@@ -3,9 +3,9 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System Security test - NVUE </name>
+      <name> NVOS - System Security Tests </name>
       <info> </info>
-      <owner> Azmy Ali </owner>
+      <owner> Alon N. </owner>
     </Test>
     <Case>
       <tags> security </tags>
@@ -16,7 +16,7 @@
   </global>
 
    <case>
-    <name> NVUE - AAA Authentication Restrictions </name>
+    <name> NVOS - AAA Authentication Restrictions </name>
     <info> </info>
     <tout> 9600 </tout>
     <cmd>
@@ -27,7 +27,18 @@
   </case>
 
    <case>
-    <name> NVUE - AAA LDAP </name>
+    <name> NVOS - AAA TACACS </name>
+    <info> </info>
+    <tout> 9600 </tout>
+    <cmd>
+      <params>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/tacacs/test_aaa_tacacs.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+   <case>
+    <name> NVOS - AAA LDAP </name>
     <info> </info>
     <tout> 9600 </tout>
     <cmd>
@@ -38,7 +49,7 @@
   </case>
 
    <case>
-    <name> NVUE - AAA Radius </name>
+    <name> NVOS - AAA Radius </name>
     <info> </info>
     <cmd>
       <params>
@@ -48,7 +59,7 @@
   </case>
 
    <case>
-    <name> NVUE - SSH Config </name>
+    <name> NVOS - SSH Config </name>
     <info> </info>
     <cmd>
       <params>
@@ -58,7 +69,7 @@
   </case>
 
    <case>
-    <name> NVUE - Login SSH Notification </name>
+    <name> NVOS - Login SSH Notification </name>
     <info> </info>
     <cmd>
       <params>
@@ -68,7 +79,7 @@
   </case>
 
    <case>
-    <name> NVUE - Secure Upgrade - Unsigned image </name>
+    <name> NVOS - Secure Upgrade - Unsigned image </name>
     <info> </info>
     <cmd>
       <params>
@@ -78,7 +89,7 @@
   </case>
 
   <case>
-    <name> NVUE - Password Hardening </name>
+    <name> NVOS - Password Hardening </name>
     <info> </info>
     <cmd>
       <params>
@@ -88,7 +99,7 @@
   </case>
 
    <case>
-    <name> NVUE - Secure Boot - Signed Kernel Module </name>
+    <name> NVOS - Secure Boot - Signed Kernel Module </name>
     <info> </info>
     <cmd>
       <params>
@@ -98,7 +109,7 @@
   </case>
 
    <case>
-    <name> NVUE - Secure Boot - Unsigned Kernel Module </name>
+    <name> NVOS - Secure Boot - Unsigned Kernel Module </name>
     <info> </info>
     <cmd>
       <params>
@@ -109,7 +120,7 @@
 
 
    <case>
-    <name> NVUE - Secure Boot - Unsigned Shim </name>
+    <name> NVOS - Secure Boot - Unsigned Shim </name>
     <info> </info>
     <cmd>
       <params>
@@ -119,7 +130,7 @@
   </case>
 
   <case>
-    <name> NVUE - Secure Boot - Unsigned grub </name>
+    <name> NVOS - Secure Boot - Unsigned grub </name>
     <info> </info>
     <cmd>
       <params>
@@ -129,7 +140,7 @@
   </case>
 
     <case>
-    <name> NVUE - Secure Boot - Unsigned vmlinuz </name>
+    <name> NVOS - Secure Boot - Unsigned vmlinuz </name>
     <info> </info>
     <cmd>
       <params>
@@ -139,7 +150,7 @@
   </case>
 
   <case>
-    <name> NVUE - Grub Password </name>
+    <name> NVOS - Grub Password </name>
     <info> </info>
     <cmd>
       <params>

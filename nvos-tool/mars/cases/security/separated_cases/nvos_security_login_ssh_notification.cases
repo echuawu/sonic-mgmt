@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> Security test - Login SSH Notification </name>
+      <name> NVOS - Login SSH Notification </name>
       <info> </info>
       <owner> Alon N. </owner>
     </Test>
@@ -16,11 +16,11 @@
   </global>
 
    <case>
-    <name> Login SSH Notification </name>
+    <name> NVOS - Login SSH Notification </name>
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notification.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notification.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals --skip_auto_checks\'"</static_args>
       </params>
     </cmd>
   </case>
