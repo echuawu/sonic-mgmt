@@ -202,7 +202,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.yaml \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED}"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED} --store_la_logs --ignore_la_failure"
         cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
                          SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
@@ -220,7 +220,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
             cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                            ../ansible/library/ --testbed {SETUP_NAME}-{SONIC_TOPO} --testbed_file {TESTBED_FILE} \
                            --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-                           --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED}"
+                           --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED} --store_la_logs --ignore_la_failure"
             cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
                              SCRIPTS=self.test_scripts,
                              DUT_NAME=self.dut_name,

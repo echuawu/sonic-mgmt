@@ -166,7 +166,7 @@ def remove_error_prefix_from_sanitizer_file(contents):
 
 
 def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path,
-                        bug_handler_no_action=False):
+                        bug_handler_action={}):
     """
     call bug handler on sanitizer or log analyzer file and return results as dictionary
     :param conf_path: i.e, /tmp/sonic_bug_handler.conf
@@ -184,17 +184,38 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     'action': 'update',
     'bug_id': '1122554'}
     """
-    bug_handler_no_action = '--no_action' if bug_handler_no_action else ''
-    bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
-                      f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file} {bug_handler_no_action}"
-    logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
-    bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
-    logger.info(bug_handler_output)
-    bug_handler_file_result = json.loads(bug_handler_output)
+    bug_handler_create_action = bug_handler_action.get("create", False)
+    bug_handler_update_action = bug_handler_action.get("update", False)
+    bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
+    bug_handler_file_result = run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user,
+                                                   bug_handler_path, bug_handler_no_action, bug_handler_action)
+
     bug_handler_file_result["file_name"] = upload_file_path
     logger.info(f"Bug Handler RC: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_RC]}")
     logger.info(f"Bug Handler Status: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_STATUS]}")
     logger.info(f"Bug Handler Action: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_ACTION]}")
+    return bug_handler_file_result
+
+
+def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
+                         bug_handler_no_action=False, bug_handler_action={}):
+    bug_handler_no_action = '--no_action' if bug_handler_no_action else ''
+    bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
+        f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file} {bug_handler_no_action}"
+    logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
+    bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
+    logger.info(bug_handler_output)
+    bug_handler_file_result = json.loads(bug_handler_output)
+
+    status = bug_handler_file_result["status"]
+    action = bug_handler_file_result["action"]
+
+    if "no_action" in status and bug_handler_action.get(action, False):
+        logger.info("Run the test for one more time based on the decison to take action")
+        bug_handler_no_action = False
+        return run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
+                                    bug_handler_no_action, bug_handler_action)
+
     return bug_handler_file_result
 
 
@@ -265,61 +286,6 @@ def review_bug_handler_results(bug_handler_results):
                 raise AssertionError("Bug handler found undetected issues, please review summary attached to allure")
 
 
-def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_analyzer_bug_metadata, bug_handler_no_action):
-    """
-    Call bug handler on all log errors and return list of dictionaries with results
-    :param cli_type: i.e, Sonic
-    :param branch: i.e 202211
-    :param test_name: i.e, test_lags_scale
-    :param topology_obj: topology object
-    :param log_analyzer_bug_metadata: dictionary with info that we want to add to log analyzer bug
-    :return: A list of dictionaries with results for each optional bug
-    i.e., ['test_name': 'test_lags_scale',
-            'results':
-    [{'file_name': '2022-06-21_23-24-07_orchagent-asan.log.40',
-    'messages': ['INFO:handle_bug:reading configuration from', ...],
-    'rc': 0,
-    'decision': 'update'},...]
-    },...]
-    """
-
-    with allure_step("Log Analyzer bug handler"):
-        bug_handler_dumps_results = []
-        hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
-        if log_errors_dir_path.exists():
-            session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
-            session_tmp_folder = create_session_tmp_folder(session_id)
-            redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
-            conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
-            tar_file_path = None
-
-            for log_errors_file_path in log_errors_dir_path.iterdir():
-                tar_file_path = get_tech_support_from_switch(topology_obj) if not tar_file_path else tar_file_path
-                with log_errors_file_path.open("r") as log_errors_file:
-                    data = json.load(log_errors_file)
-                error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
-                log_errors_file_path.unlink()
-
-                for error_group in error_groups:
-                    yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
-                                                                   test_name, tar_file_path, hostname, log_analyzer_bug_metadata)
-
-                    if yaml_file_path:
-                        with allure.step("Run Bug Handler on Log Analyzer error"):
-                            logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
-                            error_dict = {BugHandlerConst.LA_ERROR: error_group}
-                            error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
-                                                                  tar_file_path, yaml_file_path,
-                                                                  BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                                  BugHandlerConst.BUG_HANDLER_SCRIPT,
-                                                                  bug_handler_no_action))
-                            bug_handler_dumps_results.append(error_dict)
-
-            clear_files(session_id)
-        return summarize_la_bug_handler(bug_handler_dumps_results)
-
-
 def get_log_analyzer_yaml_path(test_name, dump_path):
     yaml_file_dir = os.path.join(dump_path, "yaml_parsed_files")
     Path(yaml_file_dir).mkdir(parents=True, exist_ok=True)
@@ -345,9 +311,6 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
     bug_regex = '.*' + error_to_regex(bug_title) + '.*'
-    if f".*{error_to_regex(bug_title)}.*" in pytest.dynamic_ignore_set:
-        return None
-    pytest.dynamic_ignore_set.add(f".*{error_to_regex(bug_title)}.*")
     description = f'| \n{bug_title}\n' + '\n'.join(log_errors)
     bug_info_dictionary.update({'search_regex': bug_regex,
                                 'bug_title': bug_title,
@@ -400,27 +363,6 @@ def error_to_regex(error_string):
     return error_string
 
 
-def get_tech_support_from_switch(topology_obj):
-    """
-    generate tech support from the switch and copy it to player
-    :param topology_obj: topology object
-    :return: file path
-    """
-    tar_file_path_on_switch = topology_obj.players['dut']['cli'].general.generate_techsupport(duration='0')
-    tar_file_name = tar_file_path_on_switch.split('/')[-1]
-    dumps_folder = os.getenv(InfraConst.ENV_LOG_FOLDER)
-    tar_file_path = dumps_folder + '/'
-    switch_engine_ip = topology_obj.players['dut']['engine'].ip
-    password = topology_obj.players['dut']['engine'].engine.password
-    cmd = f'sudo sshpass -p {password} ' \
-          f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ' \
-          f'{DefaultConnectionValues.DEFAULT_USER}@{switch_engine_ip}:{tar_file_path_on_switch} {tar_file_path}'
-    logger.info("Copy CMD: %s" % cmd)
-    os.system(cmd)
-    os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "False"
-    return os.path.join(dumps_folder, tar_file_name)
-
-
 def group_log_errors_by_timestamp(log_errors):
     """
     Group the log errors by timestamp: new group starts if it is bigger than 5 sec from the first line in the group.
@@ -464,19 +406,37 @@ def summarize_la_bug_handler(la_bug_handler_result):
             }
     """
     no_action_mode = False
-    create_and_update_bugs_dict = {BugHandlerConst.BUG_HANDLER_DECISION_CREATE: {}, BugHandlerConst.BUG_HANDLER_DECISION_UPDATE: {},
-                                   BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {}, BugHandlerConst.BUG_HANDLER_FAILURE: [],
-                                   BugHandlerConst.NO_ACTION_MODE: no_action_mode}
+    create_and_update_bugs_dict = {BugHandlerConst.BUG_HANDLER_DECISION_CREATE: {},
+                                   BugHandlerConst.BUG_HANDLER_DECISION_UPDATE: {},
+                                   BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {},
+                                   BugHandlerConst.BUG_HANDLER_FAILURE: [],
+                                   BugHandlerConst.NO_ACTION_MODE: []}
 
     for bug_handler_result_dict in la_bug_handler_result:
-        no_action_mode = no_action_mode or bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] == 'no_action mode'
-        if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
+        bug_handler_status = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS]
+        bug_handler_action = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION]
+        bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
+        no_action_mode = no_action_mode or bug_handler_status == 'no_action mode'
+        if no_action_mode:
+            no_action_errs = {
+                BugHandlerConst.LA_ERROR: bug_handler_result_dict[BugHandlerConst.LA_ERROR],
+                BugHandlerConst.BUG_HANDLER_ACTION: bug_handler_action
+            }
+            if bug_handler_action == BugHandlerConst.BUG_HANDLER_DECISION_UPDATE:
+                no_action_errs[BugHandlerConst.BUG_HANDLER_BUG_ID] = bug_id
+            else:
+                no_action_errs[BugHandlerConst.BUG_HANDLER_BUG_ID] = ""
+            create_and_update_bugs_dict[BugHandlerConst.NO_ACTION_MODE].append(no_action_errs)
+
+        elif bug_handler_action in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
                 and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] in ['done', 'no_action mode']:
-            bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
-            create_and_update_bugs_dict[bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION]].update(
+
+            create_and_update_bugs_dict[bug_handler_action].update(
                 {bug_id: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
         else:
             create_and_update_bugs_dict[BugHandlerConst.BUG_HANDLER_FAILURE].append(bug_handler_result_dict)
 
-    create_and_update_bugs_dict[BugHandlerConst.NO_ACTION_MODE] = no_action_mode
+    logger.info(f"-------create_and_update_bugs_dict is : {create_and_update_bugs_dict}-------")
+    logger.info(f"-------la_bug_handler_result is : {la_bug_handler_result}-------")
+
     return create_and_update_bugs_dict

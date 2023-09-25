@@ -32,11 +32,6 @@ from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_
 from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, \
     clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from ngts.nvos_constants.constants_nvos import NvosConst
-from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
-from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from infra.tools.redmine.redmine_api import REDMINE_ISSUES_URL
 from ngts.helpers.general_helper import get_all_setups
 
 logger = logging.getLogger()
@@ -613,74 +608,6 @@ def should_skip_bug_handler_action(request, disable_loganalyzer):
     else:
         logger.info('Bug handler will NOT skip actions for LA errors')
         return False
-
-
-@pytest.fixture(scope='function', autouse=True)
-def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer,
-                             should_skip_bug_handler_action):
-    """
-    fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
-    """
-    yield
-    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(
-        topology_obj, disable_loganalyzer, should_skip_bug_handler_action)
-    if run_log_analyzer_bug_handler:
-        current_time = str(time.time()).replace('.', '')
-        request.session.config.option.allure_server_project_id = current_time
-        allure_report_url = f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
-        logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
-        bug_handler_dict = {'test_description': request.node.function.__doc__,
-                            'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
-                            'system_type':
-                                topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
-                                    'switch_type'],
-                            'detected_in_version': log_analyzer_handler_info['version'],
-                            'setup_name': setup_name,
-                            'report_url': allure_report_url}
-        log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
-                                                      log_analyzer_handler_info['branch'], test_name, topology_obj,
-                                                      bug_handler_dict, bug_handler_no_action)
-        logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
-        error_msg = ''
-        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
-            if log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
-                error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
-                            f"should be opened, but we are in no_action mode\n"
-                for i, bug_title in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].values(),
-                                              start=1):
-                    error_msg += f"{i}) {bug_title}\n"
-            else:
-                error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
-                            f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].keys())}\n"
-                for i, (bug_id, bug_title) in enumerate(
-                        log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
-                    error_msg += f"{i}) {REDMINE_ISSUES_URL + str(bug_id)}:  {bug_title}\n"
-        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
-            error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
-                                    f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
-        if error_msg:
-            raise Exception(error_msg)
-
-
-def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_skip_bug_handler_action=False):
-    run_log_analyzer_bug_handler = False
-    bug_handler_no_action = should_skip_bug_handler_action
-    log_analyzer_handler_info = {'branch': '', 'cli_type': '', 'version': ''}
-    if disable_loganalyzer:
-        logger.info("Log analyzer is disabled, thus the LA bug handler is disabled")
-        return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
-
-    log_analyzer_handler_info['branch'] = topology_obj.players['dut']['branch']
-    log_analyzer_handler_info['cli_type'] = os.environ['CLI_TYPE']
-    log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(
-        log_analyzer_handler_info['cli_type'])
-
-    if log_analyzer_handler_info['cli_type'] == 'NVUE':
-        run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler()
-        if not should_skip_bug_handler_action:  # if its true by intention, don't consider if it is ci or not
-            bug_handler_no_action = pytest.is_ci_run  # no_action flag in ci run, so it will not open new bugs
-
-    return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
 
 
 @pytest.fixture(autouse=False)

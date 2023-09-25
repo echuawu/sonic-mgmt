@@ -15,6 +15,10 @@ def pytest_addoption(parser):
                      help="do not fail the test if new bugs were found")
     parser.addoption("--loganalyzer_rotate_logs", action="store_true", default=True,
                      help="rotate log on all the dut engines at the beginning of the log analyzer fixture")
+    parser.addoption("--bug_handler_params", action="store", default=None,
+                     help="params that may needed in log_analyzer_bug_handler when err detected, "
+                          "log_analyzer_bug_handler is called in _post_err_msg_handler, "
+                          "vendor can implement their own logic in log_analyzer_bug_handler.")
 
 
 @reset_ansible_local_tmp
@@ -60,7 +64,7 @@ def loganalyzer(duthosts, request):
     if should_rotate_log:
         parallel_run(analyzer_logrotate, [], {}, duthosts, timeout=120)
     for duthost in duthosts:
-        analyzer = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name)
+        analyzer = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name, request=request)
         analyzer.load_common_config()
         analyzers[duthost.hostname] = analyzer
     markers = parallel_run(analyzer_add_marker, [analyzers], {}, duthosts, timeout=120)

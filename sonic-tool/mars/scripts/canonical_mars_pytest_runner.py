@@ -47,11 +47,14 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         if self.sonic_topo:
             random_seed = int(time.time())
             cmd_template = '/ngts_venv/bin/pytest --setup_name={} --sonic-topo={} --session_id={} --mars_key_id={} {} ' \
-                           '--dynamic_update_skip_reason --allure_server_project_id={} {} --random_seed={} '
+                           '--dynamic_update_skip_reason --allure_server_project_id={} {} --random_seed={} ' \
+                           '--store_la_logs --ignore_la_failure'
             cmd = cmd_template.format(self.setup_name, self.sonic_topo, self.session_id, self.mars_key_id,
                                       self.raw_options, allure_project, self.test_script, random_seed)
         else:
-            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
+            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --session_id={} --mars_key_id={} {} ' \
+                           '--dynamic_update_skip_reason --allure_server_project_id={} {} ' \
+                           '--store_la_logs --ignore_la_failure'
             cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,
                                       self.raw_options, allure_project, self.test_script)
 
