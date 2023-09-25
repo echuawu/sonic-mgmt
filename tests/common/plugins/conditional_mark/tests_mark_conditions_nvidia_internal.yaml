@@ -2146,6 +2146,12 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     conditions:
       - "https://redmine.mellanox.com/issues/3585586 and'simx' in platform"
 
+platform_tests/test_platform_info.py::test_show_platform_ssdhealth:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3611462"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3611462"
+
 platform_tests/test_memory_exhaustion.py::TestMemoryExhaustion::test_memory_exhaustion:
   skip:
     reason: "Simx doesn't support PDU"
