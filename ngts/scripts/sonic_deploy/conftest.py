@@ -50,9 +50,6 @@ def pytest_addoption(parser):
     logger.info('Parsing upgrade-only')
     parser.addoption("--upgrade-only", action="store", default="no", choices=["yes", "no"],
                      help="Specify whether to skip topology change and only do upgrade. Default: 'no'")
-    logger.info('Parsing sonic-topo')
-    parser.addoption("--sonic-topo", action="store",
-                     help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
     logger.info('Parsing deploy_only_target')
     parser.addoption("--deploy_only_target", action="store", default='no', choices=["yes", "no"],
                      dest="deploy_only_target", help="If yes - then the installation of the base version will be "

@@ -118,6 +118,8 @@ def pytest_addoption(parser):
                      help="Expected topology, for example: t0, t1, t1-lag, ptf32, ...")
     parser.addoption("--skip_auto_checks", action="store_true", default=False, required=False,
                      help="Whether to skip 'is debug-kernel/coverage/sanitizer' auto checks for the session, or not")
+    parser.addoption("--sonic-topo", action="store",
+                     help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
 
 
 def pytest_runtest_call(item):
