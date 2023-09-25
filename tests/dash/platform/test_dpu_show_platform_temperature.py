@@ -4,7 +4,7 @@ from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 
 pytestmark = [
-    pytest.mark.topology('appliance')
+    pytest.mark.topology('dpu')
 ]
 
 BF_2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'

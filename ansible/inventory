@@ -881,53 +881,53 @@ dev-simx-host01-vm01-ptf-any  ansible_host=10.75.206.118 ptf_host=ptf-vms6-3 typ
 
 # MTR testbed r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01 ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
-r-r740-07-bf2-sonic-01-appliance ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
+r-r740-07-bf2-sonic-01-dpu ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
 r-r740-07-bf2-sonic-01-ptf-any ansible_host=10.215.20.238 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:94" pdu_host=pdu-
 
 # MTR bluefield testbed r-r740-07-bf3-sonic-01 topologies
 r-r740-07-bf3-sonic-01 ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
-r-r740-07-bf3-sonic-01-appliance ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
+r-r740-07-bf3-sonic-01-dpu ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
 r-r740-07-bf3-sonic-01-ptf-any ansible_host=10.215.20.237 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-07-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:16" pdu_host=pdu-
 
 # MTR testbed r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01 ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
-r-r740-05-bf2-sonic-01-appliance ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
+r-r740-05-bf2-sonic-01-dpu ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
 r-r740-05-bf2-sonic-01-ptf-any ansible_host=10.215.11.59 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:7B:C0:AC" pdu_host=pdu-
 
 # MTR bluefield testbed r-r740-05-bf3-sonic-01 topologies
 r-r740-05-bf3-sonic-01 ansible_host=10.215.11.55 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:3C" pdu_host=pdu-
-r-r740-05-bf3-sonic-01-appliance ansible_host=10.215.11.55 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:3C" pdu_host=pdu-
+r-r740-05-bf3-sonic-01-dpu ansible_host=10.215.11.55 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:3C" pdu_host=pdu-
 r-r740-05-bf3-sonic-01-ptf-any ansible_host=10.215.11.55 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-05-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:15:3C" pdu_host=pdu-
 
 # MTR testbed r-r740-03-bf2-sonic-01 topologies
 r-r740-03-bf2-sonic-01 ansible_host=10.215.19.39 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:82" pdu_host=pdu-
-r-r740-03-bf2-sonic-01-appliance ansible_host=10.215.19.39 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:82" pdu_host=pdu-
+r-r740-03-bf2-sonic-01-dpu ansible_host=10.215.19.39 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:82" pdu_host=pdu-
 r-r740-03-bf2-sonic-01-ptf-any ansible_host=10.215.19.39 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="08:C0:EB:E1:4B:82" pdu_host=pdu-
 
 # MTR testbed r-r740-03-bf3-sonic-01 topologies
 r-r740-03-bf3-sonic-01 ansible_host=10.215.19.35 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:14:F0" pdu_host=pdu-
-r-r740-03-bf3-sonic-01-appliance ansible_host=10.215.19.35 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:14:F0" pdu_host=pdu-
+r-r740-03-bf3-sonic-01-dpu ansible_host=10.215.19.35 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:14:F0" pdu_host=pdu-
 r-r740-03-bf3-sonic-01-ptf-any ansible_host=10.215.19.35 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-03-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="94:6D:AE:4F:14:F0" pdu_host=pdu-
 
 
 # MTR testbed r-r740-08-bf3-sonic-01 topologies
 r-r740-08-bf3-sonic-01 ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
-r-r740-08-bf3-sonic-01-appliance ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
+r-r740-08-bf3-sonic-01-dpu ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
 r-r740-08-bf3-sonic-01-ptf-any ansible_host=10.215.22.177 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:8A" pdu_host=pdu-
 
 # MTR testbed r-r740-08-bf2-sonic-01 topologies
 r-r740-08-bf2-sonic-01 ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
-r-r740-08-bf2-sonic-01-appliance ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
+r-r740-08-bf2-sonic-01-dpu ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
 r-r740-08-bf2-sonic-01-ptf-any ansible_host=10.215.22.179 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-08-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:70" pdu_host=pdu-
 
 # MTR testbed r-r740-09-bf3-sonic-01 topologies
 r-r740-09-bf3-sonic-01 ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf3-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
-r-r740-09-bf3-sonic-01-appliance ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
+r-r740-09-bf3-sonic-01-dpu ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
 r-r740-09-bf3-sonic-01-ptf-any ansible_host=10.215.5.17 sonic_version=v2 sonic_hwsku=Nvidia-9009d3b600CVAA switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:E1:C3:B8" pdu_host=pdu-
 
 # MTR testbed r-r740-09-bf2-sonic-02 topologies
 r-r740-09-bf2-sonic-01 ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
-r-r740-09-bf2-sonic-01-appliance ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
+r-r740-09-bf2-sonic-01-dpu ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
 r-r740-09-bf2-sonic-01-ptf-any ansible_host=10.215.5.19 sonic_version=v2 sonic_hwsku=Nvidia-MBF2H536C switch_type="dpu" iface_speed=100000 fanout_switch=r-anaconda-86 ptf_host=ptf-r-r740-09-bf2-sonic-01 ptf_portmap="roles/test/files/mlnx/ptf-map/bf2_interface_to_front_map.ini" dut_mac="B8:3F:D2:D3:37:90" pdu_host=pdu-
 
 # MTR Lab devices info
@@ -1213,52 +1213,52 @@ dev-r-vrt-233-010-ptf-any
 
 # MTR r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01
-r-r740-07-bf2-sonic-01-appliance
+r-r740-07-bf2-sonic-01-dpu
 r-r740-07-bf2-sonic-01-ptf-any
 
 # MTR r-r740-07-bf3-sonic-01 topologies
 r-r740-07-bf3-sonic-01
-r-r740-07-bf3-sonic-01-appliance
+r-r740-07-bf3-sonic-01-dpu
 r-r740-07-bf3-sonic-01-ptf-any
 
 # MTR r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01
-r-r740-05-bf2-sonic-01-appliance
+r-r740-05-bf2-sonic-01-dpu
 r-r740-05-bf2-sonic-01-ptf-any
 
 # MTR r-r740-05-bf3-sonic-01 topologies
 r-r740-05-bf3-sonic-01
-r-r740-05-bf3-sonic-01-appliance
+r-r740-05-bf3-sonic-01-dpu
 r-r740-05-bf3-sonic-01-ptf-any
 
 # MTR r-r740-03-bf2-sonic-01 topologies
 r-r740-03-bf2-sonic-01
-r-r740-03-bf2-sonic-01-appliance
+r-r740-03-bf2-sonic-01-dpu
 r-r740-03-bf2-sonic-01-ptf-any
 
 # MTR r-r740-03-bf3-sonic-01 topologies
 r-r740-03-bf3-sonic-01
-r-r740-03-bf3-sonic-01-appliance
+r-r740-03-bf3-sonic-01-dpu
 r-r740-03-bf3-sonic-01-ptf-any
 
 # MTR r-r740-08-bf3-sonic-01 topologies
 r-r740-08-bf3-sonic-01
-r-r740-08-bf3-sonic-01-appliance
+r-r740-08-bf3-sonic-01-dpu
 r-r740-08-bf3-sonic-01-ptf-any
 
 # MTR r-r740-08-bf2-sonic-01 topologies
 r-r740-08-bf2-sonic-01
-r-r740-08-bf2-sonic-01-appliance
+r-r740-08-bf2-sonic-01-dpu
 r-r740-08-bf2-sonic-01-ptf-any
 
 # MTR r-r740-09-bf3-sonic-01 topologies
 r-r740-09-bf3-sonic-01
-r-r740-09-bf3-sonic-01-appliance
+r-r740-09-bf3-sonic-01-dpu
 r-r740-09-bf3-sonic-01-ptf-any
 
 # MTR r-r740-09-bf2-sonic-01 topologies
 r-r740-09-bf2-sonic-01
-r-r740-09-bf2-sonic-01-appliance
+r-r740-09-bf2-sonic-01-dpu
 r-r740-09-bf2-sonic-01-ptf-any
 
 [lab]
@@ -1835,52 +1835,52 @@ dev-simx-host01-vm01-ptf-any
 
 # MTR r-r740-07-bf2-sonic-01 topologies
 r-r740-07-bf2-sonic-01
-r-r740-07-bf2-sonic-01-appliance
+r-r740-07-bf2-sonic-01-dpu
 r-r740-07-bf2-sonic-01-ptf-any
 
 # MTR r-r740-07-bf3-sonic-01 topologies
 r-r740-07-bf3-sonic-01
-r-r740-07-bf3-sonic-01-appliance
+r-r740-07-bf3-sonic-01-dpu
 r-r740-07-bf3-sonic-01-ptf-any
 
 # MTR r-r740-05-bf2-sonic-01 topologies
 r-r740-05-bf2-sonic-01
-r-r740-05-bf2-sonic-01-appliance
+r-r740-05-bf2-sonic-01-dpu
 r-r740-05-bf2-sonic-01-ptf-any
 
 # MTR r-r740-05-bf3-sonic-01 topologies
 r-r740-05-bf3-sonic-01
-r-r740-05-bf3-sonic-01-appliance
+r-r740-05-bf3-sonic-01-dpu
 r-r740-05-bf3-sonic-01-ptf-any
 
 # MTR r-r740-03-bf2-sonic-01 topologies
 r-r740-03-bf2-sonic-01
-r-r740-03-bf2-sonic-01-appliance
+r-r740-03-bf2-sonic-01-dpu
 r-r740-03-bf2-sonic-01-ptf-any
 
 # MTR r-r740-03-bf3-sonic-01 topologies
 r-r740-03-bf3-sonic-01
-r-r740-03-bf3-sonic-01-appliance
+r-r740-03-bf3-sonic-01-dpu
 r-r740-03-bf3-sonic-01-ptf-any
 
 # MTR r-r740-08-bf3-sonic-01 topologies
 r-r740-08-bf3-sonic-01
-r-r740-08-bf3-sonic-01-appliance
+r-r740-08-bf3-sonic-01-dpu
 r-r740-08-bf3-sonic-01-ptf-any
 
 # MTR r-r740-08-bf2-sonic-01 topologies
 r-r740-08-bf2-sonic-01
-r-r740-08-bf2-sonic-01-appliance
+r-r740-08-bf2-sonic-01-dpu
 r-r740-08-bf2-sonic-01-ptf-any
 
 # MTR r-r740-09-bf3-sonic-01 topologies
 r-r740-09-bf3-sonic-01
-r-r740-09-bf3-sonic-01-appliance
+r-r740-09-bf3-sonic-01-dpu
 r-r740-09-bf3-sonic-01-ptf-any
 
 # MTR r-r740-09-bf2-sonic-01 topologies
 r-r740-09-bf2-sonic-01
-r-r740-09-bf2-sonic-01-appliance
+r-r740-09-bf2-sonic-01-dpu
 r-r740-09-bf2-sonic-01-ptf-any
 
 # NVOS topologies

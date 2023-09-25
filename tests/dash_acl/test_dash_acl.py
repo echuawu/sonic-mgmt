@@ -10,7 +10,7 @@ from dash_acl import acl_test_pkts  # noqa: F401
 logger = logging.getLogger(__name__)
 
 pytestmark = [
-    pytest.mark.topology('appliance')
+    pytest.mark.topology('dpu')
 ]
 
 TESTS_CLASS_LIST = ['AclPriorityTest', 'AclActionTest']
