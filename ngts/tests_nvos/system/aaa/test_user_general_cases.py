@@ -114,11 +114,22 @@ def test_disconnect_nonuser(engines):
 def test_disconnect_all_users(engines):
     """
     Test flow:
-            1. run nv action disconnect system aaa user
+            1. create new users [admin, monitor]
+            2. connect the new users once
+            3. run nv action disconnect system aaa user
+            4. validate disconnect from all the users
 
     """
-    command = "nv action disconnect system aaa user"
-    DutUtilsTool.run_cmd_and_reconnect(engine=engines.dut, command=command).verify_result()
+    connections_number = 1
+    system = System(None)
+    connections = []
+    connections.append(system.create_new_connected_user(engine=engines.dut))
+    connections.append(system.create_new_connected_user(engine=engines.dut, role=SystemConsts.DEFAULT_USER_MONITOR))
+
+    with allure.step('disconnect all users'):
+        DutUtilsTool.run_cmd_and_reconnect(engine=engines.dut, command="nv action disconnect system aaa user").verify_result()
+        for connection in connections:
+            verify_after_disconnect(engines.dut, system, 'Action succeeded', connection.username, connection.password, connections_number)
 
 
 def verify_after_disconnect(dut_engine, system, action_output, username, password, connections_count):
