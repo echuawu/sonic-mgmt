@@ -182,12 +182,11 @@ def is_mellanox_fanout(duthost, localhost):
 
 
 def get_fanout_obj(conn_graph_facts, duthost, fanouthosts):
-    fanout_obj = None
     for fanout_name, fanout_obj in list(fanouthosts.items()):
         for interface, interface_info in list(conn_graph_facts['device_conn'][duthost.hostname].items()):
             if fanout_name == interface_info.get('peerdevice'):
-                break
-    return fanout_obj
+                return fanout_obj
+    pytest_assert(False, "Failed to get the fanout for dut {}".format(duthost.hostname))
 
 
 @pytest.fixture(scope="module")
