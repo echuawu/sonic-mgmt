@@ -3506,7 +3506,7 @@
 
 # NVOS
 - Errors_list:
-    - '.*apt-daily-upgrade.timer: Not using persistent file timestamp .* as it is in the future.*'
+    - '.*timer: Not using persistent file timestamp .* as it is in the future.*'
   Conditions:
     - Redmine:
         - 3585813

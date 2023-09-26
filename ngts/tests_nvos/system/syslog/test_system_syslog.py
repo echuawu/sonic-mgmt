@@ -855,16 +855,15 @@ def config_and_verify_trap(loganalyzer, syslog, server, server_name, server_engi
         server.verify_trap_severity_level(severity_level)
 
         random_msg = RandomizationTool.get_random_string(40, ascii_letters=string.ascii_letters + string.digits)
+        add_msg_to_ignore_loganalyzer_regex(loganalyzer, random_msg)
         severity_level_index = SyslogSeverityLevels.SEVERITY_LEVEL_LIST.index(severity_level)
-        if loganalyzer:
-            for hostname in loganalyzer.keys():
-                loganalyzer[hostname].ignore_regex.extend([f"\\.*{random_msg}\\.*"])
         send_msg_to_server(random_msg, server_name, server_engine, priority=severity_level,
                            verify_msg_received=True,
                            verify_msg_didnt_received=False)
 
         if severity_level_index + 1 < len(SyslogSeverityLevels.SEVERITY_LEVEL_LIST):
             random_msg = RandomizationTool.get_random_string(40, ascii_letters=string.ascii_letters + string.digits)
+            add_msg_to_ignore_loganalyzer_regex(loganalyzer, random_msg)
             rand_recieved_level = random.choice(SyslogSeverityLevels.SEVERITY_LEVEL_LIST[severity_level_index + 1:])
             send_msg_to_server(random_msg, server_name, server_engine, priority=rand_recieved_level,
                                verify_msg_received=True,
@@ -872,9 +871,16 @@ def config_and_verify_trap(loganalyzer, syslog, server, server_name, server_engi
         if severity_level_index > 0:
             rand_not_recieved_level = random.choice(SyslogSeverityLevels.SEVERITY_LEVEL_LIST[:severity_level_index])
             random_msg = RandomizationTool.get_random_string(35, ascii_letters=string.ascii_letters + string.digits)
+            add_msg_to_ignore_loganalyzer_regex(loganalyzer, random_msg)
             send_msg_to_server(random_msg, server_name, server_engine, priority=rand_not_recieved_level,
                                verify_msg_received=False,
                                verify_msg_didnt_received=True)
+
+
+def add_msg_to_ignore_loganalyzer_regex(loganalyzer, random_msg):
+    if loganalyzer:
+        for hostname in loganalyzer.keys():
+            loganalyzer[hostname].ignore_regex.extend([f".*{random_msg}.*"])
 
 
 def send_msg_to_server(msg, server_name, server_engine, protocol=None, priority=None, port=None, verify_msg_received=False,
