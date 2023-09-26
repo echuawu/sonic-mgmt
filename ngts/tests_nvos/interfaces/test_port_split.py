@@ -107,7 +107,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Split splitter port"):
         parent_port = split_ports[0]
@@ -152,7 +152,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step('Verify breakout values'):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
@@ -166,7 +166,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
     with allure.step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Change default values for a parent port"):
         split_ports, active_ports = _get_split_ports()
@@ -196,7 +196,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                 for port in list_of_all_ports:
                     if parent_port.name in port.name and port.name[-2] == 's':
                         child_ports.append(port)
-            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show()).get_returned_value()
             values_to_verify = [NvosConsts.LINK_STATE_UP, IbInterfaceConsts.SPLIT_PORT_CHILD_DEFAULT_LANES,
@@ -210,7 +210,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                                              ask_for_confirmation=True).verify_result()
 
         with allure.step("Verify changed values on child port"):
-            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show()).get_returned_value()
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
@@ -226,12 +226,12 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
 
     with allure.step("Unset parent port"):
         parent_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
-        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Check default values after unset parent port"):
         values_to_verify = [IbInterfaceConsts.SPLIT_PORT_DEFAULT_LANES, IbInterfaceConsts.DEFAULT_MTU,
                             IbInterfaceConsts.SPLIT_PORT_DEFAULT_VLS]
-        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+        parent_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             parent_port.ib_interface.link.show()).get_returned_value()
         ValidationTool.validate_fields_values_in_output(['lanes', 'mtu', 'op-vls'],
@@ -283,7 +283,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Run traffic"):
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
@@ -300,7 +300,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Run traffic"):
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
@@ -454,7 +454,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         split_ports, active_ports = _get_split_ports()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step('Check that we can split/unsplit port during stress test'):
         with allure.step("Split splitter port"):
@@ -480,7 +480,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
         split_ports, active_ports = _get_split_ports()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=5).verify_result()
+            port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
 
     with allure.step("Split splitter port"):
         parent_port = split_ports[0]

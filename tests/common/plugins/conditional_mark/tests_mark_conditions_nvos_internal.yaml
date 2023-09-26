@@ -228,12 +228,6 @@ tests_nvos/system/test_system_image.py::test_image_uninstall_force_openapi:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3610263
 
-tests_nvos/system/test_log_commands.py::test_log_components:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3582407"
-    conditions:
-      - https://redmine.mellanox.com/issues/3582407
-
 tests_nvos/interfaces/test_ib_show_interface.py:
   skip:
     reason: "Testcase skipped due to Marlin does not have connected server"
