@@ -2152,6 +2152,12 @@ platform_tests/test_platform_info.py::test_show_platform_ssdhealth:
     conditions:
       - "https://redmine.mellanox.com/issues/3611462"
 
+platform_tests/test_platform_info.py::test_show_platform_summary:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3614759 and release 202305 and 'SN2700' in platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3614759 and 'sn2700' in platform and '202305' in release"
+
 platform_tests/test_memory_exhaustion.py::TestMemoryExhaustion::test_memory_exhaustion:
   skip:
     reason: "Simx doesn't support PDU"
