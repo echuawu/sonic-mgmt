@@ -1,4 +1,5 @@
 
 class SshHardeningConsts:
+    TIMEOUT = 3
     PROTOCOL = '2.0'
-    TIMEOUT = 5
+    COMPRESSION = 'none'

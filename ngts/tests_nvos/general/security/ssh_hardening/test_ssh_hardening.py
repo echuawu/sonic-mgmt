@@ -15,15 +15,12 @@ def test_ssh_protocol(engines):
         Steps:
         1. Verify that the new configuration is set
     """
-    with allure.step('Verify that new protocol is set'):
-        with allure.step("Run verbose ssh (from client machine) to get switch ssh protocol"):
-            protocol = get_ssh_server_protocol(engines.dut)
-            logging.info(f'Protocol: {protocol}')
-
-        with allure.step('Verify that protocol is 2'):
-            assert protocol == SshHardeningConsts.PROTOCOL, f'Protocol not as expected\n' \
-                                                            f'Expected: {SshHardeningConsts.PROTOCOL}\n' \
-                                                            f'Actual: {protocol}'
+    verify_switch_ssh_property(
+        engines=engines,
+        property_name='protocol',
+        expected_value=SshHardeningConsts.PROTOCOL,
+        value_extraction_function=get_ssh_server_protocol
+    )
 
 
 @pytest.mark.security
@@ -35,8 +32,12 @@ def test_ssh_compression(engines):
         Steps:
         1. Verify that the new configuration is set
     """
-    with allure.step('Verify from client that new protocol is set'):
-        pass
+    verify_switch_ssh_property(
+        engines=engines,
+        property_name='compression state',
+        expected_value=SshHardeningConsts.COMPRESSION,
+        value_extraction_function=get_ssh_server_compression_state
+    )
 
 
 @pytest.mark.security
