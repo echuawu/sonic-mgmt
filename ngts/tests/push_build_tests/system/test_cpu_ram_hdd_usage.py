@@ -1,11 +1,18 @@
 import re
+import time
 import pytest
 import sys
+import logging
 
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 sys.path.append('/devts/tests/skynet')
-from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test  # noqa
+from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test,\
+    do_ssd_endurance_test  # noqa
 
+
+ONE_DAY_IN_SEC = 86400
+ADDITIONAL_DELAY = 300
+SLEEP_TIME = ONE_DAY_IN_SEC + ADDITIONAL_DELAY
 partitions_and_expected_usage = [{'partition': '/', 'max_usage': 9000}, {'partition': '/var/log/', 'max_usage': 500}]
 
 
@@ -68,3 +75,20 @@ class TestCpuRamHddUsage:
         :param expected_ram_usage_dict: expected_ram_usage_dict fixture
         """
         do_ram_usage_test(request.node.originalname, self.dut_engine, expected_ram_usage_dict)
+
+    @pytest.mark.release_check
+    def test_ssd_endurance(self, release_mode, min_gap):
+        """
+        ssd_test
+        """
+        try:
+            nos_name = 'sonic'
+            do_ssd_endurance_test(self.dut_engine, nos_name, min_gap, release_mode)
+        except RuntimeWarning as err:
+            if release_mode:
+                logger.info("First iteration of the test ended successfully, sleeping for {} days and rerunning".format(min_gap))
+                self.dut_engine.disconnect()
+                time.sleep(min_gap * SLEEP_TIME)
+                do_ssd_endurance_test(self.dut_engine, nos_name, min_gap)
+            else:
+                raise RuntimeWarning from err

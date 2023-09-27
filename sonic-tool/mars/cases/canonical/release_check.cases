@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CASEDEF>
+  <global>
+    <Test>
+      <group> SONiC </group>
+      <name> SONiC release check </name>
+      <info> SONiC release check </info>
+      <owner> amalkin </owner>
+    </Test>
+    <Case>
+      <tags> release_check </tags>
+      <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
+      <tout> 90000 </tout>
+      <tags>ALL</tags>
+    </Case>
+  </global>
+  <case>
+    <name> SSD </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results -m release_check --release_mode --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+</CASEDEF>
