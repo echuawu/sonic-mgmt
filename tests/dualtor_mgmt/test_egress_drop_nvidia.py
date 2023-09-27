@@ -32,7 +32,7 @@ COUNTER_ZERO = [0, PKT_NUM * PKT_COUNTER_MARGIN_PERCENT]
 
 
 @pytest.fixture(scope="module", autouse=True)
-def skip_non_nvidia_platforms(lower_tor_host):
+def skip_non_nvidia_platforms(lower_tor_host): # noqa F811
     if "mellanox" != lower_tor_host.facts["asic_type"]:
         pytest.skip("This test is only for Nvidia platforms.")
 
