@@ -1,4 +1,5 @@
 import logging
+import random
 import subprocess
 import re
 
@@ -7,15 +8,18 @@ from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.tests_nvos.general.security.ssh_hardening.constants import SshHardeningConsts
 
 
-def get_ssh_verbose_output(server_engine: ProxySshEngine, timeout: int = SshHardeningConsts.TIMEOUT) -> str:
+def get_ssh_verbose_output(server_engine: ProxySshEngine, timeout: int = SshHardeningConsts.TIMEOUT,
+                           ssh_options='') -> str:
     """
     @summary: Run SSH with verbose flag and return its output
     @param server_engine: engine of the ssh server
     @param timeout: timeout to give the ssh command (to generate output)
+    @param ssh_options: other options to add to the ssh command (optional)
     @return: Value of the verbose ssh command
     """
     with allure.step('Run ssh -vvvv to get info'):
-        cmd = f'timeout {timeout} ssh -vvvv {server_engine.username}@{server_engine.ip}'
+        cmd = f'timeout {timeout} ssh -vvvv{" " + ssh_options if ssh_options else ""} ' \
+              f'{server_engine.username}@{server_engine.ip}'
         try:
             logging.info(f"Run: '{cmd}'")
             res = subprocess.run(
@@ -78,7 +82,7 @@ def get_value_from_ssh_output(get_ssh_output_function, server_engine: ProxySshEn
         return matches[0]
 
 
-def get_ssh_server_protocol(server_engine: ProxySshEngine) -> str:
+def get_ssh_server_protocol(server_engine: ProxySshEngine):
     """
     @summary: Get the SSH protocol version of the given SSH server
     @param server_engine: engine of the ssh server
@@ -94,7 +98,7 @@ def get_ssh_server_protocol(server_engine: ProxySshEngine) -> str:
     return server_protocol_value
 
 
-def get_ssh_server_compression_state(server_engine: ProxySshEngine) -> str:
+def get_ssh_server_compression_state(server_engine: ProxySshEngine):
     """
     @summary: Get the SSH compression state of the given SSH server
     @param server_engine: engine of the ssh server
@@ -109,6 +113,51 @@ def get_ssh_server_compression_state(server_engine: ProxySshEngine) -> str:
     return server_compression_state
 
 
+def get_ssh_server_ciphers(server_engine: ProxySshEngine):
+    """
+    @summary: Get the SSH ciphers of the given SSH server
+    @param server_engine: engine of the ssh server
+    @return: server ciphers (list of str)
+    """
+    server_ciphers = get_value_from_ssh_output(
+        get_ssh_output_function=get_ssh_server_proposal,
+        server_engine=server_engine,
+        substr_to_find='ciphers ctos:'
+    )
+    logging.info(f'Server ciphers: {server_ciphers}')
+    return server_ciphers.split(',')
+
+
+def get_ssh_server_macs(server_engine: ProxySshEngine):
+    """
+    @summary: Get the SSH MACs of the given SSH server
+    @param server_engine: engine of the ssh server
+    @return: server MACs (list of str)
+    """
+    server_ciphers = get_value_from_ssh_output(
+        get_ssh_output_function=get_ssh_server_proposal,
+        server_engine=server_engine,
+        substr_to_find='MACs ctos:'
+    )
+    logging.info(f'Server MACs: {server_ciphers}')
+    return server_ciphers.split(',')
+
+
+def get_ssh_server_kex_algorithms(server_engine: ProxySshEngine):
+    """
+    @summary: Get the SSH KEX-algorithms of the given SSH server
+    @param server_engine: engine of the ssh server
+    @return: server KEX-algorithms (list of str)
+    """
+    server_ciphers = get_value_from_ssh_output(
+        get_ssh_output_function=get_ssh_server_proposal,
+        server_engine=server_engine,
+        substr_to_find='KEX algorithms:'
+    )
+    logging.info(f'Server KEX-algorithms: {server_ciphers}')
+    return server_ciphers.split(',')
+
+
 def verify_switch_ssh_property(engines, property_name, expected_value, value_extraction_function):
     """
     @summary: Generic test helper function to verify ssh configuration in the switch
@@ -118,7 +167,35 @@ def verify_switch_ssh_property(engines, property_name, expected_value, value_ext
             value = value_extraction_function(engines.dut)
             logging.info(f'{property_name}: {value}')
 
-        with allure.step(f'Verify that {property_name} is set to {expected_value}'):
+        with allure.step(f'Verify that {property_name} is set to correctly'):
+            if isinstance(value, list):
+                assert isinstance(expected_value, list)
+                value = set(value)
+                expected_value = set(expected_value)
             assert value == expected_value, f'{property_name} not as expected\n' \
                                             f'Expected: {expected_value}\n' \
                                             f'Actual: {value}'
+
+
+def verify_ssh_with_option(engines, good_flow: bool, option_to_check: str):
+    assert option_to_check in SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST, \
+        f'Received option to check: {option_to_check}\nExpected: {SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST}'
+
+    with allure.step(f'{"Good" if good_flow else "Bad"} flow: ssh with {"" if good_flow else "in"}valid '
+                     f'{option_to_check}'):
+        with allure.step(f'Run ssh with {"" if good_flow else "in"}valid {option_to_check}'):
+            optional_values = SshHardeningConsts.VALUES[option_to_check] if good_flow else \
+                list(
+                    set(SshHardeningConsts.DEFAULTS[option_to_check]) - set(SshHardeningConsts.VALUES[option_to_check]))
+            logging.debug(f'Optional values: {optional_values}')
+            value = random.choice(optional_values)
+            logging.debug(f'Chosen value: {value}')
+            ssh_output = get_ssh_verbose_output(
+                server_engine=engines.dut,
+                ssh_options=f'{SshHardeningConsts.SSH_CMD_FLAGS[option_to_check]}{value}'
+            )
+        with allure.step(f'Verify ssh result. Expect {option_to_check} error: {not good_flow}'):
+            err_pattern = SshHardeningConsts.ERROR_PATTERNS[option_to_check]
+            got_error = True if re.search(err_pattern, ssh_output) else False
+            assert got_error == (not good_flow), \
+                f'Could not find expected error pattern "{err_pattern}" in "{ssh_output}"'
