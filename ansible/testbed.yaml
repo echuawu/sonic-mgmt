@@ -3569,6 +3569,19 @@
     - c-anaconda-02
   comment: Mellanox MTBC testbed
 
+- conf-name: mtvr-leopard-01-t1-28-lag
+  group-name: vm-t1
+  topo: t1-28-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-leopard-01
+  ptf_ip: 10.245.32.122/16
+  ptf_ipv6:
+  server: server_66
+  vm_base: VM3101
+  dut:
+    - mtvr-leopard-01
+  comment: Mellanox MTVR testbed
+
 - conf-name: r-r740-03-bf2-sonic-01-ptf-any
   group-name: vm-t1
   topo: ptf-any

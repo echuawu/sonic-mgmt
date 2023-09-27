@@ -3819,6 +3819,7 @@
       <DevicePowerControlInfo Hostname="pdu-10-245-2-49" HwSku="Vertiv" ManagementIp="10.245.2.49" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-7-219-120" HwSku="Vertiv" ManagementIp="10.7.219.120" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-245-2-40" HwSku="Vertiv" ManagementIp="10.245.2.40" Protocol="snmp" Type="Pdu"/>
+      <DevicePowerControlInfo Hostname="pdu-10-245-2-25" HwSku="Vertiv" ManagementIp="10.245.2.25" Protocol="snmp" Type="Pdu"/>
 
       <DevicePowerControlInfo Hostname="pdu-10-75-68-211" HwSku="ApcRPDU" ManagementIp="10.75.68.211" Protocol="snmp" Type="Pdu"/>
       <DevicePowerControlInfo Hostname="pdu-10-75-68-210" HwSku="Sentry" ManagementIp="10.75.68.210" Protocol="snmp" Type="CDU"/>
