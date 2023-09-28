@@ -610,6 +610,12 @@ tests/nightly/lag/test_lag.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3538586"
     conditions:
       - "https://redmine.mellanox.com/issues/3538586"
+
+tests/nightly/cpld/test_cpld.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3613529 and Mellanox-SN4700-O28 hwsku"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
 ########################## NGTS IGNORE END ##########################
 
 
@@ -897,8 +903,10 @@ show_techsupport/test_auto_techsupport.py:
 process_monitoring/test_critical_process_monitoring.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3464488 and platform nvda_bf"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3464488 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3610875 and 'Mellanox-SN4700-O28' in hwsku"
 
 monit/test_monit_status.py:
   skip:
@@ -1571,11 +1579,11 @@ iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
     conditions:
       - "https://redmine.mellanox.com/issues/3335820"
 
-iface_loopback_action/test_iface_loopback_action_wjh.py:
+ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
   skip:
-    reason: "Test does not support dualtor topology."
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3610840 and Mellanox-SN4700-O28 hwsku"
     conditions:
-      - "'dualtor' in topo_name"
+      - "https://redmine.mellanox.com/issues/3610840 and 'Mellanox-SN4700-O28' in hwsku"
 
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   skip:

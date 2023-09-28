@@ -3122,6 +3122,26 @@
       Branch:
         - master
 
+- Errors_list:
+    - '.*ERR neighbor_advertiser: The request failed, vip:.*error: HTTPSConnectionPool.*: Max retries exceeded with url:.*Ferret.*Caused by ConnectTimeoutError.*'
+    - '.*ERR neighbor_advertiser: Failed to set up neighbor advertiser slice, tried all vips in.*'
+  Conditions:
+    - Redmine:
+      - 3610884
+      Branch:
+        - master
+
+- Errors_list:
+    - '.*ERR fast-reboot-filter-routes: Got an exception There is no active click context.: Traceback:.*'
+    - '.*ERR pmon#xcvrd: sx_api_host_ifc_trap_id_register_set exited with error, rc.*'
+    - '.*ERR pmon#xcvrd: sx_api_host_ifc_close exited with error, rc.*'
+    - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_initialize_switch: mlnx_sai_switch.c\[\d+\]- mlnx_initialize_switch: Transaction mode should be enabled, enabling now.*'
+  Conditions:
+    - Redmine:
+      - 3610902
+      Branch:
+        - master
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
