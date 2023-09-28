@@ -1979,8 +1979,10 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct[use-pkt-ca-ip:
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3611462"
 
 platform_tests/mellanox/test_psu_power_threshold.py:
   skip:
