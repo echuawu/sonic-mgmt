@@ -3574,7 +3574,7 @@
   topo: t1-28-lag
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-leopard-01
-  ptf_ip: 10.245.32.122/16
+  ptf_ip: 10.245.32.122/20
   ptf_ipv6:
   server: server_66
   vm_base: VM3101
