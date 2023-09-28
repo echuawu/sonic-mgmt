@@ -94,7 +94,7 @@ def reduce_installed_sonic_images(module):
         module, cmd="sonic_installer list", ignore_error=True)
     lines = out.split('\n')
 
-    # if next boot image not same with current, set current as next boot, and delete the orinal next image
+    # if next boot image not same with current, set current as next boot, and delete the original next image
     for line in lines:
         if 'Current:' in line:
             curr_image = line.split(':')[1].strip()
@@ -168,13 +168,6 @@ def install_new_sonic_image(module, new_image_url, save_as=None):
         if rc != 0:
             module.fail_json(msg="Image installation failed: rc=%d, out=%s, err=%s" %
                              (rc, out, err))
-
-    # If sonic device is configured with minigraph, remove config_db.json
-    # to force next image to load minigraph.
-    if path.exists("/host/old_config/minigraph.xml"):
-        exec_command(module,
-                     cmd="rm -f /host/old_config/config_db.json",
-                     msg="Remove config_db.json in preference of minigraph.xml")
 
 
 def work_around_for_slow_disks(module):
