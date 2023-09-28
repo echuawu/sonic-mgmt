@@ -6,6 +6,7 @@ class SshHardeningConsts:
     CIPHERS = 'ciphers'
     MACS = 'MACs'
     KEX_ALGOS = 'kex-algorithms'
+    AUTH_KEY_TYPES = 'auth-key-types'
 
     OPTIONS_FOR_FUNCTIONAL_TEST = [CIPHERS, MACS, KEX_ALGOS]
 
@@ -15,7 +16,12 @@ class SshHardeningConsts:
         CIPHERS: ['aes256-ctr', 'aes192-ctr', 'aes128-ctr', 'aes128-gcm@openssh.com', 'aes256-gcm@openssh.com'],
         MACS: ['hmac-sha2-256', 'hmac-sha2-512', 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com'],
         KEX_ALGOS: ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
-                    'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256']
+                    'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256'],
+        AUTH_KEY_TYPES: ['rsa-sha2-512', 'rsa-sha2-256']  # todo: can generate only these 2
+        # AUTH_KEY_TYPES: ['ecdsa-sha2-nistp256-cert-v01@openssh.com',
+        # 'ecdsa-sha2-nistp384-cert-v01@openssh.com',
+        # 'ecdsa-sha2-nistp521-cert-v01@openssh.com', 'rsa-sha2-512-cert-v01@openssh.com',
+        # 'rsa-sha2-256-cert-v01@openssh.com', 'rsa-sha2-512', 'rsa-sha2-256']
     }
 
     DEFAULTS = {
@@ -76,3 +82,10 @@ class SshHardeningConsts:
         MACS: rf'{ERROR_PATTERN_PREFIX} no matching MAC found.',
         KEX_ALGOS: rf'{ERROR_PATTERN_PREFIX} no matching key exchange method found.'
     }
+
+    INVALID_VALUES = {
+        AUTH_KEY_TYPES: ['ssh-dss']  # ['ssh-rsa', 'ssh-dss']  # todo: ssh-rsa (works unexpectedly)
+    }
+    SHARED_AUTH_KEYS_PATH = '/auto/sw_system_project/NVOS_INFRA/security/verification/ssh_hardening/auth_keys'
+    INVALID_AUTH_KEY_PATH = f'{SHARED_AUTH_KEYS_PATH}/invalid_key'
+    VALID_AUTH_KEY_PATH = f'{SHARED_AUTH_KEYS_PATH}/valid_key'

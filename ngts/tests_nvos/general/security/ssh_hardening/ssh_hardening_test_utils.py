@@ -180,21 +180,20 @@ def verify_switch_ssh_property(engines, property_name, expected_value, value_ext
 def verify_ssh_with_option(engines, good_flow: bool, option_to_check: str):
     assert option_to_check in SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST, \
         f'Received option to check: {option_to_check}\nExpected: {SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST}'
-
     with allure.step(f'{"Good" if good_flow else "Bad"} flow: ssh with {"" if good_flow else "in"}valid '
                      f'{option_to_check}'):
-        with allure.step(f'Run ssh with {"" if good_flow else "in"}valid {option_to_check}'):
-            optional_values = SshHardeningConsts.VALUES[option_to_check] if good_flow else \
-                list(
-                    set(SshHardeningConsts.DEFAULTS[option_to_check]) - set(SshHardeningConsts.VALUES[option_to_check]))
-            logging.debug(f'Optional values: {optional_values}')
-            value = random.choice(optional_values)
+        optional_values = SshHardeningConsts.VALUES[option_to_check] if good_flow else \
+            list(
+                set(SshHardeningConsts.DEFAULTS[option_to_check]) - set(SshHardeningConsts.VALUES[option_to_check]))
+        logging.debug(f'Optional values: {optional_values}')
+        for value in optional_values:
             logging.debug(f'Chosen value: {value}')
             ssh_output = get_ssh_verbose_output(
                 server_engine=engines.dut,
                 ssh_options=f'{SshHardeningConsts.SSH_CMD_FLAGS[option_to_check]}{value}'
             )
-        with allure.step(f'Verify ssh result. Expect {option_to_check} error: {not good_flow}'):
+
+            logging.debug(f'Verify ssh result. Expect {option_to_check} error: {not good_flow}')
             err_pattern = SshHardeningConsts.ERROR_PATTERNS[option_to_check]
             got_error = True if re.search(err_pattern, ssh_output) else False
             assert got_error == (not good_flow), \

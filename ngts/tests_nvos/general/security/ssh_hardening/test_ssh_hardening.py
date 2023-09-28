@@ -1,10 +1,6 @@
-import random
-
 import pytest
 
-from ngts.tests_nvos.general.security.ssh_hardening.constants import SshHardeningConsts
-from ngts.tools.test_utils import allure_utils as allure
-import logging
+from ngts.nvos_tools.infra.PexpectTool import PexpectTool
 from ssh_hardening_test_utils import *
 
 
@@ -137,25 +133,25 @@ def test_ssh_kex_algorithms(engines):
 
 @pytest.mark.security
 @pytest.mark.simx
-def test_ssh_auth_public_key_types(engines):
+def test_ssh_auth_public_key_types(engines, upload_test_auth_keys_to_ssh_server):
     """
     @summary: verify the change of PubkeyAcceptedKeyTypes in sshd_config
 
         Steps:
-        1. Verify that the new configuration is set
-        2. good flow: ssh the switch with key of valid type - expect success
-        3. bad flow: ssh the switch with key of invalid type - expect fail
+        1. good flow: ssh the switch with key of valid type - expect success
+        2. bad flow: ssh the switch with key of invalid type - expect fail
     """
-    pass
+    with allure.step('Good flow: ssh the switch with valid auth key. Expect success'):
+        pexpect = PexpectTool(
+            spawn_cmd=f'ssh -o StrictHostKeyChecking=no '
+                      f'-i {SshHardeningConsts.VALID_AUTH_KEY_PATH} {engines.dut.username}@{engines.dut.ip}')
+        pexpect.expect(f'{engines.dut.username}@.*~', error_message='Expected login success, but failed')
+        pexpect.expect('.*')
+        pexpect.sendline('logout')
 
-
-@pytest.mark.security
-@pytest.mark.simx
-def test_ssh_host_key_algorithms(engines):
-    """
-    @summary: verify the change of HostKeyAlgorithms in sshd_config
-
-        Steps:
-        1. Verify that the new configuration is set
-    """
-    pass
+    with allure.step('Bad flow: ssh the switch with valid auth key. Expect fail (enter password prompt)'):
+        pexpect = PexpectTool(
+            spawn_cmd=f'ssh -o StrictHostKeyChecking=no '
+                      f'-i {SshHardeningConsts.INVALID_AUTH_KEY_PATH} {engines.dut.username}@{engines.dut.ip}')
+        pexpect.expect('password:',
+                       error_message='Login unexpectedly succeeded. Expected login fail (enter password prompt)')
