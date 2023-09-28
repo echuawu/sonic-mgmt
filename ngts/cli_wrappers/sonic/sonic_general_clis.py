@@ -926,11 +926,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def update_database_version(self, setup_name, config_db_json_file_name):
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        cur_version = self.get_image_sonic_version()
         if 'VERSIONS' not in config_db_json.keys():
             config_db_json['VERSIONS'] = {}
         if 'DATABASE' not in config_db_json['VERSIONS'].keys():
             config_db_json['VERSIONS']['DATABASE'] = {}
-        config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
+        if "201911" in cur_version:
+            config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_1_0_6"
+        else:
+            config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_mgmt_ip(self, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):
