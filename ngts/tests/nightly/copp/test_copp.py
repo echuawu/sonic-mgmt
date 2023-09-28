@@ -136,7 +136,7 @@ class CoppBase:
         self.tested_protocol = self.get_tested_protocol_name()
         self.post_rx_counts = None
         self.default_cir = None
-        self.default_simx_cir = 0
+        self.default_simx_cir = 1
         self.default_cbs = None
         self.low_limit = 150
         self.user_limit = None
