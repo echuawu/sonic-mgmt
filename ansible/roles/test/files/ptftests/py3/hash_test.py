@@ -214,7 +214,7 @@ class HashTest(BaseTest):
         assert received
 
         logging.info("Received packet at " + str(matched_port))
-        time.sleep(0.02)
+        time.sleep(0.01)
 
         return (matched_port, received)
 
@@ -294,6 +294,7 @@ class HashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
 
         send_packet(self, src_port, pkt)
+        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IP(src={}, dst={}, proto={})/TCP(sport={}, dport={} on port {})'
                      .format(pkt.src,
                              pkt.dst,
@@ -391,6 +392,7 @@ class HashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
 
         send_packet(self, src_port, pkt)
+        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IPv6(src={}, dst={}, proto={})/TCP(sport={}, dport={} on port {})'
                      .format(pkt.src,
                              pkt.dst,

@@ -49,6 +49,7 @@ import six
 import ipaddress
 import itertools
 import fib
+import time
 
 import ptf
 import ptf.packet as scapy
@@ -404,6 +405,7 @@ class DecapPacketTest(BaseTest):
 
         # send and verify the return packets
         send_packet(self, src_port, pkt)
+        time.sleep(0.01)
 
         expected_ports = list(itertools.chain(*exp_port_lists))
         logging.info('Sent Ether(src={}, dst={})/IP(src={}, dst={}, (tos|tc)={}, ttl={})/'
