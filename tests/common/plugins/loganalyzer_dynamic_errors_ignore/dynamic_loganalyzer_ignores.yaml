@@ -2661,13 +2661,15 @@
 
 # NVOS - ignore log info message for not a bug
 - Errors_list:
-    - '.* INFO ib-utils#OpenSM\[\d+\]:  Loading Cached Option:enable_crashd = FALSE#012.*'
+    - '.* INFO ib-utils#OpenSM\[\d+\]:\s+Loading Cached Option:enable_crashd = FALSE#012.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py
         - tests_nvos/ib/test_set_unset_sm_state.py
         - tests_nvos/ib/test_unset_ib.py
+        - tests_nvos/interfaces/test_ib_interface_counters.py
         - tests_nvos/system/test_system_factory_reset.py
+        - tests_nvos/interfaces/test_port_split.py
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up
         - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up_openapi
         - tests_nvos/interfaces/test_ib_interface_counters.py
