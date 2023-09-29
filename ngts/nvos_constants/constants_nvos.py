@@ -912,3 +912,19 @@ class MultiPlanarConsts:
     LOG_MSG_UNSET_FAE_INTERFACE = "PATCH..."  # TODO: complete
     LOG_MSG_SET_FAE_INTERFACE = "PATCH..."  # TODO: complete
     LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "PATCH..."  # TODO: complete
+
+
+class FastRecoveryConsts:
+    STATE = 'state'
+    STATE_ENABLED = 'enabled'
+    STATE_DISABLED = 'disabled'
+    STATE_DEFAULT = 'enabled'
+    TRIGGER = 'trigger'
+    TRIGGER_EVENT = 'event'
+    TRIGGER_CREDIT_WATCHDOG = 'credit-watchdog'
+    TRIGGER_EFFECTIVE_BER = 'effective-ber'
+    TRIGGER_RAW_BER = 'raw-ber'
+    TRIGGER_SYMBOL_BER = 'symbol-ber'
+    TRIGGERS = [TRIGGER_CREDIT_WATCHDOG, TRIGGER_EFFECTIVE_BER, TRIGGER_RAW_BER, TRIGGER_SYMBOL_BER]
+    SEVERITY_DEFAULT = 'error'
+    SEVERITY_WARNING = 'warning'

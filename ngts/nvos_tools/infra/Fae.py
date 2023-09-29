@@ -7,6 +7,7 @@ from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.PortFastRecovery import PortFastRecovery
 
 logger = logging.getLogger()
 
@@ -21,4 +22,5 @@ class Fae(BaseComponent):
         self.ipoibmapping = IpoibMapping(self)
         self.health = Health(self)
         self.port = MgmtPort(port_name, self)
+        self.fast_recovery = PortFastRecovery(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
