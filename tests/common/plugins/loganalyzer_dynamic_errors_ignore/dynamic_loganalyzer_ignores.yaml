@@ -1000,8 +1000,9 @@
       - 3224978
 
 - Errors_list:
-    - '.* ERR hostcfgd: Failed to get status of .*: rc=.*'
-    - ".*ERR hostcfgd: \\['sudo', 'systemctl', 'start', '.*'\\] - failed: return code .*"
+    - '.*ERR .*: Failed to get status of .*: rc=.*'
+    - ".*ERR .*: \\['sudo', 'systemctl', 'start', '.*'\\] - failed: return code.*"
+    - ".*ERR .*: Feature .* failed to be enabled and started.*"
   Conditions:
     - Redmine:
         - 3537514
