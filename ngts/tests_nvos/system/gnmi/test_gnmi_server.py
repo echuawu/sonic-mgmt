@@ -451,20 +451,26 @@ def validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue):
 
 
 def create_gnmi_and_redis_cmd_dict(redis_cmd_db_num, redis_cmd_table, redis_cmd_key, xpath_gnmi_cmd, comparison_dict=None):
-    gnmi_cmd_dict = {GnmiConsts.REDIS_CMD_KEY: f"redis-cli -n {redis_cmd_db_num} HGET \"{redis_cmd_table}\" \"{redis_cmd_key}\"",
+    gnmi_cmd_dict = {GnmiConsts.REDIS_CMD_DB_NAME: DatabaseConst.REDIS_DB_NUM_TO_NAME[redis_cmd_db_num],
+                     GnmiConsts.REDIS_CMD_TABLE_NAME: redis_cmd_table,
+                     GnmiConsts.REDIS_CMD_PARAM: redis_cmd_key,
                      GnmiConsts.XPATH_KEY: xpath_gnmi_cmd,
                      GnmiConsts.COMPARISON_KEY: comparison_dict}
     return gnmi_cmd_dict
 
 
 def get_infiniband_name_from_port_name(engine, port_name):
-    output = engine.run_cmd(f"redis-cli -n 0 HGET \"ALIAS_PORT_MAP:{port_name}\" \"name\"")
+    output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engine, asic="", db_name=DatabaseConst.APPL_DB_NAME,
+                                                  db_config=f"\"ALIAS_PORT_MAP:{port_name}\"", param="name")
+    # output = engine.run_cmd(f"redis-cli -n 0 HGET \"ALIAS_PORT_MAP:{port_name}\" \"name\"")
     infiniband_name = output.replace("\"", "")
     return infiniband_name
 
 
 def get_port_oid_from_infiniband_port(engine, infiniband_port):
-    output = engine.run_cmd(f"redis-cli -n 2 HGET \"COUNTERS_PORT_NAME_MAP\" \"{infiniband_port}\"")
+    output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engine, asic="", db_name=DatabaseConst.APPL_DB_NAME,
+                                                  db_config="COUNTERS_PORT_NAME_MAP", param=str(infiniband_port))
+    # output = engine.run_cmd(f"redis-cli -n 2 HGET \"COUNTERS_PORT_NAME_MAP\" \"{infiniband_port}\"")
     port_oid = output.replace("\"", "")
     return port_oid
 
@@ -567,7 +573,11 @@ def validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list):
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])
-        redis_output = engines.dut.run_cmd(command[GnmiConsts.REDIS_CMD_KEY]).replace("\"", "")
+        redis_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
+                                                            db_name=command[GnmiConsts.REDIS_CMD_DB_NAME],
+                                                            db_config=command[GnmiConsts.REDIS_CMD_TABLE_NAME],
+                                                            param=command[GnmiConsts.REDIS_CMD_PARAM])
+        # redis_output = engines.dut.run_cmd(command[GnmiConsts.REDIS_CMD_KEY]).replace("\"", "")
         if ',' in redis_output:
             redis_output = str(sorted(redis_output.split(',')))
             gnmi_client_output = str(sorted(gnmi_client_output.split(',')))

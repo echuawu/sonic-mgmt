@@ -1,7 +1,7 @@
 import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import PlatformConsts
+from ngts.nvos_constants.constants_nvos import PlatformConsts, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.platform.Platform import Platform
 
@@ -183,15 +183,23 @@ def test_interface_link_diagnostics_functional(engines):
         ports_connected[0].ib_interface.link.state.unset().verify_result()
 
     with allure.step("Get Alias for port from Redis cli"):
-        cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{0} name".format(ports_connected[0].name)
+        # cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{0} name".format(ports_connected[0].name)
         with allure.step('Write value to snmp community via redis cli'):
-            redis_port_alias = engines.dut.run_cmd(cmd)
+            redis_port_alias = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
+                                                                    db_name=DatabaseConst.APPL_DB_NAME,
+                                                                    db_config="ALIAS_PORT_MAP:{0}".format(ports_connected[0].name),
+                                                                    param="name")
+            # redis_port_alias = engines.dut.run_cmd(cmd)
             assert redis_port_alias != 0, "Redis command failed"
 
     with allure.step("Rewrite value of link diagnostics opcode to negative one and check output"):
-        cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' aa".format(redis_port_alias[1:-1])
+        # cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' aa".format(redis_port_alias[1:-1])
         with allure.step('Write value to snmp community via redis cli'):
-            redis_cli_output = engines.dut.run_cmd(cmd)
+            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
+                                                                    db_name=DatabaseConst.STATE_DB_NAME,
+                                                                    db_config="IB_PORT_TABLE|{0}".format(redis_port_alias[1:-1]),
+                                                                    param="link_diagnostics_opcode", value="aa")
+            # redis_cli_output = engines.dut.run_cmd(cmd)
             assert redis_cli_output != 0, "Redis command failed"
 
         with allure.step('Check output'):
@@ -199,9 +207,12 @@ def test_interface_link_diagnostics_functional(engines):
             assert first_port_status == '{}', "Transceiver diagnostic isn't empty"
 
     with allure.step("Rewrite redis link diagnostics opcode back to 0 and check output, system is stable"):
-        cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' 0".format(redis_port_alias[1:-1])
+        # cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' 0".format(redis_port_alias[1:-1])
         with allure.step('Write value to snmp community via redis cli'):
-            redis_cli_output = engines.dut.run_cmd(cmd)
+            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
+                                                                    db_name=DatabaseConst.STATE_DB_NAME,
+                                                                    db_config="IB_PORT_TABLE|{0}".format(redis_port_alias[1:-1]),
+                                                                    param="link_diagnostics_opcode", value="0")
             assert redis_cli_output != 0, "Redis command failed"
 
         with allure.step('Check output'):

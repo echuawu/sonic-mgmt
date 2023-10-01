@@ -6,9 +6,10 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, DatabaseConst
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.Tools import Tools
 
 logger = logging.getLogger()
 
@@ -210,8 +211,11 @@ def verify_after_delete(system, username, dut_engine):
                 out=show_output)
 
         with allure.step('check if {user} in config_DB'.format(user=username)):
-            redis_outpt = dut_engine.run_cmd('sudo redis-cli -n 4 keys * | grep {user}'.format(user=username))
-            assert not redis_outpt, "a deleted user key still in the config db"
+            redis_output = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=dut_engine, asic="",
+                                                                    db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                    grep_str=username)
+            # redis_output = dut_engine.run_cmd('sudo redis-cli -n 4 keys * | grep {user}'.format(user=username))
+            assert not redis_output, "a deleted user key still in the config db"
 
         with allure.step('check if {user} in all users list'.format(user=username)):
             show_output = system.aaa.user.get_lslogins(engine=dut_engine, username=username)

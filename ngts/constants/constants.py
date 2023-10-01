@@ -1189,3 +1189,6 @@ class GnmiConsts:
     REDIS_CMD_KEY = 'redis_cmd'
     XPATH_KEY = 'xpath_gnmi_cmd'
     COMPARISON_KEY = 'comparison_dict'
+    REDIS_CMD_DB_NAME = "redis_cmd_db_num"
+    REDIS_CMD_TABLE_NAME = "redis_cmd_table"
+    REDIS_CMD_PARAM = "redis_cmd_param"

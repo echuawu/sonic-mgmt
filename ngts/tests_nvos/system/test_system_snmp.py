@@ -8,7 +8,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -281,9 +281,13 @@ def test_system_snmp_redis_crash(engines, topology_obj):
         logging.info("Snmp enabled successfully")
 
     with allure.step("Rewrite value for snmp community with redis db"):
-        cmd = "redis-cli -n 4 HSET 'SNMP_COMMUNITY\\|qwerty12' 'TYPE' aa"
+        # cmd = "redis-cli -n 4 HSET 'SNMP_COMMUNITY\\|qwerty12' 'TYPE' aa"
         with allure.step('Write value to snmp community via redis cli'):
-            redis_cli_output = engines.dut.run_cmd(cmd)
+            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
+                                                                    db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                    db_config="'SNMP_COMMUNITY\\|qwerty12'",
+                                                                    param="TYPE", value="aa")
+            # redis_cli_output = engines.dut.run_cmd(cmd)
             assert redis_cli_output != 0, "Redis command failed"
 
         with allure.step("Snmpget after rewrite type of community"):

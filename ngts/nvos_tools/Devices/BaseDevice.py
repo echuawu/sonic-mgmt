@@ -5,6 +5,7 @@ from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, PlatformConsts
@@ -217,10 +218,12 @@ class BaseDevice:
             result_obj.info += "{database_name} can't be found in Redis".format(database_name=database_name)
             return result_obj
 
-        cmd = "redis-cli -n {database_name} hgetall {table_name}".format(
-            table_name='"' + table_name + '"', database_name=self.get_database_id(database_name))
+        output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=engine, asic="", b_name=database_name,
+                                                         table_name=table_name)
+        # cmd = "redis-cli -n {database_name} hgetall {table_name}".format(
+        #    table_name='"' + table_name + '"', database_name=self.get_database_id(database_name))
+        # output = engine.run_cmd(cmd)
 
-        output = engine.run_cmd(cmd)
         output_list = re.findall('"(.*)"\n', output + '\n')
         database_dic = {output_list[i]: output_list[i + 1] for i in range(0, len(output_list), 2)}
         result_obj.returned_value = database_dic[field_name] if field_name else database_dic
@@ -234,10 +237,15 @@ class BaseDevice:
         :return: any database table that includes the substring, if table_name_substring is none we will return all the tables
         """
         result_obj = ResultObj(True, "")
-        docker_exec_cmd = 'docker exec -it {database_docker} '.format(database_docker=database_docker) if database_docker else ''
-        cmd = docker_exec_cmd + "redis-cli -n {database_name} keys * | grep {prefix}".format(
-            database_name=self.get_database_id(database_name), prefix=table_name_substring)
-        output = engine.run_cmd(cmd)
+        # docker_exec_cmd = 'docker exec -it {database_docker} '.format(database_docker=database_docker) if database_docker else ''
+        output = Tools.DatabaseTool.sonic_db_run_get_keys_in_docker(
+            docker_name=database_docker if database_docker else '', engine=engine, asic="",
+            db_name=DatabaseConst.REDIS_DB_NUM_TO_NAME[self.get_database_id(database_name)],
+            grep_str=table_name_substring)
+
+        # cmd = docker_exec_cmd + "redis-cli -n {database_name} keys * | grep {prefix}".format(
+        #    database_name=self.get_database_id(database_name), prefix=table_name_substring)
+        # output = engine.run_cmd(cmd)
         result_obj.returned_value = output.splitlines()
         return result_obj
 

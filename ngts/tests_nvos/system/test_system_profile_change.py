@@ -11,7 +11,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.constants.constants import InfraConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.constants.constants import LinuxConsts
@@ -299,7 +299,9 @@ def test_system_profile_redis_db_crash(engines):
         3. Change system profile to default, verify changes
     """
     system = System(None)
-    cmd = "redis-cli -n 4 HSET DEVICE_METADATA\\|localhost ar_groups 777"
+    cmd = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                               db_config="DEVICE_METADATA\\|localhost", param="ar_groups", value="777")
+    # cmd = "redis-cli -n 4 HSET DEVICE_METADATA\\|localhost ar_groups 777"
     with allure.step('Write value to adaptive routing groups via redis cli'):
         redis_cli_output = engines.dut.run_cmd(cmd)
         assert redis_cli_output != 0, "Redis command failed"

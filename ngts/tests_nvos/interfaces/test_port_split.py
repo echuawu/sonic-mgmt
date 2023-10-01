@@ -7,7 +7,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -494,14 +494,21 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
             if parent_port.name in port.name and port.name[-2] == 's':
                 child_ports.append(port)
 
-        cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{} name".format(child_ports[0].name)
-        alias = engines.dut.run_cmd(cmd)
+        alias = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="", db_name=DatabaseConst.APPL_DB_NAME,
+                                                     db_config="ALIAS_PORT_MAP:{}".format(child_ports[0].name),
+                                                     param="name")
+        # cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{} name".format(child_ports[0].name)
+        # alias = engines.dut.run_cmd(cmd)
 
     if not is_redmine_issue_active(3554789):
         with allure.step("Set mtu value through redis cli on a child port and validate"):
             random_mtu = random.randrange(256, 4096)
-            cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
-            redis_cli_output = engines.dut.run_cmd(cmd)
+            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
+                                                                    db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                    db_config="IB_PORT\\|{0}".format(alias),
+                                                                    param="mtu", value=str(random_mtu))
+            # cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
+            # redis_cli_output = engines.dut.run_cmd(cmd)
             assert redis_cli_output != 0, "Redis command failed"
             Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show()).get_returned_value()

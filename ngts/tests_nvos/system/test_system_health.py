@@ -14,6 +14,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, NvosConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
+from ngts.nvos_constants.constants_nvos import DatabaseConst
 
 logger = logging.getLogger()
 
@@ -393,7 +394,11 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
 
     try:
         with allure.step("stop {} docker auto restart".format(docker_to_stop)):
-            DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_DISABLED)
+            DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="FEATURE|{}".format(docker_to_stop),
+                                           param=NvosConst.DOCKER_AUTO_RESTART,
+                                           value=NvosConst.DOCKER_STATUS_DISABLED)
+            # DatabaseTool.redis_cli_hset(engines.dut, DatabaseConst.CONFIG_DB_NAME, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_DISABLED)
         with allure.step("stop {} docker".format(docker_to_stop)):
             output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
             assert docker_to_stop in output, "Failed to stop docker"
@@ -407,7 +412,11 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
             with allure.step("restart docker"):
                 output = engines.dut.run_cmd("docker start {}".format(docker_to_stop))
                 with allure.step("restart docker auto start"):
-                    DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
+                    DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                   db_config="FEATURE|{}".format(docker_to_stop),
+                                                   param=NvosConst.DOCKER_AUTO_RESTART,
+                                                   value=NvosConst.DOCKER_STATUS_ENABLED)
+                    #DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
                 assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)

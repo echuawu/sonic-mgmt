@@ -15,6 +15,8 @@ class DatabaseConst:
     COUNTERS_DB_ID = 2
     CONFIG_DB_ID = 4
     STATE_DB_ID = 6
+
+    REDIS_DB_NUM_TO_NAME = {0: APPL_DB_NAME, 1: ASIC_DB_NAME, 2: COUNTERS_DB_NAME, 4: CONFIG_DB_NAME, 6: STATE_DB_NAME}
     '''
      for each database we need:
          database id : id in redis
