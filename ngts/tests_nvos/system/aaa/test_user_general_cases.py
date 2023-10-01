@@ -1,5 +1,6 @@
 import logging
 import pytest
+import time
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -129,6 +130,8 @@ def test_disconnect_all_users(engines):
 
     with allure.step('disconnect all users'):
         DutUtilsTool.run_cmd_and_reconnect(engine=engines.dut, command="nv action disconnect system aaa user").verify_result()
+        logger.info("sleep 5 sec after the disconnection")
+        time.sleep(5)
         for connection in connections:
             verify_after_disconnect(engines.dut, system, 'Action succeeded', connection.username, connection.password, connections_number)
 

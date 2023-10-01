@@ -79,5 +79,5 @@ class ConnectionTool:
         """
         with allure.step("create serial connection"):
             serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip, username, password)
-            serial_engine.create_serial_engine(force_new_login=force_new_login)
+            serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
             return serial_engine

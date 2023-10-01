@@ -16,8 +16,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
-from test_ib_interface_counters import test_ib_clear_counters
-from test_ib_interface_counters import test_clear_all_counters
+from ngts.tests_nvos.interfaces.test_ib_interface_counters import test_ib_clear_counters, test_clear_all_counters
 
 logger = logging.getLogger()
 
