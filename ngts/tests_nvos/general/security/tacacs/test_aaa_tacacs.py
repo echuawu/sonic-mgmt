@@ -12,6 +12,9 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import \
+    generic_aaa_set_unset_show
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
     verify_users_auth, verify_user_auth, update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
@@ -24,105 +27,34 @@ from ngts.tools.test_utils import allure_utils as allure
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_set_unset_show(test_api, engines):
-    """
-    @summary: Verify set, unset, show commands for the feature
-
-        Steps:
-        1. set configuration
-        2. verify new configuration with show command
-        3. unset configuration
-        4. verify default configuration with show command
-    """
-    TestToolkit.tested_api = test_api
-
-    with allure.step('Set basic tacacs configuration'):
-        tacacs = System().aaa.tacacs
-        conf = {
-            AaaConsts.TIMEOUT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT]),
-            AaaConsts.AUTH_TYPE: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.AUTH_TYPE]),
-            AaaConsts.PORT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.PORT]),
-            # AaaConsts.RETRANSMIT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.RETRANSMIT]),
-            AaaConsts.SECRET: 'alontheking'
-        }
-        configure_resource(engines, tacacs, conf, apply=True)
-
-    with allure.step('Verify new configuration with show command'):
-        output = OutputParsingTool.parse_json_str_to_dictionary(tacacs.show()).get_returned_value()
-        expected_global_values = conf.copy()
-        expected_global_values[AaaConsts.SECRET] = '*'
-        expected_global_values[AaaConsts.HOSTNAME] = {}
-        ValidationTool.validate_fields_values_in_output(expected_global_values.keys(), expected_global_values.values(),
-                                                        output).verify_result()
-
-    with allure.step('Set hostnames'):
-        hostname1 = '1.2.3.4'
-        hostname2 = '2.4.6.8'
-        conf2 = {
-            AaaConsts.TIMEOUT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT]),
+    tacacs_obj = System().aaa.tacacs
+    generic_aaa_set_unset_show(
+        test_api=test_api, engines=engines,
+        remote_aaa_type=RemoteAaaType.TACACS,
+        main_resource_obj=tacacs_obj,
+        confs={
+            tacacs_obj: {
+                AaaConsts.AUTH_TYPE: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.AUTH_TYPE]),
+                AaaConsts.PORT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.PORT]),
+                # AaaConsts.RETRANSMIT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.RETRANSMIT]),
+                AaaConsts.SECRET: 'alontheking',
+                AaaConsts.TIMEOUT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT])
+            }
+        },
+        hostname_conf={
             AaaConsts.AUTH_TYPE: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.AUTH_TYPE]),
             AaaConsts.PORT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.PORT]),
             # AaaConsts.RETRANSMIT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.RETRANSMIT]),
             AaaConsts.SECRET: 'alontheking',
+            AaaConsts.TIMEOUT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT]),
             AaaConsts.PRIORITY: 2
+        },
+        default_confs={
+            tacacs_obj: TacacsConsts.DEFAULT_TACACS_CONF
         }
-        tacacs.hostname.set(hostname1)
-        configure_resource(engines, tacacs.hostname.hostname_id[hostname2], conf2, apply=True)
+    )
 
-    with allure.step('Verify hostname configurations with show cmd'):
-        output = OutputParsingTool.parse_json_str_to_dictionary(tacacs.hostname.show()).get_returned_value()
-
-        logging.info(f'Verify {hostname1} , {hostname2} exist in output')
-        ValidationTool.verify_field_exist_in_json_output(output, [hostname1, hostname2]).verify_result()
-
-        logging.info(f'Verify values for hostname {hostname1} are same as global')
-        hostname1_output = output[hostname1]
-        expected_values1 = expected_global_values.copy()
-        expected_values1[AaaConsts.SECRET] = '*'
-        expected_values1[AaaConsts.PRIORITY] = 1
-        del expected_values1[AaaConsts.HOSTNAME]
-        ValidationTool.validate_fields_values_in_output(expected_values1.keys(), expected_values1.values(),
-                                                        hostname1_output).verify_result()
-
-        logging.info(f'Verify values for hostname {hostname2}')
-        hostname2_output = output[hostname2]
-        expected_values2 = conf2.copy()
-        expected_values2[AaaConsts.SECRET] = '*'
-        ValidationTool.validate_fields_values_in_output(expected_values2.keys(), expected_values2.values(),
-                                                        hostname2_output).verify_result()
-
-    with allure.step(f'Clear configuration of specific hostname ({hostname2})'):
-        tacacs.hostname.hostname_id[hostname1].set(AaaConsts.PRIORITY, 2).verify_result()  # to prevent same priority
-        for field in TacacsConsts.DEFAULTS.keys():
-            tacacs.hostname.hostname_id[hostname2].unset(field).verify_result()
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
-                                        True).verify_result()
-
-    with allure.step(f'Verify same values for hostname {hostname1}'):
-        output = OutputParsingTool.parse_json_str_to_dictionary(tacacs.hostname.show()).get_returned_value()
-        hostname1_output = output[hostname1]
-        expected_values1[AaaConsts.PRIORITY] = 2
-        ValidationTool.validate_fields_values_in_output(expected_values1.keys(), expected_values1.values(),
-                                                        hostname1_output).verify_result()
-
-    with allure.step(f'Verify global values for hostname {hostname2}'):
-        hostname2_output = output[hostname2]
-        expected_values2 = conf.copy()
-        expected_values2[AaaConsts.SECRET] = '*'
-        expected_values2[AaaConsts.PRIORITY] = 1
-        ValidationTool.validate_fields_values_in_output(expected_values2.keys(), expected_values2.values(),
-                                                        hostname2_output).verify_result()
-
-    with allure.step('Unset configuration'):
-        tacacs.unset(apply=True).verify_result()
-
-    with allure.step('Verify default configuration with show command'):
-        output = OutputParsingTool.parse_json_str_to_dictionary(tacacs.show()).get_returned_value()
-        expected_global_values = TacacsConsts.DEFAULTS.copy()
-        expected_global_values[AaaConsts.SECRET] = '*'
-        expected_global_values[AaaConsts.HOSTNAME] = {}
-        del expected_global_values[AaaConsts.PRIORITY]
-        ValidationTool.validate_fields_values_in_output(expected_global_values.keys(),
-                                                        expected_global_values.values(), output).verify_result()
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security

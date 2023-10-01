@@ -4,6 +4,9 @@ from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import \
+    generic_aaa_set_unset_show
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     validate_authentication_fail_with_credentials, \
     set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
@@ -33,7 +36,8 @@ def a_test_ldap_priority_and_fallback_functionality(engines, devices):
 
     with allure.step("Validating first ldap server credentials"):
         first_ldap_server_users = first_real_ldap_server[LdapConsts.USERS]
-        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users, check_nslcd_if_login_failed=True)
+        validate_users_authorization_and_role(engines=engines, users=first_ldap_server_users,
+                                              check_nslcd_if_login_failed=True)
 
     with allure.step("Validating failed connection to switch with second ldap server credentials"):
         second_ldap_server_user = second_real_ldap_server[LdapConsts.USERS][1]
@@ -186,89 +190,43 @@ def test_ldap_invalid_credentials_error_flow(engines, devices):
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_set_show_unset(test_api, engines):
-    """
-    @summary: in this test case we want to validate ldap commands:
-        1. set
-        2. show
-        3. unset
-    """
-    TestToolkit.tested_api = test_api
+def test_ldap_set_unset_show(test_api, engines):
+    ldap_obj = System().aaa.ldap
+    random_str = RandomizationTool.get_random_string(6)
+    generic_aaa_set_unset_show(
+        test_api=test_api, engines=engines,
+        remote_aaa_type=RemoteAaaType.LDAP,
+        main_resource_obj=ldap_obj,
+        confs={
+            ldap_obj: {
+                LdapConsts.PORT: random.choice(LdapConsts.VALID_VALUES[LdapConsts.PORT]),
+                LdapConsts.BASE_DN: random_str,
+                LdapConsts.BIND_DN: random_str,
+                LdapConsts.GROUP_ATTR: random_str,
+                LdapConsts.BIND_PASSWORD: random_str,
+                LdapConsts.TIMEOUT_BIND: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT_BIND]),
+                LdapConsts.TIMEOUT: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT]),
+                LdapConsts.VERSION: random.choice(LdapConsts.VALID_VALUES[LdapConsts.VERSION])
+            },
+            ldap_obj.ssl: {
+                LdapConsts.SSL_CA_LIST: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_CA_LIST]),
+                LdapConsts.SSL_CERT_VERIFY: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_CERT_VERIFY]),
+                LdapConsts.SSL_MODE: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_MODE]),
+                LdapConsts.SSL_PORT: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_PORT]),
+                LdapConsts.SSL_TLS_CIPHERS: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_TLS_CIPHERS])
+            }
+        },
+        hostname_conf={
+            AaaConsts.PRIORITY: 2
+        },
+        default_confs={
+            ldap_obj: LdapConsts.DEFAULT_CONF,
+            ldap_obj.ssl: LdapConsts.SSL_DEFAULTS
+        }
+    )
 
-    configured_ldap_servers_hostname = []
-    system = System()
-    ldap_obj = system.aaa.ldap
 
-    with allure.step('Validate show ldap command output'):
-        show_output = OutputParsingTool.parse_json_str_to_dictionary(ldap_obj.show()).get_returned_value()
-        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(show_output, LdapConsts.LDAP_FIELDS +
-                                                                          [LdapConsts.HOSTNAME, LdapConsts.SSL],
-                                                                          check_empty_values=False).verify_result()
-
-    with allure.step('Validate show ssl command output'):
-        show_ssl_output = OutputParsingTool.parse_json_str_to_dictionary(ldap_obj.ssl.show()).get_returned_value()
-        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(show_ssl_output, LdapConsts.SSL_FIELDS) \
-            .verify_result()
-        ValidationTool.compare_dictionaries(show_output[LdapConsts.SSL], show_ssl_output).verify_result()
-
-    def verify_set_unset(obj: BaseComponent, fields, valid_values, defaults):
-        with allure.step(f'Get original configuration from show output'):
-            output = OutputParsingTool.parse_json_str_to_dictionary(obj.show()).get_returned_value()
-
-        with allure.step(f'Validate set and unset of {obj.get_resource_path()}'):
-            for field in fields:
-                logging.info(f'Current field: {field}')
-                if field == LdapConsts.PASSWORD or field == LdapConsts.SSL_TLS_CIPHERS or field == LdapConsts.VERSION:
-                    continue  # todo: remove ciphers and version from this continue after fix
-
-                if valid_values[field] == str:
-                    new_val = RandomizationTool.get_random_string(length=10)
-                else:
-                    new_val = RandomizationTool.select_random_value(valid_values[field], [output[field]]) \
-                        .get_returned_value()
-                logging.info(f'Set field "{field}" to "{new_val}"')
-                obj.set(field, new_val, apply=True).verify_result()
-
-                logging.info('Verify new value in show')
-                output = OutputParsingTool.parse_json_str_to_dictionary(obj.show()).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output, field, new_val).verify_result()
-
-                logging.info(f'Unset field {field}')
-                obj.unset(field, apply=True).verify_result()
-
-                logging.info('Verify default value in show')
-                output = OutputParsingTool.parse_json_str_to_dictionary(obj.show()).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output, field, defaults[field]).verify_result()
-
-    with allure.step('Validate set and unset of ldap fields'):
-        verify_set_unset(ldap_obj, LdapConsts.LDAP_FIELDS, LdapConsts.VALID_VALUES, LdapConsts.DEFAULTS)
-
-    with allure.step('Validate set and unset of ldap ssl fields'):
-        verify_set_unset(ldap_obj.ssl, LdapConsts.SSL_FIELDS, LdapConsts.VALID_VALUES_SSL, LdapConsts.DEFAULTS)
-
-    with allure.step("Configuring LDAP Server"):
-        for ldap_server_info in LdapConsts.LDAP_SERVERS_LIST:
-            configure_ldap(ldap_server_info)
-            configured_ldap_servers_hostname.append(ldap_server_info[LdapConsts.HOSTNAME])
-    with allure.step("Validate Unset specific ldap hostname command"):
-        for hostname in configured_ldap_servers_hostname:
-            system.aaa.ldap.hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
-            output = system.aaa.ldap.hostname.show()
-            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
-                hostname)
-
-    configured_ldap_servers_hostname = []
-    with allure.step("Configuring LDAP Servers again to test unset ldap"):
-        for ldap_server_info in LdapConsts.LDAP_SERVERS_LIST:
-            configure_ldap(ldap_server_info)
-            configured_ldap_servers_hostname.append(ldap_server_info[LdapConsts.HOSTNAME])
-
-    system.aaa.ldap.unset(apply=True).verify_result(should_succeed=True)
-    with allure.step("Validating the show hostname command output"):
-        output = system.aaa.ldap.hostname.show()
-        for hostname in configured_ldap_servers_hostname:
-            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
-                hostname)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security
@@ -379,7 +337,8 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
             validate_users_authorization_and_role(engines=engines, users=[ldap1_user], login_should_succeed=False)
 
         with allure.step('Verify mutual user can auth (via local)'):
-            validate_users_authorization_and_role(engines=engines, users=[mutual_user], check_nslcd_if_login_failed=True)
+            validate_users_authorization_and_role(engines=engines, users=[mutual_user],
+                                                  check_nslcd_if_login_failed=True)
 
         with allure.step('Verify local-only user can auth'):
             validate_users_authorization_and_role(engines=engines, users=[local_user])
@@ -401,8 +360,10 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
         with allure.step(f'Verify 1st server only user "{ldap1_only_user[AaaConsts.USERNAME]}" can not auth'):
             validate_users_authorization_and_role(engines=engines, users=[ldap1_only_user], login_should_succeed=False)
 
-        with allure.step(f'Verify 1st and 2nd servers mutual user "{ldap_ldap_mutual_user[AaaConsts.USERNAME]}" can auth (via valid server)'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap_ldap_mutual_user], check_nslcd_if_login_failed=True)
+        with allure.step(
+                f'Verify 1st and 2nd servers mutual user "{ldap_ldap_mutual_user[AaaConsts.USERNAME]}" can auth (via valid server)'):
+            validate_users_authorization_and_role(engines=engines, users=[ldap_ldap_mutual_user],
+                                                  check_nslcd_if_login_failed=True)
 
         with allure.step(f'Verify 2nd server user "{ldap2_user[AaaConsts.USERNAME]}" can auth'):
             validate_users_authorization_and_role(engines=engines, users=[ldap2_user], check_nslcd_if_login_failed=True)
@@ -465,7 +426,8 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
         server2_user = random.choice(user_lists_difference(server2[LdapConsts.USERS], server1[LdapConsts.USERS]))
 
         with allure.step(f'Verify 1st server user "{server1_user[AaaConsts.USERNAME]}" can login'):
-            validate_users_authorization_and_role(engines=engines, users=[server1_user], check_nslcd_if_login_failed=True)
+            validate_users_authorization_and_role(engines=engines, users=[server1_user],
+                                                  check_nslcd_if_login_failed=True)
 
         with allure.step(f'Verify 2nd server user "{server2_user[AaaConsts.USERNAME]}" can not login'):
             validate_users_authorization_and_role(engines=engines, users=[server2_user], login_should_succeed=False)
@@ -480,10 +442,12 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
 
     with allure.step('Verify all users can login'):
         with allure.step(f'Verify 1st server user "{server1_user[AaaConsts.USERNAME]}" can login'):
-            validate_users_authorization_and_role(engines=engines, users=[server1_user], check_nslcd_if_login_failed=True)
+            validate_users_authorization_and_role(engines=engines, users=[server1_user],
+                                                  check_nslcd_if_login_failed=True)
 
         with allure.step(f'Verify 2nd server user "{server2_user[AaaConsts.USERNAME]}" can login'):
-            validate_users_authorization_and_role(engines=engines, users=[server2_user], check_nslcd_if_login_failed=True)
+            validate_users_authorization_and_role(engines=engines, users=[server2_user],
+                                                  check_nslcd_if_login_failed=True)
 
         with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can login'):
             validate_users_authorization_and_role(engines=engines, users=[local_user])
@@ -527,7 +491,10 @@ def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_res
         LdapTestTool.active_ldap_server = ldap_server_info
 
     with allure.step(f'Verify authentication success'):
-        validate_users_authorization_and_role(engines=engines, users=[user_to_validate], check_nslcd_if_login_failed=True)
+        validate_users_authorization_and_role(engines=engines, users=[user_to_validate],
+                                              check_nslcd_if_login_failed=True)
 
     with allure.step('Disable ldap'):
         disable_ldap(engines)
+
+# ----------------------------------- NEW -----------------------------------

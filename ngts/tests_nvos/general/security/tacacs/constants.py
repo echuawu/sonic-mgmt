@@ -20,6 +20,15 @@ class TacacsConsts:
         AaaConsts.PRIORITY: list(range(1, 9))
     }
 
+    DEFAULT_TACACS_CONF = {
+        AaaConsts.AUTH_TYPE: AaaConsts.PAP,
+        AaaConsts.HOSTNAME: {},
+        AaaConsts.PORT: 49,
+        AaaConsts.SECRET: '*',
+        # AaaConsts.RETRANSMIT: 0,
+        AaaConsts.TIMEOUT: 5,
+    }
+
     DEFAULTS = {
         AaaConsts.TIMEOUT: 5,
         AaaConsts.AUTH_TYPE: AaaConsts.PAP,

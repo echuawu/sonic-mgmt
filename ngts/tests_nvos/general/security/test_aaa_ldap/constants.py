@@ -91,6 +91,45 @@ class LdapConsts:
         SSL_TLS_CIPHERS: ALL
     }
 
+    DEFAULT_CONF = {
+        PORT: 389,
+        BASE_DN: 'ou=users,dc=example,dc=com',
+        BIND_DN: '',
+        GROUP_ATTR: 'member',
+        # LOGIN_ATTR: 'cn',  not supported now
+        BIND_PASSWORD: '*',
+        TIMEOUT_BIND: 5,
+        TIMEOUT: 5,
+        VERSION: 3,
+        HOSTNAME: {}
+    }
+    # ssl defaults
+    SSL_DEFAULTS = {
+        SSL_CA_LIST: DEFAULT,
+        SSL_CERT_VERIFY: ENABLED,
+        SSL_MODE: NONE,
+        SSL_PORT: 636,
+        SSL_TLS_CIPHERS: ALL
+    }
+
+    FIELD_IS_NUMERIC = {
+        PORT: True,
+        BASE_DN: False,
+        BIND_DN: False,
+        GROUP_ATTR: False,
+        # LOGIN_ATTR: 'cn',  not supported now
+        BIND_PASSWORD: False,
+        TIMEOUT_BIND: True,
+        TIMEOUT: True,
+        VERSION: True,
+        # ssl defaults
+        SSL_CA_LIST: False,
+        SSL_CERT_VERIFY: False,
+        SSL_MODE: False,
+        SSL_PORT: True,
+        SSL_TLS_CIPHERS: False
+    }
+
     PHYSICAL_LDAP_SERVER = {
         "hostname": "10.7.34.20",
         "base-dn": "dc=itzgeek,dc=local",
