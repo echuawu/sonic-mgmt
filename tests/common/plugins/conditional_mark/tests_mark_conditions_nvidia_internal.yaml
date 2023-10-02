@@ -875,9 +875,9 @@ platform_tests/test_cpu_memory_usage.py:
 
 platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3360433 and platform nvda_bf"
+    reason: "Testcase ignored due to platform nvda_bf"
     conditions:
-      - "https://redmine.mellanox.com/issues/3360433 and 'nvda_bf' in platform"
+      - "'nvda_bf' in platform"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
   skip:
