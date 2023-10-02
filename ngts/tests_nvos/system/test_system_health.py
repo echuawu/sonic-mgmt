@@ -276,6 +276,8 @@ def test_simulate_health_problem_with_hw_simulator(devices, engines):
         fan_display_name = get_fan_display_name(fan_id)
         health_issue_dict = {psu_display_name: "missing or not available", psu_fan_display_name: "missing",
                              fan_display_name: "broken"}
+        logger.info("sleep 5 sec after simulating HW issue")
+        time.sleep(5)
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:

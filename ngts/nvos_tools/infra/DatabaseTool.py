@@ -18,7 +18,7 @@ class DatabaseTool:
     @staticmethod
     def sonic_db_cli_hset(engine, asic, db_name, db_config, param, value):
         asic = f"-n {asic} " if asic else ""
-        cmd = f'sonic-db-cli {asic}{db_name} hset {db_config} {param} {value}'
+        cmd = f'sonic-db-cli {asic}{db_name} hset "{db_config}" "{param}" "{value}"'
         logging.info(f'Running sonic-db-cli {cmd}')
         return engine.run_cmd(cmd)
 
