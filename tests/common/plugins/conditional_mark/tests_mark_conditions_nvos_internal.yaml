@@ -270,4 +270,12 @@ tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3612870"
     conditions:
       - https://redmine.mellanox.com/issues/3612870
+
+tests_nvos/ib/test_show_ib.py::test_show_ib_device:
+  skip:
+    reason: "Testcase skipped due to image install is not supported yet for Marlin and issue 3358036"
+    conditions:
+      - "'marlin' in testbed"
+      - https://redmine.mellanox.com/issues/3358036
+
 ########################## NVOS IGNORE END ##########################

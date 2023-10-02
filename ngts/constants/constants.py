@@ -1183,7 +1183,7 @@ class GnmiConsts:
     GNMI_IS_RUNNING = 'yes'
     GNMI_IS_NOT_RUNNING = 'no'
     GNMI_VERSION_FIELD = 'version'
-    GNMI_VERSION = '1.0.0'
+    GNMI_VERSION = '1.0.2'
     GNMI_DEFAULT_PORT = '9339'
     SLEEP_TIME_FOR_UPDATE = 35
     REDIS_CMD_KEY = 'redis_cmd'
