@@ -14,17 +14,17 @@ def prepare_scp_test(engines):
 
     logging.info('Prepare directory for admin users only')
     engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_SCP_TEST_DIR}')
-    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_ADMIN_USERS_DIR}')
-    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_ADMIN_USERS_DIR}')
-    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_ADMIN_SCP_TEST_FILE}')
+    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_ADMINS_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_ADMINS_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_ADMIN_SCP_DOWNLOAD_TEST_FILE}')
 
     logging.info('Prepare non-privileged directory')
-    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
-    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
-    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_NON_PRIVILEGED_DIR}')
-    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
-    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
-    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_NON_PRIVILEGED_SCP_TEST_FILE}')
+    engines.dut.run_cmd(f'mkdir {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
 
     yield
 

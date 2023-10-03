@@ -1,4 +1,5 @@
 import logging
+import os
 import subprocess
 
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
@@ -30,8 +31,8 @@ class AuthVerifier:
         authentication_success = True
         try:
             self._authenticate(expect_success)
-        except Exception:
-            logging.info('Authentication failed')
+        except Exception as e:
+            logging.info(f'Authentication failed\nException:\n{e}')
             authentication_success = False
         finally:
             self.change_test_api(orig_test_api)
@@ -96,60 +97,73 @@ class ScpAuthVerifier(AuthVerifier):
 
     def _authenticate(self, expect_success):
         with allure.step(f'Download a non-privileged file from the switch. Expect success: {expect_success}'):
-            scp_file(player=self.engine,
-                     src_path=f'{AuthConsts.SWITCH_NON_PRIVILEGED_DIR}/{AuthConsts.SWITCH_SCP_TEST_FILE_NAME}',
-                     dst_path=AuthConsts.DOWNLOADED_FILES_SHARED_LOCATION,
-                     download_from_remote=True)
+            self._verify_scp_download(
+                switch_dir=AuthConsts.SWITCH_MONITORS_DIR,
+                expect_success=expect_success,
+                check_result_in_caller_func=True
+            )
 
-    def __verify_scp(self, src_path, dst_path, should_download, expect_success, remove_file_after_scp=''):
+    def __verify_scp(self, src_path, dst_path, download_from_remote, expect_success, check_result_in_caller_func=False):
         scp_success = True
         try:
             scp_file(player=self.engine,
                      src_path=src_path,
                      dst_path=dst_path,
-                     download_from_remote=should_download)
+                     download_from_remote=download_from_remote)
             logging.info('SCP success')
-            if not should_download and remove_file_after_scp:
-                self.engine.run_cmd(f'rm {remove_file_after_scp}')
-                logging.info('Removed uploaded file')
+
+            if download_from_remote:
+                logging.info('Remove downloaded file')
+                os.remove(dst_path)
+                logging.info('Downloaded file successfully removed')
+            else:
+                logging.info('Remove uploaded file')
+                self.engine.run_cmd(f'rm {dst_path}')
+                logging.info('Uploaded file successfully removed')
         except Exception as e:
             logging.info('SCP failed')
             if expect_success:
-                logging.info(f'Error: {e}')
+                logging.info(f'Exception:\n{e}')
             scp_success = False
-        finally:
+            if check_result_in_caller_func:
+                raise e
+
+        if not check_result_in_caller_func:
             assert scp_success == expect_success, f'SCP success ({scp_success}) status ' \
                                                   f'not as expected ({expect_success})'
 
-    def _verify_scp_download(self, switch_path, expect_success):
+    def _verify_scp_download(self, switch_dir, expect_success, switch_filenme='', check_result_in_caller_func=False):
         with allure.step(f'Verify SCP download from the switch. Expect success: {expect_success}'):
+            filename = AuthConsts.SWITCH_SCP_DOWNLOAD_TEST_FILE_NAME if not switch_filenme else switch_filenme
             self.__verify_scp(
-                src_path=AuthConsts.DUMMY_FILE_SHARED_LOCATION,
-                dst_path=switch_path,
-                should_download=False,
-                expect_success=expect_success
+                src_path=f'{switch_dir}/{filename}',
+                dst_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/{filename}',
+                download_from_remote=True,
+                expect_success=expect_success,
+                check_result_in_caller_func=check_result_in_caller_func
             )
 
-    def _verify_scp_upload(self, switch_path, expect_success):
+    def _verify_scp_upload(self, switch_dir, expect_success):
         with allure.step(f'Verify SCP upload to the switch. Expect success: {expect_success}'):
             self.__verify_scp(
-                src_path=AuthConsts.DUMMY_FILE_SHARED_LOCATION,
-                dst_path=switch_path,
-                should_download=False,
+                src_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/'
+                         f'{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
+                dst_path=f'{switch_dir}/{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
+                download_from_remote=False,
                 expect_success=expect_success,
-                remove_file_after_scp=f'{switch_path}/{AuthConsts.DUMMY_FILE_NAME}'
             )
 
-    def _verify_scp_download_and_upload(self, switch_path, expect_success):
-        self._verify_scp_download(switch_path, expect_success)
-        self._verify_scp_upload(switch_path, expect_success)
+    def _verify_scp_download_and_upload(self, switch_dir, expect_success):
+        switch_filename = AuthConsts.SWITCH_ROOT_FILE_NAME if switch_dir == AuthConsts.SWITCH_ROOT_DIR else ''
+        self._verify_scp_download(switch_dir, expect_success, switch_filenme=switch_filename)
+        self._verify_scp_upload(switch_dir, expect_success)
 
     def verify_authorization(self, user_is_admin):
         with allure.step('Verify SCP with non privileged path on the switch. Expect success: True'):
-            self._verify_scp_download_and_upload(AuthConsts.SWITCH_NON_PRIVILEGED_DIR, expect_success=True)
+            self._verify_scp_download_and_upload(AuthConsts.SWITCH_MONITORS_DIR, expect_success=True)
 
         with allure.step(f'Verify SCP with admin privileged path on the switch. Expect success: {user_is_admin}'):
-            self._verify_scp_download_and_upload(AuthConsts.SWITCH_ADMIN_USERS_DIR, expect_success=user_is_admin)
+            self._verify_scp_download_and_upload(AuthConsts.SWITCH_ADMINS_DIR, expect_success=user_is_admin)
 
         with allure.step('Verify SCP with root privileged path on the switch. Expect success: False'):
             self._verify_scp_download_and_upload(AuthConsts.SWITCH_ROOT_DIR, expect_success=False)
