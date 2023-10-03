@@ -3109,8 +3109,8 @@
       - 3589197
 
 - Errors_list:
-    - '.*ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
-    - '.*ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
+    - '.*ERR pmon#(psud|thermalctld): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
+    - '.*ERR pmon#(psud|thermalctld): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
   Conditions:
     - Redmine:
       - 3621401
