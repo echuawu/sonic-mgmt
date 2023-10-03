@@ -4,11 +4,13 @@ import os
 import sys
 import logging
 import json
+import re
 
 from ngts.constants.constants import InfraConst, PytestConst
 
 logger = logging.getLogger()
 DEVICE_PLATFORM_INFO_PATH = os.path.join(os.path.dirname(__file__), '../../common/device_platform_info.json')
+INVENTORY_FILE_PATH = os.path.join(os.path.dirname(__file__), '../../../ansible/inventory')
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -76,7 +78,7 @@ def get_platform_info(topology_obj):
     platform_info = get_platform_info_from_file(hostname)
     if not platform_info:
         platform_info = get_platform_info_from_noga(topology_obj)
-        update_platform_info_file(hostname, platform_info)
+        update_platform_info_files(hostname, platform_info)
     return platform_info
 
 
@@ -99,7 +101,7 @@ def get_platform_info_from_noga(topology_obj):
     return show_platform_summary_dict
 
 
-def update_platform_info_file(hostname, platform_params):
+def update_platform_info_files(hostname, platform_params, update_inventory=False):
     platform_params = {k.lower(): v for k, v in platform_params.items()}
     platform_params = {"_".join(k.split()): v for k, v in platform_params.items()}
     if "asic" in platform_params:
@@ -110,6 +112,15 @@ def update_platform_info_file(hostname, platform_params):
     data.update({hostname: platform_params})
     with open(DEVICE_PLATFORM_INFO_PATH, "w") as platform_info_f:
         json.dump(data, platform_info_f)
+
+    if update_inventory:
+        pattern = r"({}.*sonic_hwsku=)(\S*)".format(hostname)
+        replacement = r"\1{}".format(platform_params["hwsku"])
+        with open(INVENTORY_FILE_PATH, "r") as inventory_file:
+            inventory_data = inventory_file.read()
+            inventory_data = re.sub(pattern, replacement, inventory_data)
+        with open(INVENTORY_FILE_PATH, "w") as inventory_file:
+            inventory_file.write(inventory_data)
 
 
 def get_devinfo(switch_attributes):

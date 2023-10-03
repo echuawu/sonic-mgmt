@@ -34,7 +34,7 @@ from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_stor
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
-from ngts.tools.infra import update_platform_info_file
+from ngts.tools.infra import update_platform_info_files
 
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
@@ -691,7 +691,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 platform_params["hwsku"] = current_platform_summry["HwSKU"]
                 platform_params["platform"] = current_platform_summry["Platform"]
                 hostname = self.cli_obj.chassis.get_hostname()
-                update_platform_info_file(hostname, current_platform_summry)
+                update_platform_info_files(hostname, current_platform_summry, update_inventory=True)
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False, configure_dns=True):
