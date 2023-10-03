@@ -14,7 +14,7 @@ class HostMethods:
             return host_engine.run_cmd('snmpget -v 2c -c {0} {1}{2} {3}'.format(community, ip_address, port, get_param))
 
     @staticmethod
-    def host_snmp_walk(host_engine, ip_address, community='qwerty12', param=''):
+    def host_snmp_walk(host_engine, ip_address, community='qwerty12', mib='', param=''):
         with allure_step("Running snmpwalk command"):
             return host_engine.run_cmd('snmpwalk -v 1 -c {0} {1} {2}'.format(community, ip_address, param))
 

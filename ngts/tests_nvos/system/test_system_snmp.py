@@ -50,19 +50,17 @@ def test_snmp_default_values_fields(engines):
         ValidationTool.compare_values(listening_address_output, {'all': {'port': 161, 'vrf': ''}}).verify_result()
         read_only_community_output = OutputParsingTool.parse_json_str_to_dictionary(
             system.snmp_server.readonly_community.show()).get_returned_value()
-        ValidationTool.compare_values(read_only_community_output, {'qwerty12': {}}).verify_result()
+        assert 'qwerty12' not in read_only_community_output, 'snmp community not encrypted'
         read_only_community_output = OutputParsingTool.parse_json_str_to_dictionary(
             system.snmp_server.readonly_community.show('qwerty12')).get_returned_value()
-        ValidationTool.compare_values(read_only_community_output, '').verify_result()
+        assert 'qwerty12' not in read_only_community_output, 'snmp community not encrypted'
         system_snmp_output = OutputParsingTool.parse_json_str_to_dictionary(system.snmp_server.show())\
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output([SystemConsts.SNMP_REFRESH_INTERVAL,
                                                          SystemConsts.SNMP_IS_RUNNING,
-                                                         SystemConsts.SNMP_LISTENING_ADDRESS,
-                                                         SystemConsts.SNMP_READONLY_COMMUNITY],
+                                                         SystemConsts.SNMP_LISTENING_ADDRESS],
                                                         [SystemConsts.SNMP_DEFAULT_REFRESH_INTERVAL, 'yes',
-                                                         {'all': {'port': 161, 'vrf': ''}},
-                                                         {'qwerty12': {}}],
+                                                         {'all': {'port': 161, 'vrf': ''}}],
                                                         system_snmp_output).verify_result()
         logging.info("All expected fields were found")
 
@@ -253,7 +251,8 @@ def test_system_snmp_functional(engines, topology_obj):
                                                           expected_value='nvosdescription')
 
         with allure.step("Snmpwalk after autorefresh"):
-            host_output = HostMethods.host_snmp_walk(host_engine, ip_address, param='| grep nvosdescription')
+            host_output = HostMethods.host_snmp_walk(host_engine, ip_address, mib='1.3.6.1.2.1.31.1.1.1.18',
+                                                     param='| grep nvosdescription')
             assert 'nvosdescription' in host_output, 'snmp get with wrong port returned output'
 
     with allure.step("SNMP unset"):
@@ -281,13 +280,11 @@ def test_system_snmp_redis_crash(engines, topology_obj):
         logging.info("Snmp enabled successfully")
 
     with allure.step("Rewrite value for snmp community with redis db"):
-        # cmd = "redis-cli -n 4 HSET 'SNMP_COMMUNITY\\|qwerty12' 'TYPE' aa"
         with allure.step('Write value to snmp community via redis cli'):
             redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
                                                                     db_name=DatabaseConst.CONFIG_DB_NAME,
                                                                     db_config="'SNMP_COMMUNITY\\|qwerty12'",
                                                                     param="TYPE", value="aa")
-            # redis_cli_output = engines.dut.run_cmd(cmd)
             assert redis_cli_output != 0, "Redis command failed"
 
         with allure.step("Snmpget after rewrite type of community"):

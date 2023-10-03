@@ -203,12 +203,6 @@ tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_cr
     conditions:
       - https://redmine.mellanox.com/issues/3554789
 
-tests_nvos/system/test_system_snmp.py::test_system_snmp_functional:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3571962"
-    conditions:
-      - https://redmine.mellanox.com/issues/3571962
-
 tests_nvos/system/test_system_message.py::test_system_reload_for_system_message_openapi:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
