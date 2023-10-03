@@ -735,12 +735,6 @@ tests/nightly/adaptive_routing/test_adaptive_routing.py::TestArMaxPort::test_ar_
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
-dhcp_relay/test_dhcp_relay.py::test_dhcp_relay_default[dual]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584291 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584291 and 'dualtor' in topo_name"
-
 dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162 on 202211 branch"
