@@ -376,7 +376,7 @@ def ports_info(ptfadapter, duthosts, enum_rand_one_per_hwsku_frontend_hostname, 
         data["dst_mac"] = setup['intf_per_namespace'][ns][vlan]['macaddress']
     else:
         data["dst_mac"] = setup['intf_per_namespace'][ns][data["dut_iface"]]['macaddress']
-    data["src_mac"] = ptfadapter.dataplane.ports[(0, data["ptf_tx_port_id"])].mac()
+    data["src_mac"] = ptfadapter.dataplane.ports[(0, data["ptf_tx_port_id"])].mac().decode()
     return data
 
 
