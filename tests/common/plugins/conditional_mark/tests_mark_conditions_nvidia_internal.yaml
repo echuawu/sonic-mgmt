@@ -934,7 +934,6 @@ ecmp/test_fgnhg.py:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2577145 and 'msn2' in platform"
-      - "https://redmine.mellanox.com/issues/3500798"
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
   skip:
