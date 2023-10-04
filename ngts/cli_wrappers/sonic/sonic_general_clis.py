@@ -408,6 +408,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         else:
             self.disable_ztp(disable_ztp)
 
+        if self.is_bluefield(platform_params['hwsku']):
+            self.update_dpu_config()
+
         self.configure_dhclient_if_simx()
 
     def init_telemetry_keys(self):
@@ -692,6 +695,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 platform_params["platform"] = current_platform_summry["Platform"]
                 hostname = self.cli_obj.chassis.get_hostname()
                 update_platform_info_files(hostname, current_platform_summry, update_inventory=True)
+
+    def update_dpu_config(self):
+        self.engine.run_cmd("sudo jq 'del(.PORT.Ethernet0.pfc_asym)' /etc/sonic/config_db.json | "
+                            "sudo jq 'del(.PORT.Ethernet4.pfc_asym)' > /tmp/config_db.json")
+        self.engine.run_cmd("sudo mv /tmp/config_db.json /etc/sonic/config_db.json")
+        self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD,
+                                ports_list=['Ethernet0', 'Ethernet4'], reload_force=True)
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False, configure_dns=True):
