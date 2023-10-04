@@ -305,8 +305,7 @@ def multi_vrfs_configuration(topology_obj, engines, cli_objects, interfaces, bas
     }
 
     ip_config_dict = {
-        'dut': [{'iface': 'Vlan10', 'ips': [('10.0.0.1', '24')]},
-                {'iface': 'Vlan20', 'ips': [('20.0.0.1', '24')]}],
+        'dut': [{'iface': 'Vlan20', 'ips': [('20.0.0.1', '24')]}],
         'hb': [{'iface': '{}.10'.format(interfaces.hb_dut_1), 'ips': [('10.0.0.3', '24')]},
                {'iface': '{}.20'.format(interfaces.hb_dut_2), 'ips': [('20.0.0.3', '24')]}]
     }
@@ -347,7 +346,6 @@ def vrf_config_change_configuration(topology_obj, engines, cli_objects, interfac
     }
 
     ip_config_dict = {
-        'dut': [{'iface': 'Vlan10', 'ips': [('10.0.0.1', '24')]}],
         'hb': [{'iface': '{}.10'.format(interfaces.hb_dut_1), 'ips': [('10.0.0.3', '24')]}]
     }
 
