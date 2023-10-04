@@ -3442,6 +3442,8 @@
     - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
     - ".*WARNING systemd\\[1\\]: pmon.service: Start request repeated too quickly.*"
     - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Control process exited, code=killed, status.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'signal'.*"
   Conditions:
     - Redmine:
         - 3540710
