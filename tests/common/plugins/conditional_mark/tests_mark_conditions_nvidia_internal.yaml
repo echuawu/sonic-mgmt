@@ -1918,6 +1918,12 @@ bgp/test_bgp_suppress_fib.py:
     conditions:
       - "'202211' in release"
 
+bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624586"
+    conditions:
+      - https://redmine.mellanox.com/issues/3624586
+
 iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_flap:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
@@ -2033,9 +2039,21 @@ dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
 
 pfcwd/test_pfcwd_warm_reboot.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3535060 and platform sn5600"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
     conditions:
-      - "https://redmine.mellanox.com/issues/3535060 and 'sn5600' in platform"
+      - https://redmine.mellanox.com/issues/3624206
+
+pfcwd/test_pfcwd_function.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
+    conditions:
+      - https://redmine.mellanox.com/issues/3624206
+
+pfcwd/test_pfcwd_timer_accuracy.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
+    conditions:
+      - https://redmine.mellanox.com/issues/3624206
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
   skip:
