@@ -1,10 +1,11 @@
 
 import logging
 
-from typing import Dict
+from typing import Dict, List
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
@@ -123,3 +124,43 @@ def generic_aaa_set_unset_show(test_api, engines, remote_aaa_type: str, main_res
                 ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                                 expected_values=expected_conf.values(),
                                                                 output_dict=cur_conf).verify_result()
+
+
+def generic_aaa_set_invalid_param(test_api,
+                                  field_is_numeric: Dict[str, bool],
+                                  valid_values: dict,
+                                  resources_and_fields: Dict[RemoteAaaResource, List[str]]):
+    """
+    @summary: Verify set, unset, show commands for remote AAA feature
+
+        Flow:
+        - for every given resource (related to AAA feature):
+            - go over all fields, set it with invalid value, and verify failure
+    @param test_api: api to use
+    @param field_is_numeric: dictionary for each field, whether it is numeric or not
+    @param valid_values: dictionary for each field, it's valid values
+    @param resources_and_fields: dictionary containing resource object as key, and it's list of fields to set as value
+    """
+    TestToolkit.tested_api = test_api
+
+    def check_invalid_set_to_resource(resource_obj, field_name):
+        logging.info(f'Set {field_name} to: "{""}"')
+        resource_obj.set(field_name, '').verify_result(False)
+
+        invalid_value = RandomizationTool.get_random_string(6)
+        logging.info(f'Set {field_name} to: {invalid_value}')
+        resource_obj.set(field_name, invalid_value).verify_result(False)
+
+        if field_is_numeric[field_name]:
+            invalid_value = RandomizationTool.select_random_value(
+                list_of_values=list(range(-1000, 1000)),
+                forbidden_values=valid_values[field_name]).get_returned_value()
+        logging.info(f'Set {field_name} to: {invalid_value}')
+        resource_obj.set(field_name, invalid_value).verify_result(False)
+
+    for resource, fields in resources_and_fields.items():
+        for field in fields:
+            if valid_values[field] == str:
+                continue
+            with allure.step(f'Check invalid {field} for {resource.get_resource_path()}'):
+                check_invalid_set_to_resource(resource, field)

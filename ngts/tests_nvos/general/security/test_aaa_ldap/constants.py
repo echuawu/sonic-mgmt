@@ -72,6 +72,12 @@ class LdapConsts:
         SSL_TLS_CIPHERS: [ALL, TLS_1_2, TLS_1_3]
     }
 
+    ALL_VALID_VALUES = VALID_VALUES.copy()
+    ALL_VALID_VALUES.update(VALID_VALUES_SSL)
+    ALL_VALID_VALUES[PORT] = POSSIBLE_PORTS
+    ALL_VALID_VALUES[SSL_PORT] = POSSIBLE_PORTS
+    ALL_VALID_VALUES[PRIORITY] = [1, 2, 3, 4, 5, 6, 7, 8]
+
     # default values
     DEFAULTS = {
         PORT: 389,
@@ -122,9 +128,11 @@ class LdapConsts:
         TIMEOUT_BIND: True,
         TIMEOUT: True,
         VERSION: True,
+        PRIORITY: True,
         # ssl defaults
         SSL_CA_LIST: False,
         SSL_CERT_VERIFY: False,
+        SSL_CRL_LIST: False,
         SSL_MODE: False,
         SSL_PORT: True,
         SSL_TLS_CIPHERS: False

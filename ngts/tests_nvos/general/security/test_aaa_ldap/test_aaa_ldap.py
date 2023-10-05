@@ -5,8 +5,7 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import \
-    generic_aaa_set_unset_show
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     validate_authentication_fail_with_credentials, \
     set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
@@ -222,6 +221,29 @@ def test_ldap_set_unset_show(test_api, engines):
         default_confs={
             ldap_obj: LdapConsts.DEFAULT_CONF,
             ldap_obj.ssl: LdapConsts.SSL_DEFAULTS
+        }
+    )
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_set_invalid_param(test_api, engines):
+    """
+    @summary: Verify failure for invalid param values
+    """
+    ldap_obj = System().aaa.ldap
+    global_ldap_fields = LdapConsts.LDAP_FIELDS
+    ldap_ssl_fields = LdapConsts.SSL_FIELDS
+    ldap_hostname_fields = [AaaConsts.PRIORITY]
+    generic_aaa_set_invalid_param(
+        test_api=test_api,
+        field_is_numeric=LdapConsts.FIELD_IS_NUMERIC,
+        valid_values=LdapConsts.ALL_VALID_VALUES,
+        resources_and_fields={
+            ldap_obj: global_ldap_fields,
+            ldap_obj.ssl: ldap_ssl_fields,
+            ldap_obj.hostname.hostname_id['1.2.3.4']: ldap_hostname_fields
         }
     )
 

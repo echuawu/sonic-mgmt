@@ -13,8 +13,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import \
-    generic_aaa_set_unset_show
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
     verify_users_auth, verify_user_auth, update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
@@ -54,8 +53,6 @@ def test_tacacs_set_unset_show(test_api, engines):
         }
     )
 
-# -------------------- NEW TESTS ---------------------
-
 
 @pytest.mark.security
 @pytest.mark.simx
@@ -64,30 +61,21 @@ def test_tacacs_set_invalid_param(test_api, engines):
     """
     @summary: Verify failure for invalid param values
     """
-    TestToolkit.tested_api = test_api
+    tacacs_obj = System().aaa.tacacs
+    global_tacacs_fields = [AaaConsts.AUTH_TYPE, AaaConsts.PORT, AaaConsts.SECRET, AaaConsts.TIMEOUT]
+    tacacs_hostname_fields = global_tacacs_fields + [AaaConsts.PRIORITY]
+    generic_aaa_set_invalid_param(
+        test_api=test_api,
+        field_is_numeric=TacacsConsts.FIELD_IS_NUMERIC,
+        valid_values=TacacsConsts.VALID_VALUES,
+        resources_and_fields={
+            tacacs_obj: global_tacacs_fields,
+            tacacs_obj.hostname.hostname_id['1.2.3.4']: tacacs_hostname_fields
+        }
+    )
 
-    tacacs = System().aaa.tacacs
 
-    def check_invalid_set_to_resource(resource_obj, field_name):
-        invalid_value = RandomizationTool.get_random_string(6)
-        logging.info(f'Set {field_name} to: {invalid_value}')
-        resource_obj.set(field_name, invalid_value).verify_result(False)
-
-        if TacacsConsts.FIELD_IS_NUMERIC[field_name]:
-            invalid_value = RandomizationTool.select_random_value(
-                list_of_values=list(range(-1000, 1000)),
-                forbidden_values=TacacsConsts.VALID_VALUES[field_name]).get_returned_value()
-        logging.info(f'Set {field_name} to: {invalid_value}')
-        resource_obj.set(field_name, invalid_value).verify_result(False)
-
-    for field in TacacsConsts.VALID_VALUES.keys():
-        if TacacsConsts.VALID_VALUES[field] == str:
-            continue
-        if field != AaaConsts.PRIORITY:
-            with allure.step(f'Check invalid global {field}'):
-                check_invalid_set_to_resource(tacacs, field)
-        with allure.step(f'Check invalid {field} for hostname'):
-            check_invalid_set_to_resource(tacacs.hostname.hostname_id['1.2.3.4'], field)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security
