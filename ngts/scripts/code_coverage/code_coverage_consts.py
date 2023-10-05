@@ -6,7 +6,8 @@ from enum import Enum
 class SharedConsts:
     ENV_COVERAGE_FILE = 'COVERAGE_FILE'
     GCOV_DIR = '/sonic'
-    SOURCES_PATH = '/src/sonic_src_cov.tar.gz'
+    SONIC_SOURCES_PATH = ['/src/sonic_src_cov.tar.gz']
+    NVOS_SOURCES_PATH = ['/src/sonic_swss_src_cov.tar.gz', '/src/sonic_syncd_src_cov.tar.gz']
     C_DIR = "/c_coverage/"
     PYTHON_DIR = "/python_coverage/"
 
