@@ -584,10 +584,9 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
                         f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE].keys())}\n"
             for i, (bug_id, bug_title) in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
                 error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
-        # WA - do not fail test if LA failed, after the fixed remove the #
-        # if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
-        #    error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
-        #                            f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
+        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
+            error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
+                                    f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
         if error_msg:
             raise Exception(error_msg)
 
