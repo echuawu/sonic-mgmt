@@ -1,0 +1,266 @@
+import logging
+import os
+import json
+import re
+import pytest
+
+from tests.platform_tests.link_flap.link_flap_utils import __check_if_status as check_if_status
+from tests.common.utilities import wait_until
+from tests.common.platform.interface_utils import get_physical_port_indices
+from tests.common.helpers.assertions import pytest_assert
+
+IM_ENABLED = 1
+
+SAI_PROFILE_FILE_NAME = "sai.profile"
+PMON_DEAMON_CONTROL_FILE_NAME = "pmon_daemon_control.json"
+PLATFORM_FOLDER_PATH = "/usr/share/sonic/device/"
+IM_SAI_ATTRIBUTE_NAME = "SAI_INDEPENDENT_MODULE_MODE"
+XCVRD_PMON_PROCESS_SKIP = "python3 /usr/local/bin/xcvrd --skip_cmis_mgr"
+
+IM_EEPROM_SPECIFICATION_KEY = "Specification compliance"
+IM_EEPROM_VENDOR_DATE_KEY = "Vendor Date Code\(YYYY-MM-DD Lot\)"
+IM_EEPROM_VENDOR_NAME_KEY = "Vendor Name"
+IM_EEPROM_VENDOR_OUI_KEY = "Vendor OUI"
+IM_EEPROM_VENDOR_PM_KEY = "Vendor PN"
+IM_EEPROM_VENDOR_REV_KEY = "Vendor Rev"
+IM_EEPROM_VENDOR_SN_KEY = "Vendor SN"
+
+IM_REDIS_SPECIFICATION_KEY = "specification_compliance"
+IM_REDIS_VENDOR_DATE_KEY = "vendor_date"
+IM_REDIS_VENDOR_NAME_KEY = "manufacturer"
+IM_REDIS_VENDOR_OUI_KEY = "vendor_oui"
+IM_REDIS_VENDOR_PM_KEY = "model"
+IM_REDIS_VENDOR_REV_KEY = "vendor_rev"
+IM_REDIS_VENDOR_SN_KEY = "serial"
+
+IM_TRANCEIVER_STATUS_MODULE_STATE = "Current module state"
+IM_TRANCEIVER_STATUS_REASON_FAULT = "Reason of entering the module fault state"
+IM_REDIS_TRANCEIVER_STATUS_MODULE_STATE = "module_state"
+IM_REDIS_TRANCEIVER_STATUS_REASON_FAULT = "module_fault_cause"
+
+EEPROM_CLI_KEYS = [
+    IM_EEPROM_SPECIFICATION_KEY,
+    IM_EEPROM_VENDOR_DATE_KEY,
+    IM_EEPROM_VENDOR_NAME_KEY,
+    IM_EEPROM_VENDOR_OUI_KEY,
+    IM_EEPROM_VENDOR_PM_KEY,
+    IM_EEPROM_VENDOR_REV_KEY,
+    IM_EEPROM_VENDOR_SN_KEY
+]
+
+TRANCEIVER_CLI_KEYS = [
+        IM_TRANCEIVER_STATUS_MODULE_STATE,
+        IM_TRANCEIVER_STATUS_REASON_FAULT
+    ]
+
+EEPROM_TO_REDIS_KEY_MAP = {
+    IM_EEPROM_SPECIFICATION_KEY: IM_REDIS_SPECIFICATION_KEY,
+    IM_EEPROM_VENDOR_DATE_KEY: IM_REDIS_VENDOR_DATE_KEY,
+    IM_EEPROM_VENDOR_NAME_KEY: IM_REDIS_VENDOR_NAME_KEY,
+    IM_EEPROM_VENDOR_OUI_KEY: IM_REDIS_VENDOR_OUI_KEY,
+    IM_EEPROM_VENDOR_PM_KEY: IM_REDIS_VENDOR_PM_KEY,
+    IM_EEPROM_VENDOR_REV_KEY: IM_REDIS_VENDOR_REV_KEY,
+    IM_EEPROM_VENDOR_SN_KEY: IM_REDIS_VENDOR_SN_KEY
+}
+
+TRANSCEIVER_STATUS_TO_REDIS_KEY_MAP = {
+    IM_TRANCEIVER_STATUS_MODULE_STATE: IM_REDIS_TRANCEIVER_STATUS_MODULE_STATE,
+    IM_TRANCEIVER_STATUS_REASON_FAULT: IM_REDIS_TRANCEIVER_STATUS_REASON_FAULT
+}
+
+BER_EFFECTIVE_PHYSICAL_ERRORS = "Effective Physical Errors"
+BER_EFFECTIVE_PHYSICAL_BER = "Effective Physical BER"
+BER_ROW_PHYSICAL_ERRORS_PER_LANE = "Raw Physical Errors Per Lane"
+BER_RAW_PHYSICAL_BER = "Raw Physical BER"
+
+BER_KEY_MAP = {
+    BER_EFFECTIVE_PHYSICAL_ERRORS,
+    BER_EFFECTIVE_PHYSICAL_BER,
+    BER_ROW_PHYSICAL_ERRORS_PER_LANE,
+    BER_RAW_PHYSICAL_BER
+}
+
+
+def enable_cmis_mgr_in_pmon_file(duthost):
+    """
+    @summary: This method is for enable cmis_mgr for pmon
+    @param: duthosts: duthosts fixture
+    """
+    dut_platfrom = duthost.facts['platform']
+    pmon_daemon_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom)
+    pmon_daemon_file_path = os.path.join(pmon_daemon_path, PMON_DEAMON_CONTROL_FILE_NAME)
+    cmd = f'sudo sed -i \'s/"skip_xcvrd_cmis_mgr": true/"skip_xcvrd_cmis_mgr": false/\' {pmon_daemon_file_path}'
+    duthost.shell(cmd)
+
+
+def check_cmis_mgr_not_skipped(duthost):
+    """
+    @summary: This method is to check if cmis_mgr not skipped
+    @param: duthosts: duthosts fixture
+    """
+    dut_platfrom = duthost.facts['platform']
+    pmon_daemon_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom)
+    pmon_daemon_file_path = os.path.join(pmon_daemon_path, PMON_DEAMON_CONTROL_FILE_NAME)
+    cmd = duthost.shell('cat {}'.format(pmon_daemon_file_path))
+    daemon_control_dict = json.loads(cmd['stdout'])
+    if daemon_control_dict['skip_xcvrd_cmis_mgr'] is True:
+        pytest.skip(f"Skip TC as skip_xcvrd_cmis_mgr skipped in {PMON_DEAMON_CONTROL_FILE_NAME} file")
+
+
+def check_xcvrd_pmon_process_not_skipped(duthost):
+    """
+    @summary: This method is to check if xcvfd pmon process not skipped
+    @param: duthosts: duthosts fixture
+    """
+    cmd = duthost.shell("docker exec pmon /bin/bash -c 'ps -ax'")
+    if XCVRD_PMON_PROCESS_SKIP in cmd['stdout']:
+        pytest.skip(f"Skip TC as IM started with skip flag in pmon processes")
+
+
+def add_im_sai_attribute(duthost):
+    """
+    @summary: This method is for add Independent Module SAI attribute in sai.profile
+    @param: duthosts: duthosts fixture
+    """
+    dut_hwsku = duthost.facts['hwsku']
+    dut_platfrom = duthost.facts['platform']
+    sai_profile_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom, dut_hwsku, SAI_PROFILE_FILE_NAME)
+    duthost.shell(f'echo "{IM_SAI_ATTRIBUTE_NAME}=1" >> {sai_profile_path}')
+
+
+def check_im_sai_attribute_value(duthost):
+    """
+    @summary: This method is for checking if Independent Module SAI attribute set to 1 in sai.profile
+    @param: duthosts: duthosts fixture
+    """
+    dut_hwsku = duthost.facts['hwsku']
+    dut_platfrom = duthost.facts['platform']
+    sai_profile_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom, dut_hwsku, SAI_PROFILE_FILE_NAME)
+    cmd = duthost.shell('cat {}'.format(sai_profile_path))
+    im_enabled_in_sai = re.search(f"{IM_SAI_ATTRIBUTE_NAME}=(\d?)", cmd['stdout']).group(1)
+    if im_enabled_in_sai != "1":
+        pytest.skip(f"Skip TC as {IM_SAI_ATTRIBUTE_NAME} not enabled in {SAI_PROFILE_FILE_NAME} file")
+
+
+def disable_autoneg_at_ports(duthost, interfaces):
+    """
+    @summary: This method is for disabling autoneg at specific ports
+    @param: duthosts: duthosts fixture
+    """
+    for im_interface_name in interfaces:
+        logging.info(f"Disable auto negotiation at interface {im_interface_name}")
+        duthost.command(f"sudo config interface autoneg {im_interface_name} disabled")
+
+
+def parse_output_to_dict(output, keys_list):
+    """
+    @summary: Parse the output based at keys list provided
+    @param output: command output
+    @param keys_list: list of keys to be parsed
+    @return: returns result in a dictionary
+    """
+    result_dict = {}
+    for key in keys_list:
+        result_dict.update({key.replace('\\', ''): re.search(f"{key}(\s+)?: (.*)", output).group(2).rstrip()})
+    return result_dict
+
+
+def parse_im_eeprom(output_lines):
+    """
+    @summary: Parse the SFP eeprom information from command output
+    @param output_lines: command output lines
+    @return: returns result in a dictionary
+    """
+    return parse_output_to_dict(output_lines, EEPROM_CLI_KEYS)
+
+
+def parse_sfp_info_from_redis(duthost, cmd, asic_index, interfaces):
+    """
+    @summary: Parse the SFP eeprom information from redis database
+    @param duthost: duthost fixture
+    @param cmd: command to be executed
+    @param asic_index: asic index
+    @param interfaces: interfaces list
+    @return: Returns result in a dictionary
+    """
+    result_dict = {}
+    asichost = duthost.asic_instance(asic_index)
+    logging.info("Check detailed transceiver information of each connected port")
+    for intf in interfaces:
+        redis_all_data_dict = {}
+        docker_cmd = asichost.get_docker_cmd(cmd.format(intf), "database")
+        port_xcvr_info = duthost.command(docker_cmd)["stdout_lines"]
+        # Convert to dictionary
+
+        split_by_2 = [port_xcvr_info[i * 2:(i + 1) * 2] for i in range((len(port_xcvr_info) + 2 - 1) // 2)]
+        for item in split_by_2:
+            redis_all_data_dict.update({item[0]: item[1].rstrip()})
+        result_dict.update({intf: redis_all_data_dict})
+    return result_dict
+
+
+def parse_im_tranceiver_status(output_lines):
+    """
+    @summary: Parse the  output
+    @param output_lines: Command output lines
+    @return: Returns result in a dictionary
+    """
+    return parse_output_to_dict(output_lines, TRANCEIVER_CLI_KEYS)
+
+
+def get_mlxlink_ber(duthost, interface):
+    """
+    @summary: Parse the  output
+    @param duthost: duthost fixture
+    @param interface: DUT interface
+    @return: BER values dictionary
+    """
+    # Get name of pci_cr0
+    mst_path_pciconf = duthost.shell('sudo ls /dev/mst/ | grep cr0')['stdout']
+    mst_path = f"/dev/mst/{mst_path_pciconf}"
+    # Get interface port number
+    physical_port_index_map = get_physical_port_indices(duthost, interface)
+    physical_port_index = physical_port_index_map[interface]
+    cmd = duthost.command(f"mlxlink -d {mst_path} -p {physical_port_index} -c")['stdout']
+    return parse_output_to_dict(cmd, BER_KEY_MAP)
+
+
+def emulate_interface_plug_in_out(duthost, interface, plug_in=True):
+    """
+    @summary: This method is for emulate plug in/out SFP module
+    @param: duthost: duthosts fixture
+    @param: enum_rand_one_per_hwsku_frontend_hostname: enum_rand_one_per_hwsku_frontend_hostname fixture
+    @param: interface: interface_name
+    @param: plug_in: if true - emulate plug in event, if false - emulate plug out event
+    """
+    # Get name of pciconf0
+    mst_path_pciconf = duthost.shell('sudo ls /dev/mst/ | grep conf')['stdout']
+    # Get interface port number
+    physical_port_index_map = get_physical_port_indices(duthost, interface)
+    physical_port_index = physical_port_index_map[interface] - 1
+    # Set last bit value to 1 if plug_in flag set to true otherwise set to 0
+    last_bit = 1 if plug_in else 0
+    cmd = f"mlxreg -d {mst_path_pciconf} --set 'admin_status=0x0000000{last_bit},ase=1' --reg_name PMAOS --indexes " \
+          f"'module={physical_port_index},slot_index=0' -y"
+    if plug_in:
+        duthost.shell(cmd)
+        pytest_assert(wait_until(90, 5, 0, check_if_status, duthost, interface, "up"),
+                      "Port did not come up after plug in event")
+    else:
+        duthost.shell(cmd)
+        pytest_assert(wait_until(15, 5, 0, check_if_status, duthost, interface, "down"),
+                      "Port did not come down after plug out event")
+
+
+def get_split_ports(duthost, port_index):
+    """
+    @summary: This method is for check
+    @param: duthost: duthosts fixture
+    @param: port_index: logical port index
+    @return: list of split port names
+    """
+    config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
+    split_port_alias_pattern = r"etp{}[a-z]".format(port_index)
+    split_up_ports = [p for p, v in list(config_facts['PORT'].items()) if v.get('admin_status', None) == 'up' and
+                      re.match(split_port_alias_pattern, v['alias'])]
+    return split_up_ports
