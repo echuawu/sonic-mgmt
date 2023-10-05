@@ -3109,9 +3109,9 @@
       - 3589197
 
 - Errors_list:
-    - '.*ERR pmon#(psud|thermalctld): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
-    - '.*ERR pmon#(psud|thermalctld): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
-    - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
   Conditions:
     - Redmine:
       - 3621401
