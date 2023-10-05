@@ -4,10 +4,10 @@ import json
 import logging
 import re
 
-from test_crm import RESTORE_CMDS
-from tests.common.helpers.crm import CRM_POLLING_INTERVAL
+from test_crm import RESTORE_CMDS, CRM_POLLING_INTERVAL
 from tests.common.errors import RunAnsibleModuleFail
-from tests.common.utilities import recover_acl_rule
+from tests.common.utilities import wait_until
+from tests.common.platform.interface_utils import parse_intf_status
 
 logger = logging.getLogger(__name__)
 
@@ -54,10 +54,7 @@ def pytest_runtest_teardown(item, nextitem):
         for cmd in RESTORE_CMDS[test_name]:
             logger.info(cmd)
             try:
-                if isinstance(cmd, dict):
-                    recover_acl_rule(dut, cmd["data_acl"])
-                else:
-                    dut.shell(cmd)
+                dut.shell(cmd)
             except RunAnsibleModuleFail as err:
                 failures.append("Failure during command execution '{command}':\n{error}"
                                 .format(command=cmd, error=str(err)))
@@ -140,6 +137,7 @@ def crm_interface(duthosts, enum_rand_one_per_hwsku_frontend_hostname, tbinfo, e
 
 @pytest.fixture(scope="module", autouse=True)
 def set_polling_interval(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+    """ Set CRM polling interval to 1 second """
     duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
     wait_time = 2
 
@@ -150,6 +148,13 @@ def set_polling_interval(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
 
     # Set CRM polling interval to 1 second
     duthost.command("crm config polling interval {}".format(CRM_POLLING_INTERVAL))["stdout"]
+    logger.info("Waiting {} sec for CRM counters to become updated".format(wait_time))
+    time.sleep(wait_time)
+
+    yield
+
+    # Set CRM polling interval to original value
+    duthost.command("crm config polling interval {}".format(original_crm_polling_interval))["stdout"]
     logger.info("Waiting {} sec for CRM counters to become updated".format(wait_time))
     time.sleep(wait_time)
 
@@ -181,9 +186,8 @@ def check_interface_status(duthost, intf_list, expected_oper='up'):
 
 
 @pytest.fixture(scope="module", autouse=True)
-def shutdown_unnecessary_intf(duthosts, tbinfo, enum_frontend_asic_index, enum_rand_one_per_hwsku_frontend_hostname):
+def shutdown_unnecessary_intf(duthost, tbinfo, enum_frontend_asic_index):
     """ Shutdown unused interfaces to avoid fdb entry influenced by mac learning """
-    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
     intfs_connect_with_ptf = get_intf_list(duthost, tbinfo, enum_frontend_asic_index)
     if intfs_connect_with_ptf:
         logger.info("Shutdown interfaces: {}".format(intfs_connect_with_ptf))
@@ -193,16 +197,17 @@ def shutdown_unnecessary_intf(duthosts, tbinfo, enum_frontend_asic_index, enum_r
 
     yield
 
-    # Set CRM polling interval to original value
-    duthost.command("crm config polling interval {}".format(original_crm_polling_interval))["stdout"]
-    logger.info("Waiting {} sec for CRM counters to become updated".format(wait_time))
-    time.sleep(wait_time)
+    if intfs_connect_with_ptf:
+        logger.info("Startup interfaces: {}".format(intfs_connect_with_ptf))
+        duthost.no_shutdown_multiple(intfs_connect_with_ptf)
+        assert wait_until(300, 20, 0, check_interface_status, duthost, intfs_connect_with_ptf), \
+            "All interfaces should be up!"
 
 
 @pytest.fixture(scope="module")
-def collector(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+def collector(duthosts, rand_one_dut_hostname):
     """ Fixture for sharing variables between test cases """
-    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+    duthost = duthosts[rand_one_dut_hostname]
     data = {}
     for asic in duthost.asics:
         data[asic.asic_index] = {}
