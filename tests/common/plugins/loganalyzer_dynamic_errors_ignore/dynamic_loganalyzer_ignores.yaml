@@ -503,6 +503,14 @@
         - 202012
 
 - Errors_list:
+    - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is stuck in namespace.*host.*1.0 minutes.*'
+  Conditions:
+    - Redmine:
+      - 3600594
+      Branch:
+        - 202305
+
+- Errors_list:
     - '.* WARNING syncd#SDK: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID'
   Conditions:
     - Affected_test_cases:
