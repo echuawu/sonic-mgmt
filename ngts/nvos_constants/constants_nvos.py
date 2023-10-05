@@ -871,7 +871,7 @@ class MultiPlanarConsts:
     ORIGIN_FILES_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/origin/"
     SIMULATION_FILE = "platform.json"
     PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
-    MULTI_PLANAR_KEYS = ['aport-number', 'asic', 'parent-alias', 'planarized-ports']
+    MULTI_PLANAR_KEYS = ['asic', 'parent-alias', 'parent-port', 'plane']
 
     PHYSICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_PHYSICAL_STATE'
     PHYSICAL_DISABLED = '0'  # disabled

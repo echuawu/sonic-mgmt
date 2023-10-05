@@ -735,17 +735,19 @@ class GorillaSwitch(MultiAsicSwitch):
         'sw31p2': 'sw32p1pl2'
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
-    NON_AGGREGATED_PORT_LIST = ['eth0', 'ib0', 'lo', 'sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2',
-                                'sw13p1', 'sw13p2', 'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2',
-                                'sw17p1', 'sw17p2', 'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2',
-                                'sw21p1', 'sw21p2', 'sw22p1', 'sw22p2', 'sw23p1', 'sw23p2', 'sw24p1', 'sw24p2',
-                                'sw25p1', 'sw25p2', 'sw26p1', 'sw26p2', 'sw27p1', 'sw27p2', 'sw28p1', 'sw28p2',
-                                'sw29p1', 'sw29p2', 'sw30p1', 'sw30p2', 'sw31p1', 'sw31p2', 'sw3p1', 'sw3p2', 'sw4p1',
-                                'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1', 'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2',
-                                'sw9p1', 'sw9p2']  # total 61 ports
+    FNM_PORT_LIST = ['fnm1']
+    FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
+    NON_IB_PORT_LIST = ['eth0', 'ib0', 'lo']  # total 3 ports
+    NON_AGGREGATED_PORT_LIST = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
+                                'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2', 'sw17p1', 'sw17p2',
+                                'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2', 'sw21p1', 'sw21p2',
+                                'sw22p1', 'sw22p2', 'sw23p1', 'sw23p2', 'sw24p1', 'sw24p2', 'sw25p1', 'sw25p2',
+                                'sw26p1', 'sw26p2', 'sw27p1', 'sw27p2', 'sw28p1', 'sw28p2', 'sw29p1', 'sw29p2',
+                                'sw30p1', 'sw30p2', 'sw3p1', 'sw3p2', 'sw4p1', 'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1',
+                                'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 56 ports
     ALL_PLANE_PORT_LIST = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']  # total 6 ports
-    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST  # total 64 ports
-    ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST  # total 70 ports
+    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
+    ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST + FNM_PLANE_PORT_LIST  # total 71 ports
     ASIC0 = 'asic0'
     ASIC1 = 'asic1'
     COUNTERS_DB_NAME = 'COUNTERS_DB'
@@ -763,6 +765,7 @@ class GorillaSwitch(MultiAsicSwitch):
             'plane2': 'COUNTERS:oid:0x100000000001f'
         }
     }
+    FNM_LINK_SPEED = '400G'
     SUPPORTED_IB_SPEED = ['sdr', 'fdr', 'edr', 'hdr', 'ndr']
 
     def __init__(self):

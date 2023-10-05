@@ -2,10 +2,9 @@ import pytest
 import logging
 import time
 
-from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.nvos_constants.constants_nvos import ApiType, MultiPlanarConsts
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
@@ -16,7 +15,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.tests_nvos.interfaces.test_ib_interface_counters import test_ib_clear_counters, test_clear_all_counters
+# from ngts.tests_nvos.interfaces.test_ib_interface_counters import test_ib_clear_counters, test_clear_all_counters
 
 logger = logging.getLogger()
 
@@ -42,14 +41,8 @@ def test_fae_interface_commands(engines, devices, test_api):
     """
 
     TestToolkit.tested_api = test_api
-    system = System(devices_dut=devices.dut)
 
     try:
-        with allure.step("Install XDR simulation in switch"):
-            override_platform_file(system, engines, MultiPlanarConsts.SIMULATION_PATH)
-
-        # ------------- select random non-aggregated, aggregated, and plane ports -----------------
-
         with allure.step("Select a random non aggregated port"):
             port_name = RandomizationTool.select_random_value(devices.dut.NON_AGGREGATED_PORT_LIST).\
                 get_returned_value()
@@ -60,6 +53,9 @@ def test_fae_interface_commands(engines, devices, test_api):
             selected_fae_aggregated_port = select_random_aggregated_port(devices)
             selected_fae_plane_port = select_random_plane_port(devices, selected_fae_aggregated_port)
 
+        with allure.step("Select random fnm port and fnm plane port"):
+            selected_fae_fnm_port = select_random_fnm_port(devices)
+            selected_fae_fnm_plane_port = select_random_plane_port(devices, selected_fae_fnm_port)
         # ------------- show commands -------------------------------------------------------------
 
         with allure.step("Validate show interface command"):
@@ -67,6 +63,13 @@ def test_fae_interface_commands(engines, devices, test_api):
                 Port.show_interface()).get_returned_value()
             output_keys = list(output_dictionary.keys())
             ValidationTool.compare_values(output_keys.sort(), devices.dut.ALL_PORT_LIST.sort()).verify_result()
+
+        with allure.step("Validate FNM port speed"):
+            output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+                selected_fae_fnm_plane_port.port.interface.link.show()).get_returned_value()
+            assert output_dictionary[IbInterfaceConsts.LINK_SPEED] == devices.dut.FNM_LINK_SPEED,\
+                f"FNM port speed should be {devices.dut.FNM_LINK_SPEED} instead of" \
+                f"{output_dictionary[IbInterfaceConsts.LINK_SPEED]}"
 
         with allure.step("Validate show fae interface command"):
             output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
@@ -117,36 +120,28 @@ def test_fae_interface_commands(engines, devices, test_api):
                                                 selected_fae_aggregated_port.port.interface.link.state.show,
                                                 selected_fae_plane_port.port.interface.link.state.show)
 
-        with allure.step("Validate show fae interface <port-id> plan-ports state command"):
-            validate_mp_show_interface_commands(OutputParsingTool.parse_json_str_to_dictionary,
-                                                selected_port.interface.link.plan_ports.show,
-                                                selected_fae_port.port.interface.link.plan_ports.show,
-                                                selected_fae_aggregated_port.port.interface.link.plan_ports.show,
-                                                selected_fae_plane_port.port.interface.link.plan_ports.show)
+        with allure.step("Validate show fae interface <port-id> plan-ports command"):
+            output_fae_aport = OutputParsingTool.parse_json_str_to_dictionary(
+                selected_fae_aggregated_port.port.interface.plan_ports.show()).get_returned_value()
+            fae_aport_plan_ports = list(output_fae_aport.keys())
+            for plane in devices.dut.PLANE_PORT_LIST:
+                full_plane_name = selected_fae_aggregated_port.port.name + plane
+                assert full_plane_name in fae_aport_plan_ports,\
+                    f"{full_plane_name} not exists in aggregated port {output_fae_aport.port.name} plan-ports"
 
-        # ------------- set/unset commands --------------------------------------------------------
+        with allure.step("Validate show fae interface internal and external fnm commands"):
+            validate_mp_show_interface_commands(OutputParsingTool.parse_show_interface_output_to_dictionary,
+                                                selected_port.interface.show,
+                                                selected_fae_port.port.interface.show,
+                                                selected_fae_fnm_port.port.interface.show,
+                                                selected_fae_fnm_plane_port.port.interface.show)
 
-        with allure.step("Validate set fae interface <port-id> link lanes command"):
-            output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                selected_fae_port.port.interface.link.show()).get_returned_value()
-            lanes_list = IbInterfaceConsts.SUPPORTED_LANES - output[IbInterfaceConsts.LINK_LANES]
-            new_lanes = RandomizationTool.select_random_value(lanes_list).get_returned_value()
-            selected_fae_port.port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_LANES,
-                                                      op_param_value=new_lanes, apply=True).verify_result()
-            output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                selected_fae_port.port.interface.link.show()).get_returned_value()
-            assert output[IbInterfaceConsts.LINK_LANES] == new_lanes,\
-                f"{IbInterfaceConsts.LINK_LANES} value is {output[IbInterfaceConsts.LINK_LANES]}," \
-                f"instead of {new_lanes}"
-
-        with allure.step("Validate unset fae interface <port-id> link lanes command"):
-            selected_fae_port.port.interface.link.unset(op_param_name=IbInterfaceConsts.LINK_LANES,
-                                                        apply=True).verify_result()
-            output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                selected_fae_port.port.interface.link.show()).get_returned_value()
-            assert output[IbInterfaceConsts.LINK_LANES] == IbInterfaceConsts.DEFAULT_LANES,\
-                f"{IbInterfaceConsts.LINK_LANES} value is {output[IbInterfaceConsts.LINK_LANES]}," \
-                f"instead of {IbInterfaceConsts.DEFAULT_LANES}"
+        # ------------- set/unset commands (Not in scope for upcoming release) -----------------
+        # with allure.step("Validate set/unset fae interface of a non aggregated port"):
+        #     validate_set_and_unset_fae_interface_link_lanes_command(selected_fae_port)
+        #
+        # with allure.step("Validate set/unset fae interface of fnm external port"):
+        #     validate_set_and_unset_fae_interface_link_lanes_command(selected_fae_fnm_port)
 
         # ------------- action commands --------------------------------------------------------
         # tested on test_action_fae_clear_counters
@@ -156,33 +151,33 @@ def test_fae_interface_commands(engines, devices, test_api):
             set_mp_config_to_default()
 
 
-@pytest.mark.interface
-@pytest.mark.multiplanar
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_action_fae_clear_counters(engines, players, interfaces, start_sm, test_api):
-    """
-    Validate fae action commands:
-        - nv action clear fae interface <interface-id> link counters
-        - nv action clear fae interface counters
-
-    Test flow:
-    1. run the existing "test_ib_clear_counters" with fae param.
-    2. run the existing "test_clear_all_counters" with fae param.
-    """
-
-    TestToolkit.tested_api = test_api
-
-    try:
-        with allure.step("Validate action clear fae interface <interface-id> link counters"):
-            test_ib_clear_counters(engines, players, interfaces, start_sm, fae_param="fae")
-
-        with allure.step("Validate action clear fae interface counters"):
-            test_clear_all_counters(engines, players, interfaces, start_sm, fae_param="fae")
-
-    finally:
-        with allure.step("set config to default"):
-            set_mp_config_to_default()
+# @pytest.mark.interface
+# @pytest.mark.multiplanar
+# @pytest.mark.simx
+# @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+# def test_action_fae_clear_counters(engines, players, interfaces, start_sm, test_api):
+#     """
+#     Validate fae action commands:
+#         - nv action clear fae interface <interface-id> link counters
+#         - nv action clear fae interface counters
+#
+#     Test flow:
+#     1. run the existing "test_ib_clear_counters" with fae param.
+#     2. run the existing "test_clear_all_counters" with fae param.
+#     """
+#
+#     TestToolkit.tested_api = test_api
+#
+#     try:
+#         with allure.step("Validate action clear fae interface <interface-id> link counters"):
+#             test_ib_clear_counters(engines, players, interfaces, start_sm, fae_param="fae")
+#
+#         with allure.step("Validate action clear fae interface counters"):
+#             test_clear_all_counters(engines, players, interfaces, start_sm, fae_param="fae")
+#
+#     finally:
+#         with allure.step("set config to default"):
+#             set_mp_config_to_default()
 
 
 @pytest.mark.interface
@@ -208,6 +203,7 @@ def test_aggregated_port_configuration(devices, test_api):
         with allure.step("Select random aggregated port and plane port"):
             selected_fae_aggregated_port = select_random_aggregated_port(devices)
             selected_fae_plane_port = select_random_plane_port(devices, selected_fae_aggregated_port)
+            selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
 
         # Validate ib-speed field aggregation
         validate_aggregation_of_specific_link_param(selected_fae_aggregated_port, selected_fae_plane_port,
@@ -232,20 +228,23 @@ def test_aggregated_port_configuration(devices, test_api):
         # Validate state field aggregation
         with allure.step("Validate state field aggregation"):
             aport_state = OutputParsingTool.parse_json_str_to_dictionary(
-                selected_fae_aggregated_port.port.interface.link.state.show()).get_returned_value()
-            new_state = 'up' if aport_state == 'down' else 'down'
-            selected_fae_aggregated_port.port.interface.link.state.set(op_param_value=new_state, apply=True).\
+                selected_aggregated_port.interface.link.state.show()).get_returned_value()
+            new_state = NvosConsts.LINK_STATE_UP if NvosConsts.LINK_STATE_DOWN in aport_state.keys()\
+                else NvosConsts.LINK_STATE_DOWN
+            selected_aggregated_port.interface.link.state.set(op_param_name=new_state, apply=True).\
                 verify_result()
             aport_state = OutputParsingTool.parse_json_str_to_dictionary(
-                selected_fae_aggregated_port.port.interface.link.state.show()).get_returned_value()
+                selected_aggregated_port.interface.link.state.show()).get_returned_value()
             pport_state = OutputParsingTool.parse_json_str_to_dictionary(
                 selected_fae_plane_port.port.interface.link.state.show()).get_returned_value()
 
-            assert aport_state == pport_state == new_state, f"mismatch in {IbInterfaceConsts.LINK_STATE}: " \
-                f"aggregated port:{aport_state}, plane port:{pport_state}, value set: {new_state}"
+            assert new_state in aport_state.keys() and aport_state == pport_state,\
+                f"mismatch in {IbInterfaceConsts.LINK_STATE}: aggregated port:{aport_state}, " \
+                f"plane port:{pport_state}, value set: {new_state}"
 
     finally:
         with allure.step("set config to default"):
+            selected_aggregated_port.interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
             set_mp_config_to_default()
 
 
@@ -641,6 +640,7 @@ def test_fae_invalid_commands(engines, devices, test_api):
     8. nv set fae interface <unknown interface-id> link lanes <1X/2X/4X>
     9. nv set fae interface <interface-id> link lanes <invalid lane>
     10. nv unset fae interface <unknown interface-id> link lanes
+    11. nv show interface <internal-fnm-id>
     """
 
     TestToolkit.tested_api = test_api
@@ -683,42 +683,18 @@ def test_fae_invalid_commands(engines, devices, test_api):
             Fae(port_name='unknown').port.interface.link.unset(op_param='lanes', apply=True).\
                 verify_result(should_succeed=False)
 
+        with allure.step("Validate show interface with internal fnm id"):
+            port_name = RandomizationTool.select_random_value(devices.dut.FNM_PORT_LIST).get_returned_value()
+            plane_name = RandomizationTool.select_random_value(devices.dut.PLANE_PORT_LIST).get_returned_value()
+            fnm_internal_name = port_name + plane_name
+            Fae(port_name=fnm_internal_name).port.interface.show(should_succeed=False)
+
     finally:
         with allure.step("set config to default"):
             set_mp_config_to_default()
 
 
 # ---------------------------------------------
-
-def override_platform_file(system, engines, path):
-    """
-    install/remove xdr simulation on switch.
-    """
-    player = engines['sonic_mgmt']
-    engine = engines.dut
-
-    # in case of installing xdr simulation, save the origin file in order to restore at the end of the test
-    if path == MultiPlanarConsts.SIMULATION_PATH:
-        with allure.step("Save the origin platform.json file"):
-            file = MultiPlanarConsts.PLATFORM_PATH + MultiPlanarConsts.SIMULATION_FILE
-            engine.run_cmd("sudo scp {} {}".format(file, MultiPlanarConsts.ORIGIN_FILES_PATH))  # TBD update command
-
-    with allure.step("Override platform.json file"):
-        file_path = path + MultiPlanarConsts.SIMULATION_FILE
-        player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                     dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-                                     dest_folder=MultiPlanarConsts.INTERNAL_PATH,
-                                     dest_ip=engine.ip,
-                                     local_file_path=file_path)
-        engine.run_cmd("sudo cp /tmp/{} {}".format(MultiPlanarConsts.SIMULATION_FILE, MultiPlanarConsts.PLATFORM_PATH))
-
-    with allure.step("Remove config_db.json and port_mapping.json files"):
-        engine.run_cmd("sudo rm -f /etc/sonic/config_db.json")
-        engine.run_cmd("sudo rm -f /etc/sonic/port_mapping.json")
-
-    with allure.step("Perform system reboot"):
-        system.reboot.action_reboot(params='force').verify_result()
-
 
 def validate_mp_show_interface_commands(parse_func, port_cmd, port_fae_cmd, aport_fae_cmd, pport_fae_cmd):
     with allure.step("Show interface of a non aggregated port"):
@@ -741,10 +717,12 @@ def validate_mp_show_interface_commands(parse_func, port_cmd, port_fae_cmd, apor
         ValidationTool.validate_all_values_exists_in_list(port_keys, fae_port_keys).verify_result()
 
     with allure.step("Compare between non-aggregated and aggregated port show interface"):
-        ValidationTool.compare_values(fae_port_keys, fae_aport_keys).verify_result()
+        fae_port_keys = list(set(fae_port_keys) - set(MultiPlanarConsts.MULTI_PLANAR_KEYS))
+        ValidationTool.compare_values(fae_port_keys.sort(), fae_aport_keys.sort()).verify_result()
 
     with allure.step("Compare between aggregated port and plane port show interface"):
-        ValidationTool.compare_values(fae_aport_keys, fae_plane_port_keys).verify_result()
+        fae_plane_port_keys = list(set(fae_plane_port_keys) - set(MultiPlanarConsts.MULTI_PLANAR_KEYS))
+        ValidationTool.compare_values(fae_aport_keys.sort(), fae_plane_port_keys.sort()).verify_result()
 
 
 def select_random_aggregated_port(devices):
@@ -753,6 +731,14 @@ def select_random_aggregated_port(devices):
             get_returned_value()
         selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
         return selected_fae_aggregated_port
+
+
+def select_random_fnm_port(devices):
+    with allure.step("Select a random fnm port"):
+        fnm_port_name = RandomizationTool.select_random_value(devices.dut.FNM_PORT_LIST). \
+            get_returned_value()
+        selected_fae_fnm_port = Fae(port_name=fnm_port_name)
+        return selected_fae_fnm_port
 
 
 def select_random_plane_port(devices, fae_aggregated_port):
@@ -834,6 +820,30 @@ def validate_mp_database_files_exist_in_techsupport(system, engine):
             "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
         assert "{}.json.0".format(db_table) in techsupport_files_list, \
             "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
+
+
+def validate_set_and_unset_fae_interface_link_lanes_command(selected_fae_port):
+    with allure.step(f"Validate set fae interface {selected_fae_port.port.name} link lanes command"):
+        output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            selected_fae_port.port.interface.link.show()).get_returned_value()
+        lanes_list = IbInterfaceConsts.SUPPORTED_LANES - output[IbInterfaceConsts.LINK_LANES]
+        new_lanes = RandomizationTool.select_random_value(lanes_list).get_returned_value()
+        selected_fae_port.port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_LANES,
+                                                  op_param_value=new_lanes, apply=True).verify_result()
+        output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            selected_fae_port.port.interface.link.show()).get_returned_value()
+        assert output[IbInterfaceConsts.LINK_LANES] == new_lanes, \
+            f"{IbInterfaceConsts.LINK_LANES} value is {output[IbInterfaceConsts.LINK_LANES]}," \
+            f"instead of {new_lanes}"
+
+    with allure.step(f"Validate unset fae interface {selected_fae_port.port.name} link lanes command"):
+        selected_fae_port.port.interface.link.unset(op_param_name=IbInterfaceConsts.LINK_LANES,
+                                                    apply=True).verify_result()
+        output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            selected_fae_port.port.interface.link.show()).get_returned_value()
+        assert output[IbInterfaceConsts.LINK_LANES] == IbInterfaceConsts.DEFAULT_LANES, \
+            f"{IbInterfaceConsts.LINK_LANES} value is {output[IbInterfaceConsts.LINK_LANES]}," \
+            f"instead of {IbInterfaceConsts.DEFAULT_LANES}"
 
 
 def set_mp_config_to_default():

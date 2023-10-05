@@ -55,4 +55,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_link_tranceiver_diagnostics.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_multi_planar_sym_mgr_and_aport.cases </cases>
+	</test>
 </DBDEF>
