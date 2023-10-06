@@ -362,3 +362,10 @@ class LdapConsts:
     SWITCH_CA_BACKUP_FILE = '/tmp/backup_ca-certificates.crt'
 
     PERMISSION_DENIED = 'Permission denied'
+
+
+class LdapEncryptionModes:
+    NONE = 'none'
+    START_TLS = 'start-tls'
+    SSL = 'ssl'
+    ALL_MODES = [NONE, START_TLS, SSL]

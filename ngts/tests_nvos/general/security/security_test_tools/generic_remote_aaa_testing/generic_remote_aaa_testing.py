@@ -1,23 +1,33 @@
-
 import logging
+import time
 
-from typing import Dict, List
+from typing import Dict, List, Callable, Any
+
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
+from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
+    verify_users_auth, verify_user_auth
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
+    update_active_aaa_server
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tools.test_utils import allure_utils as allure
 
 
-def generic_aaa_set_unset_show(test_api, engines, remote_aaa_type: str, main_resource_obj: RemoteAaaResource,
-                               confs: Dict[BaseComponent, dict],
-                               hostname_conf: dict,
-                               default_confs: Dict[BaseComponent, dict]):
+def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, main_resource_obj: RemoteAaaResource,
+                                    confs: Dict[BaseComponent, dict],
+                                    hostname_conf: dict,
+                                    default_confs: Dict[BaseComponent, dict]):
     """
     @summary: Verify set, unset, show commands for remote AAA feature
 
@@ -126,10 +136,10 @@ def generic_aaa_set_unset_show(test_api, engines, remote_aaa_type: str, main_res
                                                                 output_dict=cur_conf).verify_result()
 
 
-def generic_aaa_set_invalid_param(test_api,
-                                  field_is_numeric: Dict[str, bool],
-                                  valid_values: dict,
-                                  resources_and_fields: Dict[RemoteAaaResource, List[str]]):
+def generic_aaa_test_set_invalid_param(test_api,
+                                       field_is_numeric: Dict[str, bool],
+                                       valid_values: dict,
+                                       resources_and_fields: Dict[RemoteAaaResource, List[str]]):
     """
     @summary: Verify set, unset, show commands for remote AAA feature
 
@@ -164,3 +174,78 @@ def generic_aaa_set_invalid_param(test_api,
                 continue
             with allure.step(f'Check invalid {field} for {resource.get_resource_path()}'):
                 check_invalid_set_to_resource(resource, field)
+
+
+def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_type: str, server: RemoteAaaServerInfo,
+                 skip_auth_mediums: List[str] = None):
+    with allure.step(f'Sleep for {RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH} seconds'):
+        time.sleep(RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH)
+    with allure.step(f'Verify auth with {remote_aaa_type} user - expect success'):
+        verify_users_auth(engines, topology_obj, server.users, skip_auth_mediums=skip_auth_mediums)
+    with allure.step(f'Verify auth with non {remote_aaa_type} user - expect fail'):
+        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False,
+                         skip_auth_mediums=skip_auth_mediums)
+
+
+def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
+                          request,
+                          remote_aaa_type: str,
+                          feature_resource_obj: RemoteAaaResource,
+                          server_by_addr_type: Dict[str, RemoteAaaServerInfo],
+                          test_param: List[str] = None,
+                          test_param_update_func: Callable[[Any, Any, RemoteAaaServerInfo, HostnameId, str], None] = None,
+                          skip_auth_mediums: List[str] = None):
+    """
+    @summary: Basic test to verify authentication and authorization through remote aaa, using all possible auth mediums:
+        SSH, OpenApi, rcon, scp.
+
+        Steps:
+        1. configure aaa server
+        2. set authentication order, and set failthrough off
+        3. verify only remote user can authenticate
+            - verify auth with remote user - expect success
+            - verify auth with local user - expect fail
+    @param test_api: run commands with NVUE / OpenApi
+    @param addressing_type: whether to check connectivity with ipv4/ipv6/domain-name addressing
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param local_adminuser: local admin user info
+    @param request: object containing pytest information about current test
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param server_by_addr_type: dictionary containing server info, by addressing type
+    @param test_param: list of other parameters to run the test on
+    @param test_param_update_func: function to update the test configuration for each test param
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
+    """
+    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+    assert addressing_type in AddressingType.ALL_TYPES, f'{addressing_type} is not one of {AddressingType.ALL_TYPES}'
+
+    TestToolkit.tested_api = test_api
+    item = request.node
+
+    with allure.step(f'Configure {remote_aaa_type} server'):
+        server = server_by_addr_type[addressing_type].copy()
+        server_resource = feature_resource_obj.hostname.hostname_id[server.hostname]
+        server.configure(engines, hostname_resource_obj=server_resource)
+
+    with allure.step(f'Set {remote_aaa_type} in authentication order, and set failthrough off'):
+        configure_resource(engines, resource_obj=System().aaa.authentication, conf={
+            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
+            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
+        }, apply=True, verify_apply=False)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            logging.info('Wait for nvued restart (workaround specific for ldap in auth order)')
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engines.dut, find_prompt_delay=5).verify_result()
+        update_active_aaa_server(item, server)
+
+    if test_param:
+        assert test_param_update_func, 'test_param_update_func function was not specified!'
+        for param in test_param:
+            with allure.step(f'Update test param: {param}'):
+                test_param_update_func(engines, item, server, server_resource, param)
+            with allure.step('Test auth'):
+                auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
+    else:
+        auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)

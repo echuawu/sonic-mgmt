@@ -220,9 +220,17 @@ def clear_config(markers, active_aaa_server=None):
                                                  ip=TestToolkit.engines.dut.ip,
                                                  username=remote_admin.username,
                                                  password=remote_admin.password)
-            logging.info('Enable failthrough to allow local admin user engine continue')
-            System().aaa.authentication.set(AuthConsts.FAILTHROUGH, AaaConsts.ENABLED, apply=True,
-                                            dut_engine=remote_admin_engine).verify_result()
+            logging.info('Clear authentication settings to allow local admin user engine continue')
+            try:
+                System().aaa.authentication.unset(apply=True, dut_engine=remote_admin_engine).verify_result()
+            except Exception:
+                logging.info('Failed with remote user engine, try with local dut engine')
+                System().aaa.authentication.unset(apply=True).verify_result()
+
+            logging.info('Remove remote users home directories')
+            remote_usernames = [user.username for user in active_aaa_server.users]
+            for username in remote_usernames:
+                TestToolkit.engines.dut.run_cmd(f'sudo rm -rf /home/{username}')
 
         if 'system_profile_cleanup' in markers:
             clear_system_profile_config()

@@ -4,11 +4,14 @@ from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.tests_nvos.general.security.security_test_tools.constants import AuthMedium
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     validate_authentication_fail_with_credentials, \
     set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapEncryptionModes
+from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServers
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from ngts.tools.test_utils import allure_utils as allure
@@ -192,7 +195,7 @@ def test_ldap_invalid_credentials_error_flow(engines, devices):
 def test_ldap_set_unset_show(test_api, engines):
     ldap_obj = System().aaa.ldap
     random_str = RandomizationTool.get_random_string(6)
-    generic_aaa_set_unset_show(
+    generic_aaa_test_set_unset_show(
         test_api=test_api, engines=engines,
         remote_aaa_type=RemoteAaaType.LDAP,
         main_resource_obj=ldap_obj,
@@ -236,7 +239,7 @@ def test_ldap_set_invalid_param(test_api, engines):
     global_ldap_fields = LdapConsts.LDAP_FIELDS
     ldap_ssl_fields = LdapConsts.SSL_FIELDS
     ldap_hostname_fields = [AaaConsts.PRIORITY]
-    generic_aaa_set_invalid_param(
+    generic_aaa_test_set_invalid_param(
         test_api=test_api,
         field_is_numeric=LdapConsts.FIELD_IS_NUMERIC,
         valid_values=LdapConsts.ALL_VALID_VALUES,
@@ -247,6 +250,32 @@ def test_ldap_set_invalid_param(test_api, engines):
         }
     )
 
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
+def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
+    """
+    @summary: Basic test to verify authentication and authorization through LDAP, using all possible auth mediums:
+        SSH, OpenApi, rcon, scp.
+
+        Steps:
+        1. configure LDAP server
+        2. set LDAP in authentication order, and set failthrough off
+        3. verify only LDAP user can authenticate
+            - verify auth with tacacs user - expect success
+            - verify auth with local user - expect fail
+    """
+    ldap = System().aaa.ldap
+    generic_aaa_test_auth(test_api=test_api, addressing_type=addressing_type, engines=engines,
+                          topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
+                          remote_aaa_type=RemoteAaaType.LDAP,
+                          feature_resource_obj=ldap,
+                          server_by_addr_type=LdapServers.DOCKER_SERVERS,
+                          test_param=LdapEncryptionModes.ALL_MODES,
+                          test_param_update_func=update_ldap_encryption_mode,
+                          skip_auth_mediums=[AuthMedium.OPENAPI])
 
 # -------------------- NEW TESTS ---------------------
 

@@ -8,7 +8,7 @@ from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AuthMedium
 from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.linux_tools.linux_tools import scp_file
 
@@ -170,8 +170,8 @@ class ScpAuthVerifier(AuthVerifier):
 
 
 AUTH_VERIFIERS = {
-    AuthConsts.SSH: SshAuthVerifier,
-    AuthConsts.OPENAPI: OpenApiAuthVerifier,
-    AuthConsts.RCON: RconAuthVerifier,
-    AuthConsts.SCP: ScpAuthVerifier
+    AuthMedium.SSH: SshAuthVerifier,
+    AuthMedium.OPENAPI: OpenApiAuthVerifier,
+    AuthMedium.RCON: RconAuthVerifier,
+    AuthMedium.SCP: ScpAuthVerifier
 }

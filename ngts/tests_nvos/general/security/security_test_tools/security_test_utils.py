@@ -13,7 +13,6 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
@@ -39,7 +38,7 @@ def check_nslcd_service(engines):
 
 
 def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success: bool = True,
-                     verify_authorization: bool = True):
+                     verify_authorization: bool = True, skip_auth_mediums: List[str] = None):
     """
     @summary: Verify authentication and authorization for the given user.
         Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
@@ -55,12 +54,16 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param expect_login_success: boolean flag, whether login expected to succeed (True) or fail (False).
         Default is True.
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
     with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
                      f'Expect login success: {expect_login_success}'):
         # for ssh, openapi, rcon: test authentication, and then verify role by running show, set, unset commands
         user_is_admin = user.role == AaaConsts.ADMIN
-        for medium in AuthConsts.AUTH_MEDIUMS:
+        for medium in AuthMedium.ALL_MEDIUMS:
+            if skip_auth_mediums and medium in skip_auth_mediums:
+                continue
+
             with allure.step(f'Verify auth with medium: {medium}'):
                 medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
 
@@ -74,7 +77,7 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
 
 
 def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login_success: List[bool] = None,
-                      verify_authorization: bool = True):
+                      verify_authorization: bool = True, skip_auth_mediums: List[str] = None):
     """
     @summary: Verify authentication and authorization for the given users.
         Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
@@ -90,11 +93,12 @@ def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login
     @param expect_login_success: list of boolean flags, whether login expected to succeed (True) or fail (False).
         Default is True for all users.
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
     expect_login_success = [True] * len(users) if not expect_login_success else expect_login_success
 
     for i, user in enumerate(users):
-        verify_user_auth(engines, topology_obj, user, expect_login_success[i], verify_authorization)
+        verify_user_auth(engines, topology_obj, user, expect_login_success[i], verify_authorization, skip_auth_mediums)
 
 
 def validate_users_authorization_and_role(engines, users, login_should_succeed=True, check_nslcd_if_login_failed=False):
@@ -366,22 +370,3 @@ def configure_resource(engines, resource_obj: BaseComponent, conf, apply=False, 
                                                           dut_engine, True)
                 if verify_apply:
                     res.verify_result()
-
-
-def update_active_aaa_server(item, server: RemoteAaaServerInfo):
-    item.active_remote_aaa_server = server
-    if server is None:
-        with allure.step('Change active remote auth server to None'):
-            item.active_remote_aaa_server = None
-            item.active_remote_admin_engine = None
-    else:
-        with allure.step('Update to new active remote auth server'):
-            item.active_remote_auth_server = server
-        with allure.step('Create ssh engine with remote admin user'):
-            logging.info('Find remote admin user to use')
-            remote_admin = [user for user in server.users if user.role == 'admin'][0]
-            logging.info(f'Create ssh engine with user: {remote_admin.username}')
-            item.active_remote_admin_engine = ProxySshEngine(device_type=TestToolkit.engines.dut.device_type,
-                                                             ip=TestToolkit.engines.dut.ip,
-                                                             username=remote_admin.username,
-                                                             password=remote_admin.password)

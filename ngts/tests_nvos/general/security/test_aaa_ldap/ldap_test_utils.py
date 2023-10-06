@@ -8,9 +8,13 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_authentication, validate_services_and_dockers_availability, find_server_admin_user, configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_authentication, \
+    validate_services_and_dockers_availability, find_server_admin_user, configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
+    LdapServerInfo
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -205,7 +209,8 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
                                                                                      apply=apply).verify_result()
 
 
-def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False):
+def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False, dut_engine=None,
+                              server_info: LdapServerInfo = None):
     """
     @summary: Configure ldap settings according to the given encryption mode
     @param engines: engines object
@@ -213,14 +218,23 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False):
     @param encryption_mode: in [NONE, START_TLS, SSL]
     """
     with allure.step(f'Configure ldap encryption: {encryption_mode}'):
-        conf_to_set = {LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED}
+        conf_to_set = {
+            LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED,
+            LdapConsts.SSL_PORT: server_info.ssl_port
+        }
         if encryption_mode == LdapConsts.TLS:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.START_TLS
         elif encryption_mode == LdapConsts.SSL:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.SSL
         elif encryption_mode == LdapConsts.NONE:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.NONE
-        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply)
+        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply, dut_engine=dut_engine)
+
+
+def update_ldap_encryption_mode(engines, item, server_info: RemoteAaaServerInfo, server_resource: HostnameId,
+                                encryption_mode: str):
+    configure_ldap_encryption(engines, System().aaa.ldap, encryption_mode, apply=True,
+                              dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info)
 
 
 def add_ldap_server_certificate_to_switch(engines):

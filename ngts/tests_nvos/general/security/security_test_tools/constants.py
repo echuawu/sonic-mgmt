@@ -1,4 +1,3 @@
-
 # aaa constants
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 
@@ -82,13 +81,6 @@ class AuthConsts:
 
     USERS = 'users'
 
-    # possible authentication mediums
-    SSH = 'SSH'
-    OPENAPI = 'OpenApi'
-    RCON = 'RCON'
-    SCP = 'SCP'
-    AUTH_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
-
     # path consts
     SHARED_VERIFICATION_SECURITY_DIR = '/auto/sw_system_project/NVOS_INFRA/security/verification'
     SHARED_VERIFICATION_SCP_DIR = f'{SHARED_VERIFICATION_SECURITY_DIR}/scp/scp_test_files'
@@ -103,3 +95,27 @@ class AuthConsts:
 
     SWITCH_ROOT_DIR = '/etc'
     SWITCH_ROOT_FILE_NAME = 'shadow'
+
+
+class AddressingType:
+    IPV4 = 'ipv4'
+    IPV6 = 'ipv6'
+    DN = 'dn'
+    ALL_TYPES = [IPV4, IPV6, DN]
+
+
+class AuthType:
+    PAP = 'pap'
+    CHAP = 'chap'
+    # MSCHAPV2 = 'mschapv2'
+    LOGIN = 'login'
+    ALL_TYPES = [PAP, CHAP, LOGIN]
+
+
+class AuthMedium:
+    # possible authentication mediums
+    SSH = 'SSH'
+    OPENAPI = 'OpenApi'
+    RCON = 'RCON'
+    SCP = 'SCP'
+    ALL_MEDIUMS = [SSH, OPENAPI, RCON, SCP]

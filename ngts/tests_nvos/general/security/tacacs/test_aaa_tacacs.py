@@ -11,14 +11,17 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
-    verify_users_auth, verify_user_auth, update_active_aaa_server
+    verify_users_auth, verify_user_auth
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
+    update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsServers
+from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_auth_type
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -27,7 +30,7 @@ from ngts.tools.test_utils import allure_utils as allure
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_set_unset_show(test_api, engines):
     tacacs_obj = System().aaa.tacacs
-    generic_aaa_set_unset_show(
+    generic_aaa_test_set_unset_show(
         test_api=test_api, engines=engines,
         remote_aaa_type=RemoteAaaType.TACACS,
         main_resource_obj=tacacs_obj,
@@ -64,7 +67,7 @@ def test_tacacs_set_invalid_param(test_api, engines):
     tacacs_obj = System().aaa.tacacs
     global_tacacs_fields = [AaaConsts.AUTH_TYPE, AaaConsts.PORT, AaaConsts.SECRET, AaaConsts.TIMEOUT]
     tacacs_hostname_fields = global_tacacs_fields + [AaaConsts.PRIORITY]
-    generic_aaa_set_invalid_param(
+    generic_aaa_test_set_invalid_param(
         test_api=test_api,
         field_is_numeric=TacacsConsts.FIELD_IS_NUMERIC,
         valid_values=TacacsConsts.VALID_VALUES,
@@ -75,13 +78,10 @@ def test_tacacs_set_invalid_param(test_api, engines):
     )
 
 
-# -------------------- NEW TESTS ---------------------
-
-
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-@pytest.mark.parametrize('addressing_type', [AaaConsts.IPV4, AaaConsts.IPV6, AaaConsts.DN])
+@pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
     """
     @summary: Basic test to verify authentication and authorization through tacacs, using all possible auth mediums:
@@ -94,44 +94,17 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
             - verify auth with tacacs user - expect success
             - verify auth with local user - expect fail
     """
-    TestToolkit.tested_api = test_api
-    item = request.node
+    tacacs = System().aaa.tacacs
+    generic_aaa_test_auth(test_api=test_api, addressing_type=addressing_type, engines=engines,
+                          topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
+                          remote_aaa_type=RemoteAaaType.TACACS,
+                          feature_resource_obj=tacacs,
+                          server_by_addr_type=TacacsServers.DOCKER_SERVERS,
+                          test_param=AuthType.ALL_TYPES,
+                          test_param_update_func=update_tacacs_auth_type)
 
-    with allure.step('Configure tacacs server'):
-        server = TacacsServers.DOCKER_SERVERS[addressing_type].copy()
-        aaa = System().aaa
-        server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: server.secret,
-            AaaConsts.PORT: server.port,
-            AaaConsts.TIMEOUT: server.timeout,
-            # AaaConsts.RETRANSMIT: server.retransmit
-        })
 
-    with allure.step('Set tacacs in authentication order, and set failthrough off'):
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
-        update_active_aaa_server(item, server)
-
-    for auth_type in TacacsConsts.AUTH_TYPES:
-        with allure.step(f'With {auth_type} - verify auth is allowed for tacacs users only'):
-            with allure.step(f'Set auth-type to: {auth_type}'):
-                server_resource.set(AaaConsts.AUTH_TYPE, auth_type, dut_engine=item.active_remote_admin_engine,
-                                    apply=True)
-                logging.info(f'Update users to use {auth_type} passwords')
-                server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type]
-                update_active_aaa_server(item, server)
-
-            with allure.step(f'Sleep for {TacacsConsts.TIME_TILL_TACACS_CONF_TAKES_PLACE} seconds'):
-                time.sleep(TacacsConsts.TIME_TILL_TACACS_CONF_TAKES_PLACE)
-
-            with allure.step('Verify auth with tacacs user - expect success'):
-                verify_users_auth(engines, topology_obj, server.users)
-
-            with allure.step('Verify auth with non tacacs user - expect fail'):
-                verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security

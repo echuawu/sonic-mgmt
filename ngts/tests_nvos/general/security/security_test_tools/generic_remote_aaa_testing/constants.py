@@ -16,3 +16,5 @@ class RemoteAaaConsts:
         RemoteAaaType.RADIUS: RadiusConstants.RADIUS_PASSWORD,
         RemoteAaaType.TACACS: AaaConsts.SECRET
     }
+
+    WAIT_TIME_BEFORE_AUTH = 3
