@@ -425,6 +425,7 @@ def test_system_image_install_reject_with_random_char(engines):
 
 def system_image_install_reject_with_prompt(engines, system, prompt_response):
 
+    action_job_id = 0
     try:
         with allure.step("Create SSH Engine to login to the switch"):
             logging.info("Create SSH Engine to login to the switch")
@@ -447,7 +448,8 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response):
             # Get the last action-job-id
             action = Action()
             output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
-            action_job_id = int(list(output)[-1])
+            if output:
+                action_job_id = int(list(output)[-1])
             # Since the install is to be aborted, using a dummy image name nvos.bin
             child.sendline('nv action install system image files nvos.bin')
             respond = child.expect('.*continue.*')
@@ -641,10 +643,25 @@ def test_show_system_image_openapi():
     test_show_system_image()
 
 
-@pytest.mark.banner
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
-def test_system_image_install_reject_with_smallcase_n_openapi():
+def test_system_image_install_reject_with_smallcase_n_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_install_reject_with_smallcase_n()
+    test_system_image_install_reject_with_smallcase_n(engines)
+
+
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_install_reject_with_uppercase_n_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_install_reject_with_uppercase_n(engines)
+
+
+@pytest.mark.simx
+@pytest.mark.image
+@pytest.mark.system
+def test_system_image_install_reject_with_random_char_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_system_image_install_reject_with_random_char(engines)
