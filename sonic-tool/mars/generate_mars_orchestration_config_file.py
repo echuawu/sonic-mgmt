@@ -11,6 +11,7 @@ import os
 community_develop_set_1_dbs = [
     'pretest.db',
     'routes.db',
+    'clock.db',
     'dhcp.db',
     'pfcwd.db',
     'layer3.db',
@@ -151,6 +152,7 @@ community_201911_generic_dbs = None
 canonical_develop_dbs = [
     'canonical/pretest.db',
     'platform.db',
+    'clock.db',
     'canonical/nightly.db',
     'canonical/push_gate_without_reboot.db',
     'dynamic_buffer.db',
@@ -162,6 +164,7 @@ canonical_develop_dbs = [
 canonical_upgrade_develop_dbs = [
     'canonical/pretest.db',
     'platform.db',
+    'clock.db',
     'canonical/nightly.db',
     'canonical/push_gate_with_upgrade.db',
     'dynamic_buffer.db',
