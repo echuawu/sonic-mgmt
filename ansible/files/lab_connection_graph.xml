@@ -205,6 +205,7 @@
       <Device Hostname="jaguar-119" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="jaguar-25" HwSku="ACS-MQM8700" Type="DevSonic"/>
       <Device Hostname="r-jaguar-03" HwSku="ACS-MQM8700" Type="DevSonic"/>
+      <Device Hostname="gorilla-58" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-153" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-154" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-11" HwSku="ACS-MQM9700" Type="DevSonic"/>
