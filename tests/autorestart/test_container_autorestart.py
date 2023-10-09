@@ -44,13 +44,6 @@ def config_reload_after_tests(duthosts, selected_rand_one_per_hwsku_hostname):
         config_reload(duthost, config_source='config_db', safe_reload=True)
 
 
-def enable_autorestart(duthost):
-    # Enable autorestart for all features
-    feature_list, _ = duthost.get_feature_status()
-    for feature, status in list(feature_list.items()):
-        if status == 'enabled':
-            duthost.shell("sudo config feature autorestart {} enabled".format(feature))
-
 
 def enable_autorestart(duthost):
     # Enable autorestart for all features

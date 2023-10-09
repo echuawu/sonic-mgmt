@@ -38,7 +38,6 @@ def setup_password(duthosts, enum_rand_one_per_hwsku_hostname, creds_all_duts):
     delete_running_config(delete_keys_json, duthost)
 
 
-
 def check_no_result(duthost, command):
     res = duthost.shell(command)
     logger.info(command)
