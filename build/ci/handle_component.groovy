@@ -20,7 +20,7 @@ def run_step(name) {
                 && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
             print "'NVOS' BAT are skipped"
             env.SKIP_NVOS_BAT = "true"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM2", "Skipped=status")
         }
 
         //If NVOS only, disable all sonic BAT
