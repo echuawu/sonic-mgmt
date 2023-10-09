@@ -24,9 +24,11 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
     fae = Fae()
     system = System()
     ib0_port = MgmtPort('ib0')
+    system.log.rotate_logs()
 
     with allure_step("Run run nv show fae ipoib-mapping command and validate fields"):
-        mapping_output = OutputParsingTool.parse_json_str_to_dictionary(fae.ipoibmapping.show_mapping()).get_returned_value()
+        mapping_output = OutputParsingTool.parse_json_str_to_dictionary(fae.ipoibmapping.show_mapping())\
+            .get_returned_value()
 
         with allure_step("Validate all expected fields in show output"):
             ValidationTool.verify_field_exist_in_json_output(mapping_output,
@@ -38,10 +40,9 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
         primary_ib_interface = device.PRIMARY_IPOIB_INTERFACE
         primary_asic = device.PRIMARY_ASIC
         primary_swid = device.PRIMARY_SWID
-        values_to_check = [primary_asic, primary_swid, ImageConsts.SWID, ImageConsts.ASIC, primary_ib_interface]
+        values_to_check = [ImageConsts.SWID, ImageConsts.ASIC]
         ValidationTool.verify_field_value_exist_in_output_dict(mapping_output, primary_ib_interface).verify_result()
-        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(mapping_output,
-                                                                          values_to_check).verify_result()
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(mapping_output[primary_ib_interface], values_to_check).verify_result()
 
     with allure_step("Set parameters to ib0 interface related to the system"):
         ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -64,9 +65,9 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
         validate_interface_ip_address(ip_address, ip_output)
 
         with allure_step("Validate params applied to primary/secondary ib interface"):
-            primary_ib_interface_output = engines.dut.run_cmd("ip link show {}".format(device.PRIMARY_IPOIB_INTERFACE))
+            primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.PRIMARY_IPOIB_INTERFACE))
             if device.MULTI_ASIC_SYSTEM:
-                secondary_ib_interface_output = engines.dut.run_cmd("ip link show {}".format(
+                secondary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(
                     device.PRIMARY_IPOIB_INTERFACE))
                 assert "UP" in secondary_ib_interface_output, "port not in up state"
                 assert ip_address in primary_ib_interface_output, "address not found on primary ib interface"
@@ -77,7 +78,7 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
         with allure_step("Check logs exist for ib0 commands"):
 
             with allure_step("Run nv show system log command follow to view system logs"):
-                show_output = system.log.show_log(exit_cmd='q')
+                show_output = system.log.show_log(param="| grep 'IB_INTERFACE_TABLE'")
 
             with allure_step('Verify updated “system/image” in the logs as expected'):
                 ValidationTool.verify_expected_output(show_output, "IB_INTERFACE_TABLE").verify_result()
@@ -90,8 +91,8 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
 
         validate_interface_ip_address(ip_address, output_dictionary, False)
 
-        primary_ib_interface_output = engines.dut.run_cmd("ip link show {}".format(device.PRIMARY_IPOIB_INTERFACE))
-        assert ip_address in primary_ib_interface_output, "address not found on primary ib interface"
+        primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.PRIMARY_IPOIB_INTERFACE))
+        assert ip_address not in primary_ib_interface_output, "address found on primary ib interface"
 
 
 def test_interface_ipoib_ping_functionality(engines, devices, start_sm, players, interfaces):
