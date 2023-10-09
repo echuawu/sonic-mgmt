@@ -338,11 +338,17 @@ class SonicInstallationSteps:
                     general_cli_obj.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                         is_air_setup=platform_params.setup_name.startswith('air'))
                     general_cli_obj.save_configuration()
-            # TODO remove the "if" for DPU when the RM issue 3203843 will be resolved
-            if not is_bf_topo(sonic_topo):
-                for dut in setup_info['duts']:
-                    SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
-                                                                    ansible_path=ansible_path)
+
+            ##########################################################################################################
+            # TODO: This is a WA for RM issue 3598710 on DPU setups, remove this after the bug is fixed.
+            if is_bf_topo(sonic_topo):
+                topology_obj.players['dut']['engine'].run_cmd("sudo sed -i '/pfc_asym/d' /etc/sonic/config_db.json")
+                setup_info['duts'][0]['cli_obj'].reload_flow(ports_list=['Ethernet0', 'Ethernet4'], reload_force=True)
+            ##########################################################################################################
+
+            for dut in setup_info['duts']:
+                SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
+                                                                ansible_path=ansible_path)
 
         for dut in setup_info['duts']:
             SonicInstallationSteps.upgrade_switch(topology_obj=topology_obj, dut_name=dut['dut_name'],
