@@ -17,4 +17,4 @@ class IpoibMapping(BaseComponent):
     def show_mapping(self):
         with allure.step('Execute nv show fae interface ipoib-mapping'):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show,
-                                                   TestToolkit.engines.dut).get_returned_value()
+                                                   TestToolkit.engines.dut, self.get_resource_path()).get_returned_value()
