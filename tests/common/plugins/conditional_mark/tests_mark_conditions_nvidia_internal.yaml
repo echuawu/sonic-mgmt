@@ -2050,25 +2050,13 @@ dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
     conditions:
       - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
 
-pfcwd/test_pfcwd_warm_reboot.py:
+qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
     conditions:
-      - https://redmine.mellanox.com/issues/3624206
+      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
 
-pfcwd/test_pfcwd_function.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
-    conditions:
-      - https://redmine.mellanox.com/issues/3624206
-
-pfcwd/test_pfcwd_timer_accuracy.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624206"
-    conditions:
-      - https://redmine.mellanox.com/issues/3624206
-
-qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
+qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXoffLimit:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628072"
     conditions:
