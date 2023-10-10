@@ -504,9 +504,21 @@
 
 - Errors_list:
     - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is stuck in namespace.*host.*1.0 minutes.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: message repeated \d+ times:.* Process .*orchagent.* is stuck in namespace .*host.*'
   Conditions:
     - Redmine:
       - 3600594
+      Branch:
+        - 202305
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[FDB_UC.ERR\] FDB: not supported fid type \(\d+\) for fid \(\d+\).*'
+  Conditions:
+    - Affected_test_cases:
+      - sub_port_interfaces/test_show_subinterface.py
+      - sub_port_interfaces/test_sub_port_interfaces.py
+      Redmine:
+        - 3628478
       Branch:
         - 202305
 

@@ -2066,35 +2066,29 @@ pfcwd/test_pfcwd_timer_accuracy.py:
     conditions:
       - https://redmine.mellanox.com/issues/3624206
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
+qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628072"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3628072"
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXoffLimit:
+platform_tests/test_advanced_reboot.py::test_warm_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXonLimit:
+platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiPgHeadroomWatermark:
+platform_tests/test_cont_warm_reboot.py::test_continuous_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
-
-qos/test_qos_sai.py::TestQosSai::testQosSaiPgSharedWatermark:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
