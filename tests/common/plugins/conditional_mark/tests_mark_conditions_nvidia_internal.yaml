@@ -2100,6 +2100,12 @@ platform_tests/test_cont_warm_reboot.py::test_continuous_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
 
+test_nbr_health.py:
+  skip:
+    reason: "Testcase ignored due to sonic-mgmt issue: https://github.com/sonic-net/sonic-mgmt/issues/7883"
+    conditions:
+      - "https://github.com/sonic-net/sonic-mgmt/issues/7883"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
