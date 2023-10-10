@@ -437,6 +437,11 @@ def is_mars_run(mars_key_id):
     return pytest.is_mars_run
 
 
+@pytest.fixture(scope='session', autouse=True)
+def dynamic_ignore_set():
+    pytest.dynamic_ignore_set = set()
+
+
 @pytest.fixture(scope='session')
 def platform_params(show_platform_summary, setup_name, topology_obj):
     """
