@@ -786,9 +786,11 @@ copp/test_copp.py:
 
 arp/test_wr_arp.py::TestWrArp::testWrArp:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 on sn5600 platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 on sn5600 platform or https://redmine.mellanox.com/issues/3629375"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5600' in platform"
+      - "https://redmine.mellanox.com/issues/3629375"
 
 autorestart/test_container_autorestart.py::test_containers_autorestart[r-tigris-26-None-teamd]:
   skip:
