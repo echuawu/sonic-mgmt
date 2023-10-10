@@ -10,7 +10,25 @@
       tags: always
 
     - block:
-      - name: Wait until all critical services are started not LeafRouter(expected ToRRouter)
+      - name: Wait until all critical services are started SonicHost(DPU)
+        shell: bash -c 'docker ps | grep {{ item }}'
+        register: result
+        until: result.rc == 0
+        with_items:
+          - swss
+          - syncd
+          - bgp
+          - pmon
+          - lldp
+          - snmp
+          - gnmi
+        retries: 10
+        delay: 30
+
+      when: (minigraph_device_metadata["device_type"] == "SonicHost")
+
+    - block:
+      - name: Wait until all critical services are started ToRRouter
         shell: bash -c 'docker ps | grep {{ item }}'
         register: result
         until: result.rc == 0
@@ -26,7 +44,7 @@
         retries: 10
         delay: 30
 
-      when: (minigraph_device_metadata["device_type"] != "LeafRouter")
+      when: (minigraph_device_metadata["device_type"] == "ToRRouter")
 
     - block:
       - name: Wait until all critical services are started LeafRouter
