@@ -20,9 +20,11 @@ tests/simx/test_simx_custom_base_mac.py:
 
 tests/nightly/cpld/test_cpld.py::test_cpld_version_check:
   skip:
-    reason: "Testcase skipped due to RM ticket https://redmine.mellanox.com/issues/3549638 on ComEx setup"
+    reason: "Testcase skipped due to RM ticket https://redmine.mellanox.com/issues/3549638 on ComEx setup or https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3549638 and 'r-panther-36' in testbed "
+      - "https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
