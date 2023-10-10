@@ -19,7 +19,8 @@ class SonicDhcpRelayCli:
                                  '202205': SonicDhcpRelayCli202205(engine, cli_obj),
                                  '202012': SonicDhcpRelayCli202012(engine, cli_obj),
                                  '202111': SonicDhcpRelayCli202111(engine, cli_obj),
-                                 '202211': SonicDhcpRelayCli202211(engine, cli_obj)}
+                                 '202211': SonicDhcpRelayCli202211(engine, cli_obj),
+                                 '202305': SonicDhcpRelayCli202305(engine, cli_obj)}
 
         cli_class = supported_cli_classes.get(branch, supported_cli_classes['default'])
         cli_class_name = cli_class.__class__.__name__
@@ -263,6 +264,13 @@ class SonicDhcpRelayCli202205(SonicDhcpRelayCliMaster):
 
 
 class SonicDhcpRelayCli202211(SonicDhcpRelayCliMaster):
+
+    def __init__(self, engine, cli_obj):
+        self.engine = engine
+        self.cli_obj = cli_obj
+
+
+class SonicDhcpRelayCli202305(SonicDhcpRelayCliMaster):
 
     def __init__(self, engine, cli_obj):
         self.engine = engine
