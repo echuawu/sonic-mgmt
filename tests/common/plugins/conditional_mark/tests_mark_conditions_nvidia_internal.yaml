@@ -1678,6 +1678,12 @@ dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby:
        - https://github.com/sonic-net/sonic-mgmt/issues/8577
        - "'dualtor-aa' in topo_name"
 
+telemetry/test_telemetry.py::test_on_change_updates:
+  skip:
+     reason: "Testcase ignored due to a missing PR, Github issue: https://github.com/sonic-net/sonic-mgmt/issues/10281"
+     conditions:
+      - "https://github.com/sonic-net/sonic-mgmt/issues/10281 and '202305' in release"
+
 dualtor_mgmt/test_ingress_drop.py::test_ingress_drop[active-active]:
   skip:
      reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
