@@ -214,7 +214,7 @@ class HashTest(BaseTest):
         assert received
 
         logging.info("Received packet at " + str(matched_port))
-        time.sleep(0.01)
+        time.sleep(0.02)
 
         return (matched_port, received)
 
@@ -294,7 +294,6 @@ class HashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
 
         send_packet(self, src_port, pkt)
-        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IP(src={}, dst={}, proto={})/TCP(sport={}, dport={} on port {})'
                      .format(pkt.src,
                              pkt.dst,
@@ -315,7 +314,7 @@ class HashTest(BaseTest):
 
         dst_ports = list(itertools.chain(*dst_port_lists))
         rcvd_port_index, rcvd_pkt = verify_packet_any_port(
-            self, masked_exp_pkt, dst_ports)
+            self, masked_exp_pkt, dst_ports, timeout=0.1)
         rcvd_port = dst_ports[rcvd_port_index]
 
         exp_src_mac = None
@@ -392,7 +391,6 @@ class HashTest(BaseTest):
         masked_exp_pkt.set_do_not_care_scapy(scapy.Ether, "src")
 
         send_packet(self, src_port, pkt)
-        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IPv6(src={}, dst={}, proto={})/TCP(sport={}, dport={} on port {})'
                      .format(pkt.src,
                              pkt.dst,
@@ -413,7 +411,7 @@ class HashTest(BaseTest):
 
         dst_ports = list(itertools.chain(*dst_port_lists))
         rcvd_port_index, rcvd_pkt = verify_packet_any_port(
-            self, masked_exp_pkt, dst_ports)
+            self, masked_exp_pkt, dst_ports, timeout=0.1)
         rcvd_port = dst_ports[rcvd_port_index]
 
         exp_src_mac = None

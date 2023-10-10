@@ -303,7 +303,7 @@ class FibTest(BaseTest):
         assert received
 
         logging.info("Received packet at " + str(matched_port))
-        time.sleep(0.01)
+        time.sleep(0.02)
 
         return (matched_port, received)
 
@@ -355,7 +355,6 @@ class FibTest(BaseTest):
             masked_exp_pkt.set_do_not_care_scapy(scapy.TCP, "chksum")
 
         send_packet(self, src_port, pkt)
-        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IP(src={}, dst={})/TCP(sport={}, dport={}) on port {}'
                      .format(pkt.src,
                              pkt.dst,
@@ -375,7 +374,7 @@ class FibTest(BaseTest):
         dst_ports = list(itertools.chain(*dst_port_lists))
         if self.pkt_action == self.ACTION_FWD:
             rcvd_port_index, rcvd_pkt = verify_packet_any_port(
-                self, masked_exp_pkt, dst_ports)
+                self, masked_exp_pkt, dst_ports, timeout=0.1)
             rcvd_port = dst_ports[rcvd_port_index]
             len_rcvd_pkt = len(rcvd_pkt)
             logging.info('Recieved packet at port {} and packet is {} bytes'.format(
@@ -451,7 +450,6 @@ class FibTest(BaseTest):
             masked_exp_pkt.set_do_not_care_scapy(scapy.TCP, "chksum")
 
         send_packet(self, src_port, pkt)
-        time.sleep(0.01)
         logging.info('Sent Ether(src={}, dst={})/IPv6(src={}, dst={})/TCP(sport={}, dport={}) on port {}'
                      .format(pkt.src,
                              pkt.dst,
@@ -471,7 +469,7 @@ class FibTest(BaseTest):
         dst_ports = list(itertools.chain(*dst_port_lists))
         if self.pkt_action == self.ACTION_FWD:
             rcvd_port_index, rcvd_pkt = verify_packet_any_port(
-                self, masked_exp_pkt, dst_ports)
+                self, masked_exp_pkt, dst_ports, timeout=0.1)
             rcvd_port = dst_ports[rcvd_port_index]
             len_rcvd_pkt = len(rcvd_pkt)
             logging.info('Recieved packet at port {} and packet is {} bytes'.format(
