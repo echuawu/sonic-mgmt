@@ -407,9 +407,9 @@ def test_tunnel_ip_in_ip(do_test, ptfadapter, duthost, setup, pkt_fields, ports_
     router_mac = ports_info['dst_mac']
     src_mac = ports_info['src_mac']
     dscp_in_idx = 0
-    dscp_out_idx = len(dscp_range) / 2
+    dscp_out_idx = len(dscp_range) // 2
     ttl_in_idx = 0
-    ttl_out_idx = len(ttl_range) / 2
+    ttl_out_idx = len(ttl_range) // 2
 
     dscp_in = dscp_range[dscp_in_idx]
     tos_in = dscp_in << 2
