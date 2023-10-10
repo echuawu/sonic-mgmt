@@ -5,6 +5,7 @@ import yaml
 import json
 import logging
 import allure
+import pytest
 from ngts.tools.test_utils.allure_utils import step as allure_step
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
@@ -300,15 +301,16 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_an
                 yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
                                                                test_name, tar_file_path, hostname, log_analyzer_bug_metadata)
 
-                with allure.step("Run Bug Handler on Log Analyzer error"):
-                    logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
-                    error_dict = {BugHandlerConst.LA_ERROR: error_group}
-                    error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
-                                                          tar_file_path, yaml_file_path,
-                                                          BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                          BugHandlerConst.BUG_HANDLER_SCRIPT,
-                                                          bug_handler_no_action))
-                    bug_handler_dumps_results.append(error_dict)
+                if yaml_file_path:
+                    with allure.step("Run Bug Handler on Log Analyzer error"):
+                        logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
+                        error_dict = {BugHandlerConst.LA_ERROR: error_group}
+                        error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
+                                                              tar_file_path, yaml_file_path,
+                                                              BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
+                                                              BugHandlerConst.BUG_HANDLER_SCRIPT,
+                                                              bug_handler_no_action))
+                        bug_handler_dumps_results.append(error_dict)
 
             clear_files(session_id)
         else:
@@ -341,6 +343,9 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
     bug_regex = '.*' + error_to_regex(bug_title).replace("\\", "\\\\")
+    if f".*{error_to_regex(bug_title)}.*" in pytest.dynamic_ignore_set:
+        return None
+    pytest.dynamic_ignore_set.add(f".*{error_to_regex(bug_title)}.*")
     description = '| \n' + '\n'.join(log_errors)
     bug_info_dictionary.update({'search_regex': bug_regex,
                                 'bug_title': bug_title,

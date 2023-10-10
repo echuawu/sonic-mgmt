@@ -418,12 +418,13 @@ def store_and_manage_loganalyzer(request):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def extend_log_analyzer_match_regex(topology_obj, log_analyzer_bug_handler, loganalyzer):
+def extend_log_analyzer_match_regex(loganalyzer):
     """
-    Extend the loganalyzer match_regex list.
+    Extend the loganalyzer match_regex list and ignore_regex list.
     """
     if loganalyzer:
         for hostname in loganalyzer.keys():
+            loganalyzer[hostname].ignore_regex.extend(list(pytest.dynamic_ignore_set))
             loganalyzer[hostname].match_regex.extend(["\\.*\\s+WARNING\\s+\\.*"])
 
 
