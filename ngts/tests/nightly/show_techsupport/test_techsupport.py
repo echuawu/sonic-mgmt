@@ -236,8 +236,8 @@ def check_all_dumps_file_exsits(engine, chip_type):
     output_fw_dump = engine.run_cmd('sudo tar -tf {}'.format(latest_fw_dump))
 
     # Check CR space dump:
-    assert output_fw_dump.count('sdkdump_ext_cr_') == 3, 'Missing CR space dump'
-    assert output_fw_dump.count('sdkdump_ext_meta_001-') == 3, 'Missing CR space meta files'
+    assert output_fw_dump.count('sdk_dump_ext_cr_') == 3, 'Missing CR space dump'
+    assert output_fw_dump.count('sdk_dump_ext_meta_001-') == 3, 'Missing CR space meta files'
     # Check SDK dump:
     assert 'sai_sdk_dump.txt' in output_fw_dump, 'Missing SDK dump'
     # Check mlxtrace dump:
