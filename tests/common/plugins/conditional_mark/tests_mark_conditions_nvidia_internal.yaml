@@ -299,9 +299,9 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_du
     reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3442487 and platform SPC2/3 or simx. The leaks reported by ASAN during test are not real leaks, test should not run on ASAN image."
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3442487 and ('sn3' in platform or 'sn4' in platform)"
       - "'simx' in platform"
       - "'ASAN' in build_version"
+      - "https://redmine.mellanox.com/issues/3629837"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump[PLL_LOCK_EVENT]:
   skip:
@@ -326,8 +326,16 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_event_sdk_dump:
   skip:
     reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3585683"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3629837"
+
+tests/push_build_tests/L3/rocev2_acl_counter/test_rocev2_acl_counter_basic.py::TestRocev2AclCounter::test_rocev2_acl_counter_basic:
+  skip:
+    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3629676"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3629676"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
