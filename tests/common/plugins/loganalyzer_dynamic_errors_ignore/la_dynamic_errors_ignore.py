@@ -234,6 +234,8 @@ class BranchDynamicErrorsIgnore(LaDynamicErrorsIgnore):
             try:
                 release_output = run_cmd_on_dut(self.pytest_item_obj,
                                                 "sonic-cfggen -y /etc/sonic/sonic_version.yml -v release").strip()
+                if isinstance(release_output, bytes):
+                    release_output = release_output.decode("utf-8")
                 branch_name = self.get_branch_from_release_output(release_output)
                 self.pytest_item_obj.session.config.cache.set(DynamicLaConsts.CUSTOM_TEST_SKIP_BRANCH_NAME, branch_name)
             except Exception as err:
