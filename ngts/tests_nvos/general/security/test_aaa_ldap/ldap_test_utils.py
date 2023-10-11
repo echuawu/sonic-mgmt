@@ -78,9 +78,8 @@ def configure_ldap(ldap_server_info):
             priority = int(ldap_server_info[LdapConsts.PRIORITY])
         else:
             priority = LdapConsts.DEFAULT_PRIORTIY
-        system.aaa.ldap.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME],
-                                              priority=priority,
-                                              apply=True).verify_result()
+        system.aaa.ldap.hostname.hostname_id[ldap_server_info[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, priority,
+                                                                                        apply=True).verify_result()
 
 
 def validate_ldap_configurations(ldap_server_info):
@@ -202,8 +201,8 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
 
         with allure.step('Configure the given server with its priority'):
             priority = int(ldap_server_info[LdapConsts.PRIORITY])
-            ldap_obj.hostname.set_priority(hostname=ldap_server_info[LdapConsts.HOSTNAME], priority=priority,
-                                           apply=apply).verify_result()
+            ldap_obj.hostname.hostname_id[ldap_server_info[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, priority,
+                                                                                     apply=apply).verify_result()
 
 
 def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False):
