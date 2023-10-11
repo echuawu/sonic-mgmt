@@ -648,7 +648,7 @@ class Test_VxLAN_ecmp_create(Test_VxLAN):
         Logger.info("Choose a vnet.")
         vnet = list(self.vxlan_test_setup[encap_type]['vnet_vni_map'].keys())[0]
 
-        backup_dest = self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet].copy()
+        backup_dest = copy.deepcopy(self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet])
 
         Logger.info("Create a new list of endpoint(s).")
         ecmp_route1_end_point_list = []
@@ -700,7 +700,7 @@ class Test_VxLAN_ecmp_create(Test_VxLAN):
         self.dump_self_info_and_run_ptf("tc5", encap_type, False)
 
         # Restoring dest_to_nh_map to old values
-        self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet] = backup_dest.copy()
+        self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet] = copy.deepcopy(backup_dest)
         self.dump_self_info_and_run_ptf("tc5", encap_type, True)
 
     def test_vxlan_configure_route1_ecmp_group_b(self, setUp, encap_type):
@@ -1264,15 +1264,15 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         # perform cleanup by removing all the routes added by this test class.
         # reset to add only the routes added in the setup phase.
         ecmp_utils.set_routes_in_dut(
-            self.setup['duthost'],
-            self.setup[encap_type]['dest_to_nh_map'],
+            self.vxlan_test_setup['duthost'],
+            self.vxlan_test_setup[encap_type]['dest_to_nh_map'],
             ecmp_utils.get_payload_version(encap_type),
             "DEL")
 
-        self.setup[encap_type]['dest_to_nh_map'] = copy.deepcopy(self.setup[encap_type]['dest_to_nh_map_orignal']) # noqa F821
+        self.vxlan_test_setup[encap_type]['dest_to_nh_map'] = copy.deepcopy(self.vxlan_test_setup[encap_type]['dest_to_nh_map_orignal']) # noqa F821
         ecmp_utils.set_routes_in_dut(
-            self.setup['duthost'],
-            self.setup[encap_type]['dest_to_nh_map'],
+            self.vxlan_test_setup['duthost'],
+            self.vxlan_test_setup[encap_type]['dest_to_nh_map'],
             ecmp_utils.get_payload_version(encap_type),
             "SET")
 
