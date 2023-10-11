@@ -276,7 +276,7 @@
           "node": "MINI_MARS@QTM2",
           "parameters": {
             "queue_id": "devops_nvos_ci_qtm2",
-            "priority": "1",
+            "priority": "${PRIORITY_NUMBER}",
             "setup_type": "CI_NVOS_QTM2",
             "setup_var": "CI_NVOS_QTM2_SETUP",
             "device_var": "SWITCH_BLACKBIRD",
@@ -284,6 +284,23 @@
           },
           "skip": "${SKIP_NVOS_BAT}",
           "on_failure": "stop",
+          "out_of_mail": true
+        },
+        {
+          "name": "Allocate setup BF3",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@BF3",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_bf3",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_BF3",
+            "setup_var": "CI_SONIC_BF3_SETUP",
+            "device_var": "SERVER",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_DPU_BAT}",
+          "on_failure": "continue",
           "out_of_mail": true
         },
         {
@@ -457,6 +474,25 @@
           "out_of_mail": false
         },
         {
+          "name": "BAT BF3",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@BF3",
+          "parameters": {
+            "matrix_row": "DPU",
+            "matrix_col": "BF3",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_BF3_SETUP}",
+            "setup_conf_file_path": "/auto/sw_regression/system/SONIC/MARS/conf/setups/${CI_SONIC_BF3_SETUP}/",
+            "base_version": "${DPU_BIN}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_DPU_BAT}",
+          "on_failure": "stop",
+          "out_of_mail": false
+        },
+        {
           "name": "Free community setup",
           "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
           "category": "Clean",
@@ -572,6 +608,19 @@
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true
+        },
+        {
+          "name": "Free BF3 setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@BF3",
+          "parameters": {
+            "setup_name": "${CI_SONIC_BF3_SETUP}"
+          },
+          "skip": false,
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
         }
       ]
     },
@@ -607,6 +656,11 @@
               {
                 "IB": [
                   "QTM2"
+                ]
+              },
+              {
+                "DPU": [
+                  "BF3"
                 ]
               }
             ]

@@ -34,6 +34,8 @@ def run_step(name) {
             NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC2", "Skipped=status")
             NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC3", "Skipped=status")
             NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC4", "Skipped=status")
+            NGCITools().ciTools.insert_test_result_to_matrix(name, "DPU", "BF3", "Skipped=status")
+            env.SKIP_DPU_BAT = "true"
             env.SKIP_BAT = "true"
             env.SKIP_SIMX = "true"
         }

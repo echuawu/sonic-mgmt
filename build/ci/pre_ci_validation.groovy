@@ -4,6 +4,37 @@ def pre(name) {
     return true
 }
 
+def set_dpu_bin(topic_map) {
+    if (topic_map["IMAGE_DPU_BRANCH"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_DPU_BRANCH"]) &&
+            topic_map["IMAGE_DPU_VERSION"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_DPU_VERSION"])) {
+        error "IMAGE_BRANCH and IMAGE_VERSION cannot be defined together. remove one or both of them from Gerrit topic to continue "
+    }
+
+    def dpu_branch = env.DEFAULT_DPU_BRANCH ? env.DEFAULT_DPU_BRANCH : "bluefield"
+    if (topic_map["IMAGE_DPU_BRANCH"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_DPU_BRANCH"])) {
+        dpu_branch = topic_map["IMAGE_DPU_BRANCH"]
+        print "DPU image branch name is defined by topic: ${dpu_branch}"
+    }
+
+    def dpu_version_name
+    if (topic_map["IMAGE_DPU_VERSION"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_DPU_VERSION"])) {
+        dpu_version_name = topic_map["IMAGE_DPU_VERSION"]
+        print "DPU image version is defined by topic \"IMAGE_DPU_VERSION\"."
+    } else {
+        def mgmt_tools = NGCITools().ciTools.load_project_lib("${env.SHARED_LIB_FILE}")
+        dpu_version_name = mgmt_tools.get_dpu_lastrc_version(dpu_branch)
+        print "DPU image version is defined by lastrc link for branch: ${dpu_branch}"
+    }
+
+    def DPU_bin_path = "${env.DPU_VERSION_DIRECTORY}/${dpu_version_name}/dev/Nvidia-bluefield/sonic-nvidia-bluefield.bfb"
+    if (! new File(DPU_bin_path).exists()) {
+        error "ERROR:SONiC bin file not found: ${DPU_bin_path}"
+    }
+
+    env.DPU_BIN = DPU_bin_path
+    print "DPU_BIN = ${env.DPU_BIN}"
+}
+
 def set_sonic_bin(topic_map, project) {
     if (topic_map["IMAGE_BRANCH"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_BRANCH"]) &&
             topic_map["IMAGE_VERSION"] && NGCITools().ciTools.is_parameter_contains_value(topic_map["IMAGE_VERSION"])) {
@@ -106,7 +137,6 @@ def run_step(name) {
         if (env.GERRIT_BRANCH.startsWith("dev-") || env.GERRIT_BRANCH.startsWith("dev_") ||env.GERRIT_BRANCH.startsWith("nvos")){
             project = "nvos"
         }
-
         if (topic_map["RUN_COMMUNITY_REGRESSION"] && topic_map["RUN_COMMUNITY_REGRESSION"].toBoolean() == true) {
             env.RUN_COMMUNITY_REGRESSION = true
         }
@@ -117,6 +147,7 @@ def run_step(name) {
         }
 
         set_sonic_bin(topic_map, project)
+        set_dpu_bin(topic_map) //default is always Bluefield unless given by tag
         set_nvos_bin(topic_map, project)
 
 
