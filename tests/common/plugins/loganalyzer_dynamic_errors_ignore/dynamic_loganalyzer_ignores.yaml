@@ -2737,6 +2737,22 @@
     - Redmine:
         - 3480907
 
+# NVOS - TACACS - LA bug
+- Errors_list:
+    - '.*WARNING nginx: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth
+    - Redmine:
+        - 3629429
+
+# NVOS - TACACS - ignore expected log
+- Errors_list:
+    - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
