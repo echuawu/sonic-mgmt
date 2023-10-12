@@ -120,6 +120,7 @@ tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
     conditions:
       - "'202012' in release or '202111' in release"
       - "'202211' in release and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3631291"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_l3_dst_ip_is_loopback:
   skip:
