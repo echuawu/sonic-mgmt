@@ -742,9 +742,9 @@ decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=set_unset]:
 
 dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162 on 202211 branch"
     conditions:
-      - "https://redmine.mellanox.com/issues/3572162"
+      - "https://redmine.mellanox.com/issues/3572162 and '202211' in release"
 
 route/test_route_perf.py::test_perf_add_remove_routes:
   skip:

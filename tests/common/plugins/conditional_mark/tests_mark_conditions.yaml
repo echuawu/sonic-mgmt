@@ -269,6 +269,27 @@ drop_packets:
 #######################################
 #####           dualtor           #####
 #######################################
+dualtor_io/test_link_failure.py::test_active_link_down_downstream_active:
+  skip:
+    reason: "Testcase ignored on Nvidia platforms due to github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/8272
+      - "asic_type in ['mellanox']"
+
+dualtor_io/test_link_failure.py::test_active_link_down_downstream_active_soc:
+  skip:
+    reason: "Testcase ignored on Nvidia platforms due to github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/8272
+      - "asic_type in ['mellanox']"
+
+dualtor_io/test_link_failure.py::test_active_link_down_downstream_standby:
+  skip:
+    reason: "Testcase ignored on Nvidia platforms due to github issue: https://github.com/sonic-net/sonic-mgmt/issues/8272"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/8272
+      - "asic_type in ['mellanox']"
+
 dualtor/test_orch_stress.py:
   skip:
     reason: "This testcase is designed for single tor testbed with mock dualtor config."
