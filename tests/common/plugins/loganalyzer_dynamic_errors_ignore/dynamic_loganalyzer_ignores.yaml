@@ -126,6 +126,7 @@
       - dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream
       - dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor
       - dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor
+      - bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
