@@ -342,7 +342,7 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     # remove date, time and hostname before creating the regex!
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
-    bug_regex = '.*' + error_to_regex(bug_title).replace("\\", "\\\\")
+    bug_regex = '.*' + error_to_regex(bug_title).replace("\\", "\\\\") + '.*'
     if f".*{error_to_regex(bug_title)}.*" in pytest.dynamic_ignore_set:
         return None
     pytest.dynamic_ignore_set.add(f".*{error_to_regex(bug_title)}.*")
@@ -367,6 +367,8 @@ def create_bug_title(hostname_regex, first_line):
     log_prefix = rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s'
     bug_title = re.sub(log_prefix, '', first_line)
     bug_title = re.sub(r'message repeated \d+ times: \[ (.*?)\]', r'\1', bug_title)
+    if len(bug_title) > BugHandlerConst.BUG_TITLE_LIMIT:
+        bug_title = bug_title[:BugHandlerConst.BUG_TITLE_LIMIT]
     return bug_title
 
 
@@ -377,6 +379,8 @@ def error_to_regex(error_string):
                             into a regular expression
     @return: A SINGLE regular expression string
     """
+    if len(error_string) > BugHandlerConst.BUG_TITLE_LIMIT:
+        error_string = error_string[:BugHandlerConst.BUG_TITLE_LIMIT]
     # -- Escapes out of all the meta characters --#
     error_string = re.escape(error_string)
     # -- Replaces a white space with the white space regular expression
