@@ -2085,7 +2085,7 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
     conditions:
       - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiPfcXoffLimit:
+qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628072"
     conditions:

@@ -220,7 +220,6 @@ class TestSSIP:
         """
         logger.info("Create data vrf {}".format(VRF_LIST[1]))
         create_vrf(self.duthost, VRF_LIST[1])
-        time.sleep(1)
 
         logger.info("Bind interface {} to  data vrf {}".format(routed_interfaces[1], VRF_LIST[1]))
         bind_interface_to_vrf(self.asichost, VRF_LIST[1], routed_interfaces[1])
