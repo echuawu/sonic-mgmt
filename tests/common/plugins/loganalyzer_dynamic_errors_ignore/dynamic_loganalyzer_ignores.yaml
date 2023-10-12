@@ -2749,6 +2749,7 @@
 # NVOS - TACACS - ignore expected log
 - Errors_list:
     - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
+    - '.*ERR service_checker: tac_authen_read: inconsistent reply body, incorrect key\?.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
