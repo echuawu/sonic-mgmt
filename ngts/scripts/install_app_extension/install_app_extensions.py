@@ -13,23 +13,25 @@ from ngts.scripts.install_app_extension.app_extension_info import AppExtensionIn
 logger = logging.getLogger()
 
 
-def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path):
+def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path, platform_params):
     """
     This function will perform installation of app extensions
     :param topology_obj: topology object fixture
     :param app_extension_dict_path: path to app extension dict
+    :param platform_params: platform_params fixture
     """
     cli_obj = topology_obj.players['dut']['cli']
-    skip_reason = install_all_supported_app_extensions(cli_obj, app_extension_dict_path)
+    skip_reason = install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platform_params)
     if skip_reason:
         pytest.skip(skip_reason)
 
 
-def install_all_supported_app_extensions(cli_obj, app_extension_dict_path):
+def install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platform_params):
     """
     This function will perform installation of app extensions
     :param cli_obj: dut cli_obj object
     :param app_extension_dict_path: path to app extension dict
+    :param platform_params: platform_params fixture
     :return: return the skip reason if the test need to be skipped, else return None
     """
     skip_reason = ""
@@ -37,7 +39,7 @@ def install_all_supported_app_extensions(cli_obj, app_extension_dict_path):
         logger.info("app_extension_dict_path is not provided, skip the installing the app extensions")
         skip_reason = 'app_extension_dict_path is not provided'
     elif cli_obj.app_ext.verify_version_support_app_ext():
-        app_ext_installer = AppExtensionInstaller(cli_obj, app_extension_dict_path)
+        app_ext_installer = AppExtensionInstaller(cli_obj, app_extension_dict_path, platform_params)
         app_ext_installer.install_supported_app_extensions()
         cli_obj.general.save_configuration()
     else:
@@ -47,8 +49,9 @@ def install_all_supported_app_extensions(cli_obj, app_extension_dict_path):
 
 
 class AppExtensionInstaller:
-    def __init__(self, cli_obj, app_extension_dict_path):
+    def __init__(self, cli_obj, app_extension_dict_path, platform_params):
         self.cli_obj = cli_obj
+        self.platform_params = platform_params
         self.app_extension_dict = self.set_app_extension_dict(app_extension_dict_path)
         self.is_app_extension_present_in_application_list()
         self.syncd_sdk_version = self.get_sdk_version(AppExtensionInstallationConstants.SYNCD_DOCKER)
@@ -61,6 +64,8 @@ class AppExtensionInstaller:
         try:
             with open(app_extension_dict_path, 'r') as f:
                 app_extension_dict = json.load(f)
+                if "SN2" in self.platform_params['hwsku']:
+                    app_extension_dict.pop(AppExtensionInstallationConstants.DOAI, None)
                 return self.map_project_to_application_name(app_extension_dict)
         except json.decoder.JSONDecodeError as e:
             logger.error(f'Please check the content of provided json file: {app_extension_dict_path}')

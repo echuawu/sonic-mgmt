@@ -909,7 +909,6 @@ class AppExtensionInstallationConstants:
     WJH_REPOSITORY = 'harbor.mellanox.com/sonic-wjh/docker-wjh'
     LC_MANAGER = 'line-card-manager'
     DOAI = 'doai'
-    DOROCE = 'doroce'
     LC_MANAGER_REPOSITORY = 'harbor.mellanox.com/sonic-lc-manager/line-card-manager'
     CMD_GET_SDK_VERSION = "docker exec -i {} bash -c 'sx_sdk --version'"
     SYNCD_DOCKER = 'syncd'
@@ -918,16 +917,14 @@ class AppExtensionInstallationConstants:
         WJH_APP_NAME,
         LC_MANAGER,
         P4ExamplesConsts.APP_NAME,
-        DOAI,
-        DOROCE,
+        DOAI
     ]
     APP_EXTENSION_PROJECT_MAPPING = {'sonic-wjh': WJH_APP_NAME,
                                      'p4-sampling': P4SamplingConsts.APP_NAME,
                                      'sonic-lc-manager': LC_MANAGER,
                                      'p4-examples': P4ExamplesConsts.APP_NAME,
-                                     'doai': DOAI,
-                                     'doroce': DOROCE}
-    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME, DOAI, DOROCE]
+                                     'doai': DOAI}
+    APPS_WHERE_SX_SDK_NOT_PRESENT = [P4SamplingConsts.APP_NAME, P4ExamplesConsts.APP_NAME, DOAI]
 
 
 class MarsConstants:
