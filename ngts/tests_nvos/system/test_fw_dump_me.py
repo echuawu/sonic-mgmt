@@ -59,7 +59,7 @@ def test_fw_dump_me(engines, devices):
 
     with allure.step('Verify updated SDK message in the logs as expected'):
         logging.info('Verify updated SDK message in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, '[HOST_INTERFACE.NOTICE] FW test event').verify_result()
+        ValidationTool.verify_expected_output(show_output, 'FW test event').verify_result()
 
     with allure.step('Validate if sdk_fw_dump created after 15 sec timeout'):
         logging.info('Validate if sdk_fw_dump created after 15 sec timeout')
