@@ -122,6 +122,12 @@ tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
       - "'202211' in release and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3631291"
 
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ssd_endurance:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630496 on r-alligator-04 testbed"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3630496 and 'r-alligator-04' in testbed"
+
 tests/push_build_tests/general/wjh/test_wjh.py::test_l3_dst_ip_is_loopback:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3434591 on SIMX platform"
@@ -784,9 +790,9 @@ qos/test_qos_sai.py:
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3530878"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630488"
     conditions:
-      - https://redmine.mellanox.com/issues/3530878
+      - https://redmine.mellanox.com/issues/3630488
 
 copp/test_copp.py:
   skip:
@@ -1534,6 +1540,12 @@ bfd/test_bfd.py::test_bfd_basic:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3171891 and branch 202205"
     conditions:
       - "https://redmine.mellanox.com/issues/3171891 and '202205' in release"
+
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630488"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3630488"
 
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
   skip:
