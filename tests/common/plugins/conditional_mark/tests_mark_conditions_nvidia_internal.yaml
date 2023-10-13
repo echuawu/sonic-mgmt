@@ -932,6 +932,12 @@ show_techsupport/test_auto_techsupport.py:
       - "https://redmine.mellanox.com/issues/3579376 and 'ptf' in topo_name"
       - "https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in platform"
 
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632223 and master branch and upgrade test setup"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632223 and 'master' in release and ('r-leopard-56' in testbed or 'r-lionfish-07' in testbed or 'r-panther-13' in testbed)"
+
 process_monitoring/test_critical_process_monitoring.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3464488 and platform nvda_bf"
