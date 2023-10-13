@@ -523,6 +523,7 @@
         - 3628478
       Branch:
         - 202305
+        - master
 
 - Errors_list:
     - '.* WARNING syncd#SDK: :- discover: skipping since it causes crash: SAI_STP_ATTR_BRIDGE_ID'
@@ -1599,14 +1600,14 @@
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[SX_API_INTERNAL\.ERR\] Invalid handle: handle is NULL'
-    - '.* ERR syncd#SDK: \[SAI_SWITCH\.ERR\] mlnx_sai_switch\.c\[\d+\]- mlnx_switch_fdb_record_check_and_age: Failed to get port .+ learn mode - Invalid Handle'
+    - '.* ERR syncd#SDK: \[SAI_SWITCH\.ERR\] \.\/src\/mlnx_sai_switch\.c.*- mlnx_switch_fdb_record_check_and_age: Failed to get port .* learn mode - Invalid Handle.*'
   Conditions:
     - Affected_test_cases:
       - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
-      - 3308748
+      - 3632143
       Branch:
-      - 202205
+      - master
 
 - Errors_list:
     - ".* sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating.*"
