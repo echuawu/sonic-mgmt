@@ -1048,8 +1048,8 @@ class TunnelDscpToPgMapping(sai_base_test.ThriftInterfaceDataPlane):
                     standby_tor_mac=standby_tor_mac,
                     active_tor_ip=active_tor_ip,
                     standby_tor_ip=standby_tor_ip,
-                    inner_dscp=dscp,
-                    outer_dscp=0,
+                    inner_dscp=inner_dscp,
+                    outer_dscp=outer_dscp,
                     dst_ip=dst_port_ip,
                     packet_size=packet_size
                 )
@@ -1064,7 +1064,7 @@ class TunnelDscpToPgMapping(sai_base_test.ThriftInterfaceDataPlane):
                 lower_bounds = (PKT_NUM - ERROR_TOLERANCE[pg]) * cell_size * cell_occupancy
                 upper_bounds = (PKT_NUM + ERROR_TOLERANCE[pg]) * cell_size * cell_occupancy
                 print("DSCP {}, PG {}, expectation: {} <= {} <= {}".format(
-                    dscp, pg, lower_bounds, pg_wm_inc, upper_bounds), file=sys.stderr)
+                    inner_dscp, pg, lower_bounds, pg_wm_inc, upper_bounds), file=sys.stderr)
                 assert lower_bounds <= pg_wm_inc <= upper_bounds
         finally:
             # Enable tx on dest port
