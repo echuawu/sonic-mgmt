@@ -410,6 +410,42 @@ tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_in
     conditions:
       - "https://redmine.mellanox.com/issues/3272016 and 'simx' in platform"
 
+tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_version:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
+tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_manifest:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
+tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_changelog:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
+tests/nightly/app_extension/test_app_extension_install_uninstall.py::test_app_install_with_abnormal_package:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
+tests/nightly/app_extension/test_app_extension_install_uninstall.py::test_app_install_with_force_skip_dependency_check:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
+tests/nightly/app_extension/test_app_extension_upgrade.py::test_app_upgrade_with_abnormal_package:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
+
 tests/nightly/app_extension:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3245030 on Air setups"
