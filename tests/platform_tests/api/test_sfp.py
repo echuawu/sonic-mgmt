@@ -753,7 +753,8 @@ class TestSfpApi(PlatformApiTestBase):
             # for nvidia devices, need to shutdown the port before setting the port into lp mode
             logger.info("Shut down ports:{}".format(support_lpmode_physical_port_with_admin_up))
             duthost.shutdown_multiple(support_lpmode_physical_port_with_admin_up)
-            self.expect(wait_until(60, 1, 0, duthost.links_status_down, support_lpmode_physical_port_with_admin_up),
+            self.expect(wait_until(60, 1, 0, duthost.links_status_oper_admin_down,
+                                   support_lpmode_physical_port_with_admin_up),
                         "Failed to shutdown {}".format(support_lpmode_physical_port_with_admin_up))
 
         for port_index in set(support_lpmode_physical_port_index_map.values()):
@@ -787,7 +788,8 @@ class TestSfpApi(PlatformApiTestBase):
             logger.info(
                 "After setting the ports to disabled lpm mode, verify that the ports:{} are still in down state".format(
                     support_lpmode_physical_port_with_admin_up))
-            self.expect(wait_until(60, 1, 0, duthost.links_status_down, support_lpmode_physical_port_with_admin_up),
+            self.expect(wait_until(60, 1, 0, duthost.links_status_oper_admin_down,
+                                   support_lpmode_physical_port_with_admin_up),
                         "Disable lpm, ports doesn't keep down {}".format(support_lpmode_physical_port_with_admin_up))
             logger.info("Startup ports:{}".format(support_lpmode_physical_port_with_admin_up))
             duthost.no_shutdown_multiple(support_lpmode_physical_port_with_admin_up)

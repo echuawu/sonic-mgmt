@@ -190,7 +190,7 @@ def test_check_sfputil_low_power_mode(duthosts, enum_rand_one_per_hwsku_frontend
             # for nvidia devices, need to shutdown the port before setting the port into lp mode
             logging.info("Shut down ports:{}".format(shutdown_ports))
             duthost.shutdown_multiple(shutdown_ports)
-            assert wait_until(60, 1, 0, duthost.links_status_down, shutdown_ports), \
+            assert wait_until(60, 1, 0, duthost.links_status_oper_admin_down, shutdown_ports), \
                 "ports {} are not all down after shutting down ports".format(shutdown_ports)
 
         logging.info("Toggle the lpmode and check if the value is correct")
@@ -206,8 +206,8 @@ def test_check_sfputil_low_power_mode(duthosts, enum_rand_one_per_hwsku_frontend
 
         if is_mellanox_device(duthost) and len(tested_lpmode_ports_with_admin_up) > 0:
             logging.info("Check ports {}: are still down after change lpmode".format(shutdown_ports))
-            assert wait_until(60, 1, 0, duthost.links_status_down, shutdown_ports), "ports {} are not all down".format(
-                shutdown_ports)
+            assert wait_until(60, 1, 0, duthost.links_status_oper_admin_down, shutdown_ports), \
+                "ports {} are not all down".format(shutdown_ports)
 
             # for nvidia devices, need to restore the tested ports to up
             logging.info("Startup ports:{}".format(shutdown_ports))
