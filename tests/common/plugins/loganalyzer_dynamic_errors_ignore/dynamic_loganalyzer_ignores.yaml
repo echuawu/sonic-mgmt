@@ -511,6 +511,7 @@
       - 3600594
       Branch:
         - 202305
+        - master
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[FDB_UC.ERR\] FDB: not supported fid type \(\d+\) for fid \(\d+\).*'
