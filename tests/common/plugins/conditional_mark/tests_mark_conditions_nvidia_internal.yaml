@@ -2062,6 +2062,16 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
     conditions:
       - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
 
+dash/crm/test_dash_crm.py:
+  reason: "Testcase ignored due to the ZMQ migration has not been completed."
+  conditions:
+    - "https://redmine.mellanox.com/issues/3609199 and 'nvda_bf' in platform"
+
+dash/dash_acl/test_dash_acl.py:
+  reason: "Testcase ignored due to the ZMQ migration has not been completed."
+  conditions:
+    - "https://redmine.mellanox.com/issues/3609196 and 'nvda_bf' in platform"
+
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_routing:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
