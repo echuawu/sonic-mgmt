@@ -278,4 +278,20 @@ tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
     conditions:
       - https://redmine.mellanox.com/issues/3625777
 
+tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_aggregated_port_configuration:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599251"
+    conditions:
+      - https://redmine.mellanox.com/issues/3599251
+
+tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_aggregated_port_mismatch_between_planes:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599251"
+    conditions:
+      - https://redmine.mellanox.com/issues/3599251
+
+tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_aggregated_port_physical_and_logical_state_machines:
+  skip:
+    reason: "Testcase skipped due to inability to force update of DB values"
+
 ########################## NVOS IGNORE END ##########################

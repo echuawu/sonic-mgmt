@@ -910,5 +910,5 @@ class MultiPlanarConsts:
     DATABASE_TABLES = ['APPL_DB', 'ASIC_DB', 'COUNTERS_DB', 'COUNTERS_DB_1',
                        'COUNTERS_DB_2', 'CONFIG_DB', 'STATE_DB', 'FLEX_COUNTER_DB']
     LOG_MSG_UNSET_FAE_INTERFACE = "PATCH..."  # TODO: complete
-    LOG_MSG_SET_FAE_INTERFACE = "PATCH..."  # TODO: complete
-    LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "PATCH..."  # TODO: complete
+    LOG_MSG_SET_FAE_INTERFACE = "PATCH /nvue_v1/interface/"
+    LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "Cleared counters successfully"

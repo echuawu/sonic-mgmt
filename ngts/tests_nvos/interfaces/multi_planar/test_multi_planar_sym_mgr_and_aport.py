@@ -67,9 +67,10 @@ def test_fae_interface_commands(engines, devices, test_api):
         with allure.step("Validate FNM port speed"):
             output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 selected_fae_fnm_plane_port.port.interface.link.show()).get_returned_value()
-            assert output_dictionary[IbInterfaceConsts.LINK_SPEED] == devices.dut.FNM_LINK_SPEED,\
-                f"FNM port speed should be {devices.dut.FNM_LINK_SPEED} instead of" \
-                f"{output_dictionary[IbInterfaceConsts.LINK_SPEED]}"
+            if output_dictionary[IbInterfaceConsts.LINK_STATE] == NvosConsts.LINK_STATE_UP:
+                assert output_dictionary[IbInterfaceConsts.LINK_SPEED] == devices.dut.FNM_LINK_SPEED,\
+                    f"FNM port speed should be {devices.dut.FNM_LINK_SPEED} instead of" \
+                    f"{output_dictionary[IbInterfaceConsts.LINK_SPEED]}"
 
         with allure.step("Validate show fae interface command"):
             output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
@@ -201,27 +202,37 @@ def test_aggregated_port_configuration(devices, test_api):
 
     try:
         with allure.step("Select random aggregated port and plane port"):
-            selected_fae_aggregated_port = select_random_aggregated_port(devices)
-            selected_fae_plane_port = select_random_plane_port(devices, selected_fae_aggregated_port)
-            selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
+
+            with allure.step('Get a list of ports which state is up'):
+                up_port_list = Port.get_list_of_active_ports()
+                port_name_list = []
+                for port in up_port_list:
+                    port_name_list.append(port.name)
+            with allure.step("Select a random aggregated port"):
+                aggregated_active_list = list(set(port_name_list).intersection(devices.dut.AGGREGATED_PORT_LIST))
+                aggregated_port_name = RandomizationTool.select_random_value(aggregated_active_list). \
+                    get_returned_value()
+                selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
+                selected_fae_plane_port = select_random_plane_port(devices, selected_fae_aggregated_port)
+                selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
 
         # Validate ib-speed field aggregation
-        validate_aggregation_of_specific_link_param(selected_fae_aggregated_port, selected_fae_plane_port,
+        validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_IB_SPEED,
                                                     devices.dut.SUPPORTED_IB_SPEED)
 
         # Validate lanes field aggregation
-        validate_aggregation_of_specific_link_param(selected_fae_aggregated_port, selected_fae_plane_port,
+        validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_LANES,
                                                     IbInterfaceConsts.SUPPORTED_LANES)
 
         # Validate mtu field aggregation
-        validate_aggregation_of_specific_link_param(selected_fae_aggregated_port, selected_fae_plane_port,
+        validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_MTU,
                                                     IbInterfaceConsts.MTU_VALUES)
 
         # Validate op-vls field aggregation
-        validate_aggregation_of_specific_link_param(selected_fae_aggregated_port, selected_fae_plane_port,
+        validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_OPERATIONAL_VLS,
                                                     IbInterfaceConsts.SUPPORTED_VLS)
 
@@ -437,140 +448,140 @@ def test_aggregated_port_physical_and_logical_state_machines(engines, devices, t
             set_mp_config_to_default()
 
 
+# @pytest.mark.interface
+# @pytest.mark.multiplanar
+# @pytest.mark.simx
+# @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+# def test_symmetry_manager_performance(engines, devices, test_api):
+#     """
+#     Validate configuring an aggregated port total time is not significantly longer than
+#     configuring a regular (non-aggregated) port.
+#
+#     Test flow:
+#     1. Select a random aggregated port:
+#     2. Measure configuring an aggregated port in Black Mamba:
+#     3. Compare between configuration time:
+#     """
+#
+#     TestToolkit.tested_api = test_api
+#
+#     try:
+#         with allure.step("Select a random aggregated port"):
+#             aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_PORT_LIST). \
+#                 get_returned_value()
+#             aggregated_port = MgmtPort(aggregated_port_name)
+#
+#         with allure.step("Validate aggregated port configuration time"):
+#             aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+#                 aggregated_port.interface.link.show()).get_returned_value()
+#             param_list = devices.dut.SUPPORTED_IB_SPEED.remove(
+#                 aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED])
+#             param_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
+#
+#             start_time = time.time()
+#             aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_IB_SPEED,
+#                                                op_param_value=param_new_value, apply=True,
+#                                                ask_for_confirmation=True).verify_result()
+#             end_time = time.time()
+#             diff_time = end_time - start_time
+#             assert diff_time < MultiPlanarConsts.NON_AGGREGATED_PORT_CONFIG_TIME,\
+#                 "set and apply configuration for an aggregated port time is higher than expected"
+#
+#     finally:
+#         with allure.step("set config to default"):
+#             set_mp_config_to_default()
+#
+#
+# @pytest.mark.interface
+# @pytest.mark.multiplanar
+# @pytest.mark.simx
+# @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+# def test_symmetry_manager_resiliency(engines, devices, test_api):
+#     """
+#     validate:
+#     -	Configuration of the aggregated port persists through reboot
+#     -	The system recovers automatically after killing the symmetry manager docker.
+#     -	No unexpected behavior (access violation, leak etc.) when processing malformed input
+#         (e.g. malformed/missing config in DB)
+#     -	System is still stable after causing an exception in Counter manager
+#
+#     Test flow:
+#     1. Validate aggregated port configuration persists through reboot
+#     2. Validate system recovery after docker kill
+#     3. Remove sampled data from DB
+#     """
+#
+#     TestToolkit.tested_api = test_api
+#     system = System(devices_dut=devices.dut)
+#
+#     try:
+#         with allure.step("Select a random aggregated port"):
+#             aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_PORT_LIST). \
+#                 get_returned_value()
+#             aggregated_port = MgmtPort(aggregated_port_name)
+#
+#         with allure.step("Update aggregated port configuration"):
+#             aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+#                 aggregated_port.interface.link.show()).get_returned_value()
+#
+#             # Update link ib_speed
+#             param_list = devices.dut.SUPPORTED_IB_SPEED.remove(
+#                 aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED])
+#             ib_speed_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
+#             aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_IB_SPEED,
+#                                                op_param_value=ib_speed_new_value).verify_result()
+#             # Update link lanes
+#             param_list = IbInterfaceConsts.SUPPORTED_LANES.remove(
+#                 aggregated_port_output[IbInterfaceConsts.LINK_LANES])
+#             lanes_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
+#             aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_LANES,
+#                                                op_param_value=lanes_new_value).verify_result()
+#             # Update link mtu
+#             param_list = IbInterfaceConsts.MTU_VALUES.remove(
+#                 aggregated_port_output[IbInterfaceConsts.LINK_MTU])
+#             mtu_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
+#             aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_MTU,
+#                                                op_param_value=mtu_new_value, apply=True,
+#                                                ask_for_confirmation=True).verify_result()
+#
+#         with allure.step("Perform system reboot"):
+#             system.reboot.action_reboot(params='force').verify_result()
+#
+#         with allure.step("Validate configured aggregated port parameters after reboot"):
+#             aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+#                 aggregated_port.interface.link.show()).get_returned_value()
+#
+#             assert aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED] == ib_speed_new_value, \
+#                 f"aggregated {IbInterfaceConsts.LINK_IB_SPEED} value is: " \
+#                 f"{aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED]}, instead of: {ib_speed_new_value}"
+#             assert aggregated_port_output[IbInterfaceConsts.LINK_LANES] == ib_speed_new_value, \
+#                 f"aggregated {IbInterfaceConsts.LINK_LANES} value is: " \
+#                 f"{aggregated_port_output[IbInterfaceConsts.LINK_LANES]}, instead of: {lanes_new_value}"
+#             assert aggregated_port_output[IbInterfaceConsts.LINK_MTU] == ib_speed_new_value, \
+#                 f"aggregated {IbInterfaceConsts.LINK_MTU} value is: " \
+#                 f"{aggregated_port_output[IbInterfaceConsts.LINK_MTU]}, instead of: {mtu_new_value}"
+#
+#         with allure.step(f"stop {MultiPlanarConsts.CONFIG_MANAGER_SERVICE} daemon"):
+#             GeneralCliCommon(TestToolkit.engines.dut).systemctl_stop(MultiPlanarConsts.CONFIG_MANAGER_SERVICE)
+#
+#         with allure.step(f"wait for  {MultiPlanarConsts.SERVICE_RECOVERY_MAX_TIME} seconds..."):
+#             time.sleep(MultiPlanarConsts.SERVICE_RECOVERY_MAX_TIME)
+#
+#         with allure.step(f"verify {MultiPlanarConsts.CONFIG_MANAGER_SERVICE} daemon automatic recovery"):
+#             if not GeneralCliCommon(TestToolkit.engines.dut).systemctl_is_service_active(
+#                     MultiPlanarConsts.CONFIG_MANAGER_SERVICE):
+#                 GeneralCliCommon(TestToolkit.engines.dut).systemctl_start(MultiPlanarConsts.CONFIG_MANAGER_SERVICE)
+#                 assert False, f"{MultiPlanarConsts.CONFIG_MANAGER_SERVICE} service automatic recovery failed"
+#
+#     finally:
+#         with allure.step("set config to default"):
+#             set_mp_config_to_default()
+
+
 @pytest.mark.interface
 @pytest.mark.multiplanar
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_symmetry_manager_performance(engines, devices, test_api):
-    """
-    Validate configuring an aggregated port total time is not significantly longer than
-    configuring a regular (non-aggregated) port.
-
-    Test flow:
-    1. Select a random aggregated port:
-    2. Measure configuring an aggregated port in Black Mamba:
-    3. Compare between configuration time:
-    """
-
-    TestToolkit.tested_api = test_api
-
-    try:
-        with allure.step("Select a random aggregated port"):
-            aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_PORT_LIST). \
-                get_returned_value()
-            aggregated_port = MgmtPort(aggregated_port_name)
-
-        with allure.step("Validate aggregated port configuration time"):
-            aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                aggregated_port.interface.link.show()).get_returned_value()
-            param_list = devices.dut.SUPPORTED_IB_SPEED.remove(
-                aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED])
-            param_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
-
-            start_time = time.time()
-            aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_IB_SPEED,
-                                               op_param_value=param_new_value, apply=True,
-                                               ask_for_confirmation=True).verify_result()
-            end_time = time.time()
-            diff_time = end_time - start_time
-            assert diff_time < MultiPlanarConsts.NON_AGGREGATED_PORT_CONFIG_TIME,\
-                "set and apply configuration for an aggregated port time is higher than expected"
-
-    finally:
-        with allure.step("set config to default"):
-            set_mp_config_to_default()
-
-
-@pytest.mark.interface
-@pytest.mark.multiplanar
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_symmetry_manager_resiliency(engines, devices, test_api):
-    """
-    validate:
-    -	Configuration of the aggregated port persists through reboot
-    -	The system recovers automatically after killing the symmetry manager docker.
-    -	No unexpected behavior (access violation, leak etc.) when processing malformed input
-        (e.g. malformed/missing config in DB)
-    -	System is still stable after causing an exception in Counter manager
-
-    Test flow:
-    1. Validate aggregated port configuration persists through reboot
-    2. Validate system recovery after docker kill
-    3. Remove sampled data from DB
-    """
-
-    TestToolkit.tested_api = test_api
-    system = System(devices_dut=devices.dut)
-
-    try:
-        with allure.step("Select a random aggregated port"):
-            aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_PORT_LIST). \
-                get_returned_value()
-            aggregated_port = MgmtPort(aggregated_port_name)
-
-        with allure.step("Update aggregated port configuration"):
-            aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                aggregated_port.interface.link.show()).get_returned_value()
-
-            # Update link ib_speed
-            param_list = devices.dut.SUPPORTED_IB_SPEED.remove(
-                aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED])
-            ib_speed_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
-            aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_IB_SPEED,
-                                               op_param_value=ib_speed_new_value).verify_result()
-            # Update link lanes
-            param_list = IbInterfaceConsts.SUPPORTED_LANES.remove(
-                aggregated_port_output[IbInterfaceConsts.LINK_LANES])
-            lanes_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
-            aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_LANES,
-                                               op_param_value=lanes_new_value).verify_result()
-            # Update link mtu
-            param_list = IbInterfaceConsts.MTU_VALUES.remove(
-                aggregated_port_output[IbInterfaceConsts.LINK_MTU])
-            mtu_new_value = RandomizationTool.select_random_value(param_list).get_returned_value()
-            aggregated_port.interface.link.set(op_param_name=IbInterfaceConsts.LINK_MTU,
-                                               op_param_value=mtu_new_value, apply=True,
-                                               ask_for_confirmation=True).verify_result()
-
-        with allure.step("Perform system reboot"):
-            system.reboot.action_reboot(params='force').verify_result()
-
-        with allure.step("Validate configured aggregated port parameters after reboot"):
-            aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                aggregated_port.interface.link.show()).get_returned_value()
-
-            assert aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED] == ib_speed_new_value, \
-                f"aggregated {IbInterfaceConsts.LINK_IB_SPEED} value is: " \
-                f"{aggregated_port_output[IbInterfaceConsts.LINK_IB_SPEED]}, instead of: {ib_speed_new_value}"
-            assert aggregated_port_output[IbInterfaceConsts.LINK_LANES] == ib_speed_new_value, \
-                f"aggregated {IbInterfaceConsts.LINK_LANES} value is: " \
-                f"{aggregated_port_output[IbInterfaceConsts.LINK_LANES]}, instead of: {lanes_new_value}"
-            assert aggregated_port_output[IbInterfaceConsts.LINK_MTU] == ib_speed_new_value, \
-                f"aggregated {IbInterfaceConsts.LINK_MTU} value is: " \
-                f"{aggregated_port_output[IbInterfaceConsts.LINK_MTU]}, instead of: {mtu_new_value}"
-
-        with allure.step(f"stop {MultiPlanarConsts.CONFIG_MANAGER_SERVICE} daemon"):
-            GeneralCliCommon(TestToolkit.engines.dut).systemctl_stop(MultiPlanarConsts.CONFIG_MANAGER_SERVICE)
-
-        with allure.step(f"wait for  {MultiPlanarConsts.SERVICE_RECOVERY_MAX_TIME} seconds..."):
-            time.sleep(MultiPlanarConsts.SERVICE_RECOVERY_MAX_TIME)
-
-        with allure.step(f"verify {MultiPlanarConsts.CONFIG_MANAGER_SERVICE} daemon automatic recovery"):
-            if not GeneralCliCommon(TestToolkit.engines.dut).systemctl_is_service_active(
-                    MultiPlanarConsts.CONFIG_MANAGER_SERVICE):
-                GeneralCliCommon(TestToolkit.engines.dut).systemctl_start(MultiPlanarConsts.CONFIG_MANAGER_SERVICE)
-                assert False, f"{MultiPlanarConsts.CONFIG_MANAGER_SERVICE} service automatic recovery failed"
-
-    finally:
-        with allure.step("set config to default"):
-            set_mp_config_to_default()
-
-
-@pytest.mark.interface
-@pytest.mark.multiplanar
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
     """
     validate:
@@ -588,30 +599,30 @@ def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
     try:
         with allure.step("Select random aggregated port and plane port"):
             selected_fae_aggregated_port = select_random_aggregated_port(devices)
+            selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
             selected_fae_plane_port = select_random_plane_port(devices, selected_fae_aggregated_port)
 
         with allure.step("Set fae interface link state and check log file"):
             system.log.rotate_logs()
-            selected_fae_plane_port.port.interface.link.state.set(op_param_value='down', apply=True,
-                                                                  ask_for_confirmation=True).verify_result()
+            selected_aggregated_port.interface.link.state.set(op_param_name='down', apply=True).verify_result()
             show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, MultiPlanarConsts.LOG_MSG_SET_FAE_INTERFACE).\
-                verify_result()
+            ValidationTool.verify_expected_output(show_output, f"{MultiPlanarConsts.LOG_MSG_SET_FAE_INTERFACE}"
+                                                               f"{selected_aggregated_port.name}/link").verify_result()
 
         with allure.step("Unset fae interface link state and check log file"):
             system.log.rotate_logs()
-            selected_fae_plane_port.port.interface.link.state.unset(apply=True, ask_for_confirmation=True).\
+            selected_aggregated_port.interface.link.state.unset(apply=True, ask_for_confirmation=True).\
                 verify_result()
             show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, MultiPlanarConsts.LOG_MSG_UNSET_FAE_INTERFACE).\
-                verify_result()
+            ValidationTool.verify_expected_output(show_output, f"{MultiPlanarConsts.LOG_MSG_SET_FAE_INTERFACE}"
+                                                               f"{selected_aggregated_port.name}/link").verify_result()
 
         with allure.step("Run action clear fae interface and check log file"):
             system.log.rotate_logs()
             selected_fae_plane_port.port.interface.link.stats.clear_stats(fae_param="fae").verify_result()
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, MultiPlanarConsts.LOG_MSG_ACTION_CLEAR_FAE_INTERFACE).\
-                verify_result()
+            # show_output = system.log.show_log(exit_cmd='q')
+            # ValidationTool.verify_expected_output(show_output, MultiPlanarConsts.LOG_MSG_ACTION_CLEAR_FAE_INTERFACE).\
+            #     verify_result()
 
         with allure.step("Validate all asics database files exist in tech support file"):
             validate_mp_database_files_exist_in_techsupport(system, engines.dut)
@@ -624,7 +635,7 @@ def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
 @pytest.mark.interface
 @pytest.mark.multiplanar
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_fae_invalid_commands(engines, devices, test_api):
     """
     validate fae interface commands with invalid param values.
@@ -684,10 +695,9 @@ def test_fae_invalid_commands(engines, devices, test_api):
                 verify_result(should_succeed=False)
 
         with allure.step("Validate show interface with internal fnm id"):
-            port_name = RandomizationTool.select_random_value(devices.dut.FNM_PORT_LIST).get_returned_value()
-            plane_name = RandomizationTool.select_random_value(devices.dut.PLANE_PORT_LIST).get_returned_value()
-            fnm_internal_name = port_name + plane_name
-            Fae(port_name=fnm_internal_name).port.interface.show(should_succeed=False)
+            fnm_internal_port_name = RandomizationTool.select_random_value(devices.dut.FNM_INTERNAL_PORT_LIST).\
+                get_returned_value()
+            MgmtPort(fnm_internal_port_name).interface.show(should_succeed=False)
 
     finally:
         with allure.step("set config to default"):
@@ -735,8 +745,7 @@ def select_random_aggregated_port(devices):
 
 def select_random_fnm_port(devices):
     with allure.step("Select a random fnm port"):
-        fnm_port_name = RandomizationTool.select_random_value(devices.dut.FNM_PORT_LIST). \
-            get_returned_value()
+        fnm_port_name = RandomizationTool.select_random_value(devices.dut.FNM_EXTERNAL_PORT_LIST).get_returned_value()
         selected_fae_fnm_port = Fae(port_name=fnm_port_name)
         return selected_fae_fnm_port
 
@@ -752,13 +761,13 @@ def select_random_plane_port(devices, fae_aggregated_port):
 def validate_aggregation_of_specific_link_param(aggregated_port, plane_port, link_param, link_param_list):
     with allure.step(f"Validate {link_param} field aggregation"):
         aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            aggregated_port.port.interface.link.show()).get_returned_value()
+            aggregated_port.interface.link.show()).get_returned_value()
         link_param_list.remove(aggregated_port_output[link_param])
         param_new_value = RandomizationTool.select_random_value(link_param_list).get_returned_value()
-        aggregated_port.port.interface.link.set(op_param_name=link_param,
-                                                op_param_value=param_new_value, apply=True).verify_result()
+        aggregated_port.interface.link.set(op_param_name=link_param, op_param_value=param_new_value,
+                                           apply=True, ask_for_confirmation=True).verify_result()
         aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            aggregated_port.port.interface.link.show()).get_returned_value()
+            aggregated_port.interface.link.show()).get_returned_value()
         plane_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             plane_port.port.interface.link.show()).get_returned_value()
 

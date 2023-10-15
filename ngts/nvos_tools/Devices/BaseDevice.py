@@ -735,7 +735,8 @@ class GorillaSwitch(MultiAsicSwitch):
         'sw31p2': 'sw32p1pl2'
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
-    FNM_PORT_LIST = ['fnm1']
+    FNM_INTERNAL_PORT_LIST = ['fnma1p236']
+    FNM_EXTERNAL_PORT_LIST = ['fnm1']
     FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
     NON_IB_PORT_LIST = ['eth0', 'ib0', 'lo']  # total 3 ports
     NON_AGGREGATED_PORT_LIST = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
@@ -746,7 +747,7 @@ class GorillaSwitch(MultiAsicSwitch):
                                 'sw30p1', 'sw30p2', 'sw3p1', 'sw3p2', 'sw4p1', 'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1',
                                 'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 56 ports
     ALL_PLANE_PORT_LIST = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']  # total 6 ports
-    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
+    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_EXTERNAL_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
     ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST + FNM_PLANE_PORT_LIST  # total 71 ports
     ASIC0 = 'asic0'
     ASIC1 = 'asic1'
