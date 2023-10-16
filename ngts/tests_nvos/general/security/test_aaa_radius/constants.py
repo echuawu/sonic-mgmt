@@ -6,9 +6,9 @@ class RadiusConstants:
     '''
     # keys
     RADIUS_HOSTNAME = 'hostname'
-    RADIUS_PASSWORD = 'password'
+    RADIUS_PASSWORD = 'secret'
     RADIUS_TIMEOUT = 'timeout'
-    RADIUS_AUTH_PORT = 'auth-port'
+    RADIUS_AUTH_PORT = 'port'
     RADIUS_AUTH_TYPE = 'auth-type'
     RADIUS_PRIORITY = 'priority'
     RADIUS_DEFAULT_PRIORITY = 1
