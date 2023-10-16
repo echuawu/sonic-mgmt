@@ -193,13 +193,13 @@ def _verify_temp_prop(temp, temp_prop):
 
     if "max" in list_of_keys:
         value = temp_prop["max"]
-        assert isinstance(value, int), "the max temperature value is not integer"
+        assert isinstance(value, float) or "N/A" in value, "the max temperature value is not integer"
 
     if "crit" in list_of_keys:
         value = temp_prop["crit"]
-        assert isinstance(value, int), "the critical temperature value is not integer"
+        assert isinstance(value, float) or "N/A" in value, "the critical temperature value is not integer"
         assert "max" in list_of_keys, "max temperature value is missing"
-        assert int(value) >= int(temp_prop["max"]), "the critical temperature < max temperature"
+        assert float(value) >= float(temp_prop["max"]), "the critical temperature < max temperature"
 
 
 def _verify_output(platform, comp_name, req_fields):

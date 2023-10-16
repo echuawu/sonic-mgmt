@@ -135,10 +135,6 @@ class ActionType:
     CLEAR = '@clear'
 
 
-class ReadFromDataBase:
-    READ_SYSTEM_STATUS = 'redis-cli -n 6 hgetall "SYSTEM_READY|SYSTEM_STATE"'
-
-
 class SystemConsts:
     HOSTNAME = 'hostname'
     STATUS = 'status'

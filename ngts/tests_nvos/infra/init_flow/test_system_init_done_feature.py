@@ -4,9 +4,8 @@ from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.system.System import System
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import *
 from ngts.tests_nvos.general.security.conftest import *
 
@@ -26,6 +25,7 @@ def test_system_ready_state_up(engines, devices, topology_obj):
         6. Run nv show system ready
         7. validate Status = System is ready
     """
+    DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut)
     with allure.step('reboot the system'):
         reload_cmd_set = "nv action reboot system"
         DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
@@ -41,8 +41,10 @@ def test_system_ready_state_up(engines, devices, topology_obj):
             serial_engine.serial_engine.expect("System is initializing!", timeout=10)
 
     with allure.step('verify SYSTEM_READY|SYSTEM_STATE is not exist yet'):
-        with allure.step("running {}".format(ReadFromDataBase.READ_SYSTEM_STATUS)):
-            serial_engine.serial_engine.sendline(ReadFromDataBase.READ_SYSTEM_STATUS)
+        with allure.step("running sonic-db-cli to check existence of SYSTEM_READY|SYSTEM_STATE"):
+            Tools.DatabaseTool.sonic_db_cli_hgetall_serial(engine=serial_engine.serial_engine, asic="",
+                                                           db_name=DatabaseConst.STATE_DB_NAME,
+                                                           table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
         with allure.step("verifying the output includes (empty array)"):
             serial_engine.serial_engine.expect("(empty array)", timeout=10)
 
@@ -56,11 +58,15 @@ def test_system_ready_state_up(engines, devices, topology_obj):
     verify_expected_logs(ssh_connection, logs_to_find)
 
     with allure.step('check the system status in DB'):
-        assert SystemConsts.STATUS_UP in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM STATE SHOULD BE UP"
+        output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
+                                                         db_name=DatabaseConst.STATE_DB_NAME,
+                                                         table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
+        assert SystemConsts.STATUS_UP in output, "SYSTEM STATE SHOULD BE UP"
 
     with allure.step("verify the system is ready using nv show system"):
         system = System(None)
-        ValidationTool.verify_field_value_in_output(OutputParsingTool.parse_json_str_to_dictionary(system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_DEFAULT_VALUE).verify_result()
+        Tools.ValidationTool.verify_field_value_in_output(Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_DEFAULT_VALUE).verify_result()
 
     with allure.step("Validate services are active"):
         res_obj = devices.dut.verify_services(engines.dut)
@@ -109,10 +115,14 @@ def test_system_ready_state_down(engines, devices, topology_obj):
 
         with allure.step('check system status after killing swss docker'):
             with allure.step('verify SYSTEM_READY|SYSTEM_STATE is not exist yet'):
-                assert '(empty array)' in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM_READY state table should not be exist before system is ready"
+                output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
+                                                                 db_name=DatabaseConst.STATE_DB_NAME,
+                                                                 table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
+                assert '(empty array)' in output, "SYSTEM_READY state table should not be exist before system is ready"
 
             with allure.step('verify NVUE is not working before system is ready'):
-                assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), "WE CAN NOT RUN NV COMMANDS BEFORE SYSTEM IS READY MESSAGE"
+                assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), \
+                    "WE CAN NOT RUN NV COMMANDS BEFORE SYSTEM IS READY MESSAGE"
 
             with allure.step('Sleep 5 min'):
                 time.sleep(300)
@@ -121,11 +131,15 @@ def test_system_ready_state_down(engines, devices, topology_obj):
             verify_expected_logs(ssh_connection, logs_to_find)
 
             with allure.step('verify the system status is DOWN'):
-                assert SystemConsts.STATUS_DOWN in ssh_connection.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS), "SYSTEM STATE SHOULD BE DOWN"
+                output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
+                                                                 db_name=DatabaseConst.STATE_DB_NAME,
+                                                                 table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
+                assert SystemConsts.STATUS_DOWN in output, "SYSTEM STATE SHOULD BE DOWN"
 
             with allure.step("verify we can run nvue command and the system status is not ok"):
                 system = System(None)
-                ValidationTool.verify_field_value_in_output(OutputParsingTool.parse_json_str_to_dictionary(system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_NOT_OK).verify_result()
+                Tools.ValidationTool.verify_field_value_in_output(Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                    system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_NOT_OK).verify_result()
 
     finally:
         with allure.step('start docker {} as a cleanup step'.format(docker_to_kill)):
