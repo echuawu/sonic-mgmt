@@ -1,5 +1,12 @@
 ########################## NVOS IGNORE START ##########################
 
+
+tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633553"
+    conditions:
+      - https://redmine.mellanox.com/issues/3633553
+
 tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_authentication:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3618224"
@@ -101,28 +108,32 @@ tests_nvos/system/test_system_factory_reset.py:
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194 (and 3482418)"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
     conditions:
+      - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194 (and 3482418)"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
     conditions:
+      - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3482418"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
     conditions:
+      - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow_openapi:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3482418"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
     conditions:
+      - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_on:
