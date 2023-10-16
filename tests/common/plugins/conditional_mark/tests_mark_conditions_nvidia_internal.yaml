@@ -2090,7 +2090,7 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3611462"
+      - "https://redmine.mellanox.com/issues/3611462 and 'sn5600' in platform"
 
 platform_tests/mellanox/test_psu_power_threshold.py:
   skip:
@@ -2287,12 +2287,6 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3621401"
     conditions:
       - "https://redmine.mellanox.com/issues/3621401"
-
-platform_tests/test_platform_info.py::test_show_platform_ssdhealth:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3611462"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3611462"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_summary:
   skip:
