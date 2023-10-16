@@ -56,7 +56,15 @@ class DatabaseTool:
 
     @staticmethod
     def sonic_db_cli_hgetall(engine, asic, db_name, table_name):
+        return engine.run_cmd(DatabaseTool._get_hgetall_cmd(asic, db_name, table_name))
+
+    @staticmethod
+    def sonic_db_cli_hgetall_serial(engine, asic, db_name, table_name):
+        engine.sendline(DatabaseTool._get_hgetall_cmd(asic, db_name, table_name))
+
+    @staticmethod
+    def _get_hgetall_cmd(asic, db_name, table_name):
         asic = f"-n {asic} " if asic else ""
         cmd = f'sonic-db-cli {asic}{db_name} HGETALL {table_name}'
-        logging.info(f'Running sonic-db-cli {cmd}')
-        return engine.run_cmd(cmd)
+        logging.info(f'Running {cmd}')
+        return cmd

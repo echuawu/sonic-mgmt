@@ -6,6 +6,7 @@ from ngts.nvos_tools.system.Files import File
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -825,12 +826,18 @@ def test_delete_log_files(engines):
                                                                              left_files).verify_result()
 
         with allure.step("Verify syslog file was deleted and a new one was created"):
-            logging.info("Verify syslog file was deleted and a new one was created")
-            File(system.log.files, syslog_file_name).action_delete()
-            output = engines.dut.run_cmd("stat /var/log/{} | grep Size".format(syslog_file_name))
-            assert output, "Can't find syslog file"
-            curr_syslog_size = output.split()[1]
-            assert int(curr_syslog_size) < int(prev_syslog_size), "Syslog file probably was not deleted"
+            with allure.step("Save log analyzer marker before deleting the log file"):
+                marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
+            with allure.step("Delete log file"):
+                File(system.log.files, syslog_file_name).action_delete()
+                output = engines.dut.run_cmd("stat /var/log/{} | grep Size".format(syslog_file_name))
+                assert output, "Can't find syslog file"
+                curr_syslog_size = output.split()[1]
+                assert int(curr_syslog_size) < int(prev_syslog_size), "Syslog file probably was not deleted"
+
+            with allure.step("Add log analyzer marker for the new log file"):
+                TestToolkit.add_loganalyzer_marker(engines.dut, marker)
 
     with allure.step("Run show command to view system image"):
         logging.info("Run show command to view system image")

@@ -134,7 +134,7 @@ class TestToolkit:
 
     @staticmethod
     def add_loganalyzer_marker(engine, marker):
-        with allure.step("Get log analyzer marker"):
+        with allure.step("Add log analyzer marker"):
             try:
                 if marker:
                     engine.run_cmd(f"logger -p info '{marker}'")

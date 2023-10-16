@@ -305,4 +305,21 @@ tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_
   skip:
     reason: "Testcase skipped due to inability to force update of DB values"
 
+tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_tranceiver_diagnostics_basic:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633965"
+    conditions:
+      - https://redmine.mellanox.com/issues/3633965
+
+tests_nvos/platform/test_platform_environment.py::test_show_platform_environment_temperature:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633981"
+    conditions:
+      - https://redmine.mellanox.com/issues/3633981
+
+tests_nvos/platform/test_platform_environment.py::test_show_platform_environment_temperature_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633981"
+    conditions:
+      - https://redmine.mellanox.com/issues/3633981
 ########################## NVOS IGNORE END ##########################

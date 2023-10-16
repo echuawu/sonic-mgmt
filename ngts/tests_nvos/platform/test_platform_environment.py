@@ -199,7 +199,7 @@ def _verify_temp_prop(temp, temp_prop):
         value = temp_prop["crit"]
         assert isinstance(value, float) or "N/A" in value, "the critical temperature value is invalid"
         assert "max" in list_of_keys, "max temperature value is missing"
-        assert int(value) >= int(temp_prop["max"]), "the critical temperature < max temperature"
+        assert float(value) >= float(temp_prop["max"]), "the critical temperature < max temperature"
 
 
 def _verify_output(platform, comp_name, req_fields):

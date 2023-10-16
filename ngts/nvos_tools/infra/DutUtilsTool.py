@@ -4,9 +4,10 @@ from .ResultObj import ResultObj, IssueType
 import subprocess
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from retry.api import retry_call, retry
-from ngts.nvos_constants.constants_nvos import ReadFromDataBase, SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, DatabaseConst
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 
 logger = logging.getLogger()
 
@@ -69,11 +70,15 @@ class DutUtilsTool:
             with allure.step('wait for the system table to exist'):
                 wait_for_system_table_to_exist(engine)
 
-            if SystemConsts.STATUS_DOWN in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+            output = DatabaseTool.sonic_db_cli_hgetall(engine=engine, asic="",
+                                                       db_name=DatabaseConst.STATE_DB_NAME,
+                                                       table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
+            if SystemConsts.STATUS_DOWN in output:
                 return ResultObj(result=False, info="THE SYSTEM IS NOT OK", issue_type=IssueType.PossibleBug)
 
-            if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
-                return ResultObj(result=False, info="SYSTEM_READY|SYSTEM_STATE TABLE IS MISSED", issue_type=IssueType.PossibleBug)
+            if '(empty array)' in output:
+                return ResultObj(result=False, info="SYSTEM_READY|SYSTEM_STATE TABLE IS MISSED",
+                                 issue_type=IssueType.PossibleBug)
 
             with allure.step('wait until the CLI is up'):
                 wait_until_cli_is_up(engine)
@@ -130,7 +135,10 @@ def _ping_device(ip_add):
 
 @retry(Exception, tries=60, delay=10)
 def wait_for_system_table_to_exist(engine):
-    if '(empty array)' in engine.run_cmd(ReadFromDataBase.READ_SYSTEM_STATUS):
+    output = DatabaseTool.sonic_db_cli_hgetall(engine=engine, asic="",
+                                               db_name=DatabaseConst.STATE_DB_NAME,
+                                               table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
+    if '(empty array)' in output:
         logger.info('Waiting to SYSTEM_STATUS table to be available')
         raise Exception("System is not ready yet")
     return True
