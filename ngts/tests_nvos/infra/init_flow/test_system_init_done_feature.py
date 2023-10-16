@@ -25,7 +25,6 @@ def test_system_ready_state_up(engines, devices, topology_obj):
         6. Run nv show system ready
         7. validate Status = System is ready
     """
-    DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut)
     with allure.step('reboot the system'):
         reload_cmd_set = "nv action reboot system"
         DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
