@@ -1809,18 +1809,6 @@ crm/test_crm.py::test_acl_counter:
     conditions:
       - "https://redmine.mellanox.com/issues/3415969"
 
-drop_packets/test_drop_counters.py::test_acl_drop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-drop_packets/test_drop_counters.py::test_acl_egress_drop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
 drop_packets/test_wjh.py::test_acl_drop:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
@@ -1893,47 +1881,17 @@ bfd/test_bfd.py::test_bfd_multihop:
     conditions:
       - "https://redmine.mellanox.com/issues/3572851"
 
-drop_packets/test_drop_counters.py::test_src_ip_is_loopback_addr:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
-
-drop_packets/test_drop_counters.py::test_src_ip_is_multicast_addr:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
-
-drop_packets/test_drop_counters.py::test_src_ip_is_class_e:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
-
-drop_packets/test_drop_counters.py::test_dst_ip_link_local:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
-
 drop_packets/test_drop_counters.py::test_unicast_ip_incorrect_eth_dst:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634890 and 202305 branch"
     conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
+      - "https://redmine.mellanox.com/issues/3634890 and '202305' in release"
 
 qos/test_lossless_bum_traffic_drop.py:
   skip:
     reason: "Test does not support dualtor topology."
     conditions:
       - "'dualtor' in topo_name"
-
-drop_packets/test_drop_counters.py::test_ip_pkt_with_exceeded_mtu:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419226"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419226"
 
 lldp/test_lldp.py::test_lldp_neighbor:
   skip:
