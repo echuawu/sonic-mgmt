@@ -1043,6 +1043,10 @@
   Conditions:
     - Affected_test_cases:
       - bfd/test_bfd.py
+      - vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_bfd_health_state_change_a1a2_down
+      - vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_bfd_health_state_change_a2down_a1up
+      - vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_bfd_health_state_change_a2up_a1down
+      - vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_bfd_health_state_change_a1a2_up
       Redmine:
       - 3536554
 
@@ -3176,6 +3180,30 @@
       Branch:
         - master
         - 202305
+
+- Errors_list:
+    - '.*ERR dualtor_neighbor_check.py: .*'
+  Conditions:
+    - Affected_test_cases:
+        - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream
+      Redmine:
+        - 3631272
+
+- Errors_list:
+    - '.*ERR dualtor_neighbor_check.py: .*'
+  Conditions:
+    - Affected_test_cases:
+        - vxlan/test_vnet_route_leak.py
+      Redmine:
+        - 3634772
+
+- Errors_list:
+    - '.*ERR dualtor_neighbor_check.py: .*'
+  Conditions:
+    - Affected_test_cases:
+        - pc/test_lag_2.py
+      Redmine:
+        - 3634794
 
 # NVOS
 - Errors_list:
