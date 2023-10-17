@@ -400,7 +400,8 @@ def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, conta
     for source_path in source_paths:
         docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
     docker_cli_obj.gcovr(paths=SharedConsts.GCOV_DIR, flags=f'--json-pretty -r {SharedConsts.GCOV_DIR} '
-                                                            f'-o {container_gcov_json_file}')
+                                                            f'-o {container_gcov_json_file}',
+                         additional_flags='--exclude-unreachable-branches --exclude-throw-branches --decisions')
     return container_gcov_json_file
 
 

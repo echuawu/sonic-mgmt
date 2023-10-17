@@ -5,7 +5,7 @@ import getopt
 import os
 import time
 
-REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
+REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip}-ilo -U {username} -P {password} chassis power cycle"
 
 
 def main(argv):
