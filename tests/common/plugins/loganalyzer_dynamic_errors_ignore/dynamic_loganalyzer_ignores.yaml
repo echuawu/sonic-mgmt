@@ -3321,6 +3321,16 @@
     - Affected_test_cases:
       - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
 
+- Errors_list:
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnma1p236.*'
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnm1pl1.*'
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnm1pl2.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+    - Platform:
+      - mqm9700
+
 # NVOS - expected errors during thermal algo tests
 - Errors_list:
     - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal.*'
