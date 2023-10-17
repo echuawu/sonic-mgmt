@@ -124,8 +124,8 @@ class GeneralCliCommon(GeneralCliInterface):
     def pip3_install(self, package, flags=''):
         return self.engine.run_cmd(f'pip3 {flags} install {package}', validate=True)
 
-    def gcovr(self, paths='', flags=''):
-        return self.engine.run_cmd(f'gcovr {flags} {paths}', validate=True)
+    def gcovr(self, paths='', flags='', additional_flags=''):
+        return self.engine.run_cmd(f'gcovr {flags} {paths} {additional_flags}', validate=True)
 
     def lcovr(self, flags=''):
         return self.engine.run_cmd(f'lcov {flags}', validate=True)
