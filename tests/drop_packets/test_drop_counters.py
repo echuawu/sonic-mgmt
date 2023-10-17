@@ -21,7 +21,7 @@ from .drop_packets import L2_COL_KEY, L3_COL_KEY, RX_ERR, RX_DRP, ACL_COUNTERS_U
     test_absent_ip_header, test_unicast_ip_incorrect_eth_dst, test_non_routable_igmp_pkts, test_acl_drop, \
     test_acl_egress_drop  # noqa F401
 from tests.common.helpers.constants import DEFAULT_NAMESPACE
-from tests.common.fixtures.conn_graph_facts import fanout_graph_facts  # noqa F401
+from tests.common.fixtures.conn_graph_facts import enum_fanout_graph_facts  # noqa F401
 
 pytestmark = [
     pytest.mark.topology("any")
