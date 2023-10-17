@@ -108,7 +108,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action change {path} profile {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
+        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def show_log(engine, log_type='', param='', exit_cmd=''):
@@ -179,7 +179,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reset system {comp} {params}".format(comp=comp, params=param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
+        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def show_health_report(engine, param='', exit_cmd=''):

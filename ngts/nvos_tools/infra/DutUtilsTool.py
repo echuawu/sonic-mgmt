@@ -15,7 +15,7 @@ logger = logging.getLogger()
 class DutUtilsTool:
 
     @staticmethod
-    def reload(engine, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True):
+    def reload(engine, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True, confirm=False):
         """
 
         :param should_wait_till_system_ready: if True then we will wait till the system is ready, if false then we only will wait till we can re-connect to the system
@@ -26,7 +26,12 @@ class DutUtilsTool:
         :return:
         """
         with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
-            engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
+            if confirm:
+                list_commands = []
+                list_commands += command + 'y'
+                engine.send_config_set(list_commands, exit_config_mode=False, cmd_verify=False)
+            else:
+                engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
 
             with allure.step('Waiting for switch shutdown after reload command'):
                 logger.info("Waiting for switch shutdown after reload command")
