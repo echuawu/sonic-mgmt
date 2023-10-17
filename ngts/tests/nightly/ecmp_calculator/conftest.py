@@ -22,7 +22,7 @@ def generate_arp(players, interface, sender, dst_ip):
     validation = {'sender': sender, 'args': {'interface': interface, 'count': 3, 'dst': dst_ip}}
     ping = PingChecker(players, validation)
     logger.info('Sending 3 ping packets to {} from interface {}'.format(dst_ip, interface))
-    retry_call(ping.run_validation, fargs=[], tries=3, delay=5, logger=logger)
+    retry_call(ping.run_validation, fargs=[], tries=15, delay=2, logger=logger)
 
 
 @pytest.fixture(scope='package', autouse=True)
