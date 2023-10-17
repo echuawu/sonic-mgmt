@@ -342,7 +342,7 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     # remove date, time and hostname before creating the regex!
     hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
-    bug_regex = '.*' + error_to_regex(bug_title).replace("\\", "\\\\") + '.*'
+    bug_regex = '.*' + error_to_regex(bug_title) + '.*'
     if f".*{error_to_regex(bug_title)}.*" in pytest.dynamic_ignore_set:
         return None
     pytest.dynamic_ignore_set.add(f".*{error_to_regex(bug_title)}.*")
@@ -383,18 +383,19 @@ def error_to_regex(error_string):
         error_string = error_string[:BugHandlerConst.BUG_TITLE_LIMIT]
     # -- Escapes out of all the meta characters --#
     error_string = re.escape(error_string)
+    error_string = error_string.replace("\\", "\\\\")
     # -- Replaces a white space with the white space regular expression
     error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)
     # -- Replaces date time with regular expressions
     error_string = re.sub(r" [A-Za-z]{3} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z]{3} ",
-                          " [A-Za-z]{3} \\\\d{4}-\\\\d{2}-\\\\d{2} \\\\d{2}:\\\\d{2}:\\\\d{2} [A-Z]{3} ", error_string)
+                          r" [A-Za-z]{3} \\\\d{4}-\\\\d{2}-\\\\d{2} \\\\d{2}:\\\\d{2}:\\\\d{2} [A-Z]{3} ", error_string)
     # -- Replaces full numbers with digits regular expressions
-    error_string = re.sub(r"\b\d+\b", "\\\\d+", error_string)
+    error_string = re.sub(r"\b\d+\b", r"\\\\d+", error_string)
     # -- Replaces a hex number with the hex regular expression
-    error_string = re.sub(r"0x[0-9a-fA-F]+", "0x[\\\\d+a-fA-F]+", error_string)
-    error_string = re.sub(r"\b[0-9a-fA-F]{3,}\b", "[\\\\d+a-fA-F]+", error_string)
+    error_string = re.sub(r"0x[0-9a-fA-F]+", r"0x[\\\\d+a-fA-F]+", error_string)
+    error_string = re.sub(r"\b[0-9a-fA-F]{3,}\b", r"[\\\\d+a-fA-F]+", error_string)
     # -- Replaces any remaining digits with the digit regular expression
-    error_string = re.sub(r"\d+", "\\\\d+", error_string)
+    error_string = re.sub(r"\d+", r"\\\\d+", error_string)
     error_string = re.sub(r'"', r'\"', error_string)
     return error_string
 
