@@ -396,6 +396,12 @@ tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
       - "release not in ['202211']"
       - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
 
+tests/nightly/cpu_mem/test_bulk_counter_performance.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634590 and branch 202305"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3634590 and '202305' in release"
+
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
     reason: "Bulk Counter is not supported at 202012 202106 202111 and 202205 release"
