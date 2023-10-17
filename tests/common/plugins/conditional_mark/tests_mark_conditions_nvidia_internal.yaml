@@ -858,11 +858,15 @@ snmp/test_snmp_memory.py::test_snmp_memory:
 
 sflow/test_sflow.py:
   skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5938 and branch 202205; Testcase ignored due to https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name, community sflow test could not run on t0-64 topology"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name, community sflow test could not run on t0-64 topology"
     conditions:
-      - "https://github.com/Azure/sonic-mgmt/issues/5938 and '202205' in release"
       - "https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name"
+
+sflow/test_sflow.py::TestAgentId::testAddAgent:
+  skip:
+    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3634860"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3634860"
 
 vxlan/test_vxlan_decap.py:
   skip:
