@@ -11,10 +11,4 @@ class RemoteAaaType:
 
 
 class RemoteAaaConsts:
-    SECRET_FIELD = {
-        RemoteAaaType.LDAP: LdapConsts.BIND_PASSWORD,
-        RemoteAaaType.RADIUS: RadiusConstants.RADIUS_PASSWORD,
-        RemoteAaaType.TACACS: AaaConsts.SECRET
-    }
-
     WAIT_TIME_BEFORE_AUTH = 3

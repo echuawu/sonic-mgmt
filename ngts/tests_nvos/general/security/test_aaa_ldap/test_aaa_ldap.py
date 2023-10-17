@@ -104,7 +104,7 @@ def test_ldap_invalid_auth_port_error_flow(engines, devices):
                                                           LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_bind_in_password_error_flow(engines, devices):
+def test_ldap_invalid_secret_error_flow(engines, devices):
     """
     @summary: in this test case we want to validate invalid bind in password ldap error flows,
     we want to configure invalid bind in password value and then see that we are not able to connect
@@ -116,7 +116,7 @@ def test_ldap_invalid_bind_in_password_error_flow(engines, devices):
     system = System(None)
     random_string = Tools.RandomizationTool.get_random_string(20)
     with allure.step("Configuring invalid password: {}".format(random_string)):
-        system.aaa.ldap.set(LdapConsts.BIND_PASSWORD, random_string, apply=True)
+        system.aaa.ldap.set(LdapConsts.SECRET, random_string, apply=True)
         with allure.step(
                 "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
             time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
@@ -205,7 +205,7 @@ def test_ldap_set_unset_show(test_api, engines):
                 LdapConsts.BASE_DN: random_str,
                 LdapConsts.BIND_DN: random_str,
                 LdapConsts.GROUP_ATTR: random_str,
-                LdapConsts.BIND_PASSWORD: random_str,
+                LdapConsts.SECRET: random_str,
                 LdapConsts.TIMEOUT_BIND: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT_BIND]),
                 LdapConsts.TIMEOUT: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT]),
                 LdapConsts.VERSION: random.choice(LdapConsts.VALID_VALUES[LdapConsts.VERSION])
@@ -374,7 +374,7 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
         for server in invalid_servers:
             server[LdapConsts.HOSTNAME] = f'{1 + i}.{2 + i}.{3 + i}.{4 + i}'
             server[LdapConsts.PRIORITY] = str(i)
-            ldap_obj.hostname.set_priority(hostname=server[LdapConsts.HOSTNAME], priority=i).verify_result()
+            ldap_obj.hostname.hostname_id[server[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, i).verify_result()
             i -= 1
 
     with allure.step(f'Configure encryption mode: {encryption_mode}'):
@@ -397,8 +397,8 @@ def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
     with allure.step('Add valid ldap server server'):
         ldap2_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
         ldap2_server_info[LdapConsts.PRIORITY] = 1
-        ldap_obj.hostname.set_priority(hostname=ldap2_server_info[LdapConsts.HOSTNAME], priority=1,
-                                       apply=True).verify_result()
+        ldap_obj.hostname.hostname_id[ldap2_server_info[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, 1,
+                                                                                  apply=True).verify_result()
         LdapTestTool.active_ldap_server = ldap2_server_info
 
     with allure.step('Verify authentication and authorization are done via next in line - valid ldap server'):
@@ -461,8 +461,8 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
         server2[LdapConsts.PRIORITY] = str(1)
         ldap_obj = System().aaa.ldap
         configure_ldap_common_fields(engines, ldap_obj)
-        ldap_obj.hostname.set_priority(hostname=server1[LdapConsts.HOSTNAME], priority=2).verify_result()
-        ldap_obj.hostname.set_priority(hostname=server2[LdapConsts.HOSTNAME], priority=1).verify_result()
+        ldap_obj.hostname.hostname_id[server1[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, 2).verify_result()
+        ldap_obj.hostname.hostname_id[server2[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, 1).verify_result()
 
     with allure.step(f'Configure encryption mode: {encryption_mode}'):
         configure_ldap_encryption(engines, ldap_obj, encryption_mode)

@@ -32,7 +32,7 @@ def configure_ldap_common_fields(engines, ldap_obj, apply=False):
             LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
             LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
             # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
-            LdapConsts.BIND_PASSWORD: ldap_server_info[LdapConsts.BIND_PASSWORD],
+            LdapConsts.SECRET: ldap_server_info[LdapConsts.SECRET],
             LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
             LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
             LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]
@@ -48,7 +48,7 @@ def configure_ldap(ldap_server_info):
         "hostname" : <value>,
         "base-dn" : <value>,
         "bind-dn" " <value>,
-        "bind-password" : <value>,
+        "secret" : <value>,
         "login-attribute" : <value>,
         "group-attribute" : <value>,
         "scope" : <value>,
@@ -68,8 +68,8 @@ def configure_ldap(ldap_server_info):
             system.aaa.ldap.set(LdapConsts.BASE_DN, ldap_server_info[LdapConsts.BASE_DN])
         if ldap_server_info.get(LdapConsts.BIND_DN):
             system.aaa.ldap.set(LdapConsts.BIND_DN, ldap_server_info[LdapConsts.BIND_DN])
-        if ldap_server_info.get(LdapConsts.BIND_PASSWORD):
-            system.aaa.ldap.set(LdapConsts.BIND_PASSWORD, ldap_server_info[LdapConsts.BIND_PASSWORD])
+        if ldap_server_info.get(LdapConsts.SECRET):
+            system.aaa.ldap.set(LdapConsts.SECRET, ldap_server_info[LdapConsts.SECRET])
         if ldap_server_info.get(LdapConsts.PORT):
             system.aaa.ldap.set(LdapConsts.PORT, ldap_server_info[LdapConsts.PORT])
         if ldap_server_info.get(LdapConsts.TIMEOUT):
@@ -94,7 +94,7 @@ def validate_ldap_configurations(ldap_server_info):
         "hostname" : <value>,
         "base-dn" : <value>,
         "bind-dn" " <value>,
-        "bind-password" : <value>,
+        "secret" : <value>,
         "login-attribute" : <value>,
         "group-attribute" : <value>,
         "scope" : <value>,
@@ -121,7 +121,7 @@ def validate_ldap_configurations(ldap_server_info):
         ValidationTool.validate_fields_values_in_output(expected_fields=expected_field,
                                                         expected_values=expected_values,
                                                         output_dict=output).verify_result()
-        output = system.aaa.ldap.hostname.show_hostname(hostname=ldap_server_info[LdapConsts.HOSTNAME])
+        output = system.aaa.ldap.hostname.hostname_id[ldap_server_info[LdapConsts.HOSTNAME]].show()
         output = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
         expected_field = [LdapConsts.PRIORITY]
         expected_values = [ldap_server_info[LdapConsts.PRIORITY]]
@@ -196,7 +196,7 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
                 LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
                 LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
                 # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
-                LdapConsts.BIND_PASSWORD: ldap_server_info[LdapConsts.BIND_PASSWORD],
+                LdapConsts.SECRET: ldap_server_info[LdapConsts.SECRET],
                 LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
                 LdapConsts.TIMEOUT: ldap_server_info[LdapConsts.TIMEOUT],
                 LdapConsts.VERSION: ldap_server_info[LdapConsts.VERSION]

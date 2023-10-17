@@ -16,6 +16,8 @@ from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
+    detach_config
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
     verify_users_auth, verify_user_auth
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
@@ -69,8 +71,8 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
         for resource, expected_conf in confs.items():
             with allure.step(f'Verify {resource.get_resource_path()} configuration'):
                 cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show()).get_returned_value()
-                if RemoteAaaConsts.SECRET_FIELD[remote_aaa_type] in expected_conf.keys():
-                    expected_conf[RemoteAaaConsts.SECRET_FIELD[remote_aaa_type]] = '*'
+                if AaaConsts.SECRET in expected_conf.keys():
+                    expected_conf[AaaConsts.SECRET] = '*'
                 ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                                 expected_values=expected_conf.values(),
                                                                 output_dict=cur_conf).verify_result()
@@ -95,8 +97,8 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
 
         with allure.step(f'Verify new configuration for hostname {hostname2}'):
             expected_conf = hostname_conf
-            if RemoteAaaConsts.SECRET_FIELD[remote_aaa_type] in expected_conf.keys():
-                expected_conf[RemoteAaaConsts.SECRET_FIELD[remote_aaa_type]] = '*'
+            if AaaConsts.SECRET in expected_conf.keys():
+                expected_conf[AaaConsts.SECRET] = '*'
             cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
                 main_resource_obj.hostname.hostname_id[hostname2].show()).get_returned_value()
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
@@ -129,8 +131,8 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
         for resource, expected_conf in default_confs.items():
             with allure.step(f'Verify default configuration for {resource.get_resource_path()}'):
                 cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show()).get_returned_value()
-                if RemoteAaaConsts.SECRET_FIELD[remote_aaa_type] in expected_conf.keys():
-                    expected_conf[RemoteAaaConsts.SECRET_FIELD[remote_aaa_type]] = '*'
+                if AaaConsts.SECRET in expected_conf.keys():
+                    expected_conf[AaaConsts.SECRET] = '*'
                 ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                                 expected_values=expected_conf.values(),
                                                                 output_dict=cur_conf).verify_result()
@@ -154,24 +156,29 @@ def generic_aaa_test_set_invalid_param(test_api,
     TestToolkit.tested_api = test_api
 
     def check_invalid_set_to_resource(resource_obj, field_name):
-        logging.info(f'Set {field_name} to: "{""}"')
-        resource_obj.set(field_name, '').verify_result(False)
+        if TestToolkit.tested_api == ApiType.NVUE and field_name != AaaConsts.SECRET:
+            logging.info(f'Set {field_name} to: nothing (incomplete)')
+            resource_obj.set(field_name, '').verify_result(False)
 
-        invalid_value = RandomizationTool.get_random_string(6)
-        logging.info(f'Set {field_name} to: {invalid_value}')
-        resource_obj.set(field_name, invalid_value).verify_result(False)
+        if valid_values[field_name] != str:
+            invalid_value = RandomizationTool.get_random_string(6)
+            logging.info(f'Set {field_name} to: {invalid_value}')
+            resource_obj.set(field_name, invalid_value).verify_result(False)
 
         if field_is_numeric[field_name]:
             invalid_value = RandomizationTool.select_random_value(
                 list_of_values=list(range(-1000, 1000)),
                 forbidden_values=valid_values[field_name]).get_returned_value()
-        logging.info(f'Set {field_name} to: {invalid_value}')
-        resource_obj.set(field_name, invalid_value).verify_result(False)
+            logging.info(f'Set {field_name} to: {invalid_value}')
+            resource_obj.set(field_name, invalid_value).verify_result(False)
+
+        if field_name == AaaConsts.SECRET:
+            logging.info(f'Set {field_name} to: empty string (\'""\')')
+            resource_obj.set(field_name, '""', apply=True).verify_result(False)
+            detach_config()
 
     for resource, fields in resources_and_fields.items():
         for field in fields:
-            if valid_values[field] == str:
-                continue
             with allure.step(f'Check invalid {field} for {resource.get_resource_path()}'):
                 check_invalid_set_to_resource(resource, field)
 
