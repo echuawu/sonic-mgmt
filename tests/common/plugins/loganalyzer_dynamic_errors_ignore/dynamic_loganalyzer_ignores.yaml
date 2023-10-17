@@ -3554,3 +3554,9 @@
   Conditions:
     - Redmine:
         - 3585813
+
+- Errors_list:
+    - '.* ERR memory_threshold_check: Free memory .* is less then free memory threshold .*'
+  Conditions:
+    - Redmine:
+        - 3440645
