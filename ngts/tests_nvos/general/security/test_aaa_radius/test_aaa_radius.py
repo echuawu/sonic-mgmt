@@ -35,20 +35,19 @@ def configure_radius_server(radius_server_info):
 
     with allure.step("configuring the following radius server on the switch:\n{}".format(radius_server_info)):
         logging.info("configuring the following radius server on the switch:\n{}".format(radius_server_info))
-        system.aaa.radius.set(RadiusConstants.RADIUS_HOSTNAME, radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                              apply=True, ask_for_confirmation=True)
-        system.aaa.radius.hostname.set_password(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                radius_server_info[RadiusConstants.RADIUS_PASSWORD])
+        system.aaa.radius.set(RadiusConstants.RADIUS_HOSTNAME, radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
         system.aaa.radius.hostname.set_auth_port(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
                                                  int(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]))
         system.aaa.radius.hostname.set_auth_type(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
                                                  radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
         if radius_server_info.get(RadiusConstants.RADIUS_TIMEOUT):
             system.aaa.radius.hostname.set_timeout(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                   int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]), True, True)
+                                                   int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]))
         if radius_server_info.get(RadiusConstants.RADIUS_PRIORITY):
             system.aaa.radius.hostname.set_priority(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                    radius_server_info[RadiusConstants.RADIUS_PRIORITY], True, True)
+                                                    radius_server_info[RadiusConstants.RADIUS_PRIORITY])
+        system.aaa.radius.hostname.set_password(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                radius_server_info[RadiusConstants.RADIUS_PASSWORD], True, True)
 
     with allure.step("Validating configurations"):
         logging.info("Validating configurations")
