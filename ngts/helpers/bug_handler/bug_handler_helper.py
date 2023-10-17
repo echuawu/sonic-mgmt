@@ -395,6 +395,7 @@ def error_to_regex(error_string):
     error_string = re.sub(r"\b[0-9a-fA-F]{3,}\b", "[\\\\d+a-fA-F]+", error_string)
     # -- Replaces any remaining digits with the digit regular expression
     error_string = re.sub(r"\d+", "\\\\d+", error_string)
+    error_string = re.sub(r'"', r'\"', error_string)
     return error_string
 
 

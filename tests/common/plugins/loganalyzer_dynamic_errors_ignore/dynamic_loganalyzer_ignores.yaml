@@ -3465,10 +3465,8 @@
     - '.*Could not get info about sensors.*'
     - '.*ERR systemd\[1\]: Failed to start Platform monitor container.*'
     - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Start request repeated too quickly.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Control process exited, code=killed, status.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'signal'.*"
+    - '.*WARNING systemd\[1\]: pmon.service:.*'
+    - '.*ERR hw-management: chip hwmon object.*'
   Conditions:
     - Redmine:
         - 3540710
@@ -3534,6 +3532,10 @@
 - Errors_list:
     - '.*FW SOS EVENT LOG START.*'
     - '.*FW SOS EVENT LOG END.*'
+    - '.*ERR syncd-ibv00#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[FW health issue\].*'
+    - ".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*"
+    - '.*ERROR: failed to established gNMI Stream connection, max retries reached. exiting thread.*'
+    - '.*ERR syncd-ibv00#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch_ib.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
@@ -3568,3 +3570,17 @@
   Conditions:
     - Redmine:
         - 3585813
+
+# NVOS
+- Errors_list:
+    - ".*ansible-command Invoked with _raw_params=python /tmp/loganalyzer.py.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - ".*multicast join failed for.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_ib0_interface_ip.py::test_ib0_interface_ipv6_address
