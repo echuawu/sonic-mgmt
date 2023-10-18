@@ -5,7 +5,7 @@ import random
 import os
 import re
 import copy
-from pprint import pprint
+import pprint
 from retry import retry
 from deepdiff import DeepDiff
 from ngts.constants.constants import InfraConst, SonicConst
@@ -139,7 +139,9 @@ def compare_config_db_after_qos_reload_ports(cli_object, origin_config_db):
         for key in keys_to_compare:
             with allure.step(f"Compare key {key} after CLI command to origin config_db.json"):
                 expected_dict = origin_config_db[key]
+                logger.info(f"expected_dict: {pprint.pformat(expected_dict)}")
                 actual_dict = config_db_after_qos_reload_ports[key]
+                logger.info(f"actual_dict: {pprint.pformat(actual_dict)}")
                 diff = DeepDiff(actual_dict, expected_dict)
                 assert not diff, f"Test expected QoS configuration to be restored with CLI, " \
-                    f"but config_db.json for key: {key} is different: {pprint(diff)}"
+                    f"but config_db.json for key: {key} is different: {pprint.pformat(diff)}"
