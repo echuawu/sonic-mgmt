@@ -1,3 +1,4 @@
+import pytest
 import logging
 import time
 from ngts.tools.test_utils import allure_utils as allure
@@ -23,9 +24,9 @@ def configure_radius_server(radius_server_info):
     e.g.:
         {
             "hostname" : <value>
-            "auth-port" : <value>,
+            "port" : <value>,
             "auth-type" : <value>,
-            "password"  : <value>,
+            "secret"  : <value>,
             "timeout" : <value>, (optional argument)
             "priority" : <value> (optional argument)
         }
@@ -127,16 +128,16 @@ def randomize_radius_server():
         e.g. of return value:
         {
             "hostname" : <value>
-            "auth-port" : <value>,
+            "port" : <value>,
             "auth-type" : <value>,
-            "password"  : <value>
+            "secret"  : <value>
         }
     """
     randomized_radius_server_info = {
         "hostname": f"1.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
-        "auth-port": f"{random.randint(0, 255)}",
+        "port": f"{random.randint(0, 255)}",
         "auth-type": "pap",
-        "password": f"{random.randint(0, 255)}",
+        "secret": f"{random.randint(0, 255)}",
     }
 
     return randomized_radius_server_info
@@ -203,8 +204,8 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         to connect to switch.
     e.g. for radius configurations:
         {
-            "auth-port" : <value>,
-            "password"  : <value>
+            "port" : <value>,
+            "secret"  : <value>
         }
         each one of the above values can be configured with invalid values
     Test flow:

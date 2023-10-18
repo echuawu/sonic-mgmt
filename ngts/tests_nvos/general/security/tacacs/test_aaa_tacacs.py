@@ -150,7 +150,9 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
     """
     TestToolkit.tested_api = test_api
 
-    with allure.step('Configure tacacs server with no secret'):
+    with allure.step('Configure tacacs server with bad secret'):
+        bad_secret = RandomizationTool.get_random_string(6)
+        logging.info(f'Randomized bad secret: {bad_secret}')
         server = random.choice(list(TacacsServers.VM_SERVERS.values())).copy()
         logging.info(f'chosen server: {server.hostname}')
         auth_type = random.choice(TacacsConsts.AUTH_TYPES)
@@ -159,7 +161,7 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
         aaa = System().aaa
         server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
         configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: '""',
+            AaaConsts.SECRET: bad_secret,
             AaaConsts.PORT: server.port,
             AaaConsts.TIMEOUT: server.timeout,
             # AaaConsts.RETRANSMIT: server.retransmit,
@@ -168,16 +170,6 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
         configure_resource(engines, resource_obj=aaa.authentication, conf={
             AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
             AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True)
-
-    with allure.step('Verify auth fail'):
-        verify_user_auth(engines, topology_obj, random.choice(server.users), expect_login_success=False)
-
-    with allure.step('Set bad secret to the server'):
-        bad_secret = RandomizationTool.get_random_string(6)
-        logging.info(f'Randomized bad secret: {bad_secret}')
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: bad_secret
         }, apply=True)
 
     with allure.step('Verify auth fail'):

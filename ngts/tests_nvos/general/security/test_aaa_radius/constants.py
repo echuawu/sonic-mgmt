@@ -25,8 +25,8 @@ class RadiusConstants:
     RADIUS_SERVERS_DICTIONARY = {
         'physical_radius_server': {
             'hostname': '10.7.34.20',
-            'password': 'testing-radius',  # TODO: change to volt once it is in
-            'auth-port': '1812',
+            'secret': 'testing-radius',  # TODO: change to volt once it is in
+            'port': '1812',
             'auth-type': 'pap',
             'timeout': '5',
             'priority': 2,
@@ -54,8 +54,8 @@ class RadiusConstants:
 
         'docker_radius_server': {
             'hostname': 'fit-l-vrt-60-086',  # TODO: change to volt once it is in
-            'password': 'testing123',  # TODO: change to volt once it is in
-            'auth-port': '1812',
+            'secret': 'testing123',  # TODO: change to volt once it is in
+            'port': '1812',
             'auth-type': 'pap',
             'timeout': '5',
             'priority': 1,

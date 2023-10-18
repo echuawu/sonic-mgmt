@@ -77,10 +77,10 @@ class TacacsServerInfo(RemoteAaaServerInfo):
 
 
 class LdapServerInfo(RemoteAaaServerInfo):
-    def __init__(self, hostname, priority, password, port, users: List[UserInfo],
+    def __init__(self, hostname, priority, secret, port, users: List[UserInfo],
                  base_dn, bind_dn, group_attr,
                  timeout_bind, timeout_search, version, ssl_port=636):
-        super().__init__(hostname, priority, password, port, users)
+        super().__init__(hostname, priority, secret, port, users)
         self.base_dn = base_dn
         self.bind_dn = bind_dn
         self.group_attr = group_attr
@@ -93,7 +93,7 @@ class LdapServerInfo(RemoteAaaServerInfo):
                   dut_engine=None):
         ldap_obj: Ldap = hostname_resource_obj.parent_obj.parent_obj
         conf_to_set = {
-            LdapConsts.PASSWORD: self.secret,
+            LdapConsts.SECRET: self.secret,
             LdapConsts.PORT: self.port,
             LdapConsts.BASE_DN: self.base_dn,
             LdapConsts.BIND_DN: self.bind_dn,
