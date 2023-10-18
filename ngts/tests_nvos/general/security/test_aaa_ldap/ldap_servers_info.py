@@ -12,7 +12,7 @@ class LdapServers:
     PHYSICAL_SERVER = LdapServerInfo(
         hostname=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR,
         priority=1,
-        password='secret',
+        secret='secret',
         port=389,
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
@@ -37,7 +37,7 @@ class LdapServers:
     DOCKER_SERVER_IPV4 = LdapServerInfo(
         hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
         priority=1,
-        password='secret',
+        secret='secret',
         port=389,
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
