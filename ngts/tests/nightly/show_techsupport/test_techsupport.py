@@ -7,6 +7,7 @@ import re
 import logging
 import tarfile
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.helpers.sonic_branch_helper import get_sonic_branch
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def test_techsupport_fw_stuck_dump(topology_obj, loganalyzer, engines, cli_objec
             )
 
         with allure.step('Validate that the DumpMe dump contain all of the SDK extended dump files'):
-            check_all_dumps_file_exsits(duthost, chip_type)
+            check_all_dumps_file_exsits(topology_obj, duthost, chip_type)
 
         # with allure.step('Count number of SDK extended dumps on dut after stuck occurred'):
         #     number_of_sdk_error_after = generate_tech_support_and_count_sdk_dumps(duthost)
@@ -141,7 +142,7 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
                     "Health check counter was not restarted")
 
         with allure.step('Validate that the health check dump contain all of the SDK extended dump files'):
-            check_all_dumps_file_exsits(duthost, chip_type)
+            check_all_dumps_file_exsits(topology_obj, duthost, chip_type)
 
         with allure.step("Verify basic container is up before orchagent core dump generated"):
             cli_objects.dut.general.verify_dockers_are_up()
@@ -225,13 +226,15 @@ def stop_irisics(chip_type, host):
         raise ValueError("Not supported chip type: {}".format(chip_type))
 
 
-def check_all_dumps_file_exsits(engine, chip_type):
+def check_all_dumps_file_exsits(topology_obj, engine, chip_type):
     # DumpMe dumps should contain the following dumps:
     # 3 CR space dumps
     # SDK dump
     # mlxtrace dump
     # FW core dump - only on FW event from level CRITICAL or ERROR
-
+    sonic_branch = get_sonic_branch(topology_obj)
+    # Some files name are changed after the SDK 2000, now 202211 include the SDK older than 2000
+    branch_with_old_sdk = ['202211']
     latest_fw_dump = engine.run_cmd('ls -t {}/*.tar | head -1'.format(SDK_DUMP_DIR))
     output_fw_dump = engine.run_cmd('sudo tar -tf {}'.format(latest_fw_dump))
 
@@ -242,7 +245,10 @@ def check_all_dumps_file_exsits(engine, chip_type):
     assert 'sai_sdk_dump.txt' in output_fw_dump, 'Missing SDK dump'
     # Check mlxtrace dump:
     if not(is_redmine_issue_active([3587386]) and chip_type == "SPC4"):
-        assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
+        if sonic_branch in branch_with_old_sdk:
+            assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
+        else:
+            assert 'sdk_dump_ext_fw_trace_dump_' in output_fw_dump, 'Missing FW trace'
     # Check FW core dump:
     # This should be uncommented when FW stuck event level would change to critical
     # assert 'ir_core_dump_' in output, 'Missing FW core dump'
