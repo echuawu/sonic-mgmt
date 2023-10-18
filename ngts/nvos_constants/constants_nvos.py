@@ -175,7 +175,7 @@ class SystemConsts:
     REBOOT_REASON = 'reason'
 
     VERSION_BUILD_DATE = 'build-date'
-    VERSION_BUILT_BY = 'built-by'
+    # VERSION_BUILT_BY = 'built-by'
     VERSION_IMAGE = 'image'
     VERSION_KERNEL = 'kernel'
 
