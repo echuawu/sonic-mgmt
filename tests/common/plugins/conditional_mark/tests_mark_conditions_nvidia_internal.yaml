@@ -1227,6 +1227,12 @@ generic_config_updater/test_eth_interface.py::test_update_speed:
     conditions:
       - https://redmine.mellanox.com/issues/3218586
 
+generic_config_updater/test_pfcwd_interval.py::test_pfcwd_interval_config_updates:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3636165 at moose setup with branch 202305"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3636165 and '202305' in release and 'sn5600' in platform"
+
 acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv6:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
