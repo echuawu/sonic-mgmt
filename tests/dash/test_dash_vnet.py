@@ -18,6 +18,15 @@ pytestmark = [
 ]
 
 
+# TODO: This is a WA for bug #3634592, remove this after it is fixed
+@pytest.fixture(scope="function", autouse=True)
+def delay_before_test_execution(request):
+    from infra.tools.redmine.redmine_api import is_redmine_issue_active
+    if "test_outbound_vnet_direct" in request.node.name and is_redmine_issue_active([3634592]):
+        import time
+        time.sleep(180)
+
+
 @pytest.fixture
 def inbound_vnet_packets(dash_config_info):
     inner_packet = testutils.simple_udp_packet(
