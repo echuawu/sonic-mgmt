@@ -839,7 +839,7 @@ class StatsConsts:
     CPU_FREE_RAM_MIN = 30  # [%]
     CPU_FREE_RAM_MAX = 100  # [%]
     CPU_UTIL_MIN = 0  # [%]
-    CPU_UTIL_MAX = 50  # [%]
+    CPU_UTIL_MAX = 60  # [%]
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
     DISK_FREE_SPACE_MIN = 60  # [%]
