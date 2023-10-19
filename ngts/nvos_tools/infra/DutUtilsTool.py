@@ -27,8 +27,7 @@ class DutUtilsTool:
         """
         with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
             if confirm:
-                list_commands = []
-                list_commands += command + 'y'
+                list_commands = [command, 'y']
                 engine.send_config_set(list_commands, exit_config_mode=False, cmd_verify=False)
             else:
                 engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
