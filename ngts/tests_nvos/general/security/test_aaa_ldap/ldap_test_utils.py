@@ -237,16 +237,16 @@ def update_ldap_encryption_mode(engines, item, server_info: RemoteAaaServerInfo,
                               dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info)
 
 
-def add_ldap_server_certificate_to_switch(engines):
+def add_ldap_server_certificate_to_switch(dut_engine):
     """
     @summary: Add ldap server certificate to the switch
     """
     with allure.step('Append server certificate to certificates file'):
-        engines.dut.run_cmd(
+        dut_engine.run_cmd(
             f"sudo sh -c 'cat {LdapConsts.SERVER_CERT_FILE_IN_SWITCH} >> {LdapConsts.SWITCH_CA_FILE}'")
 
     with allure.step('Restart nslcd service'):
-        engines.dut.run_cmd('sudo service nslcd restart')
+        dut_engine.run_cmd('sudo service nslcd restart')
         time.sleep(3)
 
 

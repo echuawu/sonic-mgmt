@@ -468,10 +468,12 @@ def test_ldap_failthrough(test_api, encryption_mode, engines, devices):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_restore_certificates,
-                     alias_ldap_server_dn):
-    logging.info(f'Test setup: {test_api}, {encryption_mode}')
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates, alias_ldap_server_dn, request,
+                     topology_obj):
+    item = request.node
+
+    logging.info(f'Test setup: {test_api}')
     TestToolkit.tested_api = test_api
 
     with allure.step('Upload server certificate from fixed shared location to the switch'):
@@ -479,11 +481,9 @@ def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_res
 
     with allure.step('Configure ldap server that allows cert verify'):
         ldap_obj = System().aaa.ldap
-        ldap_server_info = LdapConsts.DOCKER_LDAP_SERVER_DNS_WITH_CERT
-        configure_ldap_server(engines, ldap_obj, ldap_server_info)
-
-    with allure.step(f'Configure encryption mode: {encryption_mode}'):
-        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
+        ldap_server_info = LdapServers.DOCKER_SERVER_DN_WITH_CERT
+        server_resource = ldap_obj.hostname.hostname_id[ldap_server_info.hostname]
+        ldap_server_info.configure(engines, server_resource)
 
     with allure.step('Enable cert-verify'):
         configure_resource(engines, ldap_obj.ssl, conf={LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED})
@@ -492,19 +492,28 @@ def test_cert_verify(test_api, encryption_mode, engines, devices, backup_and_res
         configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL],
                                  failthrough=LdapConsts.ENABLED, apply=True)
 
-    with allure.step(f'Verify authentication fail when there is no certificate in the switch'):
-        user_to_validate = random.choice(ldap_server_info[LdapConsts.USERS])
-        validate_users_authorization_and_role(engines=engines, users=[user_to_validate], login_should_succeed=False)
+    for encryption_mode in LdapEncryptionModes.ALL_MODES:
+        with allure.step(f'Configure encryption mode: {encryption_mode}'):
+            update_ldap_encryption_mode(engines, item, ldap_server_info, server_resource, encryption_mode)
 
-    with allure.step('Add the server certificate to the switch'):
-        add_ldap_server_certificate_to_switch(engines)
-        LdapTestTool.active_ldap_server = ldap_server_info
+        if encryption_mode != LdapEncryptionModes.NONE:
+            with allure.step(f'Verify auth with LDAP user when there is no CA cert in the switch- expect fail'):
+                user_to_validate = random.choice(ldap_server_info.users)
+                verify_user_auth(engines, topology_obj, user_to_validate, expect_login_success=False)
 
-    with allure.step(f'Verify authentication success'):
-        validate_users_authorization_and_role(engines=engines, users=[user_to_validate],
-                                              check_nslcd_if_login_failed=True)
+            with allure.step('Add the server certificate to the switch'):
+                engine = getattr(item, 'active_remote_admin_engine')
+                engine = engines.dut if not engine else engine
+                add_ldap_server_certificate_to_switch(engine)
 
-    with allure.step('Disable ldap'):
-        disable_ldap(engines)
+        update_active_aaa_server(item, ldap_server_info)
+
+        with allure.step(f'Verify auth with LDAP user when there is CA cert in the switch - expect success'):
+            verify_user_auth(engines, topology_obj, user_to_validate)
+
+        with allure.step('Restore certificates file'):
+            engine = getattr(item, 'active_remote_admin_engine')
+            engine = engines.dut if not engine else engine
+            engine.run_cmd(f"sudo cp -f {LdapConsts.SWITCH_CA_BACKUP_FILE} {LdapConsts.SWITCH_CA_FILE}")
 
 # ----------------------------------- NEW -----------------------------------
