@@ -1,3 +1,5 @@
+import logging
+
 import allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -68,7 +70,10 @@ class BaseComponent:
                         return self._set(op_param_name, op_param_value, expected_str, apply, ask_for_confirmation,
                                          dut_engine)
             else:
-                raise Exception("Invalid param name or value")
+                logging.info('Run set with no params')
+                op_param_value = '' if TestToolkit.tested_api == ApiType.NVUE else {}
+                return self._set(op_param_name, op_param_value, expected_str, apply, ask_for_confirmation,
+                                 dut_engine)
 
     def unset(self, op_param="", expected_str="", apply=False, ask_for_confirmation=False, dut_engine=None):
         if not dut_engine:

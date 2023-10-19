@@ -92,6 +92,7 @@ class LdapServerInfo(RemoteAaaServerInfo):
     def configure(self, engines, hostname_resource_obj: HostnameId, set_explicit_priority=False, apply=False,
                   dut_engine=None):
         ldap_obj: Ldap = hostname_resource_obj.parent_obj.parent_obj
+        hostname_resource_obj.set(dut_engine=dut_engine)
         conf_to_set = {
             LdapConsts.SECRET: self.secret,
             LdapConsts.PORT: self.port,
@@ -99,7 +100,7 @@ class LdapServerInfo(RemoteAaaServerInfo):
             LdapConsts.BIND_DN: self.bind_dn,
             LdapConsts.GROUP_ATTR: self.group_attr,
             LdapConsts.VERSION: self.version,
-            LdapConsts.HOSTNAME: self.hostname
+            # LdapConsts.HOSTNAME: self.hostname
         }
         configure_resource(engines, resource_obj=ldap_obj, conf=conf_to_set, apply=False, dut_engine=dut_engine)
         ldap_obj.ssl.set(LdapConsts.SSL_CERT_VERIFY, LdapConsts.DISABLED, dut_engine=dut_engine).verify_result()

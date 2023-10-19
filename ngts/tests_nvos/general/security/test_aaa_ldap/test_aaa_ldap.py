@@ -274,8 +274,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
                           feature_resource_obj=ldap,
                           server_by_addr_type=LdapServers.DOCKER_SERVERS,
                           test_param=LdapEncryptionModes.ALL_MODES,
-                          test_param_update_func=update_ldap_encryption_mode,
-                          skip_auth_mediums=[AuthMedium.OPENAPI])
+                          test_param_update_func=update_ldap_encryption_mode)
 
 # -------------------- NEW TESTS ---------------------
 
