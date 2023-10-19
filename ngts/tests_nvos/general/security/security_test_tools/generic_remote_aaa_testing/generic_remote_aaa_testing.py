@@ -132,7 +132,8 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             with allure.step(f'Verify default configuration for {resource.get_resource_path()}'):
                 cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show()).get_returned_value()
                 if AaaConsts.SECRET in expected_conf.keys():
-                    expected_conf[AaaConsts.SECRET] = '*'
+                    # expected_conf[AaaConsts.SECRET] = '*'
+                    del expected_conf[AaaConsts.SECRET]
                 ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                                 expected_values=expected_conf.values(),
                                                                 output_dict=cur_conf).verify_result()

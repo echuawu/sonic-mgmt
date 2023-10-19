@@ -108,16 +108,18 @@ tests_nvos/system/test_system_factory_reset.py:
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194"
     conditions:
+      - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418
 
 tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3631402"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194"
     conditions:
+      - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3631402
       - https://redmine.mellanox.com/issues/3591194
       - https://redmine.mellanox.com/issues/3482418

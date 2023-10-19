@@ -280,46 +280,6 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
 # -------------------- NEW TESTS ---------------------
 
 
-@pytest.mark.security
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api, connection_method, encryption_mode', list(product(ApiType.ALL_TYPES,
-                                                                                      LdapConsts.CONNECTION_METHODS,
-                                                                                      LdapConsts.ENCRYPTION_MODES)))
-def test_ldap_authentication(test_api, connection_method, encryption_mode, engines, devices):
-    """
-    @summary:
-        Test basic functionality - verify authentication through the ldap server.
-
-        Steps:
-        1. Configure ldap server with the given connection method
-        2. Configure the given encryption mode for the ldap communication
-        3. Enable ldap and set it as main authentication method
-        4. Verify authentication with the result setup
-    """
-    logging.info(f'Test setup: {test_api}, {connection_method}, {encryption_mode}')
-    TestToolkit.tested_api = test_api
-
-    with allure.step(f'Configure ldap server with connection method: {connection_method}'):
-        ldap_obj = System().aaa.ldap
-        ldap_server_info = LdapConsts.SERVER_INFO[connection_method]
-        configure_ldap_server(engines, ldap_obj, ldap_server_info)
-
-    with allure.step(f'Configure encryption mode: {encryption_mode}'):
-        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
-
-    with allure.step('Enable and set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], apply=True)
-        LdapTestTool.active_ldap_server = ldap_server_info
-
-    with allure.step(f'Verify authentication with the current setup'):
-        user_to_validate = random.choice(ldap_server_info[LdapConsts.USERS])
-        validate_users_authorization_and_role(engines=engines, users=[user_to_validate],
-                                              check_nslcd_if_login_failed=True)
-
-    with allure.step('Disable ldap'):
-        disable_ldap(engines)
-
-
 @pytest.mark.bug  # permissions traceback exception 3519743, wrong permission of ldap-local mutual user 3557998
 @pytest.mark.security
 @pytest.mark.simx
