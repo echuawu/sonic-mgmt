@@ -7,7 +7,7 @@ from ngts.nvos_tools.platform.Platform import Platform
 
 logger = logging.getLogger()
 
-list_with_status_codes = [{'1024': {'status': 'Cable is unplugged.'}}, {'1': {'status': 'Closed by command'}},
+list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'status': 'Closed by command'}},
                           {'0': {'status': 'No issue was observed'}}, {'2': {'status': 'Negotiation failure'}},
                           {'15': {'status': 'Bad signal integrity'}}, {'59': {'status': 'Other issues'}}]
 
@@ -115,6 +115,7 @@ def test_interface_link_diagnostics_basic(engines):
                     port.ib_interface.link.diagnostics.show()).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
                 logging.info("Check each port status in all ports status")
+                logging.info("Status dict {}".format(status_dict))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
                 assert diagnostics_per_port == status_dict, \
                     "Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
@@ -134,13 +135,17 @@ def test_interface_link_diagnostics_basic(engines):
 
     with allure.step('Run nv show interface for not exist port/eth0/ib0/lo'):
         output_dictionary = any_port.show_interface(port_names='aa link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for aa transceiver"
+        assert "Valid interface types are swp, eth, loopback, ipoib, fnm." in output_dictionary, \
+            "Can run command for aa transceiver"
         output_dictionary = any_port.show_interface(port_names='eth0 link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for eth0 transceiver"
+        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+            "Can run command for eth0 transceiver"
         output_dictionary = any_port.show_interface(port_names='ib0 link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for ib0 transceiver"
+        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+            "Can run command for ib0 transceiver"
         output_dictionary = any_port.show_interface(port_names='lo link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for lo transceiver"
+        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+            "Can run command for lo transceiver"
 
 
 @pytest.mark.ib
