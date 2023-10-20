@@ -20,7 +20,7 @@ ROCEV2_ACL_BASIC_TEST_DATA = [
      "priority": "1003", "action_type": "PACKET_ACTION", "action": "",
      "src_type": "SRC_IP", "src_ip": "10.0.3.1/24"},
     {"table_name": "ROCE_ACL_INGRESS", "name": "in_mirror",
-     "priority": "1004", "action_type": "MIRROR_ACTION", "action": "port0",
+     "priority": "1004", "action_type": "MIRROR_INGRESS_ACTION", "action": "port0",
      "src_type": "SRC_IP", "src_ip": "10.0.4.1/24"},
     {"table_name": "ROCE_ACL_INGRESS", "name": "in_forward_v6",
      "priority": "1005", "action_type": "PACKET_ACTION", "action": "FORWARD",
@@ -32,7 +32,7 @@ ROCEV2_ACL_BASIC_TEST_DATA = [
      "priority": "1007", "action_type": "PACKET_ACTION", "action": "",
      "src_type": "SRC_IPV6", "src_ip": "1003::1/64"},
     {"table_name": "ROCE_ACL_INGRESS", "name": "in_mirror_v6",
-     "priority": "1008", "action_type": "MIRROR_ACTION", "action": "port0",
+     "priority": "1008", "action_type": "MIRROR_INGRESS_ACTION", "action": "port0",
      "src_type": "SRC_IPV6", "src_ip": "1004::1/64"},
 
     {"table_name": "ROCE_ACL_EGRESS", "name": "e_forward",

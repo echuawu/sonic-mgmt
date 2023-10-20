@@ -4,19 +4,19 @@
 
         "CUSTOM_L3": {
 
-            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+            "MATCHES": ["BTH_OPCODE","AETH_SYNDROME","SRC_IP","SRC_IPV6"],
 
-            "actions": "PACKET_ACTION,MIRROR_INGRESS_ACTION,REDIRECT_ACTION",
+            "ACTIONS": ["PACKET_ACTION","MIRROR_INGRESS_ACTION","REDIRECT_ACTION"],
 
-            "bind_points": "PORT,PORTCHANNEL"
+            "BIND_POINTS": ["PORT","PORTCHANNEL"]
         },
         "CUSTOM_L3_E": {
 
-            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+            "MATCHES": ["BTH_OPCODE","AETH_SYNDROME","SRC_IP","SRC_IPV6"],
 
-            "actions": "PACKET_ACTION,MIRROR_EGRESS_ACTION",
+            "ACTIONS": ["PACKET_ACTION","MIRROR_EGRESS_ACTION"],
 
-            "bind_points": "PORT,PORTCHANNEL"
+            "BIND_POINTS": ["PORT","PORTCHANNEL"]
         }
 
     },
