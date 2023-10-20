@@ -9,6 +9,7 @@ from ngts.config_templates.lag_lacp_config_template import LagLacpConfigTemplate
 from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.config_templates.interfaces_config_template import InterfaceConfigTemplate
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tests.nightly.rocev2_acl_counter.constants import V4_CONFIG, V6_CONFIG, ROCEV2_ACL_BASIC_TEST_DATA, TEST_COMBINATION
 from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config, remove_rocev2_acl_rule_and_talbe, \
     BTH_OPCODE_NAK_TYPE_AMP, is_support_rocev2_acl_counter_feature
@@ -90,6 +91,9 @@ def apply_rocev2_acl_config(topology_obj, interfaces, engines, rocev2_acl_rule_l
 
     yield
     remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS", "ROCE_ACL_EGRESS"])
+    if is_redmine_issue_active([3638709]):
+        dut_engine = topology_obj.players['dut']['engine']
+        dut_engine.reload(['sudo reboot'])
 
 
 @pytest.fixture(scope='module', autouse=False)
