@@ -220,28 +220,34 @@ def get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine
 
 @pytest.mark.disable_loganalyzer
 def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, is_simx, is_air):
-    with allure.step('Generating a sysdump'):
-        dut_cli_object = topology_obj.players['dut']['cli']
-        dut_engine = topology_obj.players['dut']['engine']
-        if isinstance(dut_cli_object, NvueCli):
-            dumps_folder, tar_file, tarball_file_name = get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine)
-        else:
-            tar_file = dut_cli_object.general.generate_techsupport(duration)
-            tarball_file_name = str(tar_file.replace('/var/dump/', ''))
+    dut_cli_object_list = [topology_obj.players['dut']['cli']]
+    dut_engine_list = [topology_obj.players['dut']['engine']]
+    if topology_obj.players.get('dut-b'):
+        dut_cli_object_list.append(topology_obj.players['dut-b']['cli'])
+        dut_engine_list.append(topology_obj.players['dut-b']['engine'])
 
-        logger.info("Dump was created at: {}".format(tar_file))
+    for i in range(len(dut_cli_object_list)):
+        with allure.step('Generating a sysdump'):
+            if isinstance(dut_cli_object_list[i], NvueCli):
+                dumps_folder, tar_file, tarball_file_name = get_nvos_techsupport_info(dut_cli_object_list[i], duration,
+                                                                                      dumps_folder, dut_engine_list[i])
+            else:
+                tar_file = dut_cli_object_list[i].general.generate_techsupport(duration)
+                tarball_file_name = str(tar_file.replace('/var/dump/', ''))
 
-    with allure.step('Copy dump: {} to log folder {}'.format(tarball_file_name, dumps_folder)):
-        dest_file = dumps_folder + '/sysdump_' + tarball_file_name
-        logger.info('Copy dump {} to log folder {}'.format(tar_file, dumps_folder))
-        dut_engine.copy_file(source_file=tar_file,
-                             dest_file=dest_file,
-                             file_system='/',
-                             direction='get',
-                             overwrite_file=True,
-                             verify_file=False)
-        os.chmod(dest_file, 0o777)
-        logger.info('Dump file location: {}'.format(dest_file))
+            logger.info("Dump was created at: {}".format(tar_file))
+
+        with allure.step('Copy dump: {} to log folder {}'.format(tarball_file_name, dumps_folder)):
+            dest_file = dumps_folder + '/sysdump_' + tarball_file_name
+            logger.info('Copy dump {} to log folder {}'.format(tar_file, dumps_folder))
+            dut_engine_list[i].copy_file(source_file=tar_file,
+                                         dest_file=dest_file,
+                                         file_system='/',
+                                         direction='get',
+                                         overwrite_file=True,
+                                         verify_file=False)
+            os.chmod(dest_file, 0o777)
+            logger.info('Dump file location: {}'.format(dest_file))
     global FETCH_THECHSURPORT_STATUS
     FETCH_THECHSURPORT_STATUS = True
 

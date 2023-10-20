@@ -279,6 +279,8 @@ def update_topology_with_cli_class(topology):
             else:
                 player_info['cli'] = SonicCli(topology)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
+        elif player_key == 'dut-b':
+            player_info['cli'] = SonicCli(topology, dut_alias='dut-b')
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})
