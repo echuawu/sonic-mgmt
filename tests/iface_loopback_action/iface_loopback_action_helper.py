@@ -639,13 +639,14 @@ def verify_rif_tx_err_count(duthost, rif_interfaces, expect_counts):
     :param rif_interfaces: List of rif interface
     :param expect_counts: expected TX ERR for for every rif interface
     """
+    # Wait for the counters polling, the default interval is 1s
+    time.sleep(2)
     rif_tx_err_map = get_rif_tx_err_count(duthost)
     for rif_interface, expected_count in zip(rif_interfaces, expect_counts):
         tx_err_count = int(rif_tx_err_map[rif_interface])
         pytest_assert(tx_err_count == expected_count,
                       "The TX ERR count on {} is {}, expect TX ERR count is {}".format(rif_interface, tx_err_count,
                                                                                        expected_count))
-    return True
 
 
 def shutdown_rif_interfaces(duthost, rif_interfaces):

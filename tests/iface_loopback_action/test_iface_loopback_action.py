@@ -98,8 +98,7 @@ def test_loopback_action_reload(request, duthost, localhost, ptfadapter, ports_c
             with allure.step("Check the traffic can be received or dropped as expected"):
                 verify_traffic(duthost, ptfadapter, rif_interfaces, ports_configuration, action_list)
             with allure.step("Check the TX_ERR in rif counter statistic will increase or not as expected"):
-                pytest_assert(wait_until(20, 5, 0, verify_rif_tx_err_count, duthost, rif_interfaces, count_list),
-                              "Checking TX ERR count failed, some counter is not as expected.")
+                verify_rif_tx_err_count(duthost, rif_interfaces, count_list)
     with allure.step("Save configuration"):
         duthost.shell("config save -y")
     with allure.step("System reload"):
