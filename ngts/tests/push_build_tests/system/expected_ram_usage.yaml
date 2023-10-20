@@ -973,7 +973,7 @@ master:
     syncd: 300
     redis-server: 70
     snmpd: 20
-    zebra: 60
+    zebra: 85
     bgpd: 50
     bgpcfgd: 30
     bgpmon: 20
