@@ -3172,6 +3172,23 @@
       Branch:
         - master
 
+# When simulating fw stuck, the following error will be expected, so ignore them
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_PORT.ERR\] .\/src\/mlnx_sai_port.c.*- mlnx_run_and_process_ethtool_cmd: Failed to run the cmd ethtool -S  Ethernet\d+.*'
+    - '.* ERR syncd#SAI.*- collectData: Failed to get stats of Port Counter.*'
+    - '.* ERR syncd#SDN: mlx\d_net: Failed to update link status: No such device or address.*'
+    - '.* ERR syncd#SDN: mlx\d+_net: Failed to update link status: No such device.*'
+    - '.* ERR syncd#SAI: \[SAI_INTERFACE_QUERY_ETH.ERR\] .\/src\/mlnx_sai_interfacequery_dpu.c.*- sai_dbg_do_dump: Failed to run mlxconfig command - mlxconfig -d \/dev\/mst\/mt.*_pciconf.* q .* \/var\/log\/bluefield\/sdk-dumps\/_stage\/sai_nasa_dump.txt.*'
+    - '.* ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.* ERR syncd#SDN: mlx\d+_net: \[mlx\d+dr_cmd_stc_modify\]: Failed to modify STC FW action_type \d+.*'
+    - '.* ERR syncd#SDN: mlx\d+_net: \[mlx\d+dr_cmd_flow_table_modify\]: Failed to modify FT.*'
+    - '.* ERR syncd#SDN: mlx5_net: \[mlx5dr_matcher_disconnect\]: Failed to update miss table RTC for last matcher.*'
+    - '.* ERR pmon#thermalctld: Failed to exec mget_temp - Failed to open \(\/sys\/bus\/pci\/devices\/0000:03:00.0\/config\) for reading: No such file or directory.*'
+    - '.* WARNING kernel.*NOHZ tick-stop error: Non-RCU local softirq work is pending, handler.*'
+  Conditions:
+    - Affected_test_cases:
+        - show_techsupport/test_techsupport_dpu.py
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'

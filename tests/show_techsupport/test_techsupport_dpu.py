@@ -5,14 +5,37 @@ import logging
 from random import randint
 from tests.common.utilities import wait_until
 from test_techsupport import execute_command
+from tests.common import config_reload
+
 logger = logging.getLogger(__name__)
 
 DPU_PLATFORM_DUMP_FILES = ["sysfs_tree", "sys_version", "dmesg",
                            "dmidecode", "lsmod", "lspci", "top", "bin/platform-dump.sh"]
+TECHSUPPORT_DUMP_DIR = '/var/dump/'
+SDK_DUMP_FILES = ["acls.log", "enis.log", "general.log", "routing.log", "sai_nasa_dump.txt", "stats.log"]
+SAI_SDK_DUMP_FOLDER_NAME = 'sai_sdk_dump'
 
 pytestmark = [
     pytest.mark.topology('any')
 ]
+
+@pytest.fixture(scope='module', autouse=True)
+def skip_test_on_non_dpu_platform(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+    config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
+    if config_facts['DEVICE_METADATA']['localhost'].get('switch_type', '') != 'dpu':
+        pytest.skip("Skip the test, as it is supported only on DPU.")
+
+
+
+@pytest.fixture(scope='function', autouse=False)
+def recover_dut(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+
+    yield
+
+    logger.info("Recover dut by config reload -y")
+    config_reload(duthost)
 
 
 def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
@@ -27,9 +50,6 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
     :param duthosts: DUT host
     """
     duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
-    config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
-    if config_facts['DEVICE_METADATA']['localhost'].get('switch_type', '') != 'dpu':
-        pytest.skip("Skip the test, as it is supported only on DPU.")
 
     since = str(randint(1, 5)) + " minute ago"
     platform_dump_name = "platform-dump.tar.gz"
@@ -40,13 +60,14 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
 
     try:
         with allure.step('Validate that the dump file contains {} archive'.format(platform_dump_name)):
-            is_platform_dump_tar_gz_exist= duthost.shell("ls {}/{}/{}".format(
-                extracted_dump_folder_path, platform_dump_folder_name,platform_dump_name))["stdout_lines"]
+            is_platform_dump_tar_gz_exist = duthost.shell("ls {}/{}/{}".format(
+                extracted_dump_folder_path, platform_dump_folder_name, platform_dump_name))["stdout_lines"]
             assert is_platform_dump_tar_gz_exist, \
                 "{} doesn't exist in {}".format(platform_dump_name, extracted_dump_folder_name)
 
         with allure.step('validate that {} includes the expected files'.format(platform_dump_name)):
-            validate_platform_dump_files(duthost, extracted_dump_folder_path, platform_dump_folder_name,platform_dump_name)
+            validate_platform_dump_files(duthost, extracted_dump_folder_path, platform_dump_folder_name,
+                                         platform_dump_name)
 
         with allure.step('Validate that the dump file contains sai_sdk_dump folder'):
             is_existing_sai_sdk_dump_folder = duthost.shell(
@@ -64,6 +85,68 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
     finally:
         duthost.command("rm -rf {}".format(tar_file))
         duthost.command("rm -rf {}".format(extracted_dump_folder_path))
+
+
+def test_techsupport_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_hostname, recover_dut):
+    """
+    This test is to check triggering fw stuck will generate dump file
+    1. Get DUT current time (time_before_trigger_fw_stuck) before triggering fw stuck
+    2. Trigger fw stuck by running command: echo 1 > /sys/bus/pci/devices/0000\: 03\:00.0/remove ;
+       cho 1 > /sys/bus/pci/devices/0000\:03\:00.1/remove ; sleep 5 ; echo 1 > /sys/bus/pci/rescan
+    3. Check one new dump file is generated in /var/dump/,
+       and the created time for the new dump file should be later than time_before_trigger_fw_stuck
+    4. Check dump file includes a folder of sai_sdk_dump
+    5. Check sai_sdk_dump folder includes some files like sai-dfw-xxxxx.tar.gz
+    6. Check sai-dfw-xxxxx.tar.gz include acls.log, enis.log, general.log, routing.log, sai_nasa_dump.txt, stats.log
+    7. Recover DUT by config reload -y
+    :param duthosts: DUT host
+    """
+    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+
+    with allure.step("Get initial time before trigger fw stuck"):
+        time_before_trigger_fw_stuck = duthost.shell("date")['stdout']
+
+    with allure.step("Trigger fw stuck "):
+        trigger_fw_stuck_cmd = "echo 1 > /sys/bus/pci/devices/0000\:03\:00.0/remove ; " \
+                               "echo 1 > /sys/bus/pci/devices/0000\:03\:00.1/remove ;" \
+                               " sleep 5 ; echo 1 > /sys/bus/pci/rescan"
+        duthost.shell(trigger_fw_stuck_cmd)
+
+    with allure.step("Check new dump file is generated"):
+        techsupport_dump_list_after_trigger_fw_stuck = []
+
+        def _check_new_dump_file_is_generated():
+            nonlocal techsupport_dump_list_after_trigger_fw_stuck
+            get_new_dump_file_cmd = f" find {TECHSUPPORT_DUMP_DIR}*.tar.gz -newermt  '{time_before_trigger_fw_stuck}'"
+            techsupport_dump_list_after_trigger_fw_stuck = duthost.shell(get_new_dump_file_cmd)['stdout_lines']
+            # show dump file info for debug
+            show_dump_file_info = f"ls -lh {TECHSUPPORT_DUMP_DIR}"
+            duthost.shell(show_dump_file_info)
+            return techsupport_dump_list_after_trigger_fw_stuck
+
+        assert wait_until(120, 5, 0, _check_new_dump_file_is_generated),\
+            "FW stuck doesn't trigger dump files generated in 120s"
+        techsupport_dump_list_num = len(techsupport_dump_list_after_trigger_fw_stuck)
+        assert techsupport_dump_list_num == 1,\
+            f"Expect one dump file, actual {techsupport_dump_list_num} techsupport dump file are generated "
+
+    with allure.step(
+            "Check the new dump file includes sai_sdk_dump and the folder includes files like sai-dfw-xxxxx.tar.gz"):
+        _, extracted_dump_folder_path = extract_file_from_tar_file(
+            duthost, techsupport_dump_list_after_trigger_fw_stuck[0])
+
+        get_sai_dfw_file_cmd = f"find {extracted_dump_folder_path}/{SAI_SDK_DUMP_FOLDER_NAME}/sai-dfw*.tar.gz"
+        sai_dfw_file_list = duthost.shell(get_sai_dfw_file_cmd)['stdout_lines']
+        assert sai_dfw_file_list, f"dump file {sai_dfw_file_list} doesn't include sai-dfw*.tar.gz"
+
+    with allure.step("Check  sai-dfw includes {SDK_DUMP_FILES}"):
+        _, extracted_sai_dfw_folder_path = extract_file_from_tar_file(duthost, sai_dfw_file_list[0], True)
+        get_sai_dump_file_cmd = f"find {extracted_sai_dfw_folder_path} -regex '.*\(.txt\|.log\)'"
+        sai_dump_file_list = duthost.shell(get_sai_dump_file_cmd)['stdout_lines']
+        for file in SDK_DUMP_FILES:
+            full_name = os.path.join(extracted_sai_dfw_folder_path, file)
+            assert full_name in sai_dump_file_list,\
+                f"{full_name} is not generated. Actual file list is {sai_dump_file_list}"
 
 
 def validate_platform_dump_files(duthost, dump_folder_path, platform_dump_folder_name, platform_dump_name):
@@ -109,7 +192,18 @@ def gen_dump_file(duthost, since):
     logger.debug("Running show techsupport ... ")
     wait_until(300, 20, 0, execute_command, duthost, str(since))
     tar_file = [j for j in pytest.tar_stdout.split('\n') if j != ''][-1]
-    duthost.command("tar -xf {} -C /tmp/".format(tar_file))
-    extracted_dump_folder_name = tar_file.lstrip('/var/dump/').split('.')[0]
-    extracted_dump_folder_path = '/tmp/{}'.format(extracted_dump_folder_name)
+    extracted_dump_folder_name, extracted_dump_folder_path = extract_file_from_tar_file(duthost, tar_file)
     return tar_file, extracted_dump_folder_name, extracted_dump_folder_path
+
+
+def extract_file_from_tar_file(duthost, tar_file, is_need_create_target_folder=False):
+    extracted_dump_folder_name = tar_file.split('/')[-1].split('.')[0]
+    target_folder = '/tmp/'
+    if is_need_create_target_folder:
+        target_folder = f'/tmp/{extracted_dump_folder_name}'
+        create_target_folder = f"mkdir -p {target_folder}"
+        duthost.command(create_target_folder)
+
+    duthost.command(f"tar -xf {tar_file} -C {target_folder}")
+    extracted_dump_folder_path = f'/tmp/{extracted_dump_folder_name}'
+    return extracted_dump_folder_name, extracted_dump_folder_path
