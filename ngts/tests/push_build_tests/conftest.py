@@ -325,7 +325,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
                     if upgrade_params.wjh_deb_url:
                         cli_objects.dut.general.install_wjh(engines.dut, upgrade_params.wjh_deb_url)
                     else:
-                        install_all_supported_app_extensions(cli_objects.dut, app_extension_dict_path)
+                        install_all_supported_app_extensions(cli_objects.dut, app_extension_dict_path, platform_params)
 
     if run_test_only or full_flow_run:
         yield
