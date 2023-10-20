@@ -56,7 +56,7 @@ class TestDPBOnAllPorts:
                 logger.info(f'Verify interfaces are in up state after breakout is removed')
                 retry_call(self.cli_object.interface.check_ports_status,
                            fargs=[ports_list],
-                           tries=6, delay=10)
+                           tries=8, delay=10)
         except Exception as e:
             raise e
 

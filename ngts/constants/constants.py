@@ -215,6 +215,7 @@ class AutonegCommandConstants:
     FEC_OPER = "FEC Oper"
     FEC_ADMIN = "FEC Admin"
     WIDTH = "Width"
+    CABLE_SPEED = "Supported Cable Speed"
     REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
         ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down", None),
         OPER: (r"Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down", None),
@@ -222,7 +223,9 @@ class AutonegCommandConstants:
         WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None, None),
         FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None, None),
         AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*\s*-*\s*\d*\w_*\d*X*|ON)",
-                       r"FORCE\s+-\s+\d+\w_*\d*X*|ON", "enabled", "disabled", "Force")
+                       r"FORCE\s+-\s+\d+\w_*\d*X*|ON", "enabled", "disabled", "Force"),
+        CABLE_SPEED: (r"Supported Cable Speed (?:\(Ext.\))?\s+:\s+0x[0-9a-z]+\s+\(([\w.,]+)\)",
+                      None, None, None, None)
     }
 
 
