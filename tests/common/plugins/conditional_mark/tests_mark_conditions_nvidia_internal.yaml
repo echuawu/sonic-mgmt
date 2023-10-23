@@ -1895,9 +1895,9 @@ bfd/test_bfd.py::test_bfd_multihop:
 
 drop_packets/test_drop_counters.py::test_unicast_ip_incorrect_eth_dst:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634890 and 202305 branch"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634890 and 202305 or master branch"
     conditions:
-      - "https://redmine.mellanox.com/issues/3634890 and '202305' in release"
+      - "https://redmine.mellanox.com/issues/3634890 and ('202305' in release or 'master' in release)"
 
 qos/test_lossless_bum_traffic_drop.py:
   skip:
