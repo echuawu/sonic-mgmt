@@ -104,6 +104,49 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
                           test_param_update_func=update_tacacs_auth_type)
 
 
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_tacacs_bad_secret(test_api, engines, topology_obj):
+    """
+    @summary: Verify that tacacs users can't auth when bad/no secret is configured.
+
+        Steps:
+        1. configure tacacs server
+        2. set no/blank secret
+        3. verify auth - expect fail
+        4. set bad secret
+        5. verify auth - expect fail
+    """
+    tacacs_server = TacacsServers.PHYSICAL_SERVER.copy()
+    tacacs_server.secret = RandomizationTool.get_random_string(6)
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.TACACS,
+                                           feature_resource_obj=System().aaa.tacacs,
+                                           bad_param_name=AaaConsts.SECRET, bad_configured_server=tacacs_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_tacacs_bad_port(test_api, engines, topology_obj):
+    """
+    @summary: Verify that tacacs users can't auth when bad port is configured.
+
+        Steps:
+        1. configure tacacs server
+        2. set bad port
+        3. verify auth - expect fail
+    """
+    tacacs_server = TacacsServers.PHYSICAL_SERVER.copy()
+    tacacs_server.port = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PORT],
+                                                               [tacacs_server.port]).get_returned_value()
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.TACACS,
+                                           feature_resource_obj=System().aaa.tacacs,
+                                           bad_param_name=AaaConsts.PORT, bad_configured_server=tacacs_server)
+
+
 # -------------------- NEW TESTS ---------------------
 
 
@@ -132,89 +175,6 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
 
     with allure.step('Set another hostname with existing priority - expect fail'):
         tacacs.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2, apply=True).verify_result(False)
-
-
-@pytest.mark.security
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_bad_secret(test_api, engines, topology_obj):
-    """
-    @summary: Verify that tacacs users can't auth when bad/no secret is configured.
-
-        Steps:
-        1. configure tacacs server
-        2. set no/blank secret
-        3. verify auth - expect fail
-        4. set bad secret
-        5. verify auth - expect fail
-    """
-    TestToolkit.tested_api = test_api
-
-    with allure.step('Configure tacacs server with bad secret'):
-        bad_secret = RandomizationTool.get_random_string(6)
-        logging.info(f'Randomized bad secret: {bad_secret}')
-        server = random.choice(list(TacacsServers.VM_SERVERS.values())).copy()
-        logging.info(f'chosen server: {server.hostname}')
-        auth_type = random.choice(TacacsConsts.AUTH_TYPES)
-        logging.info(f'chosen auth-type: {auth_type}')
-        server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type]
-        aaa = System().aaa
-        server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: bad_secret,
-            AaaConsts.PORT: server.port,
-            AaaConsts.TIMEOUT: server.timeout,
-            # AaaConsts.RETRANSMIT: server.retransmit,
-            AaaConsts.AUTH_TYPE: auth_type
-        })
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True)
-
-    with allure.step('Verify auth fail'):
-        verify_user_auth(engines, topology_obj, random.choice(server.users), expect_login_success=False)
-
-
-@pytest.mark.security
-@pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_bad_port(test_api, engines, topology_obj):
-    """
-    @summary: Verify that tacacs users can't auth when bad port is configured.
-
-        Steps:
-        1. configure tacacs server
-        2. set bad port
-        3. verify auth - expect fail
-    """
-    TestToolkit.tested_api = test_api
-
-    with allure.step('Configure tacacs server with bad port'):
-        server = random.choice(list(TacacsServers.VM_SERVERS.values())).copy()
-        logging.info(f'chosen server: {server.hostname}')
-        auth_type = random.choice(TacacsConsts.AUTH_TYPES)
-        logging.info(f'chosen auth-type: {auth_type}')
-        bad_port = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PORT],
-                                                         forbidden_values=[server.port]).get_returned_value()
-        logging.info(f'chosen bad port: {bad_port}')
-        server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type]
-        aaa = System().aaa
-        server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: server.secret,
-            AaaConsts.PORT: bad_port,
-            AaaConsts.TIMEOUT: server.timeout,
-            # AaaConsts.RETRANSMIT: server.retransmit,
-            AaaConsts.AUTH_TYPE: auth_type
-        })
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True)
-
-    with allure.step('Verify auth fail'):
-        verify_user_auth(engines, topology_obj, random.choice(server.users), expect_login_success=False)
 
 
 @pytest.mark.security

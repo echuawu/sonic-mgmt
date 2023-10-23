@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 
 from typing import Dict, List, Callable, Any
@@ -257,3 +258,40 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
                 auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
     else:
         auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
+
+
+def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remote_aaa_type: str,
+                                           feature_resource_obj: RemoteAaaResource,
+                                           bad_param_name: str,
+                                           bad_configured_server: RemoteAaaServerInfo):
+    """
+    @summary: Verify that when configuring remote AAA server with wrong required value, it is unreachable,
+        and remote user can't authenticate
+
+        Steps:
+        1. configure aaa server with bad required param
+        2. enable remote auth method
+        3. verify remote user can't authenticate
+    @param test_api: run commands with NVUE / OpenApi
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param bad_param_name: name of the field to assign the bad value to
+    @param bad_configured_server: object containing the remote server info
+    """
+    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+
+    TestToolkit.tested_api = test_api
+
+    with allure.step(f'Configure {remote_aaa_type} server with bad {bad_param_name}'):
+        bad_configured_server.configure(engines,
+                                        feature_resource_obj.hostname.hostname_id[bad_configured_server.hostname])
+
+    with allure.step(f'Enable {remote_aaa_type}'):
+        aaa = feature_resource_obj.parent_obj
+        aaa.authentication.set(AuthConsts.ORDER,
+                               f'{remote_aaa_type},{AuthConsts.LOCAL}', apply=True).verify_result()
+
+    with allure.step(f'Verify auth with {remote_aaa_type} user. Expect fail'):
+        verify_user_auth(engines, topology_obj, random.choice(bad_configured_server.users), expect_login_success=False)

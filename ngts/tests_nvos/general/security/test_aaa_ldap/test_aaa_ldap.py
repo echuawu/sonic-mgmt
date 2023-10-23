@@ -79,116 +79,6 @@ def a_test_ldap_timeout_functionality(engines, devices):
                                                       password=ldap_server_users[0][LdapConsts.PASSWORD])
 
 
-def test_ldap_invalid_auth_port_error_flow(engines, devices):
-    """
-    @summary: in this test case we want to validate invalid port ldap error flows of ,
-    we want to configure invalid port value and then see that we are not able to connect
-    to switch
-    """
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    system = System(None)
-    invalid_port = Tools.RandomizationTool.select_random_value(
-        [i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
-        [int(ldap_server_info[LdapConsts.PORT])]).get_returned_value()
-    with allure.step("Setting invalid auth-port: {}".format(str(invalid_port))):
-        system.aaa.ldap.set(LdapConsts.PORT, str(invalid_port), apply=True)
-        with allure.step(
-                "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
-            time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
-        validate_authentication_fail_with_credentials(engines,
-                                                      username=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.USERNAME],
-                                                      password=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.PASSWORD])
-
-
-def test_ldap_invalid_secret_error_flow(engines, devices):
-    """
-    @summary: in this test case we want to validate invalid bind in password ldap error flows,
-    we want to configure invalid bind in password value and then see that we are not able to connect
-    to switch
-    """
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    system = System(None)
-    random_string = Tools.RandomizationTool.get_random_string(20)
-    with allure.step("Configuring invalid password: {}".format(random_string)):
-        system.aaa.ldap.set(LdapConsts.SECRET, random_string, apply=True)
-        with allure.step(
-                "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
-            time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
-        validate_authentication_fail_with_credentials(engines,
-                                                      username=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.USERNAME],
-                                                      password=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.PASSWORD])
-
-
-def test_ldap_invalid_bind_dn_error_flow(engines, devices):
-    """
-    @summary: in this test case we want to validate invalid bind dn ldap error flows,
-    we want to configure invalid bind dn value and then see that we are not able to connect
-    to switch
-    """
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    system = System(None)
-    random_string = Tools.RandomizationTool.get_random_string(20)
-    with allure.step("Configuring invalid bind-dn: {}".format(random_string)):
-        system.aaa.ldap.set(LdapConsts.BIND_DN, random_string, apply=True)
-        with allure.step(
-                "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
-            time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
-        validate_authentication_fail_with_credentials(engines,
-                                                      username=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.USERNAME],
-                                                      password=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.PASSWORD])
-
-
-def test_ldap_invalid_base_dn_error_flow(engines, devices):
-    """
-    @summary: in this test case we want to validate invalid base dn ldap error flows,
-    we want to configure invalid bind dn value and then see that we are not able to connect
-    to switch
-    """
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    system = System(None)
-    random_string = Tools.RandomizationTool.get_random_string(20)
-    with allure.step("Configuring invalid base-dn: {}".format(random_string)):
-        system.aaa.ldap.set(LdapConsts.BASE_DN, random_string, apply=True)
-        with allure.step(
-                "Waiting {} secs to apply configurations".format(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)):
-            time.sleep(LdapConsts.LDAP_SLEEP_TO_APPLY_CONFIGURATIONS)
-        validate_authentication_fail_with_credentials(engines,
-                                                      username=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.USERNAME],
-                                                      password=ldap_server_info[LdapConsts.USERS][0][
-                                                          LdapConsts.PASSWORD])
-
-
-def test_ldap_invalid_credentials_error_flow(engines, devices):
-    """
-    @summary: in this test case we want to check that with non existing credentials we are not able to
-    connect to switch
-    """
-    ldap_server_info = LdapConsts.PHYSICAL_LDAP_SERVER
-    configure_ldap_and_validate(engines, ldap_server_list=[ldap_server_info], devices=devices)
-
-    random_user = Tools.RandomizationTool.get_random_string(20)
-    random_password = Tools.RandomizationTool.get_random_string(20)
-    with allure.step("Connecting with non-existing credentials: ({},{})".format(random_user, random_password)):
-        validate_authentication_fail_with_credentials(engines,
-                                                      username=random_user,
-                                                      password=random_password)
-
-
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -275,6 +165,72 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
                           server_by_addr_type=LdapServers.DOCKER_SERVERS,
                           test_param=LdapEncryptionModes.ALL_MODES,
                           test_param_update_func=update_ldap_encryption_mode)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_invalid_port_error_flow(test_api, engines, topology_obj):
+    """
+    @summary: in this test case we want to validate invalid port ldap error flows of ,
+    we want to configure invalid port value and then see that we are not able to connect
+    to switch
+    """
+    ldap_server = LdapServers.PHYSICAL_SERVER.copy()
+    ldap_server.port = RandomizationTool.select_random_value(LdapConsts.POSSIBLE_PORTS,
+                                                             [ldap_server.port]).get_returned_value()
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           bad_param_name=LdapConsts.PORT, bad_configured_server=ldap_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_invalid_secret_error_flow(test_api, engines, topology_obj):
+    """
+    @summary: in this test case we want to validate invalid bind in password ldap error flows,
+    we want to configure invalid bind in password value and then see that we are not able to connect
+    to switch
+    """
+    ldap_server = LdapServers.PHYSICAL_SERVER.copy()
+    ldap_server.secret = RandomizationTool.get_random_string(6)
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           bad_param_name=LdapConsts.SECRET, bad_configured_server=ldap_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_invalid_bind_dn_error_flow(test_api, engines, topology_obj):
+    """
+    @summary: in this test case we want to validate invalid bind dn ldap error flows,
+    we want to configure invalid bind dn value and then see that we are not able to connect
+    to switch
+    """
+    ldap_server = LdapServers.PHYSICAL_SERVER.copy()
+    ldap_server.bind_dn = RandomizationTool.get_random_string(6)
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           bad_param_name=LdapConsts.BIND_DN, bad_configured_server=ldap_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_invalid_base_dn_error_flow(test_api, engines, topology_obj):
+    """
+    @summary: in this test case we want to validate invalid base dn ldap error flows,
+    we want to configure invalid bind dn value and then see that we are not able to connect
+    to switch
+    """
+    ldap_server = LdapServers.PHYSICAL_SERVER.copy()
+    ldap_server.base_dn = RandomizationTool.get_random_string(6)
+    generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
+                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           bad_param_name=LdapConsts.BASE_DN, bad_configured_server=ldap_server)
+
 
 # -------------------- NEW TESTS ---------------------
 
