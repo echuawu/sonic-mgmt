@@ -3637,3 +3637,20 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/interfaces/test_ib0_interface_ip.py::test_ib0_interface_ipv6_address
+
+# The below errors should be ignored, because it is caused by redis db crash and it is an expected behaviour
+- Errors_list:
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[COMMAND_IFC.ERR\] sxd_ioctl (CTRL_CMD_ACCESS_REG - pmtu) FW error: \[BAD PARAMETER\]'
+    - '.*Register access failed (reg_id=0x5003, status=0x7)'
+    - '.*\[ACCESS_REG_INFRA.ERR\] REG pmtu: Failed accessing register through CMD IFC'
+    - '.*mlnx_set_get_pmtu_register: mlnx_set_get_pmtu_register: failed in PMTU device.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[687\]- mlnx_set_mtu_admin: Failed set PMTU for local port.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[775\]- mlnx_port_mtu_set: Failed to set mtu to port.*'
+    - '.*\[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2019\]- sai_set_attribute: Failed set attrib dispatch'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[2047\]- mlnx_set_port_attribute: Failed set port attribute key port.*'
+    - '.*sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_FAILURE'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash

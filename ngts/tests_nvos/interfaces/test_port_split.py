@@ -497,21 +497,17 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         alias = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="", db_name=DatabaseConst.APPL_DB_NAME,
                                                      db_config="ALIAS_PORT_MAP:{}".format(child_ports[0].name),
                                                      param="name")
-        # cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{} name".format(child_ports[0].name)
-        # alias = engines.dut.run_cmd(cmd)
 
-    if not is_redmine_issue_active(3554789):
-        with allure.step("Set mtu value through redis cli on a child port and validate"):
-            random_mtu = random.randrange(256, 4096)
-            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
-                                                                    db_name=DatabaseConst.CONFIG_DB_NAME,
-                                                                    db_config="IB_PORT\\|{0}".format(alias),
-                                                                    param="mtu", value=str(random_mtu))
-            # cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
-            # redis_cli_output = engines.dut.run_cmd(cmd)
-            assert redis_cli_output != 0, "Redis command failed"
-            Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                child_ports[0].ib_interface.link.show()).get_returned_value()
+    with allure.step("Set mtu value through redis cli on a child port and validate"):
+        random_mtu = random.randrange(256, 4096)
+        redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
+                                                                db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                db_config="IB_PORT\\|{0}".format(alias),
+                                                                param="mtu", value=str(random_mtu))
+
+        assert redis_cli_output != 0, "Redis command failed"
+        Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            child_ports[0].ib_interface.link.show()).get_returned_value()
 
     with allure.step("Unset parent port"):
         parent_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
