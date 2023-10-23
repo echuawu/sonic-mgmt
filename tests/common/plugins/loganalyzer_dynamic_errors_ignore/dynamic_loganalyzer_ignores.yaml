@@ -3164,6 +3164,14 @@
       Redmine:
         - 3634794
 
+- Errors_list:
+    - '.*ERR swss#orchagent: :- meta_generic_validation_post_get_objlist: SAI_PORT_ATTR_PORT_SERDES_ID:SAI_ATTR_VALUE_TYPE_OBJECT_ID returned get object on list \[0\] is NULL, but not allowed.*'
+  Conditions:
+    - Redmine:
+      - 3626122
+      Branch:
+        - master
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
