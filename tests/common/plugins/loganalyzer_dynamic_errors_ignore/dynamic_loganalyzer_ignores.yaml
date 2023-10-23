@@ -2754,6 +2754,12 @@
     - Affected_test_cases:
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
 
+- Errors_list:
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
@@ -2814,6 +2820,7 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
 
 # NVOS - expected nslcd service error logs - (LDAP feature) error flow test
 - Errors_list:
