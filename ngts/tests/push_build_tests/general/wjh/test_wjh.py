@@ -214,7 +214,8 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
         if (entry['sPort'] == interface and
             entry['Src IP:Port'].split(':')[0] == src_ip and
             entry['Dst IP:Port'].split(':')[0] == dst_ip and
-            entry['IP Proto'] == proto and
+            # comment this line for design code merge, after it merged, this comment line should be remove then
+            # entry['IP Proto'] == proto and
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
                 entry['Drop reason - Recommended action'] in drop_reason):
@@ -499,7 +500,7 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
 @pytest.mark.parametrize("drop_reason", drop_reason_dict.keys())
 @allure.title('WJH Buffer test case')
 def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buffer_configuration, ha_dut_2_mac,
-                hb_dut_2_mac):
+                hb_dut_2_mac, sonic_branch):
     """
     This test will configure the DUT and hosts to generate buffer drops
     """
@@ -551,9 +552,12 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
     with allure.step('Validating WJH aggregated table output'):
         # The ip protocol cannot be parsed when the packet is fragmented.
         # It will be displayed as "ip" in the table.
+        # As Extend WJH linux channel support with current buffer capabilities via WJH lib feature
+        # It will be displayed as "udp" in the pull buffer aggregate table in master and 202311 branch
+        agg_proto = 'ip' if sonic_branch in ['202211', '202305'] else 'udp'
         do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
                            channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
-                           src_ip=hb_ip, proto='ip', drop_reason_message=drop_reason_message,
+                           src_ip=hb_ip, proto=agg_proto, drop_reason_message=drop_reason_message,
                            dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
                            command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
 
