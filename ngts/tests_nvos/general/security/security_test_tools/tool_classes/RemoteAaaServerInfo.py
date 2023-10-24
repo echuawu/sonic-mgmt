@@ -71,6 +71,7 @@ class TacacsServerInfo(RemoteAaaServerInfo):
             AaaConsts.SECRET: self.secret,
             AaaConsts.PORT: self.port,
             AaaConsts.TIMEOUT: self.timeout,
+            AaaConsts.AUTH_TYPE: self.auth_type
             # AaaConsts.RETRANSMIT: server.retransmit
         }
         self._configure(engines, hostname_resource_obj, conf_to_set, set_explicit_priority, apply, dut_engine)

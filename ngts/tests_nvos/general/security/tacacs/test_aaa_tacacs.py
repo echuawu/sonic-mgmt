@@ -21,7 +21,7 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaa
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsServers
-from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_auth_type
+from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -101,7 +101,7 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
                           feature_resource_obj=tacacs,
                           server_by_addr_type=TacacsServers.DOCKER_SERVERS,
                           test_param=AuthType.ALL_TYPES,
-                          test_param_update_func=update_tacacs_auth_type)
+                          test_param_update_func=update_tacacs_server_auth_type)
 
 
 @pytest.mark.security
@@ -162,9 +162,6 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
     generic_aaa_test_unique_priority(test_api, feature_resource_obj=System().aaa.tacacs)
 
 
-# -------------------- NEW TESTS ---------------------
-
-
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -178,71 +175,21 @@ def test_tacacs_priority(test_api, engines, topology_obj, request):
         3. advance the lowest prioritized server to be most prioritized
         4. repeat steps 2-3 until reach priority 8 (max)
     """
-    TestToolkit.tested_api = test_api
-    item = request.node
+    server1 = list(TacacsServers.VM_SERVERS.values())[0].copy()
+    server2 = list(TacacsServers.VM_SERVERS.values())[1].copy()
+    auth_type1 = random.choice(TacacsConsts.AUTH_TYPES)
+    auth_type2 = RandomizationTool.select_random_value(TacacsConsts.AUTH_TYPES,
+                                                       forbidden_values=[auth_type1]).get_returned_value()
+    server1.auth_type = auth_type1
+    server1.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type1]
+    server2.auth_type = auth_type2
+    server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type2]
 
-    with allure.step('Set and prioritize 2 tacacs servers'):
-        server1 = list(TacacsServers.VM_SERVERS.values())[0].copy()
-        server2 = list(TacacsServers.VM_SERVERS.values())[1].copy()
-        server1.priority = 1
-        server2.priority = 2
-        auth_type1 = random.choice(TacacsConsts.AUTH_TYPES)
-        auth_type2 = RandomizationTool.select_random_value(TacacsConsts.AUTH_TYPES,
-                                                           forbidden_values=[auth_type1]).get_returned_value()
-        server1.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type1]
-        server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type2]
-        aaa = System().aaa
-        configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            AaaConsts.TIMEOUT: server1.timeout,
-            # AaaConsts.RETRANSMIT: server1.retransmit
-        })
-        server1_resource = aaa.tacacs.hostname.hostname_id[server1.hostname]
-        configure_resource(engines, resource_obj=server1_resource, conf={
-            AaaConsts.SECRET: server1.secret,
-            AaaConsts.PORT: server1.port,
-            AaaConsts.PRIORITY: server1.priority,
-            AaaConsts.AUTH_TYPE: auth_type1
-        })
-        server2_resource = aaa.tacacs.hostname.hostname_id[server2.hostname]
-        configure_resource(engines, resource_obj=server2_resource, conf={
-            AaaConsts.SECRET: server2.secret,
-            AaaConsts.PORT: server2.port,
-            AaaConsts.PRIORITY: server2.priority,
-            AaaConsts.AUTH_TYPE: auth_type2
-        })
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
+    generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.TACACS,
+                              feature_resource_obj=System().aaa.tacacs, server1=server1, server2=server2)
 
-        top_server = server2
-        lower_server = server1
-        update_active_aaa_server(item, top_server)
 
-    while True:
-        with allure.step(f'Wait {TacacsConsts.TIME_TILL_TACACS_CONF_TAKES_PLACE} seconds'):
-            time.sleep(TacacsConsts.TIME_TILL_TACACS_CONF_TAKES_PLACE)
-
-        with allure.step(f'Verify auth is done via top prioritized server: {top_server}'):
-            with allure.step(f'Verify auth via top server: {top_server} - expect success'):
-                verify_user_auth(engines, topology_obj, random.choice(top_server.users), expect_login_success=True,
-                                 verify_authorization=False)
-
-            with allure.step(f'Verify auth via lower server: {lower_server} - expect fail'):
-                verify_user_auth(engines, topology_obj, random.choice(lower_server.users), expect_login_success=False)
-
-        if top_server.priority == TacacsConsts.VALID_VALUES[AaaConsts.PRIORITY][-1]:
-            break
-
-        next_prio = random.randint(top_server.priority + 1, TacacsConsts.VALID_VALUES[AaaConsts.PRIORITY][-1])
-        with allure.step(f'Advance lower server to be top prioritized to: {next_prio}'):
-            lower_server_resource = aaa.tacacs.hostname.hostname_id[lower_server.hostname]
-            lower_server.priority = next_prio
-            configure_resource(engines, resource_obj=lower_server_resource, conf={
-                AaaConsts.PRIORITY: lower_server.priority
-            }, apply=True, verify_apply=False, dut_engine=item.active_remote_admin_engine)
-            lower_server, top_server = top_server, lower_server
-            update_active_aaa_server(item, top_server)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security

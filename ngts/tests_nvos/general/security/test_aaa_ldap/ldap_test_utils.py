@@ -233,7 +233,7 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False, d
 
 def update_ldap_encryption_mode(engines, item, server_info: RemoteAaaServerInfo, server_resource: HostnameId,
                                 encryption_mode: str):
-    configure_ldap_encryption(engines, System().aaa.ldap, encryption_mode, apply=True,
+    configure_ldap_encryption(engines, server_resource.parent_obj.parent_obj, encryption_mode, apply=True,
                               dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info)
 
 

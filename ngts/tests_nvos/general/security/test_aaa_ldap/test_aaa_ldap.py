@@ -247,6 +247,26 @@ def test_ldap_unique_priority(test_api, engines, topology_obj):
     generic_aaa_test_unique_priority(test_api, feature_resource_obj=System().aaa.ldap)
 
 
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_priority(test_api, engines, topology_obj, request):
+    """
+    @summary: Verify that auth is done via the top prioritized server
+
+        Steps:
+        1. set and prioritize 2 servers
+        2. verify auth is done via top prioritized server
+        3. advance the lowest prioritized server to be most prioritized
+        4. repeat steps 2-3 until reach priority 8 (max)
+    """
+    server1 = LdapServers.PHYSICAL_SERVER.copy()
+    server2 = random.choice(list(LdapServers.DOCKER_SERVERS.values())).copy()
+
+    generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.LDAP,
+                              feature_resource_obj=System().aaa.ldap, server1=server1, server2=server2)
+
+
 # -------------------- NEW TESTS ---------------------
 
 

@@ -308,6 +308,8 @@ def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaRe
     @param test_api: run commands with NVUE / OpenApi
     @param feature_resource_obj: BaseComponent object representing the feature resource
     """
+    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+
     TestToolkit.tested_api = test_api
 
     with allure.step('Set 2 hostnames with different priority - expect success'):
@@ -321,3 +323,78 @@ def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaRe
     with allure.step('Set another hostname with existing priority - expect fail'):
         feature_resource_obj.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2,
                                                                   apply=True).verify_result(False)
+
+
+def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type: str,
+                              feature_resource_obj: RemoteAaaResource,
+                              server1: RemoteAaaServerInfo,
+                              server2: RemoteAaaServerInfo):
+    """
+    @summary: Verify that auth is done via the top prioritized server
+
+        Steps:
+        1. set and prioritize 2 servers
+        2. verify auth is done via top prioritized server
+        3. advance the lowest prioritized server to be most prioritized
+        4. repeat steps 2-3 until reach priority 8 (max)
+
+        NOTE: in order to make this test meaningful, user should provide 2 servers info, with distinct users credentials
+    @param test_api: run commands with NVUE / OpenApi
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param request: object containing pytest information about current test
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param server1: object containing remote server info
+    @param server2: another server info (with different users credentials)
+    """
+    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+
+    TestToolkit.tested_api = test_api
+    item = request.node
+
+    with allure.step(f'Set and prioritize 2 {remote_aaa_type} servers'):
+        server1.priority = 1
+        server2.priority = 2
+        server1.configure(engines, feature_resource_obj.hostname.hostname_id[server1.hostname],
+                          set_explicit_priority=True)
+        server2.configure(engines, feature_resource_obj.hostname.hostname_id[server2.hostname],
+                          set_explicit_priority=True)
+
+    with allure.step(f'Enable {remote_aaa_type}'):
+        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
+            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
+        }, apply=True, verify_apply=False)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut, find_prompt_delay=5)
+        top_server = server2
+        lower_server = server1
+        update_active_aaa_server(item, top_server)
+
+    while True:
+        with allure.step('Wait for configuration to be fully applied'):
+            time.sleep(RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH)
+
+        with allure.step(f'Verify auth is done via top prioritized server: {top_server.hostname}'):
+            with allure.step(f'Verify auth via top server: {top_server.hostname} - expect success'):
+                verify_user_auth(engines, topology_obj, top_server.users[0], expect_login_success=True,
+                                 verify_authorization=False)
+
+            with allure.step(f'Verify auth via lower server: {lower_server.hostname} - expect fail'):
+                verify_user_auth(engines, topology_obj, lower_server.users[0], expect_login_success=False)
+
+        if top_server.priority == ValidValues.PRIORITY[-1]:
+            break
+
+        next_prio = random.randint(top_server.priority + 1, ValidValues.PRIORITY[-1])
+        with allure.step(f'Advance lower server to be top prioritized to: {next_prio}'):
+            lower_server_resource = feature_resource_obj.hostname.hostname_id[lower_server.hostname]
+            lower_server.priority = next_prio
+            lower_server_resource.set(AaaConsts.PRIORITY, lower_server.priority, apply=True,
+                                      dut_engine=item.active_remote_admin_engine)
+            lower_server, top_server = top_server, lower_server
+            update_active_aaa_server(item, top_server)
+            if remote_aaa_type == RemoteAaaType.LDAP:
+                DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
