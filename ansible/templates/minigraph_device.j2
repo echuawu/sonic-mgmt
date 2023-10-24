@@ -32,8 +32,20 @@
           <Speed>50000</Speed>
         {%- elif inventory_hostname == "r-leopard-01" and index >= 30 %}
           <Speed>100000</Speed>
-        {%- elif inventory_hostname == "r-leopard-72" or inventory_hostname == "r-leopard-70" %}:
+        {%- elif inventory_hostname == "r-leopard-70" %}:
           <Speed>200000</Speed>
+        {%- elif inventory_hostname == "r-leopard-72" %}:
+            {%- if index == 2 or index == 3 %}
+                <Speed>400000</Speed>
+            {%- else %}
+                <Speed>200000</Speed>
+            {%- endif %}
+        {%- elif inventory_hostname == "r-leopard-58" %}:
+            {%- if index == 18 or index == 19 %}
+                <Speed>400000</Speed>
+            {%- else %}
+                <Speed>100000</Speed>
+            {%- endif %}
         {%- elif (inventory_hostname == "r-moose-01" or inventory_hostname == "mtvr-moose-02" or inventory_hostname == "mtvr-moose-03" or inventory_hostname == "mtvr-moose-04") and index >= 62 %}
             {%- if index == 64 %}
                 <Speed>25000</Speed>
