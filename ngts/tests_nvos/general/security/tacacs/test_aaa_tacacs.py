@@ -147,9 +147,6 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
                                            bad_param_name=AaaConsts.PORT, bad_configured_server=tacacs_server)
 
 
-# -------------------- NEW TESTS ---------------------
-
-
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -162,19 +159,10 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
         2. set another hostname with existing priority - expect failure
 
     """
-    TestToolkit.tested_api = test_api
+    generic_aaa_test_unique_priority(test_api, feature_resource_obj=System().aaa.tacacs)
 
-    with allure.step('Set 2 hostnames with different priority - expect success'):
-        tacacs = System().aaa.tacacs
-        rand_prio1 = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PRIORITY]) \
-            .get_returned_value()
-        tacacs.hostname.hostname_id['1.2.3.4'].set(AaaConsts.PRIORITY, rand_prio1).verify_result()
-        rand_prio2 = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PRIORITY],
-                                                           forbidden_values=[rand_prio1]).get_returned_value()
-        tacacs.hostname.hostname_id['2.4.6.8'].set(AaaConsts.PRIORITY, rand_prio2, apply=True).verify_result()
 
-    with allure.step('Set another hostname with existing priority - expect fail'):
-        tacacs.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2, apply=True).verify_result(False)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security

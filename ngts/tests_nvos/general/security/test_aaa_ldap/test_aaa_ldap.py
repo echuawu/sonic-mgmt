@@ -232,6 +232,21 @@ def test_ldap_invalid_base_dn_error_flow(test_api, engines, topology_obj):
                                            bad_param_name=LdapConsts.BASE_DN, bad_configured_server=ldap_server)
 
 
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_unique_priority(test_api, engines, topology_obj):
+    """
+    @summary: Verify that hostname priority must be unique
+
+        Steps:
+        1. Set 2 hostnames with different priority - expect success
+        2. set another hostname with existing priority - expect failure
+
+    """
+    generic_aaa_test_unique_priority(test_api, feature_resource_obj=System().aaa.ldap)
+
+
 # -------------------- NEW TESTS ---------------------
 
 

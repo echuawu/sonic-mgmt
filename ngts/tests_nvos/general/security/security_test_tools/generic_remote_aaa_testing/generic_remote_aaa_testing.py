@@ -202,7 +202,8 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
                           feature_resource_obj: RemoteAaaResource,
                           server_by_addr_type: Dict[str, RemoteAaaServerInfo],
                           test_param: List[str] = None,
-                          test_param_update_func: Callable[[Any, Any, RemoteAaaServerInfo, HostnameId, str], None] = None,
+                          test_param_update_func: Callable[
+                              [Any, Any, RemoteAaaServerInfo, HostnameId, str], None] = None,
                           skip_auth_mediums: List[str] = None):
     """
     @summary: Basic test to verify authentication and authorization through remote aaa, using all possible auth mediums:
@@ -295,3 +296,28 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
 
     with allure.step(f'Verify auth with {remote_aaa_type} user. Expect fail'):
         verify_user_auth(engines, topology_obj, random.choice(bad_configured_server.users), expect_login_success=False)
+
+
+def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaResource):
+    """
+    @summary: Verify that hostname priority must be unique
+
+        Steps:
+        1. Set 2 hostnames with different priority - expect success
+        2. set another hostname with existing priority - expect failure
+    @param test_api: run commands with NVUE / OpenApi
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    """
+    TestToolkit.tested_api = test_api
+
+    with allure.step('Set 2 hostnames with different priority - expect success'):
+        rand_prio1 = RandomizationTool.select_random_value(ValidValues.PRIORITY).get_returned_value()
+        feature_resource_obj.hostname.hostname_id['1.2.3.4'].set(AaaConsts.PRIORITY, rand_prio1).verify_result()
+        rand_prio2 = RandomizationTool.select_random_value(ValidValues.PRIORITY,
+                                                           forbidden_values=[rand_prio1]).get_returned_value()
+        feature_resource_obj.hostname.hostname_id['2.4.6.8'].set(AaaConsts.PRIORITY, rand_prio2,
+                                                                 apply=True).verify_result()
+
+    with allure.step('Set another hostname with existing priority - expect fail'):
+        feature_resource_obj.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2,
+                                                                  apply=True).verify_result(False)
