@@ -754,9 +754,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
 
-        if 'r-spider-05' in setup_name:
-            logger.info('Copy aligned sai.xml file to spider-05')
-            self.upload_sai_xml_file(platform, hwsku, shared_path)
         self.engine.reload(['sudo reboot'])
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
@@ -776,16 +773,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                               dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}')
-
-    def upload_sai_xml_file(self, platform, hwsku, shared_path):
-        switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
-        sai_file_name = "sai_2410.xml"
-        source_file = os.path.join(shared_path, sai_file_name)
-        logger.info(f'Copy file {source_file} to /tmp directory on a switch')
-        self.engine.copy_file(source_file=source_file,
-                              dest_file=sai_file_name, file_system='/tmp/',
-                              overwrite_file=True, verify_file=False)
-        self.engine.run_cmd(f'sudo mv /tmp/{sai_file_name} {switch_sai_xml_path}')
 
     def update_sai_xml_file(self, platform, hwsku, global_flag=False, local_flags=False):
         switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
