@@ -7,6 +7,7 @@ from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -19,6 +20,7 @@ def test_show_platform(engines):
     """
     Show platform hardware test
     """
+    res = is_redmine_issue_active([3640664])
     with allure.step("Create System object"):
         platform = Platform()
 

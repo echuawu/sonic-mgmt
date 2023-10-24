@@ -368,6 +368,8 @@ def test_split_all_ports(engines, interfaces, start_sm):
         4. Get all ports
         5. Unset
     """
+    marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
     with allure.step("Get all up and down ports"):
         ports_down_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
                                                                        requested_ports_type="ib",
@@ -406,6 +408,7 @@ def test_split_all_ports(engines, interfaces, start_sm):
 
     with allure.step("Unset all ports"):
         NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+        TestToolkit.add_loganalyzer_marker(engines.dut, marker)
         NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
 
 
