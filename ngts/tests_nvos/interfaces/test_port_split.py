@@ -16,7 +16,6 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -196,7 +195,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                 for port in list_of_all_ports:
                     if parent_port.name in port.name and port.name[-2] == 's':
                         child_ports.append(port)
-            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=10).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show()).get_returned_value()
             values_to_verify = [NvosConsts.LINK_STATE_UP, IbInterfaceConsts.SPLIT_PORT_CHILD_DEFAULT_LANES,

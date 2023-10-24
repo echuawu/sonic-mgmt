@@ -4,6 +4,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.platform.Platform import Platform
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -133,19 +134,20 @@ def test_interface_link_diagnostics_basic(engines):
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \
                     "Status code isn't 1024"
 
-    with allure.step('Run nv show interface for not exist port/eth0/ib0/lo'):
-        output_dictionary = any_port.show_interface(port_names='aa link diagnostics')
-        assert "Valid interface types are swp, eth, loopback, ipoib, fnm." in output_dictionary, \
-            "Can run command for aa transceiver"
-        output_dictionary = any_port.show_interface(port_names='eth0 link diagnostics')
-        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
-            "Can run command for eth0 transceiver"
-        output_dictionary = any_port.show_interface(port_names='ib0 link diagnostics')
-        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
-            "Can run command for ib0 transceiver"
-        output_dictionary = any_port.show_interface(port_names='lo link diagnostics')
-        assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
-            "Can run command for lo transceiver"
+    if not is_redmine_issue_active(3556295):
+        with allure.step('Run nv show interface for not exist port/eth0/ib0/lo'):
+            output_dictionary = any_port.show_interface(port_names='aa link diagnostics')
+            assert "Valid interface types are swp, eth, loopback, ipoib, fnm." in output_dictionary, \
+                "Can run command for aa transceiver"
+            output_dictionary = any_port.show_interface(port_names='eth0 link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for eth0 transceiver"
+            output_dictionary = any_port.show_interface(port_names='ib0 link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for ib0 transceiver"
+            output_dictionary = any_port.show_interface(port_names='lo link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for lo transceiver"
 
 
 @pytest.mark.ib
