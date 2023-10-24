@@ -92,9 +92,6 @@ class PlatformAPITestService(BaseHTTPRequestHandler):
 
         try:
             res = getattr(obj, api)(*args)
-            # Print some info in syslog for debugging
-            syslog.syslog(syslog.LOG_INFO, str(getattr(obj, api)))
-            syslog.syslog(syslog.LOG_INFO, str(res))
         except NotImplementedError:
             syslog.syslog(syslog.LOG_WARNING, "API '{}' not implemented".format(api))
 
