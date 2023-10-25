@@ -3587,7 +3587,7 @@
     - '.*FW SOS EVENT LOG END.*'
     - '.*ERR syncd-ibv00#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[FW health issue\].*'
     - ".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*"
-    - '.*ERROR: failed to established gNMI Stream connection, max retries reached. exiting thread.*'
+    - '.*ERR swss-ibv00#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
     - '.*ERR syncd-ibv00#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch_ib.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
   Conditions:
     - Affected_test_cases:
