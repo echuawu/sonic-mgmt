@@ -18,7 +18,7 @@
     <tout> 300 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/sdk_api/test_sdk_api.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --sonic-topo=[[conf:extra_info.topology]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/sdk_api/test_sdk_api.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
