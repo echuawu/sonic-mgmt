@@ -2748,11 +2748,24 @@
 
 # NVOS - TACACS - ignore expected log
 - Errors_list:
-    - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
-    - '.*ERR service_checker: tac_authen_read: inconsistent reply body, incorrect key\?.*'
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect. user: .*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
+    - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
+    - '.*ERR .*: tac_authen_read: inconsistent reply body, incorrect key\?.*'
+    - '.*ERR service_checker: tac_author_read: arguments supplied in packet seem to exceed its size.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
+    - '.*ERR .*: tac_connect_single: connection failed with .*:.*: Transport endpoint is not connected.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
 
 - Errors_list:
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
@@ -2799,18 +2812,18 @@
     - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
 
 # NVOS - expected nslcd service error logs - (LDAP feature) error flow test
 - Errors_list:
     - '.*ERR nslcd\[\d+\]:.*no available LDAP server found:.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_secret_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
 
@@ -2819,36 +2832,36 @@
     - '.*WARNING nslcd\[.*\]:.*no available LDAP server found, sleeping 1 seconds.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 # NVOS - expected nslcd service error logs - (LDAP feature) error flow test
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*request denied by validnames option.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 # NVOS - expected LDAP feature error flow test
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
 
 # NVOS - expected LDAP feature error flow test
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid credentials.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_secret_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
 
 # NVOS - expected LDAP feature error flow test
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid DN syntax: invalid DN'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 # NVOS
 - Errors_list:

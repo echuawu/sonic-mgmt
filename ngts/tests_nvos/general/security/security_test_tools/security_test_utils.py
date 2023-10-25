@@ -56,24 +56,35 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
-                     f'Expect login success: {expect_login_success}'):
-        # for ssh, openapi, rcon: test authentication, and then verify role by running show, set, unset commands
-        user_is_admin = user.role == AaaConsts.ADMIN
-        for medium in AuthMedium.ALL_MEDIUMS:
-            if skip_auth_mediums and medium in skip_auth_mediums:
-                continue
+    try:
+        if not expect_login_success:
+            TestToolkit.start_code_section_loganalyzer_ignore()
 
-            with allure.step(f'Verify auth with medium: {medium}'):
-                medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
+        with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
+                         f'Expect login success: {expect_login_success}'):
+            wait_time_before_auth_test = 3
+            logging.info(f'Wait {wait_time_before_auth_test} seconds')
+            time.sleep(wait_time_before_auth_test)
 
-                with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
-                    medium_obj.verify_authentication(expect_login_success)
+            # for ssh, openapi, rcon: test authentication, and then verify role by running show, set, unset commands
+            user_is_admin = user.role == AaaConsts.ADMIN
+            for medium in AuthMedium.ALL_MEDIUMS:
+                if skip_auth_mediums and medium in skip_auth_mediums:
+                    continue
 
-                if verify_authorization and expect_login_success:
-                    with allure.step(f'Verify authorization. Role: {user.role}'):
-                        medium_obj.verify_authorization(user_is_admin=user_is_admin)
-    logging.info('\n')
+                with allure.step(f'Verify auth with medium: {medium}'):
+                    medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
+
+                    with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
+                        medium_obj.verify_authentication(expect_login_success)
+
+                    if verify_authorization and expect_login_success:
+                        with allure.step(f'Verify authorization. Role: {user.role}'):
+                            medium_obj.verify_authorization(user_is_admin=user_is_admin)
+        logging.info('\n')
+    finally:
+        if not expect_login_success:
+            TestToolkit.end_code_section_loganalyzer_ignore()
 
 
 def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login_success: List[bool] = None,

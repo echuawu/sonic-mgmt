@@ -21,7 +21,8 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaa
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsServers
-from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type
+from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type, \
+    get_two_different_tacacs_servers
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -175,21 +176,9 @@ def test_tacacs_priority(test_api, engines, topology_obj, request):
         3. advance the lowest prioritized server to be most prioritized
         4. repeat steps 2-3 until reach priority 8 (max)
     """
-    server1 = list(TacacsServers.VM_SERVERS.values())[0].copy()
-    server2 = list(TacacsServers.VM_SERVERS.values())[1].copy()
-    auth_type1 = random.choice(TacacsConsts.AUTH_TYPES)
-    auth_type2 = RandomizationTool.select_random_value(TacacsConsts.AUTH_TYPES,
-                                                       forbidden_values=[auth_type1]).get_returned_value()
-    server1.auth_type = auth_type1
-    server1.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type1]
-    server2.auth_type = auth_type2
-    server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type2]
-
+    server1, server2 = get_two_different_tacacs_servers()
     generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.TACACS,
                               feature_resource_obj=System().aaa.tacacs, server1=server1, server2=server2)
-
-
-# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security
@@ -212,85 +201,15 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
         9.	Bring back the first server
         10. Verify auth – success only with top server user
     """
-    TestToolkit.tested_api = test_api
-    item = request.node
+    server1, server2 = get_two_different_tacacs_servers()
+    generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request,
+                                        local_adminuser=local_adminuser,
+                                        remote_aaa_type=RemoteAaaType.TACACS,
+                                        feature_resource_obj=System().aaa.tacacs,
+                                        server1=server1, server2=server2)
 
-    with allure.step('Configure unreachable server'):
-        server = list(TacacsServers.VM_SERVERS.values())[0].copy()
-        logging.info(f'chosen server: {server.hostname}')
-        auth_type = random.choice(TacacsConsts.AUTH_TYPES)
-        logging.info(f'chosen auth-type: {auth_type}')
-        server.auth_type = auth_type
-        bad_port = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PORT],
-                                                         forbidden_values=[server.port]).get_returned_value()
-        logging.info(f'chosen bad port: {bad_port}')
-        server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type]
-        aaa = System().aaa
-        configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            AaaConsts.TIMEOUT: server.timeout,
-            # AaaConsts.RETRANSMIT: server.retransmit
-        })
-        server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: server.secret,
-            AaaConsts.PORT: bad_port,
-            AaaConsts.AUTH_TYPE: server.auth_type,
-            AaaConsts.PRIORITY: 2
-        })
 
-    with allure.step('Set tacacs in authentication order and failthrough off'):
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True)
-
-    with allure.step('Verify auth - success only with local user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[random.choice(server.users), local_adminuser],
-                          expect_login_success=[False, True], verify_authorization=False)
-
-    with allure.step('Configure secondary prioritized server'):
-        server2 = list(TacacsServers.VM_SERVERS.values())[1].copy()
-        logging.info(f'chosen server: {server2.hostname}')
-        auth_type2 = RandomizationTool.select_random_value(TacacsConsts.AUTH_TYPES,
-                                                           forbidden_values=[server.auth_type]).get_returned_value()
-        logging.info(f'chosen auth-type: {auth_type2}')
-        server2.auth_type = auth_type2
-        server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type2]
-        server2_resource = aaa.tacacs.hostname.hostname_id[server2.hostname]
-        configure_resource(engines, resource_obj=server2_resource, conf={
-            AaaConsts.SECRET: server2.secret,
-            AaaConsts.PORT: server2.port,
-            AaaConsts.AUTH_TYPE: server2.auth_type
-        }, apply=True, verify_apply=False)
-        update_active_aaa_server(item, server2)
-
-    with allure.step('Verify auth – success only with 2nd server user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[random.choice(server.users), local_adminuser, random.choice(server2.users)],
-                          expect_login_success=[False, False, True], verify_authorization=False)
-
-    with allure.step('Make the 2nd server also unreachable'):
-        configure_resource(engines, resource_obj=server2_resource, conf={
-            AaaConsts.PORT: bad_port
-        }, apply=True, verify_apply=False, dut_engine=item.active_remote_admin_engine)
-        update_active_aaa_server(item, None)
-
-    with allure.step('Verify auth – success only with local user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[random.choice(server.users), random.choice(server2.users), local_adminuser],
-                          expect_login_success=[False, False, True], verify_authorization=False)
-
-    with allure.step('Bring back the first server'):
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.PORT: server.port
-        }, apply=True, verify_apply=False)
-        update_active_aaa_server(item, server)
-
-    with allure.step('Verify auth – success only with top server user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[local_adminuser, random.choice(server2.users), random.choice(server.users)],
-                          expect_login_success=[False, False, True], verify_authorization=False)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.security

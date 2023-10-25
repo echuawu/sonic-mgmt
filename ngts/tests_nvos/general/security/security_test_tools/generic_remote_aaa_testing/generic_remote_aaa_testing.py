@@ -238,9 +238,9 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
     with allure.step(f'Configure {remote_aaa_type} server'):
         server = server_by_addr_type[addressing_type].copy()
         server_resource = feature_resource_obj.hostname.hostname_id[server.hostname]
-        server.configure(engines, hostname_resource_obj=server_resource)
+        server.configure(engines)
 
-    with allure.step(f'Set {remote_aaa_type} in authentication order, and set failthrough off'):
+    with allure.step(f'Enable {remote_aaa_type}'):
         configure_resource(engines, resource_obj=System().aaa.authentication, conf={
             AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
             AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
@@ -286,8 +286,7 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
     TestToolkit.tested_api = test_api
 
     with allure.step(f'Configure {remote_aaa_type} server with bad {bad_param_name}'):
-        bad_configured_server.configure(engines,
-                                        feature_resource_obj.hostname.hostname_id[bad_configured_server.hostname])
+        bad_configured_server.configure(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
         aaa = feature_resource_obj.parent_obj
@@ -327,8 +326,7 @@ def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaRe
 
 def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type: str,
                               feature_resource_obj: RemoteAaaResource,
-                              server1: RemoteAaaServerInfo,
-                              server2: RemoteAaaServerInfo):
+                              server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
     """
     @summary: Verify that auth is done via the top prioritized server
 
@@ -357,10 +355,8 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
     with allure.step(f'Set and prioritize 2 {remote_aaa_type} servers'):
         server1.priority = 1
         server2.priority = 2
-        server1.configure(engines, feature_resource_obj.hostname.hostname_id[server1.hostname],
-                          set_explicit_priority=True)
-        server2.configure(engines, feature_resource_obj.hostname.hostname_id[server2.hostname],
-                          set_explicit_priority=True)
+        server1.configure(engines, set_explicit_priority=True)
+        server2.configure(engines, set_explicit_priority=True)
 
     with allure.step(f'Enable {remote_aaa_type}'):
         configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
@@ -398,3 +394,90 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
             update_active_aaa_server(item, top_server)
             if remote_aaa_type == RemoteAaaType.LDAP:
                 DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
+
+
+def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser,
+                                        remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
+                                        server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
+    """
+    @summary: Verify that when a server is unreachable, auth is done via next in line
+        (next server or next authentication method – local)
+
+        Steps:
+        1.	Configure aaa method
+        2.	Enable aaa method
+        3.	Make server unreachable
+        4.	Verify auth - success only with local user
+        5.	Configure secondary prioritized server
+        6.	Verify auth – success only with 2nd server user
+        7.	Make the 2nd server also unreachable
+        8.	Verify auth – success only with local user
+        9.	Bring back the first server
+        10. Verify auth – success only with top server user
+    @param test_api: run commands with NVUE / OpenApi
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param request: object containing pytest information about current test
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param local_adminuser: info of local admin user
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param server1: object containing remote server info
+    @param server2: another server info (with different users credentials)
+    """
+    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+
+    TestToolkit.tested_api = test_api
+    item = request.node
+
+    with allure.step('Configure unreachable server'):
+        server1 = server1.copy()
+        server2 = server2.copy()
+        server1.priority = 2
+        server2.priority = 1
+        server1.configure(engines, set_explicit_priority=True)
+        server1.make_unreachable(engines)
+
+    with allure.step(f'Enable {remote_aaa_type}'):
+        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
+            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
+        }, apply=True)
+
+    with allure.step('Verify auth - success only with local user'):
+        verify_users_auth(engines, topology_obj,
+                          users=[random.choice(server1.users), local_adminuser],
+                          expect_login_success=[False, True], verify_authorization=False)
+
+    with allure.step('Configure secondary prioritized reachable server'):
+        server2.configure(engines, set_explicit_priority=True, apply=True)
+        update_active_aaa_server(item, server2)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
+
+    with allure.step('Verify auth – success only with 2nd server user'):
+        verify_users_auth(engines, topology_obj,
+                          users=[local_adminuser, random.choice(server2.users)],
+                          expect_login_success=[False, True], verify_authorization=False)
+
+    with allure.step('Make the 2nd server also unreachable'):
+        server2.make_unreachable(engines, apply=True, dut_engine=item.active_remote_admin_engine)
+        update_active_aaa_server(item, None)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut, find_prompt_delay=5)
+
+    with allure.step('Verify auth - success only with local user'):
+        verify_users_auth(engines, topology_obj,
+                          users=[random.choice(server2.users), local_adminuser],
+                          expect_login_success=[False, True], verify_authorization=False)
+
+    with allure.step('Bring back the first server'):
+        server1.make_reachable(engines, apply=True)
+        update_active_aaa_server(item, server1)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
+
+    with allure.step('Verify auth – success only with top server user'):
+        verify_users_auth(engines, topology_obj,
+                          users=[local_adminuser, server2.users[0], server1.users[0]],
+                          expect_login_success=[False, False, True], verify_authorization=False)

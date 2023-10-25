@@ -3,6 +3,7 @@ import logging
 from typing import List
 
 from ngts.nvos_tools.system.Ldap import Ldap
+from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
@@ -27,8 +28,7 @@ class RemoteAaaServerInfo:
         else:
             return copy.copy(self)
 
-    def configure(self, engines, hostname_resource_obj: HostnameId, set_explicit_priority=False, apply=False,
-                  dut_engine=None):
+    def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
         raise Exception('Method "configure" is not implemented!')
 
     def _configure(self, engines, hostname_resource_obj: HostnameId, conf_to_set: dict, set_explicit_priority: bool,
@@ -36,7 +36,13 @@ class RemoteAaaServerInfo:
         if set_explicit_priority:
             conf_to_set[AaaConsts.PRIORITY] = self.priority
         configure_resource(engines, resource_obj=hostname_resource_obj, conf=conf_to_set, apply=apply,
-                           dut_engine=dut_engine)
+                           verify_apply=False, dut_engine=dut_engine)
+
+    def make_unreachable(self, engines, apply=False, dut_engine=None):
+        raise Exception('Method "configure" is not implemented!')
+
+    def make_reachable(self, engines, apply=False, dut_engine=None):
+        raise Exception('Method "configure" is not implemented!')
 
 
 def update_active_aaa_server(item, server: RemoteAaaServerInfo):
@@ -65,8 +71,7 @@ class TacacsServerInfo(RemoteAaaServerInfo):
         # self.retransmit = retransmit
         self.auth_type = auth_type
 
-    def configure(self, engines, hostname_resource_obj: HostnameId, set_explicit_priority=False, apply=False,
-                  dut_engine=None):
+    def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
         conf_to_set = {
             AaaConsts.SECRET: self.secret,
             AaaConsts.PORT: self.port,
@@ -74,7 +79,16 @@ class TacacsServerInfo(RemoteAaaServerInfo):
             AaaConsts.AUTH_TYPE: self.auth_type
             # AaaConsts.RETRANSMIT: server.retransmit
         }
+        hostname_resource_obj = System().aaa.tacacs.hostname.hostname_id[self.hostname]
         self._configure(engines, hostname_resource_obj, conf_to_set, set_explicit_priority, apply, dut_engine)
+
+    def make_unreachable(self, engines, apply=False, dut_engine=None):
+        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port + 6, apply=apply,
+                                                                    dut_engine=dut_engine)
+
+    def make_reachable(self, engines, apply=False, dut_engine=None):
+        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port, apply=apply,
+                                                                    dut_engine=dut_engine)
 
 
 class LdapServerInfo(RemoteAaaServerInfo):
@@ -90,9 +104,9 @@ class LdapServerInfo(RemoteAaaServerInfo):
         self.version = version
         self.ssl_port = ssl_port
 
-    def configure(self, engines, hostname_resource_obj: HostnameId, set_explicit_priority=False, apply=False,
-                  dut_engine=None):
-        ldap_obj: Ldap = hostname_resource_obj.parent_obj.parent_obj
+    def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
+        ldap_obj: Ldap = System().aaa.ldap
+        hostname_resource_obj = ldap_obj.hostname.hostname_id[self.hostname]
         hostname_resource_obj.set(dut_engine=dut_engine)
         conf_to_set = {
             LdapConsts.SECRET: self.secret,
@@ -106,3 +120,15 @@ class LdapServerInfo(RemoteAaaServerInfo):
         configure_resource(engines, resource_obj=ldap_obj, conf=conf_to_set, apply=False, dut_engine=dut_engine)
         ldap_obj.ssl.set(LdapConsts.SSL_CERT_VERIFY, LdapConsts.DISABLED, dut_engine=dut_engine).verify_result()
         self._configure(engines, hostname_resource_obj, {}, set_explicit_priority, apply, dut_engine)
+
+    def make_unreachable(self, engines, apply=False, dut_engine=None):
+        ldap = System().aaa.ldap
+        ldap.hostname.hostname_id[self.hostname].unset(apply=False, dut_engine=dut_engine)
+        ldap.hostname.hostname_id['unreachable-' + self.hostname].set(AaaConsts.PRIORITY, self.priority,
+                                                                      apply=apply, dut_engine=dut_engine)
+
+    def make_reachable(self, engines, apply=False, dut_engine=None):
+        ldap = System().aaa.ldap
+        ldap.hostname.hostname_id['unreachable-' + self.hostname].unset(apply=False, dut_engine=dut_engine)
+        ldap.hostname.hostname_id[self.hostname].set(AaaConsts.PRIORITY, self.priority,
+                                                     apply=apply, dut_engine=dut_engine)

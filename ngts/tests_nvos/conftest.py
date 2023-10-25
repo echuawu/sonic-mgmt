@@ -441,3 +441,8 @@ def extend_log_analyzer_match_regex(loganalyzer):
 @pytest.fixture(scope='session', autouse=True)
 def disable_loganalyzer_rotate_logs(request):
     request.config.option.loganalyzer_rotate_logs = False
+
+
+@pytest.fixture(scope='function', autouse=True)
+def initialize_testtoolkit_loganalyzer(loganalyzer):
+    TestToolkit.loganalyzer_duts = loganalyzer

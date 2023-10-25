@@ -170,7 +170,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_invalid_port_error_flow(test_api, engines, topology_obj):
+def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid port ldap error flows of ,
     we want to configure invalid port value and then see that we are not able to connect
@@ -187,7 +187,7 @@ def test_ldap_invalid_port_error_flow(test_api, engines, topology_obj):
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_invalid_secret_error_flow(test_api, engines, topology_obj):
+def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid bind in password ldap error flows,
     we want to configure invalid bind in password value and then see that we are not able to connect
@@ -203,7 +203,7 @@ def test_ldap_invalid_secret_error_flow(test_api, engines, topology_obj):
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_invalid_bind_dn_error_flow(test_api, engines, topology_obj):
+def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid bind dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
@@ -219,7 +219,7 @@ def test_ldap_invalid_bind_dn_error_flow(test_api, engines, topology_obj):
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ldap_invalid_base_dn_error_flow(test_api, engines, topology_obj):
+def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid base dn ldap error flows,
     we want to configure invalid bind dn value and then see that we are not able to connect
@@ -267,113 +267,36 @@ def test_ldap_priority(test_api, engines, topology_obj, request):
                               feature_resource_obj=System().aaa.ldap, server1=server1, server2=server2)
 
 
-# -------------------- NEW TESTS ---------------------
-
-
-@pytest.mark.bug  # permissions traceback exception 3519743, wrong permission of ldap-local mutual user 3557998
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api, encryption_mode', list(product(ApiType.ALL_TYPES, LdapConsts.ENCRYPTION_MODES)))
-def test_ldap_bad_connection(test_api, encryption_mode, engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
     """
-    @summary:
-        Test that in case of bad connection with ldap server, authentication and authorization are done via next
-            server / auth. method in line.
+    @summary: Verify that when a server is unreachable, auth is done via next in line
+        (next server or authentication method – local)
 
         Steps:
-        1. Configure bad ldap servers
-        2. Configure auth order - ldap, local
-        3. Verify authentication and authorization are done via next in line - local:
-            - server only user can not login
-            - mutual/local only user can login, and role is according to local configuration
-        4. Configure another (valid) ldap server, prioritized as the last of the servers
-        5. Verify authentication and authorization are done via next in line - 2nd server
-            - Invalid servers user can not login
-            - Valid server can login
-            - local user can not login
+        1.	Configure server
+        2.	Set LDAP in authentication order and failthrough off
+        3.	Make server unreachable
+        4.	Verify auth - success only with local user
+        5.	Configure secondary prioritized server
+        6.	Verify auth – success only with 2nd server user
+        7.	Make the 2nd server also unreachable
+        8.	Verify auth – success only with local user
+        9.	Bring back the first server
+        10. Verify auth – success only with top server user
     """
-    logging.info(f'Test setup: {test_api}, {encryption_mode}')
-    TestToolkit.tested_api = test_api
+    server1 = LdapServers.PHYSICAL_SERVER.copy()
+    server2 = LdapServers.DOCKER_SERVER_DN.copy()
+    generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request,
+                                        local_adminuser=local_adminuser,
+                                        remote_aaa_type=RemoteAaaType.LDAP,
+                                        feature_resource_obj=System().aaa.ldap,
+                                        server1=server1, server2=server2)
 
-    with allure.step('Set local users for the test'):
-        invalid_servers = [LdapConsts.DOCKER_LDAP_SERVER_DNS.copy() for _ in range(3)]
 
-        TestToolkit.tested_api = ApiType.NVUE  # todo: remove after fix set user with password in openapi
-
-        ldap1_user = random.choice(invalid_servers[0][LdapConsts.USERS])
-
-        with allure.step('Set local-only users'):
-            local_user = random.choice(AaaConsts.LOCAL_ONLY_TEST_USERS)
-            set_local_users(engines, [local_user], apply=False)
-
-        with allure.step(f'Set ldap-local mutual user "{ldap1_user[AaaConsts.USERNAME]}" in local'):
-            mutual_user = {
-                AaaConsts.USERNAME: ldap1_user[AaaConsts.USERNAME],
-                AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
-                AaaConsts.ROLE: AaaConsts.MONITOR if ldap1_user[AaaConsts.ROLE] == AaaConsts.ADMIN else AaaConsts.ADMIN
-            }
-            set_local_users(engines, [mutual_user], apply=True)
-
-        TestToolkit.tested_api = test_api  # todo: remove after fix set user with password in openapi
-
-    with allure.step('Configure invalid ldap servers'):
-        aaa = System().aaa
-        ldap_obj = aaa.ldap
-        configure_ldap_common_fields(engines, ldap_obj)
-        i = 4
-        for server in invalid_servers:
-            server[LdapConsts.HOSTNAME] = f'{1 + i}.{2 + i}.{3 + i}.{4 + i}'
-            server[LdapConsts.PRIORITY] = str(i)
-            ldap_obj.hostname.hostname_id[server[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, i).verify_result()
-            i -= 1
-
-    with allure.step(f'Configure encryption mode: {encryption_mode}'):
-        configure_ldap_encryption(engines, ldap_obj, encryption_mode)
-
-    with allure.step('Set ldap as main authentication method'):
-        configure_authentication(engines, devices, order=[AuthConsts.LDAP, AuthConsts.LOCAL], apply=True)
-
-    with allure.step('Verify authentication and authorization are done via next in line - local'):
-        with allure.step('Verify ldap-only user can not auth'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap1_user], login_should_succeed=False)
-
-        with allure.step('Verify mutual user can auth (via local)'):
-            validate_users_authorization_and_role(engines=engines, users=[mutual_user],
-                                                  check_nslcd_if_login_failed=True)
-
-        with allure.step('Verify local-only user can auth'):
-            validate_users_authorization_and_role(engines=engines, users=[local_user])
-
-    with allure.step('Add valid ldap server server'):
-        ldap2_server_info = LdapConsts.PHYSICAL_LDAP_SERVER.copy()
-        ldap2_server_info[LdapConsts.PRIORITY] = 1
-        ldap_obj.hostname.hostname_id[ldap2_server_info[LdapConsts.HOSTNAME]].set(LdapConsts.PRIORITY, 1,
-                                                                                  apply=True).verify_result()
-        LdapTestTool.active_ldap_server = ldap2_server_info
-
-    with allure.step('Verify authentication and authorization are done via next in line - valid ldap server'):
-        ldap1_only_user = random.choice(user_lists_difference(invalid_servers[0][LdapConsts.USERS],
-                                                              ldap2_server_info[LdapConsts.USERS]))
-        ldap_ldap_mutual_user = random.choice(mutual_users(ldap2_server_info[LdapConsts.USERS],
-                                                           invalid_servers[0][LdapConsts.USERS]))
-        ldap2_user = random.choice(ldap2_server_info[LdapConsts.USERS])
-
-        with allure.step(f'Verify 1st server only user "{ldap1_only_user[AaaConsts.USERNAME]}" can not auth'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap1_only_user], login_should_succeed=False)
-
-        with allure.step(
-                f'Verify 1st and 2nd servers mutual user "{ldap_ldap_mutual_user[AaaConsts.USERNAME]}" can auth (via valid server)'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap_ldap_mutual_user],
-                                                  check_nslcd_if_login_failed=True)
-
-        with allure.step(f'Verify 2nd server user "{ldap2_user[AaaConsts.USERNAME]}" can auth'):
-            validate_users_authorization_and_role(engines=engines, users=[ldap2_user], check_nslcd_if_login_failed=True)
-
-        with allure.step(f'Verify local user "{local_user[AaaConsts.USERNAME]}" can not auth'):
-            validate_users_authorization_and_role(engines=engines, users=[local_user], login_should_succeed=False)
-
-    with allure.step('Disable ldap'):
-        disable_ldap(engines)
+# -------------------- NEW TESTS ---------------------
 
 
 @pytest.mark.bug  # opened bug for fail through 3501518
@@ -474,7 +397,7 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
         ldap_obj = System().aaa.ldap
         ldap_server_info = LdapServers.DOCKER_SERVER_DN_WITH_CERT
         server_resource = ldap_obj.hostname.hostname_id[ldap_server_info.hostname]
-        ldap_server_info.configure(engines, server_resource)
+        ldap_server_info.configure(engines)
 
     with allure.step('Enable cert-verify'):
         configure_resource(engines, ldap_obj.ssl, conf={LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED})
