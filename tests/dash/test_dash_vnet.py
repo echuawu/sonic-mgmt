@@ -20,11 +20,14 @@ pytestmark = [
 
 # TODO: This is a WA for bug #3634592, remove this after it is fixed
 @pytest.fixture(scope="function", autouse=True)
-def delay_before_test_execution(request):
+def reload_before_test_execution(request, duthost, localhost, ptfhost):
     from infra.tools.redmine.redmine_api import is_redmine_issue_active
-    if "test_outbound_vnet_direct" in request.node.name and is_redmine_issue_active([3634592]):
-        import time
-        time.sleep(180)
+    if "test_outbound_vnet_direct[no-underlay-route]" in request.node.name and is_redmine_issue_active([3634592]):
+        from tests.common.config_reload import config_reload
+        from gnmi_utils import generate_gnmi_cert, apply_gnmi_cert
+        config_reload(duthost, safe_reload=True, check_intf_up_ports=True)
+        generate_gnmi_cert(localhost, duthost)
+        apply_gnmi_cert(duthost, ptfhost)
 
 
 @pytest.fixture
