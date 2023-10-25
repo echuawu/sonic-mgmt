@@ -1298,7 +1298,7 @@
       - 202205
 
 - Errors_list:
-    - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired 1 day ago.*"
+    - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired \\d+ days? ago.*"
     - ".* ERR ntpd\\[\\d+\\]: leapsecond file \\('/usr/share/zoneinfo/leap-seconds.list'\\): expired less than \\d+ days ago.*"
   Conditions:
     - Affected_test_cases:
