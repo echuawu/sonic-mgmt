@@ -350,8 +350,6 @@ def gnmi_basic_flow(engines, mode='', ipv6=False):
 
     with allure_step('Enable gnmi'):
         gnmi_server_obj.enable_gnmi_server()
-        logger.info("sleep 90 sec until validate stream updates")
-        time.sleep(90)
         validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=mode)
 
 
@@ -468,7 +466,7 @@ def get_infiniband_name_from_port_name(engine, port_name):
 
 
 def get_port_oid_from_infiniband_port(engine, infiniband_port):
-    output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engine, asic="", db_name=DatabaseConst.APPL_DB_NAME,
+    output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engine, asic="", db_name=DatabaseConst.COUNTERS_DB_NAME,
                                                   db_config="COUNTERS_PORT_NAME_MAP", param=str(infiniband_port))
     # output = engine.run_cmd(f"redis-cli -n 2 HGET \"COUNTERS_PORT_NAME_MAP\" \"{infiniband_port}\"")
     port_oid = output.replace("\"", "")
@@ -575,7 +573,7 @@ def validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list):
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])
         redis_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
                                                             db_name=command[GnmiConsts.REDIS_CMD_DB_NAME],
-                                                            db_config=command[GnmiConsts.REDIS_CMD_TABLE_NAME],
+                                                            db_config=f"\"{command[GnmiConsts.REDIS_CMD_TABLE_NAME]}\"",
                                                             param=command[GnmiConsts.REDIS_CMD_PARAM])
         # redis_output = engines.dut.run_cmd(command[GnmiConsts.REDIS_CMD_KEY]).replace("\"", "")
         if ',' in redis_output:
