@@ -24,7 +24,7 @@ invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request'
 
 
 @pytest.mark.ib_interfaces
-def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
+def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, devices):
     """
     Test flow:
         1. Try to split port, eth0, ib0 in not breakout profile
@@ -38,7 +38,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
@@ -469,7 +469,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
-def test_split_port_redis_db_crash(engines, interfaces, start_sm):
+def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
     """
     Test flow:
         1. Write to config db
@@ -523,7 +523,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 

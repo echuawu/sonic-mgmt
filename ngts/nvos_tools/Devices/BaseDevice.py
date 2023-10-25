@@ -736,6 +736,319 @@ class GorillaSwitch(MultiAsicSwitch):
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
     FNM_PORT_LIST = ['fnm1']
+    AGGREGATED_SPLIT_PORT_LIST = ['sw10p1']
+    FNM_INTERNAL_PORT_LIST = ['fnma1p236']
+    FNM_EXTERNAL_PORT_LIST = ['fnm1']
+    SPLIT_AGGREGATED_PORT = ['sw10p1']
+    AGGREGATED_PORT_PLANARIZED_PORTS = 4
+    SYSTEM_PROFILE_DEFAULT_VALUES = ['enabled', '2048', 'disabled', 'disabled', '1']
+    FNM_PORT_LIST = ['fnm1']
+    FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
+    NON_IB_PORT_LIST = ['eth0', 'ib0', 'lo']  # total 3 ports
+    NON_AGGREGATED_PORT_LIST = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
+                                'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2', 'sw17p1', 'sw17p2',
+                                'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2', 'sw21p1', 'sw21p2',
+                                'sw22p1', 'sw22p2', 'sw23p1', 'sw23p2', 'sw24p1', 'sw24p2', 'sw25p1', 'sw25p2',
+                                'sw26p1', 'sw26p2', 'sw27p1', 'sw27p2', 'sw28p1', 'sw28p2', 'sw29p1', 'sw29p2',
+                                'sw30p1', 'sw30p2', 'sw3p1', 'sw3p2', 'sw4p1', 'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1',
+                                'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 56 ports
+    ALL_PLANE_PORT_LIST = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']  # total 6 ports
+    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
+    ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST + FNM_PLANE_PORT_LIST  # total 71 ports
+    ASIC0 = 'asic0'
+    ASIC1 = 'asic1'
+    COUNTERS_DB_NAME = 'COUNTERS_DB'
+    OBJECT_NUMBERS = {  # TBD - update values
+        'sw1p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        },
+        'sw2p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        },
+        'sw32p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        }
+    }
+    FNM_LINK_SPEED = '400G'
+    SUPPORTED_IB_SPEED = ['sdr', 'fdr', 'edr', 'hdr', 'ndr']
+
+    def __init__(self):
+        MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
+
+    def ib_ports_num(self):
+        return self.GORILLA_IB_PORT_NUM
+
+    def _init_ib_speeds(self):
+        BaseSwitch._init_ib_speeds(self)
+        self.invalid_ib_speeds.update({'qdr': '40G'})
+        self.supported_ib_speeds.pop('qdr')
+        self.supported_ib_speeds.update({'ndr': '400G'})
+
+    def _init_fan_list(self):
+        BaseSwitch._init_fan_list(self)
+        self.fan_list.append("FAN7/1")
+        self.fan_list.append("FAN7/2")
+        self.fan_led_list.append('FAN7')
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
+
+    def _init_available_databases(self):
+        MultiAsicSwitch._init_available_databases(self)
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num(),
+                                                                            "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
+                                                                            "LANES": 0,
+                                                                            "VIDCOUNTER": 0,
+                                                                            "RIDTOVID": 0,
+                                                                            "HIDDEN": 0,
+                                                                            "COLDVIDS": 0})
+
+        available_tables_per_asic = {
+            DatabaseConst.APPL_DB_ID:
+                {"ALIAS_PORT_MAP": self.ib_ports_num()},
+            DatabaseConst.ASIC_DB_ID:
+                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,
+                 "LANES": 1,
+                 "VIDCOUNTER": 1,
+                 "RIDTOVID": 1,
+                 "HIDDEN": 1,
+                 "COLDVIDS": 1},
+            DatabaseConst.COUNTERS_DB_ID:
+                {"COUNTERS_PORT_NAME_MAP": 1,
+                 "COUNTERS:oid": self.ib_ports_num() / 2},
+            DatabaseConst.CONFIG_DB_ID:
+                {"IB_PORT": self.ib_ports_num() / 2,
+                 "FEATURE": 6,
+                 "CONFIG_DB_INITIALIZED": 1,
+                 "DEVICE_METADATA": 1,
+                 "VERSIONS": 0,
+                 "KDUMP": 0}
+        }
+        self.available_tables.update({'database0': available_tables_per_asic})
+
+
+# -------------------------- BlackMamba Switch ----------------------------
+class BlackMambaSwitch(MultiAsicSwitch):
+    GORILLA_IB_PORT_NUM = 64
+    SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum3'
+    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    ASIC_AMOUNT = 1
+    PRIMARY_ASIC = "ASIC1"
+    PRIMARY_SWID = 'SWID0'
+    PRIMARY_IPOIB_INTERFACE = "ib0"
+    SYSTEM_PROFILE_DEFAULT_VALUES = ['enabled', '2048', 'enabled', 'disabled', '1']
+    MULTI_ASIC_SYSTEM = False
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
+    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DISABLED_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
+    }
+    CATEGORY_LIST_DEFAULT_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
+    }
+
+    PLANE_PORT_LIST = ['pl1', 'pl2']
+    DEFAULT_AGGREGATED_PORT = 'sw32p1'
+    DEFAULT_LOOPBACK_PORTS = ['sw31p1', 'sw31p2']
+    LOOP_BACK_TO_PORTS = {
+        'sw31p1': 'sw32p1pl1',
+        'sw31p2': 'sw32p1pl2'
+    }
+    AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
+    SPLIT_AGGREGATED_PORT = ['sw10p1']
+    FNM_PORT_LIST = ['fnm1']
+    FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
+    NON_IB_PORT_LIST = ['eth0', 'ib0', 'lo']  # total 3 ports
+    NON_AGGREGATED_PORT_LIST = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
+                                'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2', 'sw17p1', 'sw17p2',
+                                'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2', 'sw21p1', 'sw21p2',
+                                'sw22p1', 'sw22p2', 'sw23p1', 'sw23p2', 'sw24p1', 'sw24p2', 'sw25p1', 'sw25p2',
+                                'sw26p1', 'sw26p2', 'sw27p1', 'sw27p2', 'sw28p1', 'sw28p2', 'sw29p1', 'sw29p2',
+                                'sw30p1', 'sw30p2', 'sw3p1', 'sw3p2', 'sw4p1', 'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1',
+                                'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 56 ports
+    ALL_PLANE_PORT_LIST = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']  # total 6 ports
+    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
+    ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST + FNM_PLANE_PORT_LIST  # total 71 ports
+    ASIC0 = 'asic0'
+    ASIC1 = 'asic1'
+    COUNTERS_DB_NAME = 'COUNTERS_DB'
+    OBJECT_NUMBERS = {  # TBD - update values
+        'sw1p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        },
+        'sw2p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        },
+        'sw32p1': {
+            'plane1': 'COUNTERS:oid:0x100000000001f',
+            'plane2': 'COUNTERS:oid:0x100000000001f'
+        }
+    }
+    FNM_LINK_SPEED = '400G'
+    SUPPORTED_IB_SPEED = ['sdr', 'fdr', 'edr', 'hdr', 'ndr']
+
+    def __init__(self):
+        MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
+
+    def ib_ports_num(self):
+        return self.GORILLA_IB_PORT_NUM
+
+    def _init_ib_speeds(self):
+        BaseSwitch._init_ib_speeds(self)
+        self.invalid_ib_speeds.update({'qdr': '40G'})
+        self.supported_ib_speeds.pop('qdr')
+        self.supported_ib_speeds.update({'ndr': '400G'})
+
+    def _init_fan_list(self):
+        BaseSwitch._init_fan_list(self)
+        self.fan_list.append("FAN7/1")
+        self.fan_list.append("FAN7/2")
+        self.fan_led_list.append('FAN7')
+
+    def _init_temperature(self):
+        BaseSwitch._init_temperature(self)
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
+
+    def _init_available_databases(self):
+        MultiAsicSwitch._init_available_databases(self)
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num(),
+                                                                            "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
+                                                                            "LANES": 0,
+                                                                            "VIDCOUNTER": 0,
+                                                                            "RIDTOVID": 0,
+                                                                            "HIDDEN": 0,
+                                                                            "COLDVIDS": 0})
+
+        available_tables_per_asic = {
+            DatabaseConst.APPL_DB_ID:
+                {"ALIAS_PORT_MAP": self.ib_ports_num()},
+            DatabaseConst.ASIC_DB_ID:
+                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num() / 2 + 1,
+                 "LANES": 1,
+                 "VIDCOUNTER": 1,
+                 "RIDTOVID": 1,
+                 "HIDDEN": 1,
+                 "COLDVIDS": 1},
+            DatabaseConst.COUNTERS_DB_ID:
+                {"COUNTERS_PORT_NAME_MAP": 1,
+                 "COUNTERS:oid": self.ib_ports_num() / 2},
+            DatabaseConst.CONFIG_DB_ID:
+                {"IB_PORT": self.ib_ports_num() / 2,
+                 "FEATURE": 6,
+                 "CONFIG_DB_INITIALIZED": 1,
+                 "DEVICE_METADATA": 1,
+                 "VERSIONS": 0,
+                 "KDUMP": 0}
+        }
+        self.available_tables.update({'database0': available_tables_per_asic})
+
+
+# -------------------------- Crocodile Switch ----------------------------
+class CrocodileSwitch(MultiAsicSwitch):
+    GORILLA_IB_PORT_NUM = 64
+    SWITCH_CORE_COUNT = 4
+    ASIC_TYPE = 'Quantum3'
+    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
+    ASIC_AMOUNT = 1
+    PRIMARY_ASIC = "ASIC1"
+    PRIMARY_SWID = 'SWID0'
+    PRIMARY_IPOIB_INTERFACE = "ib0"
+    SYSTEM_PROFILE_DEFAULT_VALUES = ['enabled', '2048', 'enabled', 'disabled', '1']
+    MULTI_ASIC_SYSTEM = False
+    CATEGORY_LIST = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
+    CATEGORY_DISK_INTERVAL_DEFAULT = '30'  # [min]
+    CATEGORY_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: StatsConsts.INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.STATE_DEFAULT
+    }
+    CATEGORY_DISK_DEFAULT_DISABLED_DICT = {
+        StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
+        StatsConsts.INTERVAL: CATEGORY_DISK_INTERVAL_DEFAULT,
+        StatsConsts.STATE: StatsConsts.State.DISABLED.value
+    }
+    CATEGORY_DISABLED_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DISABLED_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DISABLED_DICT
+    }
+    CATEGORY_LIST_DEFAULT_DICT = {
+        CATEGORY_LIST[0]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[1]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[2]: CATEGORY_DISK_DEFAULT_DICT,
+        CATEGORY_LIST[3]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT,
+        CATEGORY_LIST[6]: CATEGORY_DEFAULT_DICT
+    }
+
+    PLANE_PORT_LIST = ['pl1', 'pl2']
+    DEFAULT_AGGREGATED_PORT = 'sw32p1'
+    DEFAULT_LOOPBACK_PORTS = ['sw31p1', 'sw31p2']
+    LOOP_BACK_TO_PORTS = {
+        'sw31p1': 'sw32p1pl1',
+        'sw31p2': 'sw32p1pl2'
+    }
+    AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
+    SPLIT_AGGREGATED_PORT = ['sw10p1']
+    FNM_PORT_LIST = ['fnm1']
+    FNM_INTERNAL_PORT_LIST = ['fnma1p236']
+    FNM_EXTERNAL_PORT_LIST = ['fnm1']
     FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
     NON_IB_PORT_LIST = ['eth0', 'ib0', 'lo']  # total 3 ports
     NON_AGGREGATED_PORT_LIST = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',

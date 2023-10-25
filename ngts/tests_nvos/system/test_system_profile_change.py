@@ -11,11 +11,9 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.constants.constants import InfraConst
+from ngts.nvos_constants.constants_nvos import DatabaseConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.constants.constants import LinuxConsts
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -31,7 +29,7 @@ negative_profile_commands = ['breakout-mode aa adaptive-routing bb',
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_change_default(engines):
+def test_system_profile_change_default(engines, devices):
     """
     Test flow:
         1. run nv show system profile
@@ -48,14 +46,14 @@ def test_system_profile_change_default(engines):
 
     with allure.step("Verify default values"):
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_negative(engines):
+def test_system_profile_negative(engines, devices):
     """
     Test flow:
         1. Testing all negative scenarios for action
@@ -73,14 +71,14 @@ def test_system_profile_negative(engines):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm):
+def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm, devices):
     """
     Test flow:
         1. Check that with different routing group we have traffic
@@ -157,7 +155,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
@@ -179,7 +177,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm)
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_change_breakout_mode(engines):
+def test_system_profile_change_breakout_mode(engines, devices):
     """
     Test flow:
         1. Verify default values
@@ -227,7 +225,7 @@ def test_system_profile_change_breakout_mode(engines):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
@@ -236,7 +234,7 @@ def test_system_profile_change_breakout_mode(engines):
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_changes_stress(engines):
+def test_system_profile_changes_stress(engines, devices):
     """
     Test flow:
         1. Stress system
@@ -282,7 +280,7 @@ def test_system_profile_changes_stress(engines):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                            SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                            devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
 
@@ -291,7 +289,7 @@ def test_system_profile_changes_stress(engines):
 
 @pytest.mark.system
 @pytest.mark.system_profile_cleanup
-def test_system_profile_redis_db_crash(engines):
+def test_system_profile_redis_db_crash(engines, devices):
     """
     Test flow:
         1. Write to config db adaptive routing group value
@@ -322,7 +320,7 @@ def test_system_profile_redis_db_crash(engines):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
+                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 

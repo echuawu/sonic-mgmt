@@ -866,6 +866,8 @@ class MultiPlanarConsts:
     SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
     ORIGIN_FILES_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/origin/"
     SIMULATION_FILE = "platform.json"
+    A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
+    FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'
     PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
     MULTI_PLANAR_KEYS = ['asic', 'parent-alias', 'parent-port', 'plane']
 
