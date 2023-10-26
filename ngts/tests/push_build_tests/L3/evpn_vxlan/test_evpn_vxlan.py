@@ -2,7 +2,7 @@ import logging
 import pytest
 
 from ngts.constants.constants import VxlanConstants
-from ngts.helpers.vxlan_helper import send_and_validate_traffic
+from ngts.helpers.vxlan_helper import send_and_validate_traffic, restart_bgp_session
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.push_build_tests.conftest import is_evpn_support
@@ -69,6 +69,7 @@ class TestEvpnVxlan:
         self.dut_vlan_20_ip = '20.0.0.1'
         self.dut_vlan_100_ip = '100.0.0.1'
         self.dut_vlan_101_ip = '101.0.0.1'
+        self.dut_ha_1_ip = '30.0.0.1'
 
         self.ha_bond_0_ip = '30.0.0.2'
         self.ha_vni_50020_iface_ip = '20.0.0.2'
@@ -313,3 +314,25 @@ class TestEvpnVxlan:
 
         with allure.step('Validate EVPN symmetrical irb traffic'):
             self.validate_symmetrical_irb_traffic(interfaces)
+
+    def test_prevent_remove_recovered_fdb_table(self, cli_objects, skip_if_upgrade):
+        """
+        This test is designed dedicate for https://redmine.mellanox.com/issues/3460839
+        Steps to validate:
+            Configure L2 EVPN and learn remote FDB entries.
+            Perform warm reboot.
+            After system has reconciled, withdraw few of the remote FDB entries.
+        """
+        with allure.step('Withdraw and announce remote EVPN routes'):
+            restart_bgp_session(cli_objects.ha)
+
+        with allure.step('Validate bgp neighbor established'):
+            cli_objects.ha.frr.validate_bgp_neighbor_established(self.dut_ha_1_ip)
+
+        with allure.step('Check CLI VLAN to VNI mapping'):
+            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101),
+                                   (VxlanConstants.VLAN_20, VxlanConstants.VNI_50020),
+                                   (VxlanConstants.VLAN_200, VxlanConstants.VNI_500200)
+                                   ])
