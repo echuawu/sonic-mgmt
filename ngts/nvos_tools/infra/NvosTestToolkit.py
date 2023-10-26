@@ -145,11 +145,13 @@ class TestToolkit:
     @staticmethod
     def start_code_section_loganalyzer_ignore():
         if TestToolkit.loganalyzer_duts:
+            logging.info('Start Loganalyzer ignore')
             for loganalyzer_dut in TestToolkit.loganalyzer_duts.values():
                 loganalyzer_dut.add_start_ignore_mark()
 
     @staticmethod
     def end_code_section_loganalyzer_ignore():
         if TestToolkit.loganalyzer_duts:
+            logging.info('End Loganalyzer ignore')
             for loganalyzer_dut in TestToolkit.loganalyzer_duts.values():
                 loganalyzer_dut.add_end_ignore_mark()

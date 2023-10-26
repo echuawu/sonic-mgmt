@@ -16,6 +16,7 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerif
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
 
 def check_nslcd_service(engines):
@@ -56,10 +57,7 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    try:
-        if not expect_login_success:
-            TestToolkit.start_code_section_loganalyzer_ignore()
-
+    with loganalyzer_ignore(not expect_login_success):
         with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
                          f'Expect login success: {expect_login_success}'):
             wait_time_before_auth_test = 3
@@ -82,9 +80,6 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                         with allure.step(f'Verify authorization. Role: {user.role}'):
                             medium_obj.verify_authorization(user_is_admin=user_is_admin)
         logging.info('\n')
-    finally:
-        if not expect_login_success:
-            TestToolkit.end_code_section_loganalyzer_ignore()
 
 
 def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login_success: List[bool] = None,
