@@ -8,6 +8,7 @@ from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 @pytest.mark.system
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.nvos_build
 def test_reboot_command(engines, devices, test_name):
     """
     Test flow:

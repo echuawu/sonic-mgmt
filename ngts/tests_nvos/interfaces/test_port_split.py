@@ -135,6 +135,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
+@pytest.mark.nvos_build
 def test_ib_split_port_default_values(engines, interfaces, start_sm):
     """
     Test flow:

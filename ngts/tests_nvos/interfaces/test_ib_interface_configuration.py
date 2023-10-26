@@ -84,6 +84,7 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
+@pytest.mark.nvos_build
 def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
     """
     Configure interface speed and verify the configuration applied successfully
