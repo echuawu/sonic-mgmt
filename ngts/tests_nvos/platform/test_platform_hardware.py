@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 @pytest.mark.platform
 @pytest.mark.cumulus
-# TODO need to add pytest.mark.nvos_ci
+@pytest.mark.nvos_ci
 def test_show_platform_hardware(devices):
     """
     Show platform hardware test

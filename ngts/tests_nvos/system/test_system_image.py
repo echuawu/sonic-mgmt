@@ -33,6 +33,7 @@ BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_rele
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.nvos_build
 def test_show_system_image():
     """
     Show system image test

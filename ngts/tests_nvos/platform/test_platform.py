@@ -20,7 +20,6 @@ def test_show_platform(engines):
     """
     Show platform hardware test
     """
-    res = is_redmine_issue_active([3640664])
     with allure.step("Create System object"):
         platform = Platform()
 

@@ -12,6 +12,7 @@ logger = logging.getLogger()
 @pytest.mark.ib
 @pytest.mark.nvos_ci
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.nvos_build
 def test_ib0_show_interface(engines):
     """
     Run show interface ib0 command and verify the required fields are exist

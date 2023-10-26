@@ -14,6 +14,7 @@ list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'st
 
 
 @pytest.mark.ib
+@pytest.mark.nvos_build
 def test_interface_tranceiver_diagnostics_basic(engines):
     """
     The test will check default field and values for transceiver diagnostic.

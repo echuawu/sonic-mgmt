@@ -18,6 +18,7 @@ logger = logging.getLogger()
 @pytest.mark.simx
 @pytest.mark.cumulus
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.nvos_security_build
 def test_show_user(engines, devices):
     """
     Run show system message command and verify the required message
@@ -110,6 +111,7 @@ def test_invalid_username(engines):
 
 @pytest.mark.system
 @pytest.mark.simx
+@pytest.mark.nvos_security_build
 def test_set_state_default_user(engines):
     """
     Run show system message command and verify the required message
