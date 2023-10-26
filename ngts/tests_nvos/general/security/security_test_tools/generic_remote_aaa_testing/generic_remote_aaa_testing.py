@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 from ngts.nvos_tools.system.System import System
@@ -396,7 +397,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
                 DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
 
 
-def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser,
+def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                         remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
                                         server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
     """
@@ -481,3 +482,79 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         verify_users_auth(engines, topology_obj,
                           users=[local_adminuser, server2.users[0], server1.users[0]],
                           expect_login_success=[False, False, True], verify_authorization=False)
+
+
+def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+                                remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
+                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
+    """
+    @summary: Verify the behavior in case of auth error (username not found or bad credentials).
+
+        In case of auth error (username not found, or bad credentials):
+        - if failthrough is off -> fail authentication attempt
+        - if failthrough is on  -> check credentials on the next server/auth method.
+
+        Steps:
+        1.	Configure remote aaa servers
+        2.	Set failthrough off
+        3.	Verify auth with 2nd server credentials – expect fail
+        4.  Verify auth with local user credentials - expect fail
+        5.	Set failthrough on
+        6.	Verify auth with 2nd server credentials – expect success
+        7.  Verify auth with local user credentials - expect success
+        8.  Verify auth with credentials from none of servers/local - expect fail
+    @param test_api: run commands with NVUE / OpenApi
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param request: object containing pytest information about current test
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param local_adminuser: info of local admin user
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param server1: object containing remote server info
+    @param server2: another server info (with different users credentials)
+    """
+    TestToolkit.tested_api = test_api
+    item = request.node
+
+    with allure.step(f'Configure {remote_aaa_type} servers'):
+        server1 = server1.copy()
+        server2 = server2.copy()
+        server1.priority = 2
+        server2.priority = 1
+        server1.configure(engines, set_explicit_priority=True)
+        server2.configure(engines, set_explicit_priority=True)
+
+    with allure.step(f'Enable {remote_aaa_type} and disable failthrough'):
+        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
+            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
+        }, apply=True, verify_apply=False)
+        update_active_aaa_server(item, server1)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
+
+    with allure.step('Verify auth with 2nd server credentials – expect fail'):
+        verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=False)
+
+    with allure.step('Verify auth with local user credentials - expect fail'):
+        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False)
+
+    with allure.step('Enable failthrough'):
+        aaa: Aaa = feature_resource_obj.parent_obj
+        aaa.authentication.set(AuthConsts.FAILTHROUGH, AaaConsts.ENABLED, apply=True,
+                               dut_engine=item.active_remote_admin_engine).verify_result()
+        update_active_aaa_server(item, None)
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            DutUtilsTool.wait_for_nvos_to_become_functional(item.active_remote_admin_engine, find_prompt_delay=5)
+
+    if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP + failthrough on - only move to next method, and not server
+        with allure.step('Verify auth with 2nd server credentials – expect success'):
+            verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=True, verify_authorization=False)
+
+    with allure.step('Verify auth with local user credentials - expect success'):
+        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=True, verify_authorization=False)
+
+    with allure.step('Verify auth with credentials from none of servers/local - expect fail'):
+        dummy_user = local_adminuser.copy()
+        dummy_user.username = f'dummy_{dummy_user.username}'
+        verify_user_auth(engines, topology_obj, dummy_user, expect_login_success=False)

@@ -209,9 +209,6 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
                                         server1=server1, server2=server2)
 
 
-# -------------------- NEW TESTS ---------------------
-
-
 @pytest.mark.security
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -233,69 +230,14 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
         7.  Verify auth with local user credentials - expect success
         8.  Verify auth with credentials from none of servers/local - expect fail
     """
-    TestToolkit.tested_api = test_api
-    item = request.node
+    server1, server2 = get_two_different_tacacs_servers()
+    generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
+                                remote_aaa_type=RemoteAaaType.TACACS,
+                                feature_resource_obj=System().aaa.tacacs,
+                                server1=server1, server2=server2)
 
-    with allure.step('Configure tacacs servers'):
-        server = list(TacacsServers.VM_SERVERS.values())[0].copy()
-        server2 = list(TacacsServers.VM_SERVERS.values())[1].copy()
-        auth_type = random.choice(TacacsConsts.AUTH_TYPES)
-        auth_type2 = RandomizationTool.select_random_value(TacacsConsts.AUTH_TYPES,
-                                                           forbidden_values=[auth_type]).get_returned_value()
-        server.auth_type = auth_type
-        server2.auth_type = auth_type2
-        server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type]
-        server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[auth_type2]
-        aaa = System().aaa
-        configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            AaaConsts.TIMEOUT: server.timeout,
-            # AaaConsts.RETRANSMIT: server.retransmit
-        })
-        server_resource = aaa.tacacs.hostname.hostname_id[server.hostname]
-        configure_resource(engines, resource_obj=server_resource, conf={
-            AaaConsts.SECRET: server.secret,
-            AaaConsts.PORT: server.port,
-            AaaConsts.AUTH_TYPE: server.auth_type,
-            AaaConsts.PRIORITY: 2
-        })
-        server2_resource = aaa.tacacs.hostname.hostname_id[server2.hostname]
-        configure_resource(engines, resource_obj=server2_resource, conf={
-            AaaConsts.SECRET: server2.secret,
-            AaaConsts.PORT: server2.port,
-            AaaConsts.AUTH_TYPE: server2.auth_type,
-            AaaConsts.PRIORITY: 1
-        })
 
-    with allure.step('Set tacacs in authentication order and failthrough off'):
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
-        update_active_aaa_server(item, server)
-
-    with allure.step('Verify auth with 2nd server credentials – expect fail'):
-        verify_user_auth(engines, topology_obj, random.choice(server2.users), expect_login_success=False)
-
-    with allure.step('Verify auth with local user credentials - expect fail'):
-        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False)
-
-    with allure.step('Set failthrough on'):
-        configure_resource(engines, resource_obj=aaa.authentication, conf={
-            AuthConsts.FAILTHROUGH: AaaConsts.ENABLED
-        }, apply=True, dut_engine=item.active_remote_admin_engine)
-        update_active_aaa_server(item, None)
-
-    with allure.step('Verify auth with 2nd server credentials – expect success'):
-        verify_user_auth(engines, topology_obj, random.choice(server2.users), expect_login_success=True,
-                         verify_authorization=False)
-
-    with allure.step('Verify auth with local user credentials - expect success'):
-        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=True, verify_authorization=False)
-
-    with allure.step('Verify auth with credentials from none of servers/local - expect fail'):
-        dummy_user = local_adminuser.copy()
-        dummy_user.username = f'dummy_{dummy_user.username}'
-        verify_user_auth(engines, topology_obj, dummy_user, expect_login_success=False)
+# -------------------- FEATURE SPECIFIC TESTS ---------------------
 
 
 @pytest.mark.security

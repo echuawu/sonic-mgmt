@@ -210,7 +210,7 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
 
 
 def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False, dut_engine=None,
-                              server_info: LdapServerInfo = None):
+                              server_info: LdapServerInfo = None, verify_apply=False, disable_cert_verify: bool = True):
     """
     @summary: Configure ldap settings according to the given encryption mode
     @param engines: engines object
@@ -219,22 +219,25 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False, d
     """
     with allure.step(f'Configure ldap encryption: {encryption_mode}'):
         conf_to_set = {
-            LdapConsts.SSL_CERT_VERIFY: LdapConsts.DISABLED,
             LdapConsts.SSL_PORT: server_info.ssl_port
         }
+        if disable_cert_verify:
+            conf_to_set[LdapConsts.SSL_CERT_VERIFY] = LdapConsts.DISABLED
         if encryption_mode == LdapConsts.TLS:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.START_TLS
         elif encryption_mode == LdapConsts.SSL:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.SSL
         elif encryption_mode == LdapConsts.NONE:
             conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.NONE
-        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply, dut_engine=dut_engine)
+        configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply, verify_apply=verify_apply,
+                           dut_engine=dut_engine)
 
 
 def update_ldap_encryption_mode(engines, item, server_info: RemoteAaaServerInfo, server_resource: HostnameId,
-                                encryption_mode: str):
+                                encryption_mode: str, disable_cert_verify=False):
     configure_ldap_encryption(engines, server_resource.parent_obj.parent_obj, encryption_mode, apply=True,
-                              dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info)
+                              dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info,
+                              disable_cert_verify=disable_cert_verify)
 
 
 def add_ldap_server_certificate_to_switch(dut_engine):
