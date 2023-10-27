@@ -2107,6 +2107,12 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3628607 and '2700' in platform"
       - "'202305' in release"
+
+dash/test_dash_vnet.py::test_outbound_vnet_direct:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3634592"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3634592 and 'nvda_bf' in platform"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
