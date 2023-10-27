@@ -776,12 +776,6 @@ vlan/test_vlan_ping.py::test_vlan_ping:
     conditions:
       - "https://github.com/sonic-net/sonic-mgmt/issues/9642 and 'dualtor' in topo_name"
 
-qos/test_qos_sai.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3585684 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3585684 and 'dualtor' in topo_name"
-
 platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630488"
