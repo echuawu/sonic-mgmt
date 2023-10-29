@@ -3189,6 +3189,49 @@
     - Affected_test_cases:
         - show_techsupport/test_techsupport_dpu.py
 
+- Errors_list:
+    - '.*ERR pmon#psud: Failed to read from file /var/run/hw-management/eeprom/psu.*'
+    - '.*ERR pmon#psud: Fail to read model number: No key PN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu.*'
+    - '.*ERR pmon#psud: Fail to read serial number: No key SN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu.*'
+    - '.*ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu1.*'
+    - '.*WARNING pmon#psud: Fail to read vpd info: No key MFR_NAME in VPD /var/run/hw-management/eeprom/psu1.*'
+    - '.*WARNING pmon#psud: Fail to read vpd info: No key CAPACITY in VPD /var/run/hw-management/eeprom/psu.*'
+  Conditions:
+    - Redmine:
+      - 3647521
+      Branch:
+        - master
+
+- Errors_list:
+    - '.*ERR kernel:.*ima: impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall..*'
+    - '.*NOTICE root: Rebooting with platform x86_64-nvidia_sn5600-r0 specific tool.*'
+    - '.*ERR kernel:.*x86\/cpu: SGX disabled by BIOS.*'
+  Conditions:
+    - Redmine:
+      - 3647536
+      Branch:
+        - master
+
+- Errors_list:
+    - '.*ERR ntpd.*CONFIG: restrict nopeer ignored.*'
+    - '.*ERR ntpd.*statistics directory /var/log/ntpsec/ does not exist or is unwriteable, error No such file or directory.*'
+    - '.*ERR ntpd.*CONFIG: restrict nopeer ignored.*'
+  Conditions:
+    - Redmine:
+      - 3647537
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR kernel: .* i2c_mlxcpld i2c_mlxcpld.* Incorrect smbus block read message len.*'
+    - '.* ERR systemctl\[\d+\]: Failed to start pmon.timer: Unit pmon.timer not found.*'
+    - '.* ERR systemctl\[\d+\]: Failed to get unit file state for lldp.timer: No such file or directory.*'
+  Conditions:
+    - Redmine:
+      - 3649836
+      Branch:
+        - master
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
