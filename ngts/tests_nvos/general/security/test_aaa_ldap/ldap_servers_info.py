@@ -17,8 +17,8 @@ class LdapServers:
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
         group_attr=GLOBAL_GROUP_ATTR,
-        timeout_bind=1,
-        timeout_search=1,
+        timeout_bind=5,
+        timeout_search=5,
         version=GLOBAL_VERSION,
         users=[
             UserInfo(
@@ -42,8 +42,8 @@ class LdapServers:
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
         group_attr=GLOBAL_GROUP_ATTR,
-        timeout_bind=1,
-        timeout_search=1,
+        timeout_bind=5,
+        timeout_search=5,
         version=GLOBAL_VERSION,
         ssl_port=636,
         users=[

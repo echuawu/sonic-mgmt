@@ -295,8 +295,10 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
 
     for encryption_mode in LdapEncryptionModes.ALL_MODES:
         with allure.step(f'Verify with encryption mode: {encryption_mode}'):
+            user_to_validate = random.choice(ldap_server_info.users)
+
             with allure.step(f'Configure encryption mode: {encryption_mode}'):
-                update_ldap_encryption_mode(engines, item, ldap_server_info, server_resource, encryption_mode)
+                update_ldap_encryption_mode(engines, item, ldap_server_info, server_resource, encryption_mode, False)
                 update_active_aaa_server(item,
                                          ldap_server_info if encryption_mode == LdapEncryptionModes.NONE else None)
                 engine = engines.dut if not item.active_remote_admin_engine else item.active_remote_admin_engine
@@ -304,7 +306,6 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
 
             if encryption_mode != LdapEncryptionModes.NONE:
                 with allure.step(f'Verify auth with LDAP user when there is no CA cert in the switch- expect fail'):
-                    user_to_validate = random.choice(ldap_server_info.users)
                     verify_user_auth(engines, topology_obj, user_to_validate, expect_login_success=False)
 
                 with allure.step('Add the server certificate to the switch'):

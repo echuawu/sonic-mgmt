@@ -15,7 +15,7 @@ from ngts.tests_nvos.general.security.security_test_tools.security_test_utils im
     validate_services_and_dockers_availability, find_server_admin_user, configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
     LdapServerInfo
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts, LdapEncryptionModes
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -223,21 +223,23 @@ def configure_ldap_encryption(engines, ldap_obj, encryption_mode, apply=False, d
         }
         if disable_cert_verify:
             conf_to_set[LdapConsts.SSL_CERT_VERIFY] = LdapConsts.DISABLED
-        if encryption_mode == LdapConsts.TLS:
-            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.START_TLS
-        elif encryption_mode == LdapConsts.SSL:
-            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.SSL
-        elif encryption_mode == LdapConsts.NONE:
-            conf_to_set[LdapConsts.SSL_MODE] = LdapConsts.NONE
+        if encryption_mode == LdapEncryptionModes.START_TLS:
+            conf_to_set[LdapConsts.SSL_MODE] = LdapEncryptionModes.START_TLS
+        elif encryption_mode == LdapEncryptionModes.SSL:
+            conf_to_set[LdapConsts.SSL_MODE] = LdapEncryptionModes.SSL
+        elif encryption_mode == LdapEncryptionModes.NONE:
+            conf_to_set[LdapConsts.SSL_MODE] = LdapEncryptionModes.NONE
         configure_resource(engines, ldap_obj.ssl, conf=conf_to_set, apply=apply, verify_apply=verify_apply,
                            dut_engine=dut_engine)
 
 
 def update_ldap_encryption_mode(engines, item, server_info: RemoteAaaServerInfo, server_resource: HostnameId,
-                                encryption_mode: str, disable_cert_verify=False):
+                                encryption_mode: str, disable_cert_verify: bool = True):
+    engine = getattr(item, 'active_remote_admin_engine', False)
+    if engine is False:
+        engine = None
     configure_ldap_encryption(engines, server_resource.parent_obj.parent_obj, encryption_mode, apply=True,
-                              dut_engine=getattr(item, 'active_remote_admin_engine'), server_info=server_info,
-                              disable_cert_verify=disable_cert_verify)
+                              dut_engine=engine, server_info=server_info, disable_cert_verify=disable_cert_verify)
 
 
 def add_ldap_server_certificate_to_switch(dut_engine):

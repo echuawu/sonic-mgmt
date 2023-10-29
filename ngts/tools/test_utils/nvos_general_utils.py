@@ -52,6 +52,7 @@ def loganalyzer_ignore(cond: bool = True):
         Context manager that wraps code chunks with loganalyzer disabling at the beginning, and enabling in the end
     @param cond: boolean condition; log analyzer will be disabled for the code section only if cond is True (optional)
     """
+    cond = False
     try:
         if cond:
             TestToolkit.start_code_section_loganalyzer_ignore()
