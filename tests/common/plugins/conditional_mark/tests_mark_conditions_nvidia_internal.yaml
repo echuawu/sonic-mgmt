@@ -37,6 +37,7 @@ tests/nightly/runtime/test_runtime.py:
     reason: "Performance testcase ignored on simx platform"
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3649746 and 'master_bookworm' in branch"
 
 tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
   skip:
@@ -49,6 +50,18 @@ tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[show_system_hea
     reason: "Testcase skipped due to RM issue: https://github.com/sonic-net/sonic-buildimage/issues/14030"
     conditions:
       - https://github.com/sonic-net/sonic-buildimage/issues/14030
+
+tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_temperature_sweep:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649765"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649765 and 'master_bookworm' in branch"
+
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649788"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649788 and 'master_bookworm' in branch"
 
 tests/nightly/auto_negotition:
   skip:
@@ -869,12 +882,6 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
     conditions:
       - https://redmine.mellanox.com/issues/3225815
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519061"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3519061"
 
 radv/test_radv_restart.py::test_radv_swss:
   skip:
@@ -2113,6 +2120,55 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3634592"
     conditions:
       - "https://redmine.mellanox.com/issues/3634592 and 'nvda_bf' in platform"
+
+ntp/test_ntp.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647537 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3647537"
+      - "'master_bookworm' in branch"
+
+disk/test_disk_exhaustion.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649677"
+      - "'master_bookworm' in branch"
+
+ssh/test_ssh_default_password.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649677"
+      - "'master_bookworm' in branch"
+
+ssh/test_ssh_limit.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649677"
+      - "'master_bookworm' in branch"
+
+tacacs/test_authorization.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649677"
+      - "'master_bookworm' in branch"
+
+platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649678 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649678"
+      - "'master_bookworm' in branch"
+
+passw_hardening/test_passw_hardening.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649737 and master_bookworm branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3649737"
+      - "'master_bookworm' in branch"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
