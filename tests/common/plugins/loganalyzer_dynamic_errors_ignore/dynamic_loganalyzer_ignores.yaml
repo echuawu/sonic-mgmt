@@ -3251,6 +3251,17 @@
       Branch:
         - master
 
+- Errors_list:
+    - '.* ERR dualtor_neighbor_check.py: Found neighbors that are inconsistent with mux states: \[.*\].*'
+    - '.* ERR dualtor_neighbor_check.py: NEIGHBOR     MAC                PORT    MUX_STATE    IN_MUX_TOGGLE    NEIGHBOR_IN_ASIC    TUNNERL_IN_ASIC    HWSTATUS.*'
+    - '.* ERR dualtor_neighbor_check.py: \-.*'
+    - '.* ERR dualtor_neighbor_check.py:.*inconsistent.*'
+  Conditions:
+    - Affected_test_cases:
+        - qos/test_qos_sai.py
+      Redmine:
+        - 3646951
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
