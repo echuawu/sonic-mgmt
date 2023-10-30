@@ -25,4 +25,7 @@
 	<test>
 		<cases> sonic-mgmt/sonic-tool/mars/cases/canonical/nightly.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/sonic-tool/mars/cases/canonical/push_gate_reboot.cases </cases>
+	</test>
 </DBDEF>
