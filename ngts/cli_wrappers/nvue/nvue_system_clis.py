@@ -97,7 +97,8 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reboot {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready).verify_result()
+        return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready,
+                                   confirm=True).verify_result()
 
     @staticmethod
     def action_profile_change(engine, resource_path, op_param=""):
