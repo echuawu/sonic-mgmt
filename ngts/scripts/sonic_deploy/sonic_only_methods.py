@@ -13,6 +13,7 @@ from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigr
     add_host_for_y_cable_simulator
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_background_process_on_host
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -434,6 +435,14 @@ class SonicInstallationSteps:
                                  deploy_type=deploy_type,
                                  reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path,
                                  disable_ztp=disable_ztp, configure_dns=True)
+
+            if 'r-leopard-72' in setup_name and is_redmine_issue_active(3646924):
+                with allure.step('Change CABLE_LENGTH/AZURE for r-leopard-72 as it has ports 2-3 with optic cables'):
+                    dut_engine = topology_obj.players['dut']['engine']
+                    sonic_buffers_config_file_path = '/usr/share/sonic/templates/buffers_config.j2'
+                    dut_engine.run_cmd(f"sudo sed -i \"s/'spinerouter_leafrouter' : '300m'/'spinerouter_leafrouter' : "
+                                       f"'40m'/g\" {sonic_buffers_config_file_path}")
+
         except Exception as err:
             raise AssertionError(err)
         finally:
