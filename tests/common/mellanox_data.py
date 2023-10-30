@@ -1197,3 +1197,9 @@ def get_platform_json_file_name(duthost, dut_platform):
             return 'platform_comex_respin.json'
 
     return 'platform.json'
+
+
+@read_only_cache()
+def get_hw_management_version(duthost):
+    full_version = duthost.shell('dpkg-query --showformat=\'${Version}\' --show hw-management')['stdout']
+    return full_version[len('1.mlnx.'):]
