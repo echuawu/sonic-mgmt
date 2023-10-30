@@ -5,6 +5,7 @@ import json
 import base64
 import argparse
 import logging
+import time
 
 path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
@@ -13,7 +14,7 @@ sys.path.append(sonic_mgmt_path)
 from ngts.constants.constants import InfraConst  # noqa: E402
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
-HTTP_TIMEOUT = 60
+HTTP_TIMEOUT = 120
 
 
 def get_logger():
@@ -100,7 +101,10 @@ def upload_data_to_server(allure_report_items_list, allure_server, project_id):
     ssl_verification = True
 
     logger.info("------------------SEND-RESULTS------------------")
+    start_time = time.time()
     send_result_url = '{}/send-results?project_id={}'.format(allure_server, project_id)
+    diff_time = time.time() - start_time
+    logger.info(f"uploading data takes {diff_time}")
     response = requests.post(send_result_url, headers=headers, data=json_request_body, verify=ssl_verification,
                              timeout=HTTP_TIMEOUT)
     logger.info("STATUS CODE:")
@@ -108,8 +112,11 @@ def upload_data_to_server(allure_report_items_list, allure_server, project_id):
 
 
 def generate_report(allure_server_url, allure_project):
+    start_time = time.time()
     response = requests.get('{}/generate-report?project_id={}'.format(allure_server_url, allure_project),
                             timeout=HTTP_TIMEOUT).json()
+    diff_time = time.time() - start_time
+    logger.info(f"generating report takes {diff_time}")
     report_url = response['data']['report_url']
     logger.info('Allure report URL: {}'.format(report_url))
 
