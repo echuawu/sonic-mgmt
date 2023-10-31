@@ -209,6 +209,7 @@ tests_nvos/system/test_system_image.py:
 tests_nvos/system/test_system_image.py::test_image_uninstall_openapi:
   skip:
     reason: "Testcase skipped due to image install is not supported yet for Marlin and issue 3610263"
+    conditions_logical_operator: or
     conditions:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3610263
@@ -216,6 +217,7 @@ tests_nvos/system/test_system_image.py::test_image_uninstall_openapi:
 tests_nvos/system/test_system_image.py::test_image_uninstall_force_openapi:
   skip:
     reason: "Testcase skipped due to image install is not supported yet for Marlin and issue 3610263"
+    conditions_logical_operator: or
     conditions:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3610263
