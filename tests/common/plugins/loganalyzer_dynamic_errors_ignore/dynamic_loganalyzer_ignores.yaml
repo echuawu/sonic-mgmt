@@ -3191,10 +3191,11 @@
 
 - Errors_list:
     - '.*ERR pmon#psud: Failed to read from file /var/run/hw-management/eeprom/psu.*'
+    - '.*ERR psuutil: Failed to read from file /var/run/hw-management/eeprom/psu\d_vpd - ValueError.*'
     - '.*ERR pmon#psud: Fail to read model number: No key PN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu.*'
     - '.*ERR pmon#psud: Fail to read serial number: No key SN_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu.*'
-    - '.*ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu1.*'
-    - '.*WARNING pmon#psud: Fail to read vpd info: No key MFR_NAME in VPD /var/run/hw-management/eeprom/psu1.*'
+    - '.*ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD in VPD /var/run/hw-management/eeprom/psu.*'
+    - '.*WARNING pmon#psud: Fail to read vpd info: No key MFR_NAME in VPD /var/run/hw-management/eeprom/psu.*'
     - '.*WARNING pmon#psud: Fail to read vpd info: No key CAPACITY in VPD /var/run/hw-management/eeprom/psu.*'
   Conditions:
     - Redmine:
@@ -3229,6 +3230,24 @@
   Conditions:
     - Redmine:
       - 3649836
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR systemctl\[\d+\]: Failed to start dhcp_relay.service: Unit dhcp_relay.service is masked.*'
+  Conditions:
+    - Redmine:
+      - 3647539
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR lldp#lldp-syncd message repeated \d+ times: .*\[lldp_syncd\] ERROR: Failed to parse lldp age.*'
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse lldp age.*'
+    - '.* ERR ntpd\[\d+\]: CLOCK: Panic: offset too big: .*'
+  Conditions:
+    - Redmine:
+      - 3650766
       Branch:
         - master
 
