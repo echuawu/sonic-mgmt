@@ -280,7 +280,7 @@ class CounterpollHelper:
         proc_section = False
         mem_re = re.compile(
             (r"^KiB Mem\s+:\s+(?P<total>\d+)\s+total,\s+(?P<free>\d+)"
-             r"\s+free,\s+(?P<used>\d+)\s+used,\s+\d+\s+buff/cache$")
+             r"\s+free,\s+(?P<used>\d+)\s+used,\s+\d+\s+buff/cache\s*$")
         )
         mem_attrs = ('total', 'free', 'used')
         proc_attrs = ('pid', 'status', 'cpu_percent', 'memory_percent', 'name')
