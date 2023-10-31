@@ -2060,9 +2060,9 @@ qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and msn4700 in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
+      - "https://redmine.mellanox.com/issues/3627680 and 'msn4700' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
@@ -2169,6 +2169,13 @@ passw_hardening/test_passw_hardening.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3649737"
       - "'master_bookworm' in branch"
+
+qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3651153 on some setups"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3651153"
+      - "testbed in ['r-leopard-01', 'r-leopard-58', 'r-moose-01']"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
