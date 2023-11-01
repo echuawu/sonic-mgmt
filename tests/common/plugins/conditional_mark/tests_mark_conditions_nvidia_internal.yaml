@@ -710,6 +710,7 @@ tests/nightly/cpld/test_cpld.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3613529 and Mellanox-SN4700-O28 hwsku"
     conditions:
       - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
+
 ########################## NGTS IGNORE END ##########################
 
 
@@ -2055,11 +2056,41 @@ qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
     conditions:
       - "https://redmine.mellanox.com/issues/3628072"
 
+show_techsupport/test_techsupport.py::test_techsupport_commands:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3653407 and 'master_bookworm' in branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3653407"
+      - "'master_bookworm' in branch"
+
+generic_config_updater/test_ntp.py::test_ntp_server_tc1_suite:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647537 and 'master_bookworm' in branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3647537"
+      - "'master_bookworm' in branch"
+
+pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[no_storm:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3652942 and 'master_bookworm' in branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3652942"
+      - "'master_bookworm' in branch"
+
+pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[async_storm:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3652942 and 'master_bookworm' in branch"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3652942"
+      - "'master_bookworm' in branch"
+
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and msn4700 in platform"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3627680 and 'msn4700' in platform"
+      - "https://redmine.mellanox.com/issues/3632105 and '2700' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
