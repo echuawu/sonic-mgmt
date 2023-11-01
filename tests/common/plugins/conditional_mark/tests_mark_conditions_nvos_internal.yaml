@@ -301,10 +301,10 @@ tests_nvos/platform/test_platform_environment.py::test_show_platform_environment
 
 tests_nvos/ib/test_set_unset_sm_state.py::test_set_unset_sm_state_many_times:
   skip:
-    reason: "Testcase skipped on marlin systems due to RM issue: https://redmine.mellanox.com/issues/3653837"
+    reason: "Testcase skipped on marlin systems due to RM issue: https://redmine.mellanox.com/issues/3649754"
     conditions_logical_operator: and
     conditions:
       - "'marlin' in testbed"
-      - https://redmine.mellanox.com/issues/3653837
+      - https://redmine.mellanox.com/issues/3649754
 
 ########################## NVOS IGNORE END ##########################
