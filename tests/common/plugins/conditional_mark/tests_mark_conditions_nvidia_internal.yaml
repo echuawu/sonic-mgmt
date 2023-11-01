@@ -60,8 +60,10 @@ tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::tes
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649788"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3649788 and 'master_bookworm' in branch"
+      - "https://redmine.mellanox.com/issues/3647621 and 'sn5600_simx' in platform"
 
 tests/nightly/auto_negotition:
   skip:
@@ -708,12 +710,6 @@ tests/nightly/cpld/test_cpld.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3613529 and Mellanox-SN4700-O28 hwsku"
     conditions:
       - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647621 and SPC4 simx"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3647621 and 'sn5600_simx' in platform"
 ########################## NGTS IGNORE END ##########################
 
 
