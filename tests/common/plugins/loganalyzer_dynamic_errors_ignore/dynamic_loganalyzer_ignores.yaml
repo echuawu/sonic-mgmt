@@ -3383,6 +3383,7 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_up
     - Platform:
       - mqm9700
 
