@@ -401,12 +401,13 @@ tests/nightly/evpn_vxlan:
       - "release in ['201911, 202012, 202205']"
       - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
 
-tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py:
+tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_evpn_vxlan_basic:
   skip:
     reason: "Test will be supported since release 202211"
     conditions_logical_operator: or
     conditions:
       - "release in ['201911', '202012', '202205']"
+      - "https://redmine.mellanox.com/issues/3628849"
       - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py:
