@@ -3262,6 +3262,45 @@
       Redmine:
         - 3646951
 
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/fan\d_dir - FileNotFoundError.*'
+    - '.* ERR pmon#thermalctld: Failed to read fan direction from \/var\/run\/hw-management\/thermal\/fan\d_dir.*'
+  Conditions:
+    - Redmine:
+      - 3650758
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[BULK_COUNTER.ERR\] Port-Counter-Transaction-Start: failed to access MOCS register .*'
+    - '.* ERR syncd#SDK: \[BULK_COUNTER.ERR\] failed to start port counters bulk-read transaction .*'
+    - '.* ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c.*- mlnx_set_async_bulk_read: Failed to start bulk read operation: No More Resources.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*- mlnx_get_port_stats_ext: Failed to prepare bulk counter for port stats.*'
+    - '.* ERR syncd#SDK: :- collectPortCounters: Failed to get stats of port .*'
+  Conditions:
+    - Redmine:
+      - 3653755
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR featured: Invalid obsolete field .*has_timer.* in FEATURE table. Please update configuration schema version.*'
+    - '.* ERR systemd.*: Failed to start featured.service - Feature configuration daemon.*'
+  Conditions:
+    - Redmine:
+      - 3653702
+      Branch:
+        - master
+
+- Errors_list:
+    - '.* ERR root: \/etc\/dhcp\/dhclient-enter-hooks.d\/resolvconf returned non-zero exit status.*'
+    - '.* ERR systemd.*: Failed to start resolv-config.service - Update DNS configuration.*'
+  Conditions:
+    - Redmine:
+      - 3653776
+      Branch:
+        - master
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
