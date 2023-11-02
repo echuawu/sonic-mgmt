@@ -2396,3 +2396,23 @@ dns/static_dns/test_static_dns.py::TestStaticMgmtPortIP::test_dynamic_dns_not_wo
       - "https://redmine.mellanox.com/issues/3611766"
       -
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
+
+########################## NVIDIA INTERNAL RPC IGNORE START ############################
+qos:
+  skip:
+    reason: "qos only must be executed only on RPC image"
+    conditions:
+      - "'RPC' not in build_version"
+
+pfc_asym:
+  skip:
+    reason: "pfc_asym must be executed only on RPC image"
+    conditions:
+      - "'RPC' not in build_version"
+
+test_pretest.py::test_update_saithrift_ptf:
+  skip:
+    reason: "update_saithrift_ptf must be executed only on RPC image"
+    conditions:
+      - "'RPC' not in build_version"
+########################## NVIDIA INTERNAL RPC IGNORE END ############################
