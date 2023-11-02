@@ -50,7 +50,7 @@ class NvueSystemCli(NvueBaseCli):
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd).verify_result()
+        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def action_general(engine, action_str, resource_path, op_param=""):

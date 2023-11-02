@@ -3673,3 +3673,10 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - '.*Loading Cached Option:enable_crashd.*'
+  Conditions:
+    - Redmine:
+        - 3544158
