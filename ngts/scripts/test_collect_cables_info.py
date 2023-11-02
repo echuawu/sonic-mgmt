@@ -36,7 +36,7 @@ def setups_list():
                         'sonic_moose_r-moose-02', 'sonic_alligator_r-alligator-04', 'sonic_leopard_r-leopard-56',
                         'sonic_tigon_r-tigon-15', 'sonic_liger_r-liger-02', 'sonic_tigris_r-tigris-22',
                         'sonic_ocelot_r-ocelot-02', 'sonic_spider_r-spider-05', 'sonic_bulldog_r-bulldog-02',
-                        'sonic_boxer_r-boxer-sw01', 'sonic_panther_r-panther-36',
+                        'sonic_boxer_r-boxer-sw01', 'sonic_panther_r-panther-36', 'sonic_panther_r-panther-03',
                         'sonic_leopard_r-leopard-32', 'sonic_lionfish_r-lionfish-16', 'sonic_ocelot_r-ocelot-07',
                         'sonic_bulldog_r-bulldog-03', 'sonic_panther_r-panther-23', 'sonic_lionfish_r-lionfish-14',
                         'sonic_bulldog_r-bulldog-04', 'sonic_lionfish_r-lionfish-07', 'sonic_anaconda_r-anaconda-51']
