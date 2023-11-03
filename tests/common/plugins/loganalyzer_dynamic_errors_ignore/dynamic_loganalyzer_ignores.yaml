@@ -3235,6 +3235,11 @@
 
 - Errors_list:
     - '.* ERR systemctl\[\d+\]: Failed to start dhcp_relay.service: Unit dhcp_relay.service is masked.*'
+    - '.* ERR systemctl\[\d+\]: Job for syncd.service canceled.*'
+    - '.* ERR systemctl\[\d+\]: Failed to start .*\.service: Transaction for .*\.service\/start is destructive.*'
+    - '.* ERR systemctl\[\d+\]: See system logs and .systemctl status .*\.service. for details.*'
+    - '.* ERR featured: \[.sudo., .systemctl., .start., .*\.service.\] - failed: return code - 1, output:.*'
+    - '.* ERR featured: Feature .*\.service. failed to be enabled and started .*'
   Conditions:
     - Redmine:
       - 3647539
