@@ -3733,3 +3733,10 @@
   Conditions:
     - Redmine:
         - 3440645
+
+- Errors_list:
+    - ".*ERR pmon#xcvrd: Invalid value for port \\d+ 'specification_compliance': passive_copper_media_interface.*"
+    - '.*ERR pmon#xcvrd: Error in obtaining media setting for Ethernet\d+.*'
+  Conditions:
+    - Redmine:
+        - 3656906
