@@ -987,6 +987,12 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiSharedReservationSize:
     conditions:
       - "asic_type not in ['cisco-8000']"
 
+qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
+  skip:
+    reason: "For DSCP to PG mapping on IPinIP traffic , mellanox device has different behavior to community. For mellanox device, testQosSaiDscpToPgMapping can cover the scenarios"
+    conditions:
+      - "asic_type in ['mellanox']"
+
 #######################################
 #####         restapi             #####
 #######################################
