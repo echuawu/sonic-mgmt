@@ -696,3 +696,20 @@ class SonicInterfaceCli(InterfaceCliCommon):
         :return: command output
         """
         return self.engine.run_cmd(f'redis-cli -n 4 hset "PORT_QOS_MAP|{interface}" scheduler {port_scheduler}')
+
+    def del_port_scheduler(self, port_scheduler):
+        """
+        This method is to delete the scheduler.
+        :param port_scheduler: the scheduler name
+        :return: command output
+        """
+        return self.engine.run_cmd(f'redis-cli -n 4 del "SCHEDULER|{port_scheduler}"')
+
+    def del_port_qos_map(self, interface, port_scheduler):
+        """
+        This method is to delete the qos map for the interface
+        :param interface: interface name
+        :param interface: the scheduler name
+        :return: command output
+        """
+        return self.engine.run_cmd(f'redis-cli -n 4 hdel "PORT_QOS_MAP|{interface}" scheduler {port_scheduler}')

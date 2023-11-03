@@ -103,7 +103,10 @@ def pre_configuration_for_doroce(cli_objects, interfaces):
         cli_objects.dut.interface.config_port_qos_map(interfaces.dut_ha_2, port_scheduler)
 
     yield
-    cli_objects.dut.interface.config_port_scheduler(port_scheduler, SonicConst.MAX_SHAPER_RATE_BPS)
+
+    with allure.step("delete configured qos map and port scheduler"):
+        cli_objects.dut.interface.del_port_qos_map(interfaces.dut_ha_2, port_scheduler)
+        cli_objects.dut.interface.del_port_scheduler(port_scheduler)
 
 
 @pytest.fixture(scope='module', autouse=True)
