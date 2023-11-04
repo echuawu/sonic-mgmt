@@ -1,12 +1,15 @@
 import re
+import time
 import pytest
 import logging
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tests_nvos.general.security.test_secure_boot.constants import SecureBootConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger(__name__)
 

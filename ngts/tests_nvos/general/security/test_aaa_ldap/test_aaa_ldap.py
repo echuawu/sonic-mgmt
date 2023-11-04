@@ -115,8 +115,8 @@ def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
     to switch
     """
     ldap_server = LdapServers.PHYSICAL_SERVER.copy()
-    ldap_server.port = RandomizationTool.select_random_value(LdapConsts.POSSIBLE_PORTS,
-                                                             [ldap_server.port]).get_returned_value()
+    ldap_server.port = 6692
+    # RandomizationTool.select_random_value(LdapConsts.POSSIBLE_PORTS, [ldap_server.port]).get_returned_value()
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
                                            remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
                                            bad_param_name=LdapConsts.PORT, bad_configured_server=ldap_server)
