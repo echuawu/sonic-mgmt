@@ -307,4 +307,15 @@ tests_nvos/ib/test_set_unset_sm_state.py::test_set_unset_sm_state_many_times:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3649754
 
+tests_nvos/interfaces/test_ib0_interface_dhcp::test_interface_ib0_dhcp_set_hostname:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3659084"
+    conditions:
+      - https://redmine.mellanox.com/issues/3659084
+
+tests_nvos/interfaces/test_ib0_interface_dhcp::test_interface_ib0_dhcp_set_hostname_openapi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3659084"
+    conditions:
+      - https://redmine.mellanox.com/issues/3659084
 ########################## NVOS IGNORE END ##########################
