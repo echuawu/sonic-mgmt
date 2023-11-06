@@ -87,6 +87,7 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
         duthost.command("rm -rf {}".format(extracted_dump_folder_path))
 
 
+@pytest.mark.disable_loganalyzer
 def test_techsupport_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_hostname, recover_dut):
     """
     This test is to check triggering fw stuck will generate dump file
