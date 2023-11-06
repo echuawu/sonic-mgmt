@@ -4,8 +4,8 @@
   "timeout": "10",
   "control_file": "/auto/sw_system_project/devops/sw-r2d2-bot/ngci_control_files/sonic_mgmt_control_file.yaml",
   "properties": [
-    "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swfw_default_params.properties",
-    "gerrit_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swgerrit.properties",
+    "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties_v2/swfw_default_params.properties",
+    "gerrit_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties_v2/gerrit_git-nbu-sw.properties",
     "build_propertiesFile=build/common/build.properties",
     "PIPELINE_FORCE_CLEAN=true",
     "PRIORITY_NUMBER=4",

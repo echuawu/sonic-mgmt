@@ -12,7 +12,7 @@ def run_step(name) {
 
         //copy commit msg
         if (!fileExists(".git/hooks/commit-msg")) {
-            NGCITools().ciTools.run_sh('''scp -p -P 29418 l-sw-gerrit-01.mtl.labs.mlnx:hooks/commit-msg ".git/hooks/"''')
+            NGCITools().ciTools.run_sh('''scp -p -P 12024 git-nbu-sw.nvidia.com:hooks/commit-msg ".git/hooks/"''')
         }
         NGCITools().ciTools.run_sh("git remote add upstream ${env.GITHUB_REPOSITORY} && git fetch upstream")
         try {
