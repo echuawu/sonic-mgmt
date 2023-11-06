@@ -4,8 +4,8 @@
   "timeout": "1",
   "durability_mode": "MAX_SURVIVABILITY",
   "properties": [
-    "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swfw_default_params.properties",
-    "gerrit_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swgerrit.properties",
+    "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties_v2/swfw_default_params.properties",
+    "gerrit_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties_v2/gerrit_git-nbu-sw.properties",
     "build_propertiesFile=build/common/build.properties",
     "PIPELINE_FORCE_CLEAN=true",
     "JOB_PARAMS_TO_MAIL=true",
