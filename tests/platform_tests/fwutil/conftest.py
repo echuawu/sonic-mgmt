@@ -63,6 +63,18 @@ def extract_fw_data(fw_pkg_path):
 def random_component(duthost, fw_pkg):
     chass = list(show_firmware(duthost)["chassis"].keys())[0]
     components = list(fw_pkg["chassis"].get(chass, {}).get("component", []).keys())
+    cpld_components = [com for com in components if "CPLD" in com]
+    # if in the host section, the CPLD defined is different, then need to use the one defined for this host.
+    # For example: if the CPLD2 is defined for the SN3700c, and CPLD1 defined for the r-anaconda-15, then when run
+    # test for the r-anaconda-15, it will take the CPLD1 instead of CPLD2 as on of the component
+    if "host" in fw_pkg and duthost.hostname in fw_pkg["host"]:
+        host_components = list(fw_pkg["host"].get(duthost.hostname, {}).get("component", []).keys())
+        cpld_host_components = [com for com in host_components if "CPLD" in com]
+        if cpld_host_components:
+            components = list(set(components)^set(cpld_components)|set(host_components))
+        else:
+            components = list(set(components) | set(host_components))
+
     if 'ONIE' in components:
         components.remove('ONIE')
     if len(components) == 0:
