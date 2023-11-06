@@ -129,8 +129,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm):
             NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step("Unset parent port"):
-        child_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).\
-            verify_result(False)
+        child_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.ib_interfaces
@@ -506,7 +505,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm):
         redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
                                                                 db_name=DatabaseConst.CONFIG_DB_NAME,
                                                                 db_config="IB_PORT\\|{0}".format(alias),
-                                                                param="mtu", value=str(random_mtu))
+                                                                param="mtu {}".format(str(random_mtu)))
 
         assert redis_cli_output != 0, "Redis command failed"
         Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
