@@ -1,6 +1,7 @@
 [gerrit]
-host=l-sw-gerrit-01.mtl.labs.mlnx
+host=git-nbu-sw.nvidia.com
 project=switchx/sonic/sonic-mgmt
+port=12024
 track=true
 usepushurl=true
 defaultbranch=develop
