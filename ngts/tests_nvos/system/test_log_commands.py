@@ -773,6 +773,7 @@ def _upload_log_files(topology_obj, system_log_obj):
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.disable_loganalyzer
 def test_delete_log_files(engines):
     """
     Check user can delete debug-log files

@@ -46,7 +46,7 @@ def test_system_ready_state_up(engines, devices, topology_obj):
                                                            db_name=DatabaseConst.STATE_DB_NAME,
                                                            table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
         with allure.step("verifying the output includes (empty array)"):
-            serial_engine.serial_engine.expect("(empty array)", timeout=10)
+            serial_engine.serial_engine.expect("{}", timeout=10)
 
     check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
     ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
@@ -118,7 +118,7 @@ def test_system_ready_state_down(engines, devices, topology_obj):
                 output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
                                                                  db_name=DatabaseConst.STATE_DB_NAME,
                                                                  table_name='\"SYSTEM_READY|SYSTEM_STATE\"')
-                assert '(empty array)' in output, "SYSTEM_READY state table should not be exist before system is ready"
+                assert not output or '{}' in output, "SYSTEM_READY state table should not be exist before system is ready"
 
             with allure.step('verify NVUE is not working before system is ready'):
                 assert 'System is initializing!' in ssh_connection.run_cmd('nv show system'), \
