@@ -1,5 +1,7 @@
+import fnmatch
 import logging
 from contextlib import contextmanager
+import os
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -60,3 +62,16 @@ def loganalyzer_ignore(cond: bool = True):
     finally:
         if cond:
             TestToolkit.end_code_section_loganalyzer_ignore()
+
+
+def get_real_file_path(file_path: str) -> str:
+    """
+    @summary: Get the real file path from a given path
+    """
+    real_path = os.path.realpath(file_path)
+    containing_dir = os.path.dirname(real_path)
+    filename = os.path.basename(real_path)
+    dir_content = os.listdir(containing_dir)
+    matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
+    real_file_path = os.path.join(containing_dir, matching_filename)
+    return real_file_path
