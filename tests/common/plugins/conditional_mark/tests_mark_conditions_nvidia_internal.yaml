@@ -690,7 +690,7 @@ tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::te
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3536951 and '5600' in platform"
-      - "https://redmine.mellanox.com/issues/3543861 and 'msn4410' in platform"
+      - "https://redmine.mellanox.com/issues/3543861 and 'msn4410' in platform and release in ['201911, 202012, 202205, 202211']"
 
 
 tests/nightly/lag/test_lag.py:
