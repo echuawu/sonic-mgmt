@@ -13,8 +13,8 @@
             </CONNECTIONS>
             <USERS>
                 <USER>
-                    <USERNAME>{{hypervisor.username}}</USERNAME>
-                    <PASSWORD>{{hypervisor.password}}</PASSWORD>
+                    <USERNAME>$TEST_SERVER_USER</USERNAME>
+                    <PASSWORD>$TEST_SERVER_PASSWORD</PASSWORD>
                 </USER>
             </USERS>
             <MAC_ADDRESS>{{hypervisor.mac}}</MAC_ADDRESS>
@@ -33,8 +33,8 @@
             </CONNECTIONS>
             <USERS>
                 <USER>
-                    <USERNAME>{{sonic_mgmt.username}}</USERNAME>
-                    <PASSWORD>{{sonic_mgmt.password}}</PASSWORD>
+                    <USERNAME>$SONIC_MGMT_USER</USERNAME>
+                    <PASSWORD>$SONIC_MGMT_PASSWORD</PASSWORD>
                 </USER>
             </USERS>
             <MAC_ADDRESS>{{sonic_mgmt.mac}}</MAC_ADDRESS>
@@ -54,8 +54,8 @@
             </CONNECTIONS>
             <USERS>
                 <USER>
-                    <USERNAME>{{switch.username}}</USERNAME>
-                    <PASSWORD>{{switch.password}}</PASSWORD>
+                    <USERNAME>$SONIC_SWITCH_USER</USERNAME>
+                    <PASSWORD>$SONIC_SWITCH_PASSWORD</PASSWORD>
                 </USER>
             </USERS>
         </HOST>
@@ -75,8 +75,8 @@
             </CONNECTIONS>
             <USERS>
                 <USER>
-                    <USERNAME>{{host.username}}</USERNAME>
-                    <PASSWORD>{{host.password}}</PASSWORD>
+                    <USERNAME>$VM_USER</USERNAME>
+                    <PASSWORD>$VM_PASSWORD</PASSWORD>
                 </USER>
             </USERS>
         </HOST>
