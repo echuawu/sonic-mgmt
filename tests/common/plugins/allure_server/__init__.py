@@ -311,7 +311,7 @@ class AllureServer:
         """
         logger.info('Generating report on allure server')
         url = self.base_url + '/generate-report?project_id=' + self.project_id
-        response = requests.get(url, headers=self.http_headers, timeout=60)
+        response = requests.get(url, headers=self.http_headers, timeout=120)
         logger.info('Finish generating report on allure server')
         if response.raise_for_status():
             logger.error('Failed to generate report on allure server, error: {}'.format(response.content))
