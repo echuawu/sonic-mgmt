@@ -802,6 +802,15 @@
         - simx
 
 - Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .*: Failed to wait for an event: Connection timed out.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] .* Failed to prepare bulk counter for port stats.*'
+  Conditions:
+    - Redmine:
+        - 3663204
+      Platform:
+        - simx
+
+- Errors_list:
     - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/led_fan\d_capability - FileNotFoundError\(2, ''No such file or directory''\)'
   Conditions:
     - Redmine:
