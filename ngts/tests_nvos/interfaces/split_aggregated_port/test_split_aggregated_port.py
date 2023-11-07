@@ -1,15 +1,12 @@
 import pytest
 import logging
-from retry import retry
 
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_constants.constants_nvos import DatabaseConst
-from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.infra.MultiPlanarTool import MultiPlanarTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
@@ -46,9 +43,11 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
     system = System(None)
 
     with allure_step("Select random aggregated port and validate planarized ports"):
-        selected_fae_aggregated_port = select_random_aggregated_port(devices)
-        fae_interface_output = OutputParsingTool.parse_show_interface_output_to_dictionary(selected_fae_aggregated_port.port.interface.show()).get_returned_value()
-        ValidationTool.compare_values(fae_interface_output['planarized-ports'], devices.dut.AGGREGATED_PORT_PLANARIZED_PORTS).verify_result()
+        selected_fae_aggregated_port = MultiPlanarTool.select_random_aggregated_port(devices)
+        fae_interface_output = OutputParsingTool.parse_show_interface_output_to_dictionary(
+            selected_fae_aggregated_port.port.interface.show()).get_returned_value()
+        ValidationTool.compare_values(fae_interface_output['planarized-ports'],
+                                      devices.dut.AGGREGATED_PORT_PLANARIZED_PORTS).verify_result()
 
     with allure_step('Change system profile to breakout'):
         system.profile.action_profile_change(params='adaptive-routing enabled breakout-mode enabled')
@@ -65,7 +64,7 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
 
     with allure_step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
-        split_ports = _get_split_ports()
+        split_ports = MultiPlanarTool._get_split_ports()
 
     with allure_step("Split splitter port"):
         parent_port = split_ports[0]
@@ -73,8 +72,8 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
                                           op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
                                           apply=True, ask_for_confirmation=True).verify_result()
 
-    with allure_step("Get splitted ports"):
-        child_ports = _get_splitted_ports(parent_port)
+    with allure_step("Get split ports"):
+        child_ports = MultiPlanarTool._get_split_child_ports(parent_port)
 
     with allure_step("Validate next two ports not exist"):
         Fae(port_name='sw11p1').port.interface.show(should_succeed=False)
@@ -82,9 +81,10 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
         Fae(port_name='sw11p1s1').port.interface.show(should_succeed=False)
         Fae(port_name='sw11p2s1').port.interface.show(should_succeed=False)
 
-    with allure_step("Validate splitted port going to up"):
+    with allure_step("Validate split port going to up"):
         fae_child_port = Fae(port_name='sw10p1s1')
-        child_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(fae_child_port.port.interface.show()).get_returned_value()
+        child_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            fae_child_port.port.interface.show()).get_returned_value()
         current_state = child_port_output[IbInterfaceConsts.LINK]
         assert current_state == NvosConsts.LINK_STATE_UP, "Current state {} is not {} as expected".\
             format(current_state, NvosConsts.LINK_STATE_UP)
@@ -106,13 +106,13 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
                                                                 db_name=DatabaseConst.CONFIG_DB_NAME,
                                                                 db_config="IB_PORT\\|{0}".format('Infiniband72'),
                                                                 param="planarized_ports")
-        assert redis_cli_output != 2, "On splitted port planarized ports not 2"
+        assert redis_cli_output != 2, "On split port planarized ports not 2"
 
         redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
                                                                 db_name=DatabaseConst.CONFIG_DB_NAME,
                                                                 db_config="IB_PORT\\|{0}".format('Infiniband80'),
                                                                 param="planarized_ports")
-        assert redis_cli_output != 2, "On splitted port planarized ports not 2"
+        assert redis_cli_output != 2, "On split port planarized ports not 2"
 
         redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
                                                                 db_name=DatabaseConst.CONFIG_DB_NAME,
@@ -141,35 +141,3 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
     with allure_step("set config to default"):
         child_ports[0].ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).\
             verify_result()
-
-# ---------------------------------------------
-
-
-def select_random_aggregated_port(devices):
-    with allure_step("Select a random aggregated port"):
-        aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_SPLIT_PORT_LIST). \
-            get_returned_value()
-        selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
-        return selected_fae_aggregated_port
-
-
-@retry(Exception, tries=4, delay=2)
-def _get_split_ports():
-    all_ports = Port.get_list_of_ports()
-    split_ports = []
-    split_port_names = ["sw10p1"]
-    for port in all_ports:
-        if port.name in split_port_names:
-            split_ports.append(port)
-    if not split_ports:
-        raise Exception
-    return split_ports
-
-
-def _get_splitted_ports(parent_port):
-    list_of_all_ports = Port.get_list_of_ports()
-    child_ports = []
-    for port in list_of_all_ports:
-        if parent_port.name in port.name and port.name[-2] == 's':
-            child_ports.append(port)
-    return child_ports

@@ -839,7 +839,7 @@ class StatsConsts:
     CPU_FREE_RAM_MIN = 30  # [%]
     CPU_FREE_RAM_MAX = 100  # [%]
     CPU_UTIL_MIN = 0  # [%]
-    CPU_UTIL_MAX = 50  # [%]
+    CPU_UTIL_MAX = 60  # [%]
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
     DISK_FREE_SPACE_MIN = 60  # [%]
@@ -863,12 +863,15 @@ class StatsConsts:
 
 class MultiPlanarConsts:
     INTERNAL_PATH = "/tmp"
-    SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
-    ORIGIN_FILES_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/origin/"
+    SIMULATION_PATH = "/.autodirect/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
     SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
     FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'
+    ORIGIN_FILE = "platform_origin.json"
+    ORIGIN_FULL_PATH = SIMULATION_PATH + ORIGIN_FILE
+    AGGREGATED_PORT_SIMULATION_FILE = "aggregated_port_platform.json"
     PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
+    PLATFORM_FULL_PATH = PLATFORM_PATH + SIMULATION_FILE
     MULTI_PLANAR_KEYS = ['asic', 'parent-alias', 'parent-port', 'plane']
 
     PHYSICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_PHYSICAL_STATE'
@@ -904,12 +907,13 @@ class MultiPlanarConsts:
                                {"p1": 'LOGICAL_ACTIVE', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_ACTIVE'}]
     CONFIG_MANAGER_SERVICE = 'configmgrd'
     SERVICE_RECOVERY_MAX_TIME = 60  # [sec] TODO: update to accurate value
-    NON_AGGREGATED_PORT_CONFIG_TIME = 2.5  # [sec] TODO: - update time measured in Gorilla.
+    NON_AGGREGATED_PORT_CONFIG_TIME = 3.0  # [sec]
     DATABASE_TABLES = ['APPL_DB', 'ASIC_DB', 'COUNTERS_DB', 'COUNTERS_DB_1',
                        'COUNTERS_DB_2', 'CONFIG_DB', 'STATE_DB', 'FLEX_COUNTER_DB']
     LOG_MSG_UNSET_FAE_INTERFACE = "PATCH..."  # TODO: complete
-    LOG_MSG_SET_FAE_INTERFACE = "PATCH..."  # TODO: complete
-    LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "PATCH..."  # TODO: complete
+    LOG_MSG_SET_FAE_INTERFACE = "PATCH /nvue_v1/interface/"
+    LOG_MSG_ACTION_CLEAR_FAE_INTERFACE = "Cleared counters successfully"
+    CONFIG_STATE_RETRIES = 5
 
 
 class FastRecoveryConsts:

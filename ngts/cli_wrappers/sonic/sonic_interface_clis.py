@@ -311,7 +311,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         for port in ports_list:
             assert ports_status.get(port), \
                 f"show interfaces status doesn't return status of port {port}, check the dockers status"
-            assert ports_status[port]['Oper'] == expected_status,\
+            assert ports_status[port]['Oper'] == expected_status, \
                 'Interface {} in unexpected state, expected is {}'.format(port, expected_status)
 
     def configure_dpb_on_ports(self, conf, expect_error=False, force=False):

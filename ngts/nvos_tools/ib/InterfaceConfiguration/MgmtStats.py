@@ -12,7 +12,7 @@ class MgmtStats(BaseComponent):
         self._resource_path = '/counters'
         self.parent_obj = port_obj
 
-    def clear_stats(self, dut_engine, fae_param=""):
+    def clear_stats(self, dut_engine=None, fae_param=""):
         """
         Clears interface counters
         """
