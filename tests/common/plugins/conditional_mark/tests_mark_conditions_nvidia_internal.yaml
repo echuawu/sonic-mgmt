@@ -616,6 +616,14 @@ tests/nightly/cpld/test_cpld.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3613529 and Mellanox-SN4700-O28 hwsku"
     conditions:
       - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
+
+tests/push_build_tests:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3661571 and simx spc4 CI setup"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3661571"
+      - "'r-moose-simx-18' in testbed or 'r-moose-simx-22' in testbed or 'r-moose-simx-26' in testbed or 'r-moose-simx-30' in testbed"
+
 ########################## NGTS IGNORE END ##########################
 
 
