@@ -97,6 +97,12 @@ MTVR-R740-01 ansible_host=mtvr-r740-01
 [vm_host_66]
 MTVR-R740-04 ansible_host=mtvr-r740-04
 
+[vm_host_67]
+R-R740-13 ansible_host=r-r740-13
+
+[vm_host_68]
+R-R740-12 ansible_host=r-r740-12
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -131,6 +137,8 @@ vm_host_63
 vm_host_64
 vm_host_65
 vm_host_66
+vm_host_67
+vm_host_68
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -1068,6 +1076,74 @@ VM3130 ansible_host=10.245.32.152
 VM3131 ansible_host=10.245.32.153
 VM3132 ansible_host=10.245.32.154
 
+[vms_67]
+VM3201 ansible_host=10.215.32.183
+VM3202 ansible_host=10.215.32.184
+VM3203 ansible_host=10.215.32.185
+VM3204 ansible_host=10.215.32.186
+VM3205 ansible_host=10.215.32.187
+VM3206 ansible_host=10.215.32.188
+VM3207 ansible_host=10.215.32.189
+VM3208 ansible_host=10.215.32.190
+VM3209 ansible_host=10.215.32.191
+VM3210 ansible_host=10.215.32.192
+VM3211 ansible_host=10.215.32.193
+VM3212 ansible_host=10.215.32.194
+VM3213 ansible_host=10.215.32.195
+VM3214 ansible_host=10.215.32.196
+VM3215 ansible_host=10.215.32.197
+VM3216 ansible_host=10.215.32.198
+VM3217 ansible_host=10.215.32.199
+VM3218 ansible_host=10.215.32.200
+VM3219 ansible_host=10.215.32.201
+VM3220 ansible_host=10.215.32.202
+VM3221 ansible_host=10.215.32.203
+VM3222 ansible_host=10.215.32.204
+VM3223 ansible_host=10.215.32.205
+VM3224 ansible_host=10.215.32.206
+VM3225 ansible_host=10.215.32.207
+VM3226 ansible_host=10.215.32.208
+VM3227 ansible_host=10.215.32.209
+VM3228 ansible_host=10.215.32.210
+VM3229 ansible_host=10.215.32.211
+VM3230 ansible_host=10.215.32.212
+VM3231 ansible_host=10.215.32.213
+VM3232 ansible_host=10.215.32.214
+
+[vms_68]
+VM3301 ansible_host=10.215.28.123
+VM3302 ansible_host=10.215.28.124
+VM3303 ansible_host=10.215.28.125
+VM3304 ansible_host=10.215.28.126
+VM3305 ansible_host=10.215.28.127
+VM3306 ansible_host=10.215.28.128
+VM3307 ansible_host=10.215.28.129
+VM3308 ansible_host=10.215.28.130
+VM3309 ansible_host=10.215.28.131
+VM3310 ansible_host=10.215.28.132
+VM3311 ansible_host=10.215.28.133
+VM3312 ansible_host=10.215.28.134
+VM3313 ansible_host=10.215.28.135
+VM3314 ansible_host=10.215.28.136
+VM3315 ansible_host=10.215.28.137
+VM3316 ansible_host=10.215.28.138
+VM3317 ansible_host=10.215.28.139
+VM3318 ansible_host=10.215.28.140
+VM3319 ansible_host=10.215.28.141
+VM3320 ansible_host=10.215.28.142
+VM3321 ansible_host=10.215.28.143
+VM3322 ansible_host=10.215.28.144
+VM3323 ansible_host=10.215.28.145
+VM3324 ansible_host=10.215.28.146
+VM3325 ansible_host=10.215.28.147
+VM3326 ansible_host=10.215.28.148
+VM3327 ansible_host=10.215.28.149
+VM3328 ansible_host=10.215.28.150
+VM3329 ansible_host=10.215.28.151
+VM3330 ansible_host=10.215.28.152
+VM3331 ansible_host=10.215.28.153
+VM3332 ansible_host=10.215.28.154
+
 [eos:children]
 vms_1
 vms_2
@@ -1102,6 +1178,8 @@ vms_63
 vms_64
 vms_65
 vms_66
+vms_67
+vms_68
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1395,6 +1473,29 @@ host_var_file=host_vars/MTVR-R740-04.yml
 host_var_file=host_vars/MTVR-R740-04.yml
 mgmt_prefixlen=16
 
+[server_67:children]
+vm_host_67
+vms_67
+
+[server_67:vars]
+host_var_file=host_vars/R-R740-13.yml
+
+[vms_67:vars]
+host_var_file=host_vars/R-R740-13.yml
+mgmt_prefixlen=16
+
+
+[server_68:children]
+vm_host_68
+vms_68
+
+[server_68:vars]
+host_var_file=host_vars/R-R740-12.yml
+
+[vms_68:vars]
+host_var_file=host_vars/R-R740-12.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1429,6 +1530,8 @@ server_63
 server_64
 server_65
 server_66
+server_67
+server_68
 
 [servers:vars]
 topologies=['dualtor', 'dualtor-mixed', 'dualtor-aa', 'dualtor-56', 'dualtor-mixed-56', 'dualtor-aa-56', 't1', 't1-lag', 't1-28-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', dpu]
