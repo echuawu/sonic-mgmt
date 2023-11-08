@@ -159,6 +159,16 @@
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
 
+# Due to limitation of SAI, this err msg seems can not be avoided, add it to ignore, details please refer to #3565127
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, EGRESS_ACL, key:PORT \[OID:.*\].*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, INGRESS_ACL, key:PORT \[OID:.*\].*'
+  Conditions:
+    - Affected_test_cases:
+      - bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
+      - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
     - '.* ERR lldp#lldpmgrd\[\d+\]: unknown operation.*'
@@ -3153,23 +3163,27 @@
     - '.*ERR dualtor_neighbor_check.py: .*'
   Conditions:
     - Affected_test_cases:
+        - vxlan/test_vnet_route_leak.py
+        - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
         - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream
-      Redmine:
-        - 3631272
+        - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downstream
+      GitHub:
+        - https://github.com/sonic-net/sonic-mgmt/issues/10670
 
 - Errors_list:
     - '.*ERR dualtor_neighbor_check.py: .*'
   Conditions:
     - Affected_test_cases:
-        - vxlan/test_vnet_route_leak.py
+        - dualtor_io/test_normal_op.py
       Redmine:
-        - 3634772
+        - 3664167
 
 - Errors_list:
     - '.*ERR dualtor_neighbor_check.py: .*'
   Conditions:
     - Affected_test_cases:
         - pc/test_lag_2.py
+        - pc/test_po_cleanup.py
       Redmine:
         - 3634794
 
@@ -3264,6 +3278,14 @@
       - 3650766
       Branch:
         - master
+
+- Errors_list:
+    - '.*ERR dualtor_neighbor_check.py: .*'
+  Conditions:
+    - Affected_test_cases:
+        - decap/test_decap.py
+      Redmine:
+        - 3606480
 
 - Errors_list:
     - '.* ERR dualtor_neighbor_check.py: Found neighbors that are inconsistent with mux states: \[.*\].*'

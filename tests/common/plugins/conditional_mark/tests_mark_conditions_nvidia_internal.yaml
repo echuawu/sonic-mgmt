@@ -2209,8 +2209,8 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3651153 on some setups"
     conditions:
-      - "https://redmine.mellanox.com/issues/3651153"
-      - "testbed in ['r-leopard-01', 'r-leopard-58', 'r-moose-01']"
+      - "https://redmine.mellanox.com/issues/3651153 and ('r-leopard-01' in testbed or 'r-leopard-58' in testbed or 'r-moose-01' in testbed or 'r-tigon-11' in testbed)"
+      - "https://redmine.mellanox.com/issues/3653973 and '2700' in platform"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
