@@ -149,6 +149,25 @@
 		</ignore>
   </case>
   <case>
+    <name> Ib port split all ports together </name>
+    <info> </info>
+    <tout> 3000 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/test_port_split.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini -k test_split_all_ports_together --log-level=INFO --clean-alluredir  --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+		<ignore>
+			<condition_group>
+				<condition>
+					<key> split_supported </key>
+					<op> not in </op>
+					<value> [True] </value>
+				</condition>
+			</condition_group>
+		</ignore>
+  </case>
+  <case>
     <name> Ib port split all ports </name>
     <info> </info>
     <tout> 3000 </tout>

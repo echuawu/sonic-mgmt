@@ -357,6 +357,50 @@ def test_split_port_n_times(engines, interfaces, start_sm):
             parent_port.show_interface()).get_returned_value()
 
 
+@pytest.mark.ib_interfaces
+def test_split_all_ports_together(engines, interfaces, start_sm):
+    """
+    Test flow:
+        1. Get all ib ports
+        2. Split it
+        3. Check if show command for port work
+        4. Get all ports
+        5. Unset
+    """
+    marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
+    with allure.step("Get all up and down ports"):
+        ports_down_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
+                                                                       requested_ports_type="ib",
+                                                                       num_of_ports_to_select=0).get_returned_value()
+        ports_up_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                     requested_ports_type="ib",
+                                                                     num_of_ports_to_select=0).get_returned_value()
+
+    with allure.step("Split not connected ports"):
+        for port_up in ports_down_state:
+            port_up.ib_interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR)\
+                .verify_result()
+
+    with allure.step("Split physical ports"):
+        for port_down in ports_up_state:
+            port_down.ib_interface.link.set(op_param_name='breakout',
+                                            op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR).verify_result()
+        NvueGeneralCli.apply_config(engines.dut, option='-y')
+
+    with allure.step("Check if we can do show for splitted interface"):
+        Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            port_up.show_interface()).get_returned_value()
+
+    with allure.step("Check if we can to get splitted ports"):
+        _get_split_ports()
+
+    with allure.step("Unset all ports"):
+        NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+        TestToolkit.add_loganalyzer_marker(engines.dut, marker)
+        NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+
+
 @pytest.mark.system_profile_cleanup
 @pytest.mark.ib_interfaces
 def test_split_all_ports(engines, interfaces, start_sm):
