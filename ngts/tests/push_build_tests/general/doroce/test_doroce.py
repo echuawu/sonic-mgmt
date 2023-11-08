@@ -63,7 +63,7 @@ WATERMARK_THRESHOLD = '1000'
 @pytest.fixture(scope='module')
 def check_feature_status(cli_objects):
     """
-    An autouse fixture to check if DoRoCE or DoAI is installed and enabled
+    A fixture to check if DoRoCE or DoAI is installed and enabled
     """
     def check_doroce_or_doai_installed():
         # NOTE: Either doroce or doai is installed
@@ -93,7 +93,7 @@ def check_feature_status(cli_objects):
 
 
 @pytest.fixture(scope='module', autouse=True)
-def pre_configuration_for_doroce(cli_objects, interfaces):
+def pre_configuration_for_doroce(cli_objects, interfaces, check_feature_status):
     """
     This fixture is to config the a small shaper value on the egress port to create the buffer congestion.
     """
