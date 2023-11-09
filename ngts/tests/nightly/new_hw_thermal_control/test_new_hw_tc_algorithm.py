@@ -208,8 +208,7 @@ class TestNewTc:
         """
         # For some platforms, tc_config is linked to the file with the specific hwsku name
         # The below map includes these info
-        special_hwsku_to_tc_config_map = {"ACS-MSN4410": "msn4700",
-                                          "ACS-MSN2410": "msn2700"}
+        special_hwsku_to_tc_config_map = {"ACS-MSN4410": "msn4700"}
 
         with allure.step("Get tc_config link and sku info"):
             tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
