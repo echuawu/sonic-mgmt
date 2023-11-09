@@ -1773,10 +1773,7 @@ class ReloadTest(BaseTest):
 
         self.log("Going to kill all tcpdump processes by SIGINT")
         subprocess.call(['killall', '-s', 'SIGINT', 'tcpdump'])
-
-        for process in processes_list:
-            process.join()
-
+        time.sleep(10)
         self.log("Killed all tcpdump processes by SIGINT")
 
     def start_dump_process(self, iface, pcap_path, tcpdump_filter):
