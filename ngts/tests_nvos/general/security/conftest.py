@@ -129,8 +129,8 @@ def local_adminuser(engines):
     # System().aaa.user.unset(AaaConsts.USER, adminuser.username, apply=True).verify_result()
 
 
-@pytest.fixture(scope='session', autouse=True)
-def prepare_scp_test(engines):
+@pytest.fixture(scope='session', autouse=False)
+def prepare_scp(engines):
     """
     @summary: Upload a dummy text file to the switch, that will be used in tests for scp verification
     """

@@ -4,11 +4,20 @@ for secure boot testing
 '''
 
 
+import os
+
+
 class ChainOfTrustNode:
     SHIM = 'shim'
     GRUB = 'grub'
     VMLINUZ = 'vmlinuz'
     ALL_NODES = [SHIM, GRUB, VMLINUZ]
+
+
+class SigningState:
+    SIGNED = 'signed'
+    UNSIGNED = 'unsigned'
+    ALL_STATES = [SIGNED, UNSIGNED]
 
 
 class SecureBootConsts:
@@ -50,3 +59,13 @@ class SecureBootConsts:
     ONIE_GRUB_MENU_PATTERNS = ['ONIE: Install OS', 'ONIE: Rescue', 'ONIE: Uninstall OS', 'ONIE: Update ONIE',
                                'ONIE: Embed ONIE']
     # ONIE_GRUB_MENU_PATTERN = 'ONIE: Install OS'
+
+    TEST_KERNEL_MODULES_DIR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kernel_modules')
+    UNSIGNED_KERNEL_MODULE_PATH = os.path.join(TEST_KERNEL_MODULES_DIR_PATH, 'unsigned_kernel_modules', 'unsecure_kernel_module.ko')
+    SIGNED_KERNEL_MODULE_PATH = '/auto/sw_system_project/NVOS_INFRA/security/verification/secure_boot/signed_kernel_module/leds_mlxreg.ko'
+    SIGNED_KERNEL_MODULE_KO_FILENAME = 'leds_mlxreg'
+
+    KERNEL_MODULE_KO_PATH = {
+        SigningState.SIGNED: SIGNED_KERNEL_MODULE_PATH,
+        SigningState.UNSIGNED: UNSIGNED_KERNEL_MODULE_PATH
+    }

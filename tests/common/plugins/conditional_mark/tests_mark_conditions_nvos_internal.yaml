@@ -50,7 +50,7 @@ tests_nvos/system/test_log_commands.py::test_debug_log_files_set_unset_log_rotat
     conditions:
       - https://redmine.mellanox.com/issues/3212520
 
-tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_non_signed_kernel_module_load:
+tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_unsigned_kernel_module_load:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3338619"
     conditions:
