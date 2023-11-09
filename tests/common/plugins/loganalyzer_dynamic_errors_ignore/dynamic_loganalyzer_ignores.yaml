@@ -2757,6 +2757,12 @@
 
 # NVOS - TACACS - ignore expected log
 - Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/.* - FileNotFoundError\(2, ''No such file or directory''\).*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_kernel_module_loading[signed]
+
+- Errors_list:
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect. user: .*'
   Conditions:
     - Affected_test_cases:
