@@ -83,6 +83,9 @@ def manipulate_nvos_system_file_signature(chain_of_trust_node: str, dut_engine: 
             logging.info(f'Copy file on switch:\nSwitch (src) path: {system_file_switch_tmp_path}\nSwitch (dst) path: {system_file_switch_path}')
             serial_engine.run_cmd(f'sudo cp -f {system_file_switch_tmp_path} {system_file_switch_path}')
 
+    with allure.step('Remove file from local fs'):
+        os.remove(system_file_local_path)
+
 
 def reinstall_nvos_after_test(serial_engine: PexpectSerialEngine, restore_image_path: str):
     with allure.step('Press Enter to close error message'):

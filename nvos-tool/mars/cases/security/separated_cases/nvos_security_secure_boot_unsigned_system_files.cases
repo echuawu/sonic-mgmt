@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> NVOS - Secure Boot - Unsigned Shim </name>
+      <name> NVOS - Secure Boot - Unsigned System Files </name>
       <info> </info>
       <owner> Alon N. </owner>
     </Test>
@@ -16,7 +16,7 @@
   </global>
 
    <case>
-    <name> NVOS - Secure Boot - Unsigned Shim </name>
+    <name> NVOS - Secure Boot - Unsigned System Files </name>
     <info> </info>
     <cmd>
       <params>
