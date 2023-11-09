@@ -109,27 +109,6 @@
   </case>
 
    <case>
-    <name> NVOS - Secure Boot - Signed Kernel Module </name>
-    <info> </info>
-    <cmd>
-      <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --kernel_module_path=/auto/sw_system_project/NVOS_INFRA/security/verification/secure_boot/signed_kernel_module/leds_mlxreg.ko --showlocals\'"</static_args>
-      </params>
-    </cmd>
-  </case>
-
-   <case>
-    <name> NVOS - Secure Boot - Unsigned Kernel Module </name>
-    <info> </info>
-    <cmd>
-      <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_non_signed_kernel_module_load --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --kernel_module_path=/root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/secure_boot_kernel_module/unsigned_kernel_modules/unsecure_kernel_module.ko --showlocals\'"</static_args>
-      </params>
-    </cmd>
-  </case>
-
-
-   <case>
     <name> NVOS - Secure Boot - Unsigned System Files </name>
     <info> </info>
     <cmd>
@@ -145,6 +124,16 @@
     <cmd>
       <params>
           <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_grub_password/test_grub_password.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+   <case>
+    <name> NVOS - Secure Boot - Kernel Module Loading </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_kernel_module_loading --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
