@@ -530,7 +530,7 @@
       - sub_port_interfaces/test_show_subinterface.py
       - sub_port_interfaces/test_sub_port_interfaces.py
       Redmine:
-        - 3628478
+        - 3664168
       Branch:
         - 202305
         - master
