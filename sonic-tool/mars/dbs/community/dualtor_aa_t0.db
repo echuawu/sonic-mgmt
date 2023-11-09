@@ -130,4 +130,11 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/ip_in_ip.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_session_flap.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_dual_asn.cases </cases>
+    </test>
 </DBDEF>

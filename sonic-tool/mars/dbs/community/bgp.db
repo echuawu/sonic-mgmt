@@ -95,4 +95,12 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_suppress_fib_pending.cases </cases>
     </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_session_flap.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_dual_asn.cases </cases>
+    </test>
 </DBDEF>
