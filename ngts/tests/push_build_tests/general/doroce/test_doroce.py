@@ -65,17 +65,13 @@ def check_feature_status(cli_objects):
     """
     A fixture to check if DoRoCE or DoAI is installed and enabled
     """
-    def check_doroce_or_doai_installed():
-        # NOTE: Either doroce or doai is installed
+    def check_doai_installed():
         doai_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOAI)
         if doai_status:
             return doai_status, msg, AppExtensionInstallationConstants.DOAI
 
-        doroce_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOROCE)
-        return doroce_status, msg, AppExtensionInstallationConstants.DOROCE
-
     with allure.step('Validating doroce feature is installed'):
-        status, msg, ext_name = check_doroce_or_doai_installed()
+        status, msg, ext_name = check_doai_installed()
         if status:
             cli_objects.dut.app_ext.disable_app(ext_name)
             cli_objects.dut.app_ext.enable_app(ext_name)
