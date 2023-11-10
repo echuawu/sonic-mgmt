@@ -67,8 +67,7 @@ def check_feature_status(cli_objects):
     """
     def check_doai_installed():
         doai_status, msg = is_feature_installed(cli_objects, AppExtensionInstallationConstants.DOAI)
-        if doai_status:
-            return doai_status, msg, AppExtensionInstallationConstants.DOAI
+        return doai_status, msg, AppExtensionInstallationConstants.DOAI
 
     with allure.step('Validating doroce feature is installed'):
         status, msg, ext_name = check_doai_installed()
