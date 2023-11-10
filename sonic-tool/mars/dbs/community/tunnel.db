@@ -71,4 +71,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/vxlan_ecmp.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/vxlan_crm.cases </cases>
+    </test>
+
 </DBDEF>
