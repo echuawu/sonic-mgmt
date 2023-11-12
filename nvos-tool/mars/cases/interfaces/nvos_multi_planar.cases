@@ -17,10 +17,10 @@
   <case>
     <name> symmetry manager and aggregated port </name>
     <info> </info>
-    <tout> 1800 </tout>
+    <tout> 3600 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -k test_fae_interface_commands -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>

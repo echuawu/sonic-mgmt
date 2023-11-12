@@ -863,7 +863,7 @@ class StatsConsts:
 
 class MultiPlanarConsts:
     INTERNAL_PATH = "/tmp"
-    SIMULATION_PATH = "/.autodirect/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
+    SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
     SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
     FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'

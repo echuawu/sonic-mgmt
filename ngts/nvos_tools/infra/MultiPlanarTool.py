@@ -1,4 +1,5 @@
-from infra.tools.linux_tools.linux_tools import scp_file
+from infra.tools.general_constants.constants import DefaultConnectionValues
+# from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_constants.constants_nvos import MultiPlanarConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.Fae import Fae
@@ -15,15 +16,21 @@ class MultiPlanarTool:
         override platform file on switch.
         """
         engine = engines.dut
+        player = engines['sonic_mgmt']
 
         # in case of installing xdr simulation, save the origin file in order to restore at the end of the test
-        if new_platform != MultiPlanarConsts.ORIGIN_FILE:
-            with allure.step("Save the origin platform.json file"):
-                scp_file(engine, MultiPlanarConsts.PLATFORM_FULL_PATH, MultiPlanarConsts.ORIGIN_FULL_PATH, True)
+        # if new_platform != MultiPlanarConsts.ORIGIN_FILE:
+        #     with allure.step("Save the origin platform.json file"):
+        #         scp_file(engine, MultiPlanarConsts.PLATFORM_FULL_PATH, MultiPlanarConsts.ORIGIN_FULL_PATH, True)
 
         with allure.step("Override platform.json file"):
             file_path = MultiPlanarConsts.SIMULATION_PATH + new_platform
-            scp_file(engine, file_path, MultiPlanarConsts.INTERNAL_PATH, False)
+            # scp_file(engine, file_path, MultiPlanarConsts.INTERNAL_PATH, False)
+            player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
+                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                         dest_folder=MultiPlanarConsts.INTERNAL_PATH,
+                                         dest_ip=engine.ip,
+                                         local_file_path=file_path)
             engine.run_cmd("sudo mv {}/{} {}".format(MultiPlanarConsts.INTERNAL_PATH, new_platform,
                                                      MultiPlanarConsts.PLATFORM_FULL_PATH))
 
