@@ -27,8 +27,8 @@ def _parse_args():
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--topo", dest="topo", help="Path to the MARS topology configuration file")
-    parser.add_argument("--since", nargs="?", dest="since", default="12 hours ago",
-                        help="Collect logs and core files since given date. Default: '12 hours ago'")
+    parser.add_argument("--since", nargs="?", dest="since", default="48 hours ago",
+                        help="Collect logs and core files since given date. Default: '48 hours ago'")
     parser.add_argument("--dest", nargs="?", dest="dest",
                         help="Destination folder for backup dump. Default: use lib/constants.DUT_LOG_BACKUP_PATH")
     parser.add_argument("--session-id", dest="session_id", help="Current MARS session_id")
