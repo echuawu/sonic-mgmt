@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 
 import allure
 import random
@@ -10,6 +11,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Role import Role
+from ngts.nvos_tools.infra.DefaultDict import DefaultDict
 
 logger = logging.getLogger()
 

@@ -1,0 +1,28 @@
+- header:
+    model: mqm9700
+    nvue-api-version: nvue_v1
+    rev-id: 1.0
+    version: 25.01.2504
+- set:
+    system:
+      aaa:
+        authentication:
+          restrictions:
+            fail-delay: 0
+            lockout-state: disabled
+        ldap:
+          base-dn: dc=itzgeek,dc=local
+          bind-dn: cn=ldapadm,dc=itzgeek,dc=local
+          group-attribute: member
+          hostname:
+            10.237.0.86:
+              priority: 1
+          port: 389
+          secret: secret
+          ssl:
+            cert-verify: disabled
+            port: 636
+          timeout-bind: 5
+          timeout-search: 5
+          version: 3
+      timezone: Asia/Jerusalem

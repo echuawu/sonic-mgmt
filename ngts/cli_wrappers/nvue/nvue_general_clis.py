@@ -1,3 +1,4 @@
+from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -7,6 +8,8 @@ from ngts.constants.constants import InfraConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from ngts.constants.constants import MarsConstants
 
 
 logger = logging.getLogger()
@@ -71,18 +74,60 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def show_version(self, validate=False):
         return self.engine.run_cmd('nv show system version')
 
-    @staticmethod
-    def install_image_onie(engine, image_path, platform_params, topology_obj):
-        dut_ip = engine.ip
-        dut_ssh_port = engine.ssh_port
-        with allure.step('Installing image by "onie-nos-install"'):
-            SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,
-                                                             topology_obj=topology_obj)
-        with allure.step('Waiting for switch shutdown after reload command'):
-            check_port_status_till_alive(False, dut_ip, dut_ssh_port)
+    def install_nos_using_onie_in_serial(self, nos_image: str, ssh_engine, topology_obj):
+        ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
+        INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
+        INSTALL_WGET_ERROR = "wget: can't connect to remote host .*: Connection refused"
+        NVOS_INSTALL_TIMEOUT = 5 * 60  # 5 minutes
 
-        with allure.step('Wait until the system is ready'):
-            retry_call(engine.run_cmd, fargs=[''], tries=60, delay=10, logger=logger)
+        if nos_image.startswith('/auto/'):
+            image_path = nos_image
+            image_url = f"{MarsConstants.HTTP_SERVER_NBU_NFS}{image_path}"
+        else:
+            assert nos_image.startswith('http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. Actual "nos_image"={nos_image}'
+            image_path = f'/auto/{nos_image.split("/auto/")[1]}'
+            image_url = nos_image
+
+        with allure.step('Create serial connection'):
+            serial_engine = self.enter_serial_connection_context(topology_obj)
+
+        with allure.step(f'Run {ONIE_NOS_INSTALL_CMD}'):
+            index = 0
+            for _ in range(3):  # try 3 times using url
+                logger.info('Install image using url')
+                _, index = serial_engine.run_cmd(
+                    f'{ONIE_NOS_INSTALL_CMD} {image_url}', [INSTALL_SUCCESS_PATTERN, INSTALL_WGET_ERROR],
+                    timeout=NVOS_INSTALL_TIMEOUT)
+                if index == 0:
+                    break
+                else:
+                    logger.info('Failed for wget error. wait and retry')
+                    time.sleep(20)
+
+            if index != 0:
+                logger.info('onie-nos-install failed because of wget error. install with scp')
+                with allure.step('Upload nvos to switch with scp'):
+                    if not image_path.startswith('/auto'):
+                        image_path = f'/auto/{image_path.split("/auto/")[1]}'
+                    scp_engine = LinuxSshEngine(ssh_engine.ip, DefaultConnectionValues.ONIE_USERNAME,
+                                                DefaultConnectionValues.ONIE_PASSWORD)
+                    scp_file(scp_engine, image_path, '/tmp/nvos.bin')
+                with allure.step(f'Run: {ONIE_NOS_INSTALL_CMD} ; Expect: {INSTALL_SUCCESS_PATTERN}'):
+                    serial_engine.run_cmd(
+                        f'{ONIE_NOS_INSTALL_CMD} {image_path}', INSTALL_SUCCESS_PATTERN, timeout=NVOS_INSTALL_TIMEOUT)
+
+    def install_image_onie(self, engine, image_path, platform_params, topology_obj):
+        with allure.step('Install image onie - NVOS'):
+            # SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,
+            #                                                  topology_obj=topology_obj)
+            self.install_nos_using_onie_in_serial(image_path, engine, topology_obj)
+
+        with allure.step('Ping switch until shutting down'):
+            ping_till_alive(should_be_alive=False, destination_host=engine.ip)
+        with allure.step('Ping switch until back alive'):
+            ping_till_alive(should_be_alive=True, destination_host=engine.ip)
+        with allure.step('Wait until switch is up'):
+            engine.disconnect()  # force engines.dut to reconnect
             DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine)
 
     @staticmethod
@@ -321,10 +366,11 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         output, respond = serial_engine.run_cmd('onie-stop', 'done.', timeout=10)
         logger.info(output)
 
-        time.sleep(5)
-        logger.info('Send new line')
-        output, respond = serial_engine.run_cmd('\r', '#', timeout=10, send_without_enter=True)
-        logger.info(output)
+        for _ in range(3):
+            time.sleep(1)
+            logger.info('Send new line')
+            output, respond = serial_engine.run_cmd('\r', '#', timeout=10, send_without_enter=True)
+            logger.info(output)
 
         logger.info('Send onie stop done')
 
@@ -332,15 +378,17 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         '''
         @summary: in this function we will enter onie install mode using remote reboot
         '''
-        switch_in_onie = False
-        try:
-            self.enter_onie(topology_obj)
-            switch_in_onie = True
-        except Exception as err:
-            logger.info("Got an exception: {}".format(str(err)))
+        with allure.step('Prepare for installation: enter ONIE'):
             switch_in_onie = False
-        finally:
-            return switch_in_onie
+            try:
+                self.enter_onie(topology_obj)
+                switch_in_onie = True
+            except Exception as err:
+                logger.info("Got an exception: {}".format(str(err)))
+                switch_in_onie = False
+            finally:
+                logger.info(f'Switch in onie: {switch_in_onie}')
+                return switch_in_onie
 
     @retry(Exception, tries=4, delay=5)
     def wait_for_onie_prompt(self, serial_engine):

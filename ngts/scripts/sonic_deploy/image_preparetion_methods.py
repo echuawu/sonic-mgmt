@@ -7,8 +7,15 @@ from http.server import HTTPServer
 import json
 from ngts.scripts.sonic_deploy.image_http_request_handler import ImageHTTPRequestHandler
 from ngts.constants.constants import MarsConstants
+from ngts.tools.test_utils.nvos_general_utils import get_real_file_path
 
 logger = logging.getLogger()
+
+
+def get_real_paths(base_version, target_version):
+    base_version = get_real_file_path(base_version) if base_version else ''
+    target_version = get_real_file_path(target_version) if target_version else ''
+    return base_version, target_version
 
 
 def prepare_images(base_version, target_version, serve_file):
@@ -20,12 +27,13 @@ def prepare_images(base_version, target_version, serve_file):
     if serve_file:
         serve_files_over_http(base_version, target_version, image_urls)
     else:
-        set_image_path(base_version, "base_version", image_urls)
+        if base_version:
+            set_image_path(base_version, "base_version", image_urls)
         if target_version:
             set_image_path(target_version, "target_version", image_urls)
 
     for image_role in image_urls:
-        logger.info('Image {image_role} URL is:{image}'.format(image_role=image_role, image=image_urls[image_role]))
+        logger.info('Image {image_role} URL is: {image}'.format(image_role=image_role, image=image_urls[image_role]))
     return image_urls
 
 
@@ -34,7 +42,7 @@ def set_image_path(image_path, image_key, image_dict):
         path = image_path
     else:
         verify_file_exists(image_path)
-        logger.info("Image {} path is:{}".format(image_key, os.path.realpath(image_path)))
+        logger.info("Image {} path is: {}".format(image_key, os.path.realpath(image_path)))
         path = get_installer_url_from_nfs_path(image_path)
     image_dict[image_key] = path
 

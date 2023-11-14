@@ -1,6 +1,12 @@
 import logging
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_constants.constants_nvos import ActionConsts
+from ngts.nvos_tools.infra.ResultObj import ResultObj
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
+from ngts.tools.test_utils import allure_utils as allure
+from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+
 
 logger = logging.getLogger()
 
@@ -74,10 +80,27 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_install(engine, action_component_str, file=""):
-        cmd = "nv action install system {action_component} files {file}".format(action_component=action_component_str, file=file)
-        logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
+    def action_install(engine, resource_path, param='', param_val=''):
+        cmd = f'nv action install {resource_path.replace("/", " ")} {param} {param_val}'.strip()
+        with allure.step("Run action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd)):
+            if 'system/image' in resource_path:
+                res = ResultObj(result=False, info='Switch should have rebooted but possible that it did not')
+                try:
+                    engine.run_cmd(cmd, timeout=30)
+                except Exception:
+                    logger.info("Waiting for switch to be ready")
+                    # check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+                    with allure.step('Ping switch until shutting down'):
+                        ping_till_alive(should_be_alive=False, destination_host=engine.ip, delay=5, tries=150)
+                    with allure.step('Ping switch until back alive'):
+                        ping_till_alive(should_be_alive=True, destination_host=engine.ip, delay=5, tries=150)
+                    with allure.step('Wait till nvos is up again'):
+                        engine.disconnect()
+                        res = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine)
+                finally:
+                    return res.verify_result()
+            else:
+                return engine.run_cmd(cmd)
 
     @staticmethod
     def action_generate_techsupport(engine, resource_path, option="", time=""):

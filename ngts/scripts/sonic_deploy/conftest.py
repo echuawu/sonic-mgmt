@@ -37,7 +37,7 @@ def pytest_addoption(parser):
     parser.addoption('--fw_pkg_path', action='store', required=False, default=None,
                      help='firmware package file path')
     logger.info('Parsing base-version')
-    parser.addoption("--base-version", action="store",
+    parser.addoption("--base-version", action="store", default="",
                      help="URL or path to the SONiC image. Firstly upgrade switch to this version.")
     logger.info('Parsing target-version')
     parser.addoption("--target-version", action="store",

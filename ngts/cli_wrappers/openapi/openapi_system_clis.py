@@ -241,3 +241,15 @@ class OpenApiSystemCli(OpenApiBaseCli):
 
         return OpenApiCommandHelper.execute_action(ActionType.CLEAR, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_install(engine, resource_path, param_dict={}, unused_param_val=''):
+        logging.info(f'Run action install on: {resource_path}')
+
+        params = {
+            'state': 'start',
+            'parameters': param_dict
+        }
+
+        return OpenApiCommandHelper.execute_action(ActionType.INSTALL, engine.username, engine.password,
+                                                   engine.ip, resource_path, params)

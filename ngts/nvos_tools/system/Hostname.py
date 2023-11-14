@@ -4,7 +4,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.DefaultDict import DefaultDict
+from ngts.nvos_tools.infra.DefaultDict import DefaultDict
 
 
 class Hostname(BaseComponent):

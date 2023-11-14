@@ -5,7 +5,7 @@ import os
 import pytest
 import shutil
 
-from ngts.scripts.sonic_deploy.image_preparetion_methods import prepare_images
+from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
 from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
 from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -71,8 +71,10 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
         setup_info = get_info_from_topology(topology_obj, workspace_path)
         setup_info['setup_name'] = setup_name
 
+        base_version, target_version = get_real_paths(base_version, target_version)
         image_urls = prepare_images_to_install(base_version, target_version, serve_files)
         base_version_url = get_base_version_url(deploy_only_target, image_urls)
+        target_version_url = '' if not target_version else get_target_version_url(image_urls)
 
         if sonic_topo == 'ptf-any':
             apply_base_config = True
@@ -93,7 +95,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
                              platform_params=platform_params, deploy_type=deploy_type,
                              apply_base_config=apply_base_config,
                              reboot_after_install=reboot_after_install, is_shutdown_bgp=is_shutdown_bgp,
-                             fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'])
+                             fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'], target_image_url=target_version_url)
 
         logger.info("Wait until background process done")
         try:
@@ -111,7 +113,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, target_version,
                                 target_version=target_version, is_shutdown_bgp=True,
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
-                                setup_info=setup_info, workspace_path=workspace_path)
+                                setup_info=setup_info, workspace_path=workspace_path, base_version=base_version)
 
         # Remove .pytest_cache folder after deploy - otherwise  - cached info from old image will be used in skip tests
         cache_full_path = os.path.join(os.path.dirname(__file__), '../../.pytest_cache')
@@ -131,7 +133,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     """
     cli_type = setup_info['duts'][0]['cli_obj']
     if isinstance(cli_type, NvueGeneralCli):
-        NvosInstallationSteps.pre_installation_steps(setup_info)
+        NvosInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
                                                       is_simx, threads_dict)
@@ -140,7 +142,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                             setup_name, platform_params, apply_base_config, target_version,
                             is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                            additional_apps, setup_info, workspace_path):
+                            additional_apps, setup_info, workspace_path, base_version=''):
     """
     Post-installation steps
     :param topology_obj: topology object
@@ -161,7 +163,7 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
     if isinstance(dut_cli_obj, NvueGeneralCli):
-        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path)
+        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,
@@ -234,8 +236,17 @@ def get_base_version_url(deploy_only_target, image_urls):
     return base_version_url
 
 
+def get_target_version_url(image_urls):
+    """
+    Get target version url
+    :return:
+    """
+    with allure.step('Get target version url'):
+        return get_base_version_url(True, image_urls)
+
+
 def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_type,
-                 apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, cli_type):
+                 apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, cli_type, target_image_url=''):
     """
     This method will deploy sonic image on the dut.
     :param topology_obj: topology object
@@ -253,7 +264,7 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
 
     if isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
-                                           apply_base_config, reboot_after_install, fw_pkg_path)
+                                           apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:
         SonicInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url,
                                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,

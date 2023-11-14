@@ -9,6 +9,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.Files import Files
+from ngts.nvos_tools.system.FilesResource import FilesResource, SystemImageFiles
 logger = logging.getLogger()
 
 
@@ -19,32 +20,35 @@ class Image(BaseComponent):
         self._resource_path = '/image'
         self.parent_obj = parent_obj
         self.files = Files(self)
+        self.files_resource = SystemImageFiles(self)
 
     def unset(self, op_param=""):
         raise Exception("unset is not implemented for /image")
 
-    def _action(self, action_type, op_param="", expected_str="Action succeeded"):
+    def _action(self, action_type, op_param="", expected_str="Action succeeded", dut_engine=None):
+        if not dut_engine:
+            dut_engine = TestToolkit.engines.dut
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_image,
-                                                            expected_str,
-                                                            TestToolkit.engines.dut,
-                                                            action_type, self.get_resource_path(), op_param).get_returned_value()
+                                                            expected_str, dut_engine,
+                                                            action_type, self.get_resource_path(),
+                                                            op_param).get_returned_value()
 
-    def action_install(self, params="", expected_str=""):
+    def action_install(self, params="", expected_str="", dut_engine=None):
         with allure.step("Install {params} system image".format(params=params)):
             logging.info("Install {params} system image".format(params=params))
-            return self._action(ActionConsts.INSTALL, params, expected_str)
+            return self._action(ActionConsts.INSTALL, params, expected_str, dut_engine)
 
     def action_uninstall(self, params="", expected_str=""):
         with allure.step("Uninstall {params} system image".format(params=params)):
             logging.info("Uninstall {params} system image".format(params=params))
             return self._action(ActionConsts.UNINSTALL, params, expected_str)
 
-    def action_fetch(self, url="", expected_str="Action succeeded"):
+    def action_fetch(self, url="", expected_str="Action succeeded", dut_engine=None):
         with allure.step("Image fetch {url} ".format(url=url)):
             logging.info("Image fetch {url} system image".format(url=url))
             if TestToolkit.tested_api == ApiType.OPENAPI and expected_str == "Action succeeded":
                 expected_str = 'File fetched successfully'
-            return self._action(ActionConsts.FETCH, url, expected_str)
+            return self._action(ActionConsts.FETCH, url, expected_str, dut_engine)
 
     def action_boot_next(self, partition_id, expected_str=''):
         with allure.step("Set image '{id}' to boot next".format(id=partition_id)):
