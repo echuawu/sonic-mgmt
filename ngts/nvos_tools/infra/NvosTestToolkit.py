@@ -16,6 +16,7 @@ class TestToolkit:
     engines = None
     tested_api = ApiType.NVUE
     GeneralApi = {ApiType.NVUE: NvueGeneralCli, ApiType.OPENAPI: OpenApiGeneralCli}
+    loganalyzer_duts = None
 
     @staticmethod
     def update_tested_ports(tested_ports):
@@ -140,3 +141,17 @@ class TestToolkit:
                     engine.run_cmd(f"logger -p info '{marker}'")
             except BaseException:
                 logging.warning("Failed to add log analyzer marker")
+
+    @staticmethod
+    def start_code_section_loganalyzer_ignore():
+        if TestToolkit.loganalyzer_duts:
+            logging.info('Start Loganalyzer ignore')
+            for loganalyzer_dut in TestToolkit.loganalyzer_duts.values():
+                loganalyzer_dut.add_start_ignore_mark()
+
+    @staticmethod
+    def end_code_section_loganalyzer_ignore():
+        if TestToolkit.loganalyzer_duts:
+            logging.info('End Loganalyzer ignore')
+            for loganalyzer_dut in TestToolkit.loganalyzer_duts.values():
+                loganalyzer_dut.add_end_ignore_mark()

@@ -125,7 +125,7 @@ def test_set_system_message_pre_login(engines, devices):
                                                                            username=SystemConsts.DEFAULT_USER_ADMIN,
                                                                            password=engines.dut.password)
             pre_login_output = output.split('\n')[1].strip()
-            assert new_pre_login_msg == pre_login_output,\
+            assert new_pre_login_msg == pre_login_output, \
                 "Failed to set pre-login message to {pre_login}".format(pre_login=pre_login_output)
 
         with allure.step('Verify post-login did not change in show system'):
@@ -149,7 +149,7 @@ def test_set_system_message_pre_login(engines, devices):
                                                                            username=SystemConsts.DEFAULT_USER_ADMIN,
                                                                            password=engines.dut.password)
             pre_login_output = output.split('\n')[1].strip()
-            assert pre_login_output == SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE,\
+            assert pre_login_output == SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE, \
                 "Failed to set pre-login message to {pre_login}".format(pre_login=pre_login_output)
 
     finally:
@@ -191,7 +191,7 @@ def test_set_system_message_post_login(engines, devices):
             output = ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                                            username=SystemConsts.DEFAULT_USER_ADMIN,
                                                                            password=engines.dut.password)
-            assert new_post_login_msg in output,\
+            assert new_post_login_msg in output, \
                 "Failed to set post-login message to {post_login}\n post_login_output={post_login_output}".format(
                     post_login=new_post_login_msg, post_login_output=output)
 
@@ -363,7 +363,7 @@ def test_system_reload_for_system_message(engines, devices):
             reload_cmd_set = "nv action reboot system"
             # Reload system and wait until the system is ready
             DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
-                                should_wait_till_system_ready=True).verify_result()
+                                should_wait_till_system_ready=True, confirm=True).verify_result()
             # Reconnect
             ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
 

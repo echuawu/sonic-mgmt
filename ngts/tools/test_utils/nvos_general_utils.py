@@ -1,5 +1,7 @@
+import fnmatch
 import logging
-
+from contextlib import contextmanager
+import os
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -43,3 +45,33 @@ def set_base_configurations(dut_engine, timezone=LinuxConsts.JERUSALEM_TIMEZONE,
     finally:
         logging.info(f'Change tested api back to {orig_api}')
         TestToolkit.tested_api = orig_api
+
+
+@contextmanager
+def loganalyzer_ignore(cond: bool = True):
+    """
+    @summary:
+        Context manager that wraps code chunks with loganalyzer disabling at the beginning, and enabling in the end
+    @param cond: boolean condition; log analyzer will be disabled for the code section only if cond is True (optional)
+    """
+    cond = False
+    try:
+        if cond:
+            TestToolkit.start_code_section_loganalyzer_ignore()
+        yield
+    finally:
+        if cond:
+            TestToolkit.end_code_section_loganalyzer_ignore()
+
+
+def get_real_file_path(file_path: str) -> str:
+    """
+    @summary: Get the real file path from a given path
+    """
+    real_path = os.path.realpath(file_path)
+    containing_dir = os.path.dirname(real_path)
+    filename = os.path.basename(real_path)
+    dir_content = os.listdir(containing_dir)
+    matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
+    real_file_path = os.path.join(containing_dir, matching_filename)
+    return real_file_path

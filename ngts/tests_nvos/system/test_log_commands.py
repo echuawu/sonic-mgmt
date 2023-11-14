@@ -518,7 +518,11 @@ def test_log_files_set_unset_log_rotation_max_number(engines):
     with allure.step("Create System object"):
         system = System(None)
 
+    marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
     _log_files_set_unset_log_rotation_max_number(engines, system.log, "syslog")
+
+    TestToolkit.add_loganalyzer_marker(engines.dut, marker)
 
 
 @pytest.mark.system
@@ -769,6 +773,7 @@ def _upload_log_files(topology_obj, system_log_obj):
 @pytest.mark.system
 @pytest.mark.log
 @pytest.mark.simx
+@pytest.mark.disable_loganalyzer
 def test_delete_log_files(engines):
     """
     Check user can delete debug-log files

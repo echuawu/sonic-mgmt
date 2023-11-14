@@ -650,7 +650,7 @@ def test_error_flow_reset_factory_with_params(engines, devices, topology_obj):
     with allure.step("Run reset factory with params - expect failure"):
         logging.info("Run reset factory with params - expect failure")
         output = engines.dut.run_cmd("nv action reset system factory-default only-config")
-        assert "is not one of" in output, "Reset factory with param should fail"
+        assert "Invalid parameter" in output, "Reset factory with param should fail"
         # system.factory_default.action_reset(param="only-config").verify_result(should_succeed=False)
 
 

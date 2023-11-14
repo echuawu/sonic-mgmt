@@ -6,14 +6,18 @@ from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users, configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
+    update_active_aaa_server
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsServers
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap, enable_ldap_feature
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
+from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
 
 @pytest.mark.simx
@@ -518,7 +522,7 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
 @pytest.mark.simx
 @pytest.mark.security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_auth_restrictions_remote_counting(test_api, engines, devices, test_user):
+def test_auth_restrictions_remote_counting(test_api, engines, request, devices, test_user):
     """
     @summary: Verify that when there are more than <lockout-attempts> remote authentication servers configured,
         an authentication failure still counts as 1 attempt.
@@ -529,21 +533,26 @@ def test_auth_restrictions_remote_counting(test_api, engines, devices, test_user
         3. Make 1 authentication failure
         4. Verify user is not blocked
     """
+    item = request.node
     TestToolkit.tested_api = test_api
 
     with allure.step('Configure remote auth with more than <lockout-attempts> servers'):
-        aaa = System().aaa
-        servers_info = [LdapConsts.PHYSICAL_LDAP_SERVER.copy(), LdapConsts.DOCKER_LDAP_SERVER.copy(),
-                        LdapConsts.DOCKER_LDAP_SERVER_DNS.copy()]
+        servers_info = [TacacsServers.PHYSICAL_SERVER.copy(), TacacsServers.DOCKER_SERVER_IPV4.copy(),
+                        TacacsServers.DOCKER_SERVER_DN.copy()]
         prio = 3
         for server in servers_info:
-            server['priority'] = prio
-            configure_ldap(server)
+            server.priority = prio
+            server.configure(engines, set_explicit_priority=True)
             prio -= 1
 
-        enable_ldap_feature(engines, devices)
+    with allure.step('Enable tacacs'):
+        aaa = System().aaa
+        configure_resource(engines, aaa.authentication, conf={
+            AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
+            AuthConsts.FAILTHROUGH: AaaConsts.ENABLED
+        })
 
-    with allure.step('Configure lockout and enable it'):
+    with allure.step('Configure and enable lockout'):
         lockout_reattempt = random.choice(RestrictionsConsts.VALID_VALUES[RestrictionsConsts.LOCKOUT_REATTEMPT])
 
         configure_resource(engines, aaa.authentication.restrictions, conf={
@@ -551,11 +560,13 @@ def test_auth_restrictions_remote_counting(test_api, engines, devices, test_user
             RestrictionsConsts.LOCKOUT_ATTEMPTS: 3,
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
-        }, apply=True)
+        }, apply=True, verify_apply=False)
+        update_active_aaa_server(item, servers_info[0])
 
     with allure.step('Make 1 authentication failure'):
-        attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
-        attempter.attempt_login_failure()
+        with loganalyzer_ignore():
+            attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
+            attempter.attempt_login_failure()
 
     with allure.step('Verify user is not blocked'):
         succeeded, _ = attempter.attempt_login_success()

@@ -9,12 +9,13 @@ class LdapConsts:
     USERNAME = 'username'
     PASSWORD = 'password'
     # show cmd fields
-    PORT = 'auth-port'
+    PORT = 'port'
     BASE_DN = 'base-dn'
     BIND_DN = 'bind-dn'
     GROUP_ATTR = 'group-attribute'
     # LOGIN_ATTR = 'login-attribute'  not supported now
-    BIND_PASSWORD = 'password'
+    # BIND_PASSWORD = 'password'
+    SECRET = 'secret'
     TIMEOUT_BIND = 'timeout-bind'
     TIMEOUT = 'timeout-search'
     VERSION = 'version'
@@ -29,7 +30,7 @@ class LdapConsts:
     TLS_CRL_CHECK_FILE = 'tls-crl-check-file'  # decided out of feature
     TLS_CRL_CHECK_STATE = 'tls-crl-check-state'  # decided out of feature
 
-    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, BIND_PASSWORD, TIMEOUT_BIND, TIMEOUT, VERSION]
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, SECRET, TIMEOUT_BIND, TIMEOUT, VERSION]
     SSL_FIELDS = [SSL_CA_LIST, SSL_CERT_VERIFY, SSL_MODE, SSL_PORT, SSL_TLS_CIPHERS]
 
     # possible values
@@ -57,7 +58,7 @@ class LdapConsts:
         BIND_DN: str,
         GROUP_ATTR: str,
         # LOGIN_ATTR: str,  not supported now
-        BIND_PASSWORD: str,
+        SECRET: str,
         TIMEOUT_BIND: list(range(1, 60 + 1)),
         TIMEOUT: list(range(1, 60 + 1)),
         VERSION: [2, 3]
@@ -72,6 +73,12 @@ class LdapConsts:
         SSL_TLS_CIPHERS: [ALL, TLS_1_2, TLS_1_3]
     }
 
+    ALL_VALID_VALUES = VALID_VALUES.copy()
+    ALL_VALID_VALUES.update(VALID_VALUES_SSL)
+    ALL_VALID_VALUES[PORT] = POSSIBLE_PORTS
+    ALL_VALID_VALUES[SSL_PORT] = POSSIBLE_PORTS
+    ALL_VALID_VALUES[PRIORITY] = [1, 2, 3, 4, 5, 6, 7, 8]
+
     # default values
     DEFAULTS = {
         PORT: 389,
@@ -79,7 +86,7 @@ class LdapConsts:
         BIND_DN: '',
         GROUP_ATTR: 'member',
         # LOGIN_ATTR: 'cn',  not supported now
-        BIND_PASSWORD: '*',
+        SECRET: '*',
         TIMEOUT_BIND: 5,
         TIMEOUT: 5,
         VERSION: 3,
@@ -97,7 +104,7 @@ class LdapConsts:
         BIND_DN: '',
         GROUP_ATTR: 'member',
         # LOGIN_ATTR: 'cn',  not supported now
-        BIND_PASSWORD: '*',
+        SECRET: '*',
         TIMEOUT_BIND: 5,
         TIMEOUT: 5,
         VERSION: 3,
@@ -118,13 +125,15 @@ class LdapConsts:
         BIND_DN: False,
         GROUP_ATTR: False,
         # LOGIN_ATTR: 'cn',  not supported now
-        BIND_PASSWORD: False,
+        SECRET: False,
         TIMEOUT_BIND: True,
         TIMEOUT: True,
         VERSION: True,
+        PRIORITY: True,
         # ssl defaults
         SSL_CA_LIST: False,
         SSL_CERT_VERIFY: False,
+        SSL_CRL_LIST: False,
         SSL_MODE: False,
         SSL_PORT: True,
         SSL_TLS_CIPHERS: False
@@ -134,11 +143,11 @@ class LdapConsts:
         "hostname": "10.7.34.20",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "password": "secret",
+        "secret": "secret",
         # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "auth-port": "389",
+        "port": "389",
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
@@ -173,11 +182,11 @@ class LdapConsts:
         "hostname": "fdfd:fdfd:10:237:250:56ff:fe1b:56",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "password": "secret",
+        "secret": "secret",
         # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "auth-port": "389",
+        "port": "389",
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
@@ -210,11 +219,11 @@ class LdapConsts:
         "hostname": "10.237.0.86",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "password": "secret",
+        "secret": "secret",
         # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "auth-port": "389",
+        "port": "389",
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
@@ -247,11 +256,11 @@ class LdapConsts:
         "hostname": "fit-l-vrt-60-086",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "password": "secret",
+        "secret": "secret",
         # "login-attribute": "cn",  not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "auth-port": "389",
+        "port": "389",
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
@@ -284,11 +293,11 @@ class LdapConsts:
         "hostname": "ldap.itzgeek.local",
         "base-dn": "dc=itzgeek,dc=local",
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
-        "password": "secret",
+        "secret": "secret",
         # "login-attribute": "cn", not supported now
         "group-attribute": "member",
         # "scope": "subtree", not supported now
-        "auth-port": "389",
+        "port": "389",
         "timeout-bind": "1",
         "timeout-search": "1",
         "version": '3',
@@ -342,7 +351,7 @@ class LdapConsts:
         DNS: DOCKER_LDAP_SERVER_DNS
     }
 
-    TLS = 'tls'
+    TLS = 'start-tls'
     CONNECTION_METHODS = [IPV4, IPV6, DNS]
     ENCRYPTION_MODES = [NONE, TLS, SSL]
 
@@ -354,3 +363,10 @@ class LdapConsts:
     SWITCH_CA_BACKUP_FILE = '/tmp/backup_ca-certificates.crt'
 
     PERMISSION_DENIED = 'Permission denied'
+
+
+class LdapEncryptionModes:
+    NONE = 'none'
+    START_TLS = 'start-tls'
+    SSL = 'ssl'
+    ALL_MODES = [NONE, START_TLS, SSL]

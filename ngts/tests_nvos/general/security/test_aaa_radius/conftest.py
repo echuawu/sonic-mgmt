@@ -3,6 +3,11 @@ import pytest
 from ngts.nvos_tools.system.System import System
 
 
+@pytest.fixture(scope='session', autouse=True)
+def prepare_scp_test(prepare_scp):
+    return
+
+
 @pytest.fixture(scope='function')
 def clear_all_radius_configurations(engines):
     '''

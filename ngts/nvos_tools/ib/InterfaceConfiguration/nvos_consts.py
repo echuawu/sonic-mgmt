@@ -32,7 +32,7 @@ class IbInterfaceConsts:
     LINK_PHYSICAL_PORT_STATE = "physical-state"
     LINK_STATE = "state"
     LINK_DIAGNOSTICS = "diagnostics"
-    LINK_DIAGNOSTICS_UNPLUGGED_PORT = {'1024': {'status': 'Cable is unplugged.'}}
+    LINK_DIAGNOSTICS_UNPLUGGED_PORT = {'1024': {'status': 'Cable is unplugged'}}
     LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT = {'1': {'status': 'Closed by command'}}
     LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT = {'0': {'status': 'No issue was observed'}}
     LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT = {'2': {'status': 'Negotiation failure'}}

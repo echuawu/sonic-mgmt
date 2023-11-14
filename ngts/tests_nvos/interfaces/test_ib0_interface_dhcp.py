@@ -1,4 +1,5 @@
 import pytest
+import time
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
@@ -61,6 +62,7 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
         with allure.step('config the set-hostname value to disabled'):
             ipoib_port.interface.ip.dhcp_client.set(op_param_name='set-hostname', op_param_value='disabled',
                                                     apply=True, ask_for_confirmation=True).verify_result()
+            time.sleep(10)
 
         with allure.step('verify the dhcp-client after the change'):
             dhcp_client_dict = OutputParsingTool.parse_json_str_to_dictionary(

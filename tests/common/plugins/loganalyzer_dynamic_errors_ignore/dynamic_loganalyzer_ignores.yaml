@@ -2719,6 +2719,48 @@
     - Redmine:
         - 3480907
 
+# NVOS - TACACS - LA bug
+- Errors_list:
+    - '.*WARNING nginx: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth
+    - Redmine:
+        - 3629429
+
+# NVOS - TACACS - ignore expected log
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/.* - FileNotFoundError\(2, ''No such file or directory''\).*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_kernel_module_loading[signed]
+
+- Errors_list:
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect. user: .*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
+    - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
+    - '.*ERR .*: tac_authen_read: inconsistent reply body, incorrect key\?.*'
+    - '.*ERR service_checker: tac_author_read: arguments supplied in packet seem to exceed its size.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
+    - '.*ERR .*: tac_connect_single: connection failed with .*:.*: Transport endpoint is not connected.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
+
+- Errors_list:
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
@@ -2753,25 +2795,66 @@
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state_openapi
 
-# NVOS
+# NVOS LDAP - expected logs
+- Errors_list:
+    - '.*ERR nslcd\[\d+\]:.*no available LDAP server found:.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://unreachable.*/: Can''t contact LDAP server: Invalid argument.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable
+
 - Errors_list:
     - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
 
-# NVOS
+# NVOS - expected nslcd service error logs - (LDAP feature) error flow test
 - Errors_list:
-    - '.* ERR nslcd\[\d+\]: .* no available LDAP server found: .*'
+    - '.*WARNING nslcd\[.*\]:.*no available LDAP server found, sleeping 1 seconds.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_in_password_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+
+# NVOS - expected nslcd service error logs - (LDAP feature) error flow test
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*request denied by validnames option.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+
+# NVOS - expected LDAP feature error flow test
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+
+# NVOS - expected LDAP feature error flow test
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid credentials.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+
+# NVOS - expected LDAP feature error flow test
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid DN syntax: invalid DN'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 # NVOS
 - Errors_list:
@@ -3486,6 +3569,17 @@
     - Affected_test_cases:
       - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
 
+- Errors_list:
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnma1p236.*'
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnm1pl1.*'
+    - '.*ERR swss-ibv00#orchagent: :- getPortFnmStatus: Mismatch between FNM status 0 and alias fnm1pl2.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_up
+    - Platform:
+      - mqm9700
+
 # NVOS - expected errors during thermal algo tests
 - Errors_list:
     - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal.*'
@@ -3630,10 +3724,9 @@
     - '.*Could not get info about sensors.*'
     - '.*ERR systemd\[1\]: Failed to start Platform monitor container.*'
     - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Start request repeated too quickly.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Control process exited, code=killed, status.*"
-    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'signal'.*"
+    - '.*WARNING systemd\[1\]: pmon.service:.*'
+    - '.*ERR hw-management: chip hwmon object.*'
+    - '.*netdev does not support more than one PCI device.*'
   Conditions:
     - Redmine:
         - 3540710
@@ -3699,6 +3792,10 @@
 - Errors_list:
     - '.*FW SOS EVENT LOG START.*'
     - '.*FW SOS EVENT LOG END.*'
+    - '.*ERR syncd-ibv00#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[FW health issue\].*'
+    - ".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*"
+    - '.*ERR swss-ibv00#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.*ERR syncd-ibv00#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch_ib.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
@@ -3746,3 +3843,41 @@
   Conditions:
     - Redmine:
         - 3656906
+
+# NVOS
+- Errors_list:
+    - ".*ansible-command Invoked with _raw_params=python /tmp/loganalyzer.py.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - ".*multicast join failed for.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_ib0_interface_ip.py::test_ib0_interface_ipv6_address
+
+# The below errors should be ignored, because it is caused by redis db crash and it is an expected behaviour
+- Errors_list:
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[COMMAND_IFC.ERR\] sxd_ioctl (CTRL_CMD_ACCESS_REG - pmtu) FW error: \[BAD PARAMETER\]'
+    - '.*Register access failed (reg_id=0x5003, status=0x7)'
+    - '.*\[ACCESS_REG_INFRA.ERR\] REG pmtu: Failed accessing register through CMD IFC'
+    - '.*mlnx_set_get_pmtu_register: mlnx_set_get_pmtu_register: failed in PMTU device.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[687\]- mlnx_set_mtu_admin: Failed set PMTU for local port.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[775\]- mlnx_port_mtu_set: Failed to set mtu to port.*'
+    - '.*\[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2019\]- sai_set_attribute: Failed set attrib dispatch'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[2047\]- mlnx_set_port_attribute: Failed set port attribute key port.*'
+    - '.*sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_FAILURE'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - '.*Loading Cached Option:enable_crashd.*'
+  Conditions:
+    - Redmine:
+        - 3544158

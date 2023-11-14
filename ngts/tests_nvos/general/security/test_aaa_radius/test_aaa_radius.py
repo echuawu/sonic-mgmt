@@ -1,3 +1,4 @@
+import pytest
 import logging
 import time
 from ngts.tools.test_utils import allure_utils as allure
@@ -23,9 +24,9 @@ def configure_radius_server(radius_server_info):
     e.g.:
         {
             "hostname" : <value>
-            "auth-port" : <value>,
+            "port" : <value>,
             "auth-type" : <value>,
-            "password"  : <value>,
+            "secret"  : <value>,
             "timeout" : <value>, (optional argument)
             "priority" : <value> (optional argument)
         }
@@ -35,20 +36,19 @@ def configure_radius_server(radius_server_info):
 
     with allure.step("configuring the following radius server on the switch:\n{}".format(radius_server_info)):
         logging.info("configuring the following radius server on the switch:\n{}".format(radius_server_info))
-        system.aaa.radius.set(RadiusConstants.RADIUS_HOSTNAME, radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                              apply=True, ask_for_confirmation=True)
-        system.aaa.radius.hostname.set_password(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                radius_server_info[RadiusConstants.RADIUS_PASSWORD])
+        system.aaa.radius.set(RadiusConstants.RADIUS_HOSTNAME, radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
         system.aaa.radius.hostname.set_auth_port(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
                                                  int(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]))
         system.aaa.radius.hostname.set_auth_type(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
                                                  radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
         if radius_server_info.get(RadiusConstants.RADIUS_TIMEOUT):
             system.aaa.radius.hostname.set_timeout(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                   int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]), True, True)
+                                                   int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]))
         if radius_server_info.get(RadiusConstants.RADIUS_PRIORITY):
             system.aaa.radius.hostname.set_priority(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                    radius_server_info[RadiusConstants.RADIUS_PRIORITY], True, True)
+                                                    radius_server_info[RadiusConstants.RADIUS_PRIORITY])
+        system.aaa.radius.hostname.set_password(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                radius_server_info[RadiusConstants.RADIUS_PASSWORD], True, True)
 
     with allure.step("Validating configurations"):
         logging.info("Validating configurations")
@@ -128,16 +128,16 @@ def randomize_radius_server():
         e.g. of return value:
         {
             "hostname" : <value>
-            "auth-port" : <value>,
+            "port" : <value>,
             "auth-type" : <value>,
-            "password"  : <value>
+            "secret"  : <value>
         }
     """
     randomized_radius_server_info = {
         "hostname": f"1.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}",
-        "auth-port": f"{random.randint(0, 255)}",
+        "port": f"{random.randint(0, 255)}",
         "auth-type": "pap",
-        "password": f"{random.randint(0, 255)}",
+        "secret": f"{random.randint(0, 255)}",
     }
 
     return randomized_radius_server_info
@@ -204,8 +204,8 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
         to connect to switch.
     e.g. for radius configurations:
         {
-            "auth-port" : <value>,
-            "password"  : <value>
+            "port" : <value>,
+            "secret"  : <value>
         }
         each one of the above values can be configured with invalid values
     Test flow:

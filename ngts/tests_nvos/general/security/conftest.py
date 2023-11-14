@@ -1,7 +1,7 @@
 import time
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.SecurityTestToolKit import SecurityTestToolKit
@@ -126,7 +126,38 @@ def local_adminuser(engines):
     adminuser = AaaConsts.LOCAL_TEST_ADMIN
     set_local_users(engines, [adminuser], apply=True)
     return adminuser
+    # System().aaa.user.unset(AaaConsts.USER, adminuser.username, apply=True).verify_result()
 
+
+@pytest.fixture(scope='session', autouse=False)
+def prepare_scp(engines):
+    """
+    @summary: Upload a dummy text file to the switch, that will be used in tests for scp verification
+    """
+    admin_monitor_mutual_group = 'adm'
+    # admins_group = 'admin'
+
+    logging.info('Prepare directory for admin users only')
+    engines.dut.run_cmd(f'mkdir -p {AuthConsts.SWITCH_SCP_TEST_DIR}')
+    engines.dut.run_cmd(f'mkdir -p {AuthConsts.SWITCH_ADMINS_DIR}')
+    # engines.dut.run_cmd(f'chgrp {admins_group} {AuthConsts.SWITCH_ADMINS_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_ADMINS_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_ADMIN_SCP_DOWNLOAD_TEST_FILE}')
+    # engines.dut.run_cmd(f'chgrp {admins_group} {AuthConsts.SWITCH_ADMIN_SCP_DOWNLOAD_TEST_FILE}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_ADMIN_SCP_DOWNLOAD_TEST_FILE}')
+
+    logging.info('Prepare non-privileged directory')
+    engines.dut.run_cmd(f'mkdir -p {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_MONITORS_DIR}')
+    engines.dut.run_cmd(f'echo "Alon The King" > {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
+    engines.dut.run_cmd(f'chgrp {admin_monitor_mutual_group} {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
+    engines.dut.run_cmd(f'chmod 770 {AuthConsts.SWITCH_MONITOR_SCP_DOWNLOAD_TEST_FILE}')
+
+    yield
+
+    logging.info('Clean scp test files')
+    engines.dut.run_cmd(f'rm -rf {AuthConsts.SWITCH_SCP_TEST_DIR}')
 
 # @pytest.fixture(scope='function')
 # def disable_remote_auth_after_test(engines):

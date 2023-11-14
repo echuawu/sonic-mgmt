@@ -95,7 +95,7 @@ def set_nvos_bin(topic_map, project){
         print "NVOS image branch name is defined by topic: ${nvos_branch}"
     } else if (project == "nvos") {
         if (env.GERRIT_BRANCH && NGCITools().ciTools.is_parameter_contains_value(env.GERRIT_BRANCH)) {
-            nvos_branch = env.GERRIT_BRANCH.replace("dev_ver", "dev")
+            nvos_branch = env.GERRIT_BRANCH.replace("dev_ver", "dev").replace("nvos_ver", "nvos")
             print "NVOS image branch name branch name: ${nvos_branch}"
         }
     }

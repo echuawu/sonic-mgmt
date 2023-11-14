@@ -4,6 +4,11 @@ import pytest
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
 
 
+@pytest.fixture(scope='session', autouse=True)
+def prepare_scp_test(prepare_scp):
+    return
+
+
 @pytest.fixture(scope='function', autouse=False, params=[LdapConsts.IPV4, LdapConsts.IPV6])
 def alias_ldap_server_dn(engines, request):
     """

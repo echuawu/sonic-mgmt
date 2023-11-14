@@ -31,6 +31,7 @@ from dotted_dict import DottedDict
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
@@ -220,9 +221,18 @@ def clear_config(markers, active_aaa_server=None):
                                                  ip=TestToolkit.engines.dut.ip,
                                                  username=remote_admin.username,
                                                  password=remote_admin.password)
-            logging.info('Enable failthrough to allow local admin user engine continue')
-            System().aaa.authentication.set(AuthConsts.FAILTHROUGH, AaaConsts.ENABLED, apply=True,
-                                            dut_engine=remote_admin_engine).verify_result()
+            logging.info('Clear authentication settings to allow local admin user engine continue')
+            try:
+                System().aaa.authentication.unset(apply=True, dut_engine=remote_admin_engine).verify_result()
+            except Exception:
+                logging.info('Failed with remote user engine, try with local dut engine')
+                System().aaa.authentication.unset(apply=True).verify_result()
+
+            if isinstance(active_aaa_server, LdapServerInfo):
+                logging.info('Remove LDAP users home directories')
+                remote_usernames = [user.username for user in active_aaa_server.users]
+                for username in remote_usernames:
+                    TestToolkit.engines.dut.run_cmd(f'sudo rm -rf /home/{username}')
 
         if 'system_profile_cleanup' in markers:
             clear_system_profile_config()
@@ -431,3 +441,8 @@ def extend_log_analyzer_match_regex(loganalyzer):
 @pytest.fixture(scope='session', autouse=True)
 def disable_loganalyzer_rotate_logs(request):
     request.config.option.loganalyzer_rotate_logs = False
+
+
+@pytest.fixture(scope='function', autouse=True)
+def initialize_testtoolkit_loganalyzer(loganalyzer):
+    TestToolkit.loganalyzer_duts = loganalyzer

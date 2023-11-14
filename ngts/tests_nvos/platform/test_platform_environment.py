@@ -193,13 +193,13 @@ def _verify_temp_prop(temp, temp_prop):
 
     if "max" in list_of_keys:
         value = temp_prop["max"]
-        assert isinstance(value, float) or "N/A" in value, "the max temperature value is invalid"
+        assert _get_float(value) or "N/A" in value, "the max temperature value is invalid"
 
     if "crit" in list_of_keys:
         value = temp_prop["crit"]
-        assert isinstance(value, float) or "N/A" in value, "the critical temperature value is invalid"
+        assert _get_float(value) or "N/A" in value, "the critical temperature value is invalid"
         assert "max" in list_of_keys, "max temperature value is missing"
-        assert float(value) >= float(temp_prop["max"]), "the critical temperature < max temperature"
+        assert _get_float(value) >= float(temp_prop["max"]), "the critical temperature < max temperature"
 
 
 def _verify_output(platform, comp_name, req_fields):
@@ -228,7 +228,7 @@ def _verify_led_prop(led, led_prop):
     logging.info("led {}".format(led))
     assert PlatformConsts.ENV_LED_COLOR_LABEL in led_prop.keys(), \
         PlatformConsts.ENV_LED_COLOR_LABEL + " not found for " + led
-    assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS,\
+    assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS, \
         led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + "is not a legal value"
 
 
@@ -238,7 +238,7 @@ def _verify_led_color(led, led_prop):
         assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_OFF, \
             PlatformConsts.ENV_LED_COLOR_OFF + " not found for " + led
     else:
-        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_GREEN,\
+        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_GREEN, \
             PlatformConsts.ENV_LED_COLOR_GREEN + " not found for " + led
 
 
@@ -284,3 +284,10 @@ def test_show_platform_environment_fan_openapi(engines, devices):
 def test_show_platform_environment_openapi(engines, devices):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_show_platform_environment(engines, devices)
+
+
+def _get_float(string):
+    try:
+        return float(string)
+    except ValueError:
+        return None

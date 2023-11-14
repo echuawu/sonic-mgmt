@@ -237,7 +237,7 @@ def test_system_snmp_functional(engines, topology_obj):
             assert dhcp_hostname in host_output, 'snmp get with wrong port returned output'
 
     with allure.step("Configure auto-refresh interval and do snmpget"):
-        system.snmp_server.set('auto-refresh-interval', '5').verify_result()
+        system.snmp_server.set('auto-refresh-interval', '8').verify_result()
         NvueGeneralCli.apply_config(engines.dut)
 
     with allure.step('Set possible description on mgmt port'):

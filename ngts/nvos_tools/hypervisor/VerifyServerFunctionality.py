@@ -2,11 +2,12 @@
 
 import subprocess
 import traceback
-import sys
 import time
 import getopt
 from retry import retry
-from ngts.nvos_tools.infra.LoggerTool import get_logger
+import sys
+sys.path.append("/root/mars/workspace/sonic-mgmt/ngts/nvos_tools/infra")
+from LoggerTool import get_logger
 
 logger = get_logger()
 

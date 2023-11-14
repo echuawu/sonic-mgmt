@@ -235,6 +235,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
                                                     IbInterfaceConsts.MTU_VALUES, True)
 
         # Validate op-vls field aggregation
+
         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
         #                                             IbInterfaceConsts.LINK_OPERATIONAL_VLS,
         #                                             IbInterfaceConsts.SUPPORTED_VLS, True)

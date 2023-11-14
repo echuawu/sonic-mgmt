@@ -16,7 +16,8 @@ logger = logging.getLogger()
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-def test_system(engines, devices, topology_obj, test_name):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system(test_api, engines, devices, topology_obj, test_name):
     """
     Run show system message command and verify the required message
         Test flow:
@@ -31,6 +32,8 @@ def test_system(engines, devices, topology_obj, test_name):
             10. run nv config apply
             11. verify hostname changed to ""nvos"
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
@@ -73,7 +76,8 @@ def test_system(engines, devices, topology_obj, test_name):
 
 @pytest.mark.system
 @pytest.mark.simx
-def test_system_message(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_system_message(test_api, engines, devices):
     """
     Run show/set/unset system message command and verify the required message
         Test flow:
@@ -92,6 +96,8 @@ def test_system_message(engines, devices):
             11. run show system message
             12. verify pre-login changed to default value
     """
+    TestToolkit.tested_api = test_api
+
     new_pre_login_msg = "Testing PRE LOGIN MESSAGE"
     new_post_login_msg = "Testing POST LOGIN MESSAGE"
     system = System()
@@ -138,13 +144,16 @@ def test_system_message(engines, devices):
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.nvos_chipsim_ci
-def test_show_system_version(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_system_version(test_api, engines, devices):
     """
     Run show system version command and verify version values
         Test flow
         1. run show system message
         2. validate values in db
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step('Run show system command and verify that each field has a value'):
         system = System()
         version_output = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()
@@ -154,7 +163,8 @@ def test_show_system_version(engines, devices):
 
 @pytest.mark.system
 @pytest.mark.cumulus
-def test_show_system_reboot(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_system_reboot(test_api, engines, devices):
     """
     Run show system reboot command and verify the reboot history and reason values
         Test flow:
@@ -164,6 +174,8 @@ def test_show_system_reboot(engines, devices):
             5. run show system message
             6. validate all fields have the new values
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step('Run show system reboot command and verify that each field has a value'):
         system = System()
         reboot_output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
@@ -172,7 +184,8 @@ def test_show_system_reboot(engines, devices):
 
 @pytest.mark.system
 @pytest.mark.simx
-def test_show_system_memory(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_system_memory(test_api, engines, devices):
     """
     Run show system memory and verify there is a correlation between the different values,
     and the values are in appropriate range.
@@ -183,6 +196,8 @@ def test_show_system_memory(engines, devices):
             4. validate Utilization percentages are not reaching 60% for both Physical and Swap types (physical > 0)
             5. validate utilization value = (used / total) * 100, for both Physical and Swap types
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step('Run show system memory command and verify that each field has a value'):
         system = System()
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.show("memory")).get_returned_value()
@@ -217,7 +232,8 @@ def test_show_system_memory(engines, devices):
 
 @pytest.mark.system
 @pytest.mark.simx
-def test_show_system_cpu(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_system_cpu(test_api, engines, devices):
     """
     Run show system memory and verify there is a correlation between the different values,
     and the values are in appropriate range.
@@ -227,6 +243,8 @@ def test_show_system_cpu(engines, devices):
             3. verify switch CPU core-count matches the switch type
             4. validate Utilization percentages are not reaching 30%
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step('Run show system cpu command and verify that each field has a value'):
         time.sleep(10)
         system = System()
@@ -242,54 +260,3 @@ def test_show_system_cpu(engines, devices):
         utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
         assert SystemConsts.CPU_PERCENT_THRESH_MIN < utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
             "utilization percentage is out of range"
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.nvos_chipsim_ci
-def test_system_openapi(engines, devices, topology_obj, test_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system(engines, devices, topology_obj, test_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-def test_show_system_cpu_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_cpu(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-def test_show_system_memory_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_memory(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-def test_show_system_reboot_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_reboot(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-@pytest.mark.nvos_ci
-def test_show_system_version_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_version(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.simx
-def test_system_message_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_message(engines, devices)

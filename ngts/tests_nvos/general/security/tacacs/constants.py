@@ -54,7 +54,7 @@ class TacacsServers:
         priority=1,
         secret='testing-tacacs',
         port=49,
-        timeout=1,
+        timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
         users=[  # todo: verify users on this server
@@ -97,7 +97,7 @@ class TacacsServers:
         priority=1,
         secret='secret',
         port=49,
-        timeout=1,
+        timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
         users=VM_SERVER_USERS_PAP

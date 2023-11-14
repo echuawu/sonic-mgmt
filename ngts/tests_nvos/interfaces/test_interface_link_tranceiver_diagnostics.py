@@ -4,10 +4,11 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.platform.Platform import Platform
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
-list_with_status_codes = [{'1024': {'status': 'Cable is unplugged.'}}, {'1': {'status': 'Closed by command'}},
+list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'status': 'Closed by command'}},
                           {'0': {'status': 'No issue was observed'}}, {'2': {'status': 'Negotiation failure'}},
                           {'15': {'status': 'Bad signal integrity'}}, {'59': {'status': 'Other issues'}}]
 
@@ -32,7 +33,7 @@ def test_interface_tranceiver_diagnostics_basic(engines):
         optical_output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
             platform.hardware.tranceiver.show('sw16')).get_returned_value()
         yaml_output = platform.hardware.tranceiver.show('sw16', output_format=OutputFormat.yaml)
-        fields_to_check = ["cable-length", "cable-type", "channel", "diagnostics-status", "identifier", "temperature",
+        fields_to_check = ["supported-cable-length", "cable-type", "channel", "diagnostics-status", "identifier", "temperature",
                            "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn", "voltage"]
         for field in fields_to_check:
             assert field in yaml_output, '{0} not exist in yaml output'.format(field)
@@ -116,6 +117,7 @@ def test_interface_link_diagnostics_basic(engines):
                     port.ib_interface.link.diagnostics.show()).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
                 logging.info("Check each port status in all ports status")
+                logging.info("Status dict {}".format(status_dict))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
                 assert diagnostics_per_port == status_dict, \
                     "Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
@@ -133,15 +135,20 @@ def test_interface_link_diagnostics_basic(engines):
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \
                     "Status code isn't 1024"
 
-    with allure.step('Run nv show interface for not exist port/eth0/ib0/lo'):
-        output_dictionary = any_port.show_interface(port_names='aa link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for aa transceiver"
-        output_dictionary = any_port.show_interface(port_names='eth0 link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for eth0 transceiver"
-        output_dictionary = any_port.show_interface(port_names='ib0 link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for ib0 transceiver"
-        output_dictionary = any_port.show_interface(port_names='lo link diagnostics')
-        assert output_dictionary == 'The requested item does not exist.', "Can run command for lo transceiver"
+    if not is_redmine_issue_active(3556295):
+        with allure.step('Run nv show interface for not exist port/eth0/ib0/lo'):
+            output_dictionary = any_port.show_interface(port_names='aa link diagnostics')
+            assert "Valid interface types are swp, eth, loopback, ipoib, fnm." in output_dictionary, \
+                "Can run command for aa transceiver"
+            output_dictionary = any_port.show_interface(port_names='eth0 link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for eth0 transceiver"
+            output_dictionary = any_port.show_interface(port_names='ib0 link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for ib0 transceiver"
+            output_dictionary = any_port.show_interface(port_names='lo link diagnostics')
+            assert output_dictionary == "Error: 'diagnostics' is not one of ['brief', 'state', 'counters']", \
+                "Can run command for lo transceiver"
 
 
 @pytest.mark.ib

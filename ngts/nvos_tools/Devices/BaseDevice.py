@@ -330,8 +330,7 @@ class BaseSwitch(BaseDevice, ABC):
                        SystemConsts.UPTIME, SystemConsts.TIMEZONE, SystemConsts.HEALTH_STATUS, SystemConsts.DATE_TIME, SystemConsts.STATUS],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_REASON],
-            'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_BUILT_BY, SystemConsts.VERSION_IMAGE,
-                        SystemConsts.VERSION_KERNEL]
+            'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_IMAGE, SystemConsts.VERSION_KERNEL]
         }
         dump_files = ['APPL_DB.json', 'ASIC_DB.json', 'boot.conf', 'bridge.fdb', 'bridge.vlan', 'CONFIG_DB.json',
                       'COUNTERS_DB_1.json', 'COUNTERS_DB_2.json', 'COUNTERS_DB.json', 'date.counter_1',
@@ -339,10 +338,9 @@ class BaseSwitch(BaseDevice, ABC):
                       'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm', 'ib-utils.dump',
                       'ifconfig.counters_1', 'ifconfig.counters_2', 'interface.status', 'interface.xcvrs.eeprom',
                       'interface.xcvrs.presence', 'ip.addr', 'ip.interface', 'ip.link', 'ip.link.stats', 'ip.neigh',
-                      'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount', 'nat.config',
-                      'nat.conntrack', 'nat.conntrackall', 'nat.conntrackallcount', 'nat.conntrackcount',
-                      'nat.iptables', 'netstat.counters_1', 'netstat.counters_2', 'platform.summary',
-                      'ps.aux', 'ps.extended', 'psustatus', 'queue.counters_1', 'queue.counters_2', 'reboot.cause',
+                      'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount',
+                      'netstat.counters_1', 'netstat.counters_2', 'platform.summary', 'ps.aux', 'ps.extended',
+                      'psustatus', 'queue.counters_1', 'queue.counters_2', 'reboot.cause',
                       'saidump', 'sensors', 'services.summary', 'ssdhealth', 'STATE_DB.json', 'swapon', 'sysctl',
                       'syseeprom', 'systemd.analyze.blame', 'systemd.analyze.dump', 'systemd.analyze.plot.svg',
                       'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
@@ -1059,7 +1057,7 @@ class CrocodileSwitch(MultiAsicSwitch):
                                 'sw30p1', 'sw30p2', 'sw3p1', 'sw3p2', 'sw4p1', 'sw4p2', 'sw5p1', 'sw5p2', 'sw6p1',
                                 'sw6p2', 'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 56 ports
     ALL_PLANE_PORT_LIST = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']  # total 6 ports
-    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
+    ALL_PORT_LIST = NON_AGGREGATED_PORT_LIST + AGGREGATED_PORT_LIST + FNM_EXTERNAL_PORT_LIST + NON_IB_PORT_LIST  # total 63 ports
     ALL_FAE_PORT_LIST = ALL_PORT_LIST + ALL_PLANE_PORT_LIST + FNM_PLANE_PORT_LIST  # total 71 ports
     ASIC0 = 'asic0'
     ASIC1 = 'asic1'

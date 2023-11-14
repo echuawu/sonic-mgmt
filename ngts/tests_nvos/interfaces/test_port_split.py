@@ -16,7 +16,6 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -130,8 +129,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
             NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
     with allure.step("Unset parent port"):
-        child_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).\
-            verify_result(False)
+        child_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.ib_interfaces
@@ -197,7 +195,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                 for port in list_of_all_ports:
                     if parent_port.name in port.name and port.name[-2] == 's':
                         child_ports.append(port)
-            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
+            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=10).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
                 child_ports[0].ib_interface.link.show()).get_returned_value()
             values_to_verify = [NvosConsts.LINK_STATE_UP, IbInterfaceConsts.SPLIT_PORT_CHILD_DEFAULT_LANES,
@@ -359,6 +357,50 @@ def test_split_port_n_times(engines, interfaces, start_sm):
             parent_port.show_interface()).get_returned_value()
 
 
+@pytest.mark.ib_interfaces
+def test_split_all_ports_together(engines, interfaces, start_sm):
+    """
+    Test flow:
+        1. Get all ib ports
+        2. Split it
+        3. Check if show command for port work
+        4. Get all ports
+        5. Unset
+    """
+    marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
+    with allure.step("Get all up and down ports"):
+        ports_down_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
+                                                                       requested_ports_type="ib",
+                                                                       num_of_ports_to_select=0).get_returned_value()
+        ports_up_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                     requested_ports_type="ib",
+                                                                     num_of_ports_to_select=0).get_returned_value()
+
+    with allure.step("Split not connected ports"):
+        for port_up in ports_down_state:
+            port_up.ib_interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR)\
+                .verify_result()
+
+    with allure.step("Split physical ports"):
+        for port_down in ports_up_state:
+            port_down.ib_interface.link.set(op_param_name='breakout',
+                                            op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR).verify_result()
+        NvueGeneralCli.apply_config(engines.dut, option='-y')
+
+    with allure.step("Check if we can do show for splitted interface"):
+        Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            port_up.show_interface()).get_returned_value()
+
+    with allure.step("Check if we can to get splitted ports"):
+        _get_split_ports()
+
+    with allure.step("Unset all ports"):
+        NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+        TestToolkit.add_loganalyzer_marker(engines.dut, marker)
+        NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
+
+
 @pytest.mark.system_profile_cleanup
 @pytest.mark.ib_interfaces
 def test_split_all_ports(engines, interfaces, start_sm):
@@ -370,6 +412,8 @@ def test_split_all_ports(engines, interfaces, start_sm):
         4. Get all ports
         5. Unset
     """
+    marker = TestToolkit.get_loganalyzer_marker(engines.dut)
+
     with allure.step("Get all up and down ports"):
         ports_down_state = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
                                                                        requested_ports_type="ib",
@@ -408,6 +452,7 @@ def test_split_all_ports(engines, interfaces, start_sm):
 
     with allure.step("Unset all ports"):
         NvueSystemCli.unset(TestToolkit.engines.dut, 'interface')
+        TestToolkit.add_loganalyzer_marker(engines.dut, marker)
         NvueGeneralCli.apply_config(engine=TestToolkit.engines.dut, option='--assume-yes')
 
 
@@ -498,21 +543,17 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
         alias = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="", db_name=DatabaseConst.APPL_DB_NAME,
                                                      db_config="ALIAS_PORT_MAP:{}".format(child_ports[0].name),
                                                      param="name")
-        # cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{} name".format(child_ports[0].name)
-        # alias = engines.dut.run_cmd(cmd)
 
-    if not is_redmine_issue_active(3554789):
-        with allure.step("Set mtu value through redis cli on a child port and validate"):
-            random_mtu = random.randrange(256, 4096)
-            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
-                                                                    db_name=DatabaseConst.CONFIG_DB_NAME,
-                                                                    db_config="IB_PORT\\|{0}".format(alias),
-                                                                    param="mtu", value=str(random_mtu))
-            # cmd = "redis-cli -n 4 HSET IB_PORT\\|{0} mtu {1}".format(alias, random_mtu)
-            # redis_cli_output = engines.dut.run_cmd(cmd)
-            assert redis_cli_output != 0, "Redis command failed"
-            Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                child_ports[0].ib_interface.link.show()).get_returned_value()
+    with allure.step("Set mtu value through redis cli on a child port and validate"):
+        random_mtu = random.randrange(256, 4096)
+        redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
+                                                                db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                db_config="IB_PORT\\|{0}".format(alias),
+                                                                param="mtu {}".format(str(random_mtu)))
+
+        assert redis_cli_output != 0, "Redis command failed"
+        Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
+            child_ports[0].ib_interface.link.show()).get_returned_value()
 
     with allure.step("Unset parent port"):
         parent_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()

@@ -24,11 +24,11 @@ class RadiusHostname(BaseComponent):
 
     def set_password(self, hostname, password, apply=False, ask_for_confirmation=False):
         radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
-        return radius_hostname.set("password", password, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return radius_hostname.set("secret", password, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_auth_port(self, hostname, auth_port, apply=False, ask_for_confirmation=False):
         radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
-        return radius_hostname.set("auth-port", auth_port, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return radius_hostname.set("port", auth_port, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
     def set_auth_type(self, hostname, auth_type, apply=False, ask_for_confirmation=False):
         radius_hostname = RadiusHostnameResource(self, hostname_id=hostname)
