@@ -1,0 +1,1333 @@
+# This file is relevant just for NVOS test that under tests_nvos
+# To ignore errors for ommunity tests use file: sonic-mgmt/tests/common/plugins/loganalyzer_dynamic_errors_ignore/dynamic_loganalyzer_ignores.yaml
+# Note that single quote ' should be escaped by another single quote '
+# Example(see: Can''t):     '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
+# Example: in code below - errors will be ignored:
+# IF: test case name: tests/test_dbg.py::test_a
+# OR
+# IF: Redmine issue active AND branch is 202106 AND sn2 in platform
+# OR
+# IF: GitHub issue is active
+#- Errors_list:
+#    - '.* ERR \d+'
+#    - 'ERR can''t do \d+'
+#  Conditions:
+#    - Affected_test_cases:
+#      - tests/test_dbg.py::test_a
+#    - Redmine:
+#      - 2829157
+#      Branch:
+#      - 202106
+#      Platform:
+#      - sn2
+#    - GitHub:
+#      - https://github.com/Azure/sonic-buildimage/issues/9811
+
+- Errors_list:
+    - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+    - '.* ERR kernel: \[\s+\d+\.\d+\] /dev/sda3: Can''t open blockdev'
+    - '.* ERR healthd: Failed to read from file \/var\/run\/hw-management\/led\/led_status_capability - FileNotFoundError.*No such file or directory.*'
+    - '.* ERR healthd: Failed to write.*file \/var\/run\/hw-management\/led\/led_status_green - FileNotFoundError.*No such file or directory.*'
+    - '.* ERR show: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, .*No such file or directory.*\)'
+  Conditions:
+    - Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[FLOW_COUNTER.ERR\] spectrum_flow_counter_get: spectrum_flow_counter_lock failed.*'
+    - '.*ERR syncd#SDK: \[FLOW_COUNTER.ERR\] spectrum_flow_counter_lock: cm_lock failed.*'
+    - '.*ERR syncd#SDK: \[GBIN_ALLOCATOR.ERR\] LID \d+ doesn''t exist!.*'
+    - '.*ERR syncd#SDK: \[SAI_ACL.ERR\] mlnx_sai_acl.c\[\d+\]- mlnx_acl_counter_get:.* Failure to get counter in SDK.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[\d+\]- .*Failed getting attrib SAI_ACL_COUNTER_ATTR_BYTES.*'
+  Conditions:
+    - Redmine:
+      - 3285631
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_PORT.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future.*'
+  Conditions:
+    - Redmine:
+      - 3500892
+
+- Errors_list:
+    - '.*ERR python: :- initializeGlobalConfig: Sonic database config global file doesn''t exist at /var/run/redis/sonic-db/database_global.json*'
+  Conditions:
+    - Redmine:
+      - 3510718
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\].*dump .*failed.*'
+  Conditions:
+    - Redmine:
+        - 3075643
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR kernel: \[.*\d+\.\d+\] Register access failed \(reg_id=0x9014, status=0x1\).*'
+  Conditions:
+    - Redmine:
+        - 3495609
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, EGRESS_ACL, key:PORT \[OID:.*\].*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- get_dispatch_attribs_handler: Failed Get #\d+, INGRESS_ACL, key:PORT \[OID:.*\].*'
+  Conditions:
+    - Redmine:
+      - 3565127
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*mlnx_get_port_stats_ext: Failed to wait for bulk counter read event.*'
+    - '.* ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.* mlnx_port_stats_wait_for_bulk_read_event: Bulk read event status is not OK.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c.*mlnx_port_stats_allocate_sx_bulk_buffer: Failed to create buffer: Driver.*Return Status is Non-Zero.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[6757\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
+    - '.* ERR swss#orchagent: :- wait: SELECT operation result: TIMEOUT on object_type_get_availability_response.*'
+    - '.* ERR swss#orchagent: :- wait: failed to get response for object_type_get_availability_response.*'
+    - '.* ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+  Conditions:
+    - Redmine:
+      - 2942594
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_get_port_stats_ext: Failed to allocate SDK buffer.*'
+  Conditions:
+    - Redmine:
+      - 3141564
+      Platform:
+        - simx
+
+- Errors_list:
+    - ".*ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/\\d+-\\d+/raw due to IndexError\\('list index out of range'\\)"
+  Conditions:
+    - Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- .* Bulk read event status is not OK.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- .* Failed to prepare bulk counter for port stats.'
+    - '.*ERR syncd#SDK.*collectPortCounters: Failed to get stats of port*'
+  Conditions:
+    - Redmine:
+      - 3154876
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_BUFFER.ERR\] mlnx_sai_buffer.c\[\d+\].*Failed to prepare bulk counter for pg occupancy stats.*'
+    - '.*ERR syncd#SDK: \[SAI_QUEUE\.ERR\] mlnx_sai_queue.c\[\d*\]- .*Failed to prepare bulk counter for queue stats.'
+  Conditions:
+    - Redmine:
+      - 3356398
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_LAG.ERR\] mlnx_sai_lag.c\[\d+\]- mlnx_hostif_reapply: Failed running.*'
+    - '.* ERR syncd#SDK: \[SAI_LAG.ERR\] mlnx_sai_lag.c\[\d+\]- mlnx_remove_lag_member: Error reapplying host interface on port.*'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_REMOVE failed in syncd mode: SAI_STATUS_FAILURE.*'
+    - '.* ERR swss#orchagent: :- remove: remove status: SAI_STATUS_FAILURE.*'
+    - '.* ERR swss#orchagent: :- removeLagMember: Failed to remove member.* from .*'
+    - '.* ERR swss#orchagent: :- handleSaiRemoveStatus: Encountered failure in remove operation, exiting orchagent.*'
+  Conditions:
+    - Redmine:
+        - 3141585
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_BUFFER.ERR] mlnx_sai_buffer.c\[\d+\]- .* Failed to find.*'
+    - '.* ERR syncd#SDK: :- exit_with_sai_failure: saisdkdump exited with SAI rc:.* Failed to create a switch .'
+  Conditions:
+    - Redmine:
+        - 3160523
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR sflow#hsflowd: device .* Get SIOCGIFFLAGS failed : No such device'
+  Conditions:
+    - Redmine:
+        - 3160535
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR wjhcli: :- requestDaemon: Timeout waiting for daemon to send data'
+  Conditions:
+    - Redmine:
+        - 3160544
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_INIT.ERR\] Could not open SX-API client communication channel.'
+    - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: mlnx_sai_switch.c\[\d+\]- mlnx_connect_switch: .* Communication Error.'
+  Conditions:
+    - Redmine:
+        - 3160591
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .*: Failed to wait for an event: Connection timed out.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT.ERR\] .* Failed to prepare bulk counter for port stats.*'
+  Conditions:
+    - Redmine:
+        - 3663204
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/led_fan\d_capability - FileNotFoundError\(2, ''No such file or directory''\)'
+  Conditions:
+    - Redmine:
+      - 2972123
+      Platform:
+      - x86_64-nvidia_sn2201-r0
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error: command:.*Lua redis.* command arguments must be strings or integers.*Input\/output error.*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error: command:.*Lua redis.* command arguments must be strings or integers.*Input\/output error.*'
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error: command: .*attempt to perform arithmetic on local .*in_octets.* \(a boolean value\).*Input\/output error.*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error: command:.*attempt to perform arithmetic on local.*'
+  Conditions:
+    - Redmine:
+      - 2972668
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock.*'
+    - '.* ERR kernel: \[.*\] hwmon hwmon\d+: Failed to query module temperature.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal \d+-0048: Failed to query temp sensor.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query PWM.*'
+    - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Failed to query fan.*'
+    - '.* ERR pmon#thermalctld: Failed to read from file /run/hw-management/thermal/module.*_temp_fault - OSError.*'
+  Conditions:
+    - Redmine:
+      - 2856406
+
+- Errors_list:
+    - '.* ERR kernel.*Failed to query module temperature thresholds'
+  Conditions:
+    - Redmine:
+        - 2915388
+
+- Errors_list:
+    - '.* WARNING syncd#SDK: \[SAI_SWITCH\.WARNING\] mlnx_sai_switch\.c\[\d+\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet.*'
+    - '.* WARNING syncd#SDK: message repeated \d+ times: \[ \[SAI_SWITCH\.WARNING\] mlnx_sai_switch\.c\[\d+\]- event_thread_func: sx_api_host_ifc_recv on callback fd returned unknown port, waiting for next packet\]'
+  Conditions:
+    - Redmine:
+        - 3001584
+
+- Errors_list:
+    - '.* ERR dhclient\[\d+\]: send_packet: No such device or address'
+    - '.* ERR dhclient\[\d+\]: dhclient\.c:\d+: Failed to send \d+ byte long packet over .* interface.*'
+  Conditions:
+    - Redmine:
+      - 3006222
+      Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR .*: Failed to get status of .*: rc=.*'
+    - ".*ERR .*: \\['sudo', 'systemctl', 'start', '.*'\\] - failed: return code.*"
+    - ".*ERR .*: Feature .* failed to be enabled and started.*"
+  Conditions:
+    - Redmine:
+        - 3537514
+
+- Errors_list:
+    - '.*ERR wjhcli: :- connect: connect\(\) failed to connect to daemon: No such file or directory.*'
+  Conditions:
+    - Redmine:
+        - 3044595
+
+- Errors_list:
+    - ".*Failed to add device '/dev/sda\\d*' to watch: Operation not permitted.*"
+    - ".*Failed to add device '/dev/loop\\d*' to watch: Operation not permitted.*"
+  Conditions:
+    - Redmine:
+        - 3044633
+
+- Errors_list:
+    - ".*ERR pmon#psud: sensor -s does not recover PSU threshold sensor after 5 seconds.*"
+  Conditions:
+    - Redmine:
+        - 3042689
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/thermal/psu1_fan_max - ValueError\("invalid literal for int\(\) with base 10:.*"\).*'
+  Conditions:
+    - Redmine:
+        - 3045534
+
+- Errors_list:
+    - '.*ERR pmon#xcvrd.*: Expected to get redis type \d+ got type \d+, err: NON-STRING-REPLY.*'
+  Conditions:
+    - Redmine:
+        - 3016938
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Receive PMPE error event on module \d+: status 3 error type 1.*'
+  Conditions:
+    - Redmine:
+      - 2976288
+
+- Errors_list:
+    - '.* ERR .*rsyslogd: omfwd\/udp: socket \d+: sendto\(\) error: Network is unreachable.*'
+    - '.* ERR .*rsyslogd: omfwd: socket \d+: error 101 sending via udp: Network is unreachable.*'
+  Conditions:
+    - Redmine:
+      - 3168474
+      GitHub:
+      - https://github.com/sonic-net/sonic-buildimage/issues/6675
+
+- Errors_list:
+    - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
+  Conditions:
+    - Redmine:
+      - 3186637
+
+- Errors_list:
+    - '.* ERR systemd\[\d\]: \/etc\/systemd\/system\/mst\.service:97: Invalid section header.*'
+  Conditions:
+    - Redmine:
+      - 3168291
+
+- Errors_list:
+    - '.* WARNING kernel: \[.+\] get_operation_tlv: Err: Got status 0x4 for register 0x9053'
+  Conditions:
+    - Redmine:
+      - 3105020
+
+- Errors_list:
+    - '.* ERR swss#orchagent: :- meta_sai_on_port_state_change_single: data.port_id oid.* has unexpected type: SAI_OBJECT_TYPE_NULL, expected PORT, BRIDGE_PORT or LAG.*'
+    - '.* ERR swss#orchagent: :- handlePortStatusChangeNotification: Failed to get port object for port id.*'
+    - '.* ERR swss#orchagent: :- doTask: Failed to get port object for port id.*'
+  Conditions:
+    - Redmine:
+      - 3131583
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/fan.*'
+    - '.*ERR pmon#thermalctld: Failed to read fan direction from \/var\/run\/hw-management\/thermal\/fan.*'
+  Conditions:
+    - Redmine:
+      - 3537920
+      Platform:
+      - 2210
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\).*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*attempt to perform arithmetic on local.*in_octets.*\(a boolean value\).*'
+    - '.* ERR syncd#SDK: :- guard: RedisReply catches system_error.*Lua redis\(\) command arguments must be strings or integers.*'
+    - '.* ERR syncd#SDK: :- runRedisScript: Caught exception while running Redis lua script: RedisReply catches system_error.*Lua redis\(\) command arguments must be strings or integers.*'
+  Conditions:
+    - Redmine:
+      - 3166325
+
+- Errors_list:
+    - '.* ERR hw-management: mlxreg_io is not loaded.*'
+  Conditions:
+    - Redmine:
+      - 3177482
+
+- Errors_list:
+    - '.* ERR bgp#fpmsyncd: :- onRouteMsg: Invalid VRF name .*ifindex \d+.*'
+  Conditions:
+    - Redmine:
+        - 3221776
+
+- Errors_list:
+    - ".* sai_db_create: Shared memory of the SAI already exists, destroying it and re-creating.*"
+  Conditions:
+    - Redmine:
+      - 3144720
+
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch'
+    - '.* ERR syncd#SAI: message repeated \d+ times: \[ \[SAI_OBJECT.ERR\] mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Can''t get object type availability before creating a switch\]'
+  Conditions:
+    - Redmine:
+        - 3358104
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
+  Conditions:
+    - Redmine:
+        - 3205278
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR pmon#xcvrd: Error! Unable to read data for \d+ port, page \d+ offset \d+, rc = 1, err msg: Sending access register.*'
+  Conditions:
+    - Redmine:
+      - 3213401
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- setQueueCounterList: Queue RID oid:.* can''t provide the statistic'
+    - '.* ERR syncd#SDK: :- addObject: Queue Counter RID oid:.* can''t provide the statistic'
+  Conditions:
+    - Redmine:
+      - 2876749
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR systemd\[\d+\]: Failed to start Update hostname based on configdb.'
+  Conditions:
+    - Redmine:
+      - 3238754
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR decode-syseeprom: Nowhere to read syseeprom from! No symlink found'
+    - '.* ERR hw-management: hw-management is already started'
+    - '.* ERR systemd\[\d+\]: Failed to start Chassis HW management service of Mellanox systems.'
+    - '.* ERR show: Nowhere to read syseeprom from! No symlink found'
+    - '.* ERR install-pending-fw.py: Nowhere to read syseeprom from! No symlink found'
+    - '.* ERR healthd: Failed to read from file /var/run/hw-management/led/led_status_capability - FileNotFoundError\(2, .No such file or directory.\)'
+    - '.* ERR healthd:- FileNotFoundError\(2, ''No such file or directory''\)'
+    - '.* ERR sonic-db-cli: :- guard: RedisReply catches system_error: command: .*, reason: ERR wrong number of arguments for ''hset'' command: Input/output error'
+    - '.* ERR wrong number of arguments for ''hset'' command: Input/output error: Input/output error'
+    - '.* ERR hostcfgd: Failed to get status of snmp.service: rc=-15 stderr=b'''''
+    - '.* ERR hostcfgd: \[''sudo'', ''systemctl'', ''start'', ''.*.service''\] - failed: return code - \d+, output:.*'
+    - '.* ERR hostcfgd: \[''systemctl'', ''(start|restart)'', ''.*''\] - failed: return code - \d+, output:.*'
+  Conditions:
+    - Redmine:
+        - 3580484
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_DBG\.ERR\].+CR-Space dump faile.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG_AMBER\.ERR\].+Failed to create dump file.*'
+    - '.*ERR syncd#SDK: \[SX_API_DBG\.ERR\].+AMBER dump failed.*'
+  Conditions:
+    - Redmine:
+        - 3580534
+
+- Errors_list:
+    - '.*ERR kernel:.* mlx5_core .* mlx5e_get_module_info: cable type not recognized:.*'
+    - '.*ERR kernel: .* mlx5_core .* mlx5_query_module_eeprom:.* Module ID not recognized:.*'
+    - '.*ERR kernel: .* mlx5_core .* mlx5e_get_module_eeprom: mlx5_query_eeprom.*'
+  Conditions:
+    - Redmine:
+      - 3084763
+      Platform:
+      - nvda_bf
+
+- Errors_list:
+    - '.*ERR kernel: .* ERROR: Unable to locate IOAPIC for GSI \d+.*'
+  Conditions:
+    - Redmine:
+      - 3581901
+      Platform:
+      - x86_64-mlnx_msn2700-r0
+
+- Errors_list:
+    - '.* ERR kernel: .* No PCI link reporting capability.*'
+    - '.* ERR kernel: .* DMAR: DRHD: handling fault status reg .*'
+    - '.* ERR kernel: .* DMAR: \[DMA Read\] Request device .* PASID .* PTE Read access is not set.*'
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW CR timeout on log_address:.*\[Crspace timeout is due to internal FW process\].*'
+    - '.* ERR syncd#SDK: \[HOST_INTERFACE.ERR\] FW health event device.* FW cause:\[1,FW CR SPACE TIMEOUT EVENT\] severity:\[3,FW NORMAL SEVERITY\] register.*'
+  Conditions:
+    - Redmine:
+        - 3395468
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE\.ERR\] FW CR timeout on log_address:\[0x.*\] old_event:\[\d+\] log_id:\[\d+\] log_ip:\[0x\d+\] \[crspace timeout case is unknown\. Check FW\].*'
+  Conditions:
+    - Redmine:
+        - 3420176
+      Platform:
+        - x86_64-nvidia_sn5600-r0
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW assert msg: \[run_fw_assert_checker, old event, see the details by searching the original syndrome value in code\], FW assert event.*'
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW health event device:\[\d+\] FW cause:\[\d+,FW ASSERT EVENT\] severity:\[\d+,FW FATAL SEVERITY\] register\[0x90f0\], long_process:\[\d+\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[read\].*'
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\].*FW SOS device:\[\d+] sending SDK health:\[fatal\] event cause:\[FW health issue,\d+\] \(irisc:\[\d+]\).*'
+  Conditions:
+    - Redmine:
+        - 3394692
+      Platform:
+        - x86_64-nvidia_sn5600-r0
+
+- Errors_list:
+    - '.* ERR swss#buffermgrd: :- guard: RedisReply catches system_error: command: .* reason: ERR Error running script .* attempt to perform arithmetic on local .current_profile_size. \(a nil value\): Input\/output error.*'
+  Conditions:
+    - Redmine:
+        - 3555138
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
+    - '.* ERR syncd#SDK: \[SAI_ACL\.ERR\] mlnx_sai_acl\.c\[\d+\]- mlnx_create_acl_table:  Failed to create flex key - Internal Error.*'
+    - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE.*'
+    - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_ACL_TABLE_ATTR_.*:.*'
+    - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
+    - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table EVERFLOWV6.*'
+  Conditions:
+    - Redmine:
+        - 3415969
+
+- Errors_list:
+    - '.*ERR swss#orchagent.*doPortTask: Unsupported port speed.*'
+  Conditions:
+    - Redmine:
+      - 3430196
+
+- Errors_list:
+    - '.* ERR kernel: \[.*\] sx_core: lag_id \d+ is invalid.*'
+  Conditions:
+    - Redmine:
+      - 3437201
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse (LLDPd|lldp) .*does not match format ''%H:%M:%S'''
+    - '.* ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Failed to parse lldp age 0 day.*'
+  Conditions:
+    - Redmine:
+        - 3597463
+      Platform:
+        - nvda_bf
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE\.ERR\] FW health event device:\[1\] FW cause:\[1,FW CR SPACE TIMEOUT EVENT\] severity:\[3,FW NORMAL SEVERITY\] register\[0x5028\], long_process:\[0\],command_type:\[EMAD\], IRISC:\[\d+\], method:\[write\].*'
+  Conditions:
+    - Redmine:
+      - 3434337
+
+- Errors_list:
+    - '.* ERR syncd#SAI: \[SAI_OBJECT.ERR\] ./src/mlnx_sai_object.c\[\d+\]- sai_object_type_get_availability: Resource availability for object type \d+ is not implemented'
+  Conditions:
+    - Redmine:
+        - 3440885
+      Platform:
+        - arm64-nvda_bf-mbf2h536c
+        - arm64-nvda_bf-9009d3b600cvaa
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\].+sai_dbg_run_mlxtrace: Failed running.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH\.ERR\].+ Failed to run mlxtrace.*'
+  Conditions:
+    - Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR pmon#sensord: Error getting sensor data: dps460.*'
+  Conditions:
+    - Redmine:
+        - 3434840
+
+- Errors_list:
+    - '.* ERR sonic-db-cli: :- getDbInfo: Failed to find CHASSIS_APP_DB database in  namespace.*'
+  Conditions:
+    - Redmine:
+        - 3599794
+
+- Errors_list:
+    - '.* ERR neighbor_advertiser: EVERFLOW table does not exist.*'
+  Conditions:
+    - Affected_test_cases:
+        - decap/test_decap.py
+      Redmine:
+        - 3431638
+      Platform:
+        - 5600
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- meta_generic_validation_remove: object.*'
+    - '.*ERR swss#orchagent: :- meta_sai_validate_eni_ether_address_map_entry: object key SAI_OBJECT_TYPE_ENI_ETHER_ADDRESS_MAP_ENTRY.*exist.*'
+    - '.*ERR swss#orchagent: :- flush_removing_entries: ObjectBulker.flush remove entries failed, number of entries to remove: \d+, status: SAI_STATUS_OBJECT_IN_USE.*'
+  Conditions:
+    - Redmine:
+        - 3537984
+      Platform:
+        - nvda_bf
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_mtu
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_speed_duplex_autoneg
+
+# NVOS
+- Errors_list:
+    - '.*ERR systemd[1]: Failed to start ib-utils container.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+
+# NVOS
+- Errors_list:
+    - '.* ERR rsyslogd: omfwd: could not get addrinfo for hostname .*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_configurations
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_configurations_openapi
+
+# NVOS
+- Errors_list:
+    - '.* ERR admin: .*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_severity_levels
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_severity_levels_openapi
+
+# NVOS
+- Errors_list:
+    - '.* ERR rsyslogd: omfwd: remote server.*'
+    - '.* ERR rsyslogd: cannot connect to.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_protocol
+        - tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_protocol_openapi
+
+# NVOS - ignore log info message for not a bug
+- Errors_list:
+    - '.* INFO ib-utils#OpenSM\[\d+\]:\s+Loading Cached Option:enable_crashd = FALSE#012.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib_interface_configuration.py
+        - tests_nvos/ib/test_set_unset_sm_state.py
+        - tests_nvos/ib/test_unset_ib.py
+        - tests_nvos/interfaces/test_ib_interface_counters.py
+        - tests_nvos/system/test_system_factory_reset.py
+        - tests_nvos/interfaces/test_port_split.py
+        - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up
+        - tests_nvos/interfaces/test_ib_show_interface.py::test_ib_show_interface_all_state_up_openapi
+        - tests_nvos/interfaces/test_ib_interface_counters.py
+        - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
+        - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_folder_name
+        - tests_nvos/system/test_system_profile_change.py::test_system_profile_adaptive_routing
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ib interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_speed_invalid
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify ipoib interface configuration.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm
+
+# NVOS Errors which should be ignored in tests which doing reset service
+- Errors_list:
+    - '.* ERR health-statsd#health_history: ib-utils: Container .* is not running.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_techsupport_feature.py::test_techsupport_with_dockers_down
+
+# NVOS
+- Errors_list:
+    - '.*ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
+    - '.*ERR hostcfgd: \[.*\] - failed: return code - 1, output:#012b''.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+
+## NVOS - commented the ignore for debug
+#- Errors_list:
+#    - '.* ERR auditd\[\d+\]: queue to plugins is full - dropping event.*'
+#    - '.* ERR auditd\[\d+\]: message repeated 4 times: \[ queue to plugins is full - dropping event\].*'
+#    - '.* ERR auditd\[\d+\]: auditd queue full reporting limit reached \- ending dropped event.*'
+#  Conditions:
+#    - Affected_test_cases:
+#        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py
+#    - Redmine:
+#        - 3482718
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: ldap server ip=.* is not a valid IP address.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_basic_configurations_hostname
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_priority_and_fallback_functionality
+    - Redmine:
+        - 3480907
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed to run timedatectl#012Traceback \(most recent call last\):#012  File.*'
+    - '.*ERR systemd-timedated\[\d+\]: Failed to set local time: Invalid argument.*'
+    - '.*Failed to run timedatectl.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow_openapi
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow_openapi
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow
+        - tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow
+
+# NVOS
+- Errors_list:
+    - '.* .* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_upload
+
+# NVOS
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ User requested a .* reboot, but NVOS cant perform it.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_reboot.py::test_reboot_command_type
+
+# NVOS
+- Errors_list:
+    - '.* ERR kernel: \[ \d+.\d+\] ib_core: Method 1 already in use'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state_openapi
+
+# NVOS
+- Errors_list:
+    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+
+# NVOS
+- Errors_list:
+    - '.* ERR nslcd\[\d+\]: .* no available LDAP server found: .*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_in_password_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+
+# NVOS
+- Errors_list:
+    - '.*ERR nslcd\[.*\]: \[.*\] client supplied argument 1 bytes too large'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_remote_counting
+      Redmine:
+        - 3544347
+
+# NVOS : Errors which should be ignored in tests which doing reboot/reload
+- Errors_list:
+    - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: memory_check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.* ERR health-statsd#health_history: pmon: Container.*'
+    - '.* ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
+    - '.* ERR watchdogutil: Failed to get watchdog module'
+    - '.* ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
+    - '.* ERR watchdogutil: Failed to get watchdog module.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_reboot.py
+        - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+        - tests_nvos/system/test_install_system_firmware.py::test_install_system_firmware
+
+# NVOS : Error - Bug 3494774 related
+- Errors_list:
+    - '.* ERR countermgrd: failed to get COUNTERS_PORT_NAME_MAP with: Unable to connect to redis: Cannot assign requested address.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/config_commands/test_show_diff_history::test_diff_history_revision_ids
+        - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+        - tests_nvos/system/test_show_system.py::test_system
+        - tests_nvos/system/test_show_system.py::test_system_openapi
+      Redmine:
+        - 3494774
+
+# NVOS : Errors - Bug 3558065 related
+- Errors_list:
+    - '.* ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: memory_check: is not Status ok.*'
+    - '.* ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/config_commands/test_apply_detach.py::test_apply_assume
+        - tests_nvos/general/config_commands/test_replace_patch.py
+        - tests_nvos/general/config_commands/test_show_diff_history.py
+        - tests_nvos/system/test_show_system.py::test_system
+        - tests_nvos/system/test_show_system.py::test_system_openapi
+        - tests_nvos/system/test_show_system.py::test_show_system_cpu_openapi
+        - tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_dhcp_hostname
+      Redmine:
+        - 3558065
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: \[.*\] - failed.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run_multiple_times
+        - tests_nvos/system/test_system_reboot.py
+      Redmine:
+        - 3494875
+
+# NVOS : Errors which should be ignored in tests using invalid url
+- Errors_list:
+    - '.* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
+    - '.* ERR nvued:   ERROR: format_checkers.py:\d+.*'
+    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:\d+.*'
+    - '.* ERR nvued:   ERROR: format_checkers.py:\d+ Instance ffff:.*'
+    - '.* ERR nvued: message repeated 3 times: \[   ERROR: format_checkers.py:\d+ Instance ffff.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_documents.py::test_upload_document
+        - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_upload
+        - tests_nvos/system/test_techsupport_commands.py::test_techsupport_upload
+
+- Errors_list:
+    - ".*ERR sonic-ztp\\[\\d+\\]: Exception \\[Expecting ',' delimiter: line \\d+ column \\d+ \\(char \\d+\\)] encountered while verifying '\\/etc\\/sonic\\/config_db\\.json'.*"
+  Conditions:
+    - Redmine:
+        - 3474406
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- updateVnetTunnel: Failed to parse key , no vrf is given.*'
+  Conditions:
+    - Redmine:
+        - 3473183
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SX_API_PORT\.ERR\] sx_api_port_parsing_depth_set: This API is deprecated and will be removed in the future\. Please use sx_api_port_parser_attr_set in its place.*'
+  Conditions:
+    - Redmine:
+        - 3482636
+
+- Errors_list:
+    - '.*ERR pmon#psud: Fail to read model number: No key PN_VPD_FIELD.*'
+    - '.*ERR pmon#psud: Fail to read serial number: No key SN_VPD_FIELD.*'
+    - '.*ERR pmon#psud: Fail to read revision: No key REV_VPD_FIELD.*'
+  Conditions:
+    - Redmine:
+      - 3546979
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.* ERR syncd#SDK: :- processBulkOidCreate: bulkCreate api is not implemented or not supported, object_type = SAI_OBJECT_TYPE_PORT'
+  Conditions:
+    - Redmine:
+      - 3563393
+
+- Errors_list:
+    - '.*ERR swss#orchagent: :- removeVlan: Failed to remove ref count 1 VLAN Vlan.*'
+  Conditions:
+    - Redmine:
+        - 3487047
+
+- Errors_list:
+    - '.* ERR swss#intfmgrd: :- setIntfIp: Command ''/sbin/ip address "add" ".*" broadcast ".*" dev ".*"'' failed with rc \d+'
+  Conditions:
+    - Redmine:
+        - 3508074
+
+- Errors_list:
+    - '.*ERR hw-management-tc: ERROR - Missing max tachos config.*'
+  Conditions:
+    - Redmine:
+      - 3527759
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to write \d+ to file \/var\/run\/hw-management\/thermal\/cooling_cur_state - OSError.*Invalid argument.*'
+    - '.*ERR pmon#thermalctld: Caught exception while running thermal policy - OSError.*Invalid argument.*'
+  Conditions:
+    - Redmine:
+      - 3602063
+      Platform:
+        - sn2
+
+- Errors_list:
+    - '.*ERR syncd#syncd: \[SAI_INTERFACE_QUERY.ERR\] .\/src\/mlnx_sai_interfacequery.c\[\d+\]- sai_log_level_save: .\/src\/mlnx_sai_interfacequery.c\[\d+\]- sai_log_level_save: SAI API \d+ is out of range.*'
+    - '.*ERR syncd#SAI: \[SAI_INTERFACE_QUERY_ETH.ERR\] .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_api_query_eth: .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_api_query_eth: SAI API \d+ is out of range.*'
+    - '.*ERR syncd#SDK: \[SAI_INTERFACE_QUERY_ETH.ERR\] .\/src\/mlnx_sai_interfacequery_eth.c\[\d+\]- sai_log_set_eth: SAI API \d+ is out of range.*'
+  Conditions:
+    - Redmine:
+      - 3602168
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL Detected with cause : FW health issue \[id = 1\].*'
+    - '.*ERR kernel: .* sx_core: SDK health event, device:.*'
+    - '.*ERR kernel: .* SXD_HEALTH_FATAL:On device 1 cause =''FW health issue'' \[id = 1\]- Stopping further device monitoring!.*'
+    - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.*ERR hw-management-tc: ERROR - Read PWM error. Possible hw-management is not running.*'
+    - '.*ERR hw-management-tc: message repeated .* times: \[ ERROR - Read PWM error. Possible hw-management is not running\].*'
+  Conditions:
+    - Redmine:
+        - 3488969
+
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Got wrong value \d+ for fan direction \/var\/run\/hw-management\/thermal\/fan\d_dir.*'
+  Conditions:
+    - Redmine:
+        - 3571776
+
+- Errors_list:
+    - '.*ERR pmon#psud: message repeated \d+ times.*Failed to read from file \/var\/run\/hw-management\/thermal\/port_amb - ValueError.*invalid literal for int.* with base.*invalid value.*'
+  Conditions:
+    - Redmine:
+      - 3589197
+
+- Errors_list:
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
+    - '.*ERR (pmon#(psud|thermalctld)|psuutil): Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
+  Conditions:
+    - Redmine:
+      - 3621401
+
+- Errors_list:
+    - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/timeout - FileNotFoundError.*No such file or directory.*'
+    - '.*ERR watchdogutil: Failed to read from file /run/hw-management/watchdog/main/state - FileNotFoundError.*No such file or directory*'
+  Conditions:
+    - Redmine:
+        - 3584706
+      Platform:
+        - simx
+
+# NVOS : Errors - Bug 3493347 related
+- Errors_list:
+    - '.*ERR dhclient\[\d+\]: send_packet: Network is unreachable.*'
+    - '.*ERR dhclient\[\d+\]: send_packet: please consult README file regarding broadcast address.*'
+    - '.*ERR dhclient\[\d+\]: dhclient.c:2879: Failed to send 300 byte long packet over fallback interface.*'
+  Conditions:
+    - Redmine:
+        - 3493347
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_OBJECT\.ERR\] mlnx_sai_object\.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
+    - '.*ERR kernel: \[.*\] SX_BULK_CNTR: operation TLV is missing in buffer.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] mlnx_sai_port\.c\[\d+\]- mlnx_get_port_stats_ext: Failed to prepare bulk counter for port stats.*'
+    - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
+  Conditions:
+    - Redmine:
+      - 3492750
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: ib-utils: Container .* is not running.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: bad_device: device is out of power.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
+      - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
+      - tests_nvos/system/test_system_health.py::test_system_health_files
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: Invalid fan speed data for.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_health.py::test_ignore_health_issue
+
+# NVOS - snmp error flows
+- Errors_list:
+    - ".*ERR health-statsd#health_history: snmp:snmp-subagent: 'snmp-subagent' is not running.*"
+    - ".*ERR health-statsd#health_history: snmp:snmpd: 'snmpd' is not running.*"
+    - ".*ERR health-statsd#health_history: snmp: Container 'snmp' is not running.*"
+    - '.*ERR container: docker cmd: start for snmp failed with.*'
+    - '.*ERR systemd\[\d+\]: Failed to start SNMP container.*'
+    - '.*warn=True _uses_shell=False.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+      - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+      - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_load_test
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_redis_crash
+        - tests_nvos/system/test_system_snmp.py::test_snmp_default_values_fields
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file
+        - tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation
+        - tests_nvos/system/test_system_health.py::test_system_health_files
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop
+        - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: native.py:\d+ Port internal name for interface .* is empty.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid supported_speeds \[\], returning max None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* invalid speed_admin None.*'
+    - '.*ERROR: ib_utils_funcs.py:\d+ Interface .* admin_speed is None speed should be configured first.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_timings
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_counters
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_n_times
+      Redmine:
+        - 3498811
+
+# NVOS - bug https://redmine.mellanox.com/issues/3554784
+- Errors_list:
+    - '.*Loading Cached Option:enable_crashd = FALSE.*'
+    - '.*mlnx_create_port: Failed convert attribute list to string.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py
+
+# NVOS - log issue
+- Errors_list:
+    - ".*ERR rsyslogd: file size limit cmd for file '\/var\/log\/nvued.log' did no resolve situation.*"
+  Conditions:
+    - Redmine:
+      - 3512321
+
+# NVOS - traffic test
+- Errors_list:
+    - '.*monit: service is not ready.*'
+    - '.*ERR health-statsd: unexpected exception.*'
+    - '.*Failed to get target speed date for psu.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/traffic/test_basic_traffic.py::test_basic_traffic
+      - tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids
+      - tests_nvos/general/config_commands/test_replace_patch.py
+      - tests_nvos/general/config_commands/test_apply_detac.py::test_apply_assume
+      - tests_nvos/general/config_commands/test_apply_detac.py::test_apply_rev_id
+      Redmine:
+        - 3544169
+
+# NVOS - expected errors during init done event
+- Errors_list:
+    - '.*Failed to start ib-utils container.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/infra/init_flow/test_system_init_done_feature.py::test_system_ready_state_down
+
+# NVOS
+- Errors_list:
+    - '.*failed to get COUNTERS_PORT_NAME_MAP with: Unable to connect to redis: Cannot assign requested address.*'
+  Conditions:
+    - Redmine:
+        - 3494774
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: cmd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b'''''
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_warning_functionality
+        - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_functionality
+        - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
+      Redmine:
+        - 3531935
+
+# NVOS
+- Errors_list:
+    - '.*ERR healthd: configmgrd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: interfaces-config service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: ntp-config service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: portsyncmgrd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: swss-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: syncd-ibv0@0 service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: usercfgd service status: Down, app status: Down, fail reason: Inactive.*'
+    - '.*ERR healthd: usercfgd service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: system_serviceSet changed size during iteration.*'
+    - '.*ERR healthd: interfaces-config service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: swss-ibv0@0 service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: syncd-ibv0@0 service status: Starting, app status: Starting, fail reason.*'
+    - '.*ERR healthd: ntp-config service status: Starting, app status: Starting, fail reason.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command
+      - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_immediate
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      Redmine:
+        - 3532765
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd: unexpected exception #012#012  RAN: \/usr\/bin\/monit summary.*'
+    - '.*ERR health-statsd#health_history: Fan: Failed to get fan information.*'
+    - ".*ERR health-statsd#health_history: ib-utils: Container 'ib-utils' is not running.*"
+    - '.*ERR health-statsd#health_history: monit: service is not ready.*'
+    - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
+    - ".*ERR health-statsd#health_history: syncd-ibv00: Container 'syncd-ibv00' is not running.*"
+    - ".*ERR health-statsd#health_history: PSU: Failed to get information.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      - tests_nvos/general/config_commands/est_show_diff_history.py::test_diff_history_revision_ids
+      Redmine:
+        - 3372506
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: monit: service is not ready.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      Redmine:
+        - 3564414
+
+# NVOS
+- Errors_list:
+    - '.*ERR hostcfgd: cmd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+    - '.*ERR hostcfgd: \[''chage'', ''-M'', ''180'', ''.*''\], return code: 1, output: b''''*'
+    - '.*ERR hostcfgd: \[''chage'', ''-W'', ''15'', ''.*''\] - failed: return code - 1, output:#012b'''''
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_expiration_warning_functionality
+      - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
+      Redmine:
+        - 3531935
+
+# NVOS
+- Errors_list:
+    - '.*ERROR: main.py:225 Could not add API nos.funits.cue_platform_v1.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command
+      - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_immediate
+      - tests_nvos/system/test_system_reboot.py::test_reboot_command_force
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      Redmine:
+        - 3539462
+
+# NVOS
+- Errors_list:
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1\/FAN: is missing.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU1: is missing or not available.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: PSU\d\/FAN: speed is out of range.*'
+    - '.*gorilla-152 ERR health-statsd#health_history: FAN\d\/\d: speed is out of range.*'
+    - '.*gorilla-152 ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*gorilla-152 ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*gorilla-152 ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*gorilla-152 ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp_max does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*TestingConfigCmds ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu1_temp does not exist.*'
+    - '.*nvos ERR health-statsd#health_history: PSU1\/FAN: is missing.*'
+    - '.*nvos ERR health-statsd#health_history: PSU1: is missing or not available.*'
+  Conditions:
+    - Redmine:
+      - 3541063
+
+# Marlin known issue
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Fan: Failed to get fan information.*'
+    - '.*ERR health-statsd#health_history: PSU: Failed to get information.*'
+    - '.*ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: memory_check: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*Could not get info about psus.*'
+    - '.*Could not get info about fans.*'
+    - '.*Could not get info about sensors.*'
+    - '.*ERR systemd\[1\]: Failed to start Platform monitor container.*'
+    - ".*ERR health-statsd#health_history: pmon: Container 'pmon' is not running.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Start request repeated too quickly.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Control process exited, code=killed, status.*"
+    - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'signal'.*"
+  Conditions:
+    - Redmine:
+        - 3540710
+    - Platform:
+        - mqm9520
+
+# NVOS Marlin
+- Errors_list:
+    - ".*Fail to register core bus.*"
+    - ".*Could not start transaction.*"
+    - ".*command handler 'sdq_max_diff_clear' already exists.*"
+    - ".*command handler 'qos_counters_clear' already exists.*"
+  Conditions:
+    - Redmine:
+        - 3540016
+    - Platform:
+        - mqm9520
+
+# NVOS
+- Errors_list:
+    - ".*Failed to fetch file: (.*, 'Could not resolve host: hostname').*"
+  Conditions:
+    - Redmine:
+      - 3532915
+
+# NVOS
+- Errors_list:
+    - ".*ERR healthd: system_serviceSet changed size during iteration.*"
+  Conditions:
+    - Redmine:
+      - 3544171
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: Containers: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: Disk check: is not Status ok.*'
+    - '.*ERR health-statsd#health_history: memory_check: is not Status ok.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/config_commands/test_show_diff_history.py
+      - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
+      - tests_nvos/system/test_show_system.py::test_system
+      - tests_nvos/system/test_show_system.py::test_system_openapi
+      - tests_nvos/config_commands/test_show_diff_history.py::test_show_diff_histor
+      - tests_nvos/general/config_commands/test_show_diff_history.py::test_diff_history_revision_ids
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_replace_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_patch_positive
+      - tests_nvos/general/config_commands/test_replace_patch.py::test_apply_assume
+      Redmine:
+        - 3558065
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
+    - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
+        - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
+
+# NVOS
+- Errors_list:
+    - '.*FW SOS EVENT LOG START.*'
+    - '.*FW SOS EVENT LOG END.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
+
+# NVOS gorilla-100 PSU2 is missing.
+- Errors_list:
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2: is missing or not available.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: PSU2/FAN: is missing.*'
+    - '.*gorilla-100 ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Redmine:
+        - 3593772
+
+# NVOS
+- Errors_list:
+    - ".*ERR health-statsd#health_history: gnmi-server: Container 'gnmi-server' is not running.*"
+    - '.*ERR health-statsd#health_history: Summary: Not OK.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/system/gnmi/test_gnmi_server.py::test_simulate_gnmi_server_failure
+
+# NVOS bug will not fix
+- Errors_list:
+    - '.*WARNING kernel: .*: supply vcc not found, using dummy regulator.*'
+  Conditions:
+    - Redmine:
+        - 3427602
+
+# NVOS
+- Errors_list:
+    - '.*timer: Not using persistent file timestamp .* as it is in the future.*'
+  Conditions:
+    - Redmine:
+        - 3585813
+
+- Errors_list:
+    - '.* ERR memory_threshold_check: Free memory .* is less then free memory threshold .*'
+  Conditions:
+    - Redmine:
+        - 3440645
+
+- Errors_list:
+    - ".*ERR pmon#xcvrd: Invalid value for port \\d+ 'specification_compliance': passive_copper_media_interface.*"
+    - '.*ERR pmon#xcvrd: Error in obtaining media setting for Ethernet\d+.*'
+  Conditions:
+    - Redmine:
+        - 3656906
+
+# NVOS
+- Errors_list:
+    - ".*ansible-command Invoked with _raw_params=python /tmp/loganalyzer.py.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - ".*multicast join failed for.*"
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_ib0_interface_ip.py::test_ib0_interface_ipv6_address
+
+# The below errors should be ignored, because it is caused by redis db crash and it is an expected behaviour
+- Errors_list:
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[3265\]- mlnx_create_port: Failed convert attribute list to string.'
+    - '.*\[COMMAND_IFC.ERR\] sxd_ioctl (CTRL_CMD_ACCESS_REG - pmtu) FW error: \[BAD PARAMETER\]'
+    - '.*Register access failed (reg_id=0x5003, status=0x7)'
+    - '.*\[ACCESS_REG_INFRA.ERR\] REG pmtu: Failed accessing register through CMD IFC'
+    - '.*mlnx_set_get_pmtu_register: mlnx_set_get_pmtu_register: failed in PMTU device.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[687\]- mlnx_set_mtu_admin: Failed set PMTU for local port.*'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[775\]- mlnx_port_mtu_set: Failed to set mtu to port.*'
+    - '.*\[SAI_UTILS.ERR\] mlnx_sai_utils.c\[2019\]- sai_set_attribute: Failed set attrib dispatch'
+    - '.*\[SAI_PORT.ERR\] mlnx_sai_port_ib.c\[2047\]- mlnx_set_port_attribute: Failed set port attribute key port.*'
+    - '.*sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_FAILURE'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/interfaces/test_port_split.py::test_split_port_redis_db_crash
+
+# NVOS
+- Errors_list:
+    - '.*Loading Cached Option:enable_crashd.*'
+  Conditions:
+    - Redmine:
+        - 3544158
