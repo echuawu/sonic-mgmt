@@ -4,7 +4,6 @@ import pytest
 import os
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -24,7 +23,8 @@ class Reboot(BaseComponent):
         self._resource_path = '/reboot'
         self.parent_obj = parent_obj
 
-    def get_expected_fields(self, device):
+    @staticmethod
+    def get_expected_fields(device):
         return device.constants.system['reboot']
 
     def action_reboot(self, engine=None, params="", should_wait_till_system_ready=True):

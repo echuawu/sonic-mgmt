@@ -21,13 +21,16 @@ def clear_system_messages(system, engines):
            engines: Engines object
     """
     with allure.step('Run unset system message pre-login command and apply config'):
-        system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE,
+                             apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('Run unset system message post-login command and apply config'):
-        system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
+                             apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('Run unset system message post-logout command and apply config'):
-        system.message.unset(engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
+                             apply=True, dut_engine=engines.dut).verify_result()
 
 
 @pytest.mark.banner
@@ -44,9 +47,6 @@ def test_show_system_message(engines, devices):
             5. Run 'nv show system message'
             6. Verify that all messages have default values
     """
-    new_pre_login_msg = "Testing PRE  LOGIN MESSAGE"
-    new_post_login_msg = "Testing POST LOGIN MESSAGE"
-    new_post_logout_msg = "Testing POST LOGOUT MESSAGE"
     system = System()
     clear_system_messages(system, engines)
 
@@ -62,7 +62,8 @@ def test_show_system_message(engines, devices):
                                                                    SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
 
         with allure.step('Run unset system message pre-login command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify pre-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -70,7 +71,8 @@ def test_show_system_message(engines, devices):
                                                         SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
 
         with allure.step('Run unset system message post-login command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify post-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -78,7 +80,8 @@ def test_show_system_message(engines, devices):
                                                         SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
 
         with allure.step('Run unset system message post-logout command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+            system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify post-logout changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -112,7 +115,8 @@ def test_set_system_message_pre_login(engines, devices):
 
     try:
         with allure.step('Run set system message pre-login command and apply config'):
-            system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value=f'"{new_pre_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
 
@@ -137,7 +141,8 @@ def test_set_system_message_pre_login(engines, devices):
                                                         SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
 
         with allure.step('Run unset system message pre-login command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify pre-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -179,7 +184,8 @@ def test_set_system_message_post_login(engines, devices):
 
     try:
         with allure.step('Run set system message post-login command and apply config'):
-            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
 
@@ -200,7 +206,8 @@ def test_set_system_message_post_login(engines, devices):
                                                         SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
 
         with allure.step('Run unset system message post-login command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify post-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -236,7 +243,9 @@ def test_set_system_message_post_logout(engines, devices):
 
     try:
         with allure.step('Run set system message post-logout command and apply config'):
-            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGOUT_MESSAGE,
+                               op_param_value=f'"{new_post_logout_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         with allure.step('Verify post-logout changed to new message in show system'):
@@ -253,8 +262,9 @@ def test_set_system_message_post_logout(engines, devices):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                         SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
 
-        with allure.step('Run unset system message post-login command and apply config'):
-            system.message.unset(engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+        with allure.step('Run unset system message post-logout command and apply config'):
+            system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
+                                 apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify post-logout changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -288,13 +298,16 @@ def test_factory_reset_for_system_message(engines, devices):
 
     try:
         with allure.step('Run set system message pre-login command and apply config'):
-            system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value=f'"{new_pre_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Run set system message post-login command and apply config'):
-            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Run set system message post-logout command and apply config'):
-            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGOUT_MESSAGE, op_param_value=f'"{new_post_logout_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify system messages are changed to new messages in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -306,7 +319,7 @@ def test_factory_reset_for_system_message(engines, devices):
                                                         new_post_logout_msg).verify_result()
 
         with allure.step('Run reset factory command and apply config'):
-            system.message.unset(engines.dut).verify_result()
+            system.message.unset(apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify system messages are changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
@@ -342,13 +355,16 @@ def test_system_reload_for_system_message(engines, devices):
 
     try:
         with allure.step('Run set system message pre-login command and apply config'):
-            system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value=f'"{new_pre_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Run set system message post-login command and apply config'):
-            system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Run set system message post-logout command and apply config'):
-            system.message.set(new_post_logout_msg, engines.dut, SystemConsts.POST_LOGOUT_MESSAGE).verify_result()
+            system.message.set(op_param_name=SystemConsts.POST_LOGOUT_MESSAGE, op_param_value=f'"{new_post_logout_msg}"',
+                               apply=True, dut_engine=engines.dut).verify_result()
 
         with allure.step('Verify system messages are changed to new messages in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()

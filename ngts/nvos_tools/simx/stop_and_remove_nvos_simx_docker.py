@@ -1,5 +1,4 @@
 import logging
-import pytest
 import allure
 logger = logging.getLogger()
 

@@ -255,7 +255,7 @@ class PwhTools:
         """
         Verify that a given password hardening setting is set to the given value
         in the current password hardening configuration
-        @param pwh_obj: Password_hardening object
+        @param pwh_obj: PasswordHardening object
         @param setting: given pwh setting to check
         @param expected_value: given value to check
         """
@@ -305,7 +305,7 @@ class PwhTools:
         """
         Set (and apply) the password hardening configuration according to the given desired configuration
         @param pwh_conf: the desired configuration as a dictionary of { pwh_field: value }
-        @param pwh_obj: system.Password_hardening object
+        @param pwh_obj: system.PasswordHardening object
         @param engines: engines object
         @param prev_conf: original password hardening configuration (optional)
         """

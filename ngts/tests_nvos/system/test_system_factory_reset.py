@@ -631,10 +631,12 @@ def _verify_the_setup_is_functional(system, engines):
         platform.show()
 
     with allure.step("Run set and apply"):
-        system.message.set("new_post_login_msg", engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value='"new_post_login_msg"',
+                           apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step("Run unset and apply"):
-        system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
+                             apply=True, dut_engine=engines.dut).verify_result()
 
 
 @pytest.mark.system

@@ -2,7 +2,6 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.cli_wrappers.nvue.nvue_platform_clis import NvuePlatformCli
 from ngts.cli_wrappers.openapi.openapi_platform_clis import OpenApiPlatformCli
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 
 class Action(BaseComponent):

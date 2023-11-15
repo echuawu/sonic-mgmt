@@ -1,7 +1,6 @@
 import logging
 
 from ngts.cli_wrappers.nvue.nvue_chassis_clis import NvueChassisCli
-# from ngts.cli_wrappers.sonic.sonic_general_clis import SonicGeneralCli
 from ngts.cli_wrappers.sonic.sonic_hw_mgmt_cli import SonicHwMgmtCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 

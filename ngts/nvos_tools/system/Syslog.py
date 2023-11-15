@@ -1,7 +1,6 @@
 import allure
 import logging
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SyslogConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -19,22 +18,6 @@ class Syslog(BaseComponent):
         self.parent_obj = parent_obj
         self.servers = Servers(self)
         self.format = Format(self)
-
-    def unset(self, op_param="", expected_str="", apply=False, ask_for_confirmation=False):
-        result_obj = BaseComponent.unset(self, op_param, expected_str)
-        if result_obj.result and apply:
-            with allure.step("Applying unset configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                             TestToolkit.engines.dut, ask_for_confirmation)
-        return result_obj
-
-    def set(self, op_param_name="", op_param_value={}, expected_str='', apply=False, ask_for_confirmation=False):
-        result_obj = BaseComponent.set(self, op_param_name=op_param_name, op_param_value=op_param_value, expected_str=expected_str)
-        if result_obj.result and apply:
-            with allure.step("Applying set configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                             TestToolkit.engines.dut, ask_for_confirmation)
-        return result_obj
 
     def set_trap(self, severity_level, expected_str='', apply=False, ask_for_confirmation=False):
         with allure.step("Set trap with severity level : {}".format(severity_level)):
@@ -89,24 +72,15 @@ class Syslog(BaseComponent):
             ValidationTool.compare_dictionary_content(output, expected_dictionary).verify_result()
 
 
-class Format(Syslog):
+class Format(BaseComponent):
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/format'
         self.parent_obj = parent_obj
         self.welf = WelfFormat(self)
 
-    def set(self, op_param_name="", op_param_value=None, expected_str='', apply=False, ask_for_confirmation=False):
-        value = op_param_value if op_param_value else ({} if TestToolkit.tested_api == ApiType.OPENAPI else "")
-        result_obj = BaseComponent.set(self, op_param_name=op_param_name, op_param_value=value, expected_str=expected_str)
-        if result_obj.result and apply:
-            with allure.step("Applying set configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                             TestToolkit.engines.dut, ask_for_confirmation)
-        return result_obj
 
-
-class Servers(Syslog):
+class Servers(BaseComponent):
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/server'
@@ -135,7 +109,7 @@ class Servers(Syslog):
             ValidationTool.validate_all_values_exists_in_list(expected_servers_list, output.keys()).verify_result()
 
 
-class Server(Servers):
+class Server(BaseComponent):
     def __init__(self, parent_obj, server_id):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/{server_id}'.format(server_id=server_id)
@@ -187,7 +161,7 @@ class Server(Servers):
                                                                                          expected_severity_level)
 
 
-class WelfFormat(Format):
+class WelfFormat(BaseComponent):
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/welf'
@@ -204,7 +178,7 @@ class WelfFormat(Format):
         return self.unset(SyslogConsts.FIREWAL_NAME, apply=apply, ask_for_confirmation=ask_for_confirmation)
 
 
-class Filter(Server):
+class Filter(BaseComponent):
     def __init__(self, parent_obj):
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/filter'

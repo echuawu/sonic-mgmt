@@ -151,12 +151,13 @@ def validate_users_authorization_and_role(engines, users, login_should_succeed=T
             is_admin = role == SystemConsts.DEFAULT_USER_ADMIN
 
             with allure.step(f'Run set command - expect: {"success" if is_admin else "fail"}'):
-                system.message.set(field_name='pre-login', value="NVOS TESTS", engine=new_engine,
-                                   apply=is_admin).verify_result(should_succeed=is_admin)
+                system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"NVOS TESTS"',
+                                   apply=is_admin, dut_engine=new_engine).verify_result(should_succeed=is_admin)
 
             with allure.step(f'Run unset command - expect: {"success" if is_admin else "fail"}'):
-                system.message.unset(field_name='pre-login', engine=new_engine,
-                                     apply=is_admin).verify_result(should_succeed=is_admin)
+                system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE, apply=is_admin,
+                                     dut_engine=new_engine).verify_result(should_succeed=is_admin)
+
     # for user_info in users:
     #     username = user_info[AaaConsts.USERNAME]
     #     password = user_info[AaaConsts.PASSWORD]

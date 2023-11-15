@@ -9,7 +9,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
@@ -83,7 +83,8 @@ def test_export_applied_configurations(engines):
         system.config.action_export('current_conf.yaml', action_expected_str)
 
     with allure.step('set system pre-login message without apply'):
-        system.message.set("EXPORT TESTS", engines.dut, field_name='pre-login', apply=False).verify_result(should_succeed=True)
+        system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"EXPORT TESTS"',
+                           apply=False, dut_engine=engines.dut).verify_result()
 
     with allure.step('export {}'.format('before_apply.yaml')):
         system.config.action_export('before_apply.yaml', action_expected_str)

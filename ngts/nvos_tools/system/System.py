@@ -20,11 +20,7 @@ from ngts.nvos_tools.system.Profile import Profile
 from ngts.nvos_tools.system.Config import Config
 from ngts.nvos_tools.system.Log import Log
 from ngts.nvos_tools.system.Debug_log import DebugLog
-from ngts.nvos_tools.system.Component import Component
-from ngts.nvos_tools.system.Rotation import Rotation
 from ngts.nvos_tools.system.SnmpServer import SnmpServer
-from ngts.nvos_tools.system.ListeningAddress import ListeningAddress
-from ngts.nvos_tools.system.ReadonlyCommunity import ReadonlyCommunity
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.User import User
@@ -64,11 +60,7 @@ class System(BaseComponent):
         self.aaa = Aaa(self, username)
         self.log = Log(self)
         self.debug_log = DebugLog(self)
-        self.component = Component(self)
-        self.rotation = Rotation(self)
         self.snmp_server = SnmpServer(self)
-        self.listening_address = ListeningAddress(self)
-        self.readonly_community = ReadonlyCommunity(self)
         self.security = Security(self)
         self.ssh_server = SshServer(self)
         self.serial_console = SerialConsole(self)
@@ -133,7 +125,8 @@ class System(BaseComponent):
             logging.info("User created: \nuser_name: {} \npassword: {}".format(username, password))
             return username, password
 
-    def get_expected_fields(self, device):
+    @staticmethod
+    def get_expected_fields(device):
         return device.constants.system['system']
 
     def validate_health_status(self, expected_status):
@@ -141,8 +134,8 @@ class System(BaseComponent):
             logger.info("Validate health status with \"nv show system\" cmd")
             system_output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
             assert expected_status == system_output[SystemConsts.HEALTH_STATUS], \
-                "Unexpected health status. \n Expected: {}, but got :{}".format(expected_status,
-                                                                                system_output[SystemConsts.HEALTH_STATUS])
+                "Unexpected health status. \n Expected: {}, but got :{}".\
+                format(expected_status, system_output[SystemConsts.HEALTH_STATUS])
 
     @retry(Exception, tries=3, delay=2)
     def wait_until_health_status_change_to(self, expected_status):
@@ -157,33 +150,8 @@ class Message(BaseComponent):
         self._resource_path = '/message'
         self.parent_obj = parent_obj
 
-    def set(self, value, engine, field_name="", apply=True):
-        if TestToolkit.tested_api == ApiType.NVUE:
-            value = '"{}"'.format(value)
-        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].set,
-                                                     engine, self.get_resource_path(), field_name, value)
-        if result_obj.result and apply:
-            with allure.step("Applying configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine, True)
-        return result_obj
-
-    def unset(self, engine, field_name="", apply=True):
-        if TestToolkit.tested_api == ApiType.NVUE:
-            op_param_value = ""
-        else:
-            op_param_value = field_name
-
-        result_obj = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].unset,
-                                                     engine, self.get_resource_path() + "/" + field_name,
-                                                     op_param_value)
-        if result_obj.result and apply:
-            with allure.step("Applying configuration"):
-                result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                             apply_config, engine, True)
-        return result_obj
-
-    def get_expected_fields(self, device):
+    @staticmethod
+    def get_expected_fields(device):
         return device.constants.system['message']
 
 
@@ -195,7 +163,8 @@ class Version(BaseComponent):
         self._resource_path = '/version'
         self.parent_obj = parent_obj
 
-    def get_expected_fields(self, device):
+    @staticmethod
+    def get_expected_fields(device):
         return device.constants.system['version']
 
 
@@ -210,8 +179,9 @@ class Documentation(BaseComponent):
     def action_upload(self, upload_path, file_name):
         with allure.step("Upload {file} to '{path}".format(file=file_name, path=upload_path)):
             logging.info("Upload {file} to '{path}".format(file=file_name, path=upload_path))
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload, TestToolkit.engines.dut,
-                                                   self.get_resource_path(), 'files ' + file_name, upload_path)
+            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_upload,
+                                                   TestToolkit.engines.dut, self.get_resource_path(),
+                                                   'files ' + file_name, upload_path)
 
 
 class FactoryDefault(BaseComponent):
@@ -294,5 +264,6 @@ class WebServerAPI(BaseComponent):
         self._resource_path = '/api'
         self.parent_obj = parent_obj
 
-    def get_expected_fields(self, device):
+    @staticmethod
+    def get_expected_fields(device):
         return device.constants.system['web_server_api']

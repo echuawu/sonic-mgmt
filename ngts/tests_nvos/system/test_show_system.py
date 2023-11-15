@@ -106,7 +106,8 @@ def test_system_message(test_api, engines, devices):
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
-        system.message.set(new_pre_login_msg, engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value=f'"{new_pre_login_msg}"',
+                           apply=True, dut_engine=engines.dut).verify_result()
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
@@ -116,14 +117,15 @@ def test_system_message(test_api, engines, devices):
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
-        system.message.set(new_post_login_msg, engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
+                           apply=True, dut_engine=engines.dut).verify_result()
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     new_post_login_msg).verify_result()
 
     with allure.step('Run unset system message pre-login command and verify that pre-login is updated'):
-        system.message.unset(engines.dut, SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE, apply=True).verify_result()
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
@@ -133,7 +135,7 @@ def test_system_message(test_api, engines, devices):
                                                     new_post_login_msg).verify_result()
 
     with allure.step('Run unset system message post-login command and verify that pre-login is updated'):
-        system.message.unset(engines.dut, SystemConsts.POST_LOGIN_MESSAGE).verify_result()
+        system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE, apply=True).verify_result()
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,

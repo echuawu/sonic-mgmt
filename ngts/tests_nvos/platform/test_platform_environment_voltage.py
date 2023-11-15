@@ -18,7 +18,8 @@ def test_show_platform_environment_voltage(engines):
         platform = Platform()
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
-        voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show().get_returned_value()).verify_result()
+        voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.voltage.show()).verify_result()
         sensors = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=engines.dut, asic="",
                                                            db_name=DatabaseConst.STATE_DB_NAME,
                                                            grep_str="VOLTAGE").splitlines()
@@ -29,7 +30,8 @@ def test_show_platform_environment_voltage(engines):
         random_sensor = random.choice(list(voltage_output.keys()))
 
         with allure.step("Execute show platform environment voltage for random sensor {}".format(random_sensor)):
-            sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.environment.voltage.show(random_sensor).get_returned_value()).verify_result()
+            sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                platform.environment.voltage.show(random_sensor)).verify_result()
             with allure.step("Verify both dictionaries are equal"):
                 assert sensor_output == voltage_output[random_sensor], ""
 
@@ -46,8 +48,9 @@ def test_show_voltage_bad_flow(engines, devices):
         platform = Platform()
         expected_msg = 'The requested item does not exist'
     with allure.step("Try nv show platform environment voltage <not_exist_sensor>"):
-        output = platform.environment.voltage.show('not_sensor')
-        assert expected_msg in output.info, "check the show command for not exist sensor, the expected message is {}, the current output is {}".format(expected_msg, output)
+        output = platform.environment.voltage.show('not_sensor', should_succeed=False)
+        assert expected_msg in output, "check the show command for not exist sensor, the expected message is {}, " \
+                                       "the current output is {}".format(expected_msg, output)
 
 
 @pytest.mark.platform

@@ -4,10 +4,10 @@ from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.Files import File
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import ComponentsConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
 
@@ -650,9 +650,10 @@ def test_log_components(engines):
         2. Run nv show system component and check default log levels for all components
         3. Run nv set/unset for all components with all log levels and validate
     """
+
     default_log_level_nvued = "info"
-    list_with_all_components = ["nvued", "orchagent", "portsyncd", "sai_api_port", "sai_api_switch", "syncd"]
-    list_with_all_log_levels = ["critical", "debug", "error", "info", "notice", "warn"]
+    list_with_all_components = ComponentsConsts.COMPONENTS_LIST
+    list_with_all_log_levels = ComponentsConsts.LOG_LEVEL_LIST
     with allure.step("Create System object"):
         system = System(None)
 
@@ -662,7 +663,8 @@ def test_log_components(engines):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
 
         with allure.step("Validate all expected fields in show component output"):
-            ValidationTool.verify_field_exist_in_json_output(output_dictionary, list_with_all_components).verify_result()
+            ValidationTool.verify_field_exist_in_json_output(output_dictionary,
+                                                             list_with_all_components).verify_result()
             logging.info("All expected fields were found")
 
     with allure.step("Validate default log levels for all components"):
@@ -675,7 +677,8 @@ def test_log_components(engines):
                 default_log_level = default_log_level_nvued
             with allure.step("Validate component {component} with default log level {level}"
                              .format(component=component, level=default_log_level)):
-                ValidationTool.verify_field_value_in_output(output_dictionary, "level", default_log_level).verify_result()
+                ValidationTool.verify_field_value_in_output(output_dictionary, ComponentsConsts.LEVEL,
+                                                            default_log_level).verify_result()
                 logging.info("All expected components were with default log levels")
 
     with allure.step("Rotate logs"):
@@ -688,23 +691,28 @@ def test_log_components(engines):
             for log_level in list_with_all_log_levels:
                 if component == "nvued" and log_level == "notice":
                     continue
-                system.log.component.set_system_log_component(component, log_level)
+                system.log.component.componentName[component].set(op_param_name='level', op_param_value=log_level,
+                                                                  apply=True).verify_result()
                 show_output = system.log.component.show()
                 output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output_dictionary[component], "level", log_level).verify_result()
+                ValidationTool.verify_field_value_in_output(output_dictionary[component], ComponentsConsts.LEVEL,
+                                                            log_level).verify_result()
                 if component == "nvued" and log_level is list_with_all_log_levels[-1]:
-                    system.log.component.set_system_log_component(component, default_log_level_nvued)
+                    system.log.component.componentName[component].set(op_param_name=ComponentsConsts.LEVEL,
+                                                                      op_param_value=default_log_level_nvued,
+                                                                      apply=True).verify_result()
                 else:
-                    system.log.component.unset_system_log_component(component)
+                    system.log.component.componentName[component].unset(op_param=ComponentsConsts.LEVEL,
+                                                                        apply=True).verify_result()
                     show_output = system.log.component.show()
                     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
                     ValidationTool.verify_field_value_in_output(
-                        output_dictionary[component], "level",
+                        output_dictionary[component], ComponentsConsts.LEVEL,
                         default_log_level if component != "nvued" else default_log_level_nvued).verify_result()
 
     with allure.step("Unset log components"):
         logging.info("Unset log components")
-        system.log.component.unset_system_log_component('')
+        system.log.component.unset(apply=True).verify_result()
 
 
 @pytest.mark.system

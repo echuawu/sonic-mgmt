@@ -109,14 +109,16 @@ def test_apply_rev_id(engines):
     """
     system = System(None)
     with allure.step('set pre-login message and apply'):
-        output = system.message.set("TESTING_001", engines.dut, field_name=SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        output = system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"TESTING_001"',
+                                    apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('get the rev id and ref'):
         rev_id_1 = output.split()[-1]
         ref_1 = 'rev_' + rev_id_1 + '_apply_1'
 
     with allure.step('set pre-login message and apply'):
-        output = system.message.set("TESTING_002", engines.dut, field_name=SystemConsts.PRE_LOGIN_MESSAGE).verify_result()
+        output = system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"TESTING_002"',
+                                    apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('get the rev id and ref'):
         rev_id_2 = output.split()[-1]

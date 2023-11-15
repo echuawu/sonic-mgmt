@@ -1,7 +1,6 @@
 import logging
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import ActionConsts
 
 logger = logging.getLogger()
 
@@ -155,18 +154,6 @@ class NvueSystemCli(NvueBaseCli):
         write_content_cmd = "sudo sh -c 'echo debug_log >> /var/log/debug'"
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=write_content_cmd))
         return engine.run_cmd(write_content_cmd)
-
-    @staticmethod
-    def action_set_system_log_component(engine, component, log_level=""):
-        cmd = "nv set system log component {component} level {level}".format(component=component, level=log_level)
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_unset_system_log_component(engine, component):
-        cmd = "nv unset system log component {component} level ".format(component=component)
-        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
 
     @staticmethod
     def action_disconnect(engine, path):

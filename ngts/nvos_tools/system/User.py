@@ -1,5 +1,4 @@
 import logging
-from typing import Dict
 
 import allure
 import random
@@ -11,12 +10,12 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.system.Role import Role
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.DefaultDict import DefaultDict
 
 logger = logging.getLogger()
 
 
 class User(BaseComponent):
+
     def __init__(self, parent_obj=None, username='admin'):
         BaseComponent.__init__(self)
         self.password = Password(self)
@@ -28,7 +27,8 @@ class User(BaseComponent):
         self._resource_path = '/user/' + self.username
         self.parent_obj = parent_obj
 
-    def get_lslogins(self, engine, username):
+    @staticmethod
+    def get_lslogins(engine, username):
         return OutputParsingTool.parse_lslogins_cmd(
             engine.run_cmd('lslogins {username}'.format(username=username))).verify_result()
 

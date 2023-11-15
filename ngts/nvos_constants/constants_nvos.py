@@ -930,3 +930,9 @@ class FastRecoveryConsts:
     TRIGGERS = [TRIGGER_CREDIT_WATCHDOG, TRIGGER_EFFECTIVE_BER, TRIGGER_RAW_BER, TRIGGER_SYMBOL_BER]
     SEVERITY_DEFAULT = 'error'
     SEVERITY_WARNING = 'warning'
+
+
+class ComponentsConsts:
+    COMPONENTS_LIST = ["nvued", "orchagent", "portsyncd", "sai_api_port", "sai_api_switch", "syncd"]
+    LOG_LEVEL_LIST = ["critical", "debug", "error", "info", "notice", "warn"]
+    LEVEL = 'level'

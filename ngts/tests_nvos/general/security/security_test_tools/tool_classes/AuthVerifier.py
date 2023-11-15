@@ -4,7 +4,7 @@ import subprocess
 
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
@@ -49,11 +49,13 @@ class AuthVerifier:
             with allure.step(f'Run show command. Expect success: True'):
                 system.version.show(dut_engine=self.engine)
             with allure.step(f'Run set command. Expect success: {user_is_admin}'):
-                system.message.set(field_name='pre-login', value="NVOS TESTS", engine=self.engine,
-                                   apply=user_is_admin).verify_result(should_succeed=user_is_admin)
+                system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"NVOS TESTS"',
+                                   apply=user_is_admin,
+                                   dut_engine=self.engine).verify_result(should_succeed=user_is_admin)
+
             with allure.step(f'Run unset command. Expect success: {user_is_admin}'):
-                system.message.unset(field_name='pre-login', engine=self.engine,
-                                     apply=user_is_admin).verify_result(should_succeed=user_is_admin)
+                system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE, apply=user_is_admin,
+                                     dut_engine=self.engine).verify_result(should_succeed=user_is_admin)
         finally:
             self.change_test_api(orig_test_api)
 

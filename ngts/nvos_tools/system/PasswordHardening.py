@@ -11,7 +11,7 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 logger = logging.getLogger()
 
 
-class Password_hardening(BaseComponent):
+class PasswordHardening(BaseComponent):
 
     def __init__(self, parent_obj):
         BaseComponent.__init__(self)
@@ -34,7 +34,7 @@ class Password_hardening(BaseComponent):
         """
         with allure.step('generate password'):
             show = self.show()
-            password_min_len, enabled_rules = Password_hardening.parse_password_hardening_enabled_rules(show)
+            password_min_len, enabled_rules = PasswordHardening.parse_password_hardening_enabled_rules(show)
             password_min_len = int(password_min_len)
 
             assert password_min_len <= max_length, "the password max length {max} < {min} min length".format(max=max_length, min=password_min_len)

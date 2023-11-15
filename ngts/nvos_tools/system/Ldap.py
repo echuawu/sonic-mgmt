@@ -13,7 +13,8 @@ class Ldap(RemoteAaaResource):
         # self.hostname = LdapHostname(self)
 
     def set_hostname_priority(self, hostname, priority, apply=False, ask_for_confirmation=False):
-        return self.set("hostname {} priority ".format(hostname), priority, apply=apply, ask_for_confirmation=ask_for_confirmation)
+        return self.set("hostname {} priority ".format(hostname), priority, apply=apply,
+                        ask_for_confirmation=ask_for_confirmation)
 
 
 class LdapHostname(BaseComponent):

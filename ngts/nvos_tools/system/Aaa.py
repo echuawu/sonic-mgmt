@@ -1,4 +1,3 @@
-import allure
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
