@@ -36,13 +36,72 @@ def test_show_system_web_server_api(engines):
 
     try:
 
-        with allure_step('Run show system message command and verify that each field has a value'):
+        with allure_step('Run show system api command and verify that each field has a value'):
             ext_api_output = OutputParsingTool.parse_json_str_to_dictionary(
                 system.web_server_api.show()).get_returned_value()
             ValidationTool.verify_field_exist_in_json_output(ext_api_output,
                                                              [SystemConsts.EXTERNAL_API_STATE,
                                                               SystemConsts.EXTERNAL_API_PORT,
                                                               SystemConsts.EXTERNAL_API_LISTEN]).verify_result()
+
+    finally:
+        clear_system_web_server_api(system, engines)
+
+
+@pytest.mark.webserverapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_web_server_api_conns(engines):
+    """
+    Run show system api connections command and verify the required connections
+        Test flow:
+            1. Check show system external API connections and verify connections are displayed
+    """
+    system = System()
+
+    try:
+
+        with allure_step('Run show system api connections command and verify that each field has a positive value'):
+            ext_api_conn_output = OutputParsingTool.parse_json_str_to_dictionary(
+                system.web_server_api.connections.show()).get_returned_value()
+            accepted = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_ACCEPTED]).strip())
+            assert accepted >= 0, 'Number of Accepted connections({val}) is negative'.format(val=accepted)
+            active = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_ACTIVE]).strip())
+            assert active >= 0, 'Number of Active connections({val}) is negative'.format(val=active)
+            handled = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_HANDLED]).strip())
+            assert handled >= 0, 'Number of Handled connections({val}) is negative'.format(val=handled)
+            reading = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_READING]).strip())
+            assert reading >= 0, 'Number of Reading connections({val}) is negative'.format(val=reading)
+            request = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_REQUEST]).strip())
+            assert request >= 0, 'Number of Request connections({val}) is negative'.format(val=request)
+            waiting = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_WAITING]).strip())
+            assert waiting >= 0, 'Number of Waiting connections({val}) is negative'.format(val=waiting)
+            writing = int((ext_api_conn_output[SystemConsts.EXTERNAL_API_CONN_WRITING]).strip())
+            assert writing >= 0, 'Number of Writing connections({val}) is negative'.format(val=writing)
+
+    finally:
+        clear_system_web_server_api(system, engines)
+
+
+@pytest.mark.webserverapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_web_server_api_listen_address(engines):
+    """
+    Run show system api connections command and verify the required connections
+        Test flow:
+            1. Check show system external API connections and verify connections are displayed
+    """
+    system = System()
+    empty_str = ''
+
+    try:
+
+        with allure_step('Run show system api connections command and verify the output'):
+            ext_api_conn_output = OutputParsingTool.parse_json_str_to_dictionary(
+                system.web_server_api.listen_address.show()).get_returned_value()
+            assert ext_api_conn_output is empty_str, 'Output is {output} instead of empty'.\
+                format(output=ext_api_conn_output)
 
     finally:
         clear_system_web_server_api(system, engines)
@@ -83,7 +142,7 @@ def test_set_system_web_server_api_state(engines):
                 system.web_server_api.show()
                 assert False, "The Web Server API was not disabled"
             except Exception as ex:
-                assert 'ConnectionError' == type(ex).__name__,\
+                assert 'ConnectionError' == type(ex).__name__, \
                     "Failed because of unexpected error : {type}".format(type=type(ex).__name__)
             finally:
                 # Set API type back to SSH to resume tests
@@ -147,7 +206,7 @@ def test_set_system_web_server_api_port(engines):
                 system.web_server_api.show()
                 assert False, "The Web Server API port was not changed"
             except Exception as ex:
-                assert 'ConnectionError' == type(ex).__name__,\
+                assert 'ConnectionError' == type(ex).__name__, \
                     "Failed because of unexpected error : {type}".format(type=type(ex).__name__)
             finally:
                 # Set API type back to SSH to resume tests
@@ -216,7 +275,7 @@ def test_set_system_web_server_api_listen(engines):
                 system.web_server_api.show()
                 assert False, "The Web Server API listening-address was not changed"
             except Exception as ex:
-                assert 'ConnectionError' == type(ex).__name__,\
+                assert 'ConnectionError' == type(ex).__name__, \
                     "Failed because of unexpected error : {type}".format(type=type(ex).__name__)
             finally:
                 # Set API type back to SSH to resume tests
@@ -287,3 +346,19 @@ def test_set_system_web_server_api_listen(engines):
 
     finally:
         clear_system_web_server_api(system, engines)
+
+
+@pytest.mark.webserverapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_web_server_api_conns_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_web_server_api_conns(engines)
+
+
+@pytest.mark.webserverapi
+@pytest.mark.system
+@pytest.mark.simx
+def test_show_system_web_server_api_listen_address_openapi(engines):
+    TestToolkit.tested_api = ApiType.OPENAPI
+    test_show_system_web_server_api_listen_address(engines)

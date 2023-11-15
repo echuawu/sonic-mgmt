@@ -331,6 +331,13 @@ class SystemConsts:
     EXTERNAL_API_PORT_NON_DEFAULT = '442'
     EXTERNAL_API_LISTEN_DEFAULT = {}
     EXTERNAL_API_LISTEN_LOCALHOST = 'localhost'
+    EXTERNAL_API_CONN_ACCEPTED = 'accepted'
+    EXTERNAL_API_CONN_ACTIVE = 'active'
+    EXTERNAL_API_CONN_HANDLED = 'handled'
+    EXTERNAL_API_CONN_READING = 'reading'
+    EXTERNAL_API_CONN_REQUEST = 'requests'
+    EXTERNAL_API_CONN_WAITING = 'waiting'
+    EXTERNAL_API_CONN_WRITING = 'writing'
 
 
 class DocumentsConsts:

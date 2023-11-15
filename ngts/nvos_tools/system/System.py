@@ -257,13 +257,41 @@ class DateTime(BaseComponent):
 
 
 class WebServerAPI(BaseComponent):
+    connections = None
+    listen_address = None
 
     def __init__(self, parent_obj):
         BaseComponent.__init__(self)
         self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self._resource_path = '/api'
         self.parent_obj = parent_obj
+        self.connections = Connections(self)
+        self.listen_address = ListenAddress(self)
 
     @staticmethod
     def get_expected_fields(device):
         return device.constants.system['web_server_api']
+
+
+class Connections(BaseComponent):
+
+    def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/connections'
+        self.parent_obj = parent_obj
+
+    def get_expected_fields(self, device):
+        return device.constants.system['connections']
+
+
+class ListenAddress(BaseComponent):
+
+    def __init__(self, parent_obj):
+        BaseComponent.__init__(self)
+        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
+        self._resource_path = '/listening-address'
+        self.parent_obj = parent_obj
+
+    def get_expected_fields(self, device):
+        return device.constants.system['listen_address']
