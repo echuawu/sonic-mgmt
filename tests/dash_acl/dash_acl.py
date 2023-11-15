@@ -6,8 +6,8 @@ import logging
 import random
 
 from constants import *  # noqa: F403
-from dash_utils import render_template_to_host, apply_swssconfig_file
-from tests.common.errors import RunAnsibleModuleFail
+from dash_utils import render_template
+from gnmi_utils import apply_gnmi_file
 
 logger = logging.getLogger(__name__)
 
@@ -24,16 +24,18 @@ SCALE_TAGS = 4096
 SCALE_TAG_IPS = 24576
 
 
-def apply_acl_config(duthost, template_name, acl_config_info, op):
+def apply_acl_config(duthost, ptfhost, template_name, acl_config_info, op):
     template_file = "{}.j2".format(template_name)
     dest_path = "/tmp/{}.json".format(template_name)
-    render_template_to_host(template_file, duthost, dest_path, acl_config_info, op=op)
-    apply_swssconfig_file(duthost, dest_path)
+    config_json = render_template(template_file, acl_config_info, op=op)
+    # apply_swssconfig_file(duthost, dest_path)
+    apply_gnmi_file(duthost, ptfhost, config_json=config_json)
 
 
 class AclGroup(object):
-    def __init__(self, duthost, acl_group, eni, ip_version="ipv4"):
+    def __init__(self, duthost, ptfhost, acl_group, eni, ip_version="ipv4", create_group=True):
         self.duthost = duthost
+        self.ptfhost = ptfhost
         self.acl_group = acl_group
         self.eni = eni
         self.ip_version = ip_version
@@ -41,10 +43,11 @@ class AclGroup(object):
             ACL_GROUP: self.acl_group,
             IP_VERSION: self.ip_version
         }
-        apply_acl_config(self.duthost, ACL_GROUP_TEMPLATE, self.group_conf, op="SET")
+        if create_group:
+            apply_acl_config(self.duthost, self.ptfhost, ACL_GROUP_TEMPLATE, self.group_conf, op="SET")
 
     def __del__(self):
-        apply_acl_config(self.duthost, ACL_GROUP_TEMPLATE, self.group_conf, op="DEL")
+        apply_acl_config(self.duthost, self.ptfhost, ACL_GROUP_TEMPLATE, self.group_conf, op="DEL")
 
     def bind(self, stage):
         self.stage = stage
@@ -53,26 +56,27 @@ class AclGroup(object):
             ACL_GROUP: self.acl_group,
             ACL_STAGE: self.stage,
         }
-        apply_acl_config(self.duthost, BIND_ACL_OUT, self.bind_conf, op="SET")
-        apply_acl_config(self.duthost, BIND_ACL_IN, self.bind_conf, op="SET")
+        apply_acl_config(self.duthost, self.ptfhost, BIND_ACL_OUT, self.bind_conf, op="SET")
+        apply_acl_config(self.duthost, self.ptfhost, BIND_ACL_IN, self.bind_conf, op="SET")
 
     def unbind(self):
-        apply_acl_config(self.duthost, BIND_ACL_OUT, self.bind_conf, op="DEL")
-        apply_acl_config(self.duthost, BIND_ACL_IN, self.bind_conf, op="DEL")
+        apply_acl_config(self.duthost, self.ptfhost, BIND_ACL_OUT, self.bind_conf, op="DEL")
+        apply_acl_config(self.duthost, self.ptfhost, BIND_ACL_IN, self.bind_conf, op="DEL")
 
 
 class AclTag(object):
-    def __init__(self, duthost, acl_tag, acl_prefix_list, ip_version="ipv4"):
+    def __init__(self, duthost, ptfhost, acl_tag, acl_prefix_list, ip_version="ipv4"):
         self.duthost = duthost
+        self.ptfhost = ptfhost
         self.tag_conf = {
             ACL_TAG: acl_tag,
             IP_VERSION: ip_version,
             ACL_PREFIX_LIST: acl_prefix_list
         }
-        apply_acl_config(self.duthost, ACL_TAG_TEMPLATE, self.tag_conf, op="SET")
+        apply_acl_config(self.duthost, self.ptfhost, ACL_TAG_TEMPLATE, self.tag_conf, op="SET")
 
     def __del__(self):
-        apply_acl_config(self.duthost, ACL_TAG_TEMPLATE, self.tag_conf, op="DEL")
+        apply_acl_config(self.duthost, self.ptfhost, ACL_TAG_TEMPLATE, self.tag_conf, op="DEL")
 
 
 class AclTestPacket(object):
@@ -91,9 +95,10 @@ class AclTestPacket(object):
 
 
 class AclTestCase(object):
-    def __init__(self, duthost, dash_config_info):
+    def __init__(self, duthost, ptfhost, dash_config_info):
         __metaclass__ = abc.ABCMeta  # noqa: F841
         self.duthost = duthost
+        self.ptfhost = ptfhost
         self.dash_config_info = dash_config_info
         self.test_pkts = []
         self.config_only = False
@@ -114,29 +119,39 @@ class AclTestCase(object):
         return str(ipaddress.ip_address(SRC_IP_RANGE[0]) + random.randint(0, length))
 
 
-class DefaultAclGroupTest(AclTestCase):
-    def __init__(self, duthost, dash_config_info):
-        super(DefaultAclGroupTest, self).__init__(duthost, dash_config_info)
+class DefaultAclGroupCreateTest(AclTestCase):
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(DefaultAclGroupCreateTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
-        self.group = AclGroup(self.duthost, self.acl_group, self.dash_config_info[ENI])
+        self.group = AclGroup(self.duthost, self.ptfhost, self.acl_group, self.dash_config_info[ENI])
+
+    def teardown(self):
+        del self.group
+
+
+class DefaultAclGroupBindTest(AclTestCase):
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(DefaultAclGroupBindTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.acl_group = DEFAULT_ACL_GROUP
+        self.group = AclGroup(self.duthost, self.ptfhost, self.acl_group,
+                              self.dash_config_info[ENI], create_group=False)
 
     def config(self):
         self.group.bind(DEFAULT_ACL_STAGE)
 
     def teardown(self):
         self.group.unbind()
-        del self.group
 
 
 class AclRuleTest(AclTestCase):
-    def __init__(self, duthost, dash_config_info):
-        super(AclRuleTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclRuleTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.rule_confs = []
         self.acl_tag = None
 
     def add_rule(self, rule_conf):
         rule_conf[ACL_RULE] = self.__class__.__name__ + "_" + rule_conf[ACL_RULE]
-        apply_acl_config(self.duthost, ACL_RULE_TEMPLATE, rule_conf, op="SET")
+        apply_acl_config(self.duthost, self.ptfhost, ACL_RULE_TEMPLATE, rule_conf, op="SET")
         self.rule_confs.append(rule_conf)
 
     def add_test_pkt(self, test_pkt):
@@ -145,31 +160,29 @@ class AclRuleTest(AclTestCase):
 
     def teardown(self):
         for rule_conf in self.rule_confs:
-            apply_acl_config(self.duthost, ACL_RULE_TEMPLATE, rule_conf, op="DEL")
+            apply_acl_config(self.duthost, self.ptfhost, ACL_RULE_TEMPLATE, rule_conf, op="DEL")
         self.rule_confs = []
 
 
 class DefaultAclRule(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(DefaultAclRule, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(DefaultAclRule, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
 
     def config(self):
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow",
-            ACL_PRIORITY: 1,
+            ACL_RULE: "allow_default",
+            ACL_PRIORITY: 100,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: "17",
-            ACL_SRC_ADDR: "0.0.0.0/0",
-            ACL_SRC_PORT: "1234"
         })
 
 
 class AclPriorityTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclPriorityTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclPriorityTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip = self.get_random_ip()
         self.src_ip_prefix = self.src_ip + "/32"
@@ -177,8 +190,8 @@ class AclPriorityTest(AclRuleTest):
     def config(self):
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "deny_10",
-            ACL_PRIORITY: 10,
+            ACL_RULE: "deny_2",
+            ACL_PRIORITY: 2,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: "17",
@@ -187,11 +200,11 @@ class AclPriorityTest(AclRuleTest):
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow_20",
-            ACL_PRIORITY: 20,
+            ACL_RULE: "allow_10",
+            ACL_PRIORITY: 10,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
-            ACL_PROTOCOL: 17,
+            ACL_PROTOCOL: "17",
             ACL_SRC_ADDR: self.src_ip_prefix,
             ACL_SRC_PORT: "1"
         })
@@ -202,21 +215,21 @@ class AclPriorityTest(AclRuleTest):
                                         expected_receiving=False))
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow_30",
-            ACL_PRIORITY: 30,
+            ACL_RULE: "allow_4",
+            ACL_PRIORITY: 4,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
-            ACL_PROTOCOL: 17,
+            ACL_PROTOCOL: "17",
             ACL_SRC_ADDR: self.src_ip_prefix,
             ACL_SRC_PORT: "2"
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "deny_40",
-            ACL_PRIORITY: 40,
+            ACL_RULE: "deny_30",
+            ACL_PRIORITY: 30,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
-            ACL_PROTOCOL: 17,
+            ACL_PROTOCOL: "17",
             ACL_SRC_ADDR: self.src_ip_prefix,
             ACL_SRC_PORT: "2"
         })
@@ -228,8 +241,8 @@ class AclPriorityTest(AclRuleTest):
 
 
 class AclActionTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclActionTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclActionTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip = self.get_random_ip()
         self.src_ip_prefix = self.src_ip + "/32"
@@ -237,8 +250,9 @@ class AclActionTest(AclRuleTest):
     def config(self):
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow_10",
-            ACL_PRIORITY: 10,
+            ACL_RULE: "allow_20",
+            # TODO. This priority should be lower than rule2's (2)
+            ACL_PRIORITY: 20,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "false",
             ACL_PROTOCOL: "17",
@@ -247,24 +261,24 @@ class AclActionTest(AclRuleTest):
         })
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "deny_20",
-            ACL_PRIORITY: 20,
+            ACL_RULE: "deny_3",
+            ACL_PRIORITY: 3,
             ACL_ACTION: "deny",
             ACL_TERMINATING: "true",
-            ACL_PROTOCOL: 17,
+            ACL_PROTOCOL: "17",
             ACL_SRC_ADDR: self.src_ip_prefix,
             ACL_SRC_PORT: "3"
         })
         dash_config_info = copy.deepcopy(self.dash_config_info)
         dash_config_info[LOCAL_CA_IP] = self.src_ip
-        self.add_test_pkt(AclTestPacket(self.dash_config_info,
+        self.add_test_pkt(AclTestPacket(dash_config_info,
                                         inner_extra_conf={"udp_sport": 3},
                                         expected_receiving=False))
 
 
 class AclProtocolTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclProtocolTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclProtocolTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip = self.get_random_ip()
         self.src_ip_prefix = self.src_ip + "/32"
@@ -298,8 +312,8 @@ class AclProtocolTest(AclRuleTest):
 
 
 class AclAddressTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclAddressTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclAddressTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
         self.src_ip3 = self.get_random_ip()
@@ -312,8 +326,8 @@ class AclAddressTest(AclRuleTest):
     def config(self):
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow",
-            ACL_PRIORITY: 1,
+            ACL_RULE: "allow_5",
+            ACL_PRIORITY: 5,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: "17",
@@ -337,8 +351,8 @@ class AclAddressTest(AclRuleTest):
                                         expected_receiving=False))
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow",
-            ACL_PRIORITY: 1,
+            ACL_RULE: "allow_6",
+            ACL_PRIORITY: 6,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: "17",
@@ -368,8 +382,8 @@ class AclAddressTest(AclRuleTest):
 
 
 class AclPortTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclPortTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclPortTest, self).__init__(duthost, ptfhost, dash_config_info)
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip = self.get_random_ip()
         self.src_ip_prefix = self.src_ip + "/32"
@@ -377,8 +391,8 @@ class AclPortTest(AclRuleTest):
     def config(self):
         self.add_rule({
             ACL_GROUP: self.acl_group,
-            ACL_RULE: "allow",
-            ACL_PRIORITY: 1,
+            ACL_RULE: "allow_7",
+            ACL_PRIORITY: 7,
             ACL_ACTION: "allow",
             ACL_TERMINATING: "true",
             ACL_PROTOCOL: "17",
@@ -403,8 +417,9 @@ class AclPortTest(AclRuleTest):
 
 
 class AclTagTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclTagTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
@@ -412,7 +427,7 @@ class AclTagTest(AclRuleTest):
         self.src_ip_prefix2 = self.src_ip2 + "/32"
 
     def config(self):
-        self.acl_tag = AclTag(self.duthost, "AclTag",
+        self.acl_tag = AclTag(self.duthost, self.ptfhost, "AclTag",
                               [",".join([self.src_ip_prefix1, self.src_ip_prefix2])])
         self.add_rule({
             ACL_GROUP: self.acl_group,
@@ -441,8 +456,9 @@ class AclTagTest(AclRuleTest):
 
 
 class AclMultiTagTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclMultiTagTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclMultiTagTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
@@ -450,7 +466,7 @@ class AclMultiTagTest(AclRuleTest):
         self.src_ip_prefix2 = self.src_ip2 + "/32"
 
     def config(self):
-        self.acl_tag = AclTag(self.duthost, "AclMultiTag",
+        self.acl_tag = AclTag(self.duthost, self.ptfhost, "AclMultiTag",
                               [self.src_ip_prefix1, self.src_ip_prefix2])
         self.add_rule({
             ACL_GROUP: self.acl_group,
@@ -479,8 +495,9 @@ class AclMultiTagTest(AclRuleTest):
 
 
 class AclTagOrderTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagOrderTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclTagOrderTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.acl_tag = None
         self.src_ip = self.get_random_ip()
@@ -497,7 +514,7 @@ class AclTagOrderTest(AclRuleTest):
             ACL_SRC_TAG: "AclTagOrder1",
             ACL_SRC_PORT: "17"
         })
-        self.acl_tag = AclTag(self.duthost, "AclTagOrder", [self.src_ip_prefix])
+        self.acl_tag = AclTag(self.duthost, self.ptfhost, "AclTagOrder", [self.src_ip_prefix])
         dash_config_info = copy.deepcopy(self.dash_config_info)
         dash_config_info[LOCAL_CA_IP] = self.src_ip
         self.add_test_pkt(AclTestPacket(dash_config_info,
@@ -510,8 +527,9 @@ class AclTagOrderTest(AclRuleTest):
 
 
 class AclMultiTagOrderTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclMultiTagOrderTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclMultiTagOrderTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
@@ -529,7 +547,7 @@ class AclMultiTagOrderTest(AclRuleTest):
             ACL_SRC_TAG: "AclMultiTagOrder1,AclMultiTagOrder2",
             ACL_SRC_PORT: "18"
         })
-        self.acl_tag = AclTag(self.duthost, "AclMultiTagOrder", [self.src_ip_prefix1, self.src_ip_prefix2])
+        self.acl_tag = AclTag(self.duthost, self.ptfhost, "AclMultiTagOrder", [self.src_ip_prefix1, self.src_ip_prefix2])
         dash_config_info = copy.deepcopy(self.dash_config_info)
         dash_config_info[LOCAL_CA_IP] = self.src_ip1
         self.add_test_pkt(AclTestPacket(dash_config_info,
@@ -547,8 +565,9 @@ class AclMultiTagOrderTest(AclRuleTest):
 
 
 class AclTagUpdateIpTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagUpdateIpTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclTagUpdateIpTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
@@ -556,7 +575,7 @@ class AclTagUpdateIpTest(AclRuleTest):
         self.src_ip_prefix2 = self.src_ip2 + "/32"
 
     def config(self):
-        self.acl_tag1 = AclTag(self.duthost, "AclTagUpdateIp", [self.src_ip_prefix1])
+        self.acl_tag1 = AclTag(self.duthost, self.ptfhost, "AclTagUpdateIp", [self.src_ip_prefix1])
         self.add_rule({
             ACL_GROUP: self.acl_group,
             ACL_RULE: "allow_update_ip_tag",
@@ -567,7 +586,7 @@ class AclTagUpdateIpTest(AclRuleTest):
             ACL_SRC_TAG: "AclTagUpdateIp1",
             ACL_SRC_PORT: "19"
         })
-        self.acl_tag2 = AclTag(self.duthost, "AclTagUpdateIp", [self.src_ip_prefix2])
+        self.acl_tag2 = AclTag(self.duthost, self.ptfhost, "AclTagUpdateIp", [self.src_ip_prefix2])
         dash_config_info = copy.deepcopy(self.dash_config_info)
         dash_config_info[LOCAL_CA_IP] = self.src_ip1
         self.add_test_pkt(AclTestPacket(dash_config_info,
@@ -586,8 +605,9 @@ class AclTagUpdateIpTest(AclRuleTest):
 
 
 class AclTagRemoveIpTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagRemoveIpTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclTagRemoveIpTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.src_ip1 = self.get_random_ip()
         self.src_ip2 = self.get_random_ip()
@@ -595,7 +615,7 @@ class AclTagRemoveIpTest(AclRuleTest):
         self.src_ip_prefix2 = self.src_ip2 + "/32"
 
     def config(self):
-        self.acl_tag1 = AclTag(self.duthost, "AclTagRemoveIp",
+        self.acl_tag1 = AclTag(self.duthost, self.ptfhost, "AclTagRemoveIp",
                               [",".join([self.src_ip_prefix1, self.src_ip_prefix2])])
         self.add_rule({
             ACL_GROUP: self.acl_group,
@@ -607,7 +627,7 @@ class AclTagRemoveIpTest(AclRuleTest):
             ACL_SRC_TAG: "AclTagRemoveIp1",
             ACL_SRC_PORT: "20"
         })
-        self.acl_tag2 = AclTag(self.duthost, "AclTagRemoveIp", [self.src_ip_prefix1])
+        self.acl_tag2 = AclTag(self.duthost, self.ptfhost, "AclTagRemoveIp", [self.src_ip_prefix1])
         dash_config_info = copy.deepcopy(self.dash_config_info)
         dash_config_info[LOCAL_CA_IP] = self.src_ip1
         self.add_test_pkt(AclTestPacket(dash_config_info,
@@ -626,8 +646,9 @@ class AclTagRemoveIpTest(AclRuleTest):
 
 
 class AclTagScaleTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagScaleTest, self).__init__(duthost, dash_config_info)
+    def __init__(self, duthost, ptfhost, dash_config_info):
+        super(AclTagScaleTest, self).__init__(duthost, ptfhost, dash_config_info)
+        self.ptfhost = ptfhost
         self.acl_group = DEFAULT_ACL_GROUP
         self.ip_list = self.random_scale_ip_list()
         self.src_ip = self.ip_list[0]
@@ -635,7 +656,7 @@ class AclTagScaleTest(AclRuleTest):
         self.tag_names_list = ",".join(["AclTagScale{}".format(tag_num) for tag_num in range(1, SCALE_TAGS+1)])
 
     def config(self):
-        self.acl_tag = AclTag(self.duthost, "AclTagScale", self.src_ip_prefix_list)
+        self.acl_tag = AclTag(self.duthost, self.ptfhost, "AclTagScale", self.src_ip_prefix_list)
         self.add_rule({
             ACL_GROUP: self.acl_group,
             ACL_RULE: "allow_scale_tag",
@@ -657,7 +678,7 @@ class AclTagScaleTest(AclRuleTest):
         del self.acl_tag
 
     @staticmethod
-    def random_scale_ip_list(ip_type = 'ipv4'):
+    def random_scale_ip_list(ip_type='ipv4'):
         ip_list = []
         if ip_type == 'ipv4':
             address_type = ipaddress.IPv4Address
@@ -683,66 +704,35 @@ class AclTagScaleTest(AclRuleTest):
         return prefixes_list
 
 
-class AclTagNegativeTest(AclRuleTest):
-    def __init__(self, duthost, dash_config_info):
-        super(AclTagNegativeTest, self).__init__(duthost, dash_config_info)
-        self.config_only = True
-        self.acl_group = DEFAULT_ACL_GROUP
-        self.incorrect_src_ip_prefix = self.get_incorrect_ip() + "/32"
-        self.src_ip_prefix = self.get_random_ip() + "/32"
-
-    def config(self):
-        self.acl_tag = AclTag(self.duthost, "AclTagNegativeIP", [self.incorrect_src_ip_prefix])
-        err_msg = "Negative test with empty tag name did not failed"
-        try:
-            AclTag(self.duthost, "AclTagNegativeName", [self.src_ip_prefix])
-            raise Exception(err_msg)
-        except Exception as err:
-            if isinstance(err, RunAnsibleModuleFail):
-                logger.info("Negative configuration with empty tag name failed as expected")
-            else:
-                raise Exception(err)
-
-    def teardown(self):
-        super(AclTagNegativeTest, self).teardown()
-        del self.acl_tag
-
-    def get_incorrect_ip(self):
-        ip = self.get_random_ip()
-        zero_start_ip = "0" + ip[ip.find('.'):]
-        above_255_ip = "{}.{}".format(ip[:ip.rfind('.')], random.randint(256, 1000))
-        rand_place = random.randint(0, len(ip))
-        extra_dot_ip = "{}.{}".format(ip[:rand_place], ip[rand_place:])
-        incorrect_ip = random.choice([zero_start_ip, above_255_ip, extra_dot_ip])
-        logger.info("Incorrect IP, which will be used by test: {}".format(incorrect_ip))
-        return incorrect_ip
-
-
-@pytest.fixture(scope="module")
-def acl_test_conf(duthost, dash_config_info):
+@pytest.fixture(scope="function")
+def acl_test_conf(request, duthost, ptfhost, dash_config_info):
     # Feature limitation: the group  can't be changed
     # after ENI configuration(dash_basic_config.j2).
     # All tests rules should be configured before.
     testcases = []
-    testcases.append(DefaultAclGroupTest(duthost, dash_config_info))
-    testcases.append(DefaultAclRule(duthost, dash_config_info))
-    testcases.append(AclPriorityTest(duthost, dash_config_info))
-    testcases.append(AclActionTest(duthost, dash_config_info))
-    testcases.append(AclPortTest(duthost, dash_config_info))
-
-    # Still not supported on last image
-    # testcases.append(AclTagTest(duthost, dash_config_info))
-    # testcases.append(AclMultiTagTest(duthost, dash_config_info))
-    # testcases.append(AclTagOrderTest(duthost, dash_config_info))
-    # testcases.append(AclMultiTagOrderTest(duthost, dash_config_info))
-    # testcases.append(AclTagUpdateIpTest(duthost, dash_config_info))
-    # testcases.append(AclTagRemoveIpTest(duthost, dash_config_info))
-    # testcases.append(AclTagScaleTest(duthost, dash_config_info))
-    # testcases.append(AclTagNegativeTest(duthost, dash_config_info))
-
-    # Cannot passed testcases
-    # testcases.append(AclProtocolTest(duthost, dash_config_info))
-    # testcases.append(AclAddressTest(duthost, dash_config_info))
+    pytest_testcase_name = request.node.name.split('[')[0]
+    testcases.append(DefaultAclGroupCreateTest(duthost, ptfhost, dash_config_info))
+    if pytest_testcase_name == "test_acl_fields":
+        testcases.append(AclPriorityTest(duthost, ptfhost, dash_config_info))
+        testcases.append(AclActionTest(duthost, ptfhost, dash_config_info))
+        testcases.append(AclProtocolTest(duthost, ptfhost, dash_config_info))
+        testcases.append(AclAddressTest(duthost, ptfhost, dash_config_info))
+        testcases.append(AclPortTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_tag":
+        testcases.append(AclTagTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_multi_tag":
+        testcases.append(AclMultiTagTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_tag_order":
+        testcases.append(AclTagOrderTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_multi_tag_order":
+        testcases.append(AclMultiTagOrderTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_tag_update_ip":
+        testcases.append(AclTagUpdateIpTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_tag_remove_ip":
+        testcases.append(AclTagRemoveIpTest(duthost, ptfhost, dash_config_info))
+    elif pytest_testcase_name == "test_acl_tag_scale":
+        testcases.append(AclTagScaleTest(duthost, ptfhost, dash_config_info))
+    testcases.append(DefaultAclGroupBindTest(duthost, ptfhost, dash_config_info))
 
     for t in testcases:
         t.config()
@@ -751,3 +741,11 @@ def acl_test_conf(duthost, dash_config_info):
 
     for t in reversed(testcases):
         t.teardown()
+
+
+@pytest.fixture(scope="function")
+def acl_test_pkts(acl_test_conf):
+    test_pkts = []
+    for t in acl_test_conf:
+        test_pkts.extend(t.test_pkts)
+    yield test_pkts
