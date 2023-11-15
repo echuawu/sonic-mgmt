@@ -175,10 +175,12 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
 
     # Remove breakout related data
     config_db.pop('BREAKOUT_CFG')
-
+    port_speed = '25000'
     if platform == PlatformTypesConstants.PLATFORM_MOOSE:
         # Remove service port from list of ports which will be split
         physical_dut_ports.pop('Ethernet512')
+    if platform == PlatformTypesConstants.PLATFORM_LEOPARD:
+        port_speed = "100000"
     nonsplitable_ports = get_nonsplitable_ports(platform, topology, physical_dut_ports)
     target_ports = {}
     # Add ports connected from DUT to hosts
@@ -193,7 +195,7 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
         port_data = physical_dut_ports[port]
         port_index = port_data['index']
         port_alias = port_data['alias']
-        port_speed = '25000'
+        port_speed = port_speed
         port_mtu = '9100'
         port_lanes = port_data['lanes'].split(',')
         if port in nonsplitable_ports:
