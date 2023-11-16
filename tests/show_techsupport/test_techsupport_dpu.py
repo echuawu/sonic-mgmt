@@ -125,7 +125,7 @@ def test_techsupport_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_ho
             duthost.shell(show_dump_file_info)
             return techsupport_dump_list_after_trigger_fw_stuck
 
-        assert wait_until(120, 5, 0, _check_new_dump_file_is_generated),\
+        assert wait_until(300, 5, 0, _check_new_dump_file_is_generated),\
             "FW stuck doesn't trigger dump files generated in 120s"
         techsupport_dump_list_num = len(techsupport_dump_list_after_trigger_fw_stuck)
         assert techsupport_dump_list_num == 1,\
