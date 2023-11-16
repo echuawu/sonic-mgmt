@@ -849,8 +849,7 @@ def config_bond_type_lag(topology_obj, interfaces, cleanup_list):
     :return: None, raise error in case of unexpected result
     """
     lag_lacp_config_dict = {
-        'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
-               {'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
+        'hb': [{'type': 'lacp', 'name': 'bond0', 'members': [interfaces.hb_dut_1, interfaces.hb_dut_2]}]
     }
 
     vlan_config_dict = {
@@ -862,9 +861,9 @@ def config_bond_type_lag(topology_obj, interfaces, cleanup_list):
     }
 
     lag_lacp_config_dict_type_lag = {
-        'hb': [{'type': 'lag', 'name': 'bond0', 'members': [interfaces.hb_dut_1]},
-               {'type': 'lag', 'name': 'bond0', 'members': [interfaces.hb_dut_2]}]
+        'hb': [{'type': 'lag', 'name': 'bond0', 'members': [interfaces.hb_dut_1, interfaces.hb_dut_2]}]
     }
+
     # add to cleanup stack original IP and Vlan config
     cleanup_list.append((IpConfigTemplate.configuration, (topology_obj, ip_config_dict,)))
     cleanup_list.append((VlanConfigTemplate.configuration, (topology_obj, vlan_config_dict,)))
