@@ -152,7 +152,7 @@ def execute_script(cmd, exec_path, validate=True, timeout=None):
 
 
 def is_bf_topo(sonic_topo):
-    return sonic_topo == 'dpu'
+    return 'dpu' in sonic_topo
 
 
 def is_dualtor_topo(sonic_topo):

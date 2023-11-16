@@ -357,7 +357,8 @@ class SonicInstallationSteps:
                                      dest_file="config_db.json", file_system='/tmp/',
                                      overwrite_file=True, verify_file=False)
                 dut_engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
-                setup_info['duts'][0]['cli_obj'].reload_flow(ports_list=['Ethernet0', 'Ethernet4'],
+                ports_list = ['Ethernet0'] if sonic_topo == "dpu-1" else ['Ethernet0', 'Ethernet4']
+                setup_info['duts'][0]['cli_obj'].reload_flow(ports_list=ports_list,
                                                              reload_force=True)
                 dut_engine.run_cmd("sudo systemctl stop ntpd")
                 dut_engine.run_cmd("sudo ntpd -gq")
