@@ -277,12 +277,6 @@ tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interf
     conditions:
       - https://redmine.mellanox.com/issues/3633965
 
-tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_aggregated_port_configuration:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599251"
-    conditions:
-      - https://redmine.mellanox.com/issues/3599251
-
 tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_aggregated_port_mismatch_between_planes:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599251"
