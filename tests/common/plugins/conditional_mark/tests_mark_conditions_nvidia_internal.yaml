@@ -878,12 +878,6 @@ sflow/test_sflow.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name"
 
-sflow/test_sflow.py::TestAgentId::testAddAgent:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3634860"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3634860"
-
 vxlan/test_vxlan_decap.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419436 and branch 202211 and 't0-64' in topo_name"
@@ -1111,7 +1105,6 @@ platform_tests/test_reboot.py:
     conditions:
       - "'2010' in platform"
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3621401"
 
 platform_tests/test_reboot.py::test_warm_reboot:
   skip:
@@ -1131,13 +1124,6 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
     conditions_logical_operator: or
     conditions:
       - "'2010' in platform or '2100' in platform"
-      - "https://redmine.mellanox.com/issues/3621401"
-
-platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
-  skip:
-    reason: "Skip due to RM issue: https://redmine.mellanox.com/issues/3621401"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3621401"
 
 platform_tests/fw_utility/test_fwutil.py:
   skip:
@@ -1675,12 +1661,6 @@ system_health/test_system_health.py::test_external_checker:
     conditions:
       - "https://redmine.mellanox.com/issues/3335093"
 
-system_health/test_system_health.py::test_device_checker:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3621401"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3621401"
-
 memory_checker/test_memory_checker.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3339191 and branch master or 202211"
@@ -1723,7 +1703,6 @@ platform_tests/test_reload_config.py::test_reload_configuration:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3621401"
 
 platform_tests/test_reload_config.py::test_reload_configuration_checks:
   skip:
@@ -1945,12 +1924,6 @@ bfd/test_bfd.py::test_bfd_multihop:
     conditions:
       - "https://redmine.mellanox.com/issues/3572851"
 
-drop_packets/test_drop_counters.py::test_unicast_ip_incorrect_eth_dst:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634890 and 202305 or master branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3634890 and ('202305' in release or 'master' in release)"
-
 qos/test_lossless_bum_traffic_drop.py:
   skip:
     reason: "Test does not support dualtor topology."
@@ -2096,12 +2069,6 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
     conditions:
       - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
-
-qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628072"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3628072"
 
 show_techsupport/test_techsupport.py::test_techsupport_commands:
   skip:
@@ -2258,12 +2225,6 @@ system_health/test_system_health.py::test_system_health_config:
     conditions:
       - "https://redmine.mellanox.com/issues/3655238"
 
-platform_tests/test_power_off_reboot.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3621401 on some setups"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3621401 and 'r-boxer-sw01' not in testbed"
-
 dns/test_dns_resolv_conf.py:
   skip:
     reason: "Testcase ignored due to needed update: https://git-nbu-sw.nvidia.com/r/c/switchx/sonic/sonic-mgmt/+/262210"
@@ -2339,12 +2300,6 @@ platform_tests/test_sequential_restart.py:
     conditions:
       - "'simx' in platform"
 
-platform_tests/test_sequential_restart.py::test_restart_swss:
-  skip:
-    reason: "Skip due to RM issue: https://redmine.mellanox.com/issues/3621401"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3621401"
-
 platform_tests/cli/test_show_platform.py::test_show_platform_syseeprom:
   skip:
     reason: "When deploying image, Simx will generate dynamic MAC"
@@ -2369,13 +2324,6 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3585586 and'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3621401"
-
-platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3621401"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3621401"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_summary:
   skip:
