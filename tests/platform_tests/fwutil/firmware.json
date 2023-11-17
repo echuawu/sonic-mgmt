@@ -652,6 +652,28 @@
 				]
 			}
 		},
+		"r-panther-01": {
+			"component": {
+				"CPLD1": [
+					{
+						"firmware": "http://nbu-nfs.mellanox.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2700/FUI000193/FUI000193.mpfa",
+						"version": "CPLD000120_REV1300",
+						"reboot": ["power off","cold"]
+					}
+				]
+			}
+		},
+		"r-panther-02": {
+			"component": {
+				"CPLD1": [
+					{
+						"firmware": "http://nbu-nfs.mellanox.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN2700/FUI000193/FUI000193.mpfa",
+						"version": "CPLD000120_REV1300",
+						"reboot": ["power off","cold"]
+					}
+				]
+			}
+		},
 		"r-panther-03": {
 			"component": {
 				"CPLD1": [
