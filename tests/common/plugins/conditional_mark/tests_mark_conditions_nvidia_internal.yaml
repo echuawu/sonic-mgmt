@@ -872,12 +872,6 @@ snmp/test_snmp_memory.py::test_snmp_memory:
     conditions:
       - "https://redmine.mellanox.com/issues/3213192 and '202205' in release"
 
-sflow/test_sflow.py:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name, community sflow test could not run on t0-64 topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3205850 and 't0-64' in topo_name"
-
 vxlan/test_vxlan_decap.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419436 and branch 202211 and 't0-64' in topo_name"
