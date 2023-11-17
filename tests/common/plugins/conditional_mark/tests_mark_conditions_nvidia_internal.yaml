@@ -998,12 +998,6 @@ platform_tests/test_auto_negotiation.py:
       - "'3800' in platform"
       - "'r-tigon-11' in testbed"
 
-pfc_asym/test_pfc_asym.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2918636"
-    conditions:
-      - https://redmine.mellanox.com/issues/2918636
-
 ecmp/test_fgnhg.py:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
