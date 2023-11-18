@@ -113,7 +113,7 @@ def test_apply_rev_id(engines):
                                     apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('get the rev id and ref'):
-        rev_id_1 = output.split()[-1]
+        rev_id_1 = output.split()[-1].replace(']', '')
         ref_1 = 'rev_' + rev_id_1 + '_apply_1'
 
     with allure.step('set pre-login message and apply'):
@@ -121,7 +121,7 @@ def test_apply_rev_id(engines):
                                     apply=True, dut_engine=engines.dut).verify_result()
 
     with allure.step('get the rev id and ref'):
-        rev_id_2 = output.split()[-1]
+        rev_id_2 = output.split()[-1].replace(']', '')
         ref_2 = 'rev_' + rev_id_2 + '_apply_1'
 
     with allure.step('apply using rev id and verify output'):
