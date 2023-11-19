@@ -3,7 +3,7 @@ import pytest
 import logging
 from retry.api import retry_call
 import re
-
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tests.nightly.dynamic_port_breakout.conftest import get_mutual_breakout_modes, \
     is_splittable, set_dpb_conf, verify_ifaces_speed_and_status
 from ngts.helpers.interface_helpers import speed_string_to_int_in_mb
@@ -120,6 +120,9 @@ class TestDPBOnAllPorts:
         splittable_ports_connected_to_hosts = self.get_splittable_ports_connected_to_hosts(splittable_ports_list)
         splittable_ports_connected_as_lb = \
             self.get_splittable_ports_connected_as_lb(splittable_ports_list, splittable_ports_connected_to_hosts)
+
+        if is_redmine_issue_active([3669739]):
+            self.cli_object.interface.disable_interfaces(splittable_ports_connected_as_lb)
 
         breakout_ports_conf_for_all_tested_ports.update(
             self.set_dpb_on_ports_connected_to_hosts(splittable_ports_connected_to_hosts, breakout_mode, cleanup_list))
