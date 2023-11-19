@@ -4,6 +4,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 @pytest.mark.system
@@ -47,6 +48,7 @@ def test_reboot_command_immediate(engines, devices, test_name):
 
 
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_reboot_command_force(engines, devices, test_name):
     """
     Test flow:

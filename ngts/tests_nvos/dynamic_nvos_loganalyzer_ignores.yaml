@@ -1181,6 +1181,9 @@
     - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'start-limit-hit'.*"
     - ".*WARNING systemd\\[1\\]: pmon.service: Control process exited, code=killed, status.*"
     - ".*WARNING systemd\\[1\\]: pmon.service: Failed with result 'signal'.*"
+    - '.*WARNING systemd\[1\]: pmon.service:.*'
+    - '.*ERR hw-management: chip hwmon object.*'
+    - '.*netdev does not support more than one PCI device.*'
   Conditions:
     - Redmine:
         - 3540710

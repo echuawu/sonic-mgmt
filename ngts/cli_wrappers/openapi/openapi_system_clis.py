@@ -4,6 +4,8 @@ from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
 from ngts.nvos_constants.constants_nvos import ActionConsts, ActionType
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
+
 logger = logging.getLogger()
 
 
@@ -79,7 +81,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                 ActionType.INSTALL:
                     {
                         "state": "start",
-                        "parameters": {"force": op_param}
+                        "parameters": {"force": True if op_param == "force" else False}
                     },
                 ActionType.RENAME:
                     {
@@ -92,8 +94,18 @@ class OpenApiSystemCli(OpenApiBaseCli):
                         "parameters": {"remote-url": op_param}
                     }
             }
-        return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
-                                                   engine.ip, resource_path, params[action_type])
+        result = OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
+                                                     engine.ip, resource_path, params[action_type])
+
+        if "Performing reboot" in result:
+            logger.info("Waiting for switch shutdown after reload command")
+            check_port_status_till_alive(False, engine.ip, engine.ssh_port)
+            engine.disconnect()
+            logger.info("Waiting for switch to be ready")
+            check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+        return result
 
     @staticmethod
     def action_general(engine, action_str, resource_path):
@@ -173,13 +185,28 @@ class OpenApiSystemCli(OpenApiBaseCli):
     @staticmethod
     def action_reboot(engine, resource_path, op_param="", should_wait_till_system_ready=True):
         logging.info("Running action: rotate system log on dut using OpenApi")
+        parameters_dict = {}
+        if "force" in op_param:
+            parameters_dict.update({"force": True})
+        if "immediate" in op_param:
+            parameters_dict.update({"immediate": True})
+        if "proceed" in op_param:
+            parameters_dict.update({"proceed": True})
         params = \
             {
-                "state": "start",
-                # "parameters": {op_param}
+                "state": "start"
             }
+        if parameters_dict:
+            params.update({"parameters": parameters_dict})
         result = OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
                                                      engine.ip, resource_path, params)
+        if "Performing reboot" in result:
+            logger.info("Waiting for switch shutdown after reload command")
+            check_port_status_till_alive(False, engine.ip, engine.ssh_port)
+            engine.disconnect()
+            logger.info("Waiting for switch to be ready")
+            check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+
         if should_wait_till_system_ready:
             DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
         return result

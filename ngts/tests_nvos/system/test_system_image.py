@@ -1,6 +1,6 @@
 import logging
 import pytest
-import os
+import time
 import string
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.system.Files import File
@@ -73,6 +73,7 @@ def test_show_system_image():
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_rename(release_name):
     """
     Check the image rename cmd.
@@ -125,6 +126,7 @@ def test_system_image_rename(release_name):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_upload(engines, release_name):
     """
     Uploading image file to player and validate.
@@ -165,6 +167,7 @@ def test_system_image_upload(engines, release_name):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_image_uninstall(release_name):
     """
      Will check the uninstall commands
@@ -201,6 +204,7 @@ def test_image_uninstall_force(release_name):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_bad_flow(engines, release_name):
     """
     Check bad flow scenarios:
@@ -284,6 +288,7 @@ def test_system_image_bad_flow(engines, release_name):
 @pytest.mark.checklist
 @pytest.mark.image
 @pytest.mark.system
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_image_install(release_name, test_name):
     """
     Install system image test
@@ -379,6 +384,7 @@ def image_uninstall_test(release_name, uninstall_force=""):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_install_reject_with_smallcase_n(engines):
     """
     Check the image install cmd by rejecting the prompt with 'n'
@@ -395,6 +401,7 @@ def test_system_image_install_reject_with_smallcase_n(engines):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_install_reject_with_uppercase_n(engines):
     """
     Check the image install cmd by rejecting the prompt with 'N'
@@ -411,6 +418,7 @@ def test_system_image_install_reject_with_uppercase_n(engines):
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_image_install_reject_with_random_char(engines):
     """
     Check the image install cmd by rejecting the prompt with random character
@@ -490,6 +498,7 @@ def install_image_and_verify(image_name, partition_id, original_images, system, 
         logging.info("Installing image '{}'".format(image_name))
         OperationTime.save_duration('image install', '', test_name, File(system.image.files, image_name).action_file_install_with_reboot)
     with allure.step("Verify installed image"):
+        time.sleep(5)
         expected_show_images_output = original_images.copy()
         expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(image_name)
         expected_show_images_output[ImageConsts.CURRENT_IMG] = normalize_image_name(image_name)
@@ -579,90 +588,3 @@ def get_image_data_and_fetch_random_image_files(release_name, system, images_amo
                 system.image.action_fetch(scp_path + image_path)
                 images_name.append(image_name)
     return original_images, original_image, original_image_partition, partition_id_for_new_image, images_name
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_bad_flow_openapi(engines, release_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_bad_flow(engines, release_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_image_uninstall_force_openapi(release_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_image_uninstall_force(release_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_image_uninstall_openapi(release_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_image_uninstall(release_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_upload_openapi(engines, release_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_upload(engines, release_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_rename_openapi(release_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_rename(release_name)
-
-
-@pytest.mark.openapi
-@pytest.mark.checklist
-@pytest.mark.nvos_ci
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_show_system_image_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_system_image()
-
-
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_install_reject_with_smallcase_n_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_install_reject_with_smallcase_n(engines)
-
-
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_install_reject_with_uppercase_n_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_install_reject_with_uppercase_n(engines)
-
-
-@pytest.mark.simx
-@pytest.mark.image
-@pytest.mark.system
-def test_system_image_install_reject_with_random_char_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_system_image_install_reject_with_random_char(engines)

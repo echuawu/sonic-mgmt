@@ -283,6 +283,8 @@ class OpenApiRequest:
                 OpenApiRequest.print_request(r.request)
                 OpenApiRequest.print_response(r, OpenApiReqType.GET)
                 response = json.loads(r.content)
+                if "Performing reboot" in response['status']:
+                    return json.loads(r.content.decode('utf-8'))['status']
                 if response['state'] == "action_success":
                     return json.loads(r.content.decode('utf-8'))['status']
                 elif response['state'] == 'action_error' and response['issue'] != '':
