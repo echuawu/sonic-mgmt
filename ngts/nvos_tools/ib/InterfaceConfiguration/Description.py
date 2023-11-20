@@ -3,10 +3,8 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
 from .nvos_consts import IbInterfaceConsts
-from .IbInterfaceDecorators import *
 from ngts.nvos_constants.constants_nvos import ApiType
 import logging
-import allure
 
 logger = logging.getLogger()
 

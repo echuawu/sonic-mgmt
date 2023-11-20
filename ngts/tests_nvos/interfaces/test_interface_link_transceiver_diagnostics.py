@@ -15,7 +15,7 @@ list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'st
 
 @pytest.mark.ib
 @pytest.mark.nvos_build
-def test_interface_tranceiver_diagnostics_basic(engines):
+def test_interface_transceiver_diagnostics_basic(engines):
     """
     The test will check default field and values for transceiver diagnostic.
 
@@ -31,8 +31,8 @@ def test_interface_tranceiver_diagnostics_basic(engines):
 
     with allure.step("Run diagnostics for optical cable and verify fields in output"):
         optical_output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.tranceiver.show('sw16')).get_returned_value()
-        yaml_output = platform.hardware.tranceiver.show('sw16', output_format=OutputFormat.yaml)
+            platform.hardware.transceiver.show('sw16')).get_returned_value()
+        yaml_output = platform.hardware.transceiver.show('sw16', output_format=OutputFormat.yaml)
         fields_to_check = ["supported-cable-length", "cable-type", "channel", "diagnostics-status", "identifier", "temperature",
                            "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn", "voltage"]
         for field in fields_to_check:
@@ -42,7 +42,7 @@ def test_interface_tranceiver_diagnostics_basic(engines):
 
     with allure.step("Run diagnostics for link which doesn't exist and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.tranceiver.show('sw32')).get_returned_value()
+            platform.hardware.transceiver.show('sw32')).get_returned_value()
         fields_to_check = ["diagnostics-status"]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, fields_to_check).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
@@ -53,7 +53,7 @@ def test_interface_tranceiver_diagnostics_basic(engines):
 
     with allure.step("Run diagnostics for link which is not DDMI and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.tranceiver.show('sw10')).get_returned_value()
+            platform.hardware.transceiver.show('sw10')).get_returned_value()
         fields_to_check = ["cable-length", "cable-type", "diagnostics-status", "identifier",
                            "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn"]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, fields_to_check).verify_result()
@@ -64,20 +64,20 @@ def test_interface_tranceiver_diagnostics_basic(engines):
             .verify_result()
 
     with allure.step('Run diagnostics for not exist port/eth0/ib0/lo, wrong channel name'):
-        output_dictionary = platform.hardware.tranceiver.show(op_param='aa', should_succeed=False)
+        output_dictionary = platform.hardware.transceiver.show(op_param='aa', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command aa port accepted"
-        output_dictionary = platform.hardware.tranceiver.show(op_param='eth0', should_succeed=False)
+        output_dictionary = platform.hardware.transceiver.show(op_param='eth0', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command eth0 port accepted"
-        output_dictionary = platform.hardware.tranceiver.show(op_param='ib0', should_succeed=False)
+        output_dictionary = platform.hardware.transceiver.show(op_param='ib0', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command ib0 port accepted"
-        output_dictionary = platform.hardware.tranceiver.show(op_param='lo', should_succeed=False)
+        output_dictionary = platform.hardware.transceiver.show(op_param='lo', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command lo port accepted"
-        output_dictionary = platform.hardware.tranceiver.show(op_param='sw16 channel aa', should_succeed=False)
+        output_dictionary = platform.hardware.transceiver.show(op_param='sw16 channel aa', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command accepted"
 
     with allure.step("Run diagnostics with channel-id for link and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.tranceiver.show('sw16 channel channel-1')).get_returned_value()
+            platform.hardware.transceiver.show('sw16 channel channel-1')).get_returned_value()
         assert output_dictionary['rx-power'] != '-inf mW', "RX power value not as expected"
         assert output_dictionary['tx-bias-current'] != '-inf mW', "TX bias power value not as expected"
         assert output_dictionary['tx-power'] != '-inf mW', "TX power value not as expected"

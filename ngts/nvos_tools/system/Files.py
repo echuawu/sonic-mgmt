@@ -16,13 +16,6 @@ class Files(BaseComponent):
         self._resource_path = '/files'
         self.parent_obj = parent_obj
 
-    def get_resource_path(self):
-        result = "{parent_path}{self_path}".format(
-            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
-        if TestToolkit.tested_api == ApiType.NVUE:
-            result = result.replace("/", " ")
-        return result
-
     def set(self, op_param_name="", op_param_value=""):
         raise Exception("set is not implemented for /files")
 

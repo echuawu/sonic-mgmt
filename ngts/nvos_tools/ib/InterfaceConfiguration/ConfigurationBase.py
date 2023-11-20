@@ -1,5 +1,4 @@
 import logging
-from .nvos_consts import InternalNvosConsts
 
 logger = logging.getLogger()
 

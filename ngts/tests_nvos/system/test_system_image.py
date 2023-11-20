@@ -456,7 +456,7 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response):
             logging.info("Attempt install image and reject the prompt")
             # Get the last action-job-id
             action = Action()
-            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.show()).get_returned_value()
             if output:
                 action_job_id = int(list(output)[-1])
             # Since the install is to be aborted, using a dummy image name nvos.bin
@@ -472,8 +472,7 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response):
             # Increment action-job-id for latest command status
             action_job_id = action_job_id + 1
             # extract last command execution status
-            action = Action(action_job_id)
-            output = OutputParsingTool.parse_json_str_to_dictionary(action.jobid.show()).get_returned_value()
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.show(action_job_id)).get_returned_value()
             assert output['detail'] == 'Image install aborted by user' and \
                 output['http_status'] == 200 and \
                 output['state'] == 'action_success', "Image install command failed:{out}".format(out=output)

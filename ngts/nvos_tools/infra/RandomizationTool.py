@@ -1,14 +1,11 @@
 import logging
-import re
 import string
 from random import randint
 from .ResultObj import ResultObj
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_constants.constants_nvos import IpConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 import random
 import allure
 import datetime as dt

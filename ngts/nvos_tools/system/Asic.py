@@ -19,11 +19,6 @@ class Asic(BaseComponent):
         self.parent_obj = parent_obj
         self.files = Files(self)
 
-    def get_resource_path(self):
-        self_path = self._resource_path.rstrip("/")
-        return "{parent_path}{self_path}".format(
-            parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self_path)
-
     def _action(self, action_type, op_param="", expected_str="Action succeeded"):
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_firmware_image,
                                                             expected_str,

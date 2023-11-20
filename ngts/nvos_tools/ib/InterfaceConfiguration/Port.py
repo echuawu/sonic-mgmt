@@ -1,6 +1,5 @@
 from .MgmtInterface import MgmtInterface
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -9,6 +8,7 @@ from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfa
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 import allure
+import logging
 from retry import retry
 
 logger = logging.getLogger()

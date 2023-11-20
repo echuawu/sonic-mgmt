@@ -62,7 +62,7 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_and_global_s
     conditions:
       - https://redmine.mellanox.com/issues/3317752
 
-tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_link_diagnostics_functional:
+tests_nvos/interfaces/test_interface_link_transceiver_diagnostics.py::test_interface_link_diagnostics_functional:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3424265"
     conditions:
@@ -271,7 +271,7 @@ tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
     conditions:
       - https://redmine.mellanox.com/issues/3625777
 
-tests_nvos/interfaces/test_interface_link_tranceiver_diagnostics.py::test_interface_tranceiver_diagnostics_basic:
+tests_nvos/interfaces/test_interface_link_transceiver_diagnostics.py::test_interface_transceiver_diagnostics_basic:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633965"
     conditions:

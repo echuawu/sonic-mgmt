@@ -1,5 +1,6 @@
 from ngts.nvos_constants.constants_nvos import IpConsts
-from ngts.nvos_tools.ib.InterfaceConfiguration.IbInterfaceDecorators import *
+from ngts.nvos_tools.infra.ResultObj import ResultObj
+import logging
 import random
 import allure
 

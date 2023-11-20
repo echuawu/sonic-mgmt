@@ -40,7 +40,7 @@ def test_show_platform_software(engines):
         if TestToolkit.tested_api == ApiType.NVUE:
             with allure.step("Verify text output"):
                 logging.info("Verify text output")
-                output = platform.software.show("installed", output_format=OutputFormat.auto)
+                output = platform.software.installed.show(output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
                 assert "Installed software" in list_of_sw[0], "'Installed software' title can't be found in the output"
                 assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
@@ -48,13 +48,13 @@ def test_show_platform_software(engines):
         with allure.step("Verify json output"):
             logging.info("Verify json output")
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                platform.software.show("installed")).get_returned_value()
+                platform.software.installed.show()).get_returned_value()
             assert output and len(output.keys()) > 0, "The list of installed software is empty"
 
         with allure.step("Verify json output for a specific SW"):
             logging.info("Verify json output for a specific SW")
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                platform.software.show("installed {}".format(list(output.keys())[1]))).get_returned_value()
+                platform.software.installed.show(format(list(output.keys())[1]))).get_returned_value()
             assert not any(field not in output for field in ["description", "package", "version"]), \
                 "Not all required fields were found"
 

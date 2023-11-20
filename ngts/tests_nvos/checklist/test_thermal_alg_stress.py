@@ -53,7 +53,7 @@ def check_cpu_temp(platform):
     temp_list = {}
     with allure.step("Check CPU temperature"):
         logging.info("CPU temperature")
-        temperatures = OutputParsingTool.parse_json_str_to_dictionary(platform.environment.show('temperature')).get_returned_value()
+        temperatures = OutputParsingTool.parse_json_str_to_dictionary(platform.environment.temperature.show()).get_returned_value()
         for temp, values in temperatures.items():
             if temp.startswith(CPU_TEM_LABEL):
                 temp_list[temp] = values["current"]

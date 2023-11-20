@@ -53,7 +53,7 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_eth0_dhcp.cases </cases>
 	</test>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_link_tranceiver_diagnostics.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_link_transceiver_diagnostics.cases </cases>
 	</test>
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_multi_planar.cases </cases>

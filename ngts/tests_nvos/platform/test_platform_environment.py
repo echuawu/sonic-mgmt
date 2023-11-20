@@ -47,7 +47,7 @@ def test_show_platform_environment_fan(engines, devices):
     with allure.step("Check output of a specific Fan"):
         fan_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(op_param="fan {}".format(fan_to_check))).verify_result()
+            platform.environment.fan.show(op_param=fan_to_check)).verify_result()
         _verify_fan_prop(fan_to_check, output.keys(), devices)
 
 
@@ -71,7 +71,7 @@ def test_show_platform_environment_led(engines, devices):
     with allure.step("Check output of a specific Led"):
         led_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(op_param="led '{}'".format(led_to_check))).verify_result()
+            platform.environment.led.show(op_param=led_to_check)).verify_result()
         _verify_led_prop(led_to_check, output)
 
 
@@ -117,7 +117,7 @@ def test_set_platform_environment_led(engines, devices):
         logging.info("Check UID state led to on")
         platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_TURN_ON, led=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show('led')).verify_result()
+            platform.environment.led.show()).verify_result()
         Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_BLUE, True)\
             .verify_result()
 
@@ -125,7 +125,7 @@ def test_set_platform_environment_led(engines, devices):
         logging.info("Change UID state led to off")
         platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show('led')).verify_result()
+            platform.environment.led.show()).verify_result()
         Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_OFF, True) \
             .verify_result()
 
@@ -155,7 +155,7 @@ def test_show_platform_environment_psu(engines, devices):
     with allure.step("Check output of a specific PSU"):
         psu_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(op_param="psu {}".format(psu_to_check))).verify_result()
+            platform.environment.psu.show(op_param=psu_to_check)).verify_result()
         _verify_psu_prop(psu_to_check, output, devices)
 
 
@@ -182,7 +182,7 @@ def test_show_platform_environment_temperature(engines, devices):
     with allure.step("Check output of a specific temperature comp"):
         temperature_to_check = list(output.keys())[0]
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.show(op_param="temperature {}".format(temperature_to_check))).verify_result()
+            platform.environment.temperature.show(op_param=temperature_to_check)).verify_result()
         _verify_temp_prop(temperature_to_check, output)
 
 
