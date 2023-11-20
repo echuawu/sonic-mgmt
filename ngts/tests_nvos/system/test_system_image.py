@@ -74,7 +74,7 @@ def test_show_system_image():
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_rename(release_name):
+def test_system_image_rename(release_name, test_api):
     """
     Check the image rename cmd.
     Validate that install and delete commands will success with the new name
@@ -87,6 +87,7 @@ def test_system_image_rename(release_name):
     6. Uninstall image
     7. Delete the new image name , success
     """
+    TestToolkit.tested_api = test_api
     system = System()
     original_images, _, original_image_partition, partition_id_for_new_image, images_to_install = \
         get_image_data_and_fetch_random_image_files(release_name, system)
@@ -127,7 +128,7 @@ def test_system_image_rename(release_name):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_upload(engines, release_name):
+def test_system_image_upload(engines, release_name, test_api):
     """
     Uploading image file to player and validate.
     1. Fetch random image
@@ -136,6 +137,7 @@ def test_system_image_upload(engines, release_name):
     4. Delete image file from player
     5. Delete image file from dut
     """
+    TestToolkit.tested_api = test_api
     system = System()
     _, _, _, _, image_names = get_image_data_and_fetch_random_image_files(release_name, system)
     image_name = image_names[0]
@@ -168,7 +170,7 @@ def test_system_image_upload(engines, release_name):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_image_uninstall(release_name):
+def test_image_uninstall(release_name, test_api):
     """
      Will check the uninstall commands
 
@@ -179,6 +181,7 @@ def test_image_uninstall(release_name):
     4. Set the original image to be booted next
     5. Validate that uninstall will success
     """
+    TestToolkit.tested_api = test_api
     image_uninstall_test(release_name, uninstall_force="")
 
 
@@ -205,7 +208,7 @@ def test_image_uninstall_force(release_name):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_bad_flow(engines, release_name):
+def test_system_image_bad_flow(engines, release_name, test_api):
     """
     Check bad flow scenarios:
     -	Fetch something that doesn’t / already exist
@@ -217,6 +220,7 @@ def test_system_image_bad_flow(engines, release_name):
     -	Upload image that doesn’t / already exist
 
     """
+    TestToolkit.tested_api = test_api
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image = get_image_data(system)
     rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
@@ -289,7 +293,7 @@ def test_system_image_bad_flow(engines, release_name):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_image_install(release_name, test_name):
+def test_image_install(release_name, test_name, test_api):
     """
     Install system image test
 
@@ -300,6 +304,7 @@ def test_image_install(release_name, test_name):
     9. Uninstall all images that have been installed during the test
     10. Delete all images that have been fetched during the test
     """
+    TestToolkit.tested_api = test_api
     with allure.step(f"Update path with provided release name: {release_name}"):
         global BASE_IMAGE_VERSION_TO_INSTALL
         BASE_IMAGE_VERSION_TO_INSTALL = BASE_IMAGE_VERSION_TO_INSTALL.format(pre_release_name=release_name)
@@ -385,7 +390,7 @@ def image_uninstall_test(release_name, uninstall_force=""):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_smallcase_n(engines):
+def test_system_image_install_reject_with_smallcase_n(engines, test_api):
     """
     Check the image install cmd by rejecting the prompt with 'n'
     Validate that install image command will be aborted when the prompt is rejected.
@@ -393,6 +398,7 @@ def test_system_image_install_reject_with_smallcase_n(engines):
     2. Attempt image install command, reject the prompt with 'n'
     3. Check the image is the original one
     """
+    TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 'n'
     system_image_install_reject_with_prompt(engines, system, prompt_response)
@@ -402,7 +408,7 @@ def test_system_image_install_reject_with_smallcase_n(engines):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_uppercase_n(engines):
+def test_system_image_install_reject_with_uppercase_n(engines, test_api):
     """
     Check the image install cmd by rejecting the prompt with 'N'
     Validate that install image command will be aborted when the prompt is rejected.
@@ -410,6 +416,7 @@ def test_system_image_install_reject_with_uppercase_n(engines):
     2. Attempt image install command, reject the prompt with 'N'
     3. Check the image is the original one
     """
+    TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 'N'
     system_image_install_reject_with_prompt(engines, system, prompt_response)
@@ -419,7 +426,7 @@ def test_system_image_install_reject_with_uppercase_n(engines):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_random_char(engines):
+def test_system_image_install_reject_with_random_char(engines, test_api):
     """
     Check the image install cmd by rejecting the prompt with random character
     Validate that install image command will be aborted when the prompt is rejected.
@@ -427,6 +434,7 @@ def test_system_image_install_reject_with_random_char(engines):
     2. Attempt image install command, reject the prompt with random character
     3. Check the image is the original one
     """
+    TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 't'
     system_image_install_reject_with_prompt(engines, system, prompt_response)
