@@ -17,13 +17,25 @@ fast_reboot_executors = os.environ.get('fast_reboot_executors')
 fast_reboot_iterations_number = os.environ.get('fast_reboot_iterations_number', 1)
 warm_reboot_executors = os.environ.get('warm_reboot_executors')
 warm_reboot_iterations_number = os.environ.get('warm_reboot_iterations_number', 1)
+cold_reboot_executors = os.environ.get('cold_reboot_executors')
+cold_reboot_iterations_number = os.environ.get('cold_reboot_iterations_number', 1)
 base_version = os.environ.get('base_version')
+fast_base_version = os.environ.get('fast_base_version')
+if not fast_base_version:
+    fast_base_version = base_version
+warm_base_version = os.environ.get('warm_base_version')
+if not warm_base_version:
+    warm_base_version = base_version
+cold_base_version = os.environ.get('cold_base_version')
+if not cold_base_version:
+    cold_base_version = base_version
 target_version = os.environ.get('target_version')
 tests_results_file_path = os.path.join(workspace_dir, 'results.json')
 email_report_file_path = os.path.join(workspace_dir, 'email_report.html')
 
-REBOOT_TYPES = ['fast', 'warm', 'unknown']
+REBOOT_TYPES = ['fast', 'warm', 'cold', 'unknown']
 FAST_REBOOT_TEST_IDS = [9, 13]  # 9 and 13 - id's for fast-reboot and fast-reboot upgrade tests
+COLD_REBOOT_TEST_IDS = [205]
 UNKNOWN = 'unknown'
 
 DB_FILE_TEMPLATE = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -138,12 +150,13 @@ def prepare_db_files(reboot_types_list, is_upgrade_test=False):
             file.write(file_data)
 
 
-def prepare_cases_files(reboot_type_iterations_dict, base_ver_images=None, target_ver=None):
+def prepare_cases_files(reboot_type_iterations_dict, reboot_type_base_ver_images=None, target_ver=None):
     """
     Prepare CASES files and store them into sonic-mgmt folder
     """
     for r_type, iterations_number in reboot_type_iterations_dict.items():
         test_name = '{} Reboot'.format(r_type.upper())
+        base_ver_images = reboot_type_base_ver_images[r_type]
         if base_ver_images and target_ver:
             test_name = test_name + ' with Upgrade'
 
@@ -172,21 +185,30 @@ def do_preparation_steps():
     """
     reboot_types_list = []
     reboot_type_iterations_dict = {}
+    reboot_type_base_version_dict = {}
 
     if fast_reboot_executors:
         reboot_types_list.append('fast')
         reboot_type_iterations_dict['fast'] = int(fast_reboot_iterations_number)
+        reboot_type_base_version_dict['fast'] = fast_base_version
     if warm_reboot_executors:
         reboot_types_list.append('warm')
         reboot_type_iterations_dict['warm'] = int(warm_reboot_iterations_number)
+        reboot_type_base_version_dict['warm'] = warm_base_version
+
+    if cold_reboot_executors:
+        reboot_types_list.append('cold')
+        reboot_type_iterations_dict['cold'] = int(cold_reboot_iterations_number)
+        reboot_type_base_version_dict['cold'] = cold_base_version
+
 
     if not reboot_types_list:
-        raise Exception('Looks like setups which will run fast/warm reboot tests did not provided. '
-                        'Please specify setups which will run fast/warm reboot tests.')
+        raise Exception('Looks like setups which will run fast/warm/cold reboot tests did not provided. '
+                        'Please specify setups which will run fast/warm/cold reboot tests.')
 
     is_upgrade_test = True if target_version else False
     prepare_db_files(reboot_types_list, is_upgrade_test)
-    prepare_cases_files(reboot_type_iterations_dict, base_ver_images=base_version, target_ver=target_version)
+    prepare_cases_files(reboot_type_iterations_dict, reboot_type_base_ver_images=reboot_type_base_version_dict, target_ver=target_version)
 
 
 def build_summary_report(results):
@@ -212,7 +234,7 @@ def build_summary_report(results):
         for reboot_type in REBOOT_TYPES:
             if setup_data_dict[reboot_type]:
                 total_iterations = len(setup_data_dict[reboot_type])
-                base_ver = ','.join(setup_data_dict['common']['base_ver'])
+                base_ver = ','.join(setup_data_dict['common']['base_ver'][reboot_type])
                 target_ver = setup_data_dict['common']['target_ver']
                 average_dataplane_loss = setup_data_dict['results'][reboot_type]['dataplane_loss']
                 average_controlplane_loss = setup_data_dict['results'][reboot_type]['controlplane_loss']
@@ -433,12 +455,14 @@ def get_results_for_session(session_id, setup_name):
     sql_connection_obj = get_sql_db_connection()
     results_dict = get_tests_results_dict()
     results_dict[setup_name] = {
-        'common': {'hwsku': None, 'total_ports': None, 'active_ports': None, 'base_ver': set(), 'target_ver': ''},
+        'common': {'hwsku': None, 'total_ports': None, 'active_ports': None, 'base_ver': {'fast': [], 'warm': [], 'cold': [], 'unknown': []}, 'target_ver': ''},
         'fast': [],  # Example see below in 'test_data' variable
         'warm': [],
+        'cold': [],
         'unknown': [],
         'results': {'fast': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
                     'warm': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
+                    'cold': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0},
                     'unknown': {'passed': 0, 'failed': 0, 'dataplane_loss': 0, 'controlplane_loss': 0}
                     }
     }
@@ -453,8 +477,6 @@ def get_results_for_session(session_id, setup_name):
 
     update_average_loss(setup_name, results_dict)
 
-    # Convert set() to list() due to JSON limitation(it does not support set() data type)
-    results_dict[setup_name]['common']['base_ver'] = list(results_dict[setup_name]['common']['base_ver'])
 
     with open(tests_results_file_path, 'w') as data_file_obj:
         json.dump(results_dict, data_file_obj, default=str)
@@ -478,24 +500,26 @@ def update_results_for_test_case(sql_connection_obj, test_ids_reports_dict, mars
     # Update HwSKU, total/active ports, image version only one time
     test_run_id = test_data.get('test_run_id')
     update_results_with_setup_extra_data(sql_connection_obj, test_run_id, results_dict)
+    test_type = 'warm'
+    if test_data.get('test_id'):
+        if test_data['test_id'] in FAST_REBOOT_TEST_IDS:
+            test_type = 'fast'
+        if test_data['test_id'] in COLD_REBOOT_TEST_IDS:
+            test_type = 'cold'
+
+    else:
+        test_type = UNKNOWN
 
     extra_data_base_version = results_dict[setup_name]['common'].get('base_version')
     if extra_data_base_version:  # then we did upgrade test
-        results_dict[setup_name]['common']['base_ver'].add(extra_data_base_version)
+        results_dict[setup_name]['common']['base_ver'][test_type].append(extra_data_base_version)
         test_data['target_ver'] = test_data['base_ver']
         test_data['base_ver'] = extra_data_base_version
         if not results_dict[setup_name]['common']['target_ver']:  # update target ver for setup only once
             results_dict[setup_name]['common']['target_ver'] = test_data['target_ver']
         results_dict[setup_name]['common'].pop('base_version')
     else:
-        results_dict[setup_name]['common']['base_ver'].add(test_data['base_ver'])
-
-    test_type = 'warm'
-    if test_data.get('test_id'):
-        if test_data['test_id'] in FAST_REBOOT_TEST_IDS:
-            test_type = 'fast'
-    else:
-        test_type = UNKNOWN
+        results_dict[setup_name]['common']['base_ver'][test_type].append(test_data['base_ver'])
 
     if test_status == 'passed':
         results_dict[setup_name]['results'][test_type]['passed'] += 1

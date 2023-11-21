@@ -286,7 +286,8 @@ class AdvancedRebootCollector(SonicDataCollector):
         ptf_test_log_path = '/tmp/fast-reboot-report.json'
         if 'warm' in self.test_name:
             ptf_test_log_path = '/tmp/warm-reboot-report.json'
-
+        if 'cold' in self.test_name:
+            ptf_test_log_path = '/tmp/cold-reboot-report.json'
         default_loss_value = '-1'
         self.test_data = {'dataplane': default_loss_value, 'controlplane': default_loss_value}
 
@@ -326,7 +327,8 @@ class UpgradePathCollector(AdvancedRebootCollector):
         super(UpgradePathCollector, self).__init__(request)
 
         self.supported_tests_by_collector = ['upgrade_path/test_upgrade_path.py::test_upgrade_path[fast]',
-                                             'upgrade_path/test_upgrade_path.py::test_upgrade_path[warm]']
+                                             'upgrade_path/test_upgrade_path.py::test_upgrade_path[warm]',
+                                             'upgrade_path/test_upgrade_path.py::test_upgrade_path[cold]']
 
         reboot_type = self.request.getfixturevalue('upgrade_path_lists')[0]
         self.test_name = '{}[{}]'.format(self.test_name, reboot_type)
