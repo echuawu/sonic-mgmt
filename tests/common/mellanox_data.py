@@ -301,6 +301,9 @@ SWITCH_MODELS = {
             "sodimm": {
                 "start": 1,
                 "number": 1
+            },
+            "comex_ambient": {
+                "number": 1
             }
         }
     },
