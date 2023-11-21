@@ -242,9 +242,10 @@ tests_nvos/system/stats/test_system_stats.py:
 
 tests_nvos/system/gnmi/test_gnmi_server.py:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599682"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599682 or if it is marlin setup"
     conditions:
       - https://redmine.mellanox.com/issues/3599682
+      - "'marlin' in testbed"
 
 tests_nvos/system/test_system_image.py::test_system_image_rename_openapi:
   skip:
@@ -318,4 +319,10 @@ tests_nvos/interfaces/test_ib0_interface_dhcp.py::test_interface_ib0_dhcp_set_ho
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3659084"
     conditions:
       - https://redmine.mellanox.com/issues/3659084
+
+tests_nvos/ib/test_ibdiagnet.py:
+  skip:
+    reason: "Testcase skipped due to health status is not ok on marlin"
+    conditions:
+      - "'marlin' in testbed"
 ########################## NVOS IGNORE END ##########################
