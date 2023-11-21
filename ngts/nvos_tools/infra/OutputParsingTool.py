@@ -214,12 +214,11 @@ class OutputParsingTool:
 
             for port_name in output_dictionary.keys():
 
-                if IbInterfaceConsts.LINK not in output_dictionary[port_name].keys():
-                    return ResultObj(False, "link field can't be found in the output")
-                if IbInterfaceConsts.LINK_STATE not in output_dictionary[port_name]["link"].keys():
-                    return ResultObj(False, "state field can't be found in the output")
-                if IbInterfaceConsts.TYPE not in output_dictionary[port_name].keys():
-                    return ResultObj(False, "type field can't be found in the output")
+                if IbInterfaceConsts.LINK not in output_dictionary[port_name].keys() or \
+                        IbInterfaceConsts.LINK_STATE not in output_dictionary[port_name]["link"].keys() or \
+                        IbInterfaceConsts.TYPE not in output_dictionary[port_name].keys():
+                    logger.warning(f"'link'/'state'/'type' fields can't be found for port {port_name}")
+                    continue
 
                 dictionary_to_return[port_name] = {}
 

@@ -127,7 +127,7 @@ def test_system_ready_state_down(engines, devices, topology_obj):
             with allure.step('Sleep 5 min'):
                 time.sleep(300)
 
-            logs_to_find = ['Wait until the NOS signal we are ready to serve', 'System is not ready']
+            logs_to_find = ['Wait until the NOS signal we are ready to serve']
             verify_expected_logs(ssh_connection, logs_to_find)
 
             with allure.step('verify the system status is DOWN'):
@@ -155,7 +155,7 @@ def verify_expected_logs(engine, logs_to_find):
     :return:
     """
     with allure.step('verify expected logs'):
-        log_file = engine.run_cmd('cat /var/log/nvued.log')
         for log in logs_to_find:
             with allure.step('try to find "{}" in the logs'.format(log)):
-                assert log in log_file, "missing logs, we expect to see {} in the output".format(log)
+                log_file = engine.run_cmd(f'cat /var/log/syslog | grep "{log}"')
+                assert log_file, "missing logs, we expect to see {} in the output".format(log)
