@@ -3885,3 +3885,11 @@
   Conditions:
     - Redmine:
         - 3544158
+
+# Independent module dynamic skips
+- Errors_list:
+     - '.* ERR pmon#xcvrd: Failed to write EEPROM data sfp.+write limited .*'
+     - '.* ERR pmon#xcvrd: CMIS:.*FAILED.*'
+  Conditions:
+    - Redmine:
+        - 3669272
