@@ -27,8 +27,7 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
     system.log.rotate_logs()
 
     with allure_step("Run run nv show fae ipoib-mapping command and validate fields"):
-        mapping_output = OutputParsingTool.parse_json_str_to_dictionary(fae.ipoibmapping.show_mapping())\
-            .get_returned_value()
+        mapping_output = OutputParsingTool.parse_json_str_to_dictionary(fae.ipoibmapping.show()).get_returned_value()
 
         with allure_step("Validate all expected fields in show output"):
             ValidationTool.verify_field_exist_in_json_output(mapping_output,

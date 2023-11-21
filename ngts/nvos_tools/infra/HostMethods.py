@@ -1,5 +1,4 @@
 import logging
-import allure
 
 from ngts.tools.test_utils.allure_utils import step as allure_step
 

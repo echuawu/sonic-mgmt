@@ -7,6 +7,6 @@ from ngts.nvos_tools.system.Hostname import Hostname
 
 class RemoteAaaResource(BaseComponent):
     def __init__(self, parent_obj=None):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self.parent_obj = parent_obj
+        BaseComponent.__init__(self, parent=parent_obj,
+                               api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli})
         self.hostname = Hostname(self)

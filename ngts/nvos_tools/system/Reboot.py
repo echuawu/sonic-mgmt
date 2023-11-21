@@ -3,12 +3,9 @@ import time
 import pytest
 import os
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.constants.constants import InfraConst
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_store_dump
 
@@ -16,16 +13,8 @@ logger = logging.getLogger()
 
 
 class Reboot(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/reboot'
-        self.parent_obj = parent_obj
-
-    @staticmethod
-    def get_expected_fields(device):
-        return device.constants.system['reboot']
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/reboot')
 
     def action_reboot(self, engine=None, params="", should_wait_till_system_ready=True):
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):

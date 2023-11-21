@@ -2,6 +2,7 @@ import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
 
@@ -45,7 +46,7 @@ def test_ib0_interface_description(engines):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             ib0_port.interface.show()).get_returned_value()
 
-        assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(),\
+        assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
             "Expected to have description field after unset command, but we still have this field."
 
 

@@ -4,20 +4,14 @@ import random
 import allure
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_constants.constants_nvos import SystemConsts
 
 logger = logging.getLogger()
 
 
 class PasswordHardening(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/password-hardening'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/password-hardening')
 
     def generate_password(self, random_length=True, max_length=32, is_valid=True):
         """

@@ -5,9 +5,7 @@ from retry import retry
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_constants.constants_nvos import ApiType, HealthConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_constants.constants_nvos import HealthConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.Files import Files, File
 
@@ -15,10 +13,8 @@ logger = logging.getLogger()
 
 
 class Health(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/health'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/health')
         self.history = History(self)
 
     @retry(Exception, tries=12, delay=30)       # BUG 3355421 - after reboot it takes almost 5 min until the status change to OK
@@ -28,10 +24,8 @@ class Health(BaseComponent):
 
 
 class History(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/history'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/history')
         self.files = Files(self)
 
     def show(self, param='', exit_cmd='q'):

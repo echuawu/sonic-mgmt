@@ -1,42 +1,30 @@
-from .Type import Type
-from .Ip import Ip
 from .IfIndex import IfIndex
+from .Ip import Ip
 from .Link import LinkMgmt
-from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
-from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import ApiType
-import allure
+from .Type import Type
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import InternalNvosConsts, IbInterfaceConsts
-from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-import time
 from retry import retry
+import allure
 import logging
+import time
 
 logger = logging.getLogger()
 
 
 class MgmtInterface(BaseComponent):
-    port_obj = None
-    description = None
-    ip = None
-    link = None
-    ifindex = None
-    type = None
-
-    def __init__(self, port_obj, port_name):
-        self.port_obj = port_obj
+    def __init__(self, parent_obj, port_name):
+        BaseComponent.__init__(self, parent=parent_obj, path='/interface/' + port_name)
+        self.port_obj = parent_obj
         self.type = Type(self.port_obj)
         self.ifindex = IfIndex(self.port_obj)
         self.ip = Ip(self)
         self.link = LinkMgmt(self)
-        self.plan_ports = PlanPorts(self)
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = '/interface/' + port_name
-        self.parent_obj = port_obj
+        self.plan_ports = self.plan_ports = BaseComponent(self, path='/plan-ports')
 
     def wait_for_port_state(self, state, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
@@ -113,10 +101,3 @@ class MgmtInterface(BaseComponent):
         for address in addresses:
             if ":" in address and len(address) >= 32:
                 return address.split("/")[0]
-
-
-class PlanPorts(BaseComponent):
-    def __init__(self, port_obj):
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = '/plan-ports'
-        self.parent_obj = port_obj

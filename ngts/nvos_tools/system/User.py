@@ -1,33 +1,23 @@
-import logging
-from typing import Dict
-
 import allure
+import logging
 import random
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
-from ngts.nvos_tools.system.Role import Role
-from ngts.nvos_tools.infra.DefaultDict import DefaultDict
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 
 logger = logging.getLogger()
 
 
 class User(BaseComponent):
-
     def __init__(self, parent_obj=None, username='admin'):
-        BaseComponent.__init__(self)
-        self.password = Password(self)
-        self.full_name = FullName(self)
-        self.state = State(self)
-        self.role = Role(self)
+        BaseComponent.__init__(self, parent=parent_obj, path='/user/' + username)
         self.username = username
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/user/' + self.username
-        self.parent_obj = parent_obj
+        self.password = BaseComponent(self, path='/password')
+        self.full_name = BaseComponent(self, path='/full-name')
+        self.state = BaseComponent(self, path='/state')
+        self.role = BaseComponent(self, path='/role')
 
     @staticmethod
     def get_lslogins(engine, username):
@@ -84,30 +74,3 @@ class User(BaseComponent):
                 name = str(random.choice(SystemConsts.USERNAME_INVALID_CHARACTERS)) + name[:-1]
             logger.info('generated username is : {username}'.format(username=name))
             return name
-
-
-class Password(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/password'
-        self.parent_obj = parent_obj
-
-
-class FullName(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/full-name'
-        self.parent_obj = parent_obj
-
-
-class State(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/state'
-        self.parent_obj = parent_obj

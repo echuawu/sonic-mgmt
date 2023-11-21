@@ -5,8 +5,6 @@ from ngts.nvos_constants.constants_nvos import ApiType
 
 
 class Interface(BaseComponent):
-
     def __init__(self):
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = '/interface'
-        self.parent_obj = None
+        BaseComponent.__init__(self, api={ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli},
+                               path='/interface')

@@ -1,9 +1,6 @@
 import logging
 from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.constants.constants import GnmiConsts
 
@@ -11,12 +8,8 @@ logger = logging.getLogger()
 
 
 class Gnmi_server(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/gnmi-server'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/gnmi-server')
 
     def enable_gnmi_server(self, apply=True):
         return self.set(GnmiConsts.GNMI_STATE_FIELD, GnmiConsts.GNMI_STATE_ENABLED, apply=apply)

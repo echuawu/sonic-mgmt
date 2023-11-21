@@ -1,20 +1,14 @@
 import logging
 import re
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.cli_wrappers.nvue.nvue_platform_clis import NvuePlatformCli
-from ngts.cli_wrappers.openapi.openapi_platform_clis import OpenApiPlatformCli
 from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
 
 class Voltage(BaseComponent):
-    def __init__(self, parent_obj):
-        self.platform_component_id = ""
-        self.api_obj = {ApiType.NVUE: NvuePlatformCli, ApiType.OPENAPI: OpenApiPlatformCli}
-        self._resource_path = '/voltage'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/voltage')
 
     def get_sensors_list(self, engine, stringtoadd="VOLTAGE_INFO|"):
         """

@@ -3,8 +3,6 @@ import allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, ActionConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import ImageConsts
@@ -13,19 +11,16 @@ logger = logging.getLogger()
 
 
 class Firmware(BaseComponent):
-    asic = ''
-
-    def __init__(self, parent_obj):
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/firmware')
         self.asic = Asic(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/firmware'
-        self.parent_obj = parent_obj
 
     def _action(self, action_type, op_param="", expected_str="Action succeeded"):
         return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_firmware_image,
                                                             expected_str,
                                                             TestToolkit.engines.dut,
-                                                            action_type, self.get_resource_path(), op_param).get_returned_value()
+                                                            action_type, self.get_resource_path(),
+                                                            op_param).get_returned_value()
 
     def action_fetch(self, url="", expected_str="Action succeeded"):
         with allure.step("Image fetch {url} ".format(url=url)):

@@ -53,28 +53,21 @@ class PortRequirements:
 
 
 class Port(BaseComponent):
-    name = ""
-    show_output_dictionary = {}
-    name_in_redis = ""
     api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
 
     def __init__(self, name, show_output_dictionary, name_in_redis):
+        BaseComponent.__init__(self, parent=None,
+                               api={ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}, path='')
         self.name = name
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
         self.ib_interface = MgmtInterface(self, name)
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = ''
-        self.parent_obj = None
 
     @staticmethod
-    def get_list_of_active_ports(dut_engine=None):
+    def get_list_of_active_ports():
         """
         Return a list of ports which are connected to a traffic server
         """
-        if not dut_engine:
-            dut_engine = TestToolkit.engines.dut
-
         with allure.step('Get a list of ports which state is up'):
             port_requirements_object = PortRequirements()
             port_requirements_object.set_port_state(NvosConsts.LINK_STATE_UP)

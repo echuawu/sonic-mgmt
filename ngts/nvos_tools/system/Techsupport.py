@@ -2,23 +2,17 @@ import logging
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 logger = logging.getLogger()
 
 
 class TechSupport(BaseComponent):
-    api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/tech-support/files'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/tech-support/files')
 
     def action_upload(self, upload_path, file_name):
         with allure.step("Upload techsupport {file} to '{path}".format(file=file_name, path=upload_path)):

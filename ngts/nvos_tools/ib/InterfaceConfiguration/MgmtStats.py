@@ -1,16 +1,12 @@
-from ngts.nvos_tools.ib.InterfaceConfiguration.Stats import *
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
-from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+import allure
 
 
 class MgmtStats(BaseComponent):
-
-    def __init__(self, port_obj):
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = '/counters'
-        self.parent_obj = port_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/counters')
 
     def clear_stats(self, dut_engine=None, fae_param=""):
         """

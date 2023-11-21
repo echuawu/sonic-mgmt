@@ -11,8 +11,6 @@ from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
 from ngts.nvos_tools.system.Stats import Stats
-from ngts.nvos_tools.system.Ssh_server import SshServer
-from ngts.nvos_tools.system.Serial_console import SerialConsole
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Reboot import Reboot
@@ -36,25 +34,9 @@ logger = logging.getLogger()
 
 
 class System(BaseComponent):
-    security = None
-    image = None
-    firmware = None
-    log = None
-    debug_log = None
-    component = None
-    files = None
-    rotation = None
-    snmp_server = None
-    listening_address = None
-    readonly_community = None
-    syslog = None
-    ntp = None
-    ssh_server = None
-    health = None
-
     def __init__(self, parent_obj=None, username='admin', devices_dut=None):
-        self._resource_path = '/system'
-        self.parent_obj = parent_obj
+        BaseComponent.__init__(self, parent=parent_obj,
+                               api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/system')
         self.config = Config(self)
         self.documentation = Documentation(self)
         self.aaa = Aaa(self, username)
@@ -62,28 +44,27 @@ class System(BaseComponent):
         self.debug_log = DebugLog(self)
         self.snmp_server = SnmpServer(self)
         self.security = Security(self)
-        self.ssh_server = SshServer(self)
-        self.serial_console = SerialConsole(self)
+        self.ssh_server = BaseComponent(self, path='/ssh-server')
+        self.serial_console = BaseComponent(self, path='/serial-console')
         self.syslog = Syslog(self)
         self.ntp = Ntp(self)
         self.stats = Stats(self, devices_dut)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
         self.firmware = Firmware(self)
-        self.message = Message(self)
-        self.version = Version(self)
+        self.message = BaseComponent(self, path='/message')
+        self.version = BaseComponent(self, path='/version')
         self.reboot = Reboot(self)
         self.factory_default = FactoryDefault(self)
         self.profile = Profile(self)
         self.health = Health(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
         self.datetime = DateTime(self)
         self.gnmi_server = Gnmi_server(self)
         self.web_server_api = WebServerAPI(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
-
+        :param engine: ssh angine
         :param username: if it's not a specific username we will generate one
         :param password:  if it's not a specific password we will generate one
         :param role: the user role
@@ -126,8 +107,8 @@ class System(BaseComponent):
             return username, password
 
     @staticmethod
-    def get_expected_fields(device):
-        return device.constants.system['system']
+    def get_expected_fields(device, resource):
+        return device.constants.system[resource]
 
     def validate_health_status(self, expected_status):
         with allure.step("Validate health status with \"nv show system\" cmd"):
@@ -142,39 +123,9 @@ class System(BaseComponent):
         self.validate_health_status(expected_status)
 
 
-class Message(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/message'
-        self.parent_obj = parent_obj
-
-    @staticmethod
-    def get_expected_fields(device):
-        return device.constants.system['message']
-
-
-class Version(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/version'
-        self.parent_obj = parent_obj
-
-    @staticmethod
-    def get_expected_fields(device):
-        return device.constants.system['version']
-
-
 class Documentation(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/documentation'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/documentation')
 
     def action_upload(self, upload_path, file_name):
         with allure.step("Upload {file} to '{path}".format(file=file_name, path=upload_path)):
@@ -185,12 +136,8 @@ class Documentation(BaseComponent):
 
 
 class FactoryDefault(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/factory-default'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/factory-default')
 
     def show(self, op_param="", output_format=OutputFormat.json):
         raise Exception("unset is not implemented for system/factory-default")
@@ -235,10 +182,8 @@ class DateTime(BaseComponent):
     Infra class for system.date-time field object
     """
 
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/date-time'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/date-time')
 
     def action_change(self, params=""):
         rsrc_path = self.get_resource_path()
@@ -257,41 +202,7 @@ class DateTime(BaseComponent):
 
 
 class WebServerAPI(BaseComponent):
-    connections = None
-    listen_address = None
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/api'
-        self.parent_obj = parent_obj
-        self.connections = Connections(self)
-        self.listen_address = ListenAddress(self)
-
-    @staticmethod
-    def get_expected_fields(device):
-        return device.constants.system['web_server_api']
-
-
-class Connections(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/connections'
-        self.parent_obj = parent_obj
-
-    def get_expected_fields(self, device):
-        return device.constants.system['connections']
-
-
-class ListenAddress(BaseComponent):
-
-    def __init__(self, parent_obj):
-        BaseComponent.__init__(self)
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/listening-address'
-        self.parent_obj = parent_obj
-
-    def get_expected_fields(self, device):
-        return device.constants.system['listen_address']
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/api')
+        self.connections = BaseComponent(self, path='/connections')
+        self.listen_address = BaseComponent(self, path='/listening-address')

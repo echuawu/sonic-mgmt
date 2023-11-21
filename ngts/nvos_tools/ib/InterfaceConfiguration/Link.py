@@ -1,20 +1,12 @@
-from .LinkBase import *
+from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtStats import MgmtStats
 
 
 class LinkMgmt(BaseComponent):
-    state = None
-    diagnostics = None
-    stats = None
-    counters = None
-    plan_ports = None
-
-    def __init__(self, port_obj):
-        self.state = State(self)
-        self.diagnostics = Diagnostics(self)
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/link')
+        self.state = BaseComponent(self, path='/state')
+        self.diagnostics = BaseComponent(self, path='/diagnostics')
         self.stats = MgmtStats(self)
-        self.counters = Counters(self)
-        self.plan_ports = PlanPorts(self)
-        self.api_obj = {ApiType.NVUE: NvueIbInterfaceCli, ApiType.OPENAPI: OpenApiIbInterfaceCli}
-        self._resource_path = '/link'
-        self.parent_obj = port_obj
+        self.counters = BaseComponent(self, path='/counters')
+        self.plan_ports = BaseComponent(self, path='/plan-ports')

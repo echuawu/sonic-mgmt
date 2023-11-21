@@ -3,19 +3,14 @@ import logging
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SyslogConsts
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 logger = logging.getLogger()
 
 
 class Syslog(BaseComponent):
-
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/syslog'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/syslog')
         self.servers = Servers(self)
         self.format = Format(self)
 
@@ -73,18 +68,14 @@ class Syslog(BaseComponent):
 
 
 class Format(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/format'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/format')
         self.welf = WelfFormat(self)
 
 
 class Servers(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/server'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/server')
         self.servers_dict = {}
 
     def set_server(self, server_id, expected_str='', apply=False, ask_for_confirmation=False):
@@ -110,10 +101,8 @@ class Servers(BaseComponent):
 
 
 class Server(BaseComponent):
-    def __init__(self, parent_obj, server_id):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/{server_id}'.format(server_id=server_id)
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None, server_id=''):
+        BaseComponent.__init__(self, parent=parent_obj, path='/' + server_id)
         self.filter = Filter(self)
         self.server_id = server_id
 
@@ -162,10 +151,8 @@ class Server(BaseComponent):
 
 
 class WelfFormat(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/welf'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/welf')
 
     def set_firewall_name(self, firewall_name, expected_str='', apply=False, ask_for_confirmation=False):
         with allure.step("Set welf firewall-name : {}".format(firewall_name)):
@@ -179,10 +166,8 @@ class WelfFormat(BaseComponent):
 
 
 class Filter(BaseComponent):
-    def __init__(self, parent_obj):
-        self.api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
-        self._resource_path = '/filter'
-        self.parent_obj = parent_obj
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/filter')
 
     def set_include_filter(self, regex, expected_str='', apply=False, ask_for_confirmation=False):
         return self.set(SyslogConsts.INCLUDE, regex, expected_str=expected_str, apply=apply,

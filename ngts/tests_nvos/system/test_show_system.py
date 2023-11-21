@@ -39,7 +39,7 @@ def test_system(test_api, engines, devices, topology_obj, test_name):
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         system_output.pop(SystemConsts.VERSION)
         ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
-            system_output, system.get_expected_fields(devices.dut)).verify_result()
+            system_output, system.get_expected_fields(devices.dut, 'system')).verify_result()
 
     with allure.step('Run set system hostname command and verify that hostname is updated'):
         new_hostname_value = "NOS-NVOS"
@@ -160,7 +160,7 @@ def test_show_system_version(test_api, engines, devices):
         system = System()
         version_output = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()
         ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
-            version_output, system.version.get_expected_fields(devices.dut)).verify_result()
+            version_output, system.get_expected_fields(devices.dut, 'version')).verify_result()
 
 
 @pytest.mark.system

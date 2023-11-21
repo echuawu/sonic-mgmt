@@ -2,9 +2,9 @@ import pytest
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.cli_wrappers.nvue.nvue_opensm_clis import NvueOpenSmCli
 
 logger = logging.getLogger()
 
@@ -24,7 +24,8 @@ def test_ib0_interface_state(engines, start_sm):
     4. Verify the configuration applied by running “show” command
     """
     ib0_port = MgmtPort('ib0')
-    ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True, ask_for_confirmation=True).verify_result()
+    ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                      ask_for_confirmation=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         ib0_port.interface.link.show()).get_returned_value()
@@ -33,7 +34,8 @@ def test_ib0_interface_state(engines, start_sm):
                                                       field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
 
-    ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True, ask_for_confirmation=True).verify_result()
+    ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
+                                      ask_for_confirmation=True).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
         ib0_port.interface.link.show()).get_returned_value()
@@ -58,7 +60,8 @@ def test_ib0_interface_state_invalid(engines):
     with allure.step("Create MgmtPort class and check current ib0 state"):
         ib0_port = MgmtPort('ib0')
         current_state = ib0_port.interface.link.state.show()
-        current_state = NvosConsts.LINK_STATE_UP if NvosConsts.LINK_STATE_UP in current_state else NvosConsts.LINK_STATE_DOWN
+        current_state = NvosConsts.LINK_STATE_UP if NvosConsts.LINK_STATE_UP in current_state else \
+            NvosConsts.LINK_STATE_DOWN
         logging.info(f"ib0 current state: {current_state}")
 
     with allure.step("Set invalid state for ib0"):

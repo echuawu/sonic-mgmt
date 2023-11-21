@@ -14,7 +14,10 @@ class BaseComponent:
 
     def __init__(self, parent=None, api=None, path=''):
         self.parent_obj = parent
-        self.api_obj = api
+        if self.parent_obj and not api:
+            self.api_obj = self.parent_obj.api_obj
+        else:
+            self.api_obj = api
         self._resource_path = path
 
     def get_resource_path(self):
@@ -25,6 +28,8 @@ class BaseComponent:
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
+            if TestToolkit.tested_api == ApiType.OPENAPI:
+                op_param = op_param.replace('/', "%2F").replace(' ', "/")
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show, dut_engine,
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value(should_succeed=should_succeed)
