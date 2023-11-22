@@ -742,6 +742,7 @@
   Conditions:
     - Affected_test_cases:
       - tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_remote_counting[OpenApi]
+      - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_set_unset_show
       Redmine:
         - 3656018
 
