@@ -466,7 +466,7 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response):
             action = Action()
             output = OutputParsingTool.parse_json_str_to_dictionary(action.show()).get_returned_value()
             if output:
-                action_job_id = int(list(output)[-1])
+                action_job_id = max([int(id_no) for id_no in list(output)])
             # Since the install is to be aborted, using a dummy image name nvos.bin
             child.sendline('nv action install system image files nvos.bin')
             respond = child.expect('.*continue.*')
@@ -478,9 +478,10 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response):
         with allure.step("Verify install command was executed successfully"):
             logging.info("Verify install command was executed successfully")
             # Increment action-job-id for latest command status
-            action_job_id = action_job_id + 1
+            action_job_id_str = str(action_job_id + 1)
             # extract last command execution status
-            output = OutputParsingTool.parse_json_str_to_dictionary(action.show(action_job_id)).get_returned_value()
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.show(action_job_id_str)).\
+                get_returned_value()
             assert output['detail'] == 'Image install aborted by user' and \
                 output['http_status'] == 200 and \
                 output['state'] == 'action_success', "Image install command failed:{out}".format(out=output)
