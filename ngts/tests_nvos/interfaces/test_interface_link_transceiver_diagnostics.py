@@ -119,8 +119,12 @@ def test_interface_link_diagnostics_basic(engines):
                 logging.info("Check each port status in all ports status")
                 logging.info("Status dict {}".format(status_dict))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
-                assert diagnostics_per_port == status_dict, \
-                    "Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
+                if diagnostics_per_port != status_dict:
+                    logging.info("Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
+                                 ". Verifying '--view link-diagnostics' one more time: ")
+                    Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+                        any_port.show_interface(port_names='--view link-diagnostics'))
+                    raise BaseException("Transceiver diagnostic for all ports not equal to transceiver diagnostic per port")
 
     with allure.step('Run nv show interface for port in up state'):
         up_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
