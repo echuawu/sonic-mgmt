@@ -303,7 +303,7 @@ class LogAnalyzer:
         self.ansible_host.command(cmd)
         return start_marker
 
-    def analyze(self, marker, fail=True, maximum_log_length=None):
+    def analyze(self, marker, fail=True, maximum_log_length=None, store_la_logs=False):
         """
         @summary: Extract syslog logs based on the start/stop markers and compose one file.
                   Download composed file, analyze file based on defined regular expressions.
@@ -311,6 +311,7 @@ class LogAnalyzer:
         @param marker: Marker obtained from "init" method.
         @param fail: Flag to enable/disable raising exception when loganalyzer find error messages.
         @param maximum_log_length: The long message (length > maximum_log_length) will be skipped.
+        @param store_la_logs: Flag to save the match lines
         @return: If "fail" is False - return dictionary of parsed syslog summary,
                  if dictionary can't be parsed - return empty dictionary.
                  If "fail" is True and if found match messages - raise exception.
@@ -400,7 +401,7 @@ class LogAnalyzer:
         analyzer_summary["total"]["expected_missing_match"] = len(unused_regex_messages)
         analyzer_summary["unused_expected_regexp"] = unused_regex_messages
         logging.debug("Analyzer summary: {}".format(pprint.pformat(analyzer_summary)))
-        if analyzer_summary["total"]["match"] != 0 and not fail:
+        if analyzer_summary["total"]["match"] != 0 and store_la_logs:
             self.save_matching_errors(analyzer_summary["match_messages"].values())
 
         if fail:

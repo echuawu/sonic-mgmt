@@ -423,9 +423,12 @@ def run_cli_coverage(item, markers):
 
 @pytest.fixture(scope='session', autouse=True)
 def store_and_manage_loganalyzer(request):
-    ignore_failure = request.config.getoption("--store_and_silently_ignore_la_failure")
+    ignore_failure = request.config.getoption("--ignore_la_failure")
+    store_la_logs = request.config.getoption("--store_la_logs")
     if not ignore_failure:
-        request.config.option.store_and_silently_ignore_la_failure = True
+        request.config.option.ignore_la_failure = True
+    if not store_la_logs:
+        request.config.option.store_la_logs = True
 
 
 @pytest.fixture(scope='function', autouse=True)
