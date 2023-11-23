@@ -2612,6 +2612,33 @@
       Platform:
         - nvda_bf
 
+- Errors_list:
+    - '.* WARNING kernel:.* mlxsw_minimal: probe of .* failed with error.*'
+    - '.*ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu\d+_temp\d+ does not exist.*'
+    - '.*ERR pmon#psud: Thermal sysfs \/run\/hw-management\/thermal\/psu\d+_temp\d+_max does not exist.*'
+    - '.*ERR pmon#syseepromd: Failed to update EEPROM info in database.*'
+    - '.*ERR pmon#syseepromd: Failed to post system EEPROM info to database.*'
+    - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_fan\d+_speed_get - FileNotFoundError.*'
+    - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/thermal\/psu\d+_fan_max - FileNotFoundError.*No such file or directory.*'
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu\d+_temp\d+ does not exist.*'
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/psu\d+_temp\d+_max does not exist.*'
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/asic does not exist.*'
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/asic_temp_emergency does not exist.*'
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/asic_temp_trip_crit does not exist.*'
+    - '.*ERR sonic-db-cli: :- guard: RedisReply catches system_error: command: .*reason: ERR wrong number of arguments for .*hset.* command: Input\/output error.*'
+    - '.*RedisReply catches system_error: command:.*reason: ERR wrong number of arguments for .*hset.* command: Input\/output error: Input\/output error.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3679414
+
+- Errors_list:
+    - '.* ERR systemctl\[\d+\]: Failed to get unit file state for lldp.timer: No such file or directory.*'
+  Conditions:
+    - Redmine:
+      - 3657042
+
 # NVOS
 - Errors_list:
     - '.* ERR nvued:   ERROR: lifecycle.py:\d+ Failed verify eth interface configuration.*'
