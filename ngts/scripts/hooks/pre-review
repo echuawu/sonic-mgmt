@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# ANSI color codes
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+
+# ANSI escape code for bold text
+BOLD='\033[1m'
+
+DEFAULT='\033[0m'
+
+echo "Running the NGCI Verify tool"
+
+source /auto/sw_system_project/devops/common/bashrc
+
+ngci_tool() {
+  /auto/sw_system_release/ci/ngci/ngci_tool/ngci_tool.sh
+}
+
+ngci_output=$(ngciVerify NA)
+rc=$?
+
+echo "$ngci_output"
+
+# Check the exit status of the ngciVerify
+if [ $rc -ne 0 ]; then
+
+    # Prompt the user for input
+    echo -e "${BOLD}${RED}The ngciVerify tool found some issues, please fix the violations and rerun 'git review'${NC}"
+    echo -e "${YELLOW}If you wish to skip the ngciVerify(not recommended, run 'git review --no-custom-script'${NC}"
+    echo -e "${DEFAULT}"
+fi
+
+exit $rc
+
