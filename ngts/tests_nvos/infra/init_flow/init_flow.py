@@ -2,6 +2,8 @@ from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
 from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 logger = logging.getLogger()
 
@@ -55,3 +57,17 @@ def test_ports_are_up(engines, devices):
     with allure.step("Validate all ports status is up"):
         res_obj = devices.dut.verify_ib_ports_state(engines.dut, NvosConst.PORT_STATUS_UP)
         assert res_obj.result, res_obj.info
+
+
+@pytest.mark.init_flow
+def test_check_firmware(engines):
+    """
+    Verify installed firmware is equal to actual firmware
+    """
+    with allure.step("Verify installed firmware is equal to actual firmware"):
+        system = System()
+        asic_output = OutputParsingTool.parse_json_str_to_dictionary(system.firmware.asic.show()).get_returned_value()
+        installed_fw = asic_output['installed-firmware']
+        actual_fw = asic_output['actual-firmware']
+        assert installed_fw == actual_fw, f"installed firmware is NOT equal to actual firmware. \n" \
+                                          "installed firmware: {installed_fw}, actual firmware: {actual_fw}"
