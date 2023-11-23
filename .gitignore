@@ -15,7 +15,6 @@ tests/metadata
 # Dev tools
 .vscode/
 .idea/
-.ngci_tool/
 
 # Creadentials for custom_skipif plugin
 tests/common/plugins/custom_skipif/credentials.yaml
