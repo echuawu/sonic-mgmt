@@ -146,7 +146,7 @@ def create_secrets_vars_script(conn, mars_docker_env_secrets, container_name):
     export_env_var_script_path = "/tmp/{CONTAINER_NAME}_export_env_var.sh".format(CONTAINER_NAME=container_name)
     if os.path.exists(export_env_var_script_path):
         conn.run("rm -f {SCRIPT_PATH}".format(SCRIPT_PATH=export_env_var_script_path), warn=True)
-    regex = "[\w|_]*=[\'|\w|\d|$|!|-]*"
+    regex = "[\w|_]*=[\'|\w|\d|$|!|-|\.|\/|\-|:|~]*"
     env_vars = re.findall(regex, mars_docker_env_secrets)
     script_content = ["export {0}".format(env_var.replace("$", "\$")) for env_var in env_vars]
     script_content = ["#!/bin/bash"] + script_content
