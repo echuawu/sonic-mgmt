@@ -3,6 +3,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.tools.test_utils.allure_utils import step as allure_step
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.HostMethods import HostMethods
 from ngts.nvos_tools.infra.Fae import Fae
@@ -37,11 +38,12 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
     with allure_step("Check number of swids, ib interfaces and asic related to the system"):
         device = devices.dut
         primary_ib_interface = device.PRIMARY_IPOIB_INTERFACE
-        primary_asic = device.PRIMARY_ASIC
-        primary_swid = device.PRIMARY_SWID
+        # primary_asic = device.PRIMARY_ASIC
+        # primary_swid = device.PRIMARY_SWID
         values_to_check = [ImageConsts.SWID, ImageConsts.ASIC]
         ValidationTool.verify_field_value_exist_in_output_dict(mapping_output, primary_ib_interface).verify_result()
-        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(mapping_output[primary_ib_interface], values_to_check).verify_result()
+        ValidationTool.verify_all_fields_value_exist_in_output_dictionary(mapping_output[primary_ib_interface],
+                                                                          values_to_check).verify_result()
 
     with allure_step("Set parameters to ib0 interface related to the system"):
         ib0_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -103,7 +105,7 @@ def test_interface_ipoib_ping_functionality(engines, devices, start_sm, players,
             3. unset ip address
     """
     ib0_port = MgmtPort('ib0')
-    fae = Fae()
+    # fae = Fae()
 
     with allure_step("Set ip on switch ipoib interface and host ib interface connected to switch"):
         ib0_port.interface.ip.address.set(op_param_name='1.1.1.1/24', apply=True).verify_result()
