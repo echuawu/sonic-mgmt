@@ -278,7 +278,7 @@ class TestDHCPRelay:
     def test_dhcp_relay_udp_packet_with_src_and_dst_ports_the_same_as_dhcp(self):
         tcpdump_filter_src_1_2_3_4 = "src 1.2.3.4"
         dst_ip = "30.0.0.2"
-        udp_pkt = 'Ether(dst="{}")/IP(src="1.2.3.4",dst="{}")/UDP(sport=68,dport=67)/Raw()'.format(self.dut_mac, dst_ip)
+        udp_pkt = 'Ether(src="b0:09:0f:09:04:00", dst="{}")/IP(src="1.2.3.4",dst="{}")/UDP(sport=68,dport=67)/Raw()'.format(self.dut_mac, dst_ip)
 
         try:
             with allure.step('Validate UDP message with SRC and DST port the same as DHCP not forwarded to DHCP server'):
