@@ -2218,6 +2218,12 @@ dns/test_dns_resolv_conf.py:
     reason: "Testcase ignored due to needed update: https://git-nbu-sw.nvidia.com/r/c/switchx/sonic/sonic-mgmt/+/262210"
     conditions:
       - "https://git-nbu-sw.nvidia.com/r/c/switchx/sonic/sonic-mgmt/+/262210"
+
+vxlan/arp/test_arpall.py::test_arp_garp_no_update:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3666580"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3666580"
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
