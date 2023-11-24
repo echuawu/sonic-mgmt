@@ -27,9 +27,9 @@ class BFD_Responder(BaseTest):
         self.dut_mac = self.test_params['dut_mac']
         self.dut_loop_ips = self.test_params['dut_loop_ips']
         for ipaddr in self.dut_loop_ips:
-            if isinstance(ip_address(ipaddr.decode()), IPv4Address):
+            if isinstance(ip_address(ipaddr), IPv4Address):
                 self.dut_loop_ipv4 = ipaddr
-            if isinstance(ip_address(ipaddr.decode()), IPv6Address):
+            if isinstance(ip_address(ipaddr), IPv6Address):
                 self.dut_loop_ipv6 = ipaddr
         self.monitor_file = self.test_params['monitor_file']
 
