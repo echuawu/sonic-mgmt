@@ -35,7 +35,7 @@
         {%- elif inventory_hostname == "r-leopard-70" %}:
           <Speed>200000</Speed>
         {%- elif inventory_hostname == "r-leopard-72" %}:
-            {%- if index == 2 or index == 3 %}
+            {%- if index <= 4 %}
                 <Speed>400000</Speed>
             {%- else %}
                 <Speed>200000</Speed>
