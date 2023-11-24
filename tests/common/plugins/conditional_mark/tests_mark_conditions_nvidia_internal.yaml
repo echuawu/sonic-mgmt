@@ -265,18 +265,6 @@ tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
     conditions:
       - "https://redmine.mellanox.com/issues/3333915 and '202211' in release"
 
-dhcp_relay/test_dhcpv6_relay.py::test_dhcpv6_relay_counter:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3635001 on dualtor testbed"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3635001 and 'dualtor' in topo_name"
-
-dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_default:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3635029 on dualtor testbed"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3635029 and 'dualtor' in topo_name"
-
 tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2637874"
@@ -706,41 +694,6 @@ tests/nightly/cpld/test_cpld.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
 
-
-########################## NGTS IGNORE END ##########################
-
-
-########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
-acl/test_acl.py::TestBasicAcl::test_ip_proto_match_forwarded[ipv4-ingress-uplink->downlink-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_match_forwarded[ipv4-ingress-uplink->downlink-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv4-ingress-uplink->downlink-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
-
-acl/test_acl.py::TestBasicAcl::test_l4_sport_match_forwarded[ipv4-ingress-uplink->downlink-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
-
-acl/test_acl.py::TestBasicAcl::test_udp_source_ip_match_forwarded[ipv4-ingress-uplink->downlink-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
-
 tests/push_build_tests:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3661571 and simx spc4 CI setup"
@@ -782,77 +735,11 @@ dhcp_relay/test_dhcp_relay.py::test_dhcp_relay_default[dual]:
     conditions:
       - "https://redmine.mellanox.com/issues/3584291 and 'dualtor' in topo_name"
 
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_basic_forwarding[cli-downstream-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584334 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584334 and 'dualtor' in topo_name"
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_neighbor_mac_change[cli-downstream-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584334 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584334 and 'dualtor' in topo_name"
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_unused_ecmp_next_hop[cli-downstream-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584334 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584334 and 'dualtor' in topo_name"
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_remove_used_ecmp_next_hop[cli-downstream-default]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584334 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584334 and 'dualtor' in topo_name"
-
-qos/test_tunnel_qos_remap.py::test_xoff_for_pcbb:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3585452"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3585452"
-
-decap/test_decap.py::test_decap[ttl=pipe, dscp=uniform, vxlan=set_unset]:
-  skip:
-    reason: "Testcase ignored due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/9646 on dualtor topology"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/9646 and 'dualtor' in topo_name"
-
 dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162 on 202211 branch"
     conditions:
       - "https://redmine.mellanox.com/issues/3572162 and '202211' in release"
-
-route/test_route_perf.py::test_perf_add_remove_routes:
-  skip:
-    reason: "Testcase ignored due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/9648 on dualtor topology"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/9648 and 'dualtor' in topo_name"
-
-span/test_port_mirroring.py:
-  skip:
-    reason: "Testcase ignored due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/9647 on dualtor topology"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/9647 and 'dualtor' in topo_name"
-
-vlan/test_vlan.py::test_vlan_tc1_send_untagged:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584291 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584291 and 'dualtor' in topo_name"
-
-vlan/test_vlan.py::test_vlan_tc2_send_tagged:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584291 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584291 and 'dualtor' in topo_name"
-
-vlan/test_vlan_ping.py::test_vlan_ping:
-  skip:
-    reason: "Testcase ignored due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/9642 on dualtor topology"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/9642 and 'dualtor' in topo_name"
 
 platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
   skip:
@@ -1724,98 +1611,11 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_dr
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
-dualtor/test_ipinip.py::test_encap_with_mirror_session:
-  skip:
-     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
-     conditions:
-       - https://github.com/sonic-net/sonic-mgmt/issues/8577
-       - "'dualtor-aa' in topo_name"
-
-dualtor/test_tor_ecn.py::test_dscp_to_queue_during_encap_on_standby:
-  skip:
-     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
-     conditions:
-       - https://github.com/sonic-net/sonic-mgmt/issues/8577
-       - "'dualtor-aa' in topo_name"
-
-dualtor/test_tor_ecn.py::test_ecn_during_encap_on_standby:
-  skip:
-     reason: "Testcase ignored on dualtor-aa topology due to Github issue: https://github.com/sonic-net/sonic-mgmt/issues/8577"
-     conditions:
-       - https://github.com/sonic-net/sonic-mgmt/issues/8577
-       - "'dualtor-aa' in topo_name"
-
 telemetry/test_telemetry.py::test_on_change_updates:
   skip:
      reason: "Testcase ignored due to a missing PR, Github issue: https://github.com/sonic-net/sonic-mgmt/issues/10281"
      conditions:
       - "https://github.com/sonic-net/sonic-mgmt/issues/10281 and '202305' in release"
-
-dualtor_mgmt/test_ingress_drop.py::test_ingress_drop[active-active]:
-  skip:
-     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
-     conditions:
-       - "https://redmine.mellanox.com/issues/3507115"
-
-dualtor_io/test_grpc_server_failure.py::test_grpc_server_failure_config_standby_config_auto_upstream_active:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3507115"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3507115"
-
-dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream[active-active]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3521240"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3521240"
-
-dualtor_io/test_normal_op.py::test_upper_tor_config_reload_upstream[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_normal_op.py::test_lower_tor_config_reload_upstream[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_tor_failure.py::test_active_tor_reboot_upstream[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_tor_failure.py::test_active_tor_reboot_downstream_standby[active-standby]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3284421"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3284421"
-
-dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downstream[active-active]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3521929"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3521929"
-
-dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_link_up_downstream_standby[active-active]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3526263"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3526263"
 
 qos.test_buffer#test_change_speed_cable[10000-1500-15m]:
   skip:
@@ -1865,12 +1665,6 @@ drop_packets/test_wjh.py::test_acl_egress_drop:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
     conditions:
       - "https://redmine.mellanox.com/issues/3415969"
-
-acl/test_acl.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3584358 on dualtor topology"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3584358 and 'dualtor' in topo_name"
 
 acl/null_route/test_null_route_helper.py::test_null_route_helper:
   skip:
