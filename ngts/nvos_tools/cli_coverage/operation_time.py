@@ -22,13 +22,14 @@ class OperationTime:
         """
         start_time = time.time()
         result_obj = func(*args, **kargs)
+        duration = 0
         if result_obj.result and test_name:
             end_time = time.time()
             duration = end_time - start_time
             logger.info("{operation} took {dur} seconds".format(operation=operation, dur=duration))
             duration_time_dict = OperationTime.create_duration_time_dict(operation, oper_params, duration, test_name)
             pytest.operation_list.append(duration_time_dict)
-        return result_obj
+        return result_obj, duration
 
     @staticmethod
     def create_duration_time_dict(operation='', params='', duration='', test_name=''):
@@ -47,3 +48,13 @@ class OperationTime:
             duration_time_dict[OperationTimeConsts.DURATION_COL] = duration
         if duration_time_dict[OperationTimeConsts.TEST_NAME_COL] == '' or override:
             duration_time_dict[OperationTimeConsts.TEST_NAME_COL] = test_name
+
+    @staticmethod
+    def verify_operation_time(duration, operation=''):
+        ret_val = True
+        threshold = OperationTimeConsts.THRESHOLDS.get(operation)
+        if threshold is not None and threshold < duration:
+            logger.error("{op} took more time than threshold of {thresh} seconds".format(op=operation,
+                                                                                         thresh=threshold))
+            ret_val = False
+        return ret_val

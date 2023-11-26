@@ -19,7 +19,8 @@ def test_reboot_command(engines, devices, test_name):
     system = System(None)
 
     with allure.step('Run nv action reboot system'):
-        OperationTime.save_duration('reboot', '', test_name, system.reboot.action_reboot)
+        result_obj, duration = OperationTime.save_duration('reboot', '', test_name, system.reboot.action_reboot)
+        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
 
     with allure.step("Check system reboot output"):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
@@ -45,7 +46,9 @@ def test_reboot_command_immediate(engines, devices, test_name):
     """
     system = System(None)
     with allure.step('Run nv action reboot system mode immediate'):
-        OperationTime.save_duration('reboot', 'immediate', test_name, system.reboot.action_reboot, params='immediate')
+        result_obj, duration = OperationTime.save_duration('reboot', 'immediate', test_name,
+                                                           system.reboot.action_reboot, params='immediate')
+        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
 
 
 @pytest.mark.system
@@ -58,7 +61,9 @@ def test_reboot_command_force(engines, devices, test_name, test_api):
     TestToolkit.tested_api = test_api
     system = System(None)
     with allure.step('Run nv action reboot system mode force'):
-        OperationTime.save_duration('reboot', 'force', test_name, system.reboot.action_reboot, params='force')
+        result_obj, duration = OperationTime.save_duration('reboot', 'force', test_name,
+                                                           system.reboot.action_reboot, params='force')
+        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
 
 
 @pytest.mark.system

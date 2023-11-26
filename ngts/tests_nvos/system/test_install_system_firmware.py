@@ -83,8 +83,8 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        res = OperationTime.save_duration('reboot with default FW installation', '', test_name,
-                                          system.reboot.action_reboot) if fw_has_changed else system.reboot.action_reboot()
+        res, duration = OperationTime.save_duration('reboot with default FW installation', '', test_name,
+                                                    system.reboot.action_reboot) if fw_has_changed else system.reboot.action_reboot()
         return res
 
 
@@ -99,7 +99,7 @@ def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firm
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        res = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
+        res, duration = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
         return res
 
 

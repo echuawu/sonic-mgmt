@@ -35,9 +35,9 @@ class TechSupport(BaseComponent):
             if not engine:
                 engine = TestToolkit.engines.dut
 
-            cmd_out = OperationTime.save_duration('generate tech-support', option, test_name, SendCommandTool.execute_command,
-                                                  NvueSystemCli.action_generate_techsupport, engine,
-                                                  self.get_resource_path().replace('/files', ' '), option, since_time)
+            cmd_out, duration = OperationTime.save_duration('generate tech-support', option, test_name, SendCommandTool.execute_command,
+                                                            NvueSystemCli.action_generate_techsupport, engine,
+                                                            self.get_resource_path().replace('/files', ' '), option, since_time)
             return TechSupport.get_techsupport_folder_name(cmd_out)
 
     @staticmethod

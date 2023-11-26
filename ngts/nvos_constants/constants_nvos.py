@@ -761,6 +761,7 @@ class OperationTimeConsts:
     TEST_NAME_COL = 'test_name'
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
+    THRESHOLDS = {'reboot': 180}
 
 
 class StatsConsts:
