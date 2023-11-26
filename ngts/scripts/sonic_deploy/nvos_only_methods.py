@@ -129,7 +129,10 @@ class NvosInstallationSteps:
 
             with allure.step('Compare expected and actual configuration files'):
                 ACTUAL_CONFIG_EXPORT_FILE_PATH = f'/host/config_files/{ACTUAL_CONFIG_EXPORT_FILENAME}'
-                diff_output = dut_engine.run_cmd(f'sudo diff --ignore-matching-lines="version: 25.01." {ACTUAL_CONFIG_EXPORT_FILE_PATH} {EXPECTED_CONFIG_FILE_PATH}')
+                expression_to_start_diff = '- set:'
+                # run diff for 2 yaml files (expected and actual). ignore anything before line containing expression_to_start_diff
+                diff_cmd = f'diff <(sed -n "/{expression_to_start_diff}/,\\$p" {ACTUAL_CONFIG_EXPORT_FILE_PATH}) <(sed -n "/{expression_to_start_diff}/,\\$p" {EXPECTED_CONFIG_FILE_PATH})'
+                diff_output = dut_engine.run_cmd(diff_cmd)
                 assert not diff_output, f'Diff of {ACTUAL_CONFIG_EXPORT_FILE_PATH} and {EXPECTED_CONFIG_FILE_PATH}:\n{diff_output}'
 
         with allure.step('Clear tested configuration for the tests'):
