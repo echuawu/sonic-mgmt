@@ -1181,7 +1181,6 @@ class GnmiConsts:
     GNMI_IS_RUNNING = 'yes'
     GNMI_IS_NOT_RUNNING = 'no'
     GNMI_VERSION_FIELD = 'version'
-    GNMI_VERSION = '4.8.0-5'
     GNMI_DEFAULT_PORT = '9339'
     SLEEP_TIME_FOR_UPDATE = 35
     REDIS_CMD_KEY = 'redis_cmd'

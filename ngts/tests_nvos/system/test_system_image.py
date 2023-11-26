@@ -365,9 +365,13 @@ def image_uninstall_test(release_name, uninstall_force=""):
         get_image_data_and_fetch_random_image_files(release_name, system)
     fetched_image = images_to_install[0]
 
-    with allure.step("{} uninstall image, while there is just 1 image- should fail".format(uninstall_force)):
-        system.image.action_uninstall(params=uninstall_force, expected_str="Nothing to uninstall")
-        system.image.verify_show_images_output(original_images)
+    if original_images[partition_id_for_new_image]:
+        with allure.step("uninstall image, while there are 2 images- should success"):
+            system.image.action_uninstall(params="force")
+    else:
+        with allure.step("{} uninstall image, while there is just 1 image- should fail".format(uninstall_force)):
+            system.image.action_uninstall(params=uninstall_force, expected_str="Nothing to uninstall")
+            system.image.verify_show_images_output(original_images)
 
     try:
         with allure.step("Install image and verify"):

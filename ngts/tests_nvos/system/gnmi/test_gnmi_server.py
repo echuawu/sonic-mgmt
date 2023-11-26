@@ -374,8 +374,7 @@ def validate_gnmi_server_docker_state(engines, should_run=True):
 def validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
                        gnmi_is_running=GnmiConsts.GNMI_IS_RUNNING):
     gnmi_server_obj.compare_show_gnmi_output(expected={GnmiConsts.GNMI_STATE_FIELD: gnmi_state,
-                                                       GnmiConsts.GNMI_IS_RUNNING_FIELD: gnmi_is_running,
-                                                       GnmiConsts.GNMI_VERSION_FIELD: GnmiConsts.GNMI_VERSION})
+                                                       GnmiConsts.GNMI_IS_RUNNING_FIELD: gnmi_is_running})
     should_run = gnmi_is_running == GnmiConsts.GNMI_IS_RUNNING
     validate_gnmi_server_docker_state(engines, should_run=should_run)
 

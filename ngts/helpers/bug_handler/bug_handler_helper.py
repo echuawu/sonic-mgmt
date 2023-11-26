@@ -389,11 +389,9 @@ def error_to_regex(error_string):
     # -- Replaces date time with regular expressions
     error_string = re.sub(r" [A-Za-z]{3} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z]{3} ",
                           r" [A-Za-z]{3} \\\\d{4}-\\\\d{2}-\\\\d{2} \\\\d{2}:\\\\d{2}:\\\\d{2} [A-Z]{3} ", error_string)
-    # -- Replaces full numbers with digits regular expressions
-    error_string = re.sub(r"\b\d+\b", r"\\\\d+", error_string)
     # -- Replaces a hex number with the hex regular expression
     error_string = re.sub(r"0x[0-9a-fA-F]+", r"0x[\\\\d+a-fA-F]+", error_string)
-    error_string = re.sub(r"\b[0-9a-fA-F]{3,}\b", r"[\\\\d+a-fA-F]+", error_string)
+    error_string = re.sub(r"\b[0-9a-fA-F]+\b", r"[\\\\d+a-fA-F]+", error_string)
     # -- Replaces any remaining digits with the digit regular expression
     error_string = re.sub(r"\d+", r"\\\\d+", error_string)
     error_string = re.sub(r'"', r'\"', error_string)
