@@ -9,8 +9,9 @@ logger = logging.getLogger()
 
 
 class Syslog(BaseComponent):
-    def __init__(self, parent_obj=None):
-        BaseComponent.__init__(self, parent=parent_obj, path='/syslog')
+    def __init__(self, parent_obj=None, path=None):
+        file_path = path if path else '/syslog'
+        BaseComponent.__init__(self, parent=parent_obj, path=file_path)
         self.servers = Servers(self)
         self.format = Format(self)
 
@@ -100,11 +101,11 @@ class Servers(BaseComponent):
             ValidationTool.validate_all_values_exists_in_list(expected_servers_list, output.keys()).verify_result()
 
 
-class Server(BaseComponent):
+class Server(Syslog):
     def __init__(self, parent_obj=None, server_id=''):
-        BaseComponent.__init__(self, parent=parent_obj, path='/' + server_id)
-        self.filter = Filter(self)
+        Syslog.__init__(self, parent_obj=parent_obj, path='/' + server_id)
         self.server_id = server_id
+        self.filter = Filter(self)
 
     def set_vrf(self, vrf='default', expected_str='', apply=False, ask_for_confirmation=False):
         return self.set(op_param_name=SyslogConsts.VRF, op_param_value=vrf, expected_str=expected_str,
