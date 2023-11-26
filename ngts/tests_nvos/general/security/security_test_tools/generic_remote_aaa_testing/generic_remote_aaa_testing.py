@@ -144,7 +144,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
 def generic_aaa_test_set_invalid_param(test_api,
                                        field_is_numeric: Dict[str, bool],
                                        valid_values: dict,
-                                       resources_and_fields: Dict[RemoteAaaResource, List[str]]):
+                                       resources_and_fields: Dict[BaseComponent, List[str]]):
     """
     @summary: Verify set, unset, show commands for remote AAA feature
 
