@@ -2011,47 +2011,47 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
     conditions:
       - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
 
-dash/crm/test_dash_crm.py:
-  skip:
-    reason: "Testcase ignored due to the ZMQ migration has not been completed."
-    conditions:
-      - "https://redmine.mellanox.com/issues/3609199 and 'nvda_bf' in platform"
-
 dash_acl/test_dash_acl.py:
   skip:
     reason: "Testcase ignored due to the ZMQ migration has not been completed."
     conditions:
       - "https://redmine.mellanox.com/issues/3609196 and 'nvda_bf' in platform"
 
+dash/crm/test_dash_crm.py:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3676635"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3676635 and 'nvda_bf' in platform"
+
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_routing:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3424756"
     conditions:
-      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_outbound_ca_to_pa:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3424756"
     conditions:
-      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_acl_group:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3424756"
     conditions:
-      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_acl_rules:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3424756"
     conditions:
-      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3446825"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3424756"
     conditions:
-      - "https://redmine.mellanox.com/issues/3446825 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
   skip:
