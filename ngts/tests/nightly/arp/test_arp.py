@@ -6,12 +6,12 @@ import copy
 
 
 from retry.api import retry_call
-from ngts.helpers.arp_helper import verify_arp_entry_in_arp_table,\
+from ngts.helpers.arp_helper import verify_arp_entry_in_arp_table, \
     verify_arp_entry_not_in_arp_table, arp_request_traffic_validation, INTERFACE_TYPE_LIST, \
     clear_dynamic_arp_table_and_check_the_specified_arp_entry_deleted, \
     send_arp_request_and_check_update_corresponding_entry_into_arp_table
 from ngts.helpers.network import gen_new_mac_based_old_mac
-
+from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
 logger = logging.getLogger()
 
@@ -349,3 +349,43 @@ def test_arp_proxy(players, cli_objects, interfaces, pre_test_interface_data):
     finally:
         with allure.step('Recover the default config of arp proxy by disabling arp proxy'):
             cli_objects.dut.vlan.disable_vlan_arp_proxy(interface_data["dut_vlan_id"])
+
+
+@allure.title('Arp resolved during ping')
+def test_arp_table_updated_during_ping(players, cli_objects, interface_data_ping):
+    """
+    Verify when Ping from host a to host b, the ping should be success, and the arp table is updated
+    1. Host A sends ping request to Host B
+    2. Verify DUT add the Host A's IP and MAC into the ARP table
+    3. Verify DUT add the Host B's IP and MAC into the ARP table
+    :param players: players fixture
+    :param cli_objects: cli objects fixture
+    :param interface_data_ping: interface_data_ping fixture
+    """
+    try:
+        with allure.step('Ping validation: send ping from {} to {}'.format(interface_data_ping["src_interface"],
+                                                                           interface_data_ping["dst_ip"])):
+            validation = {'sender': interface_data_ping["src_host_alias"],
+                          'args': {'interface': interface_data_ping["src_interface"],
+                                   'count': 3,
+                                   'dst': interface_data_ping["dst_ip"]}}
+            ping = PingChecker(players, validation)
+            logger.info('Sending 3 untagged packets from {} to {}'.format(interface_data_ping["src_interface"],
+                                                                          interface_data_ping["dst_ip"]))
+            ping.run_validation()
+
+        with allure.step("Verify DUT add the src Host's IP and MAC into the ARP table"):
+            retry_call(verify_arp_entry_in_arp_table,
+                       fargs=[cli_objects.dut, interface_data_ping["src_ip"],
+                              interface_data_ping["src_mac"], interface_data_ping["src_dut_iface"],
+                              interface_data_ping["src_dut_vlan_id"]],
+                       tries=3, delay=10, logger=logger)
+        with allure.step("Verify DUT add the dst Host's IP and MAC into the ARP table"):
+            retry_call(verify_arp_entry_in_arp_table,
+                       fargs=[cli_objects.dut, interface_data_ping["dst_ip"],
+                              interface_data_ping["dst_mac"], interface_data_ping["dst_dut_iface"],
+                              interface_data_ping["dst_dut_vlan_id"]],
+                       tries=3, delay=10, logger=logger)
+
+    except Exception as err:
+        raise AssertionError(err)
