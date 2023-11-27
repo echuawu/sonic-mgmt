@@ -759,6 +759,19 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_b
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3656833"
     conditions:
       - "https://redmine.mellanox.com/issues/3656833"
+
+tests/nightly/adaptive_routing/test_adaptive_routing.py::TestArBasic::test_ar_with_reboot:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681195"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3681195"
+
+tests/nightly/adaptive_routing/test_adaptive_routing.py::TestArMaxPort::test_ar_max_port:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681195"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3681195"
+
 ########################## NGTS IGNORE END ##########################
 
 
