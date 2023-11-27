@@ -285,12 +285,14 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
         authenticator = SshAuthenticator(local_adminuser.username, local_adminuser.password, engines.dut.ip)
         _, timestamp1 = authenticator.attempt_login_failure()
         _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
+        engines.dut.disconnect()
 
     with allure.step(f'Verify respond time >= timeout'):
         assert timestamp2 - timestamp1 >= rand_timeout, f'Timeout was too short. Expected: {rand_timeout}'
 
     with allure.step('Set another unreachable server with timeout'):
-        rand_timeout2 = random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT])
+        rand_timeout2 = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
+                                       TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
         logging.info(f'Chosen timeout: {rand_timeout2}')
         configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['2.4.6.8'], conf={
             AaaConsts.PRIORITY: 2,
@@ -302,10 +304,11 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
     with allure.step('Make authentication attempt and measure time'):
         _, timestamp1 = authenticator.attempt_login_failure()
         _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
+        engines.dut.disconnect()
 
     with allure.step('Verify respond time >= sum of timeouts'):
         assert timestamp2 - timestamp1 >= rand_timeout + rand_timeout2, \
             f'Timeout was too short. Expected: {rand_timeout + rand_timeout2}'
 
-    with allure.step('Clear aaa configuration'):
-        aaa.unset(apply=True).verify_result()
+    # with allure.step('Clear aaa configuration'):
+    #     aaa.unset(apply=True).verify_result()
