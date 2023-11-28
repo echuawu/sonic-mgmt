@@ -120,10 +120,11 @@ def ar_base_config_default_vrf(topology_obj, cli_objects, interfaces, engines, r
     tx_port = ar_helper.get_tx_port_in_ecmp(cli_objects, ecmp_tx_port_list, ArConsts.PACKET_NUM_20)
     ar_helper.enable_ar_port(cli_objects, ecmp_tx_port_list, port_util_percent=ArConsts.PORT_UTIL_DEFAULT_PERCENT,
                              request=request)
-    logger.info('Config save and reload, then check dockers and ports status')
-    ar_helper.config_save_reload(cli_objects, topology_obj, reload_force=True)
+    logger.info('Copy and load AR custom profile')
     ar_profile_config_folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' + ArConsts.AR_CONFIG_FOLDER
     ar_helper.copy_and_load_profile_config(engines, cli_objects, ar_profile_config_folder_path)
+    logger.info('Config save and reload, then check dockers and ports status')
+    ar_helper.config_save_reload(cli_objects, topology_obj, reload_force=True)
     ar_helper.verify_bgp_neighbor(cli_objects)
     return tx_port
 
