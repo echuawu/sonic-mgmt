@@ -17,7 +17,7 @@ def test_grub_password(serial_engine, post_test_remote_reboot, is_secure_boot_en
     '''
     with allure.step("Rebooting and entering grub cli"):
         logging.info("Rebooting and entering grub cli")
-        serial_engine.serial_engine.sendline("nv action reboot system")
+        serial_engine.serial_engine.sendline("nv action reboot system force")
         serial_engine.serial_engine.expect("select which entry is highlighted", timeout=120)
 
     cli_grub_activation_character = random.choice(['e', 'c'])

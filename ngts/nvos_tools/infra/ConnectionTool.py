@@ -7,6 +7,7 @@ from netmiko.ssh_exception import NetmikoAuthenticationException
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from ngts.tools.test_utils import allure_utils as allure
+import pexpect
 
 logger = logging.getLogger()
 
@@ -78,6 +79,13 @@ class ConnectionTool:
         @summary: Create serial pexpect engine and initiate connection (login)
         """
         with allure.step("create serial connection"):
-            serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip, username, password)
-            serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
+            try:
+                serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip, username, password)
+                serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
+            except pexpect.exceptions.TIMEOUT as e:
+                logger.info('L')
+                serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip,
+                                                                    username=DefaultConnectionValues.DEFAULT_USER,
+                                                                    password=DefaultConnectionValues.DEFAULT_PASSWORD)
+                serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
             return serial_engine
