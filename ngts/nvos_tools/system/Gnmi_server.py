@@ -28,7 +28,7 @@ class Gnmi_server(BaseComponent):
                                                  GnmiConsts.GNMI_IS_RUNNING_FIELD: GnmiConsts.GNMI_IS_RUNNING}):
         show_output = self.parsed_show_gnmi()
         msg = ''
-        for key, value in show_output.items():
+        for key, value in expected.items():
             if show_output[key] != expected[key]:
                 msg += f"{key} field is different than expected: \n" \
                        f"Expected: {expected[key]}, but got: {value}\n"
