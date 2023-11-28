@@ -104,7 +104,7 @@ class NvosInstallationSteps:
         with allure.step('Upgrade to target version'):
             if target_version_path.startswith('http'):
                 target_version_path = f'/auto/{target_version_path.split("/auto/")[1]}'
-            image_scp_url = f'scp://{sonic_mgmt_engine.username}:{sonic_mgmt_engine.password}@{sonic_mgmt_engine.ip}{target_version_path}'
+            image_scp_url = f'scp://{host_creds}{target_version_path}'
             bin_filename = target_version_path.split('/')[-1]
             system.image.action_fetch(url=image_scp_url, dut_engine=dut_engine)
             system.image.files_resource.file[bin_filename].action_install(param_force=True, engine=dut_engine)
@@ -142,6 +142,16 @@ class NvosInstallationSteps:
             NvueSystemCli.unset(dut_engine, 'interface')
             NvueGeneralCli.apply_config(engine=dut_engine, option='--assume-yes')
             NvueGeneralCli.save_config(dut_engine)
+
+        with allure.step('Clear fetched files for the tests'):
+            system = System()
+            with allure.step('Delete config files'):
+                system.config.files.delete_system_files([CONF_YML_FILE_NAME, ACTUAL_CONFIG_EXPORT_FILENAME],
+                                                        engine=dut_engine)
+            with allure.step('Delete fetched image file'):
+                system.image.files.delete_system_files([bin_filename], engine=dut_engine)
+            with allure.step('Uninstall older version'):
+                system.image.action_uninstall(engine=dut_engine)
 
     @staticmethod
     def wait_for_nvos_to_become_functional(dut_engine):

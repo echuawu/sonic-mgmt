@@ -45,11 +45,11 @@ class Files(BaseComponent):
             for file in unexpected_files:
                 assert file not in files, "File: {} is in the files output {}".format(file, files)
 
-    def delete_system_files(self, files_to_delete=[], expected_str=''):
+    def delete_system_files(self, files_to_delete=[], expected_str='', engine=None):
         with allure.step("Delete files"):
             logging.info("Delete files: {}".format(files_to_delete))
             for file in files_to_delete:
-                File(self, file).action_delete(expected_str)
+                File(self, file).action_delete(expected_str, engine=engine)
 
     def action_file(self, action_str, file, remote_url=""):
         resource = self.get_resource_path() + '/' + file
@@ -72,12 +72,13 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'upload',
                                                                 resource_path, upload_path).get_returned_value()
 
-    def action_delete(self, expected_str=""):
+    def action_delete(self, expected_str="", engine=None):
+        engine = engine if engine else TestToolkit.engines.dut
         resource_path = self.get_resource_path()
         with allure.step("Delete {resource_path} file {file}".format(resource_path=resource_path, file=self.file_name)):
             logging.info("Delete {resource_path} file {file}".format(resource_path=resource_path, file=self.file_name))
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_files,
-                                                                expected_str, TestToolkit.engines.dut, 'delete',
+                                                                expected_str, engine, 'delete',
                                                                 resource_path).get_returned_value()
 
     def action_rename(self, new_name, expected_str="", rewrite_file_name=True):

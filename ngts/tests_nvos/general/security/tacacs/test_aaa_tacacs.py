@@ -310,5 +310,5 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
         assert timestamp2 - timestamp1 >= rand_timeout + rand_timeout2, \
             f'Timeout was too short. Expected: {rand_timeout + rand_timeout2}'
 
-    # with allure.step('Clear aaa configuration'):
-    #     aaa.unset(apply=True).verify_result()
+    with allure.step('Clear aaa configuration'):
+        aaa.unset(apply=True).verify_result()
