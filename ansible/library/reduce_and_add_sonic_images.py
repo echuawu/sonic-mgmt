@@ -132,7 +132,7 @@ def download_new_sonic_image(module, new_image_url, save_as):
             results["downloaded_image_version"]))
 
 
-def install_new_sonic_image(module, new_image_url, save_as=None):
+def install_new_sonic_image(module, new_image_url, keep_config_db_json, save_as=None):
     logging.debug("install new sonic image")
 
     if not save_as:
@@ -171,6 +171,14 @@ def install_new_sonic_image(module, new_image_url, save_as=None):
         if rc != 0:
             module.fail_json(msg="Image installation failed: rc=%d, out=%s, err=%s" %
                              (rc, out, err))
+    # If sonic device is configured with minigraph, remove config_db.json
+    # to force next image to load minigraph.
+    if path.exists("/host/old_config/minigraph.xml") and not keep_config_db_json:
+        exec_command(
+            module,
+            cmd="rm -f /host/old_config/config_db.json",
+            msg="Remove config_db.json in preference of minigraph.xml"
+        )
 
 
 def work_around_for_slow_disks(module):
@@ -203,12 +211,14 @@ def main():
             disk_used_pcent=dict(required=False, type='int', default=8),
             new_image_url=dict(required=False, type='str', default=None),
             save_as=dict(required=False, type='str', default=None),
+            keep_config_db_json=dict(required=False, type='bool', default=False),
         ),
         supports_check_mode=False)
 
     disk_used_pcent = module.params['disk_used_pcent']
     new_image_url = module.params['new_image_url']
     save_as = module.params['save_as']
+    keep_config_db_json = module.params['keep_config_db_json']
 
     try:
         results["current_stage"] = "start"
@@ -219,7 +229,7 @@ def main():
             free_up_disk_space(module, disk_used_pcent)
             setup_swap_if_necessary(module)
             results["current_stage"] = "install"
-            install_new_sonic_image(module, new_image_url, save_as)
+            install_new_sonic_image(module, new_image_url, keep_config_db_json, save_as)
         results["current_stage"] = "complete"
     except Exception:
         err = str(sys.exc_info())
