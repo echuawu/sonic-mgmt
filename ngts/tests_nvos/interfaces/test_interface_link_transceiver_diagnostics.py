@@ -10,7 +10,8 @@ logger = logging.getLogger()
 
 list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'status': 'Closed by command'}},
                           {'0': {'status': 'No issue was observed'}}, {'2': {'status': 'Negotiation failure'}},
-                          {'15': {'status': 'Bad signal integrity'}}, {'59': {'status': 'Other issues'}}]
+                          {'15': {'status': 'Bad signal integrity'}}, {'59': {'status': 'Other issues'}},
+                          {'57': {'status': 'signal not detected'}}]
 
 
 @pytest.mark.ib
