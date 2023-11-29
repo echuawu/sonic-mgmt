@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from LoggerTool import get_logger
+from ngts.nvos_tools.infra.LoggerTool import get_logger
 import subprocess
 import traceback
 import time
