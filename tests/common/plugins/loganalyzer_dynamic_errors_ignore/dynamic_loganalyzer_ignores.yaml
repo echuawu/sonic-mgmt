@@ -3443,6 +3443,12 @@
       Branch:
         - master
 
+- Errors_list:
+    - '.*ERR eventd#eventd.*run_eventd_service: Eventd service exiting.*'
+  Conditions:
+    - Redmine:
+      - 3685068
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
