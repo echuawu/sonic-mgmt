@@ -3279,6 +3279,7 @@
         - master
         - 202305
 
+# The dualtor_neighbor_check.py error should be ignored in all test cases with reload/reboot
 - Errors_list:
     - '.*ERR dualtor_neighbor_check.py: .*'
   Conditions:
@@ -3287,6 +3288,8 @@
         - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
         - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_upstream
         - dualtor_io/test_link_failure.py::test_active_link_admin_down_config_reload_downstream
+        - pc/test_lag_2.py::test_lag_db_status_with_po_update
+        - pc/test_po_cleanup.py
       GitHub:
         - https://github.com/sonic-net/sonic-mgmt/issues/10670
 
@@ -3297,15 +3300,6 @@
         - dualtor_io/test_normal_op.py
       Redmine:
         - 3664167
-
-- Errors_list:
-    - '.*ERR dualtor_neighbor_check.py: .*'
-  Conditions:
-    - Affected_test_cases:
-        - pc/test_lag_2.py
-        - pc/test_po_cleanup.py
-      Redmine:
-        - 3634794
 
 - Errors_list:
     - '.*ERR swss#orchagent: :- meta_generic_validation_post_get_objlist: SAI_PORT_ATTR_PORT_SERDES_ID:SAI_ATTR_VALUE_TYPE_OBJECT_ID returned get object on list \[0\] is NULL, but not allowed.*'
@@ -3398,14 +3392,6 @@
       - 3650766
       Branch:
         - master
-
-- Errors_list:
-    - '.*ERR dualtor_neighbor_check.py: .*'
-  Conditions:
-    - Affected_test_cases:
-        - decap/test_decap.py
-      Redmine:
-        - 3606480
 
 - Errors_list:
     - '.* ERR dualtor_neighbor_check.py: Found neighbors that are inconsistent with mux states: \[.*\].*'
