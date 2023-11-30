@@ -84,6 +84,17 @@ class NvosInstallationSteps:
         logger.info('========== NVOS - Post installation steps Done ==========')
 
     @staticmethod
+    def clear_conf(dut_engine, apply_and_save=False):
+        with allure.step('Clear tested configuration for the tests'):
+            NvueGeneralCli.detach_config(dut_engine)
+            NvueSystemCli.unset(dut_engine, 'system')
+            NvueSystemCli.unset(dut_engine, 'ib')
+            NvueSystemCli.unset(dut_engine, 'interface')
+            if apply_and_save:
+                NvueGeneralCli.apply_config(engine=dut_engine, option='--assume-yes')
+                NvueGeneralCli.save_config(dut_engine)
+
+    @staticmethod
     def upgrade_version_with_saved_configuration(dut_engine: ProxySshEngine, topology_obj, target_version_path: str):
         with allure.step('Apply and save pre-defined configuration'):
             NGTS_PATH = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
@@ -136,12 +147,7 @@ class NvosInstallationSteps:
                 assert not diff_output, f'Diff of {ACTUAL_CONFIG_EXPORT_FILE_PATH} and {EXPECTED_CONFIG_FILE_PATH}:\n{diff_output}'
 
         with allure.step('Clear tested configuration for the tests'):
-            NvueGeneralCli.detach_config(dut_engine)
-            NvueSystemCli.unset(dut_engine, 'system')
-            NvueSystemCli.unset(dut_engine, 'ib')
-            NvueSystemCli.unset(dut_engine, 'interface')
-            NvueGeneralCli.apply_config(engine=dut_engine, option='--assume-yes')
-            NvueGeneralCli.save_config(dut_engine)
+            NvosInstallationSteps.clear_conf(dut_engine, apply_and_save=True)
 
         with allure.step('Clear fetched files for the tests'):
             system = System()

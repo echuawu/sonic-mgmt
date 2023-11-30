@@ -1,11 +1,14 @@
+import socket
 import time
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
+from netmiko.ssh_exception import NetmikoAuthenticationException
+from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.SecurityTestToolKit import SecurityTestToolKit
-from ngts.tools.test_utils import allure_utils as allure
+import ngts.tools.test_utils.allure_utils as allure
 import pexpect
 import logging
 import pytest
@@ -17,8 +20,38 @@ from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
+from ngts.constants.constants import LinuxConsts
 
 logger = logging.getLogger(__name__)
+
+
+def recover_dut_with_remote_reboot(topology_obj, engines):
+    with allure.step('Try recover with remote reboot to dut'):
+        with allure.step('Execute remote reboot'):
+            NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
+        with allure.step('Wait for switch to be up'):
+            DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
+        with allure.step('Clear config again'):
+            NvosInstallationSteps.clear_conf(engines.dut)
+        with allure.step('Set base conf again'):
+            set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
+                                    save_conf=True)
+
+
+def check_if_need_remote_reboot_to_recover_dut(topology_obj, engines):
+    try:
+        with allure.step('Check connectivity of local engine with dummy show command'):
+            engines.dut.disconnect()
+            logger.info(System().aaa.show())
+    except NetmikoAuthenticationException as e:
+        logger.exception(f'Netmiko Exception:\n{e}')
+        recover_dut_with_remote_reboot(topology_obj, engines)
+    except socket.error as e:
+        logger.exception(f'Socket Error:\n{e}')
+        recover_dut_with_remote_reboot(topology_obj, engines)
+    finally:
+        pass
 
 
 def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):

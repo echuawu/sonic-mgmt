@@ -197,6 +197,20 @@ def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_ty
                          skip_auth_mediums=skip_auth_mediums)
 
 
+def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
+    with allure.step('After LDAP configuration - wait for NVUE restart Workaround'):
+        sleep_time = 6
+        with allure.step(f'Sleep {sleep_time} seconds'):
+            time.sleep(sleep_time)
+        if not engine_to_use:
+            engine_to_use = test_item.active_remote_admin_engine
+        engine_to_use.disconnect()
+        with allure.step(f'Start checking connection and services - using user "{engine_to_use.username}"'):
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine_to_use,
+                                                            find_prompt_tries=2,
+                                                            find_prompt_delay=5).verify_result()
+
+
 def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
                           request,
                           remote_aaa_type: str,
@@ -248,8 +262,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
         }, apply=True, verify_apply=False)
         update_active_aaa_server(item, server)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                            find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item)
 
     if test_param:
         assert test_param_update_func, 'test_param_update_func function was not specified!'
@@ -368,8 +381,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
         lower_server = server1
         update_active_aaa_server(item, top_server)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                            find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item)
 
     while True:
         with allure.step('Wait for configuration to be fully applied'):
@@ -395,8 +407,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
             lower_server, top_server = top_server, lower_server
             update_active_aaa_server(item, top_server)
             if remote_aaa_type == RemoteAaaType.LDAP:
-                DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                                find_prompt_delay=5).verify_result()
+                wait_for_ldap_nvued_restart_workaround(item)
 
 
 def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
@@ -456,8 +467,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         server2.configure(engines, set_explicit_priority=True, apply=True)
         update_active_aaa_server(item, server2)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                            find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item)
 
     with allure.step('Verify auth – success only with 2nd server user'):
         verify_users_auth(engines, topology_obj,
@@ -468,7 +478,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         server2.make_unreachable(engines, apply=True, dut_engine=item.active_remote_admin_engine)
         update_active_aaa_server(item, None)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engines.dut, find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
     with allure.step('Verify auth - success only with local user'):
         verify_users_auth(engines, topology_obj,
@@ -479,8 +489,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         server1.make_reachable(engines, apply=True)
         update_active_aaa_server(item, server1)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                            find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item)
 
     with allure.step('Verify auth – success only with top server user'):
         verify_users_auth(engines, topology_obj,
@@ -535,8 +544,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         }, apply=True, verify_apply=False)
         update_active_aaa_server(item, server1)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=item.active_remote_admin_engine,
-                                                            find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item)
 
     with allure.step('Verify auth with 2nd server credentials – expect fail'):
         verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=False)
@@ -550,7 +558,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
                                dut_engine=item.active_remote_admin_engine).verify_result()
         update_active_aaa_server(item, None)
         if remote_aaa_type == RemoteAaaType.LDAP:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engines.dut, find_prompt_delay=5).verify_result()
+            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
     if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP + failthrough on - only move to next method, and not server
         with allure.step('Verify auth with 2nd server credentials – expect success'):
