@@ -55,8 +55,11 @@ def test_install_system_firmware(engines, test_name):
                 firmware_file = File(system.firmware.asic.files, "fw-QTM2-rel-31_2010_4026-EVB.mfa")
                 # firmware_file.action_file_install(op_param="")
 
-                OperationTime.save_duration('install user FW', 'include reboot', test_name, install_new_user_fw,
-                                            system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name)
+                res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,
+                                                                install_new_user_fw, system, new_fw_to_install, fae,
+                                                                new_fw_name, actual_firmware, engines, test_name)
+                assert OperationTime.verify_operation_time(duration, 'install user FW'), \
+                    'Install user FW took more time than threshold value'
 
         with allure.step('Verify the firmware installed successfully'):
             verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, new_fw_name)
@@ -65,12 +68,20 @@ def test_install_system_firmware(engines, test_name):
 
     finally:
         with allure.step("cleanup steps"):
-            OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
-                                        system, engines, test_name, fw_has_changed)
 
-            with allure.step('Verify the firmware installed successfully'):
-                verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
-                validate_all_asics_have_same_info()
+
+   if fw_has_changed:
+        res_obj, duration = OperationTime.save_duration('install default fw', 'include reboot', test_name,
+                                                        install_image_fw, system, engines, test_name,
+                                                        fw_has_changed)
+        assert OperationTime.verify_operation_time(duration, 'install default fw'), \
+            'Install default FW took more time than threshold value'
+    else:
+        install_image_fw(system, engines, test_name, fw_has_changed)
+
+   with allure.step('Verify the firmware installed successfully'):
+        verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
+        validate_all_asics_have_same_info()
 
 
 def install_image_fw(system, engines, test_name, fw_has_changed):
@@ -80,7 +91,16 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        OperationTime.save_duration('reboot with default FW installation', '', test_name, system.reboot.action_reboot)
+        if fw_has_changed:
+            res_obj, duration = OperationTime.save_duration('reboot with default FW installation', '', test_name,
+                                                            system.reboot.action_reboot)
+            res = res_obj
+            assert OperationTime.verify_operation_time(duration, 'reboot with default FW installation'), \
+                'Reboot with default FW installation took more time than threshold value'
+        else:
+            res = system.reboot.action_reboot()
+
+        return res
 
 
 def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
@@ -94,8 +114,12 @@ def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firm
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        res = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)[0]
-        return res
+        res, duration = OperationTime.save_duration('reboot with new user FW', '',
+                                                    test_name, system.reboot.action_reboot)
+        assert OperationTime.verify_operation_time(duration, 'reboot with new user FW'), \
+            'Reboot with new user FW took more time than threshold value'
+
+    return res
 
 
 def get_original_fw_path(engines, original_fw):

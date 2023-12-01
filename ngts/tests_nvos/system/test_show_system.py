@@ -55,9 +55,13 @@ def test_system(test_api, engines, devices, topology_obj, test_name):
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             dhcp_hostname).verify_result()
 
-        OperationTime.save_duration('set hostname', '', test_name, system.set, SystemConsts.HOSTNAME, new_hostname_value,
-                                    apply=True, ask_for_confirmation=True)[0].verify_result()
+        res_obj, duration = OperationTime.save_duration('set hostname', '', test_name, system.set,
+                                                        SystemConsts.HOSTNAME, new_hostname_value,
+                                                        apply=True, ask_for_confirmation=True)
+        res_obj.verify_result()
         time.sleep(3)
+        assert OperationTime.verify_operation_time(duration, 'set hostname'), \
+            'Set hostname took more time than threshold value'
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     new_hostname_value).verify_result()
