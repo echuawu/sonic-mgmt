@@ -564,7 +564,7 @@ def test_auth_restrictions_remote_counting(test_api, engines, request, devices, 
         update_active_aaa_server(item, servers_info[0])
 
     with allure.step('Make 1 authentication failure'):
-        with loganalyzer_ignore():
+        with loganalyzer_ignore(False):
             attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
             attempter.attempt_login_failure()
 

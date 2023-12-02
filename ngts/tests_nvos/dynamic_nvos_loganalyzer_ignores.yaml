@@ -639,7 +639,14 @@
     - Affected_test_cases:
         - tests_nvos/system/test_techsupport_feature.py::test_techsupport_with_dockers_down
 
-# NVOS
+# NVOS Security
+- Errors_list:
+    - '.*ERR healthd: Failed to write none to file /var/run/hw-management/led/.* - FileNotFoundError(2, ''No such file or directory'').*'
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/.* - FileNotFoundError(2, ''No such file or directory'').*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_kernel_module_loading
+
 - Errors_list:
     - '.*ERR systemd\[1\]: Failed to start LSB: LDAP connection daemon.*'
     - '.*ERR hostcfgd: \[.*\] - failed: return code - 1, output:#012b''.*'

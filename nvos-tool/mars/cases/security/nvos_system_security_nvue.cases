@@ -20,7 +20,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/ssh_hardening/test_ssh_hardening.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/ssh_hardening/test_ssh_hardening.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -31,7 +31,7 @@
     <tout> 9600 </tout>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -42,7 +42,7 @@
     <tout> 12600 </tout>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/tacacs/test_aaa_tacacs.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/tacacs/test_aaa_tacacs.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -53,7 +53,7 @@
     <tout> 12600 </tout>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -63,7 +63,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_aaa_radius/test_aaa_radius.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_aaa_radius/test_aaa_radius.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -73,7 +73,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_ssh_config/test_ssh_config.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_ssh_config/test_ssh_config.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -83,7 +83,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notification.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_login_ssh_notification/test_login_ssh_notification.py --raw_options "\' --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -93,7 +93,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_upgrade/test_secure_upgrade.py --raw_options "\' -k test_non_secure_boot_upgrade_failure --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --target_version=/auto/sw_system_project/NVOS_INFRA/security/verification/secure_upgrade/nvos_not_signed.bin --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_upgrade/test_secure_upgrade.py --raw_options "\' -k test_non_secure_boot_upgrade_failure --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --target_version=/auto/sw_system_project/NVOS_INFRA/security/verification/secure_upgrade/nvos_not_signed.bin --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -103,7 +103,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --alluredir=/tmp/allure-results --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -113,7 +113,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_kernel_module_loading --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_kernel_module_loading --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>
@@ -123,7 +123,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_secure_boot_unsigned_system_file --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --disable_loganalyzer --restore_to_image=[[conf:extra_info.target_version]] --showlocals  \'"  </static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_secure_boot/test_secure_boot.py --raw_options "\' -k test_secure_boot_unsigned_system_file --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results  --disable_loganalyzer --restore_to_image=[[conf:extra_info.target_version]] --showlocals [[conf:extra_info.loganalyzer_options]]   \'"  </static_args>
       </params>
     </cmd>
   </case>
@@ -133,7 +133,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_grub_password/test_grub_password.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer --showlocals\'"</static_args>
+          <static_args>  --setup_name [[conf:extra_info.setup_name]]  --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/general/security/test_grub_password/test_grub_password.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --disable_loganalyzer --showlocals [[conf:extra_info.loganalyzer_options]] \'"</static_args>
       </params>
     </cmd>
   </case>

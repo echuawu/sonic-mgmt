@@ -57,7 +57,7 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    with loganalyzer_ignore(not expect_login_success):
+    with loganalyzer_ignore(False and (not expect_login_success)):
         with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
                          f'Expect login success: {expect_login_success}'):
             wait_time_before_auth_test = 3

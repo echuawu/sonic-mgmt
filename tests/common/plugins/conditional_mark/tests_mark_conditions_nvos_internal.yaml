@@ -1,6 +1,6 @@
 ########################## NVOS IGNORE START ##########################
 
-tests_nvos/general/security/test_grub_password/test_grub_password::test_grub_password:
+tests_nvos/general/security/test_grub_password/test_grub_password.py::test_grub_password:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3684496"
     conditions:

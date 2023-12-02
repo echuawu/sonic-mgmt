@@ -120,6 +120,8 @@ def pytest_addoption(parser):
                      help="Whether to skip 'is debug-kernel/coverage/sanitizer' auto checks for the session, or not")
     parser.addoption("--sonic-topo", action="store",
                      help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
+    parser.addoption("--skip_bug_handler_action", action="store_true", default=False, required=False,
+                     help="Whether to skip (True) log analyzer bug handler actions when loganalyzer is enabled, or not (False)")
 
 
 def pytest_runtest_call(item):
@@ -564,12 +566,22 @@ def disable_loganalyzer(request):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer):
+def should_skip_bug_handler_action(request, disable_loganalyzer):
+    if not disable_loganalyzer and request.config.getoption("--skip_bug_handler_action"):
+        logger.info('Bug handler WILL skip actions for LA errors')
+        return True
+    else:
+        logger.info('Bug handler will NOT skip actions for LA errors')
+        return False
+
+
+@pytest.fixture(scope='function', autouse=True)
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer, should_skip_bug_handler_action):
     """
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
-    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer)
+    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_skip_bug_handler_action)
     if run_log_analyzer_bug_handler:
         current_time = str(time.time()).replace('.', '')
         request.session.config.option.allure_server_project_id = current_time
@@ -598,9 +610,9 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
             raise Exception(error_msg)
 
 
-def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):
+def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_skip_bug_handler_action=False):
     run_log_analyzer_bug_handler = False
-    bug_handler_no_action = False
+    bug_handler_no_action = should_skip_bug_handler_action
     log_analyzer_handler_info = {'branch': '', 'cli_type': '', 'version': ''}
     if disable_loganalyzer:
         logger.info("Log analyzer is disabled, thus the LA bug handler is disabled")
@@ -612,6 +624,7 @@ def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer):
 
     if log_analyzer_handler_info['cli_type'] == 'NVUE':
         run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler()
-        bug_handler_no_action = pytest.is_ci_run   # no_action flag in ci run, so it will not open new bugs
+        if not should_skip_bug_handler_action:  # if its true by intention, don't consider if it is ci or not
+            bug_handler_no_action = pytest.is_ci_run   # no_action flag in ci run, so it will not open new bugs
 
     return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
