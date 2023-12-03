@@ -8,6 +8,8 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from ngts.tools.test_utils import allure_utils as allure
 import pexpect
+import subprocess
+from retry import retry
 
 logger = logging.getLogger()
 
@@ -89,3 +91,22 @@ class ConnectionTool:
                                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD)
                 serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
             return serial_engine
+
+    @staticmethod
+    def ping_device(server_ip, num_of_retries=30, delay_in_sec=15):
+
+        @retry(Exception, tries=num_of_retries, delay=delay_in_sec)
+        def _ping_device(server_ip):
+            logger.info("Ping {}".format(server_ip))
+            cmd = "ping -c 3 {}".format(server_ip)
+            logger.info("Running cmd: {}".format(cmd))
+            output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
+            logger.info("output: " + str(output))
+            if " 0% packet loss" in str(output):
+                logger.info("Reachable using ip address: " + server_ip)
+                return True
+            else:
+                logger.error("ip address {} is unreachable".format(server_ip))
+                raise Exception("ip address {} is unreachable".format(server_ip))
+
+        return _ping_device(server_ip)

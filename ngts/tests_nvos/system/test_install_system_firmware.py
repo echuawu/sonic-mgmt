@@ -94,7 +94,8 @@ def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firm
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
+        res = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)[0]
+        return res
 
 
 def get_original_fw_path(engines, original_fw):

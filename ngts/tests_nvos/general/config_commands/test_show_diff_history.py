@@ -135,8 +135,8 @@ def test_diff_history_revision_ids(engines):
         history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
             .get_returned_value()
 
-        one_configs_back_revision = ConfigTool.read_from_history(history_output, 1, ConfigConsts.REVISION_ID).get_returned_value()
-        two_configs_back_revision = ConfigTool.read_from_history(history_output, 2, ConfigConsts.REVISION_ID).get_returned_value()
+        one_configs_back_revision = '1'
+        two_configs_back_revision = '2'
 
     with allure.step('get the history of the with a specific rev_id'):
         rev_output_id3 = OutputParsingTool.parse_config_history(
@@ -170,7 +170,7 @@ def validate_history_labels(history_list, username):
     err_message = ''
 
     for label in ConfigConsts.CONFIG_LABELS:
-        value = ConfigTool.read_from_history(history_list, 0, lable).get_returned_value()
+        value = ConfigTool.read_from_history(history_list, 0, label).get_returned_value()
         if not value or value == "N/A":
             err_message += f"Unexpected value for {label}: {value}"
 

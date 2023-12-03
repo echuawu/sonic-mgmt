@@ -31,7 +31,7 @@ def test_capability_functionality(engines):
 
 
 def is_monitor(engines, engine):
-    monitor_message = 'You do not have permission to execute that command.'
+    monitor_message = 'No permission to execute this command'
 
     logger.info('setting the new engine as engine.dut and updating user name')
     system = System(None)

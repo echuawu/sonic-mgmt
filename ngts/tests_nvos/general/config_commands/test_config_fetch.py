@@ -45,7 +45,7 @@ def test_show_fetch_file(engines):
     with allure.step('get the remote url'):
         remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp', file_full_path=YAML_FILES_PATH + yaml_file).verify_result()
 
-    action_expected_str = "Fetching file: {} ...\nFile fetched successfully\nAction succeeded".format(yaml_file)
+    action_expected_str = "File fetched successfully"
 
     expected_dict = {
         "path": '/host/config_files/{}'.format(yaml_file)

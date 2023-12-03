@@ -91,6 +91,8 @@ class NvosConst:
     HOST_HA = 'ha'
     HOST_HB = 'hb'
 
+    SERVERS_USER_NAME = os.getenv("TEST_SERVER_USER")
+
 
 class ApiType:
     NVUE = "NVUE"
@@ -383,6 +385,7 @@ class ConfigConsts:
     APPLY_CONFIRM_NO = '--confirm-yes'
     APPLY_CONFIRM_YES = '--confirm-no'
     APPLY_CONFIRM_STATUS = '--confirm-status'
+    CONFIG_LABELS = ['date', 'message', 'reason', 'type', 'user']
 
 
 class PlatformConsts:
