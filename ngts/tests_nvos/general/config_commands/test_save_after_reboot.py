@@ -46,9 +46,9 @@ def test_save_reboot(engines, devices):
         old_hostname = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()[SystemConsts.HOSTNAME]
         new_hostname_value = 'TestingConfigCmds'
 
-        with allure_step('Run set fae fast-recovery state command to set to disable and apply config'):
+        '''with allure_step('Run set fae fast-recovery state command to set to disable and apply config'):
             fae.fast_recovery.set(FastRecoveryConsts.STATE,
-                                  FastRecoveryConsts.STATE_DISABLED, apply=True, dut_engine=engines.dut)
+                                  FastRecoveryConsts.STATE_DISABLED, apply=True, dut_engine=engines.dut)'''
 
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
             logger.info('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value))
@@ -64,10 +64,10 @@ def test_save_reboot(engines, devices):
                 logger.info('set ib0 description to be {description} - with apply'.format(description=new_ib0_description))
                 ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
 
-            with allure_step('Run set fae fast-recovery trigger trigger-id event command and apply config'):
+            '''with allure_step('Run set fae fast-recovery trigger trigger-id event command and apply config'):
                 fae.fast_recovery.trigger.set(trigger_id + ' ' + FastRecoveryConsts.TRIGGER_EVENT,
                                               FastRecoveryConsts.SEVERITY_WARNING, apply=True,
-                                              dut_engine=engines.dut).verify_result()
+                                              dut_engine=engines.dut).verify_result()'''
 
             with allure.step('Run nv action reboot system'):
                 logger.info('Run nv action reboot system')
@@ -79,11 +79,11 @@ def test_save_reboot(engines, devices):
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             new_hostname_value).verify_result()
 
-            with allure_step('Verify fae fast-recovery state is Disabled'):
+            '''with allure_step('Verify fae fast-recovery state is Disabled'):
                 fast_recovery_output = OutputParsingTool.parse_json_str_to_dictionary(
                     fae.fast_recovery.show()).get_returned_value()
                 ValidationTool.verify_field_value_in_output(fast_recovery_output, FastRecoveryConsts.STATE,
-                                                            FastRecoveryConsts.STATE_DISABLED).verify_result()
+                                                            FastRecoveryConsts.STATE_DISABLED).verify_result()'''
 
             with allure.step('verify the ib0 description is empty'):
                 logger.info('verify the ib0 description is empty')

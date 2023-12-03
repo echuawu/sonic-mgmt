@@ -65,11 +65,8 @@ def test_install_system_firmware(engines, test_name):
 
     finally:
         with allure.step("cleanup steps"):
-            if fw_has_changed:
-                OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
-                                            system, engines, test_name, fw_has_changed)
-            else:
-                install_image_fw(system, engines, test_name, fw_has_changed)
+            OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
+                                        system, engines, test_name, fw_has_changed)
 
             with allure.step('Verify the firmware installed successfully'):
                 verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
@@ -83,9 +80,7 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        res, duration = OperationTime.save_duration('reboot with default FW installation', '', test_name,
-                                                    system.reboot.action_reboot) if fw_has_changed else system.reboot.action_reboot()
-        return res
+        OperationTime.save_duration('reboot with default FW installation', '', test_name, system.reboot.action_reboot)
 
 
 def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
@@ -99,8 +94,7 @@ def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firm
 
     with allure.step('Rebooting the dut after image installation'):
         logging.info("Rebooting dut")
-        res, duration = OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
-        return res
+        OperationTime.save_duration('reboot with new user FW', '', test_name, system.reboot.action_reboot)
 
 
 def get_original_fw_path(engines, original_fw):

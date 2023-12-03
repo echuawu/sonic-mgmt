@@ -168,9 +168,13 @@ def validate_history_labels(history_list, username):
     :return: err message
     """
     err_message = ''
-    apply_id = ConfigTool.read_from_history(history_list, 0, ConfigConsts.REVISION_ID).get_returned_value()
-    user = ConfigTool.read_from_history(history_list, 0, ConfigConsts.HISTORY_USER).get_returned_value()
 
+    for label in ConfigConsts.CONFIG_LABELS:
+        value = ConfigTool.read_from_history(history_list, 0, lable).get_returned_value()
+        if not value or value == "N/A":
+            err_message += f"Unexpected value for {label}: {value}"
+
+    user = ConfigTool.read_from_history(history_list, 0, ConfigConsts.HISTORY_USER).get_returned_value()
     if user != username:
         err_message += 'the user is not equal to the user name'
 

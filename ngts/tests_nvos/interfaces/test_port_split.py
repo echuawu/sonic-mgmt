@@ -593,5 +593,5 @@ def _get_split_ports():
         if port.name in split_port_names:
             split_ports.append(port)
     if not split_ports and not active_ports:
-        raise Exception
+        raise Exception("Can't find any active port to split")
     return split_ports, active_ports

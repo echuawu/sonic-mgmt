@@ -675,7 +675,7 @@ def execute_reset_factory(engines, system, flag, current_time):
     logging.info("Current time: " + str(current_time))
 
     OperationTime.save_duration('reset factory', flag, pytest.test_name,
-                                system.factory_default.action_reset, param=flag).verify_result()
+                                system.factory_default.action_reset, param=flag)[0].verify_result()
 
 
 # ------------ Open API tests -----------------
