@@ -1,7 +1,7 @@
 {
   "author": "system-sw-dev-ops-support@mellanox.com",
   "notify": "GERRIT_PATCHSET_UPLOADER_EMAIL,GERRIT_CHANGE_OWNER_EMAIL,NBU-sw-ci-sonic@nvidia.com,bcc:NBU-system-sw-dev-ops-support@exchange.nvidia.com",
-  "timeout": "10",
+  "timeout": "5",
   "control_file": "/auto/sw_system_project/devops/sw-r2d2-bot/ngci_control_files/sonic_mgmt_control_file.yaml",
   "properties": [
     "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties_v2/swfw_default_params.properties",
@@ -725,7 +725,7 @@
             "cmd": "sudo cp -f ${nfs_dir}/${TARBALL_NAME} /.autodirect/sw_regression/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
           },
           "skip": false,
-          "on_failure": "ignore",
+          "on_failure": "continue",
           "out_of_mail": true
         },
         {
@@ -734,10 +734,10 @@
           "category": "Move Tarball",
           "node": "SONIC_LITE",
           "parameters": {
-            "cmd": "sudo scp ${nfs_dir}/${TARBALL_NAME} root@mtbc-stm-003:/auto/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
+            "cmd": "sshpass -p ${SWS_SWITCH_COMMON_PASS} ssh ${SWS_SWITCH_COMMON_USER}@mtbc-stm-003 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -q 'timeout 600 sudo cp ${nfs_dir}/${TARBALL_NAME} /auto/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz'"
           },
           "skip": false,
-          "on_failure": "ignore",
+          "on_failure": "continue",
           "out_of_mail": true
         },
         {
