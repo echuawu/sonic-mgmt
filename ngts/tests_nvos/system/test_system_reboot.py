@@ -67,7 +67,7 @@ def test_reboot_command_force(engines, devices, test_name, test_api):
 
 
 @pytest.mark.system
-def test_reboot_command_type(engines, devices):
+def test_reboot_command_type(engines):
     """
     Test flow:
         1. run nv action reboot system --type fast
@@ -79,9 +79,11 @@ def test_reboot_command_type(engines, devices):
     err_message = 'User requested a fast reboot, but NVOS cant perform it'
 
     with allure.step('Run nv action reboot system type fast'):
-        output = engines.dut.run_cmd('nv action reboot system type fast')
+        list_commands = ['nv action reboot system type fast', 'y']
+        output = engines.dut.send_config_set(list_commands, exit_config_mode=False, cmd_verify=False)
         ValidationTool.verify_substring_in_output(output, substring, err_message, True)
 
     with allure.step('Run nv action reboot system type warm'):
-        output = engines.dut.run_cmd('nv action reboot system type warm')
+        list_commands = ['nv action reboot system type warm', 'y']
+        output = engines.dut.send_config_set(list_commands, exit_config_mode=False, cmd_verify=False)
         ValidationTool.verify_substring_in_output(output, substring, err_message, True)

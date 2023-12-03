@@ -114,6 +114,7 @@ def test_system_image_rename(release_name, test_api):
         with allure.step("Verify installed image"):
             logging.info("Verify installed image, we should see the origin name and not the new name,"
                          "because the name is taken from the code it self and not from the file name")
+            time.sleep(5)
             expected_show_images_output = original_images.copy()
             expected_show_images_output[ImageConsts.NEXT_IMG] = normalize_image_name(fetched_image)
             expected_show_images_output[ImageConsts.CURRENT_IMG] = normalize_image_name(fetched_image)
