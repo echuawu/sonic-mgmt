@@ -354,6 +354,12 @@ tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
     conditions:
       - "'simx' in platform"
 
+tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
+  skip:
+    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3693928"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3693928"
+
 tests/push_build_tests/general/doroce/test_doroce.py:
   skip:
     reason: "Testcase ignored - tigris(3800) doesn't support used in the test speed 1G; or Skip on SPC4 due to 3263075 or on simx"
