@@ -93,15 +93,14 @@ def test_show_system_web_server_api_listen_address(engines):
             1. Check show system external API connections and verify connections are displayed
     """
     system = System()
-    empty_str = ''
 
     try:
 
         with allure_step('Run show system api connections command and verify the output'):
             ext_api_conn_output = OutputParsingTool.parse_json_str_to_dictionary(
                 system.web_server_api.listen_address.show()).get_returned_value()
-            assert ext_api_conn_output is empty_str, 'Output is {output} instead of empty'.\
-                format(output=ext_api_conn_output)
+            assert ext_api_conn_output == {SystemConsts.EXTERNAL_API_LISTEN_DEFAULT: {}}, \
+                'Output is {output} instead of any'.format(output=type(ext_api_conn_output))
 
     finally:
         clear_system_web_server_api(system, engines)
@@ -248,7 +247,7 @@ def test_set_system_web_server_api_listen(engines):
             2. Verify external api listening-address changed to 'localhost' in show system
             3. Verify external api listening-address actually gets changed to new port wrt functionality
             4. Unset external api listening-address [run cmd + apply conf]
-            5. Verify external api listening-address changed to default (empty) in show system
+            5. Verify external api listening-address changed to default (any) in show system
             6. Verify external api port actual gets changed to default wrt functionality
     """
 
@@ -285,11 +284,11 @@ def test_set_system_web_server_api_listen(engines):
             system.web_server_api.unset(SystemConsts.EXTERNAL_API_LISTEN, apply=True, dut_engine=engines.dut).\
                 verify_result()
 
-        with allure_step('Verify external api port changed to default(empty) in show system'):
+        with allure_step('Verify external api port changed to default(any) in show system'):
             ext_api_output = OutputParsingTool.parse_json_str_to_dictionary(
                 system.web_server_api.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(ext_api_output, SystemConsts.EXTERNAL_API_LISTEN,
-                                                        SystemConsts.EXTERNAL_API_LISTEN_DEFAULT).verify_result()
+                                                        {SystemConsts.EXTERNAL_API_LISTEN_DEFAULT: {}}).verify_result()
 
         with allure_step('Verify external api listening-address changed to default wrt functionality'):
             # Set API type to OpenAPI to test functionality
@@ -317,11 +316,11 @@ def test_set_system_web_server_api_listen(engines):
             system.web_server_api.unset(SystemConsts.EXTERNAL_API_LISTEN, apply=True, dut_engine=engines.dut).\
                 verify_result()
 
-        with allure_step('Verify external api port changed to default(empty) in show system'):
+        with allure_step('Verify external api port changed to default(any) in show system'):
             ext_api_output = OutputParsingTool.parse_json_str_to_dictionary(
                 system.web_server_api.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(ext_api_output, SystemConsts.EXTERNAL_API_LISTEN,
-                                                        SystemConsts.EXTERNAL_API_LISTEN_DEFAULT).verify_result()
+                                                        {SystemConsts.EXTERNAL_API_LISTEN_DEFAULT: {}}).verify_result()
 
         with allure_step('Run set external api listening-address to some ipv6 address command and apply config'):
             system.web_server_api.set(SystemConsts.EXTERNAL_API_LISTEN, random_ipv6_address,
@@ -338,11 +337,11 @@ def test_set_system_web_server_api_listen(engines):
             system.web_server_api.unset(SystemConsts.EXTERNAL_API_LISTEN, apply=True, dut_engine=engines.dut).\
                 verify_result()
 
-        with allure_step('Verify external api port changed to default(empty) in show system'):
+        with allure_step('Verify external api port changed to default(any) in show system'):
             ext_api_output = OutputParsingTool.parse_json_str_to_dictionary(
                 system.web_server_api.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(ext_api_output, SystemConsts.EXTERNAL_API_LISTEN,
-                                                        SystemConsts.EXTERNAL_API_LISTEN_DEFAULT).verify_result()
+                                                        {SystemConsts.EXTERNAL_API_LISTEN_DEFAULT: {}}).verify_result()
 
     finally:
         clear_system_web_server_api(system, engines)
