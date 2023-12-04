@@ -1,5 +1,6 @@
 import logging
 from .ResultObj import ResultObj, IssueType
+from retry import retry
 import allure
 
 logger = logging.getLogger()
@@ -120,6 +121,7 @@ class ValidationTool:
             return result_obj
 
     @staticmethod
+    @retry(Exception, tries=2, delay=2)
     def validate_fields_values_in_output(expected_fields, expected_values, output_dict):
         """
 

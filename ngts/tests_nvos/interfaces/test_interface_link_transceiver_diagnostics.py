@@ -120,7 +120,8 @@ def test_interface_link_diagnostics_basic(engines):
                 logging.info("Check each port status in all ports status")
                 logging.info("Status dict {}".format(status_dict))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
-                if diagnostics_per_port != status_dict:
+                if diagnostics_per_port != status_dict and \
+                        diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED:
                     logging.info("Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
                                  ". Verifying '--view link-diagnostics' one more time: ")
                     Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(

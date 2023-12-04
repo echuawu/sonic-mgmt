@@ -36,6 +36,7 @@ class IbInterfaceConsts:
     LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT = {'1': {'status': 'Closed by command'}}
     LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT = {'0': {'status': 'No issue was observed'}}
     LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT = {'2': {'status': 'Negotiation failure'}}
+    LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED = {'57': {'status': 'signal not detected'}}
     LINK_BREAKOUT = "breakout"
     LINK_IB_SPEED = "ib-speed"
     LINK_SUPPORTED_IB_SPEEDS = "supported-ib-speed"
