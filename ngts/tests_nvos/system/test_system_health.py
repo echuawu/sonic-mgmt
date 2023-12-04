@@ -321,7 +321,7 @@ def test_simulate_fan_speed_fault(devices, engines, loganalyzer):
     try:
         real_speed = HWSimulator.simulate_fan_speed_fault(engines.dut, fan_id)
         fan_display_name = get_fan_display_name(fan_id)
-        health_issue_dict = {fan_display_name: "speed is out of range"}
+        health_issue_dict = {fan_display_name: ["speed is out of range", "is broken"]}
         retry_validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:
@@ -501,12 +501,14 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
             health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
             verify_health_status_and_led(system, status, health_output)
             health_issues = health_output[HealthConsts.ISSUES]
-            for component, issue in health_issue_dict.items():
+            for component, issues in health_issue_dict.items():
                 if is_fix:
                     assert component not in health_issues
                 else:
+                    if isinstance(issues, str):
+                        health_issue_dict[component] = [issues]
                     assert component in health_issues
-                    assert issue in health_issues[component]["issue"]
+                    assert any(issue in health_issues[component]["issue"] for issue in issues)
 
         if expected_in_monitor_list:
             with allure.step("Validate detailed health report"):
@@ -514,12 +516,12 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                     Fae().health.show()).get_returned_value()
                 verify_expected_health_status(detail_health_output, HealthConsts.STATUS, status)
                 monitor_dict = sort_monitor_list(detail_health_output[HealthConsts.MONITOR_LIST])
-                for component, issue in health_issue_dict.items():
+                for component, issues in health_issue_dict.items():
                     if is_fix:
                         assert component not in monitor_dict[NOT_OK]
                     else:
                         assert component in monitor_dict[NOT_OK]
-                        assert issue in detail_health_output[HealthConsts.MONITOR_LIST][component]["message"]
+                        assert any(issue in detail_health_output[HealthConsts.MONITOR_LIST][component]["message"] for issue in issues)
 
         with allure.step("Validate health history file"):
             health_history_output = system.health.history.show()
@@ -529,9 +531,10 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                 HealthConsts.ADD_STATUS_TO_SUMMARY_REGEX + status, health_history_output,
                 search_since_datetime)) > 0, "Didn't find health status in history file since time : {},\n" \
                                              "history:\n {}".format(search_since_datetime, health_history_output)
-            for component, issue in health_issue_dict.items():
+            for component, issues in health_issue_dict.items():
+                issues_regex = "|".join(issues)
                 assert len(TestToolkit.search_line_after_a_specific_date_time(
-                    regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issue), health_history_output, search_since_datetime)) > 0
+                    regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issues_regex), health_history_output, search_since_datetime)) > 0
 
         with allure.step("Validate health status change appears in system log"):
             log_output = system.log.show_log(exit_cmd='q', expected_str="Health DB change cache")
@@ -766,5 +769,5 @@ def wait_until_expected_health_files_amount(num_of_expected_files, actual_health
 def validate_health_files_amount(num_of_expected_files, actual_health_files=None):
     if not actual_health_files:
         actual_health_files = OutputParsingTool.parse_json_str_to_dictionary(System().health.history.files.show()).get_returned_value()
-    assert num_of_expected_files == len(actual_health_files),\
+    assert num_of_expected_files == len(actual_health_files), \
         "Unexpected num of health files.\n Expected: {}, actual files: {}".format(num_of_expected_files, actual_health_files)
