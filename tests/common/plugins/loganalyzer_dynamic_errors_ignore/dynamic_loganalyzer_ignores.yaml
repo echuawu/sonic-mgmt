@@ -3457,6 +3457,14 @@
     - Redmine:
       - 3685068
 
+- Errors_list:
+    - '.*ERR \(udev-worker\)\[\d+\]: could not read from ''\/sys\/module\/pcc_cpufreq\/initstate'': No such device.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
+      Redmine:
+      - 3693907
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
