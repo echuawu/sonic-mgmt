@@ -284,37 +284,36 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_an
     with allure_step("Log Analyzer bug handler"):
         bug_handler_dumps_results = []
         hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        log_errors_path = Path(BugHandlerConst.LOG_ERRORS_FILE_PATH.format(hostname=hostname))
-        if log_errors_path.exists():
+        log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
+        if log_errors_dir_path.exists():
             session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
             session_tmp_folder = create_session_tmp_folder(session_id)
             redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
             conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
             tar_file_path = get_tech_support_from_switch(topology_obj)
 
-            with log_errors_path.open("r") as log_errors_file:
-                data = json.load(log_errors_file)
-            error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
-            log_errors_path.unlink()
+            for log_errors_file_path in log_errors_dir_path.iterdir():
+                with log_errors_file_path.open("r") as log_errors_file:
+                    data = json.load(log_errors_file)
+                error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
+                log_errors_file_path.unlink()
 
-            for error_group in error_groups:
-                yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
-                                                               test_name, tar_file_path, hostname, log_analyzer_bug_metadata)
+                for error_group in error_groups:
+                    yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
+                                                                   test_name, tar_file_path, hostname, log_analyzer_bug_metadata)
 
-                if yaml_file_path:
-                    with allure.step("Run Bug Handler on Log Analyzer error"):
-                        logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
-                        error_dict = {BugHandlerConst.LA_ERROR: error_group}
-                        error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
-                                                              tar_file_path, yaml_file_path,
-                                                              BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                              BugHandlerConst.BUG_HANDLER_SCRIPT,
-                                                              bug_handler_no_action))
-                        bug_handler_dumps_results.append(error_dict)
+                    if yaml_file_path:
+                        with allure.step("Run Bug Handler on Log Analyzer error"):
+                            logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
+                            error_dict = {BugHandlerConst.LA_ERROR: error_group}
+                            error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
+                                                                  tar_file_path, yaml_file_path,
+                                                                  BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
+                                                                  BugHandlerConst.BUG_HANDLER_SCRIPT,
+                                                                  bug_handler_no_action))
+                            bug_handler_dumps_results.append(error_dict)
 
             clear_files(session_id)
-        else:
-            logger.info(f"File {log_errors_path} does not exist - means there are no errors in the log")
         return summarize_la_bug_handler(bug_handler_dumps_results)
 
 

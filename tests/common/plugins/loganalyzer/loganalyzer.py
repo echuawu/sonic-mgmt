@@ -145,8 +145,8 @@ class LogAnalyzer:
                 raise LogAnalyzerError(err_parse + result_str)
 
             # if the number of expected matches is provided
-            if (self.expect_regex and (self.expected_matches_target > 0)
-               and result["total"]["expected_match"] != self.expected_matches_target):
+            if (self.expect_regex and (self.expected_matches_target > 0) and
+               result["total"]["expected_match"] != self.expected_matches_target):
                 err_target = "Log analyzer expected {} messages but found only {}\n"\
                     .format(self.expected_matches_target, len(self.expect_regex))
                 raise LogAnalyzerError(err_target + result_str)
@@ -163,7 +163,8 @@ class LogAnalyzer:
 
             tmp_folder = "/tmp/loganalyzer/{}".format(self.ansible_host.hostname)
             os.makedirs(tmp_folder, exist_ok=True)
-            file_path = os.path.join(tmp_folder, "log_error.json")
+            cur_time = time.strftime("%d_%m_%Y_%H_%M_%S", time.gmtime())
+            file_path = os.path.join(tmp_folder, f"log_error_{self.marker_prefix}_{cur_time}.json")
             logging.info("Log errors will be saved in file: {}".format(file_path))
             data = {'log_errors': log_errors}
             with open(file_path, "w+") as file:

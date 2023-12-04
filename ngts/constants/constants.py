@@ -1157,7 +1157,7 @@ class BugHandlerConst:
     SKIP_UPDATE_BUG = "skip_update_bug"
     LA_ERROR = "la_error"
     BUG_HANDLER_FAILURE = "bug_handler_failure"
-    LOG_ERRORS_FILE_PATH = "/tmp/loganalyzer/{hostname}/log_error.json"
+    LOG_ERRORS_DIR_PATH = "/tmp/loganalyzer/{hostname}"
     BUG_HANDLER_RC = "rc"
     BUG_HANDLER_STATUS = "status"
     BUG_HANDLER_ACTION = "action"
