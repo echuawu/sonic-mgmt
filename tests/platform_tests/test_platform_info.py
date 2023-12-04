@@ -9,13 +9,14 @@ import logging
 import time
 import pytest
 
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from retry.api import retry_call
 from tests.common.helpers.assertions import pytest_assert, pytest_require
 from tests.common.plugins.loganalyzer.loganalyzer import LogAnalyzer
 from tests.common.utilities import wait_until, get_sup_node_or_random_node
 from tests.common.platform.device_utils import get_dut_psu_line_pattern
-from .thermal_control_test_helper import ThermalPolicyFileContext,\
-    check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status,\
+from .thermal_control_test_helper import ThermalPolicyFileContext, \
+    check_cli_output_with_mocker, restart_thermal_control_daemon, check_thermal_algorithm_status, \
     mocker_factory, disable_thermal_policy  # noqa F401
 
 pytestmark = [
@@ -70,6 +71,9 @@ SKIP_ERROR_LOG_PSU_ABSENCE = [
     '.*ERR pmon#psud:.*Fail to read revision: No key REV_VPD_FIELD in.*',
     r'.*ERR pmon#psud: Failed to read from file /var/run/hw-management/power/psu\d_volt.*']
 
+if is_redmine_issue_active([3621768]):
+    SKIP_ERROR_LOG_PSU_ABSENCE.append(r'.*ERR pmon#psud:.*Failed to read from file '
+                                      r'\/var\/run\/hw-management\/thermal\/fan_amb.*')
 SKIP_ERROR_LOG_SHOW_PLATFORM_TEMP.extend(SKIP_ERROR_LOG_COMMON)
 SKIP_ERROR_LOG_PSU_ABSENCE.extend(SKIP_ERROR_LOG_COMMON)
 
