@@ -745,6 +745,12 @@
       - tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_remote_counting
 
 - Errors_list:
+    - '.*ERR docker-untar: tac_author_read: arguments supplied in packet seem to exceed its size.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
     - '.*WARNING ker process: nss_tacplus: no tacacs server in config for nss_tacplus.*'
   Conditions:
     - Affected_test_cases:
