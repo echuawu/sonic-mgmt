@@ -1564,9 +1564,11 @@ ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
 
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   skip:
-    reason: "Simx doesn't support PSU"
+    reason: "Simx doesn't support PSU; skipped due to https://redmine.mellanox.com/issues/3694625 on SPC2"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3694625 and 'sn3' in platform"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
   skip:
