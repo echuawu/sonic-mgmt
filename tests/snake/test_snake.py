@@ -1,5 +1,10 @@
 import allure
 import pytest
+import time
+
+pytestmark = [
+    pytest.mark.topology('t0')
+]
 
 def test_snake(duthost, configure_switches):
 

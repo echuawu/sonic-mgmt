@@ -23,16 +23,18 @@ def pytest_generate_tests(metafunc):
     val = metafunc.config.getoption('--sku')
     if 'sku_name' in metafunc.fixturenames and val is not None:
         metafunc.parametrize('sku_name', [val], scope="module")
+    if 'module_name' in metafunc.fixturenames and val is not None:
+        metafunc.parametrize('module_type', [val], scope="module")
+
 
 @pytest.fixture(scope='module')
-def generate_sku(duthost, sku_name):
-
+def generate_sku(duthost, sku_name, module_type):
     sonic, sonic_file = ssh_client(duthost.hostname, SONIC_USER, SONIC_PASS)
 
     allure.step("Generate SKU VLANs")
     sku_dat = get_sku(sonic, sonic_file, sku_name)
     config = generate_vlans(sku_dat)
-    emit_onyx_config(sku_dat, **config)
+    emit_onyx_config(sku_dat, module_type, **config)
     emit_sonic_config(sku_dat, **config)
     return max([vrf[0] for vlan, vrf in config["dut_vrf_map"].items()])
 
@@ -95,3 +97,9 @@ def configure_switches(duthost, localhost, fanouthosts, generate_sku):
     localhost.wait_for(host=duthost.hostname, port=22, state='started', delay=10, timeout=300)
     localhost.wait_for(host=fanout.hostname, port=22, state='started', delay=10, timeout=300)
 
+
+def pytest_addoption(parser):
+    parser.addoption("--sku", action="store", type=str,
+                     help="Type of SKU to use during snake test")
+    parser.addoption("--module", action="store", type=str, default='qsfp',
+                     help="Type of module in testbed")

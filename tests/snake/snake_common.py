@@ -37,7 +37,7 @@ def get_sku(sonic, sonic_file, sku):
     with open("sku.json", "r") as f:
         return json.load(f)
 
-def emit_onyx_config(sku_dat, fan_vlan_map, fan_vrf_map, fan_route, vlan_count, **kwargs):
+def emit_onyx_config(sku_dat, module_type, fan_vlan_map, fan_vrf_map, fan_route, vlan_count, **kwargs):
 
     print("Generating ONYX Configuration")
     splits = {}
@@ -67,7 +67,7 @@ def emit_onyx_config(sku_dat, fan_vlan_map, fan_vrf_map, fan_route, vlan_count, 
     onyx_config = []
 
     onyx_config += ["no cli default prefix-modes enable"]
-    onyx_config += ["interface ethernet {} module-type qsfp-split-{} force".format(p, s) for p, s in splits.items()]
+    onyx_config += ["interface ethernet {} module-type {}-split-{} force".format(p, module_type, s) for p, s in splits.items()]
     onyx_config += [""]
     onyx_config += ["interface ethernet {} speed {}G no-autoneg force".format(p, s) for p, s in speeds.items()]
     onyx_config += [""]
