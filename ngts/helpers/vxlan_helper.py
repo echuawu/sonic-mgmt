@@ -7,6 +7,9 @@ import re
 import ipaddress
 
 from retry import retry
+from scapy.all import sniff
+from scapy.layers.inet6 import IP
+from scapy.layers.vxlan import VXLAN
 from ngts.constants.constants import VxlanConstants
 from ngts.config_templates.parallel_config_runner import parallel_config_runner
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
@@ -450,3 +453,20 @@ def clean_frr_vrf_config(topology, config_list):
             cli_object.frr.engine.commands_list = []
 
         parallel_config_runner(topology, conf)
+
+
+def validate_ecmp_traffic(pcap_path_list, ip_check_list, sender_count, receiver_count=-1, proto=IP):
+    """
+    Validate traffic captured at ECMP interfaces
+    """
+    count = 0
+    vxlan_pkts = sniff(offline=pcap_path_list, lfilter=lambda p: VXLAN in p)
+    layer_index = 2 if proto == IP else 1
+    for pkt in vxlan_pkts:
+        if pkt.getlayer(proto, nb=layer_index).src in ip_check_list:
+            count += 1
+    logger.info(f"Total received packet number:{count}")
+    if receiver_count == -1:
+        assert count == len(ip_check_list) * int(sender_count)
+    else:
+        assert count == receiver_count

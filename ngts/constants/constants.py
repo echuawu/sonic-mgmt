@@ -1029,6 +1029,7 @@ class VxlanConstants:
     MTU_1000 = '1000'
     JUMBO_PACKET_LEN = 9000
     NORMAL_PACKET_LEN = 1000
+    PCAP_PATH = '/tmp/evpn_ecmp_{}.pcap'
 
     DUT_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.1'
     VM_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.2'
