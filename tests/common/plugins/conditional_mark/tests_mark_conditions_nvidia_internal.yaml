@@ -1540,9 +1540,9 @@ platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[r-moose-02-cpu]:
 
 platform_tests/test_reload_config.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006 on 2700/2410"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3695683 on dpu"
     conditions:
-      - "https://redmine.mellanox.com/issues/3273006 and ('sn2700' in platform or 'sn2410' in platform) "
+      - "https://redmine.mellanox.com/issues/3695683 and 'nvda_bf' in platform"
 
 system_health/test_system_health.py::test_external_checker:
   skip:
@@ -2158,7 +2158,7 @@ dns/static_dns/test_static_dns.py::TestStaticMgmtPortIP::test_dynamic_dns_not_wo
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3611766"
     conditions:
       - "https://redmine.mellanox.com/issues/3611766"
-      -
+
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
