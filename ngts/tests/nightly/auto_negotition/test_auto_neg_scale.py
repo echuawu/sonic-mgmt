@@ -4,7 +4,7 @@ import pytest
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 from ngts.tests.conftest import get_dut_loopbacks
-from ngts.tests.nightly.auto_negotition.conftest import update_split_2_if_possible,\
+from ngts.tests.nightly.auto_negotition.conftest import update_split_2_if_possible, \
     update_split_4_if_possible, update_split_8_if_possible
 
 logger = logging.getLogger()
@@ -75,6 +75,7 @@ class TestAutoNegScale(TestAutoNegBase):
         logger.info("Set auto negotiation mode to enabled on all ports")
         self.configure_port_auto_neg(self.cli_objects.dut, ports, dut_conf,
                                      cleanup_list, mode='enabled')
+        self.configure_auto_fec(ports=ports)
         self.cli_objects.dut.interface.disable_interfaces(dut_conf.keys())
         self.cli_objects.dut.interface.enable_interfaces(dut_conf.keys())
         for port, port_conf_dict in dut_conf.items():
@@ -85,3 +86,4 @@ class TestAutoNegScale(TestAutoNegBase):
             port_conf_dict[AutonegCommandConstants.ADMIN] = "up"
         logger.info("verify speed, type was modified for all ports")
         self.verify_auto_neg_configuration(dut_conf)
+        self.auto_fec_checker(tested_lb_all_dict, dut_conf, lldp_checker=False)

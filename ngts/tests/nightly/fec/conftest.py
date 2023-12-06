@@ -3,13 +3,10 @@ import logging
 import random
 from retry.api import retry_call
 from ngts.tests.conftest import get_dut_loopbacks
-from ngts.constants.constants import AutonegCommandConstants, SonicConst, FecConstants
-from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed
+from ngts.constants.constants import AutonegCommandConstants, SonicConst
+from ngts.helpers.interface_helpers import get_lb_mutual_speed
 
 logger = logging.getLogger()
-
-# list of tested protocols
-FEC_MODE_LIST = [SonicConst.FEC_RS_MODE, SonicConst.FEC_FC_MODE, SonicConst.FEC_NONE_MODE]
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -89,11 +86,11 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     }
 
     if split_2_lb:
-        tested_lb_dict[2] = {random.choice(FEC_MODE_LIST): [split_2_lb]}
+        tested_lb_dict[2] = {random.choice(SonicConst.FEC_MODE_LIST): [split_2_lb]}
     if split_4_lb:
         mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
         if mutual_speeds:
-            tested_lb_dict[4] = {random.choice(FEC_MODE_LIST): [split_4_lb]}
+            tested_lb_dict[4] = {random.choice(SonicConst.FEC_MODE_LIST): [split_4_lb]}
 
     return tested_lb_dict
 
@@ -170,16 +167,6 @@ def tested_dut_to_host_conn(topology_obj, engines, interfaces, cli_objects):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def dut_ports_number_dict(topology_obj, engines, cli_objects):
-    dut_ports_number_dict = {}
-    ports = topology_obj.players_all_ports['dut']
-    ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic()
-    for port in ports:
-        dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
-    return dut_ports_number_dict
-
-
-@pytest.fixture(autouse=True, scope='session')
 def dut_ports_default_mlxlink_configuration(is_simx, platform_params, chip_type, engines, cli_objects, interfaces,
                                             tested_lb_dict, fec_modes_speed_support,
                                             tested_lb_dict_for_bug_2705016_flow, pci_conf, dut_ports_number_dict):
@@ -249,20 +236,6 @@ def get_ports_split_mode_dict(interfaces_status):
     for port, port_lane_num in ports_lanes_dict.items():
         ports_split_mode_dict[port] = int(max_lanes / port_lane_num)
     return ports_split_mode_dict
-
-
-@pytest.fixture(autouse=True, scope='session')
-def fec_modes_speed_support(chip_type, platform_params):
-    if chip_type == "SPC":
-        return FecConstants.FEC_MODES_SPC_SPEED_SUPPORT
-    elif chip_type == "SPC2":
-        return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
-    elif chip_type == "SPC3":
-        return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
-    elif chip_type == "SPC4":
-        return FecConstants.FEC_MODES_SPC4_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
-    else:
-        raise AssertionError("Chip type {} is unrecognized".format(chip_type))
 
 
 @pytest.fixture(autouse=True, scope='session')

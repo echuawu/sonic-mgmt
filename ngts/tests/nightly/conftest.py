@@ -5,8 +5,10 @@ import pytest
 import logging
 
 from retry.api import retry_call
-from ngts.constants.constants import InterfacesTypeConstants
+from ngts.constants.constants import InterfacesTypeConstants, FecConstants
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+
+from ngts.helpers.interface_helpers import get_alias_number
 
 logger = logging.getLogger()
 
@@ -257,3 +259,27 @@ def sfp_ports_list(physical_interfaces_types_dict):
             spf_ifaces_list.append(port)
 
     return spf_ifaces_list
+
+
+@pytest.fixture(autouse=False, scope='session')
+def fec_modes_speed_support(chip_type, platform_params):
+    if chip_type == "SPC":
+        return FecConstants.FEC_MODES_SPC_SPEED_SUPPORT
+    elif chip_type == "SPC2":
+        return FecConstants.FEC_MODES_SPC2_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
+    elif chip_type == "SPC3":
+        return FecConstants.FEC_MODES_SPC3_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
+    elif chip_type == "SPC4":
+        return FecConstants.FEC_MODES_SPC4_SPEED_SUPPORT[platform_params.filtered_platform.upper()]
+    else:
+        raise AssertionError("Chip type {} is unrecognized".format(chip_type))
+
+
+@pytest.fixture(autouse=True, scope='session')
+def dut_ports_number_dict(topology_obj, engines, cli_objects):
+    dut_ports_number_dict = {}
+    ports = topology_obj.players_all_ports['dut']
+    ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic()
+    for port in ports:
+        dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
+    return dut_ports_number_dict

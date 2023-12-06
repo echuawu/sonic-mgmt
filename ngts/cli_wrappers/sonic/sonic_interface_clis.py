@@ -112,6 +112,27 @@ class SonicInterfaceCli(InterfaceCliCommon):
                                            data_ofset_from_start=data_ofset_from_start,
                                            data_ofset_from_end=None, column_ofset=2, output_key='Interface')
 
+    def show_interfaces_fec_status(self):
+        """
+        Method which getting interfaces fec status
+        :return: command output
+        """
+        return self.engine.run_cmd("sudo show interfaces fec status")
+
+    def parse_interfaces_fec_status(self, headers_ofset=0, len_ofset=1, data_ofset_from_start=2):
+        """
+        Method which getting parsed interfaces fec status
+        :param headers_ofset: Line number in which we have headers
+        :param len_ofset: Line number from which we can find len for all fields, in example above it is line 2
+        :param data_ofset_from_start: Line number from which we will start parsing data and fill dictionary with results
+        :return: dictionary of parsed command, i.e,
+        {'Ethernet0': {'Interface': 'Ethernet0', 'FEC Oper': 'none', 'FEC Admin': 'N/A'},...}
+        """
+        ifaces_fec_status = self.show_interfaces_fec_status()
+        return generic_sonic_output_parser(ifaces_fec_status, headers_ofset=headers_ofset, len_ofset=len_ofset,
+                                           data_ofset_from_start=data_ofset_from_start,
+                                           data_ofset_from_end=None, column_ofset=2, output_key='Interface')
+
     def get_interface_speed(self, interface):
         """
         Method which getting interface speed

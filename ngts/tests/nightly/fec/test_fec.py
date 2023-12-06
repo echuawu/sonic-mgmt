@@ -7,19 +7,19 @@ from retry import retry
 from retry.api import retry_call
 
 from ngts.config_templates.ip_config_template import IpConfigTemplate
-from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, compare_actual_and_expected, save_configuration
+from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, save_configuration
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
-from ngts.tests.push_build_tests.L2.lldp.test_lldp import verify_lldp_neighbor_info_for_sonic_port
+from ngts.tests.nightly.auto_negotition.auto_fec_common import TestAutoFecBase
 
 
 logger = logging.getLogger()
 
 
-class TestFec:
+class TestFec(TestAutoFecBase):
 
     @pytest.fixture(autouse=True)
     def setup(self, topology_obj, interfaces, engines, cli_objects,
@@ -119,7 +119,7 @@ class TestFec:
         conf = {}
         dut_host_port = self.interfaces.dut_hb_2
         host_dut_port = self.interfaces.hb_dut_2
-        port_supported_fec_modes = self.fec_capability_for_dut_ports[dut_host_port]
+        port_supported_fec_modes = self.get_fec_capability_for_negative_test(dut_host_port)
         mode_to_configure_on_host = random.choice(port_supported_fec_modes)
         modes_to_configure_on_dut = set(port_supported_fec_modes)
         modes_to_configure_on_dut.remove(mode_to_configure_on_host)
@@ -516,57 +516,15 @@ class TestFec:
             conf[port][AutonegCommandConstants.FEC] = base_fec
             conf[port][AutonegCommandConstants.WIDTH] = base_width
 
-    def verify_fec_configuration(self, conf, lldp_checker=True):
+    def get_fec_capability_for_negative_test(self, dut_host_port):
         """
-        :param conf: a dictionary of the port auto negotiation configuration and expected outcome
-        :param lldp_checker: True if the fec validation should check lldp info for port,
-        False when fec validation is done on dut-host ports
-        :return: raise Assertion error in case the configuration doesn't match the actual state on the switch
+        auto fec cannot be tested in the negative test because the test
+        checks that incompatible fec result in port down and auto fec mode will
+        result in mutual fec configuration.
+        :param dut_host_port: i.e, dut_host_port = 'Ethernet28'
+        :return: fec capabilities on port without auto
         """
-        with allure.step('Verify FEC configuration on ports: {}'.format(list(conf.keys()))):
-            for port, port_conf_dict in conf.items():
-                retry_call(self.verify_interfaces_status_cmd_output_for_port, fargs=[port, port_conf_dict],
-                           tries=20, delay=10, logger=logger)
-                if not self.is_simx:
-                    retry_call(self.verify_mlxlink_status_cmd_output_for_port, fargs=[port, port_conf_dict],
-                               tries=6, delay=10, logger=logger)
-                if lldp_checker:
-                    retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
-                               tries=4, delay=10, logger=logger)
-
-    def verify_mlxlink_status_cmd_output_for_port(self, port, port_conf_dict):
-        port_number = self.dut_ports_number_dict[port]
-        with allure.step('Verify FEC configuration on port: {} with mlxlink command'.format(port)):
-            logger.info('Verify FEC configuration on port: {} with mlxlink command'.format(port))
-            mlxlink_actual_conf = self.cli_objects.dut.interface.parse_port_mlxlink_status(self.pci_conf,
-                                                                                           port_number)
-            self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict, actual_conf=mlxlink_actual_conf)
-
-    def verify_interfaces_status_cmd_output_for_port(self, port, port_conf_dict):
-        with allure.step('Verify FEC configuration on port: {} with show interfaces command'.format(port)):
-            logger.info('Verify FEC configuration on port: {} with show interfaces command'.format(port))
-            interface_status_actual_conf = self.cli_objects.dut.interface.parse_interfaces_status()[port]
-            self.compare_actual_and_expected_fec_output(expected_conf=port_conf_dict,
-                                                        actual_conf=interface_status_actual_conf)
-
-    def verify_interfaces_status_on_lldp_table(self, port):
-        with allure.step(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command'):
-            logger.info(f'Verify LLDP neighbor info on port: {port} with show lldp neighbor command')
-            lldp_info = self.cli_objects.dut.lldp.parse_lldp_info_for_specific_interface(port)
-            port_neighbor = self.dut_ports_interconnects[port]
-            verify_lldp_neighbor_info_for_sonic_port(port, lldp_info, self.dut_hostname, self.dut_mac, port_neighbor)
-
-    @staticmethod
-    def compare_actual_and_expected_fec_output(expected_conf, actual_conf):
-        """
-        :param expected_conf:
-        :param actual_conf:
-        :return: raise assertion error in case expected and actual configuration don't match
-        """
-        with allure.step('Compare expected and actual fec configuration'):
-            logger.debug("expected: {}".format(expected_conf))
-            logger.debug("actual: {}".format(actual_conf))
-            for key, value in expected_conf.items():
-                if key in actual_conf.keys():
-                    actual_conf_value = actual_conf[key]
-                    compare_actual_and_expected(key, value, actual_conf_value)
+        port_supported_fec_modes = self.fec_capability_for_dut_ports[dut_host_port]
+        if 'auto' in port_supported_fec_modes:
+            port_supported_fec_modes.remove('auto')
+        return port_supported_fec_modes

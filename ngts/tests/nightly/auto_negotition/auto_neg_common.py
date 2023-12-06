@@ -11,6 +11,7 @@ from ngts.tests.nightly.auto_negotition.conftest import get_all_advertised_speed
 from ngts.constants.constants import AutonegCommandConstants, PlatformTypesConstants
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.conftest import compare_actual_and_expected
+from ngts.tests.nightly.auto_negotition.auto_fec_common import TestAutoFecBase
 
 logger = logging.getLogger()
 ASIC_SUPPORTS_AN_AND_FORCE_COMBO = ["SPC", "SPC2", "SPC3"]
@@ -32,12 +33,13 @@ def skip_for_interface_type_rj45(func):
     return wrapper
 
 
-class TestAutoNegBase:
+class TestAutoNegBase(TestAutoFecBase):
 
     @pytest.fixture(autouse=True)
     def setup(self, topology_obj, engines, cli_objects, chip_type,
               interfaces, physical_interfaces_types_dict, tested_lb_dict, tested_dut_host_lb_dict, ports_lanes_dict,
-              split_mode_supported_speeds, interfaces_types_port_dict, platform_params):
+              split_mode_supported_speeds, interfaces_types_port_dict, platform_params, fec_modes_speed_support,
+              dut_ports_interconnects, dut_ports_number_dict, is_simx):
         self.topology_obj = topology_obj
         self.engines = engines
         self.interfaces = interfaces
@@ -56,6 +58,13 @@ class TestAutoNegBase:
                                      (self.interfaces.dut_ha_2, self.interfaces.ha_dut_2),
                                      (self.interfaces.dut_hb_1, self.interfaces.hb_dut_1),
                                      (self.interfaces.dut_hb_2, self.interfaces.hb_dut_2)]
+        self.fec_modes_speed_support = fec_modes_speed_support
+        self.pci_conf = self.cli_objects.dut.chassis.get_pci_conf()
+        self.dut_ports_interconnects = dut_ports_interconnects
+        self.dut_ports_number_dict = dut_ports_number_dict
+        self.is_simx = is_simx
+        self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface("eth0")
+        self.dut_hostname = self.cli_objects.dut.chassis.get_hostname()
 
     def generate_subset_conf(self, tested_lb_dict):
         """
