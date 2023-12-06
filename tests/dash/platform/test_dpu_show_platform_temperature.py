@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime
+from tests.common.helpers.assertions import pytest_assert
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 
@@ -7,8 +8,37 @@ pytestmark = [
     pytest.mark.topology('dpu')
 ]
 
-BF_2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'
 BF_3_PLATFORM = 'arm64-nvda_bf-9009d3b600cvaa'
+SENSORS = {BF_3_PLATFORM: ['CPU', 'DDR', 'SFP0', 'SFP1']}
+SENSOR_ITEMS = ['temperature', 'high th', 'low th', 'crit high th', 'crit low th', 'warning', 'timestamp']
+EXPECTED_SENSOR_VALUES = {
+    BF_3_PLATFORM: {
+        'CPU': {
+            'high th': '95',
+            'low th': 'N/A',
+            'crit high th': '100',
+            'crit low th': 'N/A'
+        },
+        'DDR': {
+            'high th': '95',
+            'low th': 'N/A',
+            'crit high th': '100',
+            'crit low th': 'N/A'
+        },
+        'SFP0': {
+            'high th': 'N/A',
+            'low th': 'N/A',
+            'crit high th': '105',
+            'crit low th': 'N/A'
+        },
+        'SFP1': {
+            'high th': 'N/A',
+            'low th': 'N/A',
+            'crit high th': '105',
+            'crit low th': 'N/A'
+        }
+    }
+}
 
 
 def test_dpu_show_platform_temperature(duthosts, rand_one_dut_hostname):
@@ -20,61 +50,48 @@ def test_dpu_show_platform_temperature(duthosts, rand_one_dut_hostname):
     platform_temp_parsed = duthost.show_and_parse(cmd)
 
     platform = duthost.facts['platform']
-    expected_sensors = {BF_2_PLATFORM: ['ASIC', 'DDR0_0', 'DDR0_1', 'DDR1_0', 'DDR1_1', 'SFP0', 'SFP1'],
-                        BF_3_PLATFORM: ['CPU', 'DDR', 'SFP0', 'SFP1']
-                        }
+    expected_sensors = SENSORS[platform]
+    expected_sensor_values = EXPECTED_SENSOR_VALUES[platform]
 
     with allure.step('Validate that all expected sensors available'):
         available_sensors = [sensor_data['sensor'] for sensor_data in platform_temp_parsed]
 
-        for sensor in expected_sensors[platform]:
+        for sensor in expected_sensors:
             assert sensor in available_sensors, \
                 'Sensor "{}" not available in output of cmd: "{}"'.format(sensor, cmd)
-
-    bf2_na_sensors = ['DDR0_0', 'DDR0_1', 'DDR1_0', 'DDR1_1', 'SFP0', 'SFP1']
-    na_value = 'N/A'
-    # Values below from SONiC on DPU PMON HLD document
-    expected_crit_low_temp = 5.0
-    expected_low_temp = 5.0
-    expected_high_temp = 95.0
-    expected_crit_high_temp = 100.0
 
     for sensor_data in platform_temp_parsed:
         sensor = sensor_data['sensor']
         with allure.step('Validate values for sensor "{}"'.format(sensor)):
-            if platform == BF_2_PLATFORM and sensor in bf2_na_sensors:
-                assert sensor_data['temperature'] == na_value, 'Sensor "{}" has invalid temperature'.format(sensor)
-                assert sensor_data['crit low th'] == na_value, 'Sensor "{}" has invalid "crit low th" ' \
-                                                               'temperature'.format(sensor)
-                assert sensor_data['low th'] == na_value, 'Sensor "{}" has invalid "low th" temperature'.format(sensor)
-                assert sensor_data['high th'] == na_value, 'Sensor "{}" has invalid "high th" ' \
-                                                           'temperature'.format(sensor)
-                assert sensor_data['crit high th'] == na_value, 'Sensor "{}" has invalid "crit high th" ' \
-                                                                'temperature'.format(sensor)
-            else:
-                temperature = float(sensor_data['temperature'])
-                crit_low_temp = float(sensor_data['crit low th'])
-                low_temp = float(sensor_data['low th'])
-                high_temp = float(sensor_data['high th'])
-                crit_high_temp = float(sensor_data['crit high th'])
+            for item in SENSOR_ITEMS:
+                if item == 'temperature':
+                    with allure.step('Validate the value for "temperature"'):
+                        temperature = sensor_data['temperature']
+                        low_th = expected_sensor_values[sensor]['low th']
+                        high_th = expected_sensor_values[sensor]['high th']
+                        if low_th != 'N/A':
+                            pytest_assert(float(temperature) > float(low_th),
+                                          f'Temperature: {temperature} for sensor: {sensor} '
+                                          f'should be higher than the low th: {low_th}')
+                        if high_th != 'N/A':
+                            pytest_assert(float(temperature) < float(high_th),
+                                          f'Temperature: {temperature} for sensor: {sensor} '
+                                          f'should be lower than the high th: {low_th}')
+                elif item == 'warning':
+                    with allure.step('Validate the value for "warning"'):
+                        assert sensor_data['warning'] == 'False', \
+                            f'Sensor: {sensor} has warning "True", but there is no violation in the thresholds.'
+                elif item == 'timestamp':
+                    with allure.step('Validate the value for "timestamp"'):
+                        try:
+                            datetime.strptime(sensor_data['timestamp'], '%Y%m%d %H:%M:%S')
+                        except ValueError:
+                            raise AssertionError(f"Unable to parse timestamp: {sensor_data['timestamp']}")
+                else:
+                    with allure.step(f'Validate the value for "{item}"'):
+                        actual_value = str(sensor_data[item])
+                        expected_value = expected_sensor_values[sensor][item]
+                        pytest_assert(actual_value == expected_value,
+                                      f"{item} value of sensor {sensor} is not as expected, "
+                                      f"actual: {actual_value}, expected: {expected_value}")
 
-                assert crit_low_temp == expected_crit_low_temp, \
-                    'Crit low temp is "{}" not as expected: "{}"'.format(crit_low_temp, expected_crit_low_temp)
-                assert low_temp == expected_low_temp, \
-                    'Low temp is "{}" not as expected: "{}"'.format(low_temp, expected_low_temp)
-                assert high_temp == expected_high_temp, \
-                    'High temp is "{}" not as expected: "{}"'.format(high_temp, expected_high_temp)
-                assert crit_high_temp == expected_crit_high_temp, \
-                    'Crit high temp is "{}" not as expected: "{}"'.format(crit_high_temp, expected_crit_high_temp)
-                assert crit_low_temp < temperature < crit_high_temp, \
-                    'Temperature: "{}" for sensor: "{}" is not valid, check output: "{}"'.format(temperature, sensor,
-                                                                                                 cmd)
-
-            assert sensor_data['warning'] == 'False', \
-                'Sensor: "{}" has warning "True", check output of cmd: "{}"'.format(sensor, cmd)
-
-            try:
-                datetime.strptime(sensor_data['timestamp'], '%Y%m%d %H:%M:%S')
-            except ValueError:
-                raise AssertionError('Unable to parse timestamp: "{}" from command "{}" output'.format(
-                    sensor_data['timestamp'], cmd))
