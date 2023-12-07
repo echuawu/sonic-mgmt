@@ -509,7 +509,7 @@ class TestPfcwdWb(SetupPfcwdFunc):
             # Need to wait some time after warm-reboot for the counters to be created
             # if create_only_config_db_buffers is not enabled
             if t_idx > 0 and test_action == 'detect' and testcase_actions[t_idx - 1] == "warm-reboot":
-                config_facts = duthost.config_facts(duthost.hostname, source='running')['ansible_facts']
+                config_facts = duthost.get_running_config_facts()
                 if config_facts["DEVICE_METADATA"]['localhost'].get("create_only_config_db_buffers") != 'true':
                     time.sleep(20)
                     logger.info("Wait 20s before the first detect after the warm-reboot "
