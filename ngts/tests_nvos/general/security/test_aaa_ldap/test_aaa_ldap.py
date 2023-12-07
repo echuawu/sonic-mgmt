@@ -18,7 +18,7 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_set_unset_show(test_api, engines):
     ldap_obj = System().aaa.ldap
@@ -57,7 +57,7 @@ def test_ldap_set_unset_show(test_api, engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_set_invalid_param(test_api, engines):
     """
@@ -80,7 +80,7 @@ def test_ldap_set_invalid_param(test_api, engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
@@ -106,7 +106,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
     """
@@ -123,7 +123,7 @@ def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
     """
@@ -139,7 +139,7 @@ def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
     """
@@ -155,7 +155,7 @@ def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
     """
@@ -171,7 +171,7 @@ def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_unique_priority(test_api, engines, topology_obj):
     """
@@ -186,7 +186,7 @@ def test_ldap_unique_priority(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_priority(test_api, engines, topology_obj, request):
     """
@@ -206,7 +206,7 @@ def test_ldap_priority(test_api, engines, topology_obj, request):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
     """
@@ -235,7 +235,7 @@ def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuse
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
@@ -267,7 +267,7 @@ def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserI
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates, alias_ldap_server_dn, request,
                      topology_obj):

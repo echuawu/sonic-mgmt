@@ -5,7 +5,6 @@ from ssh_hardening_test_utils import *
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_protocol(engines):
     """
     @summary: verify the change of Protocol in sshd_config
@@ -22,7 +21,6 @@ def test_ssh_protocol(engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_compression(engines):
     """
     @summary: verify the change of Compression in sshd_config
@@ -39,7 +37,6 @@ def test_ssh_compression(engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_ciphers(engines):
     """
     @summary: verify the change of Ciphers in sshd_config
@@ -70,7 +67,6 @@ def test_ssh_ciphers(engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_macs(engines):
     """
     @summary: verify the change of MACs in sshd_config
@@ -101,7 +97,6 @@ def test_ssh_macs(engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_kex_algorithms(engines):
     """
     @summary: verify the change of KexAlgorithms in sshd_config
@@ -132,7 +127,6 @@ def test_ssh_kex_algorithms(engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
 def test_ssh_auth_public_key_types(engines, upload_test_auth_keys_to_ssh_server):
     """
     @summary: verify the change of PubkeyAcceptedKeyTypes in sshd_config

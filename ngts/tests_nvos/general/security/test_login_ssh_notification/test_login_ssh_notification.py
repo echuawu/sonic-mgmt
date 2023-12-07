@@ -222,7 +222,7 @@ def get_current_time_in_secs():
     return current_date
 
 
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
 def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_address):
@@ -311,7 +311,7 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
                 system.aaa.user.unset(apply=True, ask_for_confirmation=True)
 
 
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
 def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_address,
@@ -354,7 +354,7 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
         #     "expected: {}, actual: {}".format(record_days, output[Consts.RECORD_PERIOD])
 
 
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.login_ssh_notification
 @pytest.mark.checklist
 def test_login_ssh_notification_performance(engines, login_source_ip_address, restore_original_record_period,

@@ -14,7 +14,7 @@ from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTool
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_weak_and_strong_passwords(engines, system):
     """
     @summary:
@@ -65,7 +65,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_show_system_security(engines, system):
     """
     Check pwh configuration appears correctly in show output,
@@ -92,7 +92,7 @@ def test_password_hardening_show_system_security(engines, system):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_enable_disable(engines, system, testing_users):
     """
     Check pwh configuration values (in show) when feature is enabled/disabled.
@@ -154,7 +154,7 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_set_unset(engines, system):
     """
     Verify set/unset to each pwh setting, with valid inputs.
@@ -214,7 +214,7 @@ def test_password_hardening_set_unset(engines, system):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_set_invalid_input(engines, system):
     """
     Verify that running set command with invalid input values cause error and doesn't change pwh configuration.
@@ -294,7 +294,7 @@ def test_password_hardening_set_invalid_input(engines, system):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.checklist
 def test_password_hardening_functionality(engines, system, testing_users, tst_all_pwh_confs):
     """
@@ -371,7 +371,7 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_history_functionality(engines, system, testing_users):
     """
     Test the functionality of history-cnt password hardening setting.
@@ -422,7 +422,7 @@ def test_password_hardening_history_functionality(engines, system, testing_users
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_expiration_functionality(engines, system, init_time, testing_users):
     """
     Test the functionality of password expiration setting.
@@ -479,7 +479,7 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_expiration_warning_functionality(engines, system, init_time, testing_users):
     """
     Test the functionality of password expiration-warning setting.
@@ -539,7 +539,7 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_apply_new_password_and_expiration_settings_together(engines, system, init_time):
     """
     Test several times in a row that running 'apply' on the expiration settings and new user password together
@@ -621,7 +621,7 @@ def test_password_hardening_apply_new_password_and_expiration_settings_together(
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_history_multi_user(engines, system, testing_users):
     """
     @summary:
@@ -702,7 +702,7 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_history_increase(engines, system, testing_users):
     """
     @summary:
@@ -747,7 +747,7 @@ def test_password_hardening_history_increase(engines, system, testing_users):
 
 @pytest.mark.system
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 def test_password_hardening_history_when_feature_disabled(engines, system, testing_users):
     """
     @summary:

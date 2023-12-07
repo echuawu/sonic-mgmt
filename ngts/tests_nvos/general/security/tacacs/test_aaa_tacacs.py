@@ -28,7 +28,7 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_set_unset_show(test_api, engines):
     tacacs_obj = System().aaa.tacacs
@@ -60,7 +60,7 @@ def test_tacacs_set_unset_show(test_api, engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_set_invalid_param(test_api, engines):
     """
@@ -81,7 +81,7 @@ def test_tacacs_set_invalid_param(test_api, engines):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
@@ -107,7 +107,7 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_bad_secret(test_api, engines, topology_obj):
     """
@@ -129,7 +129,7 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_bad_port(test_api, engines, topology_obj):
     """
@@ -150,7 +150,7 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_unique_priority(test_api, engines, topology_obj):
     """
@@ -165,7 +165,7 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_priority(test_api, engines, topology_obj, request):
     """
@@ -183,7 +183,7 @@ def test_tacacs_priority(test_api, engines, topology_obj, request):
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
     """
@@ -211,7 +211,7 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
@@ -242,7 +242,7 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
 
 
 @pytest.mark.security
-@pytest.mark.simx
+@pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
     """
