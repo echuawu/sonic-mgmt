@@ -9,6 +9,12 @@
 {% if inventory_hostname == 'r-tigon-22' %}
 {% set vlanid_offset = 200 %}
 {% endif %}
+{% if inventory_hostname == 'r-leopard-71' %}
+{% set vlanid_offset = 300 %}
+{% endif %}
+{% if inventory_hostname == 'r-leopard-73' %}
+{% set vlanid_offset = 400 %}
+{% endif %}
 {% set of_tableid = '0' %}
 {% set of_normal_priority = '1' %}
 {% set ofpvid_present = 4096 %}
