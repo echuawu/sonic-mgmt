@@ -344,9 +344,9 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_even
 
 tests/push_build_tests/L3/rocev2_acl_counter/test_rocev2_acl_counter_basic.py::TestRocev2AclCounter::test_rocev2_acl_counter_basic:
   skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3629676"
+    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3691786"
     conditions:
-      - "https://redmine.mellanox.com/issues/3629676"
+      - "https://redmine.mellanox.com/issues/3691786"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
