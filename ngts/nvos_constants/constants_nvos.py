@@ -372,6 +372,8 @@ class IpConsts:
     MAX_IPV6_GROUP_VALUE = 65535
     ARP_TIMEOUT = "arp-timeout"
     AUTOCONF = "autoconf"
+    PYTHON_PATH = '/auto/app/Python-3.6.2/bin/python3.6'
+    MAD_TO_GET_IP_TEMPLATE = PYTHON_PATH + 'nvmad.py --lid {lid} --mad MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
 
 
 class ConfigConsts:
@@ -881,7 +883,7 @@ class StatsConsts:
 
 
 class MultiPlanarConsts:
-    INTERNAL_PATH = "/tmp"
+    INTERNAL_PATH = "/tmp/"
     SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
     SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
@@ -955,3 +957,30 @@ class ComponentsConsts:
     COMPONENTS_LIST = ["nvued", "orchagent", "portsyncd", "sai_api_port", "sai_api_switch", "syncd"]
     LOG_LEVEL_LIST = ["critical", "debug", "error", "info", "notice", "warn"]
     LEVEL = 'level'
+
+
+class UfmMadConsts:
+    class State(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    LOCATION_TO_RUN_NVMAD = '/auto/sw_system_project/NVOS_INFRA/verification/mad_repository'
+    STATE = 'state'
+    LINK_STATE = 'link.state'  # TODO update
+    IPV4 = 'ipv4'
+    IPV4_NETMASK = 'ipv4_netmask'
+    IPV6 = 'ipv6'
+    IPV6_NETMASK = 'ipv6_netmask'
+    UFM_MAD_DEFAULT = 'TBD'  # TODO update
+    NONE_IP = '0.0.0.0/0'
+    STATIC_IPV4 = '10.10.10.10/10'
+    STATIC_IPV4_2 = '20.20.20.20/20'
+    STATIC_IPV6 = 'TBD'  # TODO update
+    STATIC_IPV6_2 = 'TBD'  # TODO update
+    MGMT_PORT0 = 'eth0'
+    MGMT_PORT1 = 'eth1'
+    UFM_MAD_DB_NUM = '6'
+    UFM_MAD_TABLE_ETH0 = '\"UFM_MAD_TABLE|eth0\"'
+    UFM_MAD_TABLE_GENERAL = '\"UFM_MAD_TABLE|general\"'
+    MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
+    MST_REGISTER = 'IBSNI'

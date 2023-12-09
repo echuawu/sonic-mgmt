@@ -23,3 +23,10 @@ class Fae(BaseComponent):
         self.health = Health(self)
         self.port = MgmtPort(port_name, self)
         self.fast_recovery = PortFastRecovery(self)
+        self.ib = Ib(self)
+
+
+class Ib(BaseComponent):
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/ib')
+        self.ufm_mad = BaseComponent(self, path='/ufm-mad')
