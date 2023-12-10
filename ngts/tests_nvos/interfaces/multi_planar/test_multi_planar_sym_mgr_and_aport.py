@@ -485,14 +485,15 @@ def test_symmetry_manager_performance(engines, devices, test_api):
             aggregated_active_list = list(set(port_name_list).intersection(devices.dut.AGGREGATED_PORT_LIST))
             aggregated_port_name = RandomizationTool.select_random_value(aggregated_active_list). \
                 get_returned_value()
-            selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
-            selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
+            selected_aggregated_port = MgmtPort(aggregated_port_name)
 
         with allure.step("Validate aggregated port configure state to DOWN time"):
-            validate_configuring_state_time(selected_aggregated_port, NvosConsts.LINK_STATE_DOWN)
+            validate_configuring_state_time(selected_aggregated_port, NvosConsts.LINK_STATE_DOWN,
+                                            MultiPlanarConsts.PORT_DOWN_MAX_TIME)
 
         with allure.step("Validate aggregated port configure state to UP time"):
-            validate_configuring_state_time(selected_aggregated_port, NvosConsts.LINK_STATE_UP)
+            validate_configuring_state_time(selected_aggregated_port, NvosConsts.LINK_STATE_UP,
+                                            MultiPlanarConsts.PORT_UP_MAX_TIME)
 
     finally:
         with allure.step("set config to default"):
@@ -860,7 +861,7 @@ def validate_set_and_unset_fae_interface_link_lanes_command(selected_fae_port):
             f"instead of {IbInterfaceConsts.DEFAULT_LANES}"
 
 
-def validate_configuring_state_time(aggregated_port, state_value):
+def validate_configuring_state_time(aggregated_port, state_value, max_time):
     aport_state = {}
     new_state = state_value
     aggregated_port.interface.link.state.set(op_param_name=state_value, apply=True).verify_result()
@@ -872,10 +873,9 @@ def validate_configuring_state_time(aggregated_port, state_value):
         retries -= 1
     end_time = time.time()
     diff_time = end_time - start_time
-    logger.info(f"diff_time = {diff_time}, retries={retries}")
-    assert diff_time < MultiPlanarConsts.NON_AGGREGATED_PORT_CONFIG_TIME, \
-        f"set and apply state to '{state_value}' time: {diff_time} secs," \
-        f"is higher than expected: {MultiPlanarConsts.NON_AGGREGATED_PORT_CONFIG_TIME} secs"
+    logger.info(f"port: {aggregated_port.name}, state: {state_value}, diff_time = {diff_time}, retries={retries}")
+    assert diff_time < max_time, f"set and apply state to '{state_value}' time: {diff_time} secs, " \
+                                 f"is higher than expected: {max_time} secs"
 
 
 def set_mp_config_to_default():

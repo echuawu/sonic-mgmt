@@ -928,7 +928,8 @@ class MultiPlanarConsts:
                                {"p1": 'LOGICAL_ACTIVE', "p2": 'LOGICAL_ACTIVE', "exp": 'LOGICAL_ACTIVE'}]
     CONFIG_MANAGER_SERVICE = 'configmgrd'
     SERVICE_RECOVERY_MAX_TIME = 60  # [sec] TODO: update to accurate value
-    NON_AGGREGATED_PORT_CONFIG_TIME = 3.0  # [sec]
+    PORT_DOWN_MAX_TIME = 3.0  # [sec]
+    PORT_UP_MAX_TIME = 9.0  # [sec]
     DATABASE_TABLES = ['APPL_DB', 'ASIC_DB', 'COUNTERS_DB', 'COUNTERS_DB_1',
                        'COUNTERS_DB_2', 'CONFIG_DB', 'STATE_DB', 'FLEX_COUNTER_DB']
     LOG_MSG_UNSET_FAE_INTERFACE = "PATCH..."  # TODO: complete

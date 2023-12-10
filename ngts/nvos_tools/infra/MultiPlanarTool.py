@@ -1,5 +1,4 @@
 from infra.tools.general_constants.constants import DefaultConnectionValues
-# from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_constants.constants_nvos import MultiPlanarConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.Fae import Fae
@@ -19,20 +18,23 @@ class MultiPlanarTool:
         player = engines['sonic_mgmt']
 
         # in case of installing xdr simulation, save the origin file in order to restore at the end of the test
-        # if new_platform != MultiPlanarConsts.ORIGIN_FILE:
-        #     with allure.step("Save the origin platform.json file"):
-        #         scp_file(engine, MultiPlanarConsts.PLATFORM_FULL_PATH, MultiPlanarConsts.ORIGIN_FULL_PATH, True)
+        if new_platform != MultiPlanarConsts.ORIGIN_FILE:
+            with allure.step("Save the origin platform.json file"):
+                engine.copy_file(source_file=MultiPlanarConsts.SIMULATION_FILE,
+                                 dest_file=MultiPlanarConsts.ORIGIN_FULL_PATH,
+                                 file_system=MultiPlanarConsts.PLATFORM_PATH,
+                                 direction='get')
 
         with allure.step("Override platform.json file"):
             file_path = MultiPlanarConsts.SIMULATION_PATH + new_platform
-            # scp_file(engine, file_path, MultiPlanarConsts.INTERNAL_PATH, False)
             player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
                                          dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
                                          dest_folder=MultiPlanarConsts.INTERNAL_PATH,
                                          dest_ip=engine.ip,
                                          local_file_path=file_path)
-            engine.run_cmd("sudo mv {}/{} {}".format(MultiPlanarConsts.INTERNAL_PATH, new_platform,
-                                                     MultiPlanarConsts.PLATFORM_FULL_PATH))
+
+            engine.run_cmd("sudo mv {}{} {}".format(MultiPlanarConsts.INTERNAL_PATH, new_platform,
+                                                    MultiPlanarConsts.PLATFORM_FULL_PATH))
 
         with allure.step("Remove config_db.json and port_mapping.json files"):
             engine.run_cmd("sudo rm -f /etc/sonic/config_db.json")
