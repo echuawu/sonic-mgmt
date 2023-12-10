@@ -200,20 +200,9 @@ def test_aggregated_port_configuration(engines, devices, test_api):
     try:
         with allure.step("Start open SM"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
-            time.sleep(30)
 
-        with allure.step('Get a list of active ports'):
-            active_port_list = Port.get_list_of_active_ports()
-            assert active_port_list, "No active ports"
-            port_name_list = []
-            for port in active_port_list:
-                port_name_list.append(port.name)
-
-        with allure.step("Select a random aggregated port"):
-            aggregated_active_list = list(set(port_name_list).intersection(devices.dut.AGGREGATED_PORT_LIST))
-            aggregated_port_name = RandomizationTool.select_random_value(aggregated_active_list). \
-                get_returned_value()
-            selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
+        with allure.step("Select the default aggregated port (connected in loop back to another port)"):
+            selected_fae_aggregated_port = Fae(port_name=devices.dut.DEFAULT_AGGREGATED_PORT)
             selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
 
         with allure.step("Select a random plane port"):
@@ -224,7 +213,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
                                                     IbInterfaceConsts.LINK_IB_SPEED,
                                                     devices.dut.SUPPORTED_IB_SPEED, True)
 
-        # Validate lanes field aggregation - not supported yet
+        # # Validate lanes field aggregation - not supported yet
         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
         #                                             IbInterfaceConsts.LINK_LANES,
         #                                             IbInterfaceConsts.SUPPORTED_LANES, True)
@@ -234,8 +223,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
                                                     IbInterfaceConsts.LINK_MTU,
                                                     IbInterfaceConsts.MTU_VALUES, True)
 
-        # Validate op-vls field aggregation
-
+        # # Validate op-vls field aggregation
         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
         #                                             IbInterfaceConsts.LINK_OPERATIONAL_VLS,
         #                                             IbInterfaceConsts.SUPPORTED_VLS, True)
@@ -256,8 +244,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
 
     finally:
         with allure.step("set config to default"):
-            if active_port_list:
-                selected_aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
+            selected_aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step("Stop open SM"):
             OpenSmTool.stop_open_sm(engines.dut).verify_result()
@@ -472,7 +459,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
     try:
         with allure.step("Start open SM"):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
-            time.sleep(10)
 
         with allure.step('Get a list of active ports'):
             active_port_list = Port.get_list_of_active_ports()
@@ -767,7 +753,8 @@ def validate_aggregation_of_specific_link_param(aggregated_port, plane_port, lin
         aggregated_port.interface.link.set(op_param_name=link_param, op_param_value=param_new_value,
                                            apply=True, ask_for_confirmation=True).verify_result()
         logger.info(f"set port {aggregated_port.name} link param: {link_param} = {param_new_value}")
-        time.sleep(30)
+        time.sleep(MultiPlanarConsts.PORT_UPDATE_TIME)
+
         aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             aggregated_port.interface.link.show()).get_returned_value()
         plane_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
@@ -781,7 +768,7 @@ def validate_aggregation_of_specific_link_param(aggregated_port, plane_port, lin
 
         if unset_op:
             aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
-            time.sleep(30)
+            time.sleep(MultiPlanarConsts.PORT_UPDATE_TIME)
 
 
 def set_param_value_in_specific_plane(loop_back_port, aggregated_port, selected_plane_port,
