@@ -161,14 +161,14 @@ class SonicDataCollector(object):
         :return: test_run_id
         """
         query = "INSERT tests_runs (test_run_dateTime, DUTImageVersion,DUTImageBranch,test_id,Topology,MarsSessionId,MarsKeyId) " \
-                 "values (GETDATE(), '{DUTImageVersion}', '{DUTImageBranch}', {test_name_id}, '{Topology}', '{MarsSessionId}', '{MarsKeyId}')".format(
-            DUTImageVersion=self.sonic_version,
-            DUTImageBranch=self.sonic_branch,
-            test_name_id=test_id,
-            Topology=self.topology,
-            MarsSessionId=self.mars_session_id,
-            MarsKeyId=self.mars_key_id
-        )
+            "values (GETDATE(), '{DUTImageVersion}', '{DUTImageBranch}', {test_name_id}, '{Topology}', '{MarsSessionId}', '{MarsKeyId}')".format(
+                DUTImageVersion=self.sonic_version,
+                DUTImageBranch=self.sonic_branch,
+                test_name_id=test_id,
+                Topology=self.topology,
+                MarsSessionId=self.mars_session_id,
+                MarsKeyId=self.mars_key_id
+            )
         self.mssql_connection_obj.query_insert(query)
 
         query = "SELECT SCOPE_IDENTITY() AS [SCOPE_IDENTITY]"
@@ -183,11 +183,11 @@ class SonicDataCollector(object):
         :param test_run_id: SQL table test run ID
         """
         query = "INSERT rel_test_run_setup (test_setup_id,test_run_id,SetupExtraInfo) " \
-                 "values({setup_name_id}, {test_run_id}, '{SetupExtraInfo}')".format(
-            setup_name_id=test_setup_id,
-            test_run_id=test_run_id,
-            SetupExtraInfo=json.dumps(self.setup_extra_info)
-        )
+            "values({setup_name_id}, {test_run_id}, '{SetupExtraInfo}')".format(
+                setup_name_id=test_setup_id,
+                test_run_id=test_run_id,
+                SetupExtraInfo=json.dumps(self.setup_extra_info)
+            )
         self.mssql_connection_obj.query_insert(query)
 
     def insert_data_into_test_data_table(self, test_run_id):
@@ -302,6 +302,7 @@ class AdvancedRebootCollector(SonicDataCollector):
             ptf_test_report_dict = json.loads(ptf_test_report)
             dataplane_downtime = ptf_test_report_dict['dataplane']['downtime']
             controlplane_downtime = ptf_test_report_dict['controlplane']['downtime']
+            lacp_max_downtime = self.get_lacp_max_loss(ptf_test_report_dict)
 
             # if not able to check dataplane loss or control plane loss - then use '-1' value as default
             if not ptf_test_report_dict['dataplane']['checked_successfully']:
@@ -309,13 +310,24 @@ class AdvancedRebootCollector(SonicDataCollector):
             if not controlplane_downtime:
                 controlplane_downtime = default_loss_value
 
-            self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime}
+            self.test_data = {'dataplane': dataplane_downtime, 'controlplane': controlplane_downtime,
+                              'lacp': lacp_max_downtime}
 
         except Exception as err:
             logger.error('Can not get data/control plane loss for test: {}. Got err: {}'.format(self.test_name, err))
         finally:
             self.ptfhost_engine.shell('md5sum {} >> {}'.format(ptf_test_log_path, md5sum_log_file),
                                       module_ignore_errors=True)
+
+    @staticmethod
+    def get_lacp_max_loss(ptf_test_report_dict):
+        lacp_sessions = ptf_test_report_dict['controlplane'].get("lacp_sessions", {})
+        lacp_values = lacp_sessions.values()
+        if lacp_values:
+            max_lacp = max(lacp_values)
+        else:
+            max_lacp = -1
+        return max_lacp
 
 
 class UpgradePathCollector(AdvancedRebootCollector):
