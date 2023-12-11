@@ -8,6 +8,17 @@ class Ldap(RemoteAaaResource):
         super().__init__(parent_obj)
         self._resource_path = '/ldap'
         self.ssl = BaseComponent(self, path='/ssl')
+        self.filter = BaseComponent(self, path='/filter')
+        self.map = LdapMap(self)
+
+
+class LdapMap(BaseComponent):
+
+    def __init__(self, parent_obj=None):
+        super().__init__(parent=parent_obj, path='/map')
+        self.passwd = BaseComponent(self, path='/passwd')
+        self.group = BaseComponent(self, path='/group')
+        self.shadow = BaseComponent(self, path='/shadow')
 
 
 # class Ldap(BaseComponent):

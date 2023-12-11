@@ -10,7 +10,7 @@ from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_tes
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     validate_authentication_fail_with_credentials, \
     set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapEncryptionModes
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapDefaults, LdapEncryptionModes, LdapGroupAttributes, LdapPasswdAttributes, LdapShadowAttributes
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServers
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
@@ -44,14 +44,39 @@ def test_ldap_set_unset_show(test_api, engines):
                 LdapConsts.SSL_MODE: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_MODE]),
                 LdapConsts.SSL_PORT: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_PORT]),
                 LdapConsts.SSL_TLS_CIPHERS: random.choice(LdapConsts.VALID_VALUES_SSL[LdapConsts.SSL_TLS_CIPHERS])
+            },
+            ldap_obj.filter: {
+                LdapConsts.PASSWD: random_str,
+                LdapConsts.GROUP: random_str,
+                LdapConsts.SHADOW: random_str
+            },
+            ldap_obj.map.passwd: {
+                LdapPasswdAttributes.UID: random_str,
+                LdapPasswdAttributes.UID_NUMBER: random_str,
+                LdapPasswdAttributes.GID_MUMBER: random_str,
+                LdapPasswdAttributes.USER_PASSWORD: random_str
+            },
+            ldap_obj.map.group: {
+                LdapGroupAttributes.CN: random_str,
+                LdapGroupAttributes.GID_NUMBER: random_str,
+                LdapGroupAttributes.MEMBER_UID: random_str
+            },
+            ldap_obj.map.shadow: {
+                LdapShadowAttributes.USER_PASSWORD: random_str,
+                LdapShadowAttributes.MEMBER: random_str,
+                LdapShadowAttributes.UID: random_str
             }
         },
         hostname_conf={
             AaaConsts.PRIORITY: 2
         },
         default_confs={
-            ldap_obj: LdapConsts.DEFAULT_CONF,
-            ldap_obj.ssl: LdapConsts.SSL_DEFAULTS
+            ldap_obj: LdapDefaults.GLOBAL_DEFAULTS,
+            ldap_obj.ssl: LdapDefaults.SSL_DEFAULTS,
+            ldap_obj.filter: LdapDefaults.FILTER_DEFAULTS,
+            ldap_obj.map.passwd: LdapDefaults.MAP_PASSWD_DEFAULTS,
+            ldap_obj.map.group: LdapDefaults.MAP_GROUP_DEFAULTS,
+            ldap_obj.map.shadow: LdapDefaults.MAP_SHADOW_DEFAULTS
         }
     )
 
