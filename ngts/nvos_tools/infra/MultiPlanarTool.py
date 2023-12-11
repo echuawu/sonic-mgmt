@@ -18,12 +18,12 @@ class MultiPlanarTool:
         player = engines['sonic_mgmt']
 
         # in case of installing xdr simulation, save the origin file in order to restore at the end of the test
-        if new_platform != MultiPlanarConsts.ORIGIN_FILE:
-            with allure.step("Save the origin platform.json file"):
-                engine.copy_file(source_file=MultiPlanarConsts.SIMULATION_FILE,
-                                 dest_file=MultiPlanarConsts.ORIGIN_FULL_PATH,
-                                 file_system=MultiPlanarConsts.PLATFORM_PATH,
-                                 direction='get')
+        # if new_platform != MultiPlanarConsts.ORIGIN_FILE:
+        #     with allure.step("Save the origin platform.json file"):
+        #         engine.copy_file(source_file=MultiPlanarConsts.SIMULATION_FILE,
+        #                          dest_file=MultiPlanarConsts.ORIGIN_FULL_PATH,
+        #                          file_system=MultiPlanarConsts.PLATFORM_PATH,
+        #                          direction='get')
 
         with allure.step("Override platform.json file"):
             file_path = MultiPlanarConsts.SIMULATION_PATH + new_platform
