@@ -1,19 +1,19 @@
 {
     "AR_PROFILE": {
         "custom_profile0": {
-            "mode": "time_bound",
-            "congestion_th_low": "200",
-            "congestion_th_medium": "1000",
-            "congestion_th_high": "10000",
-            "free_threshold": "4",
-            "busy_threshold": "0",
-            "from_shaper_enable": "true",
-            "to_shaper_enable": "false",
-            "elephant_enable": "false",
-            "ecmp_size": "64",
-            "from_shaper": 100,
-            "to_shaper": 10,
-            "bind_time": 10
+            "m": "1",
+            "ctl": "200",
+            "ctm": "1000",
+            "cth": "10000",
+            "frt": "4",
+            "but": "0",
+            "sfe": "true",
+            "ste": "false",
+            "ef": "false",
+            "ecs": "64",
+            "srf": "100",
+            "srt": "10",
+            "bit": "10"
         }
     }
 }

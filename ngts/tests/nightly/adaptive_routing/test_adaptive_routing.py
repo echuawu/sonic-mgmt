@@ -29,31 +29,6 @@ class TestArBasic:
         self.expected_tx_port = self.ar_helper.get_received_port(self.interfaces, self.hash_tx_port)
         self.tx_ports = [interfaces.dut_hb_1, interfaces.dut_hb_2]
 
-    def test_ar_default_profile_configuration(self):
-        """
-        This test case will get AR configuration from CLI and compare profile0 default values with predefined
-        golden" profile0 dictionary
-        """
-        # Get show ar config output
-        show_ar_dict = self.ar_helper.get_ar_configuration(self.cli_objects, [ArConsts.GOLDEN_PROFILE0])
-        # Compare output with golden profile values
-        for profile_key, key_value in show_ar_dict[ArConsts.AR_PROFILE_GLOBAL][ArConsts.GOLDEN_PROFILE0].items():
-            assert key_value == ArConsts.GOLDEN_PROFILE0_PARAMETERS[profile_key], "Golden profile default params did " \
-                                                                                  "not match"
-
-    def test_ar_custom_profile_configuration(self):
-        """
-        This test case will get AR configuration from CLI and compare custom profile values with params read from
-        custom_profile.json file
-        """
-        # Get show ar config output
-        show_ar_dict = self.ar_helper.get_ar_configuration(self.cli_objects, [ArConsts.GOLDEN_PROFILE0,
-                                                                              ArConsts.CUSTOM_PROFILE_NAME])
-        # Compare output with custom profile values
-        for profile_key, key_value in show_ar_dict[ArConsts.AR_PROFILE_GLOBAL][ArConsts.CUSTOM_PROFILE_NAME].items():
-            assert key_value == ArConsts.CUSTOM_PROFILE0_PARAMETERS[profile_key], "Custom profile default params did " \
-                                                                                  "not match"
-
     def test_ar_buffer_grading_default_parameters(self):
         """
         This test case will send RoCEv2 packets to ports in ECMP group where ports has same link utilization and buffer
@@ -79,63 +54,6 @@ class TestArBasic:
                 ArConsts.PACKET_NUM_1000 // len(self.tx_ports) - 100 // len(self.tx_ports), \
                 f"Traffic has not been split between ECMP group: {tx_port} before {iface_rx_count_before} <= " \
                 f"{ArConsts.PACKET_NUM_1000 // len(self.tx_ports) - 100 // len(self.tx_ports)}"
-
-    def test_ar_link_utilization_grading(self, config_ecmp_ports_speed_as_10G):
-        """
-        This test case will send RoCEv2 packets to ports in ECMP group where first port has 1% link utilization grading
-        set and second has 70% configured. All traffic has to go through the port with higher link utilization set.
-        """
-        # Get AR port which will be set to 1% link utilization
-        tx_ports_copy = self.tx_ports[:]
-        tx_ports_copy.remove(self.expected_tx_port)
-        # Configure AR port wit 1% link utilization
-        with allure.step(f'Configure link utilization grade for port {tx_ports_copy} '
-                         f'to 1 percent'):
-            self.ar_helper.enable_ar_port(self.cli_objects, tx_ports_copy, port_util_percent=ArConsts.PORT_UTIL_PERCENT,
-                                          restart_swss=True)
-            # Check if all dockers are up
-            self.cli_objects.dut.general.verify_dockers_are_up()
-            show_ports_config = self.ar_helper.get_ar_configuration(
-                self.cli_objects, [ArConsts.GOLDEN_PROFILE0])[ArConsts.AR_PORTS_GLOBAL]
-            assert int(show_ports_config[tx_ports_copy[0]]) == ArConsts.PORT_UTIL_PERCENT, \
-                f"Link utilization for port {tx_ports_copy[0]} did not change to {ArConsts.AR_PORTS_GLOBAL}"
-        # Get interface counters before send RoCE v2 traffic
-        iface_rx_count_before = self.ar_helper.get_interfaces_counters(self.cli_objects, self.tx_ports, 'TX_OK')
-        # Send RoCE v2 traffic
-        with allure.step(f'HA send {ArConsts.PACKET_NUM_1000} TC3 RoCEv2 with AR flag packets'):
-            self.ar_helper.validate_roce_v2_pkts_traffic(players=self.players,
-                                                         interfaces=self.interfaces,
-                                                         ha_dut_1_mac=self.ha_dut_1_mac,
-                                                         dut_ha_1_mac=self.dut_mac,
-                                                         sender_count=ArConsts.PACKET_NUM_1000,
-                                                         sendpfast=True,
-                                                         mbps=100000,
-                                                         loop=ArConsts.PACKET_NUM_10000000,
-                                                         timeout=5
-                                                         )
-        # Get interface counters after send RoCE v2 traffic
-        iface_rx_count_after = self.ar_helper.get_interfaces_counters(self.cli_objects, self.tx_ports, 'TX_OK')
-        # Verify that traffic goes to port with higher port utilization % set to AR port
-
-        port_with_higher_link_util_counter = \
-            (iface_rx_count_after[self.expected_tx_port] - iface_rx_count_before[self.expected_tx_port] /
-             ArConsts.PACKET_NUM_10000000) * 100
-        port_with_lower_link_util_counter = \
-            (iface_rx_count_after[tx_ports_copy[0]] - iface_rx_count_before[tx_ports_copy[0]] /
-             ArConsts.PACKET_NUM_10000000) * 100
-        assert port_with_higher_link_util_counter - port_with_lower_link_util_counter > 10, \
-            f"Traffic has not been shift from port {tx_ports_copy[0]} with lower utilization to port " \
-            f"{self.expected_tx_port} with higher utilization grading"
-
-        with allure.step(f'Return default ar port utilization percentage'):
-            self.ar_helper.enable_ar_port(self.cli_objects, tx_ports_copy,
-                                          port_util_percent=ArConsts.PORT_UTIL_DEFAULT_PERCENT, restart_swss=True)
-            # Check if all dockers are up
-            self.cli_objects.dut.general.verify_dockers_are_up()
-            show_ports_config = self.ar_helper.get_ar_configuration(
-                self.cli_objects, [ArConsts.GOLDEN_PROFILE0])[ArConsts.AR_PORTS_GLOBAL]
-            assert int(show_ports_config[tx_ports_copy[0]]) == ArConsts.PORT_UTIL_DEFAULT_PERCENT, \
-                f"Link utilization for port {tx_ports_copy[0]} did not change to {ArConsts.PORT_UTIL_DEFAULT_PERCENT}"
 
     def test_ar_buffer_grading_with_shaper(self, configure_port_shaper):
         """
@@ -175,7 +93,8 @@ class TestArBasic:
             # Check if all dockers are up
             self.cli_objects.dut.general.verify_dockers_are_up()
             # Get show ar config output
-            show_ar_dict = self.ar_helper.get_ar_configuration(self.cli_objects, [ArConsts.CUSTOM_PROFILE_NAME])
+            show_ar_dict = self.ar_helper.get_ar_configuration(self.cli_objects, [ArConsts.CUSTOM_PROFILE_NAME],
+                                                               get_global_only=True)
             assert show_ar_dict[ArConsts.AR_GLOBAL][ArConsts.AR_ACTIVE_PROFILE] == ArConsts.CUSTOM_PROFILE_NAME, \
                 f"Active AR profile is {show_ar_dict[ArConsts.AR_GLOBAL][ArConsts.AR_ACTIVE_PROFILE]} but must be " \
                 f"{ArConsts.CUSTOM_PROFILE_NAME}"
@@ -232,9 +151,6 @@ class TestArBasic:
 
         with allure.step('Validate AR prevent configuring on mgmt interface'):
             self.ar_helper.verify_config_ar_on_mgmt_port(self.cli_objects)
-
-        with allure.step('Validate AR prevent configuring invalid link utilization value'):
-            self.ar_helper.verify_config_ar_invalid_link_utilization(self.cli_objects, self.interfaces)
 
     def test_ar_with_reboot(self, configure_port_shaper, get_reboot_type):
         """

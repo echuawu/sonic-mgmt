@@ -289,11 +289,12 @@ class ArHelper:
         """
         return re.findall("(Ethernet\\d+)\\s+(\\d+)", cmd_output)
 
-    def get_ar_configuration(self, cli_objects, profile_names):
+    def get_ar_configuration(self, cli_objects, profile_names, get_global_only=False):
         """
         This method is to get AR configured at DUR
         :param cli_objects: cli_objects fixture
         :param profile_names: list of profiles available for AR
+        :param get_global_only: if True return only global config section
         :return: dictionary which describes output of "show ar config"
         Return example:
         {
@@ -320,17 +321,18 @@ class ArHelper:
             ArConsts.AR_ACTIVE_PROFILE: self.search_by_name(ArConsts.AR_ACTIVE_PROFILE, show_ar_config_output)
         }
         ar_result_dict[ArConsts.AR_GLOBAL] = global_dict
-        # Get profiles values
-        profiles_dicts = {}
-        for index, profile in enumerate(profile_names):
-            profiles_dicts.setdefault(profile, {})
-            for parameter in ArConsts.AR_PROFILE_KEYS_LIST:
-                key, value = self.search_by_name(parameter, show_ar_config_output, find_all=True)[index]
-                profiles_dicts[profile].update({key: value})
-        ar_result_dict[ArConsts.AR_PROFILE_GLOBAL] = profiles_dicts
-        # Get Ports dict values
-        port_util_value = self.get_ports_profile_configuration(show_ar_config_output)
-        ar_result_dict[ArConsts.AR_PORTS_GLOBAL] = dict(port_util_value)
+        if not get_global_only:
+            # Get profiles values
+            profiles_dicts = {}
+            for index, profile in enumerate(profile_names):
+                profiles_dicts.setdefault(profile, {})
+                for parameter in ArConsts.AR_PROFILE_KEYS_LIST:
+                    key, value = self.search_by_name(parameter, show_ar_config_output, find_all=True)[index]
+                    profiles_dicts[profile].update({key: value})
+            ar_result_dict[ArConsts.AR_PROFILE_GLOBAL] = profiles_dicts
+            # Get Ports dict values
+            port_util_value = self.get_ports_profile_configuration(show_ar_config_output)
+            ar_result_dict[ArConsts.AR_PORTS_GLOBAL] = dict(port_util_value)
         return ar_result_dict
 
     def send_and_validate_traffic(self, player, sender, sender_intf, sender_pkt_format, sender_count, sendpfast=False,

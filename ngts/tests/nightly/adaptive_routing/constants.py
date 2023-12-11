@@ -57,18 +57,18 @@ class ArConsts:
     AR_ACTIVE_PROFILE = 'AR active profile'
     # AR profile keys
     PROF_KEY_NAME = 'name'
-    PROF_KEY_MODE = 'mode'
-    PROF_KEY_BUSY_THRES = 'busy_threshold'
-    PROF_KEY_FREE_THRES = 'free_threshold'
-    PROF_KEY_CONG_THRES_LO = 'congestion_th_low \\(Cells\\)'
-    PROF_KEY_CONG_THRES_ME = 'congestion_th_medium \\(Cells\\)'
-    PROF_KEY_CONG_THRES_HI = 'congestion_th_high \\(Cells\\)'
-    PROF_KEY_SHAPER_FR_EN = 'from_shaper_enable'
-    PROF_KEY_SHAPER_FR = "from_shaper \\(\\* 100 ns\\)"
-    PROF_KEY_SHAPER_TO_EN = 'to_shaper_enable'
-    PROF_KEY_SHAPER_TO = 'to_shaper \\(\\* 100 ns\\)'
-    PROF_KEY_ECMP_SIZE = 'ecmp_size'
-    PROF_KEY_ELEPH_FLOW = 'elephant_enable'
+    PROF_KEY_MODE = 'm'
+    PROF_KEY_BUSY_THRES = 'but'
+    PROF_KEY_FREE_THRES = 'frt'
+    PROF_KEY_CONG_THRES_LO = 'ctl'
+    PROF_KEY_CONG_THRES_ME = 'ctm'
+    PROF_KEY_CONG_THRES_HI = 'cth'
+    PROF_KEY_SHAPER_FR_EN = 'sfe'
+    PROF_KEY_SHAPER_FR = "srf"
+    PROF_KEY_SHAPER_TO_EN = 'ste'
+    PROF_KEY_SHAPER_TO = 'srt'
+    PROF_KEY_ECMP_SIZE = 'ecs'
+    PROF_KEY_ELEPH_FLOW = 'ef'
 
     AR_PROFILE_KEYS_LIST = [
         PROF_KEY_MODE,
@@ -85,16 +85,11 @@ class ArConsts:
         PROF_KEY_ELEPH_FLOW
     ]
 
-    MODE_DICT = {
-        '0': 'free',
-        '1': 'time_bound',
-        '2': 'random'
-    }
     # Golden Profile values
     GOLDEN_PROFILE0 = 'profile0'
     GOLDEN_PROFILE0_PARAMETERS = {
         PROF_KEY_NAME: GOLDEN_PROFILE0,
-        PROF_KEY_MODE: MODE_DICT['0'],
+        PROF_KEY_MODE: '0',
         PROF_KEY_CONG_THRES_LO.replace("\\", ""): str(LO_THRESHOLD_PROFILE0),
         PROF_KEY_CONG_THRES_ME.replace("\\", ""): '1000',
         PROF_KEY_CONG_THRES_HI.replace("\\", ""): '10000',
@@ -111,7 +106,7 @@ class ArConsts:
     CUSTOM_PROFILE_NAME = 'custom_profile0'
     CUSTOM_PROFILE0_PARAMETERS = {
         PROF_KEY_NAME: CUSTOM_PROFILE_NAME,
-        PROF_KEY_MODE: MODE_DICT['1'],
+        PROF_KEY_MODE: '1',
         PROF_KEY_CONG_THRES_LO.replace("\\", ""): '200',
         PROF_KEY_CONG_THRES_ME.replace("\\", ""): '1000',
         PROF_KEY_CONG_THRES_HI.replace("\\", ""): '10000',

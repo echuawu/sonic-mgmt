@@ -16,8 +16,7 @@ class SonicAdaptiveRoutingCli:
         return self.engine.run_cmd(f'{self.restart_dockers(restart_swss)} | sudo config ar disabled')
 
     def enable_ar_port(self, port, link_util_threshold=70, restart_swss=False):
-        return self.engine.run_cmd(f'{self.restart_dockers(restart_swss)} | sudo config ar port enabled {port} '
-                                   f'{link_util_threshold}')
+        return self.engine.run_cmd(f'{self.restart_dockers(restart_swss)} | sudo config ar port enabled {port}')
 
     def disable_ar_port(self, port, restart_swss=False):
         return self.engine.run_cmd(f'{self.restart_dockers(restart_swss)} | sudo config ar port disabled {port}')
