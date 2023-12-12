@@ -81,9 +81,9 @@ def test_techsupport_expected_files(engines, devices):
         duration = end_time - start_time
         with allure.step("Tech-support generation takes: {} seconds".format(duration)):
             logger.info("Tech-support generation takes: {} seconds".format(duration))
-        techsupport_files_list = get_techsupport_dump_files_names(engines.dut, tech_support_folder)
+        techsupport_files_list, techsupport_sdk_files_list = get_techsupport_dump_files_names(engines.dut, tech_support_folder)
     with allure.step('validate dump files'):
-        verify_techsupport_dump_files(devices.dut, techsupport_files_list)
+        verify_techsupport_dump_files(devices.dut, techsupport_files_list, techsupport_sdk_files_list)
 
     cleanup_techsupport(engines.dut, [], [tech_support_folder])
 
@@ -92,14 +92,16 @@ def get_techsupport_dump_files_names(engine, techsupport):
     """
     :param engine:
     :param techsupport: the techsupport .tar.gz name
-    :return: list of the dump files in the tech-support
+    :return: tuple, first item is list of the dump files in the tech-support
+            second item is list of the sdk dump files
     """
     with allure.step('Get all tech-support dump files'):
         engine.run_cmd('sudo tar -xf ' + techsupport + ' -C /host/dump')
         folder_name = techsupport.replace('.tar.gz', "")
-        output = engine.run_cmd('ls ' + folder_name + '/dump')
+        dump_files = engine.run_cmd('ls ' + folder_name + '/dump')
+        sdk_dump_files = engine.run_cmd('ls ' + folder_name + '/sai_sdk_dump0')
         engine.run_cmd('sudo rm -rf ' + folder_name)
-        return output.split()
+        return dump_files.split(), sdk_dump_files.split()
 
 
 def cleanup_techsupport(engine, before, after):
@@ -108,14 +110,17 @@ def cleanup_techsupport(engine, before, after):
         engine.run_cmd('sudo rm -rf ' + dump)
 
 
-def verify_techsupport_dump_files(device, files_list):
+def verify_techsupport_dump_files(device, files_list, sdk_files_list):
     """
     :param files_list: list of dump files
-    :param device:
-    :return:
+    :param sdk_files_list: list of sdk dump files
+    :param device: Noga device info
+    :return: None
     """
     files = [file for file in device.constants.dump_files if file not in files_list]
     assert len(files) == 0, "the next files are missed {files}".format(files=files)
+    files = [file for file in device.constants.sdk_dump_files if file not in sdk_files_list]
+    assert len(files) == 0, "the next sdk files are missed {files}".format(files=files)
     files = [file for file in files_list if file not in device.constants.dump_files]
     if len(files) != 0:
         logger.warning("the next files are in the dump folder but not in our check list {files}".format(files=files))
