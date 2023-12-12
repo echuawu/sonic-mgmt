@@ -680,6 +680,19 @@
     - r-tigris-04
   comment: Mellanox MTR testbed
 
+- conf-name: r-tigris-04-t0-120
+  group-name: vm-t1
+  topo: t0-120
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigris-04
+  ptf_ip: 10.213.104.5/16
+  ptf_ipv6:
+  server: server_12
+  vm_base: VM1201
+  dut:
+    - r-tigris-04
+  comment: Mellanox MTR testbed
+
 - conf-name: r-tigris-04-t1
   group-name: vm-t1
   topo: t1
@@ -954,6 +967,19 @@
   comment: Mellanox MTR testbed
 
 - conf-name: r-tigris-25-t0-64
+  group-name: vm-t1
+  topo: t0-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigris-25
+  ptf_ip: 10.213.84.41/16
+  ptf_ipv6:
+  server: server_1
+  vm_base: VM0101
+  dut:
+    - r-tigris-25
+  comment: Mellanox MTR testbed
+
+- conf-name: r-tigris-25-t0-120
   group-name: vm-t1
   topo: t0-64
   ptf_image_name: docker-ptf-mlnx
