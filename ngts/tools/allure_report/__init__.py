@@ -20,7 +20,9 @@ def get_setup_topology(session):
 
 
 def pytest_sessionstart(session):
-    session.config.option.allure_server_addr = '10.215.11.120'
+    session.config.option.allure_server_addr = "allure.nvidia.com"
+    session.config.option.allure_server_port = ''
+
     if not testbed_param_already_loaded(session):
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']

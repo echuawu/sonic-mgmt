@@ -151,6 +151,13 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
+        old_allure_server = "10.215.11.120"
+
+        if old_allure_server in self.raw_options:
+            self.raw_options = self.raw_options.replace(old_allure_server, "allure.nvidia.com")
+        else:
+            self.raw_options = self.raw_options + ' --allure_server_addr="allure.nvidia.com" '
+        self.raw_options += ' --allure_server_port="" '
 
         if '--allure_server_project_id' in self.raw_options:
             allure_proj_pytest_arg = ''

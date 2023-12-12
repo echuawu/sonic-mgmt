@@ -137,9 +137,9 @@ class InfraConst:
     IP = 'ip'
     MASK = 'mask'
 
-    ALLURE_SERVER_IP = '10.215.11.120'
-    ALLURE_SERVER_PORT = '5050'
-    ALLURE_SERVER_URL = 'http://{}:{}'.format(ALLURE_SERVER_IP, ALLURE_SERVER_PORT)
+    ALLURE_SERVER_IP = 'allure.nvidia.com'
+    ALLURE_SERVER_PORT = ''
+    ALLURE_SERVER_URL = 'https://{}'.format(ALLURE_SERVER_IP)
     ALLURE_REPORT_DIR = '/tmp/allure-results'
     ENV_SESSION_ID = 'SESSION_ID'
     ENV_LOG_FOLDER = 'LOG_FOLDER'
