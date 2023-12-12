@@ -6,7 +6,7 @@ from typing import Dict, List, Callable, Any
 
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool, wait_until_cli_is_up
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -206,9 +206,10 @@ def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
             engine_to_use = test_item.active_remote_admin_engine
         engine_to_use.disconnect()
         with allure.step(f'Start checking connection and services - using user "{engine_to_use.username}"'):
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine_to_use,
-                                                            find_prompt_tries=2,
-                                                            find_prompt_delay=5).verify_result()
+            wait_until_cli_is_up(engine=engine_to_use)
+            # DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine_to_use,
+            #                                                 find_prompt_tries=2,
+            #                                                 find_prompt_delay=5).verify_result()
 
 
 def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
