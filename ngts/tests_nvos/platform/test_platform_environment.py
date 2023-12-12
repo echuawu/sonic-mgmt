@@ -170,6 +170,16 @@ def test_show_platform_environment_temperature(engines, devices):
     with allure.step("Execute show platform environment temperature and make sure all the components exist"):
         output = _verify_output(platform, "temperature", devices.dut.temperature_list)
 
+    with allure.step("make sure all temperature sensors are present in the output"):
+        with allure.step("Verify for every sensor in sensors_dict[TEMPERATURE], it exist in nv show platform temperature"):
+            diff_sensors = [x for x in devices.dut.sensors_dict["TEMPERATURE"] if x not in output.keys()]
+            err_mes = '' if not len(diff_sensors) else 'the next sensors are not in the output: {}'.format(diff_sensors)
+        with allure.step("Verify no extra sensors are found in nv show platform environment temperature"):
+            diff_sensors = [x for x in output.keys() if x not in devices.dut.sensors_dict["TEMPERATURE"]]
+            err_mes += '' if not len(diff_sensors) else 'there are extra sensors in the output: {}'.format(diff_sensors)
+
+    assert not err_mes, err_mes
+
     with allure.step("Check that all required properties for each temperature"):
         logging.info("Check that all required properties for each temperature")
         for temp, temp_prop in output.items():

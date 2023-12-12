@@ -1,5 +1,6 @@
 import logging
 import re
+import json
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -42,3 +43,9 @@ class Voltage(BaseComponent):
     def get_file_name(file_full_detailes, stringtoadd=""):
         match = re.search("'([^']+)'", file_full_detailes)
         return stringtoadd + match.group(1)
+
+    def get_cli_sensors_list(self, engine):
+        with allure.step('Execute show for voltage sensors'):
+            output = self.show()
+            cli_sensors_list = json.loads(output).keys()
+            return cli_sensors_list

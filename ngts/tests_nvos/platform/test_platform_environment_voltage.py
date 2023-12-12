@@ -54,7 +54,7 @@ def test_show_voltage_bad_flow(engines, devices):
 
 
 @pytest.mark.platform
-def test_database_platform_environment_voltage(engines):
+def test_database_platform_environment_voltage(engines, devices):
     """
     For Each Sensor we have DB (should be part of init flow)
     """
@@ -63,7 +63,12 @@ def test_database_platform_environment_voltage(engines):
 
     with allure.step("get expected sensors"):
         sensors_list = platform.environment.voltage.get_sensors_list(engines.dut)
-        logger.info("the expected sensors are: {}".format(sensors_list))
+        logger.info("the expected sensors from switch's file system are: {}".format(sensors_list))
+
+    with allure.step("get expected CLI voltage sensors"):
+        cli_sensors_list = platform.environment.voltage.get_cli_sensors_list(engines.dut)
+
+        logger.info("the sensors from switch's CLI are: {}".format(cli_sensors_list))
 
     with allure.step("get all the tabled with SENSOR in STATE_DB"):
         database_output = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=engines.dut, asic="",
@@ -71,10 +76,18 @@ def test_database_platform_environment_voltage(engines):
                                                                    grep_str="VOLTAGE").splitlines()
         # database_output = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
 
-    with allure.step("Check the Sensors tables"):
+    with allure.step("Check the Sensors output from CLI"):
+        with allure.step("Verify for every sensor in sensors_dict[VOLTAGE], it exist in nv show platform environment voltage"):
+            diff_sensors = [x for x in devices.dut.sensors_dict["VOLTAGE"] if x not in cli_sensors_list]
+            err_mes = '' if not len(diff_sensors) else 'the next sensors are missed {}'.format(diff_sensors)
+        with allure.step("Verify no extra sensors are found in nv show platform environment voltage"):
+            diff_sensors = [x for x in cli_sensors_list if x not in devices.dut.sensors_dict["VOLTAGE"]]
+            err_mes += '' if not len(diff_sensors) else 'there extra sensors were found: {}'.format(diff_sensors)
+
+    with allure.step("Check the Sensors dynamic tables"):
         with allure.step("Verify for every sensor: VOLTAGE_INFO|<sensor_name> table exist in STATE_DB"):
             diff_sensors = [x for x in sensors_list if x not in database_output]
-            err_mes = '' if not len(diff_sensors) else 'the next tables are missed {}'.format(diff_sensors)
+            err_mes += '' if not len(diff_sensors) else 'the next tables are missed {}'.format(diff_sensors)
 
         with allure.step("Verify no extra sensor tables in STATE_DB"):
             diff_sensors = [x for x in database_output if x not in sensors_list]

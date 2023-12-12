@@ -52,6 +52,7 @@ class BaseDevice:
         self._init_health_components()
         self._init_platform_lists()
         self._init_system_lists()
+        self._init_sensors_dict()
 
     @abstractmethod
     def _init_available_databases(self):
@@ -357,9 +358,7 @@ class BaseSwitch(BaseDevice, ABC):
         self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
     def _init_sensors_dict(self):
-        self.sensors_dict = {
-            'HW': []
-        }
+        self.sensors_dict = {}
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
@@ -596,6 +595,9 @@ class MarlinSwitch(MultiAsicSwitch):
         CATEGORY_LIST[4]: CATEGORY_DEFAULT_DICT,
         CATEGORY_LIST[5]: CATEGORY_DEFAULT_DICT
     }
+    VOLTAGE_SENSORS = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
+    TEMPERATURE_SENSORS = ["ASIC", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Core-2-Temp",
+                           "CPU-Core-3-Temp", "CPU-Pack-Temp", "SODIMM-1-Temp"]
 
     def __init__(self):
         MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
@@ -630,8 +632,13 @@ class MarlinSwitch(MultiAsicSwitch):
     def ib_ports_num(self):
         return self.MARLIN_IB_PORT_NUM
 
+    def _init_sensors_dict(self):
+        self.sensors_dict = {"VOLTAGE": self.VOLTAGE_SENSORS,
+                             "TEMPERATURE": self.TEMPERATURE_SENSORS}
 
 # -------------------------- Cumulus Switch ----------------------------
+
+
 class AnacondaSwitch(BaseSwitch):
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'GEN2'
@@ -772,6 +779,16 @@ class GorillaSwitch(MultiAsicSwitch):
     }
     FNM_LINK_SPEED = '400G'
     SUPPORTED_IB_SPEED = ['hdr', 'ndr']  # ['sdr', 'fdr', 'edr', 'hdr', 'ndr']
+    VOLTAGE_SENSORS = ["PMIC-1-COMEX-VCCSA-out2", "PMIC-1-COMEX-VCORE-out1", "PMIC-1-OSFP-P01-P08-Rail-out1",
+                       "PMIC-1-OSFP-P09-P16-Rail-out2", "PMIC-1-PSU-12V-Rail-in1", "PMIC-1-PSU-12V-Rail-vin",
+                       "PMIC-3-ASIC-VCORE-MAIN-Rail-out1", "PMIC-3-PSU-12V-Rail-in1", "PMIC-4-DVDD-0.9V-EAST-Rail-out2",
+                       "PMIC-4-HVDD-1.2V-EAST-Rail-out1", "PMIC-4-PSU-12V-Rail-in", "PMIC-5-DVDD-0.9V-WEST-Rail-out2",
+                       "PMIC-5-HVDD-1.2V-WEST-Rail-out1", "PMIC-5-PSU-12V-Rail-in", "PMIC-6-HVDD-1.2V-WEST-Rail-out1",
+                       "PMIC-6-PSU-12V-Rail-in1", "PMIC-6-PSU-12V-Rail-in2", "PSU-1L-12V-Rail-out",
+                       "PSU-2R-12V-Rail-out"]
+    TEMPERATURE_SENSORS = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
+                           "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PCH-Temp",
+                           "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
 
     def __init__(self):
         MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
@@ -828,6 +845,10 @@ class GorillaSwitch(MultiAsicSwitch):
                  "KDUMP": 0}
         }
         self.available_tables.update({'database0': available_tables_per_asic})
+
+    def _init_sensors_dict(self):
+        self.sensors_dict = {"VOLTAGE": self.VOLTAGE_SENSORS,
+                             "TEMPERATURE": self.TEMPERATURE_SENSORS}
 
 
 # -------------------------- BlackMamba Switch ----------------------------
@@ -1139,6 +1160,16 @@ class CrocodileSwitch(MultiAsicSwitch):
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitchBF3(GorillaSwitch):
     SWITCH_CORE_COUNT = 16
+    VOLTAGE_SENSORS = ["PMIC-1-COMEX-VCCSA-out2", "PMIC-1-COMEX-VCORE-out1", "PMIC-1-OSFP-P01-P08-Rail-out1",
+                       "PMIC-1-OSFP-P09-P16-Rail-out2", "PMIC-1-PSU-12V-Rail-in1", "PMIC-1-PSU-12V-Rail-vin",
+                       "PMIC-3-ASIC-VCORE-MAIN-Rail-out1", "PMIC-3-PSU-12V-Rail-in1", "PMIC-4-DVDD-0.9V-EAST-Rail-out2",
+                       "PMIC-4-HVDD-1.2V-EAST-Rail-out1", "PMIC-4-PSU-12V-Rail-in", "PMIC-5-DVDD-0.9V-WEST-Rail-out2",
+                       "PMIC-5-HVDD-1.2V-WEST-Rail-out1", "PMIC-5-PSU-12V-Rail-in", "PMIC-6-HVDD-1.2V-WEST-Rail-out1",
+                       "PMIC-6-PSU-12V-Rail-in1", "PMIC-6-PSU-12V-Rail-in2", "PSU-1L-12V-Rail-out",
+                       "PSU-2R-12V-Rail-out"]
+    TEMPERATURE_SENSORS = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
+                           "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PCH-Temp",
+                           "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
 
     def _init_temperature(self):
         GorillaSwitch._init_temperature(self)
@@ -1146,3 +1177,7 @@ class GorillaSwitchBF3(GorillaSwitch):
                                  "xSFP-module-26-Temp", "xSFP-module-29-Temp"]
         GorillaSwitch._init_constants(self)
         self.constants.firmware.remove(PlatformConsts.FW_BIOS)
+
+    def _init_sensors_dict(self):
+        self.sensors_dict = {"VOLTAGE": self.VOLTAGE_SENSORS,
+                             "TEMPERATURE": self.TEMPERATURE_SENSORS}
