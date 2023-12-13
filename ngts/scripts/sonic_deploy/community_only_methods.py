@@ -35,7 +35,7 @@ def get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number):
     testbed_file = ''
     if is_dualtor_topo(sonic_topo):
         dut_name = setup_info['setup_name']
-        if sonic_topo == 'dualtor-aa':
+        if is_dualtor_aa_topo(sonic_topo):
             testbed_file = '-t testbed.yaml'
     cmd = "./testbed-cli.sh {TESTBED_FILE} gen-mg {SWITCH}-{TOPO} lab vault".format(TESTBED_FILE=testbed_file,
                                                                                     SWITCH=dut_name, TOPO=sonic_topo)
@@ -157,3 +157,7 @@ def is_bf_topo(sonic_topo):
 
 def is_dualtor_topo(sonic_topo):
     return 'dualtor' in sonic_topo
+
+
+def is_dualtor_aa_topo(sonic_topo):
+    return 'dualtor-aa' in sonic_topo

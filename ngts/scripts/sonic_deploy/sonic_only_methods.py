@@ -9,8 +9,8 @@ from pathlib import Path
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
 from ngts.constants.constants import MarsConstants, SonicDeployConstants
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
-    reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, generate_minigraph, config_y_cable_simulator, \
-    add_host_for_y_cable_simulator
+    reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
+    config_y_cable_simulator, add_host_for_y_cable_simulator
 from retry.api import retry_call
 from ngts.helpers.run_process_on_host import run_background_process_on_host
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
@@ -40,13 +40,14 @@ class SonicInstallationSteps:
             ansible_path = setup_info['ansible_path']
             # Get ptf docker tag
             ptf_tag = SonicInstallationSteps.get_ptf_tag_sonic(base_version, target_version)
-
+            dut_names = []
+            for dut in setup_info['duts']:
+                dut_names.append(dut['dut_name'])
             with allure.step('Remove topologies'):
-                for dut in setup_info['duts']:
-                    SonicInstallationSteps.remove_topologies(ansible_path=ansible_path,
-                                                             dut_name=dut['dut_name'],
-                                                             setup_name=setup_name,
-                                                             sonic_topo=sonic_topo)
+                SonicInstallationSteps.remove_topologies(ansible_path=ansible_path,
+                                                         dut_names=dut_names,
+                                                         setup_name=setup_name,
+                                                         sonic_topo=sonic_topo)
 
             SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
                                                                       dut_name, sonic_topo, ptf_tag, port_number,
@@ -162,30 +163,35 @@ class SonicInstallationSteps:
         return ptf_tag
 
     @staticmethod
-    def remove_topologies(ansible_path, dut_name, setup_name, sonic_topo):
+    def remove_topologies(ansible_path, dut_names, setup_name, sonic_topo):
         """
         The method removes the topologies to get the clear environment.
         """
-        logger.info("Removing topologies to get the clear environment")
-        with allure.step("Remove Topologies (community step)"):
-            topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo, dut_name)
-            testbed_file = ''
-            if sonic_topo == 'dualtor-aa' and 'dualtor-aa' not in topologies:
-                topologies.append('dualtor-aa')
-            logger.info(f"Remove topologies: {topologies}. This may increase a chance to deploy a new one successful")
-            for topology in topologies:
-                if topology == 'dualtor-aa':
+        def _remove_topologies(setup, topo_list):
+            logger.info(
+                f"Remove topologies: {topo_list}. This may increase a chance to deploy a new one successful")
+            for topo in topo_list:
+                if is_dualtor_aa_topo(topo):
                     cmd = "./testbed-cli.sh -t testbed.yaml -k ceos remove-topo {SETUP}-{TOPO} vault".format(
-                        TESTBED_FILE=testbed_file, SETUP=setup_name, TOPO=topology)
+                        SETUP=setup, TOPO=topo)
                 else:
-                    cmd = "./testbed-cli.sh -k ceos remove-topo {SWITCH}-{TOPO} vault".format(
-                        TESTBED_FILE=testbed_file, SWITCH=dut_name, TOPO=topology)
-                logger.info("Remove topo {}".format(topology))
+                    cmd = "./testbed-cli.sh -k ceos remove-topo {SETUP}-{TOPO} vault".format(
+                        SETUP=setup, TOPO=topo)
+                logger.info("Remove topo {}".format(topo))
                 logger.info("Running CMD: {}".format(cmd))
                 try:
                     execute_script(cmd, ansible_path, validate=False, timeout=600)
                 except Exception as err:
                     logger.warning(f'Failed to remove topology. Got error: {err}')
+
+        logger.info("Removing topologies to get the clear environment")
+        with allure.step("Remove Topologies (community step)"):
+            if is_dualtor_topo(sonic_topo):
+                topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo, setup_name)
+                _remove_topologies(setup_name, topologies)
+            for dut_name in dut_names:
+                topologies = SonicInstallationSteps.get_topologies_to_remove(sonic_topo, dut_name)
+                _remove_topologies(dut_name, topologies)
 
     @staticmethod
     def get_topologies_to_remove(required_topology, dut_name):
@@ -197,7 +203,10 @@ class SonicInstallationSteps:
                 logger.info(f"Found cached topology: {cached_topo}, removing only this one")
                 topos_to_remove = [cached_topo]
             else:
-                topos_to_remove = MarsConstants.TOPO_ARRAY
+                if 'dual-tor' in dut_name:
+                    topos_to_remove = MarsConstants.TOPO_ARRAY_DUALTOR
+                else:
+                    topos_to_remove = MarsConstants.TOPO_ARRAY
         return topos_to_remove
 
     @staticmethod
@@ -205,7 +214,7 @@ class SonicInstallationSteps:
         testbed_file = ''
         if is_dualtor_topo(sonic_topo):
             dut_name = setup_name
-            if sonic_topo == 'dualtor-aa':
+            if is_dualtor_aa_topo(sonic_topo):
                 testbed_file = '-t testbed.yaml'
         cmd = "./testbed-cli.sh {TESTBED_FILE} -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
               "ptf_imagetag={PTF_TAG} -vvvvv".format(TESTBED_FILE=testbed_file, SWITCH=dut_name,

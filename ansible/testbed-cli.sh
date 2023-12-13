@@ -270,8 +270,10 @@ function add_topo
 
   cache_files_path_value=$(is_cache_exist)
   if [[ -n $cache_files_path_value ]]; then
-    # Skip the dualtor testbed, the $dut is like [r-tigon-20,r-tigon-21]
-    if [[ $dut != *,* ]]; then
+    if [[ $topo =~ "dualtor" ]]; then
+        echo "$topo" > $cache_files_path_value/${testbed_name%"-$topo"}
+        chmod 666 $cache_files_path_value/${testbed_name%"-$topo"}
+    else
         echo "$topo" > $cache_files_path_value/$dut
         chmod 666 $cache_files_path_value/$dut
     fi

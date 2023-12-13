@@ -3,6 +3,7 @@ import re
 
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.tools.infra import update_sys_path_by_community_plugins_path
+from ngts.scripts.sonic_deploy.community_only_methods import is_dualtor_topo
 
 update_sys_path_by_community_plugins_path()
 
@@ -44,7 +45,7 @@ def pytest_sessionstart(session):
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
         session.config.option.testbed = f'{dut_name}-{setup_topology}'
-    if setup_topology == 'dualtor-aa':
+    if is_dualtor_topo(setup_topology):
         testbed_file = 'testbed.yaml'
         session.config.option.testbed = f'{session.config.option.setup_name}-{setup_topology}'
     else:

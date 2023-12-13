@@ -88,6 +88,20 @@
     - r-tigon-21
   comment: 4600C Active-Standby Dual-TOR testbed
 
+- conf-name: sonic-dual-tor-tigon-dualtor-64
+  group-name: vm-t1
+  topo: dualtor-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+    - r-tigon-21
+  comment: 4600C Active-Standby Dual-TOR testbed
+
 - conf-name: sonic-dual-tor-tigon-dualtor-mixed
   group-name: vm-t1
   topo: dualtor-mixed
@@ -107,6 +121,22 @@
 - conf-name: sonic-dual-tor-tigon-dualtor-aa
   group-name: vm-t1
   topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.215.18.216/16
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+    - r-tigon-21
+  comment: 4600C Active-Active Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-tigon-dualtor-aa-64
+  group-name: vm-t1
+  topo: dualtor-aa-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-r-tigon-20
   ptf_ip: 10.215.18.183/16
@@ -1759,9 +1789,35 @@
     - r-tigon-20
   comment: Mellanox MTR testbed
 
+- conf-name: r-tigon-20-dualtor-64
+  group-name: vm-t1
+  topo: dualtor-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+  comment: Mellanox MTR testbed
+
 - conf-name: r-tigon-20-dualtor-aa
   group-name: vm-t1
   topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-20
+  ptf_ip: 10.215.18.183/16
+  ptf_ipv6:
+  server: server_17
+  vm_base: VM1701
+  dut:
+    - r-tigon-20
+  comment: Mellanox MTR testbed
+
+- conf-name: r-tigon-20-dualtor-aa-64
+  group-name: vm-t1
+  topo: dualtor-aa-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-r-tigon-20
   ptf_ip: 10.215.18.183/16
@@ -1928,9 +1984,9 @@
     - r-tigon-21
   comment: Mellanox MTR testbed
 
-- conf-name: r-tigon-21-dualtor-aa
+- conf-name: r-tigon-21-dualtor-64
   group-name: vm-t1
-  topo: dualtor
+  topo: dualtor-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-r-tigon-21
   ptf_ip: 10.215.20.122/16
@@ -1940,6 +1996,33 @@
   dut:
     - r-tigon-21
   comment: Mellanox MTR testbed
+
+- conf-name: r-tigon-21-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-21
+  ptf_ip: 10.215.20.122/16
+  ptf_ipv6:
+  server: server_18
+  vm_base: VM1801
+  dut:
+    - r-tigon-21
+  comment: Mellanox MTR testbed
+
+- conf-name: r-tigon-21-dualtor-aa-64
+  group-name: vm-t1
+  topo: dualtor-aa-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-tigon-21
+  ptf_ip: 10.215.20.122/16
+  ptf_ipv6:
+  server: server_18
+  vm_base: VM1801
+  dut:
+    - r-tigon-21
+  comment: Mellanox MTR testbed
+
 
 - conf-name: r-tigon-21-ptf-any
   group-name: vm-t1
