@@ -365,8 +365,8 @@ class LdapEncryptionModes:
 
 
 class LdapFilterFields:
-    PASSWD = LdapConsts.PASSWD,
-    GROUP = LdapConsts.GROUP,
+    PASSWD = LdapConsts.PASSWD
+    GROUP = LdapConsts.GROUP
     SHADOW = LdapConsts.SHADOW
     ALL_FIELDS = [PASSWD, GROUP, SHADOW]
 

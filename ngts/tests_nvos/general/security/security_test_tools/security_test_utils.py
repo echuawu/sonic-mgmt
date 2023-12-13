@@ -377,3 +377,21 @@ def configure_resource(engines, resource_obj: BaseComponent, conf, apply=False, 
                                                           dut_engine, True)
                 if verify_apply:
                     res.verify_result()
+
+
+def check_ldap_user_with_getent_passwd(engine: ProxySshEngine, username: str, user_should_exist: bool):
+    with allure.step('Get getent passwd output'):
+        output = engine.run_cmd('getent passwd | grep ldap')
+    with allure.step(f'Verify "{username}" does not exist'):
+        assert (username in output) == user_should_exist, \
+            f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
+            f'in getent passwd output\ngetent passwd output: {output}\n'
+
+
+def check_ldap_user_groups_with_id(engine: ProxySshEngine, username: str, groupname: str, group_should_exist: bool):
+    with allure.step('Get id output'):
+        output = engine.run_cmd(f'id {username}')
+    with allure.step(f'Verify "{groupname}" does not exist'):
+        assert (groupname in output) == group_should_exist, \
+            f'groupname "{groupname}" unexpectedly {"does not " if not group_should_exist else ""}exist ' \
+            f'in id {username} output\nid {username} output: {output}\n'
