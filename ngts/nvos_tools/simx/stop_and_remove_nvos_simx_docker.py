@@ -1,6 +1,8 @@
 import logging
 import allure
+import os
 from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 logger = logging.getLogger()
 
 
@@ -18,7 +20,10 @@ def test_stop_and_remove_reg_simx_docker(topology_obj):
 def get_topo_info(topology_obj):
     with allure.step("Get server and dut details"):
         dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        server_engine = topology_obj.players['server']['engine']
+        server_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+            'serial_conn_command'].split()[1]
+        server_engine = ConnectionTool.create_ssh_conn(server_name, os.getenv("TEST_SERVER_USER"),
+                                                       os.getenv("TEST_SERVER_PASSWORD")).returned_value
         return dut_name, server_engine
 
 

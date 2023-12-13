@@ -23,10 +23,6 @@ def test_replace_empty_file(engines):
         5. verify diff_1 is empty
     """
     system = System()
-    with allure.step('cleanup step - run nv unset system'):
-        engines.dut.run_cmd('nv unset system')
-        NvueGeneralCli.apply_config(engines.dut)
-
     with allure.step('Run show system command and verify that each field has a value'):
         new_hostname_value = 'TestingConfigCmds1'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):

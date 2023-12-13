@@ -2,6 +2,7 @@ import fnmatch
 import logging
 from contextlib import contextmanager
 import os
+import allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_constants.constants_nvos import ApiType

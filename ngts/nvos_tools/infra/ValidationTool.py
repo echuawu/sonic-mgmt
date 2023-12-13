@@ -327,3 +327,17 @@ class ValidationTool:
                         "the next files are in the dump folder but not in our check list {files}".format(files=files))
 
             return ResultObj(True, "all expected files are exist", True)
+
+    @staticmethod
+    def get_dictionaries_diff(dict1, dict2):
+        difference = {}
+
+        for key, value in dict1.items():
+            if key not in dict2:
+                difference[key] = value
+            elif isinstance(value, dict) and isinstance(dict2[key], dict):
+                nested_difference = ValidationTool.get_dictionaries_diff(value, dict2[key])
+                if nested_difference:
+                    difference[key] = nested_difference
+
+        return difference

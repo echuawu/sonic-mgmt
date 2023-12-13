@@ -93,6 +93,30 @@ class NvosConst:
 
     SERVERS_USER_NAME = os.getenv("TEST_SERVER_USER")
 
+    SYSTEM = "system"
+    INTERFACES = "interfaces"
+    IB = "ib"
+    SYSTEM_TIMEZONE = "timezone"
+    SYSTEM_AAA = 'aaa'
+    SYSTEM_AUTHENTICATION = 'authentication'
+    SYSTEM_AUTHENTICATION_ORDER = 'order'
+    SYSTEM_AAA_USER = 'user'
+    SYSTEM_AAA_USER_ADMIN = 'admin'
+    SYSTEM_AAA_USER_MONITOR = 'monitor'
+
+    DEFAULT_CONFIG = {"system": {
+        "aaa": {
+            "authentication": {
+                "restrictions": {
+                    "fail-delay": 0,
+                    "lockout-state": "disabled"
+                }
+            }
+        },
+        "timezone": "Asia/Jerusalem"
+    }
+    }
+
 
 class ApiType:
     NVUE = "NVUE"
