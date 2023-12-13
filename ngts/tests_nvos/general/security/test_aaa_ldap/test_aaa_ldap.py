@@ -1,4 +1,5 @@
 from itertools import product
+from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 import pytest
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -11,7 +12,7 @@ from ngts.tests_nvos.general.security.security_test_tools.security_test_utils im
     validate_authentication_fail_with_credentials, \
     set_local_users, user_lists_difference, mutual_users, validate_users_authorization_and_role
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapDefaults, LdapEncryptionModes, LdapGroupAttributes, LdapPasswdAttributes, LdapShadowAttributes
-from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServers
+from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServers, LdapServersP3
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
 from ngts.tools.test_utils import allure_utils as allure
@@ -125,8 +126,8 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
                           topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
                           remote_aaa_type=RemoteAaaType.LDAP,
                           feature_resource_obj=ldap,
-                          server_by_addr_type=LdapServers.DOCKER_SERVERS,
-                          test_param=LdapEncryptionModes.ALL_MODES,
+                          server_by_addr_type=LdapServersP3.LDAP1_SERVERS,
+                          test_param=[LdapEncryptionModes.NONE, LdapEncryptionModes.START_TLS],
                           test_param_update_func=update_ldap_encryption_mode)
 
 
@@ -346,3 +347,112 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
                 engine = engines.dut if not item.active_remote_admin_engine else item.active_remote_admin_engine
                 engine.run_cmd(f"sudo cp -f {LdapConsts.SWITCH_CA_BACKUP_FILE} {LdapConsts.SWITCH_CA_FILE}")
                 update_active_aaa_server(item, None)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_filter_passwd(test_api, engines, request, topology_obj):
+    """
+    Check functionality of filter to passwd
+
+        Steps:
+        1. set ldap configuration
+        2. set passwd filter to exclude users with uidNumber < 2000
+            * ldap user 'ldap1adm1' has uidNumber=1111 (filtered out)
+        3. enable ldap
+        4. verify ldap user 'ldap1adm1' does not exist in getent passwd
+        5. also, verify ldap user 'ldap1adm1' cant auth
+        6. sanity: clear filter and check the opposite
+    """
+    item = request.node
+    TestToolkit.tested_api = test_api
+
+    with allure.step('Set ldap configuration'):
+        server = LdapServersP3.LDAP1_IPV4.copy()
+        test_user = [user for user in server.users if user.username == 'ldap1adm1'][0]
+        server.configure(engines)
+
+    with allure.step('Set passwd filter'):
+        passwd_filter = '(uidNumber>=2000)'
+        ldap = System().aaa.ldap
+        ldap.filter.set(LdapConsts.PASSWD, passwd_filter).verify_result()
+
+    with allure.step('Enable LDAP'):
+        ldap.enable(failthrough=True, apply=True, verify_res=True)
+
+    def check_ldap_user_with_getent_passwd(engine: ProxySshEngine, username: str, user_should_exist: bool):
+        with allure.step('Get getent passwd output'):
+            output = engine.run_cmd('getent passwd | grep ldap')
+        with allure.step(f'Verify "{username}" does not exist'):
+            assert (username in output) == user_should_exist, \
+                f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
+                f'in getent passwd output\ngetent passwd output: {output}\n'
+
+    with allure.step(f'Verify user {test_user.username} does not exist in getent passwd'):
+        check_ldap_user_with_getent_passwd(engine=engines.dut, username=test_user.username, user_should_exist=False)
+
+    with allure.step(f'Verify user {test_user.username} can not auth'):
+        with loganalyzer_ignore():  # supposed to be able to ignore LA here because failthrough enabled
+            verify_user_auth(engines, topology_obj, test_user, expect_login_success=False)  # TODO: need all auth mediums?
+
+    with allure.step('Sanity: clear filter and check the opposite'):
+        with allure.step('Clear passwd filter'):
+            ldap.filter.unset(LdapConsts.PASSWD, apply=True).verify_result()
+        with allure.step(f'Verify user "{test_user.username}" exists in getent passwd'):
+            check_ldap_user_with_getent_passwd(engine=engines.dut, username=test_user.username, user_should_exist=True)
+
+    with allure.step(f'Verify user {test_user.username} can auth'):
+        verify_user_auth(engines, topology_obj, test_user, expect_login_success=True, verify_authorization=False)
+
+
+@pytest.mark.security
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_filter_group(test_api, engines, request, topology_obj):
+    """
+    Check functionality of filter to group
+
+        Steps:
+        1. set ldap configuration
+        2. set group filter to exclude groups with gidNumber=111
+            * ldap server is configured with group 'ldap1grp1' with gidNumber=111 (filtered out)
+            * configured that user 'ldap1adm1' is member of this group
+        3. enable ldap
+        4. verify user 'ldap1adm1' does not have group 'ldap1grp1' (with id/groups command)
+        5. also, verify ldap user 'ldap1adm1' cant auth
+        6. sanity: clear filter and check the opposite
+    """
+    item = request.node
+    TestToolkit.tested_api = test_api
+
+    with allure.step('Set ldap configuration'):
+        server = LdapServersP3.LDAP1_IPV4.copy()
+        test_user = [user for user in server.users if user.username == 'ldap1adm1'][0]
+        server.configure(engines)
+
+    with allure.step('Set group filter'):
+        group_filter = '(gidNumber!=111)'
+        ldap = System().aaa.ldap
+        ldap.filter.set(LdapConsts.GROUP, group_filter).verify_result()
+        group_111 = 'ldap1grp1'
+
+    with allure.step('Enable LDAP'):
+        ldap.enable(failthrough=True, apply=True, verify_res=True)
+
+    def check_ldap_user_groups_with_id(engine: ProxySshEngine, username: str, groupname: str, group_should_exist: bool):
+        with allure.step('Get id output'):
+            output = engine.run_cmd(f'id {username}')
+        with allure.step(f'Verify "{groupname}" does not exist'):
+            assert (groupname in output) == group_should_exist, \
+                f'groupname "{groupname}" unexpectedly {"does not " if not group_should_exist else ""}exist ' \
+                f'in id {username} output\nid {username} output: {output}\n'
+
+    with allure.step(f'Verify user {test_user.username} does not have group "{group_111}"'):
+        check_ldap_user_groups_with_id(engine=engines.dut, username=test_user.username, groupname=group_111, group_should_exist=False)
+
+    with allure.step('Sanity: clear filter and check the opposite'):
+        with allure.step('Clear group filter'):
+            ldap.filter.unset(LdapConsts.GROUP, apply=True).verify_result()
+        with allure.step(f'Verify user {test_user.username} now has group "{group_111}"'):
+            check_ldap_user_groups_with_id(engine=engines.dut, username=test_user.username, groupname=group_111, group_should_exist=True)
