@@ -2634,6 +2634,14 @@
       - 3679414
 
 - Errors_list:
+    - '.*ERR pmon#thermalctld: Thermal sysfs \/run\/hw-management\/thermal\/\w+ does not exist.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3704443
+
+- Errors_list:
     - '.* ERR systemctl\[\d+\]: Failed to get unit file state for lldp.timer: No such file or directory.*'
   Conditions:
     - Redmine:
