@@ -893,7 +893,7 @@
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-tigris-28" EndPort="ethernet 1/63/1" StartDevice="r-tigris-25" StartPort="Ethernet248"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-tigris-28" EndPort="ethernet 1/63/2" StartDevice="r-tigris-25" StartPort="Ethernet250"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-tigris-28" EndPort="ethernet 1/64/1" StartDevice="r-tigris-25" StartPort="Ethernet252"/>
-      <DeviceInterfaceLink BandWidth="50000" EndDevice="r-tigris-28" EndPort="ethernet 1/63/2" StartDevice="r-tigris-25" StartPort="Ethernet254"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="r-tigris-28" EndPort="ethernet 1/64/2" StartDevice="r-tigris-25" StartPort="Ethernet254"/>
 
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-liger-05" EndPort="ethernet 1/1/1" StartDevice="r-tigris-13" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-liger-05" EndPort="ethernet 1/1/2" StartDevice="r-tigris-13" StartPort="Ethernet2"/>
