@@ -781,13 +781,11 @@ class GorillaSwitch(MultiAsicSwitch):
     }
     FNM_LINK_SPEED = '400G'
     SUPPORTED_IB_SPEED = ['hdr', 'ndr']  # ['sdr', 'fdr', 'edr', 'hdr', 'ndr']
-    VOLTAGE_SENSORS = ["PMIC-1-COMEX-VCCSA-out2", "PMIC-1-COMEX-VCORE-out1", "PMIC-1-OSFP-P01-P08-Rail-out1",
-                       "PMIC-1-OSFP-P09-P16-Rail-out2", "PMIC-1-PSU-12V-Rail-in1", "PMIC-1-PSU-12V-Rail-vin",
-                       "PMIC-3-ASIC-VCORE-MAIN-Rail-out1", "PMIC-3-PSU-12V-Rail-in1", "PMIC-4-DVDD-0.9V-EAST-Rail-out2",
-                       "PMIC-4-HVDD-1.2V-EAST-Rail-out1", "PMIC-4-PSU-12V-Rail-in", "PMIC-5-DVDD-0.9V-WEST-Rail-out2",
-                       "PMIC-5-HVDD-1.2V-WEST-Rail-out1", "PMIC-5-PSU-12V-Rail-in", "PMIC-6-HVDD-1.2V-WEST-Rail-out1",
-                       "PMIC-6-PSU-12V-Rail-in1", "PMIC-6-PSU-12V-Rail-in2", "PSU-1L-12V-Rail-out",
-                       "PSU-2R-12V-Rail-out"]
+    VOLTAGE_SENSORS = ["3.3V-OSFP-P01-P08-Out-1", "3.3V-OSFP-P09-P16-Out-2", "3.3V-OSFP-P17-P24-Out-1",
+                       "3.3V-OSFP-P25-P32-Out-2", "12V-ASIC-HVDD-DVDD-In-1", "12V-ASIC-VCORE-In-1",
+                       "12V-PORTS-EAST-In-1", "12V-PORTS-WEST-In-1", "13V5-COMEX-VDD-In-1", "ASIC-DVDD-EAST-Out-2",
+                       "ASIC-DVDD-WEST-Out-2", "ASIC-HVDD-EAST-Out-1", "ASIC-HVDD-WEST-Out-1", "ASIC-VCORE-Out-1",
+                       "COMEX-VCCSA-Out-2", "COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
     TEMPERATURE_SENSORS = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
                            "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PCH-Temp",
                            "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
@@ -1162,13 +1160,11 @@ class CrocodileSwitch(MultiAsicSwitch):
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitchBF3(GorillaSwitch):
     SWITCH_CORE_COUNT = 16
-    VOLTAGE_SENSORS = ["PMIC-1-COMEX-VCCSA-out2", "PMIC-1-COMEX-VCORE-out1", "PMIC-1-OSFP-P01-P08-Rail-out1",
-                       "PMIC-1-OSFP-P09-P16-Rail-out2", "PMIC-1-PSU-12V-Rail-in1", "PMIC-1-PSU-12V-Rail-vin",
-                       "PMIC-3-ASIC-VCORE-MAIN-Rail-out1", "PMIC-3-PSU-12V-Rail-in1", "PMIC-4-DVDD-0.9V-EAST-Rail-out2",
-                       "PMIC-4-HVDD-1.2V-EAST-Rail-out1", "PMIC-4-PSU-12V-Rail-in", "PMIC-5-DVDD-0.9V-WEST-Rail-out2",
-                       "PMIC-5-HVDD-1.2V-WEST-Rail-out1", "PMIC-5-PSU-12V-Rail-in", "PMIC-6-HVDD-1.2V-WEST-Rail-out1",
-                       "PMIC-6-PSU-12V-Rail-in1", "PMIC-6-PSU-12V-Rail-in2", "PSU-1L-12V-Rail-out",
-                       "PSU-2R-12V-Rail-out"]
+    VOLTAGE_SENSORS = ["3.3V-OSFP-P01-P08-Out-1", "3.3V-OSFP-P09-P16-Out-2", "3.3V-OSFP-P17-P24-Out-1",
+                       "3.3V-OSFP-P25-P32-Out-2", "12V-ASIC-HVDD-DVDD-In-1", "12V-ASIC-VCORE-In-1",
+                       "12V-PORTS-EAST-In-1", "12V-PORTS-WEST-In-1", "13V5-COMEX-VDD-In-1", "ASIC-DVDD-EAST-Out-2",
+                       "ASIC-DVDD-WEST-Out-2", "ASIC-HVDD-EAST-Out-1", "ASIC-HVDD-WEST-Out-1", "ASIC-VCORE-Out-1",
+                       "COMEX-VCCSA-Out-2", "COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
     TEMPERATURE_SENSORS = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
                            "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PCH-Temp",
                            "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]

@@ -41,8 +41,11 @@ class Voltage(BaseComponent):
 
     @staticmethod
     def get_file_name(file_full_detailes, stringtoadd=""):
-        match = re.search("'([^']+)'", file_full_detailes)
-        return stringtoadd + match.group(1)
+        match = re.search(r'\s([^ ]+$)', file_full_detailes)
+        sensor_name = re.sub(r'PMIC-.\+', '', match.group(1))
+        sensor_name = sensor_name.replace('+', ' ').replace('_', ' ').replace(' Vol', '')
+
+        return stringtoadd + sensor_name
 
     def get_cli_sensors_list(self, engine):
         with allure.step('Execute show for voltage sensors'):
