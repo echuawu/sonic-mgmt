@@ -423,16 +423,38 @@
                                21392, 21408, 21424, 21440, 21456, 21472, 21489, 21490,
                                21504] %}
 
-{% set r_leopard_59_eth_ports = [-1, '1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7', '1/8',
-                                 '1/9', '1/10', '1/11', '1/12', '1/13', '1/14', '1/15', '1/16',
-                                 '1/17', '1/18', '1/19', '1/20', '1/21', '1/22', '1/23/1', '1/23/2',
-                                 '1/25', '1/26', '1/27', '1/28', '1/29', '1/30', '1/31', '1/32',
-                                 '1/24'] %}
-{% set r_leopard_59_of_ports = [-1, 20496, 20512, 20528, 20544, 20560, 20576, 20592, 20608,
-                                 20624, 20640, 20656, 20672, 20688, 20704, 20720, 20736,
-                                 20752, 20768, 20784, 20800, 20816, 20832, 20849, 20850,
-                                 20880, 20896, 20912, 20928, 20944, 20960, 20976, 20992,
-                                 20864] %}
+{% set r_leopard_59_eth_ports = [-1, '1/1/1', '1/1/2', '1/2/1', '1/2/2', '1/3/1', '1/3/2', '1/4/1', '1/4/2',
+                                 '1/5/1', '1/5/2', '1/6/1', '1/6/2', '1/7/1', '1/7/2', '1/8/1', '1/8/2',
+                                 '1/9/1', '1/9/2', '1/10/1', '1/10/2', '1/11/1', '1/11/2', '1/12/1', '1/12/2',
+                                 '1/13', '1/14', '1/15', '1/16', '1/17', '1/18', '1/19', '1/20',
+                                 '1/21/1', '1/21/2', '1/22/1', '1/22/2', '1/23/1', '1/23/2', '1/24/1', '1/24/2',
+                                 '1/25/1', '1/25/2', '1/26/1', '1/26/2', '1/27/1', '1/27/2', '1/28/1', '1/28/2',
+                                 '1/29/1', '1/29/2', '1/30/1', '1/31/1', '1/31/2', '1/32/1', '1/32/2',
+                                 '1/30/2'] %}
+{% set r_leopard_59_of_ports = [-1, 20497, 20498, 20513, 20514, 20529, 20530, 20545, 20546,
+                                 20561, 20562, 20577, 20578, 20593, 20594, 20609, 20610,
+                                 20625, 20626, 20641, 20642, 20657, 20658, 20673, 20674,
+                                 20688, 20704, 20720, 20736, 20752, 20768, 20784, 20800,
+                                 20817, 20818, 20833, 20834, 20849, 20850, 20865, 20866,
+                                 20881, 20882, 20897, 20898, 20913, 20914, 20929, 20930,
+                                 20945, 20946, 20961, 20977, 20978, 20993, 20994,
+                                 20962] %}
+{% set r_leopard_20_eth_ports = [-1, '1/1/1', '1/1/2', '1/2/1', '1/2/2', '1/3/1', '1/3/2', '1/4/1', '1/4/2',
+                                 '1/5/1', '1/5/2', '1/6/1', '1/6/2', '1/7/1', '1/7/2', '1/8/1', '1/8/2',
+                                 '1/9/1', '1/9/2', '1/10/1', '1/10/2', '1/11/1', '1/11/2', '1/12/1', '1/12/2',
+                                 '1/13', '1/14', '1/15', '1/16', '1/17', '1/18', '1/19', '1/20',
+                                 '1/21/1', '1/21/2', '1/22/1', '1/22/2', '1/23/1', '1/23/2', '1/24/1', '1/24/2',
+                                 '1/25/1', '1/25/2', '1/26/1', '1/26/2', '1/27/1', '1/27/2', '1/28/1', '1/28/2',
+                                 '1/29/1', '1/29/2', '1/30/1', '1/31/1', '1/31/2', '1/32/1', '1/32/2',
+                                 '1/30/2'] %}
+{% set r_leopard_20_of_ports = [-1, 20497, 20498, 20513, 20514, 20529, 20530, 20545, 20546,
+                                 20561, 20562, 20577, 20578, 20593, 20594, 20609, 20610,
+                                 20625, 20626, 20641, 20642, 20657, 20658, 20673, 20674,
+                                 20688, 20704, 20720, 20736, 20752, 20768, 20784, 20800,
+                                 20817, 20818, 20833, 20834, 20849, 20850, 20865, 20866,
+                                 20881, 20882, 20897, 20898, 20913, 20914, 20929, 20930,
+                                 20945, 20946, 20961, 20977, 20978, 20993, 20994,
+                                 20962] %}
 {% set r_leopard_71_eth_ports = [-1, '1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7', '1/8',
                                  '1/9', '1/10', '1/11', '1/12', '1/13', '1/14', '1/15', '1/16',
                                  '1/17', '1/18', '1/19', '1/20', '1/21', '1/22', '1/23', '1/24',
@@ -583,6 +605,22 @@
                                'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
                                'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'no-fec', 'no-fec',
                                -1] %}
+{% set r_leopard_59_port_fec = [-1, 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               -1, -1, -1, -1, -1, -1, -1, -1,
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               -1] %}
+{% set r_leopard_20_port_fec = [-1, 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               -1, -1, -1, -1, -1, -1, -1, -1,
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec', 'rs-fec',
+                               -1] %}
 {% set r_liger_05_port_fec = [-1, 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec',
                                'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec',
                                'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec',
@@ -651,11 +689,6 @@
                                'rs-fec', 'rs-fec', 'rs-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec',
                                'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec', 'no-fec',
                                -1] %}
-{% set r_leopard_20_port_fec = [-1, -1, -1, -1, -1, -1, -1, -1, -1,
-                                -1, -1, -1, -1, -1, -1, -1, -1,
-                                -1, -1, -1, -1, -1, -1, -1, -1,
-                                -1, -1, -1, -1, -1, -1, 'rs-fec', 'rs-fec',
-                                -1] %}
 
 {# -----------------------------End of port fec configuration-------------------------- #}
 
@@ -715,8 +748,19 @@
                                     'auto'] %}
 {% set r_leopard_59_port_speed = [-1, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
                                     100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
-                                    100000, 400000, 400000, 100000, 100000, 100000, 100000, 100000,
                                     100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    'auto'] %}
+{% set r_leopard_20_port_speed = [-1, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000,
+                                    100000, 100000, 100000, 100000, 100000, 100000, 100000,
                                     'auto'] %}
 {% set r_leopard_71_port_speed = [-1, 200000, 200000, 200000, 200000, 200000, 200000, 200000, 200000,
                                     200000, 200000, 200000, 200000, 200000, 200000, 200000, 200000,
@@ -760,11 +804,6 @@
                                  50000, 50000, 50000, 50000,
                                  'auto'] %}
 {% set r_anaconda_86_port_speed = [-1, 100000, 100000,
-                                   'auto'] %}
-{% set r_leopard_20_port_speed = [-1, 400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
-                                   400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
-                                   400000, 400000, 400000, 400000, 400000, 400000, 400000, 400000,
-                                   400000, 400000, 400000, 400000, 400000, 400000, '100Gx4', '100Gx4',
                                    'auto'] %}
 {% set r_tigris_17_port_speed = [-1, 50000, 50000, 50000, 50000, 50000, 50000, 50000,
                                  50000, 50000, 50000, 50000, 50000, 50000, 50000, 50000,
@@ -911,14 +950,16 @@
     'mtbc-3700c-02':[],
     'arc-switch1005':[],
     'arc-switch1007':[],
-    'r-leopard-59':['1/23'],
+    'r-leopard-59':['1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7', '1/8', '1/9', '1/10', '1/11', '1/12',
+                    '1/21', '1/22', '1/23', '1/24', '1/25', '1/26', '1/27', '1/28', '1/29', '1/30', '1/31', '1/32'],
     'r-leopard-71':['1/31'],
     'r-leopard-73':['1/31'],
     'arc-switch1035':[],
     'arc-switch1039':[],
     'r-panther-03':[],
     'r-liger-05':[],
-    'r-leopard-20':['1/31'],
+    'r-leopard-20':['1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7', '1/8', '1/9', '1/10', '1/11', '1/12',
+                    '1/21', '1/22', '1/23', '1/24', '1/25', '1/26', '1/27', '1/28', '1/29', '1/30', '1/31', '1/32'],
     'r-tigris-17':[],
     'r-tigris-27':[],
     'r-tigris-23':[],
@@ -1081,7 +1122,7 @@
                          'arc-switch1039':default_eth_ports,
                          'r-panther-03':r_panther_03_eth_ports,
                          'r-liger-05':r_liger_05_eth_ports,
-                         'r-leopard-20':default_eth_ports,
+                         'r-leopard-20':r_leopard_20_eth_ports,
                          'r-tigris-17':r_tigris_17_eth_ports,
                          'r-tigris-27':r_tigris_27_eth_ports,
                          'r-tigris-23':r_tigris_23_eth_ports,
@@ -1112,7 +1153,7 @@
                         'arc-switch1039':default_of_ports,
                         'r-panther-03':r_panther_03_of_ports,
                         'r-liger-05':r_liger_05_of_ports,
-                        'r-leopard-20':r_anaconda_51_of_ports,
+                        'r-leopard-20':r_leopard_20_of_ports,
                         'r-tigris-17':r_tigris_17_of_ports,
                         'r-tigris-27':r_tigris_27_of_ports,
                         'r-tigris-23':r_tigris_23_of_ports,
@@ -1136,14 +1177,14 @@
                           'mtbc-3700c-02':default_vlan_range,
                           'arc-switch1005':[(vlanid_offset + 1)|string, (vlanid_offset + 56)|string],
                           'arc-switch1007':default_vlan_range,
-                          'r-leopard-59':default_vlan_range,
+                          'r-leopard-59':[(vlanid_offset + 1)|string, (vlanid_offset + 56)|string],
                           'r-leopard-71':default_vlan_range,
                           'r-leopard-73':default_vlan_range,
                           'arc-switch1035':default_vlan_range,
                           'arc-switch1039':default_vlan_range,
                           'r-panther-03':default_vlan_range,
                           'r-liger-05':[(vlanid_offset + 1)|string, (vlanid_offset + 64)|string],
-                          'r-leopard-20':default_vlan_range,
+                          'r-leopard-20':[(vlanid_offset + 1)|string, (vlanid_offset + 56)|string],
                           'r-tigris-17':[(vlanid_offset + 1)|string, (vlanid_offset + 120)|string],
                           'r-tigris-27':[(vlanid_offset + 1)|string, (vlanid_offset + 116)|string],
                           'r-tigris-23':[(vlanid_offset + 1)|string, (vlanid_offset + 64)|string],
@@ -1167,7 +1208,7 @@
                         'mtbc-3700c-02':default_port_fec,
                         'arc-switch1005':arc_switch1005_port_fec,
                         'arc-switch1007':default_port_fec,
-                        'r-leopard-59':default_port_fec,
+                        'r-leopard-59':r_leopard_59_port_fec,
                         'r-leopard-71':default_port_fec,
                         'r-leopard-73':default_port_fec,
                         'arc-switch1035':default_port_fec,
@@ -1320,7 +1361,8 @@ exit
 {% set vlanid_offset_with_skipped_port = vlanid_offset + 1 %}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
@@ -1348,7 +1390,8 @@ interface ethernet {{ eth_ports[i] }} mac-learning disable
 {% set of_counter = 0 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
@@ -1359,7 +1402,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ serve
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (ofpvid_present + vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (ofpvid_present + vlanid_offset + i)|string %}
@@ -1370,7 +1414,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ dut_t
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
@@ -1381,7 +1426,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ serve
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (ofpvid_present + vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (ofpvid_present + vlanid_offset + i)|string %}
@@ -1392,7 +1438,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ dut_t
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
@@ -1403,7 +1450,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ serve
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
@@ -1414,7 +1462,8 @@ openflow add-flows {{ of_counter + i }} table={{ of_tableid }},priority={{ dut_t
 {% set of_counter = of_counter + eth_ports|length-2 -%}
 
 {% for i in range(1, eth_ports|length-1) %}
-{% if (inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8 %}
+{% if ((inventory_hostname == 'r-tigris-17' or inventory_hostname == 'r-tigris-28') and i >= 8) or
+      ((inventory_hostname == 'r-leopard-20' or inventory_hostname == 'r-leopard-59') and i >= 52) %}
 {% set vlanid = (vlanid_offset_with_skipped_port + i)|string %}
 {% else %}
 {% set vlanid = (vlanid_offset + i)|string %}
