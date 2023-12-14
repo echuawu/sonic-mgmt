@@ -137,7 +137,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
             for i in s100G_ports:
                 alias = "etp%d" % (i / 4 + 1)
                 port_alias_to_name_map[alias] = "Ethernet%d" % i
-        elif hwsku == "Mellanox-SN2700-D48C8":
+        elif hwsku in ["Mellanox-SN2700-D48C8", "Mellanox-SN2700-A1-D48C8"]:
             # 50G ports
             s50G_ports = [x for x in range(0, 24, 2)] + [x for x in range(40, 88, 2)] + [x for x in range(104, 128, 2)]
 
