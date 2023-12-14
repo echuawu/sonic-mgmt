@@ -14,7 +14,6 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_configure_feature_state(engines, devices, test_api):
     """
@@ -86,7 +85,6 @@ def test_configure_feature_state(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_configure_mgmt_port_ipv4(engines, devices, test_api):
     """
@@ -209,7 +207,6 @@ def test_configure_mgmt_port_ipv4(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_configure_mgmt_port_ipv6(engines, devices, test_api):
     """
@@ -304,7 +301,6 @@ def test_configure_mgmt_port_ipv6(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_configure_mgmt_port_link_state(engines, devices, test_api):
     """
@@ -366,7 +362,6 @@ def test_configure_mgmt_port_link_state(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_interface_shutdown(engines, devices, test_api):
     """
@@ -409,7 +404,6 @@ def test_interface_shutdown(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_dhcp_shutdown(engines, devices, test_api):
     """
@@ -452,7 +446,6 @@ def test_dhcp_shutdown(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.simx
 @pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_fae_invalid_commands(engines, devices, test_api):
     """

@@ -24,7 +24,7 @@ logger = logging.getLogger()
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_fae_interface_commands(engines, devices, test_api):
     """
@@ -151,7 +151,7 @@ def test_fae_interface_commands(engines, devices, test_api):
 
 # @pytest.mark.interface
 # @pytest.mark.multiplanar
-# @pytest.mark.simx
+# @pytest.mark.simx_xdr
 # @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 # def test_action_fae_clear_counters(engines, players, interfaces, start_sm, test_api):
 #     """
@@ -180,7 +180,7 @@ def test_fae_interface_commands(engines, devices, test_api):
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_aggregated_port_configuration(engines, devices, test_api):
     """
@@ -252,7 +252,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_aggregated_port_mismatch_between_planes(engines, devices, test_api):
     """
@@ -371,7 +371,7 @@ def test_aggregated_port_mismatch_between_planes(engines, devices, test_api):
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_aggregated_port_physical_and_logical_state_machines(engines, devices, test_api):
     """
@@ -441,7 +441,7 @@ def test_aggregated_port_physical_and_logical_state_machines(engines, devices, t
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_symmetry_manager_performance(engines, devices, test_api):
     """
@@ -491,7 +491,7 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 
 # @pytest.mark.interface
 # @pytest.mark.multiplanar
-# @pytest.mark.simx
+# @pytest.mark.simx_xdr
 # @pytest.mark.parametrize('test_api', [ApiType.NVUE])
 # def test_symmetry_manager_resiliency(engines, devices, test_api):
 #     """
@@ -593,7 +593,7 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
     """
@@ -647,7 +647,7 @@ def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_fae_invalid_commands(engines, devices, test_api):
     """

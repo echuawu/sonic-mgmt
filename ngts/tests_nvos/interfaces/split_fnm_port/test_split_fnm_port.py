@@ -19,7 +19,7 @@ logger = logging.getLogger()
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
-@pytest.mark.simx
+@pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_interface_fnm_port_split(engines, devices, test_api, players, interfaces):
     """

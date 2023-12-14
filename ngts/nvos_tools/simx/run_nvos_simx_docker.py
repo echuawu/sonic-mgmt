@@ -5,6 +5,7 @@ import os
 import time
 from retry import retry
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
 
 logger = logging.getLogger()
 
@@ -31,6 +32,9 @@ def test_run_nvos_simx_docker(topology_obj, target_version):
 
     with allure.step("Check installed image"):
         dut_engine.run_cmd('nv show system version')
+
+    with allure.step("Apply basic config"):
+        set_base_configurations(dut_engine=dut_engine, apply=True)
 
 
 @retry(Exception, tries=3, delay=10)
