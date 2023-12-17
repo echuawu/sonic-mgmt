@@ -146,6 +146,11 @@ def run_step(name) {
             env.SKIP_SPELLCHECK = true
         }
 
+        if (topic.contains("SKIP_BEAUTIFIER")){
+            print "SKIP_BEAUTIFIER is activated, spell check will not run"
+            env.SKIP_BEAUTIFIER = true
+        }
+
         set_sonic_bin(topic_map, project)
         set_dpu_bin(topic_map) //default is always Bluefield unless given by tag
         set_nvos_bin(topic_map, project)

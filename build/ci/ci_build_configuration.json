@@ -90,7 +90,7 @@
               "parameters": {
                 "beautifier_params": "--ignore build/ci/config/beautify/beautifier_ignore_list.txt --config build/ci/config/beautify"
               },
-              "skip": false,
+              "skip": "${SKIP_BEAUTIFIER}",
               "on_failure": "stop"
             },
             {
