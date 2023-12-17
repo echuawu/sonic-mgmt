@@ -114,7 +114,7 @@ def test_simulate_gnmi_server_failure(test_api, engines):
 
     try:
         with allure_step('Simulate gnmi server failure'):
-            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_ID, "FEATURE|gnmi-server", "auto_restart", "disabled")
+            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "disabled")
             engines.dut.run_cmd("docker stop gnmi-server")
             validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
                                gnmi_is_running=GnmiConsts.GNMI_IS_NOT_RUNNING)
@@ -126,7 +126,7 @@ def test_simulate_gnmi_server_failure(test_api, engines):
                         f"after the gnmi-server failure")
     finally:
         with allure_step('re-enable gnmi server'):
-            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_ID, "FEATURE|gnmi-server", "auto_restart", "enabled")
+            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "enabled")
             engines.dut.run_cmd("docker start gnmi-server")
             gnmi_server_obj.disable_gnmi_server()
             gnmi_server_obj.enable_gnmi_server()
