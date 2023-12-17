@@ -12,7 +12,8 @@ from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_authentication, \
-    validate_services_and_dockers_availability, find_server_admin_user, configure_resource
+    validate_services_and_dockers_availability, find_server_admin_user
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
     LdapServerInfo
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts, LdapEncryptionModes

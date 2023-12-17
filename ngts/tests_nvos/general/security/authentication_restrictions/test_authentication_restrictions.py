@@ -7,7 +7,8 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users, configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
     update_active_aaa_server

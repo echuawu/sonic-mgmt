@@ -68,7 +68,8 @@ class TacacsServers:
                 password='testing',
                 role=AaaConsts.MONITOR
             )
-        ]
+        ],
+        ipv4_addr=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR
     )
 
     VM_SERVER_USERS = [
@@ -100,7 +101,8 @@ class TacacsServers:
         timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
-        users=VM_SERVER_USERS_PAP
+        users=VM_SERVER_USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR
     )
 
     VM_SERVER_DN = VM_SERVER_IPV4.copy()
@@ -111,7 +113,18 @@ class TacacsServers:
         AaaConsts.DN: VM_SERVER_DN
     }
 
-    DOCKER_SERVER_IPV4 = VM_SERVER_IPV4.copy()
+    DOCKER_SERVER_IPV4 = TacacsServerInfo(
+        hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        priority=1,
+        secret='secret',
+        port=50,
+        timeout=5,
+        # retransmit=0,
+        auth_type=AaaConsts.PAP,
+        users=VM_SERVER_USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        docker_name='tacacs_container'
+    )
     DOCKER_SERVER_IPV4.port = 50
     DOCKER_SERVER_IPV6 = DOCKER_SERVER_IPV4.copy()
     DOCKER_SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR

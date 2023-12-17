@@ -1,5 +1,6 @@
 import logging
 import time
+from infra.tools.linux_tools.linux_tools import LinuxSshEngine
 
 import pytest
 import random
@@ -12,11 +13,12 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AccountingConsts, AccountingFields, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
-    verify_users_auth, verify_user_auth
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth, verify_user_auth
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
     update_active_aaa_server
@@ -324,3 +326,28 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
 
         # with allure.step('Clear aaa configuration'):
         #     aaa.unset(apply=True).verify_result()
+
+
+@pytest.mark.security
+@pytest.mark.simx_security
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
+def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, local_adminuser: UserInfo):
+    """
+    @summary: Verify accounting basic functionality
+
+        Steps:
+        1. configure tacacs
+        2. disable accounting
+        3. enable tacacs
+        4. verify no accounting logs on server
+        5. enable accounting
+        6. verify accounting logs on server only for tacacs users events
+    """
+    test_server = TacacsServers.DOCKER_SERVERS[addressing_type].copy()
+    test_server.auth_type = random.choice(AuthType.ALL_TYPES)
+    test_server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server.auth_type]
+    generic_aaa_test_accounting_basic(test_api, engines, topology_obj, local_adminuser,
+                                      remote_aaa_type=RemoteAaaType.TACACS,
+                                      feature_resource_obj=System().aaa.tacacs,
+                                      server=TacacsServers.DOCKER_SERVERS[addressing_type].copy())

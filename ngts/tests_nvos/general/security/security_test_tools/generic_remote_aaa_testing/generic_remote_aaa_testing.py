@@ -16,12 +16,12 @@ from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthType
+from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingFields, AddressingType, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
     detach_config
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
-    verify_users_auth, verify_user_auth
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth, verify_user_auth
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
@@ -571,3 +571,68 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         dummy_user = local_adminuser.copy()
         dummy_user.username = f'dummy_{dummy_user.username}'
         verify_user_auth(engines, topology_obj, dummy_user, expect_login_success=False)
+
+
+def generic_aaa_test_accounting_basic(test_api, engines, topology_obj, local_adminuser: UserInfo,
+                                      remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
+                                      server: RemoteAaaServerInfo):
+    """
+    @summary: Verify accounting basic functionality
+
+        Steps:
+        1. configure remote-aaa
+        2. disable accounting
+        3. enable remote-aaa
+        4. verify no accounting logs on server
+        5. enable accounting
+        6. verify accounting logs on server only for remote-aaa users events
+
+    @param test_api: run commands with NVUE / OpenApi
+    @param engines: engines object
+    @param topology_obj: topology object
+    @param request: object containing pytest information about current test
+    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
+    @param local_adminuser: info of local admin user
+    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param server: object containing remote server info
+    """
+    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+
+    TestToolkit.tested_api = test_api
+
+    with allure.step(f'Configure {remote_aaa_type}'):
+        server.configure(engines)
+
+    with allure.step(f'Set {remote_aaa_type} accounting disabled'):
+        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.DISABLED).verify_result()
+
+    with allure.step(f'Enable {remote_aaa_type}'):
+        feature_resource_obj.enable(failthrough=True, apply=True, engine=engines.dut, verify_res=True)
+
+    with allure.step(f'Verify no accounting logs on {remote_aaa_type} server'):
+        with allure.step(f'Verify no logs for {remote_aaa_type} admin user'):
+            remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
+            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_server=server, expect_accounting_logs=False)
+
+        with allure.step(f'Verify no logs for {remote_aaa_type} monitor user'):
+            remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
+            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_server=server, expect_accounting_logs=False)
+
+        with allure.step('Verify no logs for local user'):
+            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_server=server, expect_accounting_logs=False)
+
+    with allure.step(f'Set {remote_aaa_type} accounting enabled'):
+        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.ENABLED, apply=True).verify_result()
+
+    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users only'):
+        with allure.step(f'Verify logs exist for {remote_aaa_type} admin user'):
+            remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
+            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_server=server, expect_accounting_logs=False)
+
+        with allure.step(f'Verify logs exist for {remote_aaa_type} monitor user'):
+            remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
+            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_server=server, expect_accounting_logs=False)
+
+        with allure.step('Verify no logs for local user'):
+            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_server=server, expect_accounting_logs=False)

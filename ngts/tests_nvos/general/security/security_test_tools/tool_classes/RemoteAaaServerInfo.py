@@ -10,17 +10,20 @@ from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.Hostname import Hostname, HostnameId
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 
 
 class RemoteAaaServerInfo:
-    def __init__(self, hostname, priority, secret, port, users: List[UserInfo]):
+    def __init__(self, hostname, priority, secret, port, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
         self.hostname = hostname
         self.priority = priority
         self.secret = secret
         self.port = port
         self.users = users
+        # info for mgmt of server
+        self.ipv4_addr = ipv4_addr
+        self.docker_name = docker_name
 
     def copy(self, deep=False):
         if deep:
@@ -65,8 +68,8 @@ def update_active_aaa_server(item, server: RemoteAaaServerInfo):
 
 
 class TacacsServerInfo(RemoteAaaServerInfo):
-    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo]):
-        super().__init__(hostname, priority, secret, port, users)
+    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
+        super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.timeout = timeout
         # self.retransmit = retransmit
         self.auth_type = auth_type
@@ -94,8 +97,8 @@ class TacacsServerInfo(RemoteAaaServerInfo):
 class LdapServerInfo(RemoteAaaServerInfo):
     def __init__(self, hostname, priority, secret, port, users: List[UserInfo],
                  base_dn, bind_dn, group_attr,
-                 timeout_bind, timeout_search, version, ssl_port=636):
-        super().__init__(hostname, priority, secret, port, users)
+                 timeout_bind, timeout_search, version, ssl_port=636, ipv4_addr: str = '', docker_name: str = ''):
+        super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.base_dn = base_dn
         self.bind_dn = bind_dn
         self.group_attr = group_attr

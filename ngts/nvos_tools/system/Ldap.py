@@ -5,8 +5,7 @@ from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 class Ldap(RemoteAaaResource):
 
     def __init__(self, parent_obj=None):
-        super().__init__(parent_obj)
-        self._resource_path = '/ldap'
+        super().__init__(parent_obj=parent_obj, resource_name='/ldap')
         self.ssl = BaseComponent(self, path='/ssl')
 
 

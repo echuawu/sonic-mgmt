@@ -29,23 +29,41 @@ class AaaAccountingLog:
 
 class AaaAccountingLogsFileContent:
     def __init__(self, raw_content: str) -> None:
+        self.raw_content = raw_content
         split_rows: List[str] = raw_content.split('\n')
         self.logs: List[AaaAccountingLog] = [AaaAccountingLog(row) for row in split_rows]
 
 
 class AaaServerManager:
-    def __init__(self, ip: str) -> None:
+    def __init__(self, ip: str, server_docker_name: str = '') -> None:
+        self.ip = ip
+        self.server_docker_name: str = server_docker_name
         self.server_engine = LinuxSshEngine(ip, os.getenv('VM_USER'), os.getenv('VM_PASSWORD'))
 
-    def __show_accounting_log(self, accounting_file_path: str, show_cmd: str, grep: str = '') -> AaaAccountingLogsFileContent:
+    def __assert_ip(self):
+        assert self.ip, 'Tried to make operation with manager of empty ip!'
+
+    def __op_on_accounting_log_file(self, accounting_file_path: str, show_cmd: str, grep: str = '') -> str:
         cmd = '{op} {file}'.format(op=show_cmd, file=accounting_file_path)
         if grep:
             cmd = f'{cmd} | grep -E "{grep}"'
-        output = self.server_engine.run_cmd(cmd)
-        return AaaAccountingLogsFileContent(output)
 
-    def cat_accounting_log(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
-        return self.__show_accounting_log(accounting_file_path, 'cat', grep)
+        if self.server_docker_name:
+            cmd = f'docker exec {self.server_docker_name} {cmd}'
 
-    def tail_accounting_log(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
-        return self.__show_accounting_log(accounting_file_path, 'tail', grep)
+        return self.server_engine.run_cmd(cmd)
+
+    def __show_op_on_accounting_log_file(self, accounting_file_path: str, show_cmd: str, grep: str = '') -> AaaAccountingLogsFileContent:
+        return AaaAccountingLogsFileContent(self.__op_on_accounting_log_file(accounting_file_path, show_cmd, grep))
+
+    def cat_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
+        self.__assert_ip()
+        return self.__show_op_on_accounting_log_file(accounting_file_path, 'cat', grep)
+
+    def tail_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
+        self.__assert_ip()
+        return self.__show_op_on_accounting_log_file(accounting_file_path, 'tail', grep)
+
+    def clear_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH) -> str:
+        self.__assert_ip()
+        return self.__op_on_accounting_log_file(accounting_file_path, 'rm -f')
