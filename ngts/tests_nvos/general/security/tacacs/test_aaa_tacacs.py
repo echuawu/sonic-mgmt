@@ -12,7 +12,7 @@ from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts, AuthType
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AccountingConsts, AccountingFields, AuthConsts, AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_resource, \
@@ -43,6 +43,9 @@ def test_tacacs_set_unset_show(test_api, engines):
                 # AaaConsts.RETRANSMIT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.RETRANSMIT]),
                 AaaConsts.SECRET: 'alontheking',
                 AaaConsts.TIMEOUT: random.choice(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT])
+            },
+            tacacs_obj.accounting: {
+                AccountingFields.STATE: random.choice(AccountingConsts.VALUES[AccountingFields.STATE])
             }
         },
         hostname_conf={
@@ -54,7 +57,8 @@ def test_tacacs_set_unset_show(test_api, engines):
             AaaConsts.PRIORITY: 2
         },
         default_confs={
-            tacacs_obj: TacacsConsts.DEFAULT_TACACS_CONF
+            tacacs_obj: TacacsConsts.DEFAULT_TACACS_CONF,
+            tacacs_obj.accounting: AccountingConsts.DEFAULT
         }
     )
 
