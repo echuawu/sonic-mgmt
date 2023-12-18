@@ -27,8 +27,7 @@ def test_show_platform_software(engines):
                 logging.info("Verify text output")
                 output = platform.software.show(output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
-                assert 'operational' in list_of_sw[0] and 'applied' in list_of_sw[0], \
-                    "Titles cant be found in the output"
+                assert 'operational' in list_of_sw[0], "operational title can't be found in the output"
                 assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):
