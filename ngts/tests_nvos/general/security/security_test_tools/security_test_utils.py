@@ -42,7 +42,7 @@ def check_nslcd_service(engines):
 
 def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success: bool = True,
                      verify_authorization: bool = True, skip_auth_mediums: List[str] = None,
-                     accounting_server: RemoteAaaServerInfo = None, expect_accounting_logs: bool = False):
+                     accounting_servers: List[RemoteAaaServerInfo] = [], expect_accounting_logs: List[bool] = []):
     """
     @summary: Verify authentication and authorization for the given user.
         Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
@@ -60,7 +60,9 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    accounting_server_mngr = AaaServerManager(accounting_server.ipv4_addr, accounting_server.docker_name) if accounting_server else AaaServerManager('', '')
+    assert len(accounting_servers) == len(expect_accounting_logs), f'Arguments "accounting_servers" and "expect_accounting_logs" must be lists of the same length!\nActual accounting_servers: {accounting_servers}\nActual expect_accounting_logs: {expect_accounting_logs}'
+
+    accounting_server_mngrs = [AaaServerManager(server.ipv4_addr, server.docker_name) for server in accounting_servers]
 
     with loganalyzer_ignore(False and (not expect_login_success)):
         with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
@@ -75,9 +77,10 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                 if skip_auth_mediums and medium in skip_auth_mediums:
                     continue
 
-                if accounting_server:
-                    with allure.step('Clear accounting logs on server'):
-                        accounting_server_mngr.clear_accounting_logs()
+                if accounting_servers:
+                    with allure.step('Clear accounting logs on servers'):
+                        for mngr in accounting_server_mngrs:
+                            mngr.clear_accounting_logs()
 
                 with allure.step(f'Verify auth with medium: {medium}'):
                     medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
@@ -89,10 +92,13 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                         with allure.step(f'Verify authorization. Role: {user.role}'):
                             medium_obj.verify_authorization(user_is_admin=user_is_admin)
 
-                if accounting_server:
-                    with allure.step(f'Check accounting on server: {accounting_server_mngr.ip}'):
-                        accounting_logs: AaaAccountingLogsFileContent = accounting_server_mngr.cat_accounting_logs(grep=user.username)
-                        assert bool(accounting_logs.logs) == expect_accounting_logs, f'There are {"no " if expect_accounting_logs else ""}accounting logs on server "{accounting_server_mngr.ip}" for user "{user.username}", while expected {"" if expect_accounting_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
+                if accounting_servers:
+                    with allure.step('Verify accounting logs on given servers'):
+                        for i, mngr in enumerate(accounting_server_mngrs):
+                            expect_logs = expect_accounting_logs[i]
+                            with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
+                                accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(grep=user.username)
+                                assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{mngr.ip}" for user "{user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
         logging.info('\n')
 
 

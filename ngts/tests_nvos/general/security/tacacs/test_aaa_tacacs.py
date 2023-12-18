@@ -23,7 +23,7 @@ from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators 
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsServers
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer1, TacacsDockerServer2, TacacsServers
 from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type, \
     get_two_different_tacacs_servers
 from ngts.tools.test_utils import allure_utils as allure
@@ -332,7 +332,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
-def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, local_adminuser: UserInfo):
+def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, request, local_adminuser: UserInfo):
     """
     @summary: Verify accounting basic functionality
 
@@ -344,10 +344,48 @@ def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_ob
         5. enable accounting
         6. verify accounting logs on server only for tacacs users events
     """
-    test_server = TacacsServers.DOCKER_SERVERS[addressing_type].copy()
+    test_server = TacacsDockerServer1.SERVER_BY_ADDRESSING_TYPE[addressing_type].copy()
     test_server.auth_type = random.choice(AuthType.ALL_TYPES)
     test_server.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server.auth_type]
-    generic_aaa_test_accounting_basic(test_api, engines, topology_obj, local_adminuser,
+
+    generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, local_adminuser,
                                       remote_aaa_type=RemoteAaaType.TACACS,
                                       feature_resource_obj=System().aaa.tacacs,
-                                      server=TacacsServers.DOCKER_SERVERS[addressing_type].copy())
+                                      server=test_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx_security
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
+    """
+    @summary: Verify accounting basic functionality
+
+        Steps:
+        1. configure tacacs
+        2. disable accounting
+        3. enable tacacs
+        4. verify no accounting logs on server
+        5. enable accounting
+        6. verify accounting logs on server only for tacacs users events
+    """
+    addressing_type1 = random.choice(AddressingType.ALL_TYPES)
+    auth_type1 = random.choice(AuthType.ALL_TYPES)
+    addressing_type2 = random.choice(AddressingType.ALL_TYPES)
+    auth_type2 = random.choice(AuthType.ALL_TYPES)
+
+    test_server1 = TacacsDockerServer1.SERVER_BY_ADDRESSING_TYPE[addressing_type1].copy()
+    test_server2 = TacacsDockerServer2.SERVER_BY_ADDRESSING_TYPE[addressing_type2].copy()
+
+    test_server1.priority = 2
+    test_server2.priority = 1
+
+    test_server1.auth_type = auth_type1
+    test_server1.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server1.auth_type]
+    test_server2.auth_type = auth_type2
+    test_server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server2.auth_type]
+
+    generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser,
+                                                remote_aaa_type=RemoteAaaType.TACACS,
+                                                feature_resource_obj=System().aaa.tacacs,
+                                                server1=test_server1, server2=test_server2)

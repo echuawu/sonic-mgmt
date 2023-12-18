@@ -14,7 +14,7 @@ class RemoteAaaResource(BaseComponent):
         self.hostname = Hostname(self)
         self.accounting = BaseComponent(self, path='/accounting')
 
-    def enable(self, failthrough=False, apply=False, engine=None, verify_res=False):
+    def enable(self, failthrough=False, apply=False, engine=None, verify_res=True):
         remote_aaa_type = self._resource_path.replace('/', '')
         authentication: BaseComponent = self.parent_obj.authentication
         authentication.set(AuthConsts.ORDER, f'{remote_aaa_type},{AuthConsts.LOCAL}', dut_engine=engine).verify_result()
