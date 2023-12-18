@@ -281,6 +281,12 @@
     - Redmine:
       - 3510718
 
+- Errors_list:
+    - '.*ERR root: /etc/dhcp/dhclient-exit-hooks.d/ntp returned non-zero exit status 1.*'
+
+  Conditions:
+    - Redmine:
+      - 3588280
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[COMP_LIB.ERR\] failed to rename file.*'
