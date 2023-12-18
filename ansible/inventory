@@ -409,6 +409,10 @@ r-jaguar-03 ansible_host=r-jaguar-03  sonic_version=v2  sonic_hwsku=ACS-MQM8700 
 gorilla-58-ptf-any ansible_host=gorilla-58  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7005 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=10:70:fd:f4:ae:0c serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 gorilla-58 ansible_host=gorilla-58  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7005 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=10:70:fd:f4:ae:0c serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
+# NVOS testbed gorilla-30 topologies
+gorilla-30-ptf-any ansible_host=gorilla-30  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7025 10.7.150.246" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=7C:FE:90:F2:E9:50 serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+gorilla-30 ansible_host=gorilla-30  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7025 10.7.150.246" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=7C:FE:90:F2:E9:50 serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
 # NVOS testbed gorilla-153 topologies
 gorilla-153-ptf-any ansible_host=gorilla-153  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7005 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=10:70:fd:f4:ae:0c serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 gorilla-153 ansible_host=gorilla-153  sonic_version=v2  sonic_hwsku=ACS-MQM9700             serial_console="ssh -l rcon:7005 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=10:70:fd:f4:ae:0c serial=MT2219X26176 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2219X26176', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'10:70:fd:f4:ae:0c', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
@@ -1982,6 +1986,9 @@ r-jaguar-03
 
 gorilla-58-ptf-any
 gorilla-58
+
+gorilla-30-ptf-any
+gorilla-30
 
 gorilla-153-ptf-any
 gorilla-153

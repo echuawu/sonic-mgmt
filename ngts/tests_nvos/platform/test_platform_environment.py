@@ -24,7 +24,9 @@ def test_show_platform_environment(engines, devices):
         platform = Platform()
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
-        _verify_output(platform, "", devices.dut.platform_environment_list)
+        _verify_output(platform, "", devices.dut.psu_fan_list + devices.dut.fan_list +
+                       devices.dut.temperature_list + devices.dut.fan_led_list +
+                       PlatformConsts.ENV_LED_COMP)
 
 
 @pytest.mark.platform
@@ -217,7 +219,8 @@ def _verify_output(platform, comp_name, req_fields):
     with allure.step("Verify text output"):
         logging.info("Verify text output")
         output = platform.environment.show(comp_name, output_format=OutputFormat.auto)
-        assert not any(comp not in output for comp in req_fields), "Not all required component were found"
+        missing_components = [comp for comp in req_fields if comp not in output]
+        assert not missing_components, f"The following fields were not found in the output: {missing_components}"
 
     with allure.step("Verify json output"):
         logging.info("Verify json output")

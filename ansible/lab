@@ -131,6 +131,7 @@ jaguar-119      ansible_host=10.7.144.119 ansible_hostv6="" sonic_version=v2 hws
 jaguar-25      ansible_host=10.7.144.25 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM8700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-jaguar-03      ansible_host=10.210.25.99 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM8700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-58      ansible_host=10.7.144.58 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
+gorilla-30      ansible_host=10.7.144.30 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-153      ansible_host=10.7.144.153 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-154      ansible_host=10.7.144.154 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-11      ansible_host=10.7.144.11 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000

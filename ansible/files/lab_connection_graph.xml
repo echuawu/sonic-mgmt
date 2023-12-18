@@ -261,6 +261,7 @@
       <Device Hostname="gorilla-71" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-72" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="mlx-4700a1-07" HwSku="Mellanox-SN4700" Type="DevSonic" />
+      <Device Hostname="gorilla-30" HwSku="ACS-MQM9700" Type="DevSonic"/>
     </Devices>
     <DeviceInterfaceLinks>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-switch1007" EndPort="ethernet 1/1" StartDevice="arc-switch1038" StartPort="Ethernet0"/>
