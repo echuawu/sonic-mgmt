@@ -223,6 +223,7 @@ The test should support t0 and t1 topologies.
 | 7 | test_lag_member_remove_add| Verify the lag hash functionality after a lag member is removed and added back to a portchannel|
 | 8 | test_reboot | Verify there is no hash configuration inconsistence before and after reload/reboot|
 | 9 | test_backend_error_messages | Verify there are backend errors in syslog when the hash config is removed or updated with invalid values via redis cli|
+| 10 | test_algorithm_config | Verify algorithm show and configuration via cli|
 
 ### Notes:
   1. The tested hash field in each test case is randomly selected from a pre-defined field list per asic type. Currently these fields are tested as default: 'IN_PORT', 'SRC_MAC', 'DST_MAC', 'ETHERTYPE', 'VLAN_ID', 'IP_PROTOCOL', 'SRC_IP', 'DST_IP', 'L4_SRC_PORT', 'L4_DST_PORT', 'INNER_SRC_IP', 'INNER_DST_IP'; In the test enhancement, there are 6 fields added: 'INNER_L4_SRC_PORT', 'INNER_L4_DST_PORT', 'INNER_IP_PROTOCOL', 'INNER_ETHERTYPE', 'INNER_SRC_MAC', 'INNER_DST_MAC', those fields would be updated into all the necessary test cases.
