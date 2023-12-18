@@ -212,7 +212,7 @@ def get_nvos_techsupport_info(dut_cli_object, duration, dumps_folder, dut_engine
 
     with allure.step('testing the flow of NVOS commands'):
         system = System(None)
-        temp_tar_file = system.techsupport.action_generate(engine=dut_engine)
+        temp_tar_file, duration = system.techsupport.action_generate(engine=dut_engine)
         logger.info('NVOS temp_tarball_file_name {}'.format(temp_tar_file))
 
     return dumps_folder, tar_file, tarball_file_name

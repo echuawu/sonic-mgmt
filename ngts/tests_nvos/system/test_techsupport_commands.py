@@ -7,6 +7,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 
 @pytest.mark.system
@@ -22,14 +23,19 @@ def test_techsupport_show(engines, test_name):
         4. validate new tar.gz files exist and first output < second output
     """
     system = System(None)
+    operation = 'generate tech-support'
+    duration = 0
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         output_dictionary_before_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
-        system.techsupport.action_generate(test_name=test_name)
-        system.techsupport.action_generate()
+        folder, duration = system.techsupport.action_generate(test_name=test_name)
+        assert OperationTime.verify_operation_time(duration, operation), \
+            '{op} took more time than threshold value'.format(op=operation)
+        folder, duration = system.techsupport.action_generate()
+        assert OperationTime.verify_operation_time(duration, operation), \
+            '{op} took more time than threshold value'.format(op=operation)
         output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
-
         validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions, 2)
 
     with allure.step('Validate show tech-support command format'):
@@ -52,15 +58,17 @@ def test_techsupport_since(engines, test_name):
         3. validate new tar.gz file exist
     """
     system = System(None)
+    operation = 'generate tech-support'
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
         yesterday_str = yesterday.strftime("%Y%m%d")
-        tech_support_folder = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                                 yesterday_str, test_name=test_name)
+        tech_support_folder, duration = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
+                                                                           yesterday_str, test_name=test_name)
         output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
-
         validate_techsupport_since(output_dictionary, tech_support_folder)
+        assert OperationTime.verify_operation_time(duration, operation), \
+            '{op} took more time than threshold value'.format(op=operation)
 
 
 @pytest.mark.system
@@ -77,15 +85,15 @@ def test_techsupport_since_invalid_date(engines):
     invalid_date_syntax = '20206610'
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
-        output_dictionary = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                               since_time=invalid_date_syntax)
+        output_dictionary, duration = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
+                                                                         since_time=invalid_date_syntax)
         assert 'Command failed with the following output' in output_dictionary, ""
 
     invalid_date_syntax = 'aabbccdd'
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
-        output_dictionary = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
-                                                               since_time=invalid_date_syntax)
+        output_dictionary, duration = system.techsupport.action_generate(option=SystemConsts.ACTIONS_GENERATE_SINCE,
+                                                                         since_time=invalid_date_syntax)
         assert 'Command failed with the following output' in output_dictionary, ""
 
 
@@ -110,8 +118,8 @@ def test_techsupport_delete(engines):
     with allure.step('Run action delete system tech-support and verify that each results updated as expected'):
 
         with allure.step('Generate two tech-support files'):
-            first_file = system.techsupport.action_generate()
-            second_file = system.techsupport.action_generate()
+            first_file, duration = system.techsupport.action_generate()
+            second_file, duration = system.techsupport.action_generate()
 
         with allure.step('Delete the first created tech-support file'):
             output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
@@ -159,7 +167,7 @@ def test_techsupport_upload(engines):
         assert "File not found: nonexist" in output.info, "we can not upload a non exist file!"
 
     with allure.step('Generate tech-support file'):
-        tech_file = system.techsupport.action_generate().replace('/host/dump/', '')
+        tech_file, duration = system.techsupport.action_generate().replace('/host/dump/', '')
 
     with allure.step('try to upload techsupport {} to {} - Positive Flow'.format(tech_file, upload_path)):
         output = system.techsupport.action_upload(upload_path, tech_file).verify_result()
@@ -189,10 +197,13 @@ def test_techsupport_multiple_times(engines, test_name):
         1. run nv action generate system tech-support 4 times in a row
     """
     system = System(None)
+    operation = 'generate tech-support'
     with allure.step('Run show/action system tech-support 4 times in a row'):
         for i in range(0, 4):
             with allure.step("Generate Tech-Support for the {} time".format(i)):
-                system.techsupport.action_generate(test_name=test_name)
+                folder, duration = system.techsupport.action_generate(test_name=test_name)
+                assert OperationTime.verify_operation_time(duration, operation), \
+                    '{op} took more time than threshold value'.format(op=operation)
 
 
 @pytest.mark.system
@@ -209,7 +220,7 @@ def test_techsupport_size(engines, test_name):
     engine = engines.dut
     system = System(None)
     with allure.step('Run generate tech-support'):
-        tech_support_folder = system.techsupport.action_generate()
+        tech_support_folder, duration = system.techsupport.action_generate()
         output = engine.run_cmd('sudo du -sh ' + tech_support_folder)
         size_in_MB = int(output.split("M")[0])
         assert size_in_MB < 50, f"{tech_support_folder} size ({size_in_MB}MB) should be less than 50MB"
@@ -224,7 +235,7 @@ def validate_techsupport_output(output_dictionary_before, output_dictionary_afte
 
 def validate_techsupport_since(output_dictionary, substring):
     with allure.step('Validating the generate command and show command working as expected'):
-        assert substring in output_dictionary,\
+        assert substring in output_dictionary, \
             "at least one of the new tech-support folders not found, expected folders"
 
 

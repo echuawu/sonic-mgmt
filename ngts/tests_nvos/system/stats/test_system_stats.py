@@ -1270,7 +1270,7 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     """
     generate techsupport and validate stats files exist in the stats dir
     """
-    tech_support_folder = system.techsupport.action_generate(engine=engine)
+    tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
     logger.info("The techsupport file name is : " + tech_support_folder)
     techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'stats')
     for stat_file in stats_files:

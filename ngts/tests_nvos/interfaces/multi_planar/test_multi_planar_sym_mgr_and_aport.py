@@ -814,7 +814,7 @@ def validate_mp_database_files_exist_in_techsupport(system, engine):
     """
     generate techsupport and validate all asics database files exist in the dump dir
     """
-    tech_support_folder = system.techsupport.action_generate(engine=engine)
+    tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
     logger.info("The techsupport file name is : " + tech_support_folder)
     techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'dump')
     for db_table in MultiPlanarConsts.DATABASE_TABLES:

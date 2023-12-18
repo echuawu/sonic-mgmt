@@ -22,7 +22,7 @@ def test_techsupport_folder_name(engines):
         system = System(None)
         output_dictionary_before = OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
-        tech_support_folder = system.techsupport.action_generate()
+        tech_support_folder, duration = system.techsupport.action_generate()
         validate_techsupport_folder_name(system, tech_support_folder)
         output_dictionary_after = OutputParsingTool.parse_show_system_techsupport_output_to_list(
             system.techsupport.show()).get_returned_value()
@@ -44,7 +44,7 @@ def test_techsupport_with_dockers_down(engines, dockers_list=['ib-utils']):
             system = System(None)
             for docker in dockers_list:
                 engines.dut.run_cmd('sudo systemctl stop {docker}'.format(docker=docker))
-            tech_support_folder = system.techsupport.action_generate()
+            tech_support_folder, duration = system.techsupport.action_generate()
         with allure.step('validate commands works as expected'):
             assert 'nvos_dump' in tech_support_folder, "{err}".format(err=tech_support_folder)
 
@@ -76,7 +76,7 @@ def test_techsupport_expected_files(engines, devices):
     with allure.step('Run nv action generate system tech-support and validate dump files'):
         system = System(None)
         start_time = time.time()
-        tech_support_folder = system.techsupport.action_generate()
+        tech_support_folder, duration = system.techsupport.action_generate()
         end_time = time.time()
         duration = end_time - start_time
         with allure.step("Tech-support generation takes: {} seconds".format(duration)):

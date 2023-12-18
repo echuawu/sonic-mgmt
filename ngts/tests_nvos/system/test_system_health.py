@@ -651,7 +651,7 @@ def validate_health_files_exist_in_techsupport(system, engine, health_files=[Hea
     """
     generate techsupport and validate we have the health files in the log dir
     """
-    tech_support_folder = system.techsupport.action_generate()
+    tech_support_folder, duration = system.techsupport.action_generate()
     techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'log')
     for health_file in health_files:
         assert "{}.gz".format(health_file) in techsupport_files_list, \

@@ -38,7 +38,7 @@ class TechSupport(BaseComponent):
             cmd_out, duration = OperationTime.save_duration('generate tech-support', option, test_name, SendCommandTool.execute_command,
                                                             NvueSystemCli.action_generate_techsupport, engine,
                                                             self.get_resource_path().replace('/files', ' '), option, since_time)
-            return TechSupport.get_techsupport_folder_name(cmd_out)
+            return TechSupport.get_techsupport_folder_name(cmd_out), duration
 
     @staticmethod
     def get_techsupport_folder_name(techsupport_res):

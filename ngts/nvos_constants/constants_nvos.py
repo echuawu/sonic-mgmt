@@ -774,7 +774,8 @@ class OperationTimeConsts:
                   'port goes down': 4,
                   'reboot with default FW installation': 360,
                   'reboot with new user FW': 450,
-                  'set hostname': 12}
+                  'set hostname': 12,
+                  'generate tech-support': 75}
 
 
 class StatsConsts:

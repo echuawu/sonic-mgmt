@@ -66,7 +66,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name):
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port, tries=3, delay=2)
     except Exception as err:
         with allure.step('Generating a sysdump'):
-            tar_file = system.techsupport.action_generate(engine=serial_engine)
+            tar_file, duration = system.techsupport.action_generate(engine=serial_engine)
             logger.info("Dump was created at: {}".format(tar_file))
             tarball_file_name = str(tar_file.replace('/var/dump/', ''))
 
