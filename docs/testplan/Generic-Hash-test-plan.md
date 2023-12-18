@@ -241,7 +241,7 @@ The test should support t0 and t1 topologies.
 ### Test cases #2 - test_ecmp_hash
 1. The test is using the default links and routes in a t0/t1 testbed.
 2. Randomly select a hash field and configure it to the ecmp hash list via cli "config switch-hash global ecmp-hash".
-3. Randomly select a algorithm and configure it to the ecmp hash list via cli "config switch-hash global ecmp-hash-algorithm".
+3. Randomly select an algorithm and configure it to the ecmp hash list via cli "config switch-hash global ecmp-hash-algorithm".
 4. Configure the lag hash list to exclude the selected field to verify the lag hash configuration does not affect the hash result.
 5. Send traffic with changing values of the field under test from a downlink ptf port to uplink destination via multiple nexthops.
 6. Check the traffic is balanced over the nexthops.
@@ -250,7 +250,7 @@ The test should support t0 and t1 topologies.
 ### Test cases #3 - test_lag_hash
 1. The test is using the default links and routes in a t0/t1 testbed, and only runs on setups which have multi-member portchannel uplinks.
 2. Randomly select a hash field and configure it to the lag hash list via cli "config switch-hash global lag-hash".
-3. Randomly select a algorithm and configure it to the lag hash list via cli "config switch-hash global lag-hash-algorithm".
+3. Randomly select an algorithm and configure it to the lag hash list via cli "config switch-hash global lag-hash-algorithm".
 4. Configure the ecmp hash list to exclude the selected field to verify the ecmp hash configuration does not affect the hash result.
 5. If the hash field is DST_MAC, ETHERTYPE or VLAN_ID, take the steps 5-7, otherwise skip them.
 6. Choose one downlink interface and one uplink interface, remove all ip/ipv6 addresses on them.
@@ -327,15 +327,27 @@ The test should support t0 and t1 topologies.
 1. Config ecmp and lag hash via cli.
 2. Remove the ecmp hash key via redis cli.
 3. Check there is a warning printed in the syslog.
-4. Remove the lag hash key via redis cli.
+4. Remove the ecmp hash algorithm via redis cli.
 5. Check there is a warning printed in the syslog.
-6. Re-config the ecmp and lag hash via cli.
-7. Update the ecmp hash fields with an invalid value via redis cli.
-8. Check there is a warning printed in the syslog.
-9. Update the lag hash fields with an invalid value via redis cli.
-10. Check there is a warning printed in the syslog.
-11. Re-config the ecmp and lag hash via cli.
-12. Remove the generic hash key via redis cli.
-13. Check there is a warning printed in the syslog.
+6. Remove the lag hash key via redis cli.
+7. Check there is a warning printed in the syslog.
+8. Remove the lag hash algorithm via redis cli.
+9. Check there is a warning printed in the syslog.
+10. Re-config the ecmp and lag hash via cli.
+11. Update the ecmp hash fields with an invalid value via redis cli.
+12. Check there is a warning printed in the syslog.
+13. Update the ecmp hash algorithm with an invalid value via redis cli.
+14. Check there is a warning printed in the syslog.
+15. Update the lag hash fields with an invalid value via redis cli.
+16. Check there is a warning printed in the syslog.
+17. Update the lag hash algorithm with an invalid value via redis cli.
+18. Check there is a warning printed in the syslog.
+19. Re-config the ecmp and lag hash via cli.
+20. Remove the generic hash key via redis cli.
+21. Check there is a warning printed in the syslog.
 
-
+### Test cases #10 - test_algorithm_config
+1. Config ecmp and lag hash via cli.
+2. Config ecmp and lag hash algorithm via cli.
+3. Check configuration correct via show hash capabilities cli
+4. Cover all the algorithms which switch supports
