@@ -345,7 +345,7 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     if f".*{error_to_regex(bug_title)}.*" in pytest.dynamic_ignore_set:
         return None
     pytest.dynamic_ignore_set.add(f".*{error_to_regex(bug_title)}.*")
-    description = '| \n' + '\n'.join(log_errors)
+    description = f'| \n{bug_title}\n' + '\n'.join(log_errors)
     bug_info_dictionary.update({'search_regex': bug_regex,
                                 'bug_title': bug_title,
                                 'description': f"{description}",
