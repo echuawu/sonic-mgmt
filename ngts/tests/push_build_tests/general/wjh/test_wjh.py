@@ -217,8 +217,7 @@ def check_if_entry_exists(table, interface, dst_ip, src_ip, proto, drop_reason, 
         if (entry['sPort'] == interface and
             entry['Src IP:Port'].split(':')[0] == src_ip and
             entry['Dst IP:Port'].split(':')[0] == dst_ip and
-            # comment this line for design code merge, after it merged, this comment line should be remove then
-            # entry['IP Proto'] == proto and
+            entry['IP Proto'] == proto and
             entry['dMAC'] == dst_mac and
             entry['sMAC'] == src_mac and
                 entry['Drop reason - Recommended action'] in drop_reason):
