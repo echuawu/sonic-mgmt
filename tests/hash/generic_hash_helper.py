@@ -601,7 +601,7 @@ def remove_ip_interface_and_config_vlan(duthost, mg_facts, tbinfo, downlink_inte
     # Configure VLANs for VLAN_ID test
     if hash_field == 'VLAN_ID':
         for vlan in range(VLAN_RANGE[0], VLAN_RANGE[1]):
-            duthost.shell('config vlan add {vlan}')
+            duthost.shell(f'config vlan add {vlan}')
             for port in l2_ports:
                 duthost.shell(f'config vlan member add {vlan} {port}')
         vlans_to_remove.extend(list(range(VLAN_RANGE[0], VLAN_RANGE[1])))

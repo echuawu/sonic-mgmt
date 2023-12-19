@@ -68,6 +68,17 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("reboot_type", reboot_types)
 
 
+@pytest.fixture(scope='function')
+def fine_params(params, global_hash_capabilities):  # noqa:F811
+    hash_algorithm, _, _, _, _ = params.split('-')
+    all_supported_hash_algorithms = set(global_hash_capabilities['ecmp_algo']).\
+        union(set(global_hash_capabilities['ecmp_algo']))
+    if hash_algorithm not in all_supported_hash_algorithms:
+        pytest.skip(f"{hash_algorithm} is not supported on current platform, "
+                    f"the supported algorithms: {all_supported_hash_algorithms}")
+    return params
+
+
 def skip_unsupported_packet(hash_field, encap_type):
     if hash_field in ['INNER_SRC_MAC', 'INNER_DST_MAC', 'INNER_ETHERTYPE'] and encap_type == 'ipinip':
         pytest.skip(f"The field {hash_field} is not supported in ipinip encapsulation.")
@@ -116,7 +127,7 @@ def test_hash_capability(duthost, global_hash_capabilities):  # noqa:F811
                       'The lag hash capability is not as expected.')
 
 
-def test_ecmp_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_hash_capabilities,  # noqa:F811
+def test_ecmp_hash(duthost, tbinfo, ptfhost, fine_params, mg_facts, global_hash_capabilities,  # noqa:F811
                    restore_vxlan_port, toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
     Test case to validate the ecmp hash. The hash field to test is randomly chosen from the supported hash fields.
@@ -132,7 +143,7 @@ def test_ecmp_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_hash_capab
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    hash_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    hash_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     skip_unsupported_field_for_ecmp_test(ecmp_test_hash_field, encap_type)
     with allure.step('Randomly select an ecmp hash field to test and configure the global ecmp and lag hash'):
         lag_hash_fields = global_hash_capabilities['lag']
@@ -173,8 +184,8 @@ def test_ecmp_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_hash_capab
         )
 
 
-def test_lag_hash(duthost, ptfhost, tbinfo, params, mg_facts, restore_configuration, restore_vxlan_port,  # noqa:F811
-                  global_hash_capabilities, toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
+def test_lag_hash(duthost, ptfhost, tbinfo, fine_params, mg_facts, restore_configuration,  # noqa:F811
+                  restore_vxlan_port, global_hash_capabilities, toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
     Test case to validate the lag hash. The hash field to test is randomly chosen from the supported hash fields.
     When hash field is in [DST_MAC, ETHERTYPE, VLAN_ID], need to re-configure the dut for L2 traffic.
@@ -192,7 +203,7 @@ def test_lag_hash(duthost, ptfhost, tbinfo, params, mg_facts, restore_configurat
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    hash_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    hash_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     with allure.step('Randomly select a lag hash field to test and configure the global ecmp and lag hash'):
         ecmp_hash_fields = global_hash_capabilities['ecmp']
         ecmp_hash_fields = ecmp_hash_fields[:]
@@ -254,7 +265,7 @@ def config_all_hash_algorithm(duthost, ecmp_algorithm, lag_algorithm):  # noqa:F
     duthost.set_switch_hash_global_algorithm('lag', lag_algorithm)
 
 
-def test_ecmp_and_lag_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_hash_capabilities,  # noqa:F811
+def test_ecmp_and_lag_hash(duthost, tbinfo, ptfhost, fine_params, mg_facts, global_hash_capabilities,  # noqa:F811
                            restore_vxlan_port, get_supported_hash_algorithms,  # noqa:F811
                            toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
@@ -272,7 +283,7 @@ def test_ecmp_and_lag_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_ha
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     skip_unsupported_field_for_ecmp_test(ecmp_test_hash_field, encap_type)
     with allure.step('Randomly select an ecmp hash field to test '
                      'and configure all supported fields to the global ecmp and lag hash'):
@@ -308,8 +319,8 @@ def test_ecmp_and_lag_hash(duthost, tbinfo, ptfhost, params, mg_facts, global_ha
         )
 
 
-def test_nexthop_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_interfaces, restore_vxlan_port,  # noqa:F811
-                      global_hash_capabilities, get_supported_hash_algorithms,  # noqa:F811
+def test_nexthop_flap(duthost, tbinfo, ptfhost, fine_params, mg_facts, restore_interfaces,  # noqa:F811
+                      restore_vxlan_port, global_hash_capabilities, get_supported_hash_algorithms,  # noqa:F811
                       toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
     Test case to validate the ecmp hash when there is nexthop flapping.
@@ -327,7 +338,7 @@ def test_nexthop_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_interf
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     skip_unsupported_field_for_ecmp_test(ecmp_test_hash_field, encap_type)
     with allure.step('Randomly select an ecmp hash field to test '
                      'and configure all supported fields to the global ecmp and lag hash'):
@@ -401,7 +412,7 @@ def test_nexthop_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_interf
         )
 
 
-def test_lag_member_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_configuration,  # noqa:F811
+def test_lag_member_flap(duthost, tbinfo, ptfhost, fine_params, mg_facts, restore_configuration,  # noqa:F811
                          restore_interfaces, global_hash_capabilities, restore_vxlan_port,  # noqa:F811
                          get_supported_hash_algorithms, toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
@@ -423,7 +434,7 @@ def test_lag_member_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_con
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    ecmp_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    ecmp_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     with allure.step('Randomly select an lag hash field to test '
                      'and configure all supported fields to the global ecmp and lag hash'):
         # Get the interfaces for the test, downlink interface is selected randomly
@@ -500,7 +511,7 @@ def test_lag_member_flap(duthost, tbinfo, ptfhost, params, mg_facts, restore_con
         )
 
 
-def test_lag_member_remove_add(duthost, tbinfo, ptfhost, params, mg_facts, restore_configuration,  # noqa:F811
+def test_lag_member_remove_add(duthost, tbinfo, ptfhost, fine_params, mg_facts, restore_configuration,  # noqa:F811
                                restore_interfaces, global_hash_capabilities, restore_vxlan_port,  # noqa:F811
                                get_supported_hash_algorithms, toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
@@ -523,7 +534,7 @@ def test_lag_member_remove_add(duthost, tbinfo, ptfhost, params, mg_facts, resto
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    ecmp_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    ecmp_algorithm, lag_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     with allure.step('Randomly select an lag hash field to test '
                      'and configure all supported fields to the global ecmp and lag hash'):
         # Get the interfaces for the test, downlink interface is selected randomly
@@ -597,7 +608,7 @@ def test_lag_member_remove_add(duthost, tbinfo, ptfhost, params, mg_facts, resto
         )
 
 
-def test_reboot(duthost, tbinfo, ptfhost, localhost, params, mg_facts, restore_vxlan_port,  # noqa:F811
+def test_reboot(duthost, tbinfo, ptfhost, localhost, fine_params, mg_facts, restore_vxlan_port,  # noqa:F811
                 global_hash_capabilities, reboot_type, get_supported_hash_algorithms,  # noqa:F811
                 toggle_all_simulator_ports_to_upper_tor):  # noqa:F811
     """
@@ -616,7 +627,7 @@ def test_reboot(duthost, tbinfo, ptfhost, localhost, params, mg_facts, restore_v
         restore_vxlan_port: fixture to restore vxlan port to default
         global_hash_capabilities: module level fixture to get the dut hash capabilities
     """
-    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = params.split('-')
+    ecmp_algorithm, ecmp_test_hash_field, ipver, inner_ipver, encap_type = fine_params.split('-')
     skip_unsupported_field_for_ecmp_test(ecmp_test_hash_field, encap_type)
     with allure.step('Randomly select an ecmp hash field to test '
                      'and configure all supported fields to the global ecmp and lag hash'):
