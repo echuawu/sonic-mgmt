@@ -359,15 +359,13 @@ def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_ob
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
     """
-    @summary: Verify accounting basic functionality
+    @summary: Verify that accounting logs are sent to top server only
 
         Steps:
-        1. configure tacacs
-        2. disable accounting
+        1. configure tacacs with 2 servers
+        2. enable accounting
         3. enable tacacs
-        4. verify no accounting logs on server
-        5. enable accounting
-        6. verify accounting logs on server only for tacacs users events
+        4. verify accounting logs on top server only for tacacs users events
     """
     addressing_type1 = random.choice(AddressingType.ALL_TYPES)
     auth_type1 = random.choice(AuthType.ALL_TYPES)
@@ -389,3 +387,41 @@ def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, requ
                                                 remote_aaa_type=RemoteAaaType.TACACS,
                                                 feature_resource_obj=System().aaa.tacacs,
                                                 server1=test_server1, server2=test_server2)
+
+
+@pytest.mark.security
+@pytest.mark.simx_security
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
+    """
+    @summary: Verify that when top server becomes unreachable, accounting logs are sent to next available server only
+
+        Steps:
+        1. configure tacacs with several top unreachable servers
+        2. configure also reachable server with lower priority
+        3. enable accounting
+        4. enable tacacs
+        5. verify accounting logs on top available server only for tacacs users events
+        6. make unreachable server reachable
+        7. verify accounting logs now on the top reachable server
+    """
+    addressing_type1 = random.choice(AddressingType.ALL_TYPES)
+    auth_type1 = random.choice(AuthType.ALL_TYPES)
+    addressing_type2 = random.choice(AddressingType.ALL_TYPES)
+    auth_type2 = random.choice(AuthType.ALL_TYPES)
+
+    test_server1 = TacacsDockerServer1.SERVER_BY_ADDRESSING_TYPE[addressing_type1].copy()
+    test_server2 = TacacsDockerServer2.SERVER_BY_ADDRESSING_TYPE[addressing_type2].copy()
+
+    test_server1.priority = 2
+    test_server2.priority = 1
+
+    test_server1.auth_type = auth_type1
+    test_server1.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server1.auth_type]
+    test_server2.auth_type = auth_type2
+    test_server2.users = TacacsServers.VM_SERVER_USERS_BY_AUTH_TYPE[test_server2.auth_type]
+
+    generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser,
+                                                       remote_aaa_type=RemoteAaaType.TACACS,
+                                                       feature_resource_obj=System().aaa.tacacs,
+                                                       server1=test_server1, server2=test_server2)
