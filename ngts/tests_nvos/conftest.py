@@ -59,6 +59,7 @@ def pytest_addoption(parser):
                                                            "configurations; False otherwise (only several random "
                                                            "configurations will be picked to testing)")
     parser.addoption("--disable_cli_coverage", action="store_true", default=False, help="Do not run cli coverage")
+    parser.addoption("--aaa_post_checker", action="store_true", default=False, required=False, help="Whether to run AAA post checker or not")
 
 
 @pytest.fixture(scope='session')
@@ -466,6 +467,19 @@ def run_cli_coverage(item, markers):
             not pytest.disable_cli_coverage:
         logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
         NVUECliCoverage.run(item, pytest.s_time)
+
+
+@pytest.fixture(autouse=True)
+def aaa_post_checker(request):
+    """
+    Method for getting aaa_post_checker from pytest arguments
+    :param request: pytest builtin
+    """
+    if request.config.getoption("--aaa_post_checker"):
+        logger.info('AAA Post Checker')
+        return True
+    else:
+        return False
 
 
 @pytest.fixture(scope='session', autouse=True)

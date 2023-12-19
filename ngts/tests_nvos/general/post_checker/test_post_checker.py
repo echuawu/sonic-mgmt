@@ -1,5 +1,6 @@
 import os
 import pytest
+from ngts.tests_nvos.general.security.conftest import check_if_need_remote_reboot_to_recover_dut
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 import subprocess
@@ -19,7 +20,7 @@ logger = logging.getLogger()
 @pytest.mark.disable_loganalyzer
 @pytest.mark.no_log_test_wrapper
 @pytest.mark.no_cli_coverage_run
-def test_post_checker(engines, topology_obj, dumps_folder, setup_name):
+def test_post_checker(engines, topology_obj, dumps_folder, setup_name, aaa_post_checker):
     """
     Post checker flow:
         1. Check if ssh port is open and we can connect to it
@@ -32,6 +33,9 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name):
         8. Check if ssh port is open, if not perform reboot
         9. Upload sysdump to shared location
     """
+    if aaa_post_checker:
+        check_if_need_remote_reboot_to_recover_dut(topology_obj, engines)
+
     system = System()
     serial_engine = topology_obj.players['dut_serial']['engine']
     remote_reboot = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
