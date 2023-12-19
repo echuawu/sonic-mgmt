@@ -27,31 +27,42 @@ logger = logging.getLogger(__name__)
 
 
 def recover_dut_with_remote_reboot(topology_obj, engines):
-    with allure.step('Try recover with remote reboot to dut'):
-        with allure.step('Execute remote reboot'):
-            NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
-        with allure.step('Wait for switch to be up'):
-            DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
-        with allure.step('Clear config again'):
-            NvosInstallationSteps.clear_conf(engines.dut)
-        with allure.step('Set base conf again'):
-            set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
-                                    save_conf=True)
+    with allure.step('Execute remote reboot'):
+        NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
+    with allure.step('Wait for switch to be up'):
+        DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
+    with allure.step('Clear config again'):
+        NvosInstallationSteps.clear_conf(engines.dut)
+    with allure.step('Set base conf again'):
+        set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
+                                save_conf=True)
 
 
 def check_if_need_remote_reboot_to_recover_dut(topology_obj, engines):
-    try:
-        with allure.step('Check connectivity of local engine with dummy show command'):
+    NETMIKO_ERR, SOCKET_ERR, SUCCESS = 'Netmiko', 'Socket', 'success'
+
+    def check_connectivity():
+        try:
+            with allure.step('Check connectivity of local engine with dummy show command'):
+                logger.info(System().aaa.show())
+                return SUCCESS
+        except NetmikoAuthenticationException as e:
+            logger.exception(f'Netmiko Exception:\n{e}')
+            return NETMIKO_ERR
+        except socket.error as e:
+            logger.exception(f'Socket Error:\n{e}')
+            return SOCKET_ERR
+        finally:
+            pass
+
+    res = check_connectivity()
+    if res != SUCCESS:
+        with allure.step(f'Got {res} error. Disconnect dut engine and try again'):
             engines.dut.disconnect()
-            logger.info(System().aaa.show())
-    except NetmikoAuthenticationException as e:
-        logger.exception(f'Netmiko Exception:\n{e}')
-        recover_dut_with_remote_reboot(topology_obj, engines)
-    except socket.error as e:
-        logger.exception(f'Socket Error:\n{e}')
-        recover_dut_with_remote_reboot(topology_obj, engines)
-    finally:
-        pass
+            res = check_connectivity()
+        if res != SUCCESS:
+            with allure.step(f'Got {res} error. Try recover with remote reboot to dut'):
+                recover_dut_with_remote_reboot(topology_obj, engines)
 
 
 def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
