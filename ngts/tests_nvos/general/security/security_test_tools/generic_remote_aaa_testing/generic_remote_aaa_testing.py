@@ -214,7 +214,7 @@ def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
 def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
                           request,
                           remote_aaa_type: str,
-                          feature_resource_obj: RemoteAaaResource,
+                          remote_aaa_obj: RemoteAaaResource,
                           server_by_addr_type: Dict[str, RemoteAaaServerInfo],
                           test_param: List[str] = None,
                           test_param_update_func: Callable[
@@ -237,7 +237,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
     @param local_adminuser: local admin user info
     @param request: object containing pytest information about current test
     @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server_by_addr_type: dictionary containing server info, by addressing type
     @param test_param: list of other parameters to run the test on
     @param test_param_update_func: function to update the test configuration for each test param
@@ -252,7 +252,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
 
     with allure.step(f'Configure {remote_aaa_type} server'):
         server = server_by_addr_type[addressing_type].copy()
-        server_resource = feature_resource_obj.hostname.hostname_id[server.hostname]
+        server_resource = remote_aaa_obj.hostname.hostname_id[server.hostname]
         server.configure(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
@@ -276,7 +276,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
 
 
 def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remote_aaa_type: str,
-                                           feature_resource_obj: RemoteAaaResource,
+                                           remote_aaa_obj: RemoteAaaResource,
                                            bad_param_name: str,
                                            bad_configured_server: RemoteAaaServerInfo):
     """
@@ -291,7 +291,7 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
     @param engines: engines object
     @param topology_obj: topology object
     @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param bad_param_name: name of the field to assign the bad value to
     @param bad_configured_server: object containing the remote server info
     """
@@ -303,7 +303,7 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
         bad_configured_server.configure(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        aaa = feature_resource_obj.parent_obj
+        aaa = remote_aaa_obj.parent_obj
         aaa.authentication.set(AuthConsts.ORDER,
                                f'{remote_aaa_type},{AuthConsts.LOCAL}', apply=True).verify_result()
 
@@ -311,7 +311,7 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
         verify_user_auth(engines, topology_obj, random.choice(bad_configured_server.users), expect_login_success=False)
 
 
-def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaResource):
+def generic_aaa_test_unique_priority(test_api, remote_aaa_obj: RemoteAaaResource):
     """
     @summary: Verify that hostname priority must be unique
 
@@ -319,7 +319,7 @@ def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaRe
         1. Set 2 hostnames with different priority - expect success
         2. set another hostname with existing priority - expect failure
     @param test_api: run commands with NVUE / OpenApi
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     """
     assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
 
@@ -327,19 +327,19 @@ def generic_aaa_test_unique_priority(test_api, feature_resource_obj: RemoteAaaRe
 
     with allure.step('Set 2 hostnames with different priority - expect success'):
         rand_prio1 = RandomizationTool.select_random_value(ValidValues.PRIORITY).get_returned_value()
-        feature_resource_obj.hostname.hostname_id['1.2.3.4'].set(AaaConsts.PRIORITY, rand_prio1).verify_result()
+        remote_aaa_obj.hostname.hostname_id['1.2.3.4'].set(AaaConsts.PRIORITY, rand_prio1).verify_result()
         rand_prio2 = RandomizationTool.select_random_value(ValidValues.PRIORITY,
                                                            forbidden_values=[rand_prio1]).get_returned_value()
-        feature_resource_obj.hostname.hostname_id['2.4.6.8'].set(AaaConsts.PRIORITY, rand_prio2,
-                                                                 apply=True).verify_result()
+        remote_aaa_obj.hostname.hostname_id['2.4.6.8'].set(AaaConsts.PRIORITY, rand_prio2,
+                                                           apply=True).verify_result()
 
     with allure.step('Set another hostname with existing priority - expect fail'):
-        feature_resource_obj.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2,
-                                                                  apply=True).verify_result(False)
+        remote_aaa_obj.hostname.hostname_id['3.6.9.12'].set(AaaConsts.PRIORITY, rand_prio2,
+                                                            apply=True).verify_result(False)
 
 
 def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type: str,
-                              feature_resource_obj: RemoteAaaResource,
+                              remote_aaa_obj: RemoteAaaResource,
                               server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
     """
     @summary: Verify that auth is done via the top prioritized server
@@ -356,7 +356,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
     @param topology_obj: topology object
     @param request: object containing pytest information about current test
     @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
     """
@@ -373,7 +373,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
         server2.configure(engines, set_explicit_priority=True)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
             AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
             AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
         }, apply=True, verify_apply=False)
@@ -400,7 +400,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
 
         next_prio = random.randint(top_server.priority + 1, ValidValues.PRIORITY[-1])
         with allure.step(f'Advance lower server to be top prioritized to: {next_prio}'):
-            lower_server_resource = feature_resource_obj.hostname.hostname_id[lower_server.hostname]
+            lower_server_resource = remote_aaa_obj.hostname.hostname_id[lower_server.hostname]
             lower_server.priority = next_prio
             lower_server_resource.set(AaaConsts.PRIORITY, lower_server.priority, apply=True,
                                       dut_engine=item.active_remote_admin_engine)
@@ -411,7 +411,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
 
 
 def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
-                                        remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
+                                        remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
                                         server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
@@ -434,7 +434,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
     @param request: object containing pytest information about current test
     @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
     @param local_adminuser: info of local admin user
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
     """
@@ -453,7 +453,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         server1.make_unreachable(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
             AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
             AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
         }, apply=True)
@@ -498,7 +498,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
 
 
 def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
-                                remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
+                                remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
                                 server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
@@ -522,7 +522,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
     @param request: object containing pytest information about current test
     @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
     @param local_adminuser: info of local admin user
-    @param feature_resource_obj: BaseComponent object representing the feature resource
+    @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
     """
@@ -538,7 +538,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         server2.configure(engines, set_explicit_priority=True)
 
     with allure.step(f'Enable {remote_aaa_type} and disable failthrough'):
-        configure_resource(engines, resource_obj=feature_resource_obj.parent_obj.authentication, conf={
+        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
             AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
             AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
         }, apply=True, verify_apply=False)
@@ -553,7 +553,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False)
 
     with allure.step('Enable failthrough'):
-        aaa: Aaa = feature_resource_obj.parent_obj
+        aaa: Aaa = remote_aaa_obj.parent_obj
         aaa.authentication.set(AuthConsts.FAILTHROUGH, AaaConsts.ENABLED, apply=True,
                                dut_engine=item.active_remote_admin_engine).verify_result()
         update_active_aaa_server(item, None)
@@ -571,221 +571,3 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         dummy_user = local_adminuser.copy()
         dummy_user.username = f'dummy_{dummy_user.username}'
         verify_user_auth(engines, topology_obj, dummy_user, expect_login_success=False)
-
-
-def generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
-                                      remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
-                                      server: RemoteAaaServerInfo):
-    """
-    @summary: Verify accounting basic functionality
-
-        Steps:
-        1. configure remote-aaa
-        2. disable accounting
-        3. enable remote-aaa
-        4. verify no accounting logs on server
-        5. enable accounting
-        6. verify accounting logs on server only for remote-aaa users events
-
-    @param test_api: run commands with NVUE / OpenApi
-    @param engines: engines object
-    @param topology_obj: topology object
-    @param request: object containing pytest information about current test
-    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param local_adminuser: info of local admin user
-    @param feature_resource_obj: BaseComponent object representing the feature resource
-    @param server: object containing remote server info
-    """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
-
-    TestToolkit.tested_api = test_api
-    item = request.node
-
-    with allure.step(f'Configure {remote_aaa_type}'):
-        server.configure(engines)
-
-    with allure.step(f'Set {remote_aaa_type} accounting disabled'):
-        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.DISABLED).verify_result()
-
-    with allure.step(f'Enable {remote_aaa_type}'):
-        feature_resource_obj.enable(failthrough=True, apply=True, engine=engines.dut, verify_res=True)
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify no accounting logs on {remote_aaa_type} server'):
-        with allure.step(f'Verify no logs for {remote_aaa_type} admin user'):
-            remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
-            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-        with allure.step(f'Verify no logs for {remote_aaa_type} monitor user'):
-            remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
-            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-        with allure.step('Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-    with allure.step(f'Set {remote_aaa_type} accounting enabled'):
-        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.ENABLED, apply=True).verify_result()
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users only'):
-        with allure.step(f'Verify logs exist for {remote_aaa_type} admin user'):
-            remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
-            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-        with allure.step(f'Verify logs exist for {remote_aaa_type} monitor user'):
-            remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
-            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-        with allure.step('Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server], expect_accounting_logs=[False])
-
-
-def generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
-                                                remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
-                                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
-    """
-    @summary: Verify that accounting logs are sent to top server only
-
-        Steps:
-        1. configure remote-aaa with 2 servers
-        2. enable accounting
-        3. enable remote-aaa
-        4. verify accounting logs on top server only for remote-aaa users events
-
-    @param test_api: run commands with NVUE / OpenApi
-    @param engines: engines object
-    @param topology_obj: topology object
-    @param request: object containing pytest information about current test
-    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param local_adminuser: info of local admin user
-    @param feature_resource_obj: BaseComponent object representing the feature resource
-    @param server1: object containing top remote server info
-    @param server2: object containing 2nd remote server info
-    """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
-
-    TestToolkit.tested_api = test_api
-    item = request.node
-
-    with allure.step(f'Configure {remote_aaa_type} servers'):
-        server1.configure(engines, set_explicit_priority=True)
-        server2.configure(engines, set_explicit_priority=True)
-
-    with allure.step(f'Set {remote_aaa_type} accounting enabled'):
-        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.ENABLED)
-
-    with allure.step(f'Enable {remote_aaa_type}'):
-        feature_resource_obj.enable(failthrough=True, apply=True, engine=engines.dut, verify_res=True)
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st server ({server1.hostname}) only'):
-        with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
-            server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
-            with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
-                server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        with allure.step(f'Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
-
-
-def generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
-                                                       remote_aaa_type: str, feature_resource_obj: RemoteAaaResource,
-                                                       server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
-    """
-    @summary: Verify that when top server becomes unreachable, accounting logs are sent to next available server only
-
-        Steps:
-        1. configure remote-aaa with several top unreachable servers
-        2. configure also reachable server with lower priority
-        3. enable accounting
-        4. enable remote-aaa
-        5. verify accounting logs on top available server only for remote-aaa users events
-        6. make unreachable server reachable
-        7. verify accounting logs now on the top reachable server
-
-    @param test_api: run commands with NVUE / OpenApi
-    @param engines: engines object
-    @param topology_obj: topology object
-    @param request: object containing pytest information about current test
-    @param remote_aaa_type: name of he remote Aaa type (tacacs, ldap, radius)
-    @param local_adminuser: info of local admin user
-    @param feature_resource_obj: BaseComponent object representing the feature resource
-    @param server1: object containing top remote server info
-    @param server2: object containing 2nd remote server info
-    """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
-
-    TestToolkit.tested_api = test_api
-    item = request.node
-
-    with allure.step(f'Configure 2 real {remote_aaa_type} below several unreachable servers'):
-        server2.priority = 1
-        server1.priority = 2
-        feature_resource_obj.hostname.hostname_id['3.3.3.3'].set(AaaConsts.PRIORITY, 3)
-        feature_resource_obj.hostname.hostname_id['4.4.4.4'].set(AaaConsts.PRIORITY, 4)
-        feature_resource_obj.hostname.hostname_id['5.5.5.5'].set(AaaConsts.PRIORITY, 5)
-        feature_resource_obj.hostname.hostname_id['6.6.6.6'].set(AaaConsts.PRIORITY, 6)
-        server1.configure(engines, set_explicit_priority=True)
-        server2.configure(engines, set_explicit_priority=True)
-
-    with allure.step(f'Set {remote_aaa_type} accounting enabled'):
-        feature_resource_obj.accounting.set(AccountingFields.STATE, AaaConsts.ENABLED)
-
-    with allure.step(f'Enable {remote_aaa_type}'):
-        feature_resource_obj.enable(failthrough=True, apply=True, engine=engines.dut, verify_res=True)
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
-        with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
-            server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
-            with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
-                server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        with allure.step(f'Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
-
-    with allure.step(f'Make server1 ({server1.hostname}) also unreachable'):
-        server1.make_unreachable(engines, apply=True)
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server2.hostname}) only'):
-        with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
-            server2_user: UserInfo = random.choice(server2.users)
-            verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, True])
-
-        with allure.step(f'Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
-
-    with allure.step(f'Make server1 ({server1.hostname}) reachable again'):
-        server1.make_unreachable(engines, apply=True)
-        if remote_aaa_type == RemoteAaaType.LDAP:
-            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
-
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
-        with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
-            server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
-            with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
-                server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
-
-        with allure.step(f'Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])

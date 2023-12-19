@@ -77,13 +77,13 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                 if skip_auth_mediums and medium in skip_auth_mediums:
                     continue
 
-                if accounting_servers:
-                    with allure.step('Clear accounting logs on servers'):
-                        for mngr in accounting_server_mngrs:
-                            mngr.clear_accounting_logs()
-
                 with allure.step(f'Verify auth with medium: {medium}'):
                     medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
+
+                    if accounting_servers:
+                        with allure.step('Clear accounting logs on servers'):
+                            for mngr in accounting_server_mngrs:
+                                mngr.clear_accounting_logs()
 
                     with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
                         medium_obj.verify_authentication(expect_login_success)
@@ -92,13 +92,13 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                         with allure.step(f'Verify authorization. Role: {user.role}'):
                             medium_obj.verify_authorization(user_is_admin=user_is_admin)
 
-                if accounting_servers:
-                    with allure.step('Verify accounting logs on given servers'):
-                        for i, mngr in enumerate(accounting_server_mngrs):
-                            expect_logs = expect_accounting_logs[i]
-                            with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
-                                accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(grep=user.username)
-                                assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{mngr.ip}" for user "{user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
+                    if accounting_servers:
+                        with allure.step('Verify accounting logs on given servers'):
+                            for i, mngr in enumerate(accounting_server_mngrs):
+                                expect_logs = expect_accounting_logs[i]
+                                with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
+                                    accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(grep=user.username)
+                                    assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{mngr.ip}" for user "{user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
         logging.info('\n')
 
 

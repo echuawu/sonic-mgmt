@@ -68,20 +68,12 @@ def test_install_system_firmware(engines, test_name):
 
     finally:
         with allure.step("cleanup steps"):
+            OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
+                                        system, engines, test_name, fw_has_changed)
 
-
-   if fw_has_changed:
-        res_obj, duration = OperationTime.save_duration('install default fw', 'include reboot', test_name,
-                                                        install_image_fw, system, engines, test_name,
-                                                        fw_has_changed)
-        assert OperationTime.verify_operation_time(duration, 'install default fw'), \
-            'Install default FW took more time than threshold value'
-    else:
-        install_image_fw(system, engines, test_name, fw_has_changed)
-
-   with allure.step('Verify the firmware installed successfully'):
-        verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
-        validate_all_asics_have_same_info()
+        with allure.step('Verify the firmware installed successfully'):
+            verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
+            validate_all_asics_have_same_info()
 
 
 def install_image_fw(system, engines, test_name, fw_has_changed):

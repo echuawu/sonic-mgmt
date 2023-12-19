@@ -10,15 +10,14 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AuthMedium
 from ngts.tools.test_utils import allure_utils as allure
-from infra.tools.linux_tools.linux_tools import scp_file
+from infra.tools.linux_tools.linux_tools import LinuxSshEngine, scp_file
 
 
 class AuthVerifier:
     def __init__(self, username, password, engines, topology_obj):
         self.api = ApiType.NVUE
         logging.info(f'Create proxy ssh engine for user: {username}')
-        self.engine = ProxySshEngine(device_type=engines.dut.device_type, ip=engines.dut.ip, username=username,
-                                     password=password)
+        self.engine = LinuxSshEngine(engines.dut.ip, username, password)
 
     def change_test_api(self, api=None):
         api = self.api if api is None else api
