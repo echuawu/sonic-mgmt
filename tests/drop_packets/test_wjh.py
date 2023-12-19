@@ -152,7 +152,7 @@ def check_if_entry_exists(table, pkt):
         src_ip_port = entry['Src IP:Port'].rsplit(':', 1)
         dst_ip_port = entry['Dst IP:Port'].rsplit(':', 1)
         if (pkt.dst.lower() == entry['dMAC'].lower() and
-            pkt.src.lower() == entry['sMAC'].lower()):
+            pkt.src.lower().decode("utf-8") == entry['sMAC'].lower()):
 
                 if src_ip_port[0] != 'N/A':
                     if ip_key in pkt:
