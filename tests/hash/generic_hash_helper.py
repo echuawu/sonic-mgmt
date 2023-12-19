@@ -9,18 +9,22 @@ from tests.common.utilities import wait_until
 from tests.common import config_reload
 from tests.conftest import get_testbed_metadata
 from tests.vxlan.vxlan_ecmp_utils import Ecmp_Utils as VxLAN_Ecmp_Utils
+from tests.common.dualtor.mux_simulator_control import toggle_all_simulator_ports  # noqa:F401
+from tests.common.dualtor.constants import UPPER_TOR
 
 SRC_IP_RANGE = ['8.0.0.0', '8.255.255.255']
 DST_IP_RANGE = ['9.0.0.0', '9.255.255.255']
 SRC_IPV6_RANGE = ['20D0:A800:0:00::', '20D0:FFFF:0:00::FFFF']
 DST_IPV6_RANGE = ['20D0:A800:0:01::', '20D0:FFFF:0:01::FFFF']
-IP_RANGE = {'ipv4':{'src': SRC_IP_RANGE, 'dst': DST_IP_RANGE},
-            'ipv6':{'src': SRC_IPV6_RANGE, 'dst': DST_IPV6_RANGE},
-            'None':{'src': [], 'dst': []}}
+IP_RANGE = {'ipv4': {'src': SRC_IP_RANGE, 'dst': DST_IP_RANGE},
+            'ipv6': {'src': SRC_IPV6_RANGE, 'dst': DST_IPV6_RANGE},
+            'None': {'src': [], 'dst': []}}
 PTF_QLEN = 20000
 VLAN_RANGE = [1032, 1060]
 ETHERTYPE_RANGE = [0x0800, 0x0900]
 ENCAPSULATION = ['ipinip', 'vxlan', 'nvgre']
+MELLANOX_SUPPORTED_HASH_ALGORITHM = ['CRC', 'CRC_CCITT']
+DEFAULT_SUPPORTED_HASH_ALGORITHM = ['CRC', 'CRC_CCITT', 'RANDOM', 'XOR']
 
 MELLANOX_ECMP_HASH_FIELDS = [
     'IN_PORT', 'SRC_MAC', 'DST_MAC', 'ETHERTYPE', 'VLAN_ID', 'IP_PROTOCOL', 'SRC_IP', 'DST_IP', 'L4_SRC_PORT',
@@ -47,11 +51,6 @@ HASH_CAPABILITIES = {'mellanox': {'ecmp': MELLANOX_ECMP_HASH_FIELDS,
                      'default': {'ecmp': DEFAULT_ECMP_HASH_FIELDS,
                                  'lag': DEFAULT_LAG_HASH_FIELDS}}
 
-HASH_FIELDS_SUPPORTED_BY_TEST = [
-    'IN_PORT', 'SRC_MAC', 'DST_MAC', 'ETHERTYPE', 'VLAN_ID', 'IP_PROTOCOL', 'SRC_IP', 'DST_IP', 'L4_SRC_PORT',
-    'L4_DST_PORT', 'INNER_SRC_IP', 'INNER_DST_IP'
-]
-
 logger = logging.getLogger(__name__)
 vlan_member_to_restore = {}
 ip_interface_to_restore = []
@@ -63,6 +62,16 @@ balancing_range = 0.25
 vxlan_ecmp_utils = VxLAN_Ecmp_Utils()
 vxlan_port_list = [13330, 4789]
 restore_vxlan = False
+
+
+@pytest.fixture(scope="module")
+def get_supported_hash_algorithms(request):
+    asic_type = get_asic_type(request)
+    if asic_type in 'mellanox':
+        supported_hash_algorithm_list = MELLANOX_SUPPORTED_HASH_ALGORITHM[:]
+    else:
+        supported_hash_algorithm_list = DEFAULT_SUPPORTED_HASH_ALGORITHM[:]
+    return supported_hash_algorithm_list
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -83,12 +92,17 @@ def mg_facts(duthost, tbinfo):
 def restore_init_hash_config(duthost):
     """ Fixture to restore the initial generic hash configurations after the test. """
     logger.info("Store the initial generic hash configurations")
-    init_ecmp_hash_fields, init_lag_hash_fields = get_global_hash_config(duthost)
+    init_ecmp_hash_fields, init_ecmp_hash_algo, init_lag_hash_fields, init_lag_hash_algo = \
+        get_global_hash_config(duthost)
     yield
     if init_ecmp_hash_fields:
         duthost.set_switch_hash_global('ecmp', init_ecmp_hash_fields)
     if init_lag_hash_fields:
         duthost.set_switch_hash_global('lag', init_lag_hash_fields)
+    if init_ecmp_hash_algo and init_ecmp_hash_algo != 'N/A':
+        duthost.set_switch_hash_global_algorithm('ecmp', init_ecmp_hash_algo)
+    if init_lag_hash_algo and init_lag_hash_algo != 'N/A':
+        duthost.set_switch_hash_global_algorithm('lag', init_lag_hash_algo)
     logger.info("The initial generic hash configurations have been restored.")
 
 
@@ -142,7 +156,7 @@ def restore_interfaces(duthost):
         duthost.no_shutdown_multiple(interfaces_to_startup)
     try:
         for interface in interfaces_to_startup:
-            pytest_assert(wait_until(30, 5, 0, duthost.check_intf_link_state, interface), 
+            pytest_assert(wait_until(30, 5, 0, duthost.check_intf_link_state, interface),
                           "Not all interfaces are restored to up after the flap test.")
     finally:
         del interfaces_to_startup[:]
@@ -163,42 +177,51 @@ def restore_vxlan_port(duthost):
 @pytest.fixture(scope='module')
 def global_hash_capabilities(duthost):
     """
-        Get the generic hash capabilities.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-            Returns:
-                ecmp_hash_fields: a list of supported ecmp hash fields
-                lag_hash_fields: a list of supported lag hash fields
+    Get the generic hash capabilities.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+    Returns:
+        ecmp_hash_fields: a list of supported ecmp hash fields
+        lag_hash_fields: a list of supported lag hash fields
     """
     global_hash_capabilities = duthost.get_switch_hash_capabilities()
-    return {'ecmp': global_hash_capabilities['ecmp'], 'lag': global_hash_capabilities['lag']}
+    return {'ecmp': global_hash_capabilities['ecmp'], 'ecmp_algo': global_hash_capabilities['ecmp_algo'],
+            'lag': global_hash_capabilities['lag'], 'lag_algo': global_hash_capabilities['lag_algo']}
+
+
+@pytest.fixture()
+def toggle_all_simulator_ports_to_upper_tor(toggle_all_simulator_ports):  # noqa:F811
+    """ Fixture to toggle all ports to upper tor """
+    toggle_all_simulator_ports(UPPER_TOR)
 
 
 def get_global_hash_config(duthost):
     """
-        Get the generic hash configurations.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-            Returns:
-                ecmp_hash_fields: a list of currently configured ecmp hash fields
-                lag_hash_fields: a list of currently configured lag hash fields
+    Get the generic hash configurations.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+    Returns:
+        ecmp_hash_fields: a list of currently configured ecmp hash fields
+        lag_hash_fields: a list of currently configured lag hash fields
     """
     logger.info("Get current generic hash configurations.")
     global_hash_config = duthost.get_switch_hash_configurations()
     ecmp_hash_fields = global_hash_config['ecmp']
     lag_hash_fields = global_hash_config['lag']
-    return ecmp_hash_fields, lag_hash_fields
+    ecmp_hash_algo = global_hash_config['ecmp_algo']
+    lag_hash_algo = global_hash_config['lag_algo']
+    return ecmp_hash_fields, ecmp_hash_algo, lag_hash_fields, lag_hash_algo
 
 
 def check_global_hash_config(duthost, ecmp_hash_fields, lag_hash_fields):
     """
-        Validate if the current generic hash configurations are as expected. Assert when validation fails.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                ecmp_hash_fields: a list of expected ecmp hash fields
-                lag_hash_fields: a list of expected lag hash fields
+    Validate if the current generic hash configurations are as expected. Assert when validation fails.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        ecmp_hash_fields: a list of expected ecmp hash fields
+        lag_hash_fields: a list of expected lag hash fields
     """
-    ecmp_hash_fields_fact, lag_hash_fields_fact = get_global_hash_config(duthost)
+    ecmp_hash_fields_fact, _, lag_hash_fields_fact, _ = get_global_hash_config(duthost)
     ecmp_hash_matched = set(ecmp_hash_fields) == set(ecmp_hash_fields_fact)
     lag_hash_matched = set(lag_hash_fields) == set(lag_hash_fields_fact)
     pytest_assert(ecmp_hash_matched == lag_hash_matched is True,
@@ -209,14 +232,35 @@ def check_global_hash_config(duthost, ecmp_hash_fields, lag_hash_fields):
                   f'actual lag hash fields: {lag_hash_fields_fact}')
 
 
+def check_global_hash_algorithm(duthost, ecmp_hash_algo=None, lag_hash_algo=None):
+    """
+    Validate if the current generic hash algorithm configurations are as expected. Assert when validation fails.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        ecmp_hash_algo: ecmp hash algorithm
+        lag_hash_algo: lag hash algorithm
+    """
+    _, ecmp_hash_algorithm, _, lag_hash_algorithm = get_global_hash_config(duthost)
+    if ecmp_hash_algo:
+        pytest_assert(ecmp_hash_algo == ecmp_hash_algorithm,
+                      'The global hash algorithm configuration is not as expected:\n'
+                      f'expected ecmp hash algorithm: {ecmp_hash_algo}\n'
+                      f'actual ecmp hash algorithm: {ecmp_hash_algorithm}\n')
+    if lag_hash_algo:
+        pytest_assert(lag_hash_algo == lag_hash_algorithm,
+                      'The global hash algorithm configuration is not as expected:\n'
+                      f'expected lag hash algorithm: {lag_hash_algo}\n'
+                      f'actual lag hash algorithm: {lag_hash_algorithm}\n')
+
+
 def get_ip_route_nexthops(duthost, destination):
     """
-        Get nexthop interfaces for a specific destination
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                destination: get the nexthops of this route
-            Returns:
-                The nexthop interfaces
+    Get nexthop interfaces for a specific destination
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        destination: get the nexthops of this route
+    Returns:
+        The nexthop interfaces
     """
     output = duthost.shell(f'show ip route {destination} json')['stdout']
     ip_route_json = json.loads(output)
@@ -231,12 +275,12 @@ def get_ip_route_nexthops(duthost, destination):
 
 def check_default_route(duthost, expected_nexthops):
     """
-        Check the default route exists and the nexthops interfaces are as expected.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                expected_nexthops: expected nexthop interfaces
-            Returns:
-                True if the nexthops are the same as the expected.
+    Check the default route exists and the nexthops interfaces are as expected.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        expected_nexthops: expected nexthop interfaces
+    Returns:
+        True if the nexthops are the same as the expected.
     """
     logger.info("Check if the default route is available.")
     nexthops = get_ip_route_nexthops(duthost, "0.0.0.0/0")
@@ -245,17 +289,16 @@ def check_default_route(duthost, expected_nexthops):
 
 def get_ptf_port_indices(mg_facts, downlink_interfaces, uplink_interfaces):
     """
-        Get the ptf port indices for the interfaces under test.
-            Args:
-                mg_facts: minigraph facts
-                downlink_interfaces: a list of downlink interfaces on dut
-                uplink_interfaces: a dictionary of uplink(egress) interfaces on dut
-            Returns:
-                sending_ports: a list of the ptf port indices which will be used to send the test traffic
-                    example: [57]
-                expected_port_groups: a list of the ptf port indices which will be used to received the test traffic,
-                                 the indices in a group means the ports are in a same portchannel
-                    example: [[0, 2], [8, 10], [21, 22], [40, 41]]
+    Get the ptf port indices for the interfaces under test.
+    Args:
+        mg_facts: minigraph facts
+        downlink_interfaces: a list of downlink interfaces on dut
+        uplink_interfaces: a dictionary of uplink(egress) interfaces on dut
+    Returns:
+        sending_ports: a list of the ptf port indices which will be used to send the test traffic example: [57]
+        expected_port_groups: a list of the ptf port indices which will be used to received the test traffic,
+                              the indices in a group means the ports are in a same portchannel
+                              example: [[0, 2], [8, 10], [21, 22], [40, 41]]
     """
     sending_ports = []
     for interface in downlink_interfaces:
@@ -271,12 +314,12 @@ def get_ptf_port_indices(mg_facts, downlink_interfaces, uplink_interfaces):
 
 def flap_interfaces(duthost, interfaces, portchannels=[], times=3):
     """
-        Flap the specified interfaces. Assert when any of the interfaces is not up after the flapping.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                interfaces: a list of interfaces to be flapped
-                portchannels: a list of portchannels which need to check the status after the flapping
-                times: flap times, every interface will be shutdown/startup for the value number times
+    Flap the specified interfaces. Assert when any of the interfaces is not up after the flapping.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        interfaces: a list of interfaces to be flapped
+        portchannels: a list of portchannels which need to check the status after the flapping
+        times: flap times, every interface will be shutdown/startup for the value number times
     """
     logger.info(f"Flap the interfaces {interfaces} for {times} times.")
     # Flap the interface
@@ -295,11 +338,11 @@ def flap_interfaces(duthost, interfaces, portchannels=[], times=3):
 
 def remove_add_portchannel_member(duthost, interface, portchannel):
     """
-        Remove and then add the specified members. Assert when any of the interfaces is not up after the remove/add.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                interface: the member to be removed/added
-                portchannel: the portchannel which the member belongs to
+    Remove and then add the specified members. Assert when any of the interfaces is not up after the remove/add.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        interface: the member to be removed/added
+        portchannel: the portchannel which the member belongs to
     """
     logger.info(f"Remove the member {interface} from the portchannel {portchannel}.")
     duthost.shell(f"config portchannel member del {portchannel} {interface}")
@@ -312,16 +355,16 @@ def remove_add_portchannel_member(duthost, interface, portchannel):
 
 def get_ip_range(ipver, inner_ipver):
     """
-        Generate the ip address range according to the ip versions.
-        If the hash field is a inner field, generate both outer and inner versions.
-            Args:
-                ipver: outer frame ip version
-                inner_ipver: inner frame ip version
-            Returns:
-                src_ip_range: outer source ip address range
-                dst_ip_range: outer destination ip address range
-                inner_src_ip_range: inner source ip address range
-                inner_dst_ip_range: inner destination ip address range
+    Generate the ip address range according to the ip versions.
+    If the hash field is a inner field, generate both outer and inner versions.
+    Args:
+        ipver: outer frame ip version
+        inner_ipver: inner frame ip version
+    Returns:
+        src_ip_range: outer source ip address range
+        dst_ip_range: outer destination ip address range
+        inner_src_ip_range: inner source ip address range
+        inner_dst_ip_range: inner destination ip address range
     """
     src_ip_range = IP_RANGE[ipver]['src']
     dst_ip_range = IP_RANGE[ipver]['dst']
@@ -332,22 +375,22 @@ def get_ip_range(ipver, inner_ipver):
 
 def get_interfaces_for_test(duthost, mg_facts, hash_field):
     """
-        Get the interfaces used in the test according to the hash field.
-        On t0 and t1 topologies, all uplink interfaces are portchannel interfaces.
-        Down link interfaces could be ethernet interfaces or members of vlan interface or portchannel interfaces
-        which differs with the topologies. Here we need the name of the ethernet interface.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                mg_facts: minigraph facts
-                hash_field: the hash field under test
-            Returns:
-                uplink_interfaces: a dictionary of the uplink interfaces
-                    example: {'PortChannel101': ['Ethernet0', 'Ethernet2'],
-                              'PortChannel102': ['Ethernet8', 'Ethernet10']}
-                downlink_interfaces: a list of the downlink interfaces on the dut. If the hash field is not IN_PORT,
-                                    only one interface is randomly selected, otherwise all the downlinks are used.
-                    example: ['Ethernet48']
-                             ['Ethernet2', 'Ethernet4', ..., 'Ethernet48'] for IN_PORT test
+    Get the interfaces used in the test according to the hash field.
+    On t0 and t1 topologies, all uplink interfaces are portchannel interfaces.
+    Down link interfaces could be ethernet interfaces or members of vlan interface or portchannel interfaces
+    which differs with the topologies. Here we need the name of the ethernet interface.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        mg_facts: minigraph facts
+        hash_field: the hash field under test
+    Returns:
+        uplink_interfaces: a dictionary of the uplink interfaces
+            example: {'PortChannel101': ['Ethernet0', 'Ethernet2'],
+                      'PortChannel102': ['Ethernet8', 'Ethernet10']}
+        downlink_interfaces: a list of the downlink interfaces on the dut. If the hash field is not IN_PORT,
+                            only one interface is randomly selected, otherwise all the downlinks are used.
+            example: ['Ethernet48']
+                     ['Ethernet2', 'Ethernet4', ..., 'Ethernet48'] for IN_PORT test
     """
     # Get uplink interfaces
     uplink_interfaces = {}
@@ -378,17 +421,7 @@ def get_interfaces_for_test(duthost, mg_facts, hash_field):
     return uplink_interfaces, downlink_interfaces
 
 
-def get_hash_fields_from_option(request, test_type, hash_field_option):
-    """
-        Generate the hash fields to test based on the pytest option.
-            Args:
-                request: pytest request
-                test_type: indicates if it is a ecmp test or lag test. DST_MAC, ETHERTYPE, VLAN_ID are not suitable
-                           for ecmp test because the traffic need to be L2
-                hash_field_option: the value of pytest option "--hash_field"
-            Returns:
-                a list of the hash fields to test
-    """
+def get_asic_type(request):
     metadata = get_testbed_metadata(request)
     if metadata is None:
         logger.warning("Failed to get asic type, "
@@ -399,29 +432,85 @@ def get_hash_fields_from_option(request, test_type, hash_field_option):
         # Always get the asic type from the first dut
         dut_info = metadata[list(metadata.keys())[0]]
         asic_type = dut_info['asic_type']
+    return asic_type
+
+
+def get_hash_fields_from_option(request, test_type, hash_field_option):
+    """
+    Generate the hash fields to test based on the pytest option.
+    Args:
+        request: pytest request
+        test_type: indicates if it is a ecmp test or lag test. DST_MAC, ETHERTYPE, VLAN_ID are not suitable
+                   for ecmp test because the traffic need to be L2
+        hash_field_option: the value of pytest option "--hash_field"
+    Returns:
+        a list of the hash fields to test
+    """
+    asic_type = get_asic_type(request)
     if asic_type in HASH_CAPABILITIES:
         hash_fields = HASH_CAPABILITIES[asic_type][test_type]
     else:
         hash_fields = HASH_CAPABILITIES['default'][test_type]
-    # Some fields are not yet supported by the test, remove them from the list
-    hash_fields = list(set.intersection(set(hash_fields), set(HASH_FIELDS_SUPPORTED_BY_TEST)))
+
     if hash_field_option == "all":
         return hash_fields
     elif hash_field_option == "random":
         return [random.choice(hash_fields)]
     elif hash_field_option in hash_fields:
         return [hash_field_option]
+    elif set(hash_field_option.split(',')).issubset(hash_fields):
+        return hash_field_option.split(',')
     else:
         pytest.fail("Invalid value of the '--hash_field' option.")
 
 
+def get_hash_algorithm_from_option(request, hash_algorithm_identifier):
+    """
+    Generate the hash algorithm to test based on the pytest option.
+    Args:
+        hash_algorithm_identifier: the pytest option value of the --algorithm
+    Returns:
+        a list of the hash algorithm to test
+    """
+    asic_type = get_asic_type(request)
+    if asic_type in 'mellanox':
+        supported_hash_algorithm_list = MELLANOX_SUPPORTED_HASH_ALGORITHM[:]
+    else:
+        supported_hash_algorithm_list = DEFAULT_SUPPORTED_HASH_ALGORITHM[:]
+    if hash_algorithm_identifier == 'all':
+        return supported_hash_algorithm_list
+    elif hash_algorithm_identifier == 'random':
+        return [random.choice(supported_hash_algorithm_list)]
+    elif hash_algorithm_identifier in supported_hash_algorithm_list:
+        return [hash_algorithm_identifier]
+    elif set(hash_algorithm_identifier.split(',')).issubset(set(supported_hash_algorithm_list)):
+        return hash_algorithm_identifier.split(',')
+    else:
+        pytest.fail("Invalid value of the '--algorithm' option.")
+
+
+def get_diff_hash_algorithm(supported_algorithm, get_supported_hash_algorithms):
+    """
+    Get a different supported hash algorithm
+    :param supported_algorithm: current supported algorithm
+    :return: another supported algorithm
+    """
+    supported_hash_algorithm_list = get_supported_hash_algorithms[:]
+    if supported_algorithm in supported_hash_algorithm_list:
+        temp_hash_algo_list = supported_hash_algorithm_list
+        temp_hash_algo_list.remove(supported_algorithm)
+        return random.choice(temp_hash_algo_list)
+    else:
+        return random.choice(supported_hash_algorithm_list)
+
+
 def get_ip_version_from_option(ip_version_option):
     """
-        Generate the ip version to test based on the pytest option.
-            Args:
-                ip_version_option: the pytest option value of the --ip_version or --inner_ip_version
-            Returns:
-                a list of the ip versions to test
+    Generate the ip version to test based on the pytest option.
+    Args:
+        ip_version_option: the pytest option value of the --ip_version or --inner_ip_version
+    Returns:
+        a list of the ip versions to test
     """
     if ip_version_option == 'all':
         return ['ipv4', 'ipv6']
@@ -433,11 +522,11 @@ def get_ip_version_from_option(ip_version_option):
 
 def get_reboot_type_from_option(reboot_option):
     """
-        Generate the reboot type to test based on the pytest option.
-            Args:
-                reboot_option: the pytest option value of --reboot
-            Returns:
-                the list of reboot types
+    Generate the reboot type to test based on the pytest option.
+    Args:
+        reboot_option: the pytest option value of --reboot
+    Returns:
+        the list of reboot types
     """
     if reboot_option == 'all':
         return ['cold', 'warm', 'fast', 'reload']
@@ -449,11 +538,11 @@ def get_reboot_type_from_option(reboot_option):
 
 def get_encap_type_from_option(encap_type_option):
     """
-        Generate the encapsulation type to test based on the pytest option.
-            Args:
-                encap_type_option: the pytest option value of --encap_type
-            Returns:
-                the encap type
+    Generate the encapsulation type to test based on the pytest option.
+    Args:
+        encap_type_option: the pytest option value of --encap_type
+    Returns:
+        the encap type
     """
     if encap_type_option == 'random':
         return [random.choice(['ipinip', 'vxlan', 'nvgre'])]
@@ -465,16 +554,16 @@ def get_encap_type_from_option(encap_type_option):
 
 def remove_ip_interface_and_config_vlan(duthost, mg_facts, tbinfo, downlink_interface, uplink_interfaces, hash_field):
     """
-        Re-configure the interface and vlan on dut to enable switching of L2 traffic.
-        Only for testing DST_MAC, ETHERTYPE, VLAN_ID fields.
-        The changed configurations are stored in global variables for later restoration
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                mg_facts: minigraph facts
-                tbinfo: testbed info
-                downlink_interface: the downlink(ingress) interface under test
-                uplink_interfaces: the uplink(egress) interfaces under test
-                hash_field: the hash field to test
+    Re-configure the interface and vlan on dut to enable switching of L2 traffic.
+    Only for testing DST_MAC, ETHERTYPE, VLAN_ID fields.
+    The changed configurations are stored in global variables for later restoration
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        mg_facts: minigraph facts
+        tbinfo: testbed info
+        downlink_interface: the downlink(ingress) interface under test
+        uplink_interfaces: the uplink(egress) interfaces under test
+        hash_field: the hash field to test
     """
     logger.info("Modify the interface and vlan configurations for L2 test.")
     # re-config the downlink interfaces
@@ -490,7 +579,7 @@ def remove_ip_interface_and_config_vlan(duthost, mg_facts, tbinfo, downlink_inte
         # if topology is t1, remove the ip address on downlink interface
         for ip_interface in mg_facts['minigraph_interfaces']:
             if ip_interface['attachto'] == downlink_interface:
-                duthost.shell(f"config interface ip remove {ip_interface['attachto']} " 
+                duthost.shell(f"config interface ip remove {ip_interface['attachto']} "
                               f"{ip_interface['addr']}/{ip_interface['mask']}")
                 ip_interface_to_restore.append(ip_interface)
                 l2_ports.add(downlink_interface)
@@ -528,10 +617,10 @@ def remove_ip_interface_and_config_vlan(duthost, mg_facts, tbinfo, downlink_inte
 
 def shutdown_interface(duthost, interface):
     """
-        Shutdown interface and add it to the global variable.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                interface: interface to shutdown
+    Shutdown interface and add it to the global variable.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        interface: interface to shutdown
     """
     duthost.shutdown(interface)
     interfaces_to_startup.append(interface)
@@ -539,38 +628,49 @@ def shutdown_interface(duthost, interface):
 
 def startup_interface(duthost, interface):
     """
-        Startup interface and remove it from the global variable.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                interface: interface to startup
+    Startup interface and remove it from the global variable.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        interface: interface to startup
     """
     duthost.no_shutdown(interface)
     if interface in interfaces_to_startup:
         interfaces_to_startup.remove(interface)
 
 
-def generate_test_params(duthost, mg_facts, hash_field, ipver, inner_ipver, encap_type, uplink_interfaces,
+def get_vlan_intf_mac(duthost):
+    config_facts = duthost.get_running_config_facts()
+    vlan_intfs = list(config_facts['VLAN_INTERFACE'])
+    vlan_intf_mac = config_facts['VLAN'][vlan_intfs[0]]['mac']
+    return vlan_intf_mac
+
+
+def generate_test_params(duthost, tbinfo, mg_facts, hash_field, ipver, inner_ipver, encap_type, uplink_interfaces,
                          downlink_interfaces, ecmp_hash, lag_hash, is_l2_test=False):
     """
-        Generate ptf test parameters.
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                mg_facts: minigraph facts
-                hash_field: hash field to test
-                ipver: outer frame IP version
-                inner_ipver: inner frame ip version
-                uplink_interfaces: uplink interfaces of dut
-                downlink_interfaces: downlink interfaces used in the test
-                ecmp_hash: if ecmp hash is tested
-                lag_hash: if lag hash is tested
-                encap_type: the encapsulation type when testing inner fields
-                is_l2_test: if L2 traffic is should be used in test
+    Generate ptf test parameters.
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        mg_facts: minigraph facts
+        hash_field: hash field to test
+        ipver: outer frame IP version
+        inner_ipver: inner frame ip version
+        uplink_interfaces: uplink interfaces of dut
+        downlink_interfaces: downlink interfaces used in the test
+        ecmp_hash: if ecmp hash is tested
+        lag_hash: if lag hash is tested
+        encap_type: the encapsulation type when testing inner fields
+        is_l2_test: if L2 traffic is should be used in test
     """
     src_ip_range, dst_ip_range, inner_src_ip_range, inner_dst_ip_range = get_ip_range(ipver, inner_ipver)
     # Get the ptf src and dst ports
     ptf_sending_ports, ptf_expected_port_groups = get_ptf_port_indices(
         mg_facts, downlink_interfaces=downlink_interfaces, uplink_interfaces=uplink_interfaces)
-    ptf_params = {"router_mac": duthost.facts['router_mac'],
+    if 'dualtor' in tbinfo['topo']['name']:
+        dest_mac = get_vlan_intf_mac(duthost)
+    else:
+        dest_mac = duthost.facts['router_mac']
+    ptf_params = {"router_mac": dest_mac,
                   "sending_ports": ptf_sending_ports,
                   "expected_port_groups": ptf_expected_port_groups,
                   "hash_field": hash_field,
@@ -596,10 +696,10 @@ def generate_test_params(duthost, mg_facts, hash_field, ipver, inner_ipver, enca
 
 def config_custom_vxlan_port(duthost, port):
     """
-        Configure the custom VxLAN udp dport
-            Args:
-                duthost (AnsibleHost): Device Under Test (DUT)
-                port: the custom port number
+    Configure the custom VxLAN udp dport
+    Args:
+        duthost (AnsibleHost): Device Under Test (DUT)
+        port: the custom port number
     """
     global restore_vxlan
     logger.info(f"Configure VxLAN port to {port}")

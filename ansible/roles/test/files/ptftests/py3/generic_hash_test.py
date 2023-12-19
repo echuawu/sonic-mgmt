@@ -56,6 +56,8 @@ class GenericHashTest(BaseTest):
         self.router_mac = self.test_params['router_mac']
         self.ipver = self.test_params['ipver']
         self.inner_ipver = self.test_params.get('inner_ipver')
+        if self.inner_ipver == 'None':
+            self.inner_ipver = None
         src_ip_range = [str(x) for x in self.test_params['src_ip_range'].split(',')]
         dst_ip_range = [str(x) for x in self.test_params['dst_ip_range'].split(',')]
         self.src_ip_interval = lpm.LpmDict.IpInterval(ip_address(src_ip_range[0]), ip_address(src_ip_range[1]))
@@ -110,17 +112,23 @@ class GenericHashTest(BaseTest):
             skip_protos.append(0)
         return random.choice(list(set(range(255)) - set(skip_protos)))
 
+    def randomize_mac(self, base_mac):
+        return base_mac[:-5] + '{0:02x}:{1:02x}'.format(random.randint(0, 255), random.randint(0, 255))
+
     def generate_pkt(self, src_ip, dst_ip, src_port, dst_port, ip_proto, inner_src_ip, inner_dst_ip):
-        def _randomize_mac(base_mac):
-            return base_mac[:-5] + '{0:02x}:{1:02x}'.format(random.randint(0, 255), random.randint(0, 255))
 
         def _get_pkt_ip_protocol(pkt):
-            return pkt['IPv6'].nh if 'IPv6' in pkt.summary() else pkt['IP'].proto
+            if 'IPv6' in pkt.summary():
+                return pkt['IPv6'].nh
+            elif pkt.getlayer('IP'):
+                return pkt['IP'].proto
+            else:
+                return None
 
         def _get_src_mac():
             src_base_mac = self.dataplane.get_mac(0, self.sending_ports[0])
             if self.hash_field == 'SRC_MAC':
-                src_mac = _randomize_mac(src_base_mac)
+                src_mac = self.randomize_mac(src_base_mac)
             else:
                 src_mac = src_base_mac
             return src_mac
@@ -129,7 +137,7 @@ class GenericHashTest(BaseTest):
             dst_base_mac = '11:22:33:44:55:66'
             if self.is_l2_test:
                 if self.hash_field == 'DST_MAC':
-                    dst_mac = _randomize_mac(dst_base_mac)
+                    dst_mac = self.randomize_mac(dst_base_mac)
                 else:
                     dst_mac = '11:22:33:44:55:66'
             else:
@@ -225,9 +233,9 @@ class GenericHashTest(BaseTest):
                 masked_expected_pkt.set_do_not_care_packet(scapy.Ether, "src")
                 masked_expected_pkt.set_do_not_care_packet(scapy.IPv6, "hlim")
             pkt_summary = f"{self.ipver} ipinip packet with src_ip:{src_ip}, dst_ip:{dst_ip}, " \
-                            f"ip_protocol:{_get_pkt_ip_protocol(pkt)}, inner_ipver:{self.inner_ipver}, " \
-                            f"inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, inner_src_port:{src_port}," \
-                            f" inner_dst_port:{dst_port}, inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
+                          f"ip_protocol:{_get_pkt_ip_protocol(pkt)}, inner_ipver:{self.inner_ipver}, " \
+                          f"inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, inner_src_port:{src_port}," \
+                          f" inner_dst_port:{dst_port}, inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
             return pkt, masked_expected_pkt, pkt_summary
 
         def _get_vxlan_packet():
@@ -266,10 +274,11 @@ class GenericHashTest(BaseTest):
                 masked_expected_pkt.set_do_not_care_packet(scapy.Ether, "dst")
                 masked_expected_pkt.set_do_not_care_packet(scapy.Ether, "src")
                 masked_expected_pkt.set_do_not_care_packet(scapy.IPv6, "hlim")
-            pkt_summary = f"{self.ipver} vxlan packet with src_ip:{src_ip}, dst_ip:{dst_ip}, src_port:{self.L4_SRC_PORT}, " \
-                            f"dst_port: {self.vxlan_port}, ip_protocol:{_get_pkt_ip_protocol(pkt)}, inner_ipver:{self.inner_ipver}, " \
-                            f"inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, inner_src_port:{src_port}, " \
-                            f"inner_dst_port:{dst_port}, inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
+            pkt_summary = f"{self.ipver} vxlan packet with src_ip:{src_ip}, dst_ip:{dst_ip}, " \
+                f"src_port:{self.L4_SRC_PORT}, dst_port: {self.vxlan_port}, ip_protocol:{_get_pkt_ip_protocol(pkt)}, " \
+                f"inner_ipver:{self.inner_ipver}, inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, " \
+                f"inner_src_port:{src_port}, inner_dst_port:{dst_port}, " \
+                f"inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
             return pkt, masked_expected_pkt, pkt_summary
 
         def _get_nvgre_packet():
@@ -305,9 +314,9 @@ class GenericHashTest(BaseTest):
                 masked_expected_pkt.set_do_not_care_packet(scapy.Ether, "src")
                 masked_expected_pkt.set_do_not_care_packet(scapy.IPv6, "hlim")
             pkt_summary = f"{self.ipver} nvgre packet with src_ip:{src_ip}, dst_ip:{dst_ip}, " \
-                            f"ip_protocol:{_get_pkt_ip_protocol(pkt)}, inner_ipver:{self.inner_ipver}, " \
-                            f"inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, inner_src_port:{src_port}, " \
-                            f"inner_dst_port:{dst_port}, inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
+                          f"ip_protocol:{_get_pkt_ip_protocol(pkt)}, inner_ipver:{self.inner_ipver}, " \
+                          f"inner_src_ip:{inner_src_ip}, inner_dst_ip:{inner_dst_ip}, inner_src_port:{src_port}, " \
+                          f"inner_dst_port:{dst_port}, inner_ip_protocol:{_get_pkt_ip_protocol(inner_pkt)}"
             return pkt, masked_expected_pkt, pkt_summary
 
         src_mac = _get_src_mac()
@@ -318,7 +327,7 @@ class GenericHashTest(BaseTest):
             packet, masked_expected_packet, packet_summary = _get_single_layer_packet()
         else:
             # For the inner fields, need an encapsulated packet
-            inner_pkt = self.generate_inner_pkt()
+            inner_pkt = self.generate_inner_pkt(inner_src_ip, inner_dst_ip, src_port, dst_port, ip_proto)
             if self.encap_type == 'ipinip':
                 packet, masked_expected_packet, packet_summary = _get_ipinip_packet()
             elif self.encap_type == 'vxlan':
@@ -330,7 +339,18 @@ class GenericHashTest(BaseTest):
     def generate_inner_pkt(self, src_ip, dst_ip, src_port, dst_port, ip_proto):
         src_mac = '00:12:ab:34:cd:01'
         dst_mac = '01:12:ab:34:cd:00'
-        if self.inner_ipver == 'ipv4':  # Inner IP version is ipv4
+        if self.hash_field == 'INNER_SRC_MAC':
+            src_mac = self.randomize_mac(src_mac)
+        if self.hash_field == 'INNER_DST_MAC':
+            dst_mac = self.randomize_mac(dst_mac)
+        if self.hash_field == 'INNER_ETHERTYPE':
+            eth_type = random.choice(range(self.ethertype_range[0], self.ethertype_range[1]))
+            inner_pkt = testutils.simple_eth_packet(
+                eth_dst=dst_mac,
+                eth_src=src_mac,
+                eth_type=eth_type
+            )
+        elif self.inner_ipver == 'ipv4':  # Inner IP version is ipv4
             inner_pkt = testutils.simple_tcp_packet(
                 eth_dst=dst_mac,
                 eth_src=src_mac,
@@ -388,7 +408,7 @@ class GenericHashTest(BaseTest):
             nvgre_tni=None,
             nvgre_flowid=0,
             inner_frame=None
-            ):
+    ):
         """
         Helper function to construct an IPv6 NVGRE packet
         """
@@ -411,7 +431,7 @@ class GenericHashTest(BaseTest):
             pkt = pkt / inner_frame
         else:
             pkt = pkt / scapy.IP()
-            pkt = pkt/("D" * (pktlen - len(pkt)))
+            pkt = pkt / ("D" * (pktlen - len(pkt)))
 
         return pkt
 
@@ -450,8 +470,7 @@ class GenericHashTest(BaseTest):
 
         def _check_only_lag_hash_balancing():
             logging.info('Checking there is only lag hash')
-            hit_ports = list(hit_count_map.keys())
-            hit_ports.sort()
+            hit_ports = sorted(hit_count_map.keys())
             assert hit_ports in self.expected_port_groups, "Traffic is not received by all lag members in 1 nexthop."
             # Check the traffic is balanced over the members
             expected_hit_cnt_per_port = expected_total_hit_cnt / len(self.expected_port_groups[0])
@@ -485,9 +504,11 @@ class GenericHashTest(BaseTest):
                     else self.inner_src_ip_interval.get_first_ip()
                 inner_dst_ip = self.inner_dst_ip_interval.get_random_ip() if self.hash_field == 'INNER_DST_IP' \
                     else self.inner_dst_ip_interval.get_first_ip()
-            src_port = random.randint(0, 65535) if self.hash_field == 'L4_SRC_PORT' else self.L4_SRC_PORT
-            dst_port = random.randint(0, 65535) if self.hash_field == 'L4_DST_PORT' else self.L4_DST_PORT
-            ip_proto = self.get_ip_proto() if self.hash_field == 'IP_PROTOCOL' else 17
+            src_port = random.randint(0, 65535) if self.hash_field in ['L4_SRC_PORT', 'INNER_L4_SRC_PORT'] else \
+                self.L4_SRC_PORT
+            dst_port = random.randint(0, 65535) if self.hash_field in ['L4_DST_PORT', 'INNER_L4_DST_PORT'] else \
+                self.L4_DST_PORT
+            ip_proto = self.get_ip_proto() if self.hash_field in ['IP_PROTOCOL', 'INNER_IP_PROTOCOL'] else 17
 
             pkt, masked_expected_pkt, pkt_summary = self.generate_pkt(
                 src_ip, dst_ip, src_port, dst_port, ip_proto, inner_src_ip, inner_dst_ip)
