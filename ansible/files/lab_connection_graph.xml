@@ -4021,6 +4021,9 @@
       <PowerControlLinkInfo EndDevice="r-leopard-58" EndPort="PSU1" StartDevice="pdu-10-208-0-186" StartPort="1.17"/>
       <PowerControlLinkInfo EndDevice="r-leopard-58" EndPort="PSU2" StartDevice="pdu-10-208-0-186" StartPort="1.18"/>
 
+      <PowerControlLinkInfo EndDevice="r-leopard-70" EndPort="PSU1" StartDevice="pdu-10-208-0-22" StartPort="1.12"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-70" EndPort="PSU2" StartDevice="pdu-10-208-0-22" StartPort="1.16"/>
+
       <PowerControlLinkInfo EndDevice="r-panther-01" EndPort="PSU1" StartDevice="pdu-10-208-0-192" StartPort="1.13"/>
       <PowerControlLinkInfo EndDevice="r-panther-01" EndPort="PSU2" StartDevice="pdu-10-208-0-192" StartPort="1.14"/>
 
