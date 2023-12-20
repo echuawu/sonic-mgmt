@@ -29,6 +29,7 @@ from ngts.tools.test_utils import allure_utils as allure
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.nvos_chipsim_ci
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_tacacs_set_unset_show(test_api, engines):
     tacacs_obj = System().aaa.tacacs

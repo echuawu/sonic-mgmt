@@ -78,7 +78,6 @@ def test_show_role(engines):
 
 @pytest.mark.system
 @pytest.mark.simx
-@pytest.mark.nvos_chipsim_ci
 def test_invalid_username(engines):
     """
     Run show system message command and verify the required message

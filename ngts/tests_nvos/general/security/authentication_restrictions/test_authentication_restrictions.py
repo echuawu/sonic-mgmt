@@ -22,6 +22,7 @@ from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
 @pytest.mark.simx
 @pytest.mark.security
+@pytest.mark.nvos_chipsim_ci
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_authentication_show_commands(test_api, engines):
     """

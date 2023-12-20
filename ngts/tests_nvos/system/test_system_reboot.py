@@ -9,7 +9,6 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 
 @pytest.mark.system
-@pytest.mark.nvos_chipsim_ci
 @pytest.mark.nvos_build
 def test_reboot_command(engines, devices, test_name):
     """

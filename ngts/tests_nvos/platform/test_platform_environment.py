@@ -15,7 +15,6 @@ logger = logging.getLogger()
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.cumulus
-@pytest.mark.nvos_chipsim_ci
 def test_show_platform_environment(engines, devices):
     """
     Show platform environment test
