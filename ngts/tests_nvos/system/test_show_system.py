@@ -15,7 +15,6 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.simx
-@pytest.mark.nvos_chipsim_ci
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system(test_api, engines, devices, topology_obj, test_name):
     """

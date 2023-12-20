@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System tests </name>
+      <name> Security tests </name>
       <info> </info>
       <owner> Yana Port </owner>
     </Test>
