@@ -5,6 +5,7 @@ from mlxlib.common import files
 from rpyc.utils.classic import connect, download
 from reg2_wrapper.common.error_code import ErrorCode
 
+
 class TermHandlerMixin(object):
     def __init__(self, name):
         super(TermHandlerMixin, self).__init__(name)

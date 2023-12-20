@@ -61,7 +61,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         for epoint in self.EPoints:
             dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
             dic_args["epoint"] = epoint
-            for i in xrange(self.num_of_processes):
+            for _ in range(self.num_of_processes):
                 epoint.Player.putenv("PYTHONPATH", "/devts/")
                 epoint.Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)
 

@@ -75,7 +75,7 @@ class SonicAddSessionInfo(SessionAddInfo):
             else:
                 chip_type = 'BF3'
         else:
-            chip_type = int(str(re.search("(\d{4})",platform).group(1))[0])-1 if platform else ""
+            chip_type = int(str(re.search(r"(\d{4})", platform).group(1))[0]) - 1 if platform else ""
             chip_type = "SPC{}".format(chip_type) if chip_type else ""
         res = {
             "version": version.findall(output)[0] if version.search(output) else "",
@@ -100,22 +100,22 @@ class SonicAddSessionInfo(SessionAddInfo):
         @return:
             Tuple with return code and dictionary of additional info to add.
         """
-        print "Run SonicAddSessionInfo.get_dynamic_info"
+        print("Run SonicAddSessionInfo.get_dynamic_info")
 
         machines_players = self.conf_obj.get_active_players()
-        print "machine_players=" + str(machines_players)
+        print("machine_players={0}".format(str(machines_players)))
 
-        if type(machines_players) is list:
+        if isinstance(machines_players, list):
             machine = machines_players[0]
         else:
             machine = machines_players
-        print "machine=" + str(machine)
+        print("machine={0}".format(str(machine)))
 
         remote_workspace = '/root/mars/workspace'
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
-        print "remote_workspace=" + str(remote_workspace)
+        print("remote_workspace={0}".format(str(remote_workspace)))
 
         dut_name = self.conf_obj.get_extra_info().get("dut_name")
         topology = self.conf_obj.get_extra_info().get("topology")
@@ -123,7 +123,7 @@ class SonicAddSessionInfo(SessionAddInfo):
 
         cmd = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'show version'"
         cmd = cmd.format(DUT_NAME=dut_name, TOPOLOGY=topology)
-        print "cmd=" + cmd
+        print("cmd={0}".format(cmd))
 
         try:
             conn = RemoteRPC(machine)
@@ -135,15 +135,15 @@ class SonicAddSessionInfo(SessionAddInfo):
 
             p = conn.modules.execute.run_process(cmd, shell=True)
             (rc, output) = conn.modules.execute.wait_process(p)
-            print "rc=" + str(rc)
-            print "output=" + str(output)
+            print("rc={0}".format(str(rc)))
+            print("output={0}".format(str(output)))
 
             if rc != 0:
-                print "Execute command failed!"
+                print("Execute command failed!")
                 return (1, {})
             res = self._parse_sonic_version(output, topology)
             return (0, res)
-        except Exception, e:
+        except Exception as e:
             logger.error("Failed to execute command: %s" % cmd)
             logger.error("Exception error: %s" % repr(e))
             return (1, {})
