@@ -1742,9 +1742,9 @@ bgp/test_bgp_speaker.py:
 
 bgp/test_bgp_suppress_fib.py:
   skip:
-    reason: "BGP suppress fib pending function not support in 202211 branch"
+    reason: "BGP suppress fib pending function not support in 202311 branch as it severely reduced the route process performance, skip it on 202311 was a high level decision"
     conditions:
-      - "'202211' in release"
+      - "'202211' in release or '202311' in release"
 
 bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress:
   skip:
