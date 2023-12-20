@@ -1,5 +1,5 @@
 from infra.tools.topology_tools.topology_setup_utils import get_topology_by_setup_name
-from ngts.constants.constants import PlayeresAliases
+from ngts.constants.constants import PlayersAliases
 
 
 def get_topology_by_setup_name_and_aliases(setup_name, slow_cli):
@@ -17,7 +17,7 @@ def update_dut_alias(topology):
             topology.players['dut'] = topology.players.pop('dut-b')
             topology.players['dut_serial'] = topology.players.pop('dut-b_serial')
             topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Description'] = 'dut'
-        for alias in PlayeresAliases.Aliases_list:
+        for alias in PlayersAliases.Aliases_list:
             if alias in topology.players.keys():
                 topology.players['dut'] = topology.players[alias]
                 del topology.players[alias]

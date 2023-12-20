@@ -4,7 +4,7 @@ import logging
 
 from pytest_ansible.errors import AnsibleConnectionFailure
 from ngts.tools.infra import update_sys_path_by_community_plugins_path
-from ngts.constants.constants import NvosCliTypes, PlayeresAliases
+from ngts.constants.constants import NvosCliTypes, PlayersAliases
 from devices.sonic import SonicHost
 from plugins.ansible_fixtures import ansible_adhoc
 from plugins.loganalyzer import pytest_addoption, loganalyzer
@@ -37,18 +37,20 @@ def duthosts(ansible_adhoc, topology_obj):
     """
     ansible_engines_list = []
 
-    for dut in PlayeresAliases.duts_list:
+    for dut in PlayersAliases.duts_list:
         dut_info = topology_obj.players.get(dut)
         if dut_info:
             dut_ansible_engine = None
             dut_hostname = dut_info['attributes'].noga_query_data['attributes']['Common']['Name']
             try:
                 dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
-            except (AnsibleConnectionFailure, BaseException) as err:
+            except Exception as err:
                 if dut_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] not in \
                         NvosCliTypes.NvueCliTypes:
                     if isinstance(err, AnsibleConnectionFailure):
                         logger.error(f'DUT not reachable. Can not create DUT ansible engine. Error: {err}')
+                    if isinstance(err, KeyError) and 'bf' in dut_hostname:
+                        logger.info(f'Ignore the DPUs on smart switch setup if the ansible host is not available')
                     else:
                         raise err
             ansible_engines_list.append(dut_ansible_engine)

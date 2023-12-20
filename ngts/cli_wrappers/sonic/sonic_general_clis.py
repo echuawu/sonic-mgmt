@@ -36,6 +36,7 @@ from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tools.infra import update_platform_info_files
 from ngts.helpers.secure_boot_helper import SecureBootHelper
+from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
@@ -347,26 +348,23 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             return output.splitlines()[-1]
 
     def do_installation(self, topology_obj, image_path, deploy_type, fw_pkg_path, platform_params):
-        if ('simx' in platform_params.platform and deploy_type == 'onie') \
-                or self.is_bluefield(platform_params['hwsku']):
-            in_onie = True
-        else:
-            with allure.step('Preparing switch for installation'):
-                logger.info("Begin: Preparing switch for installation ")
-                in_onie = self.prepare_for_installation(topology_obj)
-                logger.info("End: Preparing switch for installation ")
-
-        if deploy_type == 'sonic':
-            if in_onie:
-                raise AssertionError("The request deploy type is 'sonic'(upgrade sonic to sonic)"
-                                     " while the switch is running ONIE instead of SONiC OS.")
-            self.deploy_sonic(image_path)
-
         if deploy_type == 'onie':
+            if 'simx' in platform_params.platform:
+                in_onie = True
+            else:
+                with allure.step('Preparing switch for installation'):
+                    logger.info("Begin: Preparing switch for installation ")
+                    in_onie = self.prepare_for_installation(topology_obj)
+                    logger.info("End: Preparing switch for installation ")
             self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params, topology_obj)
 
+        if deploy_type == 'sonic':
+            self.deploy_sonic(image_path)
+
         if deploy_type == 'bfb':
-            self.deploy_bfb(image_path, topology_obj)
+            change_to_one_port_hwsku = 'msn4' in platform_params.platform
+            self.deploy_bfb(image_path, topology_obj,
+                            change_to_one_port_hwsku=change_to_one_port_hwsku)
 
         if deploy_type == 'pxe':
             self.deploy_pxe(image_path, topology_obj, platform_params['hwsku'])
@@ -410,9 +408,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                                         configure_dns=configure_dns)
         else:
             self.disable_ztp(disable_ztp)
-
-        if self.is_bluefield(platform_params['hwsku']):
-            self.update_dpu_config()
 
         self.configure_dhclient_if_simx()
 
@@ -461,7 +456,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step('Configure dhclient on simx dut'):
                 self.engine.run_cmd('sudo dhclient', validate=True)
 
-    def deploy_bfb(self, image_path, topology_obj):
+    def deploy_bfb(self, image_path, topology_obj, change_to_one_port_hwsku=False):
         rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
             'Parent_device_NIC_name']
         hyper_engine = topology_obj.players['hyper']['engine']
@@ -479,6 +474,22 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Waiting for switch bring-up after reload'):
             logger.info('Waiting for switch bring-up after reload')
             check_port_status_till_alive(True, self.engine.ip, self.engine.ssh_port)
+
+        if change_to_one_port_hwsku:
+            with allure.step('Change hwsku to the one port hwsku(ends with C1)'):
+                config_db = self.get_config_db()
+                hwsku = config_db['DEVICE_METADATA']['localhost']['hwsku']
+                logger.info(f'Current hwsku: {hwsku}')
+                if not hwsku.endswith('-C1'):
+                    hwsku = hwsku.rstrip("-C2")
+                    hwsku += "-C1"
+                    logger.info(f'Generate the configuration for one port hwsku: {hwsku}')
+                    self.engine.run_cmd(
+                        f'sudo sonic-cfggen -k {hwsku} --write-to-db', validate=True)
+                    self.engine.run_cmd('sudo config save -y')
+                    with allure.step('Reload config and wait for DPU bring-up'):
+                        logger.info('Config reload')
+                        self.engine.run_cmd('sudo config reload -yf')
 
     def deploy_pxe(self, image_path, topology_obj, hwsku):
         bf_cli_ssh_connect_bringup = 480
@@ -820,13 +831,6 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 platform_params["platform"] = current_platform_summry["Platform"]
                 hostname = self.cli_obj.chassis.get_hostname()
                 update_platform_info_files(hostname, current_platform_summry, update_inventory=True)
-
-    def update_dpu_config(self):
-        self.engine.run_cmd("sudo jq 'del(.PORT.Ethernet0.pfc_asym)' /etc/sonic/config_db.json | "
-                            "sudo jq 'del(.PORT.Ethernet4.pfc_asym)' > /tmp/config_db.json")
-        self.engine.run_cmd("sudo mv /tmp/config_db.json /etc/sonic/config_db.json")
-        self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD,
-                                ports_list=['Ethernet0', 'Ethernet4'], reload_force=True)
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False, configure_dns=True):

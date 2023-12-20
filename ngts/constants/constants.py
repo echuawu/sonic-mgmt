@@ -1073,10 +1073,10 @@ class MarsConstants:
                           }
 
 
-class PlayeresAliases:
+class PlayersAliases:
     Aliases_list = ['sl']
     SL = 'sl'
-    duts_list = ['dut', 'dut-b']
+    duts_list = ['dut', 'dut-b', 'dut-dpu-1', 'dut-dpu-2', 'dut-dpu-3', 'dut-dpu-4']
 
 
 class NvosCliTypes:
@@ -1096,7 +1096,12 @@ class BluefieldConstants:
     GRUB_CFG_FILE_MAP = {BF2_HWSKU: BF2_GRUB_CFG, BF3_HWSKU: BF3_GRUB_CFG}
 
     BLUEFIELD_HWSKUS_LIST = [BF2_HWSKU, '{}-C2'.format(BF2_HWSKU),
-                             BF3_HWSKU, '{}-C2'.format(BF3_HWSKU)]
+                             "Nvidia-9009d3b600CVAA",
+                             "Nvidia-9009d3b600CVAA-C1",
+                             "Nvidia-9009d3b600CVAA-C2",
+                             "Nvidia-9009d3b600SVAA",
+                             "Nvidia-9009d3b600SVAA-C1",
+                             "Nvidia-9009d3b600SVAA-C2"]
     BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
 
 

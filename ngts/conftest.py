@@ -21,7 +21,8 @@ from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_na
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
 from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
-from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, BugHandlerConst, InfraConst
+from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, \
+    BugHandlerConst, InfraConst, PlayersAliases
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
@@ -275,15 +276,13 @@ def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     nvos_setup = False
     for player_key, player_info in topology.players.items():
-        if player_key == 'dut':
+        if player_key in PlayersAliases.duts_list:
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 update_nvos_topology(topology, player_info)
                 nvos_setup = True
             else:
-                player_info['cli'] = SonicCli(topology)
+                player_info['cli'] = SonicCli(topology, dut_alias=player_key)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
-        elif player_key == 'dut-b':
-            player_info['cli'] = SonicCli(topology, dut_alias='dut-b')
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})

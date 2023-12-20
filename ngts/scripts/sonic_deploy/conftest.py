@@ -39,6 +39,9 @@ def pytest_addoption(parser):
     logger.info('Parsing base-version')
     parser.addoption("--base-version", action="store", default="",
                      help="URL or path to the SONiC image. Firstly upgrade switch to this version.")
+    logger.info('Parsing base-version-dpu')
+    parser.addoption("--base-version-dpu", action="store", default="",
+                     help="URL or path to the SONiC image for dpu.")
     logger.info('Parsing target-version')
     parser.addoption("--target-version", action="store",
                      help="URL or path to the SONiC image. If this argument is specified, upgrade switch to this \
@@ -85,6 +88,9 @@ def pytest_addoption(parser):
     logger.info('Parsing post_validation')
     parser.addoption("--post_validation", help="Specify whether do post installation validation",
                      default=False, action="store")
+    logger.info('Parsing deploy_dpu')
+    parser.addoption("--deploy_dpu", help="Specify whether to deploy dpu for smart switch setup.",
+                     action="store", default=False)
 
 
 @pytest.fixture(scope="module")
@@ -115,6 +121,16 @@ def base_version(request):
     :return: base version
     """
     return request.config.getoption('--base-version')
+
+
+@pytest.fixture(scope="session")
+def base_version_dpu(request):
+    """
+    Method for getting base version for dpu from pytest arguments
+    :param request: pytest builtin
+    :return: base version
+    """
+    return request.config.getoption('--base-version-dpu')
 
 
 @pytest.fixture(scope="module")
@@ -295,3 +311,14 @@ def additional_apps(request):
     :return: additional-apps
     """
     return request.config.getoption('--additional-apps')
+
+
+@pytest.fixture(scope="session")
+def deploy_dpu(request):
+    """
+    Method for getting deploy_dpu from pytest arguments
+    :param request: pytest builtin
+    :return: deploy_dpu
+    """
+    deploy_dpu = request.config.getoption('--deploy_dpu')
+    return deploy_dpu

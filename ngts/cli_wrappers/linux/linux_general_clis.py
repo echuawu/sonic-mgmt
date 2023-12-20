@@ -29,6 +29,7 @@ class LinuxGeneralCli(GeneralCliCommon):
             cmd = f'sudo bfb-install -b {image_path} -r rshim{rshim_num}'
             pattern = r"INFO\[MISC\]: DPU is ready"
             logger.info(f'Install sonic BFB image: {image_path},  on Server: {self.engine.ip},  RSHIM: {rshim_num}')
+            logger.info(f'Executing command on hypervisor: {cmd}')
             output = self.engine.run_cmd_set([cmd], tries_after_run_cmd=75, patterns_list=[pattern])
             assert re.search(r'INFO\[MISC\]: Linux up.*INFO\[MISC\]: DPU is ready', output, re.DOTALL) or \
                 re.search(r'INFO\[MISC\]: Installation finished', output), f'Installation failed, please '\

@@ -289,7 +289,7 @@ class SonicInstallationSteps:
     def post_installation_steps(topology_obj, sonic_topo,
                                 recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
-                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info):
+                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu):
         """
         Post-installation steps
         :param topology_obj: topology object
@@ -364,6 +364,21 @@ class SonicInstallationSteps:
                 dut_engine.run_cmd("sudo ntpd -gq")
                 dut_engine.run_cmd("sudo systemctl start ntpd")
             ##########################################################################################################
+            if deploy_dpu:
+                with allure.step('Apply virtual smart switch configuration'):
+                    dut_engine = topology_obj.players['dut']['engine']
+                    config_path = \
+                        os.path.join(MarsConstants.SONIC_MGMT_DIR,
+                                     "tests/virtual_smart_switch/dpu_ip_assignment_config.json")
+                    dut_engine.copy_file(source_file=config_path,
+                                         dest_file="dpu_ip_assignment_config.json", file_system='/tmp/',
+                                         overwrite_file=True, verify_file=False)
+                    dut_engine.run_cmd(
+                        'sudo cp /etc/sonic/config_db.json /etc/sonic/config_db.backup.json')
+                    dut_engine.run_cmd(
+                        'sudo sonic-cfggen -j /tmp/dpu_ip_assignment_config.json --write-to-db', validate=True)
+                    dut_engine.run_cmd('sudo config qos clear')
+                    general_cli_obj.save_configuration()
 
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
