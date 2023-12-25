@@ -396,8 +396,9 @@ class IpConsts:
     MAX_IPV6_GROUP_VALUE = 65535
     ARP_TIMEOUT = "arp-timeout"
     AUTOCONF = "autoconf"
-    PYTHON_PATH = '/auto/app/Python-3.6.2/bin/python3.6'
-    MAD_TO_GET_IP_TEMPLATE = PYTHON_PATH + 'nvmad.py --lid {lid} --mad MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
+    PYTHON_PATH = '/auto/app/Python-3.6.2/bin/'
+    MAD_TO_GET_IP_TEMPLATE = PYTHON_PATH + 'python3.6 nvmad.py --lid {lid} --mad ' \
+                                           'MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
 
 
 class ConfigConsts:
@@ -991,23 +992,22 @@ class UfmMadConsts:
         ENABLED = 'enabled'
         DISABLED = 'disabled'
 
-    LOCATION_TO_RUN_NVMAD = '/auto/sw_system_project/NVOS_INFRA/verification/mad_repository'
+    # LOCATION_TO_RUN_NVMAD = '/auto/sw_system_project/NVOS_INFRA/verification/mad_repository'
     STATE = 'state'
-    LINK_STATE = 'link.state'  # TODO update
+    ADVERTISED_ADDRESSED = 'advertised-addresses'
     IPV4 = 'ipv4'
     IPV4_NETMASK = 'ipv4_netmask'
     IPV6 = 'ipv6'
     IPV6_NETMASK = 'ipv6_netmask'
-    UFM_MAD_DEFAULT = 'TBD'  # TODO update
-    NONE_IP = '0.0.0.0/0'
+    ZEROS_IPV4 = '0.0.0.0/0'
+    ZEROS_IPV6 = '0:0:0:0:0:0:0:0/0'
     STATIC_IPV4 = '10.10.10.10/10'
-    STATIC_IPV4_2 = '20.20.20.20/20'
-    STATIC_IPV6 = 'TBD'  # TODO update
-    STATIC_IPV6_2 = 'TBD'  # TODO update
+    STATIC_IPV6 = 'fdfd:fdfd:7:145:ac0:ebff:fe58:7f90/64'
     MGMT_PORT0 = 'eth0'
-    MGMT_PORT1 = 'eth1'
-    UFM_MAD_DB_NUM = '6'
+    # MGMT_PORT1 = 'eth1'
+    IPV4_PREFIX = 'ipv4-prefix'
+    IPV6_PREFIX = 'ipv6-prefix'
     UFM_MAD_TABLE_ETH0 = '\"UFM_MAD_TABLE|eth0\"'
     UFM_MAD_TABLE_GENERAL = '\"UFM_MAD_TABLE|general\"'
-    MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
-    MST_REGISTER = 'IBSNI'
+    NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE = 4
+    CONFIG_TIME = 100
