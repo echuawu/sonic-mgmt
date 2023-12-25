@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 DPU_PLATFORM_DUMP_FILES = ["sysfs_tree", "sys_version", "dmesg",
                            "dmidecode", "lsmod", "lspci", "top", "bin/platform-dump.sh"]
-TECHSUPPORT_DUMP_DIR = '/var/dump/'
+SDK_DUMP_DIR = '/var/log/bluefield/sdk-dumps/'
 SDK_DUMP_FILES = ["acls.log", "enis.log", "general.log", "routing.log", "sai_nasa_dump.txt", "stats.log"]
 SAI_SDK_DUMP_FOLDER_NAME = 'sai_sdk_dump'
 
@@ -88,18 +88,16 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
 
 
 @pytest.mark.disable_loganalyzer
-def test_techsupport_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_hostname, recover_dut):
+def test_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_hostname, recover_dut):
     """
     This test is to check triggering fw stuck will generate dump file
     1. Get DUT current time (time_before_trigger_fw_stuck) before triggering fw stuck
     2. Trigger fw stuck by running command: echo 1 > /sys/bus/pci/devices/0000\: 03\:00.0/remove ;
        cho 1 > /sys/bus/pci/devices/0000\:03\:00.1/remove ; sleep 5 ; echo 1 > /sys/bus/pci/rescan
-    3. Check one new dump file is generated in /var/dump/,
+    3. Check one new SAI/SDK dump file is generated in /var/log/bluefield/sdk-dumps/,
        and the created time for the new dump file should be later than time_before_trigger_fw_stuck
-    4. Check dump file includes a folder of sai_sdk_dump
-    5. Check sai_sdk_dump folder includes some files like sai-dfw-xxxxx.tar.gz
-    6. Check sai-dfw-xxxxx.tar.gz include acls.log, enis.log, general.log, routing.log, sai_nasa_dump.txt, stats.log
-    7. Recover DUT by config reload -y
+    4. Check sai-dfw-xxxxx.tar.gz include acls.log, enis.log, general.log, routing.log, sai_nasa_dump.txt, stats.log
+    5. Recover DUT by config reload -y
     :param duthosts: DUT host
     """
     duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
@@ -114,34 +112,26 @@ def test_techsupport_fw_stuck_dump(duthosts, enum_rand_one_per_hwsku_frontend_ho
         duthost.shell(trigger_fw_stuck_cmd)
 
     with allure.step("Check new dump file is generated"):
-        techsupport_dump_list_after_trigger_fw_stuck = []
+        sdk_dump_list_after_trigger_fw_stuck = []
 
         def _check_new_dump_file_is_generated():
-            nonlocal techsupport_dump_list_after_trigger_fw_stuck
-            get_new_dump_file_cmd = f" find {TECHSUPPORT_DUMP_DIR}*.tar.gz -newermt  '{time_before_trigger_fw_stuck}'"
-            techsupport_dump_list_after_trigger_fw_stuck = duthost.shell(get_new_dump_file_cmd)['stdout_lines']
+            nonlocal sdk_dump_list_after_trigger_fw_stuck
+            get_new_dump_file_cmd = f" find {SDK_DUMP_DIR}sai-dfw*.tar -newermt  '{time_before_trigger_fw_stuck}'"
+            sdk_dump_list_after_trigger_fw_stuck = duthost.shell(get_new_dump_file_cmd)['stdout_lines']
             # show dump file info for debug
-            show_dump_file_info = f"ls -lh {TECHSUPPORT_DUMP_DIR}"
+            show_dump_file_info = f"ls -lh {SDK_DUMP_DIR}"
             duthost.shell(show_dump_file_info)
-            return techsupport_dump_list_after_trigger_fw_stuck
+            return sdk_dump_list_after_trigger_fw_stuck
 
-        assert wait_until(300, 5, 0, _check_new_dump_file_is_generated),\
+        assert wait_until(120, 5, 0, _check_new_dump_file_is_generated),\
             "FW stuck doesn't trigger dump files generated in 120s"
-        techsupport_dump_list_num = len(techsupport_dump_list_after_trigger_fw_stuck)
+        techsupport_dump_list_num = len(sdk_dump_list_after_trigger_fw_stuck)
         assert techsupport_dump_list_num == 1,\
             f"Expect one dump file, actual {techsupport_dump_list_num} techsupport dump file are generated "
 
-    with allure.step(
-            "Check the new dump file includes sai_sdk_dump and the folder includes files like sai-dfw-xxxxx.tar.gz"):
-        _, extracted_dump_folder_path = extract_file_from_tar_file(
-            duthost, techsupport_dump_list_after_trigger_fw_stuck[0])
-
-        get_sai_dfw_file_cmd = f"find {extracted_dump_folder_path}/{SAI_SDK_DUMP_FOLDER_NAME}/sai-dfw*.tar.gz"
-        sai_dfw_file_list = duthost.shell(get_sai_dfw_file_cmd)['stdout_lines']
-        assert sai_dfw_file_list, f"dump file {sai_dfw_file_list} doesn't include sai-dfw*.tar.gz"
-
-    with allure.step("Check  sai-dfw includes {SDK_DUMP_FILES}"):
-        _, extracted_sai_dfw_folder_path = extract_file_from_tar_file(duthost, sai_dfw_file_list[0], True)
+    with allure.step(f"Check  sai-dfw includes {SDK_DUMP_FILES}"):
+        _, extracted_sai_dfw_folder_path = extract_file_from_tar_file(
+            duthost, sdk_dump_list_after_trigger_fw_stuck[0], True)
         get_sai_dump_file_cmd = f"find {extracted_sai_dfw_folder_path} -regex '.*\(.txt\|.log\)'"
         sai_dump_file_list = duthost.shell(get_sai_dump_file_cmd)['stdout_lines']
         for file in SDK_DUMP_FILES:
