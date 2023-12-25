@@ -103,4 +103,13 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_dual_asn.cases </cases>
     </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_queue.cases </cases>
+    </test>
+
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_update_timer.cases </cases>
+    </test>
+
 </DBDEF>
