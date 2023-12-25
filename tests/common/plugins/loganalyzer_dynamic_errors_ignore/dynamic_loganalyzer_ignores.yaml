@@ -3471,6 +3471,31 @@
       Redmine:
       - 3693907
 
+- Errors_list:
+    - '.*ERR syncd#SDN: mlx5_net: \[mlx5dr_table_set_default_miss_not_valid\]: Default miss table is not supported.*'
+  Conditions:
+    - Affected_test_cases:
+      - dash_acl/test_dash_acl.py
+      Redmine:
+      - 3714519
+
+- Errors_list:
+    - '.*ERR kernel: .* sx_core: Temperature sensing is not supported on asic, status=0x0.*'
+    - '.*ERR kernel: .* sx_core: Failed to get module temperature information.*'
+  Conditions:
+    - Redmine:
+      - 3698487
+      Platform:
+      - msn4700_simx
+
+- Errors_list:
+    - '.*ERR \(sd-execut.*: \/usr\/lib\/systemd\/system-generators\/systemd-sonic-generator terminated by signal SEGV.*'
+  Conditions:
+    - Redmine:
+      - 3715126
+      Platform:
+      - simx
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
