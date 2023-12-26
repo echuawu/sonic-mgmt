@@ -4068,6 +4068,19 @@
     - mtvr-leopard-01
   comment: Mellanox MTVR testbed
 
+- conf-name: r-leopard-79-t1-28-lag
+  group-name: vm-t1
+  topo: t1-28-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-leopard-79
+  ptf_ip: 10.215.28.182/16
+  ptf_ipv6:
+  server: server_69
+  vm_base: VM3401
+  dut:
+    - r-leopard-79
+  comment: Mellanox MTR testbed
+
 - conf-name: r-r740-03-bf2-sonic-01-ptf-any
   group-name: vm-t1
   topo: ptf-any

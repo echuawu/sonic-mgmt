@@ -103,6 +103,9 @@ R-R740-13 ansible_host=r-r740-13
 [vm_host_68]
 R-R740-12 ansible_host=r-r740-12
 
+[vm_host_69]
+R-R740-14 ansible_host=r-r740-14
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -139,6 +142,7 @@ vm_host_65
 vm_host_66
 vm_host_67
 vm_host_68
+vm_host_69
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -1144,6 +1148,40 @@ VM3330 ansible_host=10.215.28.152
 VM3331 ansible_host=10.215.28.153
 VM3332 ansible_host=10.215.28.154
 
+[vms_69]
+VM3401 ansible_host=10.215.28.183
+VM3402 ansible_host=10.215.28.184
+VM3403 ansible_host=10.215.28.185
+VM3404 ansible_host=10.215.28.186
+VM3405 ansible_host=10.215.28.187
+VM3406 ansible_host=10.215.28.188
+VM3407 ansible_host=10.215.28.189
+VM3408 ansible_host=10.215.28.190
+VM3409 ansible_host=10.215.28.191
+VM3410 ansible_host=10.215.28.192
+VM3411 ansible_host=10.215.28.193
+VM3412 ansible_host=10.215.28.194
+VM3413 ansible_host=10.215.28.195
+VM3414 ansible_host=10.215.28.196
+VM3415 ansible_host=10.215.28.197
+VM3416 ansible_host=10.215.28.198
+VM3417 ansible_host=10.215.28.199
+VM3418 ansible_host=10.215.28.200
+VM3419 ansible_host=10.215.28.201
+VM3420 ansible_host=10.215.28.202
+VM3421 ansible_host=10.215.28.203
+VM3422 ansible_host=10.215.28.204
+VM3423 ansible_host=10.215.28.205
+VM3424 ansible_host=10.215.28.206
+VM3425 ansible_host=10.215.28.207
+VM3426 ansible_host=10.215.28.208
+VM3427 ansible_host=10.215.28.209
+VM3428 ansible_host=10.215.28.210
+VM3429 ansible_host=10.215.28.211
+VM3430 ansible_host=10.215.28.212
+VM3431 ansible_host=10.215.28.213
+VM3432 ansible_host=10.215.28.214
+
 [eos:children]
 vms_1
 vms_2
@@ -1180,6 +1218,7 @@ vms_65
 vms_66
 vms_67
 vms_68
+vms_69
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1496,6 +1535,17 @@ host_var_file=host_vars/R-R740-12.yml
 host_var_file=host_vars/R-R740-12.yml
 mgmt_prefixlen=16
 
+[server_69:children]
+vm_host_69
+vms_69
+
+[server_69:vars]
+host_var_file=host_vars/R-R740-14.yml
+
+[vms_69:vars]
+host_var_file=host_vars/R-R740-14.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1532,6 +1582,7 @@ server_65
 server_66
 server_67
 server_68
+server_69
 
 [servers:vars]
 topologies=['dualtor', 'dualtor-64', 'dualtor-mixed', 'dualtor-aa', 'dualtor-aa-64', 'dualtor-56', 'dualtor-mixed-56', 'dualtor-aa-56', 't1', 't1-lag', 't1-28-lag', 't1-56-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', 't0-120', dpu, dpu-1]
