@@ -745,10 +745,74 @@
       - tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_remote_counting
 
 - Errors_list:
+    - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
+    - '.*ERR .*: tac_authen_read: inconsistent reply body, incorrect key\?.*'
+    - '.*ERR service_checker: tac_author_read: arguments supplied in packet seem to exceed its size.*'
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect. user: .*'
     - '.*ERR docker-untar: tac_author_read: arguments supplied in packet seem to exceed its size.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+
+- Errors_list:
+    - '.*ERR .*: tac_connect_single: connection failed with .*:.*: Transport endpoint is not connected.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
+
+- Errors_list:
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
+
+- Errors_list:
+    - '.*ERR nslcd\[\d+\]:.*no available LDAP server found:.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://unreachable.*/: Can''t contact LDAP server: Invalid argument.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable
+
+- Errors_list:
+    - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*request denied by validnames option.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid credentials.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+
+- Errors_list:
+    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid DN syntax: invalid DN'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 - Errors_list:
     - '.*WARNING ker process: nss_tacplus: no tacacs server in config for nss_tacplus.*'
@@ -1157,6 +1221,13 @@
       - tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_functionality
       Redmine:
         - 3531935
+
+# NVOS
+- Errors_list:
+    - '.*ERR pmon#thermalctld: Failed to read from file /var/run/hw-management/led/.* - FileNotFoundError\(2, ''No such file or directory''\).*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_secure_boot/test_secure_boot.py::test_kernel_module_loading[signed]
 
 # NVOS
 - Errors_list:
