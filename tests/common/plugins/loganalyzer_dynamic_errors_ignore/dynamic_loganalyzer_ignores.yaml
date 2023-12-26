@@ -3496,6 +3496,19 @@
       Platform:
       - simx
 
+- Errors_list:
+    - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected PPCNT group.*'
+    - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] BULK-CNTR ioctl failed .* error Device or resource busy.*'
+    - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] BULK-CNTR transaction is in progress.*'
+    - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] Port-Counter-Transaction-Start: failed to start transaction in driver.*'
+    - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .\/src\/mlnx_sai_object.c\[\d+\]- mlnx_set_async_bulk_read: Failed to start bulk read operation: Driver.s Return Status is Non-Zero.*'
+    - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected priority.*'
+  Conditions:
+    - Redmine:
+      - 3716400
+      Platform:
+      - sn5600_simx
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
