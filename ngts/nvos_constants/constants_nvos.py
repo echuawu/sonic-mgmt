@@ -920,6 +920,7 @@ class MultiPlanarConsts:
     SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
     FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'
+    NVL5_SIMULATION_FILE = 'nvl5_platform.json'
     ORIGIN_FILE = "platform_origin.json"
     ORIGIN_FULL_PATH = SIMULATION_PATH + ORIGIN_FILE
     AGGREGATED_PORT_SIMULATION_FILE = "aggregated_port_platform.json"
