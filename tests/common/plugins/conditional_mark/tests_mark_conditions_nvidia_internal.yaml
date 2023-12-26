@@ -544,9 +544,9 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvp
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvpnVxlan:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628849"
+    reason: "Testcase ignored due to vxlan is not supported fully on SPC1 A0 chipset, SPC1 A0 is not a production chip and we won't support vxlan on it"
     conditions:
-      - "https://redmine.mellanox.com/issues/3628849"
+      - "'r-bulldog-02' in testbed"
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
   skip:
