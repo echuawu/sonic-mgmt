@@ -2452,13 +2452,6 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
     conditions:
       - "https://redmine.mellanox.com/issues/3585579 and 'simx' in platform"
 
-platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
-  skip:
-    reason: "Skip simx platform by bug of https://redmine.mellanox.com/issues/3585586"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3585586 and'simx' in platform"
-
 platform_tests/cli/test_show_platform.py::test_show_platform_summary:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3614759 and release 202305 and 'SN2700' in platform"
@@ -2482,5 +2475,7 @@ dns/static_dns/test_static_dns.py::TestStaticMgmtPortIP::test_dynamic_dns_not_wo
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3678432"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3678432 and 'master_inde' in branch"
+      - "https://redmine.mellanox.com/issues/3715747 and 'master' in branch"
