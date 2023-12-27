@@ -3362,6 +3362,7 @@
     - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] Port-Counter-Transaction-Start: failed to start transaction in driver.*'
     - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .\/src\/mlnx_sai_object.c\[\d+\]- mlnx_set_async_bulk_read: Failed to start bulk read operation: Driver.s Return Status is Non-Zero.*'
     - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected priority.*'
+    - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .\/src\/mlnx_sai_object.c\[\d+\]- mlnx_wait_for_bulk_read_event: Bulk read event status is not OK.*'
   Conditions:
     - Redmine:
       - 3716400
