@@ -36,11 +36,11 @@ class LdapConsts:
     GROUP = 'group'
     SHADOW = 'shadow'
     UID = 'uid'
-    UID_NUMBER = 'uidNumber'
-    GID_NUMBER = 'gidNumber'
-    USER_PASSWORD = 'userPassword'
+    UID_NUMBER = 'uidnumber'
+    GID_NUMBER = 'gidnumber'
+    USER_PASSWORD = 'userpassword'
     CN = 'cn'
-    MEMBER_UID = 'memberUid'
+    MEMBER_UID = 'memberuid'
     MEMBER = 'member'
 
     LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, SECRET, TIMEOUT_BIND, TIMEOUT, VERSION]
@@ -415,12 +415,10 @@ class LdapDefaults:
         LdapConsts.SSL_TLS_CIPHERS: LdapConsts.ALL
     }
 
-    # TODO: clarify what are default values of phase 3 fields
     FILTER_DEFAULTS = {
-
-        LdapFilterFields.PASSWD: '',
-        LdapFilterFields.GROUP: '',
-        LdapFilterFields.SHADOW: ''
+        LdapFilterFields.PASSWD: '(objectClass=posixAccount)',
+        LdapFilterFields.GROUP: '(objectClass=posixGroup)',
+        LdapFilterFields.SHADOW: '(objectClass=shadowAccount)'
     }
 
     MAP_PASSWD_DEFAULTS = {

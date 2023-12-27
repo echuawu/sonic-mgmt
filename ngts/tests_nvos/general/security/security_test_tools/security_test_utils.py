@@ -350,15 +350,28 @@ def check_ldap_user_with_getent_passwd(engine: ProxySshEngine, username: str, us
     with allure.step('Get getent passwd output'):
         output = engine.run_cmd('getent passwd | grep ldap')
     with allure.step(f'Verify "{username}" does not exist'):
-        assert (username in output) == user_should_exist, \
-            f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
+        err_msg = f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
             f'in getent passwd output\ngetent passwd output: {output}\n'
+        if not output:
+            assert not user_should_exist, err_msg
+        else:
+            rows = output.split('\n')
+            assert rows, f'Unknown error. Could not split output "{output}" to rows.\nActual split: {rows}'
+            assert any(row.startswith(f'{username}:') for row in rows) == user_should_exist, err_msg
 
 
-def check_ldap_user_groups_with_id(engine: ProxySshEngine, username: str, groupname: str, group_should_exist: bool):
+def check_ldap_user_groups_with_id(engine: ProxySshEngine, username: str, groupname, group_should_exist: bool):
     with allure.step('Get id output'):
         output = engine.run_cmd(f'id {username}')
-    with allure.step(f'Verify "{groupname}" does not exist'):
-        assert (groupname in output) == group_should_exist, \
-            f'groupname "{groupname}" unexpectedly {"does not " if not group_should_exist else ""}exist ' \
+
+    def assert_group(grp: str):
+        assert (f'({grp})' in output) == group_should_exist, \
+            f'groupname "{grp}" unexpectedly {"does not " if not group_should_exist else ""}exist ' \
             f'in id {username} output\nid {username} output: {output}\n'
+
+    with allure.step(f'Verify "{groupname}" does not exist'):
+        if isinstance(groupname, list):
+            for group in groupname:
+                assert_group(group)
+        else:
+            assert_group(groupname)
