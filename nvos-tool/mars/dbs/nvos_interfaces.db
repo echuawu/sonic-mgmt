@@ -58,4 +58,7 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_multi_planar.cases </cases>
 	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/interfaces/nvos_response_mgmt_ip_inband.cases </cases>
+	</test>
 </DBDEF>
