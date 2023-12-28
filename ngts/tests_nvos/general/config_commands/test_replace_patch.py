@@ -105,7 +105,7 @@ def test_replace_positive(engines):
             assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
                 "Expected not to have description field after unset command, but we still have this field."
             ib0_port.interface.unset(NvosConst.DESCRIPTION, apply=False).verify_result()
-            system.unset(apply=True, ask_for_confirmation=True).verify_result()
+            system.unset(op_param=SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.general

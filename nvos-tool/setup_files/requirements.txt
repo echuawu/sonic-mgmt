@@ -1,0 +1,5 @@
+ansible==2.9.27
+pytest_ansible==2.2.4
+ptf==0.9.3
+grpcio==1.50.0
+pyodbc==4.0.34

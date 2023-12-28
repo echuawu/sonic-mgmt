@@ -31,5 +31,4 @@ def test_saved_users_after_reboot(engines):
         assert configurator_name not in output.keys(), "the not saved user {viewer} in the users list".format(viewer=viewer_name)
         assert viewer_name in output.keys(), "the saved user {viewer} not in the users list".format(
             viewer=configurator_name)
-        system.unset(engines.dut)
         NvueGeneralCli.save_config(engines.dut)

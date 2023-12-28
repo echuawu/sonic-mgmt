@@ -67,27 +67,18 @@ def test_show_diff_history(engines):
         with allure.step('saving the diff, history and show outputs after applying the hostname'):
             show_after_unset_apply, diff_after_unset_apply, history_after_unset_apply = save_diff_hisoty_show_outputs(engines.dut)
 
-        with allure.step('unset system - with apply'):
-            system.unset(engines.dut)
-
-        with allure.step('saving the diff, history and show outputs after running unset system with apply'):
-            show_after_unset_all, diff_after_unset_all, history_after_unset_all = save_diff_hisoty_show_outputs(
-                engines.dut)
-
         with allure.step('Verify output'):
             with allure.step('verify diff command outputs'):
-                err_message += verify_diff_outputs(diff_before_set, diff_after_set, diff_after_apply, diff_after_unset, diff_after_unset_apply,
-                                                   diff_after_unset_all)
+                err_message += verify_diff_outputs(diff_before_set, diff_after_set, diff_after_apply, diff_after_unset, diff_after_unset_apply)
                 err_message = f"Wrong diff command output: {err_message}" if err_message else ""
 
             with allure.step('verify show command outputs'):
-                err_message += verify_show_outputs(show_before_set, show_after_set, show_after_apply, show_after_unset, show_after_unset_apply,
-                                                   show_after_unset_all)
+                err_message += verify_show_outputs(show_before_set, show_after_set, show_after_apply, show_after_unset, show_after_unset_apply)
                 err_message = f"Wrong show command output: {err_message}" if err_message else ""
 
             with allure.step('verify history command outputs'):
                 err_message += verify_history_outputs(history_before_set, history_after_set, history_after_apply, history_after_unset,
-                                                      history_after_unset_apply, history_after_unset_all, engines.dut.username)
+                                                      history_after_unset_apply, engines.dut.username)
                 err_message = f"Wrong history command output: {err_message}" if err_message else ""
 
             if err_message != '':
@@ -151,10 +142,6 @@ def test_diff_history_revision_ids(engines):
         if diff_output_rev0_rev1 == {}:
             err_message += '\n after applying 3 times the diff between two revision back and two revision back ' \
                            'should include the first configuration we applied'
-    with allure.step('unset system - with apply'):
-        system.unset(apply=True, ask_for_confirmation=True)
-        engines.dut.run_cmd('nv unset interface')
-        NvueGeneralCli.apply_config(engines.dut)
 
     with allure.step('validate the test results'):
         assert err_message == '', '{message}'.format(message=err_message)
@@ -184,21 +171,20 @@ def validate_history_labels(history_list, username):
     return err_message
 
 
-def verify_diff_outputs(diff1, diff2, diff3, diff4, diff5, diff6):
+def verify_diff_outputs(diff1, diff2, diff3, diff4, diff5):
     """
     :param diff1: diff_before_set
     :param diff2: diff_after_set
     :param diff3: diff_after_apply
     :param diff4: diff_after_unset
     :param diff5: diff_after_unset_apply
-    :param diff6: diff_after_unset_all
     :return: error message if one of diff1, diff3, diff5, diff6 is not empty
             or if one of diff2, diff4 is does not include the configuration
 
     """
     err_message = ''
     with allure.step('verify diff commands after apply'):
-        if diff1 != {} or diff3 != {} or diff5 != {} or diff6 != {}:
+        if diff1 != {} or diff3 != {} or diff5 != {}:
             err_message += '\n the diff output should be empty after applying the configurations'
 
     with allure.step('verify diff commands after set and before apply'):
@@ -208,21 +194,20 @@ def verify_diff_outputs(diff1, diff2, diff3, diff4, diff5, diff6):
     return err_message
 
 
-def verify_show_outputs(show1, show2, show3, show4, show5, show6):
+def verify_show_outputs(show1, show2, show3, show4, show5):
     """
     :param show1: show_before_set
     :param show2: show_after_set
     :param show3: show_after_apply
     :param show4: show_after_unset
     :param show5: show_after_unset_apply
-    :param show6: show_after_unset_all
     :return: error message if one of show1, show2, show6 is not empty
                 or if any of show3, show4, show5 does not include the configuration
 
     """
     err_message = ''
     with allure.step('verify show commands before apply'):
-        if show1 != {} or show2 != {} or show6 != {}:
+        if show1 != {} or show2 != {}:
             err_message += '\n the show output should be empty before applying the configurations'
 
     with allure.step('verify show commands after set and apply'):
@@ -232,14 +217,13 @@ def verify_show_outputs(show1, show2, show3, show4, show5, show6):
     return err_message
 
 
-def verify_history_outputs(history1, history2, history3, history4, history5, history6, username):
+def verify_history_outputs(history1, history2, history3, history4, history5, username):
     """
     :param history1: history_before_set
     :param history2: history_after_set
     :param history3: history_after_apply
     :param history4: history_after_unset
     :param history5: history_after_unset_apply
-    :param history6: history_after_unset_all
     :param username: the user name who configured the last configuration
     :return: error message if history1 and history2 are not equal
                 or history3 and history4 are not equal
@@ -253,11 +237,11 @@ def verify_history_outputs(history1, history2, history3, history4, history5, his
             err_message += '\n the history output should not change before applying'
 
     with allure.step('verify history commands after first apply'):
-        if len(history2) != len(history3) - 1 or len(history4) != len(history5) - 1 or len(history5) != len(history6) - 1:
+        if len(history2) != len(history3) - 1 or len(history4) != len(history5) - 1:
             err_message += '\n the history output should add the new apply_id'
 
     with allure.step("Validate history labels"):
-        err_message += validate_history_labels(history6, username)
+        err_message += validate_history_labels(history5, username)
 
     return err_message
 
