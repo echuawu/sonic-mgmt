@@ -840,9 +840,11 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
 
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to platform BF2"
+    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance"
+    conditions_logical_operator: or
     conditions:
       - "'arm64-nvda_bf-mbf2h536c' in platform"
+      - "'simx' in platform"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
   skip:
@@ -2495,7 +2497,7 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     conditions:
       - "https://redmine.mellanox.com/issues/3715758 and'simx' in platform"
 
-platform_tests/api/test_sfp:py:
+platform_tests/api/test_sfp.py:
   skip:
     reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
     conditions:
@@ -2506,6 +2508,12 @@ platform_tests/test_power_off_reboot.py:
     reason: "Simx doesn't support PDU"
     conditions:
       - "'simx' in platform"
+
+platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_running_status:
+  skip:
+    reason: "Skip simx platform by bug of https://redmine.mellanox.com/issues/3715826"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3715826 and'simx' in platform"
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
