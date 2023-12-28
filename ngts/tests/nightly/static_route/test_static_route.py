@@ -203,8 +203,8 @@ def test_scale_static_route(cli_objects, engines, players, interfaces, static_ro
         # TODO: End workaround for bug https://redmine.mellanox.com/issues/2350931
 
         with allure.step('Check static routes IPv4 on switch by sending traffic'):
-
-            ipv4_pkts = Ether(dst=dut_mac) / IP(src='1.2.3.4', dst=validation_list_ipv4_1k) / UDP(sport=1234, dport=5678)
+            dummy_mac = "00:01:02:03:04:05"
+            ipv4_pkts = Ether(src=dummy_mac, dst=dut_mac) / IP(src='1.2.3.4', dst=validation_list_ipv4_1k) / UDP(sport=1234, dport=5678)
             wrpcap(pcap_ipv4_file_path, ipv4_pkts)
 
             do_traffic_validation(sender_host='ha', sender_iface=interfaces.ha_dut_1, pcap_file=pcap_ipv4_file_path,
@@ -212,7 +212,7 @@ def test_scale_static_route(cli_objects, engines, players, interfaces, static_ro
                                   expected_packets=len(validation_list_ipv4_1k), players=players)
 
         with allure.step('Check static routes IPv6 on switch by sending traffic'):
-            ipv6_pkts = Ether(dst=dut_mac) / IPv6(src='1500::2', dst=validation_list_ipv6_1k) / UDP(sport=1234, dport=5678)
+            ipv6_pkts = Ether(src=dummy_mac, dst=dut_mac) / IPv6(src='1500::2', dst=validation_list_ipv6_1k) / UDP(sport=1234, dport=5678)
             wrpcap(pcap_ipv6_file_path, ipv6_pkts)
 
             do_traffic_validation(sender_host='ha', sender_iface=interfaces.ha_dut_1, pcap_file=pcap_ipv6_file_path,
