@@ -1,10 +1,12 @@
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 
 
-class Radius(BaseComponent):
+class Radius(RemoteAaaResource):
     def __init__(self, parent_obj=None):
-        BaseComponent.__init__(self, parent=parent_obj, path='/radius')
-        self.hostname = RadiusHostname(self)
+        super().__init__(parent_obj)
+        self._resource_path = '/radius'
+        self.rad_hostname = RadiusHostname(self)
 
 
 class RadiusHostname(BaseComponent):
@@ -19,6 +21,6 @@ class RadiusHostname(BaseComponent):
         radius_hostname = BaseComponent(self, path='/' + hostname)
         return radius_hostname.unset(apply=apply, ask_for_confirmation=ask_for_confirmation)
 
-    def show_hostname(self, hostname):
+    def show_hostname(self, hostname, rev=''):
         radius_hostname = BaseComponent(self, path='/' + hostname)
-        return radius_hostname.show()
+        return radius_hostname.show(rev=rev)

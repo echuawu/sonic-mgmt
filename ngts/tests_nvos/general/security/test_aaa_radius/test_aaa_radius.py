@@ -1,5 +1,7 @@
 import logging
 import time
+import pytest
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tools.test_utils import allure_utils as allure
 import random
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -14,7 +16,43 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 
 
-def configure_radius_server(radius_server_info):
+@pytest.mark.security
+@pytest.mark.simx_security
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_radius_set_unset_show(test_api, engines):
+    radius_obj = System().aaa.radius
+    generic_aaa_test_set_unset_show(
+        test_api=test_api, engines=engines,
+        remote_aaa_type=RemoteAaaType.RADIUS,
+        main_resource_obj=radius_obj,
+        confs={
+            radius_obj: {
+                AaaConsts.AUTH_TYPE: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.AUTH_TYPE]),
+                AaaConsts.PORT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.PORT]),
+                AaaConsts.RETRANSMIT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.RETRANSMIT]),
+                AaaConsts.SECRET: 'alontheking',
+                AaaConsts.TIMEOUT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.TIMEOUT]),
+                RadiusConstants.RADIUS_STATISTICS: random.choice(RadiusConstants.VALID_VALUES[RadiusConstants.RADIUS_STATISTICS])
+            }
+        },
+        hostname_conf={
+            AaaConsts.AUTH_TYPE: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.AUTH_TYPE]),
+            AaaConsts.PORT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.PORT]),
+            AaaConsts.RETRANSMIT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.RETRANSMIT]),
+            AaaConsts.SECRET: 'alontheking',
+            AaaConsts.TIMEOUT: random.choice(RadiusConstants.VALID_VALUES[AaaConsts.TIMEOUT]),
+            AaaConsts.PRIORITY: 2
+        },
+        default_confs={
+            radius_obj: RadiusConstants.DEFAULT_RADIUS_CONF
+        }
+    )
+
+
+# -------------------------- OLD TESTS ---------------------------------
+
+
+def configure_radius_server(radius_server_info, verify_show: bool = False):
     """
     @summary:
         in this function we will configure the given radius server on the switch.
@@ -36,38 +74,38 @@ def configure_radius_server(radius_server_info):
     with allure.step("configuring the following radius server on the switch:\n{}".format(radius_server_info)):
         logging.info("configuring the following radius server on the switch:\n{}".format(radius_server_info))
         system.aaa.radius.set(RadiusConstants.RADIUS_HOSTNAME, radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
-        system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                             'port', int(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]))
-        system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                             'auth-type', radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
+        system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                 'port', int(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]))
+        system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                 'auth-type', radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
         if radius_server_info.get(RadiusConstants.RADIUS_TIMEOUT):
-            system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                 'timeout', int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]))
+            system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                     'timeout', int(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]))
         if radius_server_info.get(RadiusConstants.RADIUS_PRIORITY):
-            system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                                 'priority', radius_server_info[RadiusConstants.RADIUS_PRIORITY])
-        system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                             'secret', radius_server_info[RadiusConstants.RADIUS_PASSWORD], True, True)
-
-    with allure.step("Validating configurations"):
-        logging.info("Validating configurations")
-        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.aaa.radius.hostname.show_hostname(
-            radius_server_info[RadiusConstants.RADIUS_HOSTNAME])).get_returned_value()
-        assert output[RadiusConstants.RADIUS_AUTH_TYPE] == radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE], \
-            "Not same auth type, actual: {}, expected: {}".format(output[RadiusConstants.RADIUS_AUTH_TYPE],
-                                                                  radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
-        assert output[RadiusConstants.RADIUS_AUTH_PORT] == radius_server_info[RadiusConstants.RADIUS_AUTH_PORT], \
-            "Not same auth port, actual: {}, expected: {}".format(output[RadiusConstants.RADIUS_AUTH_PORT],
-                                                                  radius_server_info[RadiusConstants.RADIUS_AUTH_PORT])
-        priority = RadiusConstants.RADIUS_DEFAULT_PRIORITY if not radius_server_info.get(
-            RadiusConstants.RADIUS_PRIORITY) else radius_server_info[RadiusConstants.RADIUS_PRIORITY]
-        assert int(output[RadiusConstants.RADIUS_PRIORITY]) == priority, \
-            "Not same priority, actual: {}, expected: {}".format(output[RadiusConstants.RADIUS_PRIORITY], priority)
-        timeout = RadiusConstants.RADIUS_DEFAULT_TIMEOUT if not radius_server_info.get(
-            RadiusConstants.RADIUS_TIMEOUT) else radius_server_info[RadiusConstants.RADIUS_TIMEOUT]
-        assert int(output[RadiusConstants.RADIUS_TIMEOUT]) == int(timeout), \
-            "Not same timeout, actual: {}, expected: {}".format(output[RadiusConstants.RADIUS_TIMEOUT],
-                                                                radius_server_info[RadiusConstants.RADIUS_TIMEOUT])
+            system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                     'priority', radius_server_info[RadiusConstants.RADIUS_PRIORITY])
+        system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                 'secret', radius_server_info[RadiusConstants.RADIUS_PASSWORD], True, True)
+    if verify_show:
+        with allure.step("Validating configurations"):
+            logging.info("Validating configurations")
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.aaa.radius.rad_hostname.show_hostname(
+                radius_server_info[RadiusConstants.RADIUS_HOSTNAME], rev=ConfState.APPLIED)).get_returned_value()
+            assert output[RadiusConstants.RADIUS_AUTH_TYPE] == radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE], \
+                "Not same auth type, actual: {}, expected: {}".format(output[RadiusConstants.RADIUS_AUTH_TYPE],
+                                                                      radius_server_info[RadiusConstants.RADIUS_AUTH_TYPE])
+            assert str(output[RadiusConstants.RADIUS_AUTH_PORT]) == str(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]), \
+                "Not same auth port, actual: {}, expected: {}".format(str(output[RadiusConstants.RADIUS_AUTH_PORT]),
+                                                                      str(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT]))
+            priority = RadiusConstants.RADIUS_DEFAULT_PRIORITY if not radius_server_info.get(
+                RadiusConstants.RADIUS_PRIORITY) else radius_server_info[RadiusConstants.RADIUS_PRIORITY]
+            assert str(int(output[RadiusConstants.RADIUS_PRIORITY])) == str(priority), \
+                "Not same priority, actual: {}, expected: {}".format(str(output[RadiusConstants.RADIUS_PRIORITY]), str(priority))
+            timeout = RadiusConstants.RADIUS_DEFAULT_TIMEOUT if not radius_server_info.get(
+                RadiusConstants.RADIUS_TIMEOUT) else radius_server_info[RadiusConstants.RADIUS_TIMEOUT]
+            assert str(int(output[RadiusConstants.RADIUS_TIMEOUT])) == str(int(timeout)), \
+                "Not same timeout, actual: {}, expected: {}".format(str(output[RadiusConstants.RADIUS_TIMEOUT]),
+                                                                    str(radius_server_info[RadiusConstants.RADIUS_TIMEOUT]))
 
 
 def enable_radius_feature(dut_engine):
@@ -233,8 +271,8 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
             [i for i in range(SshConfigConsts.MIN_LOGIN_PORT, SshConfigConsts.MAX_LOGIN_PORT)],
             [int(radius_server_info[RadiusConstants.RADIUS_AUTH_PORT])]).get_returned_value()
         logging.info("Configuring invalid auth-port: {}".format(invalid_port))
-        system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                             'port', invalid_port, True, True)
+        system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                 'port', invalid_port, True, True)
         apply_configuration_sleep = 10
         with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
             logging.info("Sleeping {} secs to apply configurations".format(apply_configuration_sleep))
@@ -250,8 +288,8 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
     with allure.step("Configuring invalid password and validating applied configurations"):
         random_string = Tools.RandomizationTool.get_random_string(10)
         logging.info("Configuring invalid password: {}".format(random_string))
-        system.aaa.radius.hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
-                                             'secret', random_string, True, True)
+        system.aaa.radius.rad_hostname.set_param(radius_server_info[RadiusConstants.RADIUS_HOSTNAME],
+                                                 'secret', random_string, True, True)
         with allure.step("Sleeping {} secs to apply configurations".format(apply_configuration_sleep)):
             logging.info("Sleeping {} secs to apply configurations".format(apply_configuration_sleep))
             time.sleep(apply_configuration_sleep)
@@ -264,45 +302,45 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
                                                           RadiusConstants.RADIUS_SERVER_USER_PASSWORD])
 
 
-def test_radius_set_show_unset(engines, clear_all_radius_configurations):
-    """
-    @summary: in this test case we want to validate radius commands:
-        1. set
-        2. show
-        3. unset
-    """
-    configured_radius_servers_hostname = []
+# def test_radius_set_show_unset(engines, clear_all_radius_configurations):
+#     """
+#     @summary: in this test case we want to validate radius commands:
+#         1. set
+#         2. show
+#         3. unset
+#     """
+#     configured_radius_servers_hostname = []
+#
+#     with allure.step("Configuring Radius Server"):
+#         logging.info("Configuring Radius Server")
+#         for radius_key, radius_server_info in RadiusConstants.RADIUS_SERVERS_DICTIONARY.items():
+#             configure_radius_server(radius_server_info)
+#             configured_radius_servers_hostname.append(radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
+#
+#     system = System()
+#     with allure.step("Validate Unset command"):
+#         logging.info("Validate Unset command")
+#         for hostname in configured_radius_servers_hostname:
+#             system.aaa.radius.rad_hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
+#         system.aaa.radius.unset().verify_result(should_succeed=True)
+#
+#     with allure.step("Validating the show command output"):
+#         logging.info("Validating the show command output")
+#         output = system.aaa.radius.rad_hostname.show()
+#         for hostname in configured_radius_servers_hostname:
+#             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
+#                 hostname)
 
-    with allure.step("Configuring Radius Server"):
-        logging.info("Configuring Radius Server")
-        for radius_key, radius_server_info in RadiusConstants.RADIUS_SERVERS_DICTIONARY.items():
-            configure_radius_server(radius_server_info)
-            configured_radius_servers_hostname.append(radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
 
-    system = System()
-    with allure.step("Validate Unset command"):
-        logging.info("Validate Unset command")
-        for hostname in configured_radius_servers_hostname:
-            system.aaa.radius.hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
-        system.aaa.radius.unset().verify_result(should_succeed=True)
-
-    with allure.step("Validating the show command output"):
-        logging.info("Validating the show command output")
-        output = system.aaa.radius.hostname.show()
-        for hostname in configured_radius_servers_hostname:
-            assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
-                hostname)
-
-
-def test_radius_set_show_unset_openapi(engines, clear_all_radius_configurations):
-    """
-    @summary: in this test case we want to validate radius commands:
-        1. set
-        2. show
-        3. unset
-    """
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_radius_set_show_unset(engines, clear_all_radius_configurations)
+# def test_radius_set_show_unset_openapi(engines, clear_all_radius_configurations):
+#     """
+#     @summary: in this test case we want to validate radius commands:
+#         1. set
+#         2. show
+#         3. unset
+#     """
+#     TestToolkit.tested_api = ApiType.OPENAPI
+#     test_radius_set_show_unset(engines, clear_all_radius_configurations)
 
 
 def test_radius_all_supported_auth_types(engines, clear_all_radius_configurations):

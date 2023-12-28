@@ -131,6 +131,12 @@ class OutputFormat:
     yaml = 'yaml'
 
 
+class ConfState:
+    OPERATIONAL = 'operational'
+    APPLIED = 'applied'
+    STARTUP = 'startup'
+
+
 class OpenApiReqType:
     GET = 'GET'
     PATCH = 'PATCH'

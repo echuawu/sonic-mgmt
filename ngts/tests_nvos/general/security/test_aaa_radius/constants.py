@@ -1,3 +1,4 @@
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 
 
 class RadiusConstants:
@@ -11,6 +12,7 @@ class RadiusConstants:
     RADIUS_AUTH_PORT = 'port'
     RADIUS_AUTH_TYPE = 'auth-type'
     RADIUS_PRIORITY = 'priority'
+    RADIUS_STATISTICS = 'statistics'
     RADIUS_DEFAULT_PRIORITY = 1
     RADIUS_DEFAULT_TIMEOUT = 3
     RADIUS_MAX_PRIORITY = 8
@@ -21,6 +23,27 @@ class RadiusConstants:
     RADIUS_SERVER_USER_PASSWORD = 'password'
     AUTHENTICATION_FAILURE_MESSAGE = 'Authentication failure: unable to connect linux'
     AUTH_TYPES = ['chap', 'pap']
+
+    VALID_VALUES = {
+        AaaConsts.HOSTNAME: str,
+        AaaConsts.TIMEOUT: list(range(1, 61)),
+        AaaConsts.AUTH_TYPE: AUTH_TYPES,
+        AaaConsts.SECRET: str,
+        AaaConsts.PORT: list(range(AaaConsts.MIN_PORT, AaaConsts.MAX_PORT + 1)),
+        AaaConsts.RETRANSMIT: list(range(11)),
+        AaaConsts.PRIORITY: list(range(1, 9)),
+        RADIUS_STATISTICS: [AaaConsts.DISABLED, AaaConsts.ENABLED]
+    }
+
+    DEFAULT_RADIUS_CONF = {
+        AaaConsts.AUTH_TYPE: AaaConsts.PAP,
+        AaaConsts.HOSTNAME: {},
+        AaaConsts.PORT: 1812,
+        AaaConsts.SECRET: '*',
+        AaaConsts.RETRANSMIT: 0,
+        AaaConsts.TIMEOUT: 3,
+        RADIUS_STATISTICS: AaaConsts.DISABLED
+    }
 
     RADIUS_SERVERS_DICTIONARY = {
         'physical_radius_server': {

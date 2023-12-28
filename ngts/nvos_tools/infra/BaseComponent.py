@@ -3,7 +3,7 @@ import logging
 import allure
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
 
 
@@ -24,12 +24,14 @@ class BaseComponent:
         return "{parent_path}{self_path}".format(
             parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
 
-    def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None, should_succeed=True):
+    def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None, should_succeed=True, rev=ConfState.OPERATIONAL):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
             if TestToolkit.tested_api == ApiType.OPENAPI:
                 op_param = op_param.replace('/', "%2F").replace(' ', "/")
+            if rev and rev != ConfState.OPERATIONAL:
+                op_param += ('?rev=' + rev) if TestToolkit.tested_api == ApiType.OPENAPI else f' --{rev}'
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].show, dut_engine,
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value(should_succeed=should_succeed)

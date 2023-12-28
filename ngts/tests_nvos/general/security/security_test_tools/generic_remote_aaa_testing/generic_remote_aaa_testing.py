@@ -4,7 +4,7 @@ import time
 
 from typing import Dict, List, Callable, Any
 
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool, wait_until_cli_is_up
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -80,8 +80,9 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
                                                                 output_dict=cur_conf).verify_result()
 
     with allure.step('Verify hostnames exist in show output'):
+        show_rev_param = '' if remote_aaa_type == RemoteAaaType.LDAP else ConfState.APPLIED
         show_hostname_output = OutputParsingTool.parse_json_str_to_dictionary(
-            main_resource_obj.hostname.show()).get_returned_value()
+            main_resource_obj.hostname.show(rev=show_rev_param)).get_returned_value()
         ValidationTool.verify_field_exist_in_json_output(show_hostname_output, [hostname1, hostname2]).verify_result()
 
     with allure.step('Verify hostnames configurations'):
@@ -90,9 +91,9 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             expected_conf = {
                 key: 1 if key == AaaConsts.PRIORITY else global_conf[key]
                 for key in hostname_conf.keys()
-            }
+            } if remote_aaa_type == RemoteAaaType.LDAP else {AaaConsts.PRIORITY: 1}
             cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname1].show()).get_returned_value()
+                main_resource_obj.hostname.hostname_id[hostname1].show(rev=show_rev_param)).get_returned_value()
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -102,7 +103,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             if AaaConsts.SECRET in expected_conf.keys():
                 expected_conf[AaaConsts.SECRET] = '*'
             cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname2].show()).get_returned_value()
+                main_resource_obj.hostname.hostname_id[hostname2].show(rev=show_rev_param)).get_returned_value()
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -115,13 +116,13 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
                                             True).verify_result()
         with allure.step(f'Verify default configuration for hostname {hostname2}'):
-            global_conf = OutputParsingTool.parse_json_str_to_dictionary(main_resource_obj.show()).get_returned_value()
+            global_conf = OutputParsingTool.parse_json_str_to_dictionary(main_resource_obj.show(rev=show_rev_param)).get_returned_value()
             expected_conf = {
                 key: 2 if key == AaaConsts.PRIORITY else global_conf[key]
                 for key in hostname_conf.keys()
-            }
+            } if remote_aaa_type == RemoteAaaType.LDAP else {AaaConsts.PRIORITY: 2}
             cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname2].show()).get_returned_value()
+                main_resource_obj.hostname.hostname_id[hostname2].show(rev=show_rev_param)).get_returned_value()
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -132,7 +133,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
     with allure.step('Verify default configuration with show command'):
         for resource, expected_conf in default_confs.items():
             with allure.step(f'Verify default configuration for {resource.get_resource_path()}'):
-                cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show()).get_returned_value()
+                cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show(rev=show_rev_param)).get_returned_value()
                 if AaaConsts.SECRET in expected_conf.keys():
                     # expected_conf[AaaConsts.SECRET] = '*'
                     del expected_conf[AaaConsts.SECRET]

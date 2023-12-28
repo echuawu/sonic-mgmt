@@ -163,8 +163,9 @@ class OpenApiRequest:
     def send_get_request(request_data, op_params=''):
         with allure.step('Send GET request'):
             logging.info("Send GET request")
+            params = '' if not op_params else op_params if op_params.startswith('?') else "/" + op_params
             req_url = '{url}{resource_path}{params}'.format(url=OpenApiRequest._get_endpoint_url(request_data),
-                                                            params="/" + op_params if op_params else '',
+                                                            params=params,
                                                             resource_path=request_data.resource_path)
             r = requests.get(url=req_url, verify=False, auth=OpenApiRequest._get_http_auth(request_data))
             OpenApiRequest.print_request(r.request)
