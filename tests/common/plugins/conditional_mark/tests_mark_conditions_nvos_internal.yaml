@@ -330,4 +330,10 @@ tests_nvos/ib/test_ibdiagnet.py:
     reason: "Testcase skipped due to health status is not ok on marlin"
     conditions:
       - "'marlin' in testbed"
+
+tests_nvos/general/config_commands/test_replace_patch.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3722330"
+    conditions:
+      - https://redmine.mellanox.com/issues/3722330
 ########################## NVOS IGNORE END ##########################
