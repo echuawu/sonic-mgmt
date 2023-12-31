@@ -464,7 +464,7 @@ def summarize_la_bug_handler(la_bug_handler_result):
 
     for bug_handler_result_dict in la_bug_handler_result:
         if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
-                and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] == 'done':
+                and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] in ['done', 'no_action mode']:
             bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
             create_and_update_bugs_dict[bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION]].update(
                 {bug_id: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
