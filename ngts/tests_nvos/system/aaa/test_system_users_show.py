@@ -108,7 +108,6 @@ def test_invalid_username(engines):
 
 @pytest.mark.system
 @pytest.mark.simx
-@pytest.mark.nvos_security_build
 def test_set_state_default_user(engines):
     """
     Run show system message command and verify the required message

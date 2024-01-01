@@ -16,7 +16,6 @@ logger = logging.getLogger()
 @pytest.mark.log
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-@pytest.mark.nvos_build
 def test_show_log(engines):
     """
     Write to log file on switch, run nv show system log command and verify system/image are exist
