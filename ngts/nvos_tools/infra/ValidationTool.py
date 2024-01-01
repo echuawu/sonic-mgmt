@@ -341,3 +341,12 @@ class ValidationTool:
                     difference[key] = nested_difference
 
         return difference
+
+    @staticmethod
+    def has_key_with_value(dictionary, req_key, req_val):
+        if req_key in dictionary.keys() and dictionary[req_key] == req_val:
+            return True
+        for key, value in dictionary.items():
+            if isinstance(value, dict) and ValidationTool.has_key_with_value(value, req_key, req_val):
+                return True
+        return False

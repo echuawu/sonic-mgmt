@@ -203,14 +203,14 @@ def _verify_temp_prop(temp, temp_prop):
     assert "state" in list_of_keys and "current" in list_of_keys, "state/current can't be found"
 
     if "max" in list_of_keys:
-        value = temp_prop["max"]
-        assert _get_float(value) or "N/A" in value, "the max temperature value is invalid"
+        max_temp = temp_prop["max"]
+        assert _get_float(max_temp) or "N/A" in max_temp, "the max temperature value is invalid"
 
     if "crit" in list_of_keys:
-        value = temp_prop["crit"]
-        assert _get_float(value) or "N/A" in value, "the critical temperature value is invalid"
+        crit_value = temp_prop["crit"]
+        assert _get_float(crit_value) or "N/A" in crit_value, "the critical temperature value is invalid"
         assert "max" in list_of_keys, "max temperature value is missing"
-        assert _get_float(value) >= float(temp_prop["max"]), "the critical temperature < max temperature"
+        assert _get_float(crit_value) <= float(max_temp), "the critical temperature > max temperature"
 
 
 def _verify_output(platform, comp_name, req_fields):

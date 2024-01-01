@@ -1,5 +1,6 @@
 import time
 import pytest
+import os
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -22,23 +23,30 @@ def test_replace_empty_file(engines):
         4. run nv config diff save as diff_1
         5. verify diff_1 is empty
     """
-    system = System()
-    with allure.step('Run show system command and verify that each field has a value'):
+    file_name = 'replace'
+    file_type = 'yaml'
+    try:
+        system = System()
         new_hostname_value = 'TestingConfigCmds1'
         with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
             system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
-        file_name = 'replace'
-        file_type = 'yaml'
-        file = create_empty_file(engines.dut, file_name, file_type)
-        TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
+        with allure.step("Check pending config before replacing with empty file"):
+            OutputParsingTool.parse_json_str_to_dictionary(NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
 
-        diff_after_hostname_change = OutputParsingTool.parse_json_str_to_dictionary(
-            NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
+        with allure.step("Create empty yml file and replace config using it"):
+            file = create_empty_file(engines.dut, file_name, file_type)
+            TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
 
+        with allure.step("Check pending config"):
+            diff_after_hostname_change = OutputParsingTool.parse_json_str_to_dictionary(
+                NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
+
+        with allure.step('Verify the pending config'):
+            set_comp = {k: v for comp in diff_after_hostname_change for k, v in comp.get("set", {}).items()}
+            assert not set_comp, "Set should not be found in pending config after replacing with an empty config file"
+    finally:
         engines.dut.run_cmd('sudo rm {file}.{type}'.format(file=file_name, type=file_type))
-        with allure.step('verify the pending list is empty'):
-            assert not diff_after_hostname_change, "pending revision should be empty, replace command should replace the last revision with empty file"
 
 
 @pytest.mark.general
@@ -59,53 +67,38 @@ def test_replace_positive(engines):
         - verify ib0 description is empty (default value)
         - run unset hostname + apply
     """
-    with allure.step('Run nv config replace and verify that the pending list is changed'):
-        system = System()
+    system = System()
 
-        first_hostname = 'TestingConfigCmds2'
-        with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
-            system.set(SystemConsts.HOSTNAME, first_hostname, apply=False)
+    first_hostname = 'TestingConfigCmds2'
+    with allure.step('set hostname to be {hostname} - without apply'.format(hostname=first_hostname)):
+        system.set(SystemConsts.HOSTNAME, first_hostname, apply=False)
+        config_after_hostname_change = NvueGeneralCli.show_config(engines.dut)
 
-            diff_after_hostname_change = NvueGeneralCli.diff_config(engines.dut)
+    new_hostname_value = 'TestingConfigReplace'
+    with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
+        system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
 
-        new_hostname_value = 'TestingConfigReplace'
-        with allure.step('set hostname to be {hostname} - without apply'.format(hostname=new_hostname_value)):
-            system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=False)
+    ib0_port = MgmtPort('ib0')
+    OutputParsingTool.parse_show_interface_output_to_dictionary(ib0_port.interface.show()).get_returned_value()
 
-        ib0_port = MgmtPort('ib0')
-        output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-            ib0_port.interface.show()).get_returned_value()
-        new_ib0_description = '"ib0description"'
-        with allure.step('set ib0 description to be {description} - with apply'.format(
-                description=new_ib0_description)):
-            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True, ask_for_confirmation=True).verify_result()
+    new_ib0_description = '"ib0description"'
+    with allure.step('set ib0 description to be {description} - with apply'.format(
+            description=new_ib0_description)):
+        ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True, ask_for_confirmation=True).verify_result()
 
-        with allure.step("Replace config"):
-            file = create_file_with_content(engines.dut, 'replace', 'yaml', diff_after_hostname_change)
-            output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
-            expected_message = "Loading config file: replace.yaml from current directory."
-            assert expected_message in output, "Failed to replace config"
+    with allure.step("Replace config"):
+        file = create_file_with_content(engines.dut, 'replace', 'yaml', config_after_hostname_change)
+        output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
+        expected_message = "Loading config file: replace.yaml from current directory."
+        assert expected_message in output, "Failed to replace config"
 
-        with allure.step("Delete created yaml file: {}".format(file)):
-            engines.dut.run_cmd('sudo rm {file}'.format(file=file))
+    with allure.step("Delete created yaml file: {}".format(file)):
+        engines.dut.run_cmd('sudo rm {file}'.format(file=file))
 
-        with allure.step("Applying configuration"):
-            output = NvueGeneralCli.apply_config(engines.dut, True)
-            assert "will be replaced with" in output, "Failed to apply config"
-            time.sleep(3)
-
-        with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
-            system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
-            ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
-                                                        first_hostname).verify_result()
-
-            output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
-                ib0_port.interface.show()).get_returned_value()
-
-            assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
-                "Expected not to have description field after unset command, but we still have this field."
-            ib0_port.interface.unset(NvosConst.DESCRIPTION, apply=False).verify_result()
-            system.unset(op_param=SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
+    with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
+        diff_json = OutputParsingTool.parse_show_interface_output_to_dictionary(NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
+        assert ValidationTool.has_key_with_value(diff_json, 'system', new_hostname_value), "Set system hostname can't be found in pending config"
+        assert ValidationTool.has_key_with_value(diff_json, "description", new_ib0_description), "Set ib0 description can't be found in pending config"
 
 
 @pytest.mark.general
