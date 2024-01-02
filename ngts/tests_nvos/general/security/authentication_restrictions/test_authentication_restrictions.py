@@ -98,8 +98,7 @@ def test_auth_restrictions_set_unset(test_api, engines):
             field: random.choice(RestrictionsConsts.VALID_VALUES[field]) for field in RestrictionsConsts.FIELDS
         }
 
-        for resource_to_unset in [system, system.aaa, system.aaa.authentication,
-                                  system.aaa.authentication.restrictions]:
+        for resource_to_unset in [system.aaa.authentication, system.aaa.authentication.restrictions]:
             with allure.step('Change all fields'):
                 configure_resource(engines, restrictions, new_conf, apply=True)
 

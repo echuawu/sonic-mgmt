@@ -23,10 +23,7 @@ def test_user(engines):
         user_details[AaaConsts.USERNAME] += str(random.randint(0, 9999))
         set_local_users(engines, [user_details], apply=True)
 
-    yield user_details
-
-    with allure.step(f'Clear user {user_details[AaaConsts.USERNAME]}'):
-        System().aaa.user.unset(user_details[AaaConsts.USERNAME], apply=True)
+    return user_details
 
 
 @pytest.fixture(scope='function')
