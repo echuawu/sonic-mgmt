@@ -2184,6 +2184,38 @@
       Redmine:
       - 3273006
 
+- Errors_list:
+    - '.*ERR systemctl.*: Failed to start dhcp_relay\.service: Unit dhcp_relay\.service is masked.*'
+    - '.*sonic ERR ntpd.*: CONFIG: restrict nopeer ignored.*'
+    - '.*sonic ERR kernel:.*ima: impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall.*'
+    - '.*ERR kernel:.*x86\/cpu: SGX disabled by BIOS.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3726137
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_fec_oper_get: Unexpected SDK FEC mode.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- get_dispatch_attribs_handler: Failed Get #0, OPER_PORT_FEC_MODE, key:PORT.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- sai_get_attributes: Failed to get attribute.*'
+    - '.*ERR swss#orchagent: :- getPortOperFec: Failed to get oper fec for Ethernet.*'
+  Conditions:
+    - Redmine:
+      - 3650778
+
+- Errors_list:
+    - '.*ERR nvidia-platform-api: Failed to read from file .* - FileNotFoundError.*'
+  Conditions:
+    - Redmine:
+      - 3723639
+
+- Errors_list:
+    - '.*ERR ntpd.*: CLOCK: leapsecond file .*: expired less than \d+ days ago.*'
+  Conditions:
+    - Redmine:
+      - 3723467
+
 # Errors which should be ignored in tests which doing warm-reboot
 - Errors_list:
     - '.* ERR syncd#SDK: \[DBG\.ERR\] Fatal failure not allowed when BOOT_MODE_ISSU_STARTED'
@@ -3105,12 +3137,6 @@
   Conditions:
     - Redmine:
       - 3589197
-
-- Errors_list:
-    - '.*ERR ntpd.*: CLOCK: leapsecond file .*: expired less than \d+ days ago.*'
-  Conditions:
-    - Redmine:
-      - 3723467
 
 - Errors_list:
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
