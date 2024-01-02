@@ -25,7 +25,7 @@ def set_icmp_sub_type(packet, packet_type):
         packet[scapy.ICMP].type = 0
 
 
-def inbound_vnet_packets(dash_config_info, inner_packet_type):
+def inbound_vnet_packets(dash_config_info, inner_packet_type='udp'):
     inner_packet = generate_inner_packet(inner_packet_type)(
         eth_src=dash_config_info[REMOTE_ENI_MAC],
         eth_dst=dash_config_info[LOCAL_ENI_MAC],
@@ -66,7 +66,7 @@ def inbound_vnet_packets(dash_config_info, inner_packet_type):
     return inner_packet, pa_match_vxlan_packet, pa_mismatch_vxlan_packet, masked_exp_packet
 
 
-def outbound_vnet_packets(dash_config_info, inner_packet_type, inner_extra_conf={}):
+def outbound_vnet_packets(dash_config_info, inner_extra_conf={}, inner_packet_type='udp'):
     proto = None
     if "proto" in inner_extra_conf:
         proto = int(inner_extra_conf["proto"])

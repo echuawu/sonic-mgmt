@@ -299,13 +299,14 @@ def gnmi_get(duthost, ptfhost, path_list):
             raise Exception("error:" + msg)
 
 
-def apply_gnmi_file(duthost, ptfhost, dest_path):
+def apply_gnmi_file(duthost, ptfhost, dest_path, wait_after_apply=5):
     """
     Apply dash configuration with gnmi client
     Args:
         duthost: fixture for duthost
         ptfhost: fixture for ptfhost
         dest_path: configuration file path
+        wait_after_apply: the seconds to wait after gNMI file applied
     Returns:
     """
     env = GNMIEnvironment(duthost)
@@ -353,4 +354,4 @@ def apply_gnmi_file(duthost, ptfhost, dest_path):
         else:
             logger.info("Invalid operation %s" % operation["OP"])
     gnmi_set(duthost, ptfhost, delete_list, update_list, [])
-    time.sleep(5)
+    time.sleep(wait_after_apply)
