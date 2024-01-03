@@ -3239,7 +3239,7 @@
       Affected_test_cases:
         - show_techsupport/test_techsupport_dpu.py
         - show_techsupport/test_auto_techsupport.py
-        - test_techsupport_no_secret.py
+        - show_techsupport/test_techsupport_no_secret.py
 
 - Errors_list:
     - '.*ERR pmon#psud: Failed to read from file \/var\/run\/hw-management\/eeprom\/psu.*'
