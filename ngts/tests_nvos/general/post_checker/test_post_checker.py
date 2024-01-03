@@ -1,6 +1,6 @@
 import os
 import pytest
-from ngts.tests_nvos.general.security.conftest import check_if_need_remote_reboot_to_recover_dut
+from ngts.tools.test_utils.switch_recovery import check_switch_connectivity
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 import subprocess
@@ -34,7 +34,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, aaa_post_
         9. Upload sysdump to shared location
     """
     if aaa_post_checker:
-        check_if_need_remote_reboot_to_recover_dut(topology_obj, engines)
+        check_switch_connectivity(topology_obj, engines)
 
     system = System()
     serial_engine = topology_obj.players['dut_serial']['engine']

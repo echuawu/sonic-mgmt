@@ -5,6 +5,8 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 
 
 class PexpectTool:
+    TIMEOUT = -1
+
     def __init__(self, spawn_cmd: str = '', default_expect_err_msg: str = 'Expect failed'):
         self.child = None
         self.expect_error_msg = default_expect_err_msg
@@ -19,7 +21,7 @@ class PexpectTool:
         self.child = pexpect.spawn(cmd)
         self.child.delaybeforesend = DefaultConnectionValues.PEXPECT_DELAYBEFORESEND
 
-    def expect(self, expect_msg, error_message=''):
+    def expect(self, expect_msg, error_message='', raise_exception_for_timeout: bool = True):
         err_msg = error_message if error_message else self.expect_error_msg
         if isinstance(expect_msg, list):
             logging.info(f'Expect: {expect_msg}')
@@ -30,11 +32,16 @@ class PexpectTool:
 
         try:
             res_index = self.child.expect(expect_list)
-            logging.info(f'Output:\n{(self.child.before + self.child.after).decode()}')
+            decoded_before = self.child.before.decode('utf-8', errors='replace') if hasattr(self.child.before, 'decode') else ''
+            decoded_after = self.child.after.decode('utf-8', errors='replace') if hasattr(self.child.after, 'decode') else ''
+            logging.info(f'Output:\n{decoded_before + decoded_after}')
             assert res_index != len(expect_list) - 1, err_msg
         except pexpect.exceptions.TIMEOUT as timeout_exception:
             logging.info(f'Got pexpect TIMEOUT exception.\n{err_msg}')
-            raise timeout_exception
+            if raise_exception_for_timeout:
+                raise timeout_exception
+            else:
+                return PexpectTool.TIMEOUT
 
         return res_index
 

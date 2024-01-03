@@ -1,6 +1,6 @@
 import pytest
 
-from ngts.tests_nvos.general.security.conftest import check_if_need_remote_reboot_to_recover_dut
+from ngts.tools.test_utils.switch_recovery import check_switch_connectivity
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -11,4 +11,4 @@ def prepare_scp_test(prepare_scp):
 @pytest.fixture(scope='function', autouse=True)
 def recover_after_aaa(topology_obj, engines):
     yield
-    check_if_need_remote_reboot_to_recover_dut(topology_obj, engines)
+    check_switch_connectivity(topology_obj, engines)
