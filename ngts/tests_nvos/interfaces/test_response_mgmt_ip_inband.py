@@ -9,8 +9,9 @@ from ngts.nvos_tools.infra.Fae import Fae
 # from ngts.nvos_tools.infra.IpTool import IpTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-# from ngts.nvos_tools.infra.RegisterTool import RegisterTool
+from ngts.nvos_tools.infra.RegisterTool import RegisterTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -41,12 +42,13 @@ def test_configure_feature_state(engines, test_api):
             mgmt_port = MgmtPort('eth0')
             mgmt_ip_list = get_mgmt_port_ip_addresses(mgmt_port, engines_dut)
             dut_ipv4 = mgmt_ip_list[0]
-            dut_ipv6 = mgmt_ip_list[1]
-            dut_ipv6b = mgmt_ip_list[2]
+            if len(mgmt_ip_list[2]) > len(mgmt_ip_list[1]):
+                dut_ipv6 = mgmt_ip_list[1]
+            else:
+                dut_ipv6 = mgmt_ip_list[2]
 
         with allure.step("Verify feature state enabled and IP address configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Disable ufm-mad feature"):
             fae.ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value=UfmMadConsts.State.DISABLED.value,
@@ -60,8 +62,8 @@ def test_configure_feature_state(engines, test_api):
                                apply=True).verify_result()
 
         with allure.step("Verify feature state enabled and IP address configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
+            time.sleep(UfmMadConsts.CONFIG_TIME)
 
         with allure.step("Disable ufm-mad feature"):
             fae.ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value=UfmMadConsts.State.DISABLED.value,
@@ -71,8 +73,7 @@ def test_configure_feature_state(engines, test_api):
             fae.ib.ufm_mad.unset(op_param=UfmMadConsts.STATE, apply=True).verify_result()
 
         with allure.step("Verify feature state enabled and IP address configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
     finally:
         with allure.step("Set feature state to default"):
@@ -106,11 +107,14 @@ def test_configure_mgmt_port_ipv4(engines, topology_obj, test_api):
             mgmt_port = MgmtPort('eth0')
             mgmt_ip_list = get_mgmt_port_ip_addresses(mgmt_port, engines_dut)
             dut_ipv4 = mgmt_ip_list[0]
-            dut_ipv6 = mgmt_ip_list[1]
-            dut_ipv6b = mgmt_ip_list[2]
+            if len(mgmt_ip_list[2]) > len(mgmt_ip_list[1]):
+                dut_ipv6 = mgmt_ip_list[1]
+                dut_ipv6_slaac = mgmt_ip_list[2]
+            else:
+                dut_ipv6 = mgmt_ip_list[2]
+                dut_ipv6_slaac = mgmt_ip_list[1]
 
-            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Disable ufm-mad feature"):
             fae.ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value=UfmMadConsts.State.DISABLED.value,
@@ -133,10 +137,12 @@ def test_configure_mgmt_port_ipv4(engines, topology_obj, test_api):
             time.sleep(UfmMadConsts.CONFIG_TIME)
 
         with allure.step("Validate ufm-mad state enabled and IP static address is configured"):
-            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value, UfmMadConsts.STATIC_IPV4)
+            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value,
+                                         UfmMadConsts.STATIC_IPV4, dut_ipv6_slaac)
 
         with allure.step("Verify State DB:UFM-MAD value"):
-            verify_ufm_mad_db_table(serial_engine, UfmMadConsts.State.ENABLED.value, UfmMadConsts.STATIC_IPV4)
+            verify_ufm_mad_db_table(serial_engine, UfmMadConsts.State.ENABLED.value,
+                                    UfmMadConsts.STATIC_IPV4, dut_ipv6_slaac)
 
         with allure.step("Update mgmt port ipv4 address when ufm-mad state is enabled"):
             mgmt_port.interface.ip.address.unset(dut_engine=serial_engine, apply=True).verify_result()
@@ -144,8 +150,7 @@ def test_configure_mgmt_port_ipv4(engines, topology_obj, test_api):
 
         # Connection in SSH is back, continue in engines.dut
         with allure.step("Validate ufm-mad state enabled and IP address is configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Verify State DB:UFM-MAD value"):
             verify_ufm_mad_db_table(engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
@@ -157,10 +162,10 @@ def test_configure_mgmt_port_ipv4(engines, topology_obj, test_api):
 
         # Connection in SSH is lost, continue in serial port
         with allure.step("Validate ufm-mad state disabled and IPV4 address is empty"):
-            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value)
+            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value, ipv6=dut_ipv6_slaac)
 
         with allure.step("Verify State DB:UFM-MAD value"):
-            verify_ufm_mad_db_table(engine=serial_engine, state=UfmMadConsts.State.ENABLED.value)
+            verify_ufm_mad_db_table(engine=serial_engine, state=UfmMadConsts.State.ENABLED.value, ipv6=dut_ipv6_slaac)
 
     finally:
         with allure.step("Set to default mgmt port address and ufm-mad feature state"):
@@ -190,13 +195,22 @@ def test_configure_mgmt_port_ipv6(engines, topology_obj, test_api):
     serial_engine = topology_obj.players['dut_serial']['engine']
     fae = Fae()
 
+    # output = RegisterTool.get_mst_register_value(engines_dut, UfmMadConsts.MST_DEV_NAME, UfmMadConsts.MST_REGISTER)
+    # parse_mad_output(output)
+    #
+    # output2 = RegisterTool.get_mst_register_value(serial_engine, UfmMadConsts.MST_DEV_NAME, UfmMadConsts.MST_REGISTER)
+
     try:
         with allure.step("Get mgmt port ip addresses"):
             mgmt_port = MgmtPort('eth0')
             mgmt_ip_list = get_mgmt_port_ip_addresses(mgmt_port, engines_dut)
             dut_ipv4 = mgmt_ip_list[0]
-            dut_ipv6 = mgmt_ip_list[1]
-            dut_ipv6b = mgmt_ip_list[2]
+            if len(mgmt_ip_list[2]) > len(mgmt_ip_list[1]):
+                dut_ipv6 = mgmt_ip_list[1]
+                dut_ipv6_slaac = mgmt_ip_list[2]
+            else:
+                dut_ipv6 = mgmt_ip_list[2]
+                dut_ipv6_slaac = mgmt_ip_list[1]
 
         with allure.step("Disable ufm-mad feature"):
             fae.ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value=UfmMadConsts.State.DISABLED.value,
@@ -220,11 +234,10 @@ def test_configure_mgmt_port_ipv6(engines, topology_obj, test_api):
 
         with allure.step("Validate ufm-mad state enabled and IP static address is configured"):
             verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value,
-                                         ipv4='', ipv6=UfmMadConsts.STATIC_IPV6)
+                                         ipv6=UfmMadConsts.STATIC_IPV6)
 
         with allure.step("Verify State DB:UFM-MAD value"):
-            verify_ufm_mad_db_table(serial_engine, UfmMadConsts.State.ENABLED.value,
-                                    ipv4='', ipv6=UfmMadConsts.STATIC_IPV6)
+            verify_ufm_mad_db_table(serial_engine, UfmMadConsts.State.ENABLED.value, ipv6=UfmMadConsts.STATIC_IPV6)
 
         with allure.step("Update mgmt port ipv6 address when ufm-mad state is enabled"):
             mgmt_port.interface.ip.address.unset(dut_engine=serial_engine, apply=True).verify_result()
@@ -232,12 +245,10 @@ def test_configure_mgmt_port_ipv6(engines, topology_obj, test_api):
 
         # Connection in SSH is back, continue in engines.dut
         with allure.step("Validate ufm-mad state enabled and IP address is configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Verify State DB:UFM-MAD value"):
-            verify_ufm_mad_db_table(engines_dut, UfmMadConsts.State.ENABLED.value,
-                                    dut_ipv4, dut_ipv6)
+            verify_ufm_mad_db_table(engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Delete mgmt port ipv6 address (set ip 0:0:0:0:0:0:0:0/0)"):
             mgmt_port.interface.ip.address.set(op_param_name=UfmMadConsts.ZEROS_IPV6, apply=True,
@@ -245,11 +256,11 @@ def test_configure_mgmt_port_ipv6(engines, topology_obj, test_api):
             time.sleep(UfmMadConsts.CONFIG_TIME)
 
         # Connection in SSH is lost, continue in serial port
-        with allure.step("Validate ufm-mad state disabled and IPV4 address is empty"):
-            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value)
+        with allure.step("Validate ufm-mad state disabled and both IPV4 and IPV6 addresses are empty"):
+            verify_ufm_mad_configuration(fae, serial_engine, UfmMadConsts.State.ENABLED.value, ipv6=dut_ipv6_slaac)
 
         with allure.step("Verify State DB:UFM-MAD value"):
-            verify_ufm_mad_db_table(engine=serial_engine, state=UfmMadConsts.State.ENABLED.value)
+            verify_ufm_mad_db_table(engine=serial_engine, state=UfmMadConsts.State.ENABLED.value, ipv6=dut_ipv6_slaac)
 
     finally:
         with allure.step("Set to default mgmt port address and ufm-mad feature state"):
@@ -286,8 +297,12 @@ def test_configure_mgmt_port_link_state(engines, topology_obj, test_api):
             mgmt_port = MgmtPort('eth0')
             mgmt_ip_list = get_mgmt_port_ip_addresses(mgmt_port, engines_dut)
             dut_ipv4 = mgmt_ip_list[0]
-            dut_ipv6 = mgmt_ip_list[1]
-            dut_ipv6b = mgmt_ip_list[2]
+            if len(mgmt_ip_list[2]) > len(mgmt_ip_list[1]):
+                dut_ipv6 = mgmt_ip_list[1]
+                dut_ipv6_slaac = mgmt_ip_list[2]
+            else:
+                dut_ipv6 = mgmt_ip_list[2]
+                dut_ipv6_slaac = mgmt_ip_list[1]
 
         with allure.step("Disable ufm-mad feature when link state is up"):
             fae.ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value=UfmMadConsts.State.DISABLED.value,
@@ -302,8 +317,7 @@ def test_configure_mgmt_port_link_state(engines, topology_obj, test_api):
             time.sleep(UfmMadConsts.CONFIG_TIME)
 
         with allure.step("Validate ufm-mad state enabled and IP addresses are configured"):
-            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value,
-                                         dut_ipv4, dut_ipv6, dut_ipv6b)
+            verify_ufm_mad_configuration(fae, engines_dut, UfmMadConsts.State.ENABLED.value, dut_ipv4, dut_ipv6)
 
         with allure.step("Set mgmt port link state to down"):
             mgmt_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
@@ -334,7 +348,7 @@ def test_configure_mgmt_port_link_state(engines, topology_obj, test_api):
 
 @pytest.mark.interfacel
 @pytest.mark.parametrize('test_api', [ApiType.NVUE])
-def test_fae_invalid_commands(test_api):
+def test_fae_invalid_commands(test_api, devices):
     """
     Check set fae command with invalid param value.
 
@@ -347,6 +361,12 @@ def test_fae_invalid_commands(test_api):
     with allure.step("Validate set fae interface link lanes with invalid lanes"):
         Fae().ib.ufm_mad.set(op_param_name=UfmMadConsts.STATE, op_param_value='invalid_state',
                              apply=True).verify_result(should_succeed=False)
+
+    # Temporary reboot system at the end of all tests because of Bug SW #3720335
+    with allure.step("Perform system reboot"):
+        system = System(devices_dut=devices.dut)
+        system.reboot.action_reboot(params='force').verify_result()
+
 
 # ----------------------------------------------------------------------------------------------------
 # test_interface_shutdown and test_dhcp_shutdown will be enabled when we have system with 2 mgmt ports
@@ -446,7 +466,7 @@ def get_mgmt_port_ip_addresses(mgmt_port, dut_engine):
     return list(ip_addresses_show)
 
 
-def verify_ufm_mad_configuration(fae, dut_engine, state, ipv4='', ipv6='', ipv6b=''):
+def verify_ufm_mad_configuration(fae, dut_engine, state, ipv4='', ipv6=''):
     with allure.step("Validate ufm-mad state and IP address"):
         ufm_mad_show = OutputParsingTool.parse_json_str_to_dictionary(
             fae.ib.ufm_mad.show(dut_engine=dut_engine)).get_returned_value()
@@ -456,12 +476,26 @@ def verify_ufm_mad_configuration(fae, dut_engine, state, ipv4='', ipv6='', ipv6b
         if ipv4:
             assert ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV4_PREFIX] == ipv4, \
                 f"ipv4 should be {ipv4}, but it is {ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV4_PREFIX]}"
+        else:
+            assert UfmMadConsts.IPV4_PREFIX not in ufm_mad_show[UfmMadConsts.MGMT_PORT0].keys(), \
+                f"{UfmMadConsts.IPV4_PREFIX} should be empty, but it is: " \
+                f"{ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV4_PREFIX]}"
+        if ipv6:
+            assert ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX] == ipv6, \
+                f"ipv6 should be {ipv6}, but it is {ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX]}"
+        else:
+            assert UfmMadConsts.IPV6_PREFIX not in ufm_mad_show[UfmMadConsts.MGMT_PORT0].keys(), \
+                f"{UfmMadConsts.IPV6_PREFIX} should be empty, but it is: " \
+                f"{ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX]}"
 
-        if ipv6 or ipv6b:
-            assert (ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX] == ipv6) or \
-                   (ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX] == ipv6b), \
-                f"ipv6 should be {ipv6} or {ipv6b}, " \
-                f"but it is {ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX]}"
+        # if ipv4:
+        #     assert ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV4_PREFIX] == ipv4, \
+        #         f"ipv4 should be {ipv4}, but it is {ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV4_PREFIX]}"
+        # if ipv6 or ipv6b:
+        #     assert (ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX] == ipv6) or \
+        #            (ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX] == ipv6b), \
+        #         f"ipv6 should be {ipv6} or {ipv6b}, " \
+        #         f"but it is {ufm_mad_show[UfmMadConsts.MGMT_PORT0][UfmMadConsts.IPV6_PREFIX]}"
 
     # with allure.step("Verify MAD request from traffic server"):
     # ufm_mad = IpTool.send_ufm_mad(directory=UfmMadConsts.LOCATION_TO_RUN_NVMAD)
@@ -500,25 +534,39 @@ def parse_mad_output(mad_output):
         'module': 'S01'}
     """
     mad_output_list = mad_output.split('\n')
-    mad_output_list.reverse()
+    # mad_output_list.reverse()
     ips_dict = {}
     for out in mad_output_list:
-        if UfmMadConsts.IPV4_PREFIX in out:
-            out = out.split(":")[-1]
-            out = hex_to_ipv4(out)
-            ips_dict[UfmMadConsts.IPV4] = out
-        elif UfmMadConsts.IPV4_NETMASK in out:
-            out = out.split(":")[-1]
-            out = hex_to_ipv4(out)
-            ips_dict[UfmMadConsts.IPV4_NETMASK] = out
-        elif UfmMadConsts.IPV6_PREFIX in out:
-            out = out.split(":")[-1]
-            out = hex_to_ipv6(out)
-            ips_dict[UfmMadConsts.IPV6] = out
-        elif UfmMadConsts.IPV6_NETMASK in out:
-            out = out.split(":")[-1]
-            out = hex_to_ipv6(out)
-            ips_dict[UfmMadConsts.IPV6_NETMASK] = out
+        if UfmMadConsts.IPV4_0 in out:
+            out = out.split("|")[-1]
+            ips_dict[UfmMadConsts.IPV4] = hex_to_ipv4(out)
+        elif UfmMadConsts.IPV4_NETMASK_0 in out:
+            out = out.split("|")[-1]
+            ips_dict[UfmMadConsts.IPV4_NETMASK] = hex_to_ipv4(out)
+        elif UfmMadConsts.IPV6_0 in out:
+            ipv6 = out.split("|")[-1]
+        elif UfmMadConsts.IPV6_1 in out:
+            out = out.split("|")[-1]
+            ipv6 += out.split("x")[-1]
+        elif UfmMadConsts.IPV6_2 in out:
+            out = out.split("|")[-1]
+            ipv6 += out.split("x")[-1]
+        elif UfmMadConsts.IPV6_3 in out:
+            out = out.split("|")[-1]
+            ipv6 += out.split("x")[-1]
+            ips_dict[UfmMadConsts.IPV6] = hex_to_ipv6(ipv6)
+        elif UfmMadConsts.IPV6_NETMASK_0 in out:
+            ipv6_netmask = out.split("|")[-1]
+        elif UfmMadConsts.IPV6_NETMASK_1 in out:
+            out = out.split("|")[-1]
+            ipv6_netmask += out.split("x")[-1]
+        elif UfmMadConsts.IPV6_NETMASK_2 in out:
+            out = out.split("|")[-1]
+            ipv6_netmask += out.split("x")[-1]
+        elif UfmMadConsts.IPV6_NETMASK_3 in out:
+            out = out.split("|")[-1]
+            ipv6_netmask += out.split("x")[-1]
+            ips_dict[UfmMadConsts.IPV6_NETMASK] = hex_to_ipv6(ipv6_netmask)
         if len(ips_dict) == UfmMadConsts.NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE:
             break
     # ips_dict[LID] = lid

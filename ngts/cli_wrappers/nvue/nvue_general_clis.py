@@ -225,6 +225,12 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
+    def search_in_list_commands(engine, string):
+        logging.info(f"Running 'nv list-commands | grep '{string}'' on dut")
+        output = engine.run_cmd(f'nv list-commands | grep "{string}"')
+        return output
+
+    @staticmethod
     def upgrade_dut(engine, path_to_image):
         """
         Installing the provided image on dut

@@ -31,11 +31,11 @@ def test_show_platform_hardware(devices):
 
     with allure.step("Check hardware fields values"):
         if PlatformConsts.HW_ASIC_COUNT in output.keys():
-            assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1,\
+            assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1, \
                 "Unexpected value in {}\n Expect to have {}, but got {}"\
                 .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1,
                         output[PlatformConsts.HW_ASIC_COUNT])
-            assert "mqm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
+            assert "qm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
         mac = output[PlatformConsts.HW_MAC].split(":")
         assert len(mac) == 6, "Invalid mac format"
 

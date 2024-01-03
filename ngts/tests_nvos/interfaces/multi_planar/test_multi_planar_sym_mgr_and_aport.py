@@ -3,6 +3,7 @@ import logging
 import time
 
 # from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_constants.constants_nvos import ApiType, MultiPlanarConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
@@ -710,6 +711,24 @@ def test_fae_invalid_commands(engines, devices, test_api):
         fnm_internal_port_name = RandomizationTool.select_random_value(devices.dut.FNM_INTERNAL_PORT_LIST).\
             get_returned_value()
         MgmtPort(fnm_internal_port_name).interface.show(should_succeed=False)
+
+
+@pytest.mark.interface
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_validate_sm_commands_not_exist(engines, test_api):
+    """
+    Validate sm commands are not exist
+
+    Test flow:
+    1. run 'nv list-commands | grep " sm" on dut
+    2. check if any "sm" command exists
+    """
+    TestToolkit.tested_api = test_api
+    engines_dut = engines.dut
+
+    with allure.step("Search sm commands in commands list"):
+        output = NvueGeneralCli.search_in_list_commands(engines_dut, " sm")
+        assert not output, "sm commands should not exist"
 # ---------------------------------------------
 
 
