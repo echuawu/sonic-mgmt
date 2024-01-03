@@ -170,35 +170,35 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
     conditions:
       - "https://redmine.mellanox.com/issues/2939326 and 'simx' in platform"
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
-
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_basic_dhcp6_relay:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_message:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
+
+tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_empty_payload:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
     conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3365432 for 202211"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3365432 and '202211' in release"
+      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
 
 tests/nightly/app_extension/:
   skip:

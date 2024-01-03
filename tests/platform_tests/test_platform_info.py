@@ -72,8 +72,11 @@ SKIP_ERROR_LOG_PSU_ABSENCE = [
     r'.*ERR pmon#psud: Failed to read from file /var/run/hw-management/power/psu\d_volt.*']
 
 if is_redmine_issue_active([3621768]):
-    SKIP_ERROR_LOG_PSU_ABSENCE.append(r'.*ERR pmon#psud:.*Failed to read from file '
-                                      r'\/var\/run\/hw-management\/thermal\/fan_amb.*')
+    SKIP_ERROR_LOG_PSU_ABSENCE.append(r'.*ERR pmon#psud.*Failed to read from file'
+                                      r' \/var\/run\/hw-management\/thermal\/.*_amb.*.*')
+    SKIP_ERROR_LOG_PSU_ABSENCE.append(r'.*ERR pmon#psud: message repeated \d+ times: '
+                                      r'\[ Failed to read from file '
+                                      r'\/var\/run\/hw-management\/thermal\/.*_amb.*')
 SKIP_ERROR_LOG_SHOW_PLATFORM_TEMP.extend(SKIP_ERROR_LOG_COMMON)
 SKIP_ERROR_LOG_PSU_ABSENCE.extend(SKIP_ERROR_LOG_COMMON)
 

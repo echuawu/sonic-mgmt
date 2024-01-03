@@ -2186,7 +2186,7 @@
 
 - Errors_list:
     - '.*ERR systemctl.*: Failed to start dhcp_relay\.service: Unit dhcp_relay\.service is masked.*'
-    - '.*sonic ERR ntpd.*: CONFIG: restrict nopeer ignored.*'
+    - '.*ERR ntpd.*: CONFIG: restrict nopeer ignored.*'
     - '.*sonic ERR kernel:.*ima: impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall.*'
     - '.*ERR kernel:.*x86\/cpu: SGX disabled by BIOS.*'
   Conditions:
@@ -2194,6 +2194,76 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       Redmine:
       - 3726137
+      Branch:
+      - master
+
+- Errors_list:
+    - '.*ERR systemctl.*: Job for pmon.service canceled.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3730173
+      Branch:
+      - master
+
+- Errors_list:
+    - '.*ERR systemctl.*: Job for syncd.service canceled.*'
+    - '.*ERR systemctl.*: Failed to start radv\.service: Transaction for radv\.service\/start is destructive.*'
+    - '.*ERR systemctl.*: See system logs and .*systemctl status radv\.service.* for details.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3730186
+      Branch:
+      - master
+
+- Errors_list:
+    - '.*ERR kernel:.* mlxsw_minimal 2-0048: Fail to register core bus.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3730209
+      Branch:
+      - master
+      Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR pmon#syseepromd: Nowhere to read syseeprom from! No symlink found.*'
+    - '.*ERR pmon#syseepromd: Failed to load platform-specific eeprom from deprecated plugin: TypeError.*'
+  Conditions:
+    - Redmine:
+      - 3730455
+      Branch:
+      - 202311
+      Platform:
+      - simx
+
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR]\ \.\/src\/mlnx_sai_utils\.c.*- sai_set_attribute: Failed to set the attribute.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- set_dispatch_attrib_handler: Failed Set NEXT_HOP_ID, key:ROUTE_ENTRY .*, val:NEXT_HOP.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/crm/test_crm.py::test_crm_nexthop_group_and_member
+      Redmine:
+      - 3730214
+      Branch:
+      - master
+      Platform:
+      - simx
+
+- Errors_list:
+   - '.*ERR systemd.*: Failed to start syncd service.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3728308
+      Branch:
+      - 202311
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_fec_oper_get: Unexpected SDK FEC mode.*'
@@ -2203,18 +2273,24 @@
   Conditions:
     - Redmine:
       - 3650778
+      Branch:
+      - master
 
 - Errors_list:
     - '.*ERR nvidia-platform-api: Failed to read from file .* - FileNotFoundError.*'
   Conditions:
     - Redmine:
       - 3723639
+      Branch:
+      - 202311
 
 - Errors_list:
     - '.*ERR ntpd.*: CLOCK: leapsecond file .*: expired less than \d+ days ago.*'
   Conditions:
     - Redmine:
       - 3723467
+      Branch:
+      - master
 
 # Errors which should be ignored in tests which doing warm-reboot
 - Errors_list:
@@ -3408,8 +3484,6 @@
   Conditions:
     - Redmine:
       - 3716400
-      Platform:
-      - sn5600_simx
 
 # NVOS
 - Errors_list:
