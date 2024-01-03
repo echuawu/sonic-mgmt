@@ -342,12 +342,6 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_even
       - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3629837"
 
-tests/push_build_tests/L3/rocev2_acl_counter/test_rocev2_acl_counter_basic.py::TestRocev2AclCounter::test_rocev2_acl_counter_basic:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3691786"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3691786"
-
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
     reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
