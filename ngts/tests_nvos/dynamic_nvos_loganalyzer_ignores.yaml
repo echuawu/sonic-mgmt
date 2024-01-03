@@ -22,7 +22,6 @@
 #      - sn2
 #    - GitHub:
 #      - https://github.com/Azure/sonic-buildimage/issues/9811
-# New test comment(delete)
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
@@ -1353,6 +1352,8 @@
     - ".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*"
     - '.*ERR swss-ibv00#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
     - '.*ERR syncd-ibv00#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch_ib.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
+    - '.*SX_HEALTH_FATAL.*'
+    - '.*\[FW health issue\].*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
