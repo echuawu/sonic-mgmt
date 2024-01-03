@@ -4,11 +4,11 @@
 
         "CUSTOM_L3": {
 
-            "matches": "BTH_OPCODE,AETH_SYNDROME,SRC_IP,SRC_IPV6",
+            "MATCHES": ["BTH_OPCODE", "AETH_SYNDROME", "SRC_IP", "SRC_IPV6"],
 
-            "actions": "PACKET_ACTION",
+            "ACTIONS": ["PACKET_ACTION"],
 
-            "bind_points": "PORT,PORTCHANNEL"
+            "BIND_POINTS": ["PORT", "PORTCHANNEL"]
         }
 
     },

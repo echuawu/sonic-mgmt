@@ -217,3 +217,13 @@ class SonicAclCli:
             tbl = f'-t {tbl_name}'
 
         return self.engine.run_cmd(f'sudo aclshow -c {tbl}')
+
+    def remove_table_type(self, tbl_type_name):
+        """
+        Remove ACL table type from SONIC
+        :param tbl_type_name: ACL table type name
+        :return: command output
+        """
+
+        cmd = f'sonic-db-cli CONFIG_DB del "ACL_TABLE_TYPE|{tbl_type_name}"'
+        return self.engine.run_cmd(cmd)

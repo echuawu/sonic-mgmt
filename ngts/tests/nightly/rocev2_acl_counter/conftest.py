@@ -90,10 +90,8 @@ def apply_rocev2_acl_config(topology_obj, interfaces, engines, rocev2_acl_rule_l
     copy_apply_rocev2_acl_config(engines.dut, acl_rocev2_config_filename, ROCEV2_ACL_COUNTER_TEMPLATE_PATH)
 
     yield
-    remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS", "ROCE_ACL_EGRESS"])
-    if is_redmine_issue_active([3638709]):
-        dut_engine = topology_obj.players['dut']['engine']
-        dut_engine.reload(['sudo reboot'])
+    acl_type_list = ["CUSTOM_L3", "CUSTOM_L3_E"]
+    remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS", "ROCE_ACL_EGRESS"], acl_type_list)
 
 
 @pytest.fixture(scope='module', autouse=False)

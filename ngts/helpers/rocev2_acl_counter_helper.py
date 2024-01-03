@@ -37,13 +37,16 @@ def copy_apply_rocev2_acl_config(dut_engine, file_name, file_path):
     dut_engine.run_cmd(f"sudo config load /tmp/{file_name} -y")
 
 
-def remove_rocev2_acl_rule_and_talbe(topology_obj, alc_table_list):
+def remove_rocev2_acl_rule_and_talbe(topology_obj, alc_table_list, acl_table_type_list):
     cli_obj = topology_obj.players['dut']['cli']
     with allure.step("Delete rocev2 acl rule config"):
         cli_obj.acl.delete_config()
     with allure.step("Delete rocev2 acl table"):
         for acl_table in alc_table_list:
             cli_obj.acl.remove_table(acl_table)
+    with allure.step("Delete rocev2 acl table type"):
+        for acl_table_type in acl_table_type_list:
+            cli_obj.acl.remove_table_type(acl_table_type)
 
 
 def get_ip_header_and_src_ip(alc_rule):

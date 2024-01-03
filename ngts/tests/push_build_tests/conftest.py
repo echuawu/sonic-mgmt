@@ -351,7 +351,9 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
             VlanConfigTemplate.cleanup(topology_obj, vrf_vlan_config_dict)
 
         if is_support_rocev2_acl_counter_feature(cli_objects, is_simx, base_sonic_branch):
-            remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"])
+            acl_type_list = ['CUSTOM_L3']
+            remove_rocev2_acl_rule_and_talbe(topology_obj, ["ROCE_ACL_INGRESS"], acl_type_list)
+
         acl_helper.clear_acl_rules(engines.dut, cli_objects.dut)
         acl_helper.remove_acl_table(cli_objects.dut, acl_table_config_list)
         RouteConfigTemplate.cleanup(topology_obj, static_route_config_dict)
