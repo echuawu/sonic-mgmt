@@ -4,6 +4,7 @@ import time
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from netmiko.ssh_exception import NetmikoAuthenticationException
 from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
+from ngts.tests_nvos.conftest import clear_config
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
@@ -32,10 +33,11 @@ def recover_dut_with_remote_reboot(topology_obj, engines):
     with allure.step('Wait for switch to be up'):
         DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
     with allure.step('Clear config again'):
-        NvosInstallationSteps.clear_conf(engines.dut)
-    with allure.step('Set base conf again'):
-        set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
-                                save_conf=True)
+        clear_config()
+    #     NvosInstallationSteps.clear_conf(engines.dut)
+    # with allure.step('Set base conf again'):
+    #     set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
+    #                             save_conf=True)
 
 
 def check_if_need_remote_reboot_to_recover_dut(topology_obj, engines):

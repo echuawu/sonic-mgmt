@@ -240,12 +240,12 @@ def clear_security_config(active_aaa_server):
             logger.error(f"Failed to clear security config.\nException: {ex}")
 
 
-def clear_config(markers):
+def clear_config(markers=None):
     with allure.step("Clear config"):
         try:
             TestToolkit.update_apis(ApiType.NVUE)
 
-            if 'system_profile_cleanup' in markers:
+            if markers and 'system_profile_cleanup' in markers:
                 clear_system_profile_config()
 
             with allure.step("Detach config"):
