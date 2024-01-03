@@ -793,6 +793,7 @@ class SflowConsts:
 
     LOOPBACK_0 = "Loopback0"
     LOOPBACK_0_IP = "1000:aaaa:bbbb:cccc:dddd:eeee:2000:3000"
+    HSFLOWD_AUTOGEN_FILE = '/etc/hsflowd.auto'
     VRF_DEFAULT = "default"
     AGENT_ID_DEFAULT = "default"
     SFLOW_UP = "up"

@@ -117,12 +117,6 @@ tests/nightly/sflow/test_sflow.py:
       - "https://redmine.mellanox.com/issues/2271111 and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3236544 and 'x86_64-mlnx_msn2100-r0' in platform and '202205' in release"
 
-tests/nightly/sflow/test_sflow.py::test_sflow_agent_id:
-  skip:
-    reason: "Skip case due to RM issue: https://redmine.mellanox.com/issues/3624709"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3624709"
-
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
     reason: "Testcase ignored, CLI command 'qos reload --ports' will not be merged to 202012/202111 branches"

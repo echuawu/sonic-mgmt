@@ -6,9 +6,9 @@ from ngts.config_templates.ip_config_template import IpConfigTemplate
 from ngts.tests.conftest import get_dut_loopbacks
 from ngts.cli_wrappers.common.mac_clis_common import MacCliCommon
 from ngts.constants.constants import SflowConsts
-from ngts.helpers.sflow_helper import verify_sflow_configuration, verify_sflow_sample_agent_id, kill_sflowtool_process,\
-    remove_tmp_sample_file, verify_sflow_sample_polling_interval, verify_flow_sample_received, \
-    verify_sflow_interface_configuration
+from ngts.helpers.sflow_helper import verify_sflow_configuration, verify_sflow_sample_agent_id, \
+    kill_sflowtool_process, remove_tmp_sample_file, verify_sflow_sample_polling_interval, verify_flow_sample_received, \
+    verify_sflow_interface_configuration, get_agent_id_from_hsflowd
 
 logger = logging.getLogger()
 allure.logger = logger
@@ -168,7 +168,8 @@ def test_sflow_agent_id(engines, cli_objects):
             verify_sflow_configuration(cli_obj, status=SflowConsts.SFLOW_UP, agent_id=SflowConsts.AGENT_ID_DEFAULT)
         with allure.step('Validate that agent value in sflow sample is previously configured agent IP'):
             random_collector = random.choice(SflowConsts.COLLECTOR_LIST)
-            verify_sflow_sample_agent_id(engines, random_collector, SflowConsts.LOOPBACK_0_IP)
+            selected_agent_ip = get_agent_id_from_hsflowd(engines)
+            verify_sflow_sample_agent_id(engines, random_collector, selected_agent_ip)
 
         with allure.step('Configure eth0 as agent id'):
             cli_obj.sflow.add_agent_id(SflowConsts.MGMT_INTF)

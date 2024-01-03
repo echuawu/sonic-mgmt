@@ -68,6 +68,19 @@ def verify_sflow_interface_configuration(cli_obj, interface_name, status, sample
     assert re.search(fr"{interface_name}\s+\|\s+{status}\s+\|\s+{sample_rate}", show_sflow_intf), f"Interface {interface_name} is not properly configured"
 
 
+def get_agent_id_from_hsflowd(engines):
+    """
+    This method is used to get the agent ip selected by hsflowd daemon
+    """
+    res = engines.dut.run_cmd(f"docker exec -i sflow sh -c 'test -f {SflowConsts.HSFLOWD_AUTOGEN_FILE} && echo exist'")
+    assert res == 'exist', f"{SflowConsts.HSFLOWD_AUTOGEN_FILE} file does not exist"
+    selected_agent_ip = engines.dut.run_cmd(f"docker exec sflow grep -w 'agentIP' {SflowConsts.HSFLOWD_AUTOGEN_FILE}"
+                                            f" | cut -d '=' -f 2")
+    assert selected_agent_ip, f"agent variable not found in the {SflowConsts.HSFLOWD_AUTOGEN_FILE} file"
+    logger.info(f"hsflowd selected agent ip is: {selected_agent_ip}")
+    return selected_agent_ip
+
+
 @retry(Exception, tries=5, delay=5)
 def verify_sflow_sample_agent_id(engines, collector, agent_id_addr):
     """
