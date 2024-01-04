@@ -119,3 +119,23 @@ class AuthMedium:
     RCON = 'RCON'
     SCP = 'SCP'
     ALL_MEDIUMS = [SSH, OPENAPI, RCON, SCP]
+
+
+class AccountingConsts:
+    ACCOUNTING = 'accounting'
+    STATE = 'state'
+    DISABLED = 'disabled'
+    ENABLED = 'enabled'
+
+    VALUES = {
+        STATE: [DISABLED, ENABLED]
+    }
+
+    DEFAULT = {
+        STATE: DISABLED
+    }
+
+
+class AccountingFields:
+    STATE = AccountingConsts.STATE
+    ALL_FIELDS = [STATE]

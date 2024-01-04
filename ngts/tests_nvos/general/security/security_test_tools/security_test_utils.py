@@ -12,7 +12,9 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import AaaAccountingLogsFileContent, AaaServerManager
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
@@ -39,7 +41,8 @@ def check_nslcd_service(engines):
 
 
 def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success: bool = True,
-                     verify_authorization: bool = True, skip_auth_mediums: List[str] = None):
+                     verify_authorization: bool = True, skip_auth_mediums: List[str] = None,
+                     accounting_servers: List[RemoteAaaServerInfo] = [], expect_accounting_logs: List[bool] = []):
     """
     @summary: Verify authentication and authorization for the given user.
         Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
@@ -57,6 +60,10 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
+    assert len(accounting_servers) == len(expect_accounting_logs), f'Arguments "accounting_servers" and "expect_accounting_logs" must be lists of the same length!\nActual accounting_servers: {accounting_servers}\nActual expect_accounting_logs: {expect_accounting_logs}'
+
+    accounting_server_mngrs = [AaaServerManager(server.ipv4_addr, server.docker_name) for server in accounting_servers]
+
     with loganalyzer_ignore(False and (not expect_login_success)):
         with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
                          f'Expect login success: {expect_login_success}'):
@@ -73,12 +80,25 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
                 with allure.step(f'Verify auth with medium: {medium}'):
                     medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
 
+                    if accounting_servers:
+                        with allure.step('Clear accounting logs on servers'):
+                            for mngr in accounting_server_mngrs:
+                                mngr.clear_accounting_logs()
+
                     with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
                         medium_obj.verify_authentication(expect_login_success)
 
                     if verify_authorization and expect_login_success:
                         with allure.step(f'Verify authorization. Role: {user.role}'):
                             medium_obj.verify_authorization(user_is_admin=user_is_admin)
+
+                    if accounting_servers:
+                        with allure.step('Verify accounting logs on given servers'):
+                            for i, mngr in enumerate(accounting_server_mngrs):
+                                expect_logs = expect_accounting_logs[i]
+                                with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
+                                    accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(grep=user.username)
+                                    assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{mngr.ip}" for user "{user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
         logging.info('\n')
 
 
@@ -330,50 +350,3 @@ def set_local_users(engines, users, apply=False):
         with allure.step('Apply changes together'):
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
                                             True)
-
-
-def configure_resource(engines, resource_obj: BaseComponent, conf, apply=False, verify_apply=True, dut_engine=None):
-    """
-    @summary: Configure resource according to the given desired configuration
-        * Configuration example:
-            if we want:
-            ldap
-                bind-dn = abc
-                auth-port = 123
-            then configuration dictionary should be:
-            {
-                bind-dn: abc,
-                auth-port: 123
-            }
-    @param engines: engines object
-    @param resource_obj: resource object
-    @param conf: the desired configuration (dictionary)
-    @param apply: whether to apply the changes or not
-    @param verify_apply: whether to verify the apply or not
-    @param dut_engine: engine to run the set commands on (optional)
-    """
-    if not conf:
-        return
-
-    with allure.step(f'Set configuration for resource: {resource_obj.get_resource_path()}'):
-        logging.info(f'Given configuration to set:\n{conf}')
-
-        with allure.step('Set fields'):
-            for key, value in conf.items():
-                logging.info(f'Set field "{key}" to value "{value}"')
-                value = int(value) if isinstance(value, int) or isinstance(value, str) and value.isnumeric() else value
-                if not dut_engine:
-                    resource_obj.set(key, value, apply=False).verify_result()
-                else:
-                    resource_obj.set(key, value, apply=False, dut_engine=dut_engine).verify_result()
-
-        if apply:
-            with allure.step('Apply changes'):
-                if not dut_engine:
-                    res = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                          engines.dut, True)
-                else:
-                    res = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config,
-                                                          dut_engine, True)
-                if verify_apply:
-                    res.verify_result()

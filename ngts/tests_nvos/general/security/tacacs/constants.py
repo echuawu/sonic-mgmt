@@ -1,6 +1,6 @@
 from typing import Dict
 
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AddressingType
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import TacacsServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 
@@ -68,7 +68,8 @@ class TacacsServers:
                 password='testing',
                 role=AaaConsts.MONITOR
             )
-        ]
+        ],
+        ipv4_addr=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR
     )
 
     VM_SERVER_USERS = [
@@ -100,7 +101,8 @@ class TacacsServers:
         timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
-        users=VM_SERVER_USERS_PAP
+        users=VM_SERVER_USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR
     )
 
     VM_SERVER_DN = VM_SERVER_IPV4.copy()
@@ -111,7 +113,18 @@ class TacacsServers:
         AaaConsts.DN: VM_SERVER_DN
     }
 
-    DOCKER_SERVER_IPV4 = VM_SERVER_IPV4.copy()
+    DOCKER_SERVER_IPV4 = TacacsServerInfo(
+        hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        priority=1,
+        secret='secret',
+        port=50,
+        timeout=5,
+        # retransmit=0,
+        auth_type=AaaConsts.PAP,
+        users=VM_SERVER_USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        docker_name='tacacs_container'
+    )
     DOCKER_SERVER_IPV4.port = 50
     DOCKER_SERVER_IPV6 = DOCKER_SERVER_IPV4.copy()
     DOCKER_SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
@@ -122,4 +135,118 @@ class TacacsServers:
         AaaConsts.IPV4: DOCKER_SERVER_IPV4,
         AaaConsts.IPV6: DOCKER_SERVER_IPV6,
         AaaConsts.DN: DOCKER_SERVER_DN
+    }
+
+
+class TacacsDockerServer1:
+    USERS = [
+        UserInfo(
+            username='tac1adm1',
+            password='tac1adm1',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='tac1adm2',
+            password='tac1adm2',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='tac1mon1',
+            password='tac1mon1',
+            role=AaaConsts.MONITOR
+        ),
+        UserInfo(
+            username='tac1mon2',
+            password='tac1mon2',
+            role=AaaConsts.MONITOR
+        )
+    ]
+    USERS_PAP = [UserInfo(user.username, user.password + '_pap', user.role) for user in USERS]
+    USERS_CHAP = [UserInfo(user.username, user.password + '_chap', user.role) for user in USERS]
+    USERS_LOGIN = [UserInfo(user.username, user.password + '_login', user.role) for user in USERS]
+
+    USERS_BY_AUTH_TYPE = {
+        AaaConsts.PAP: USERS_PAP,
+        AaaConsts.CHAP: USERS_CHAP,
+        AaaConsts.LOGIN: USERS_LOGIN
+    }
+
+    SERVER_IPV4 = TacacsServerInfo(
+        hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        priority=1,
+        secret='secret',
+        port=52,
+        timeout=5,
+        # retransmit=0,
+        auth_type=AaaConsts.PAP,
+        users=USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        docker_name='nvos_tacacs'
+    )
+    SERVER_IPV6 = SERVER_IPV4.copy()
+    SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
+    SERVER_DN = SERVER_IPV4.copy()
+    SERVER_DN.hostname = AaaConsts.VM_AAA_SERVER_DN
+
+    SERVER_BY_ADDRESSING_TYPE = {
+        AddressingType.IPV4: SERVER_IPV4,
+        AddressingType.IPV6: SERVER_IPV6,
+        AddressingType.DN: SERVER_DN
+    }
+
+
+class TacacsDockerServer2:
+    USERS = [
+        UserInfo(
+            username='tac2adm1',
+            password='tac2adm1',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='tac2adm2',
+            password='tac2adm2',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='tac2mon',
+            password='tac2mon',
+            role=AaaConsts.MONITOR
+        ),
+        UserInfo(
+            username='tac2mon2',
+            password='tac2mon2',
+            role=AaaConsts.MONITOR
+        )
+    ]
+    USERS_PAP = [UserInfo(user.username, user.password + '_pap', user.role) for user in USERS]
+    USERS_CHAP = [UserInfo(user.username, user.password + '_chap', user.role) for user in USERS]
+    USERS_LOGIN = [UserInfo(user.username, user.password + '_login', user.role) for user in USERS]
+
+    USERS_BY_AUTH_TYPE = {
+        AaaConsts.PAP: USERS_PAP,
+        AaaConsts.CHAP: USERS_CHAP,
+        AaaConsts.LOGIN: USERS_LOGIN
+    }
+
+    SERVER_IPV4 = TacacsServerInfo(
+        hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        priority=1,
+        secret='secret',
+        port=53,
+        timeout=5,
+        # retransmit=0,
+        auth_type=AaaConsts.PAP,
+        users=USERS_PAP,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        docker_name='nvos_tacacs2'
+    )
+    SERVER_IPV6 = SERVER_IPV4.copy()
+    SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
+    SERVER_DN = SERVER_IPV4.copy()
+    SERVER_DN.hostname = AaaConsts.VM_AAA_SERVER_DN
+
+    SERVER_BY_ADDRESSING_TYPE = {
+        AddressingType.IPV4: SERVER_IPV4,
+        AddressingType.IPV6: SERVER_IPV6,
+        AddressingType.DN: SERVER_DN
     }

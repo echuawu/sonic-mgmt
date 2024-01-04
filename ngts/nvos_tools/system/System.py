@@ -34,9 +34,10 @@ logger = logging.getLogger()
 
 
 class System(BaseComponent):
-    def __init__(self, parent_obj=None, username='admin', devices_dut=None):
+    def __init__(self, parent_obj=None, username='admin', devices_dut=None, force_api=None):
+        assert force_api in ApiType.ALL_TYPES + [None], f'Argument "force_api" must be in {ApiType.ALL_TYPES + [None]}. Given: {force_api}'
         BaseComponent.__init__(self, parent=parent_obj,
-                               api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/system')
+                               api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/system', force_api=force_api)
         self.config = Config(self)
         self.documentation = Documentation(self)
         self.aaa = Aaa(self, username)

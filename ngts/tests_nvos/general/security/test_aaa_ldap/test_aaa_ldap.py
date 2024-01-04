@@ -99,7 +99,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
     generic_aaa_test_auth(test_api=test_api, addressing_type=addressing_type, engines=engines,
                           topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
                           remote_aaa_type=RemoteAaaType.LDAP,
-                          feature_resource_obj=ldap,
+                          remote_aaa_obj=ldap,
                           server_by_addr_type=LdapServers.DOCKER_SERVERS,
                           test_param=LdapEncryptionModes.ALL_MODES,
                           test_param_update_func=update_ldap_encryption_mode)
@@ -118,7 +118,7 @@ def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
     ldap_server.port = 6692
     # RandomizationTool.select_random_value(LdapConsts.POSSIBLE_PORTS, [ldap_server.port]).get_returned_value()
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
-                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           remote_aaa_type=RemoteAaaType.LDAP, remote_aaa_obj=System().aaa.ldap,
                                            bad_param_name=LdapConsts.PORT, bad_configured_server=ldap_server)
 
 
@@ -134,7 +134,7 @@ def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
     ldap_server = LdapServers.PHYSICAL_SERVER.copy()
     ldap_server.secret = RandomizationTool.get_random_string(6)
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
-                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           remote_aaa_type=RemoteAaaType.LDAP, remote_aaa_obj=System().aaa.ldap,
                                            bad_param_name=LdapConsts.SECRET, bad_configured_server=ldap_server)
 
 
@@ -150,7 +150,7 @@ def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
     ldap_server = LdapServers.PHYSICAL_SERVER.copy()
     ldap_server.bind_dn = RandomizationTool.get_random_string(6)
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
-                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           remote_aaa_type=RemoteAaaType.LDAP, remote_aaa_obj=System().aaa.ldap,
                                            bad_param_name=LdapConsts.BIND_DN, bad_configured_server=ldap_server)
 
 
@@ -166,7 +166,7 @@ def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
     ldap_server = LdapServers.PHYSICAL_SERVER.copy()
     ldap_server.base_dn = RandomizationTool.get_random_string(6)
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
-                                           remote_aaa_type=RemoteAaaType.LDAP, feature_resource_obj=System().aaa.ldap,
+                                           remote_aaa_type=RemoteAaaType.LDAP, remote_aaa_obj=System().aaa.ldap,
                                            bad_param_name=LdapConsts.BASE_DN, bad_configured_server=ldap_server)
 
 
@@ -182,7 +182,7 @@ def test_ldap_unique_priority(test_api, engines, topology_obj):
         2. set another hostname with existing priority - expect failure
 
     """
-    generic_aaa_test_unique_priority(test_api, feature_resource_obj=System().aaa.ldap)
+    generic_aaa_test_unique_priority(test_api, remote_aaa_obj=System().aaa.ldap)
 
 
 @pytest.mark.security
@@ -202,7 +202,7 @@ def test_ldap_priority(test_api, engines, topology_obj, request):
     server2 = random.choice(list(LdapServers.DOCKER_SERVERS.values())).copy()
 
     generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.LDAP,
-                              feature_resource_obj=System().aaa.ldap, server1=server1, server2=server2)
+                              remote_aaa_obj=System().aaa.ldap, server1=server1, server2=server2)
 
 
 @pytest.mark.security
@@ -230,7 +230,7 @@ def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuse
     generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request,
                                         local_adminuser=local_adminuser,
                                         remote_aaa_type=RemoteAaaType.LDAP,
-                                        feature_resource_obj=System().aaa.ldap,
+                                        remote_aaa_obj=System().aaa.ldap,
                                         server1=server1, server2=server2)
 
 
@@ -259,7 +259,7 @@ def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserI
     server2 = LdapServers.DOCKER_SERVER_DN.copy()
     generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
                                 remote_aaa_type=RemoteAaaType.LDAP,
-                                feature_resource_obj=System().aaa.ldap,
+                                remote_aaa_obj=System().aaa.ldap,
                                 server1=server1, server2=server2)
 
 
