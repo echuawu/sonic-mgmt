@@ -19,14 +19,14 @@ class DatabaseTool:
     def sonic_db_cli_hset(engine, asic, db_name, db_config, param, value):
         asic = f"-n {asic} " if asic else ""
         cmd = f'sonic-db-cli {asic}{db_name} hset "{db_config}" "{param}" "{value}"'
-        logging.info(f'Running sonic-db-cli {cmd}')
+        logging.info(f'Running {cmd}')
         return engine.run_cmd(cmd)
 
     @staticmethod
     def sonic_db_cli_hget(engine, asic, db_name, db_config, param):
         asic = f"-n {asic} " if asic else ""
         cmd = f'sonic-db-cli {asic}{db_name} hget {db_config} {param}'
-        logging.info(f'Running sonic-db-cli {cmd}')
+        logging.info(f'Running {cmd}')
         return engine.run_cmd(cmd)
 
     @staticmethod
@@ -51,7 +51,7 @@ class DatabaseTool:
     def sonic_db_run_hget_in_docker(docker_name, engine, asic, db_name, db_config, param):
         asic = f"-n {asic} " if asic else ""
         cmd = f'docker exec -it {docker_name} sonic-db-cli {asic}{db_name} hget {db_config} {param}'
-        logging.info(f'Running sonic-db-cli {cmd}')
+        logging.info(f'Running {cmd}')
         return engine.run_cmd(cmd)
 
     @staticmethod

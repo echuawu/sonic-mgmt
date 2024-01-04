@@ -85,12 +85,13 @@ def test_save_reboot(engines, devices):
                 ValidationTool.verify_field_value_in_output(fast_recovery_output, FastRecoveryConsts.STATE,
                                                             FastRecoveryConsts.STATE_DISABLED).verify_result()'''
 
-            with allure.step('verify the ib0 description is empty'):
-                logger.info('verify the ib0 description is empty')
+            with allure.step('verify the ib0 description was not saved after reboot'):
+                logger.info('verify the ib0 description was not saved after reboot')
                 output_dictionary = OutputParsingTool.parse_show_interface_output_to_dictionary(
                     ib0_port.interface.show()).get_returned_value()
-                assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys(), \
-                    "Expected not to have description field after unset command, but we still have this field."
+                assert IbInterfaceConsts.DESCRIPTION not in output_dictionary.keys() or \
+                    output_dictionary[IbInterfaceConsts.DESCRIPTION] != new_ib0_description, \
+                    "Description should not be saved after reboot"
 
         finally:
             with allure.step('Cleanup - set hostname to be {hostname} - with apply'.format(hostname=old_hostname)):

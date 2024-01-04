@@ -297,11 +297,9 @@ def test_system_profile_redis_db_crash(engines, devices):
         3. Change system profile to default, verify changes
     """
     system = System(None)
-    cmd = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="", db_name=DatabaseConst.CONFIG_DB_NAME,
-                                               db_config="DEVICE_METADATA\\|localhost", param="ar_groups", value="777")
-    # cmd = "redis-cli -n 4 HSET DEVICE_METADATA\\|localhost ar_groups 777"
     with allure.step('Write value to adaptive routing groups via redis cli'):
-        redis_cli_output = engines.dut.run_cmd(cmd)
+        redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                                                db_config="DEVICE_METADATA|localhost", param="ar_groups", value="777")
         assert redis_cli_output != 0, "Redis command failed"
 
     with allure.step('Verify changed values'):
