@@ -454,6 +454,8 @@ def localhost(ansible_adhoc):
 def ptfhost(enhance_inventory, ansible_adhoc, tbinfo, duthost, request):
     if "ptf_image_name" in tbinfo and "docker-keysight-api-server" in tbinfo["ptf_image_name"]:
         return None
+    if 'mlnx' in tbinfo.get("ptf_image_name") and "ptf-dummy" in tbinfo.get("ptf"):
+        return None
     if "ptf" in tbinfo:
         return PTFHost(ansible_adhoc, tbinfo["ptf"], duthost, tbinfo,
                        macsec_enabled=request.config.option.enable_macsec)
