@@ -15,10 +15,13 @@ logger = logging.getLogger()
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.cumulus
-def test_show_platform_environment(engines, devices):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_environment(engines, devices, test_api):
     """
     Show platform environment test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -30,10 +33,14 @@ def test_show_platform_environment(engines, devices):
 
 @pytest.mark.platform
 @pytest.mark.cumulus
-def test_show_platform_environment_fan(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_environment_fan(engines, devices, test_api):
     """
     Show platform environment fan test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -54,10 +61,14 @@ def test_show_platform_environment_fan(engines, devices):
 
 @pytest.mark.platform
 @pytest.mark.cumulus
-def test_show_platform_environment_led(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_environment_led(engines, devices, test_api):
     """
     Show platform environment led test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -77,7 +88,9 @@ def test_show_platform_environment_led(engines, devices):
 
 
 @pytest.mark.platform
-def test_set_platform_environment_led(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_platform_environment_led(engines, devices, test_api):
     """
     Set platform environment led test
 
@@ -87,6 +100,8 @@ def test_set_platform_environment_led(engines, devices):
     3. Turn-on UID led and check led is green
     4. Unset it and check it returned to default values
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -138,10 +153,14 @@ def test_set_platform_environment_led(engines, devices):
 
 @pytest.mark.platform
 @pytest.mark.cumulus
-def test_show_platform_environment_psu(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_environment_psu(engines, devices, test_api):
     """
     Show platform environment psu test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -161,10 +180,14 @@ def test_show_platform_environment_psu(engines, devices):
 
 
 @pytest.mark.platform
-def test_show_platform_environment_temperature(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_environment_temperature(engines, devices, test_api):
     """
     Show platform environment temperature test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -257,45 +280,6 @@ def _verify_led_color(led, led_prop):
 def _verify_psu_prop(psu, psu_prop, devices):
     logging.info("psu {}".format(psu))
     Tools.ValidationTool.verify_field_exist_in_json_output(psu_prop, devices.dut.platform_env_psu_prop).verify_result()
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.platform
-def test_show_platform_environment_temperature_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_environment_temperature(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.platform
-def test_show_platform_environment_psu_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_environment_psu(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.platform
-def test_set_platform_environment_led_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_set_platform_environment_led(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.platform
-def test_show_platform_environment_fan_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_environment_fan(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.platform
-@pytest.mark.simx
-@pytest.mark.nvos_ci
-def test_show_platform_environment_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_environment(engines, devices)
 
 
 def _get_float(string):

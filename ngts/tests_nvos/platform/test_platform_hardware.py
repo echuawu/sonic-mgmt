@@ -15,10 +15,15 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.cumulus
 @pytest.mark.nvos_ci
-def test_show_platform_hardware(devices):
+@pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_hardware(devices, test_api):
     """
     Show platform hardware test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -42,10 +47,14 @@ def test_show_platform_hardware(devices):
 
 @pytest.mark.platform
 @pytest.mark.cumulus
-def test_show_platform_hardware_component(engines, devices):
+@pytest.mark.simx
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_hardware_component(engines, devices, test_api):
     """
     Show platform hardware component test
     """
+    TestToolkit.tested_api = test_api
+
     with allure.step("Create System object"):
         platform = Platform()
 
@@ -85,20 +94,3 @@ def _verify_output(platform, comp_name, req_fields):
         Tools.ValidationTool.verify_field_exist_in_json_output(output, req_fields).verify_result()
 
     return output
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.platform
-def test_show_platform_hardware_component_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_hardware_component(engines, devices)
-
-
-@pytest.mark.openapi
-@pytest.mark.platform
-@pytest.mark.nvos_ci
-def test_show_platform_hardware_openapi(devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_hardware(devices)

@@ -10,6 +10,8 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.simx
+@pytest.mark.nvos_chipsim_ci
 def test_show_platform_environment_voltage(engines):
     """
     Show platform environment test
@@ -40,6 +42,7 @@ def test_show_platform_environment_voltage(engines):
 
 
 @pytest.mark.platform
+@pytest.mark.simx
 def test_show_voltage_bad_flow(engines, devices):
     """
     For Each Sensor we have DB (should be part of init flow)
@@ -54,6 +57,7 @@ def test_show_voltage_bad_flow(engines, devices):
 
 
 @pytest.mark.platform
+@pytest.mark.simx
 def test_database_platform_environment_voltage(engines, devices):
     """
     For Each Sensor we have DB (should be part of init flow)
