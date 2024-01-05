@@ -1,4 +1,4 @@
-supported_vm_types: [ "veos", "sonic", "ceos" ]
+supported_vm_types: [ "veos", "sonic", "ceos", "vsonic"]
 root_path: /images/veos-vm
 vm_images_url: http://nbu-mtr-nfs.nvidia.com/auto/sw_system_project/sonic/vmimages
 cd_image_filename: Aboot-veos-serial-8.0.0.iso

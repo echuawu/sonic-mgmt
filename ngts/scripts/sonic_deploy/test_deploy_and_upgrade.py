@@ -26,7 +26,7 @@ logger = logging.getLogger()
 @pytest.mark.disable_loganalyzer
 @allure.title('Deploy and upgrade image')
 def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version, base_version_dpu, target_version, serve_files,
-                            sonic_topo, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
+                            sonic_topo, neighbor_type, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
                             fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
                             verify_secure_boot):
@@ -58,6 +58,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         :param target_version: target_version fixture
         :param serve_files: serve_files fixture
         :param sonic_topo: sonic_topo fixture
+        :param neighbor_type: neighbor_type fixture
         :param deploy_only_target: deploy_only_target fixture (True/False)
         :param port_number: port_number fixture
         :param setup_name: setup_name fixture
@@ -104,8 +105,9 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         setup_info['duts'] = switch_or_standalone_dpu_duts
 
         pre_install_threads = {}
-        pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
-                               is_simx, pre_install_threads)
+        pre_installation_steps(
+            sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
+            pre_install_threads)
         install_threads = []
         install_dpu_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -156,7 +158,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
             wait_until_background_procs_done(pre_install_threads)
         except AssertionError:
             # Give it another try if the background processes in the pre-installation steps fail
-            pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+            pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
                                    is_simx, pre_install_threads)
             wait_until_background_procs_done(pre_install_threads)
         logger.info("Pre-installation background processes are done")
@@ -178,10 +180,12 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         raise AssertionError(err)
 
 
-def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
+def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
+                           threads_dict):
     """
     Pre-installation steps
     :param sonic_topo: sonic_topo fixture
+    :param neighbor_type: neighbor_type fixture
     :param base_version: base_version fixture
     :param target_version: target version argument
     :param setup_info: dictionary with setup info
@@ -195,7 +199,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     elif isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
     else:
-        SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+        SonicInstallationSteps.pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
                                                       is_simx, threads_dict)
 
 
