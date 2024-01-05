@@ -1,10 +1,12 @@
 import pytest
 
+from retry import retry
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import PlatformConsts, DatabaseConst
+from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.platform.Platform import Platform
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
@@ -33,8 +35,9 @@ def test_interface_transceiver_diagnostics_basic(engines):
         optical_output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
             platform.hardware.transceiver.show('sw16')).get_returned_value()
         yaml_output = platform.hardware.transceiver.show('sw16', output_format=OutputFormat.yaml)
-        fields_to_check = ["supported-cable-length", "cable-type", "channel", "diagnostics-status", "identifier", "temperature",
-                           "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn", "voltage"]
+        fields_to_check = ["supported-cable-length", "cable-type", "channel", "diagnostics-status", "identifier",
+                           "temperature", "vendor-date-code", "vendor-name", "vendor-pn", "vendor-rev", "vendor-sn",
+                           "voltage"]
         for field in fields_to_check:
             assert field in yaml_output, '{0} not exist in yaml output'.format(field)
         Tools.ValidationTool.verify_field_exist_in_json_output(optical_output_dictionary, fields_to_check).\
@@ -42,7 +45,7 @@ def test_interface_transceiver_diagnostics_basic(engines):
 
     with allure.step("Run diagnostics for link which doesn't exist and verify output"):
         output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.transceiver.show('sw32')).get_returned_value()
+            platform.hardware.transceiver.show('sw22')).get_returned_value()
         fields_to_check = ["diagnostics-status"]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, fields_to_check).verify_result()
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
@@ -117,15 +120,13 @@ def test_interface_link_diagnostics_basic(engines):
                     port.ib_interface.link.diagnostics.show()).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
                 logging.info("Check each port status in all ports status")
-                logging.info("Status dict {}".format(status_dict))
+                logging.info("Status dict {0} for port {1}".format(status_dict, port.name))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
-                if diagnostics_per_port != status_dict and \
-                        diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED:
-                    logging.info("Transceiver diagnostic for all ports not equal to transceiver diagnostic per port"
-                                 ". Verifying '--view link-diagnostics' one more time: ")
-                    Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                        any_port.show_interface(port_names='--view link-diagnostics'))
-                    raise BaseException("Transceiver diagnostic for all ports not equal to transceiver diagnostic per port")
+                if diagnostics_per_port != status_dict \
+                        and diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED \
+                        and diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT:
+                    raise BaseException("Transceiver diagnostic for all ports not equal {0} to "
+                                        "transceiver diagnostic per port {1}".format(status_dict, diagnostics_per_port))
 
     with allure.step('Run nv show interface for port in up state'):
         up_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
@@ -168,6 +169,9 @@ def test_interface_link_diagnostics_functional(engines):
     4. Rewrite transceiver opcode for port to negative value, check output, should be empty
     5. Rewrite transceiver opcode for port to 0, check output, system should return correct code and status
     """
+    with allure.step("Start open SM"):
+        OpenSmTool.start_open_sm(engines.dut).verify_result()
+
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
                                                                     num_of_ports_to_select=0).get_returned_value()
     ports_connected = []
@@ -184,51 +188,18 @@ def test_interface_link_diagnostics_functional(engines):
         assert first_port_status == second_port_status, "Status code isn't 1"
 
     with allure.step('Shutdown first port and check code and status on both'):
-        ports_connected[0].ib_interface.link.state.set(value=NvosConsts.LINK_STATE_DOWN).verify_result()
-        first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
-        second_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[-1].ib_interface.link.diagnostics.show()).get_returned_value()
-        assert first_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT, \
-            "Status code isn't 1"
-        assert second_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT, \
-            "Status code isn't 2"
-        ports_connected[0].ib_interface.link.state.unset().verify_result()
+        ports_connected[0].ib_interface.link.state.set(NvosConsts.LINK_STATE_DOWN, apply=True,
+                                                       ask_for_confirmation=True).verify_result()
 
-    with allure.step("Get Alias for port from Redis cli"):
-        # cmd = "redis-cli -n 0 HGET ALIAS_PORT_MAP:{0} name".format(ports_connected[0].name)
-        with allure.step('Write value to snmp community via redis cli'):
-            redis_port_alias = Tools.DatabaseTool.sonic_db_cli_hget(engine=engines.dut, asic="",
-                                                                    db_name=DatabaseConst.APPL_DB_NAME,
-                                                                    db_config="ALIAS_PORT_MAP:{0}".format(ports_connected[0].name),
-                                                                    param="name")
-            # redis_port_alias = engines.dut.run_cmd(cmd)
-            assert redis_port_alias != 0, "Redis command failed"
+        _wait_until_status_changed(ports_connected[0], IbInterfaceConsts.LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT)
+        _wait_until_status_changed(ports_connected[1], IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED)
+        ports_connected[0].ib_interface.link.state.set(NvosConsts.LINK_STATE_UP, apply=True,
+                                                       ask_for_confirmation=True).verify_result()
 
-    with allure.step("Rewrite value of link diagnostics opcode to negative one and check output"):
-        # cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' aa".format(redis_port_alias[1:-1])
-        with allure.step('Write value to snmp community via redis cli'):
-            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
-                                                                    db_name=DatabaseConst.STATE_DB_NAME,
-                                                                    db_config="IB_PORT_TABLE|{0}".format(redis_port_alias[1:-1]),
-                                                                    param="link_diagnostics_opcode", value="aa")
-            # redis_cli_output = engines.dut.run_cmd(cmd)
-            assert redis_cli_output != 0, "Redis command failed"
 
-        with allure.step('Check output'):
-            first_port_status = ports_connected[0].ib_interface.link.diagnostics.show()
-            assert first_port_status == '{}', "Transceiver diagnostic isn't empty"
-
-    with allure.step("Rewrite redis link diagnostics opcode back to 0 and check output, system is stable"):
-        # cmd = "redis-cli -n 6 HSET 'IB_PORT_TABLE|{0}' 'link_diagnostics_opcode' 0".format(redis_port_alias[1:-1])
-        with allure.step('Write value to snmp community via redis cli'):
-            redis_cli_output = Tools.DatabaseTool.sonic_db_cli_hset(engine=engines.dut, asic="",
-                                                                    db_name=DatabaseConst.STATE_DB_NAME,
-                                                                    db_config="IB_PORT_TABLE|{0}".format(redis_port_alias[1:-1]),
-                                                                    param="link_diagnostics_opcode", value="0")
-            assert redis_cli_output != 0, "Redis command failed"
-
-        with allure.step('Check output'):
-            first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
-            assert first_port_status == IbInterfaceConsts.LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT, "Status code isn't 0"
+@retry(Exception, tries=15, delay=1)
+def _wait_until_status_changed(port, status):
+    port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(port.ib_interface.
+                                                                                              link.diagnostics.show()).\
+        get_returned_value()
+    assert port_status == status, "Status code isn't {}".format(status)

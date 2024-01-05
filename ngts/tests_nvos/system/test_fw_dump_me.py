@@ -48,36 +48,41 @@ def test_fw_dump_me(engines, devices):
         logging.info("Rotate logs")
         system.log.rotate_logs()
 
-    with allure.step('Exec sxd api crash fw from {} docker'.format(syncd_ibv)):
-        cmd_output = engines.dut.run_cmd(
-            'docker exec -i {} bash -c "python /tmp/sxd_api_crash_fw.py --device_id 1"'.format(syncd_ibv))
-        assert "trigger_stack_overflow" in cmd_output, "SXD API CRASH script failed"
+    try:
+        with allure.step('Exec sxd api crash fw from {} docker'.format(syncd_ibv)):
+            cmd_output = engines.dut.run_cmd(
+                'docker exec -i {} bash -c "python /tmp/sxd_api_crash_fw.py --device_id 1"'.format(syncd_ibv))
+            assert "trigger_stack_overflow" in cmd_output, "SXD API CRASH script failed"
 
-    with allure.step("Run nv show system log command follow to view system logs"):
-        logging.info("Run nv show system log command follow to view system logs")
-        show_output = system.log.show_log(exit_cmd='q', expected_str=' ')
+        with allure.step("Run nv show system log command follow to view system logs"):
+            logging.info("Run nv show system log command follow to view system logs")
+            show_output = system.log.show_log(exit_cmd='q', expected_str=' ')
 
-    with allure.step('Verify updated SDK message in the logs as expected'):
-        logging.info('Verify updated SDK message in the logs as expected')
-        ValidationTool.verify_expected_output(show_output, 'FW test event').verify_result()
+        with allure.step('Verify updated SDK message in the logs as expected'):
+            logging.info('Verify updated SDK message in the logs as expected')
+            ValidationTool.verify_expected_output(show_output, 'FW test event').verify_result()
 
-    with allure.step('Validate if sdk_fw_dump created after 15 sec timeout'):
-        logging.info('Validate if sdk_fw_dump created after 15 sec timeout')
-        time.sleep(15)
-        cmd_output = engines.dut.run_cmd('ls {}'.format(sdk_dump_folder))
-        assert 'sai-dfw' in cmd_output, "Sdk dump not created"
-        sdk_dump = cmd_output.split()[0]
+        with allure.step('Validate if sdk_fw_dump created after 15 sec timeout'):
+            logging.info('Validate if sdk_fw_dump created after 15 sec timeout')
+            time.sleep(15)
+            cmd_output = engines.dut.run_cmd('ls {}'.format(sdk_dump_folder))
+            assert 'sai-dfw' in cmd_output, "Sdk dump not created"
+            sdk_dump = cmd_output.split()[0]
 
-    with allure.step('Validate upload sdkdump to sonic-mgmt'):
-        logging.info('Validate upload sdkdump to sonic-mgmt')
-        player_engine = engines['sonic_mgmt']
-        player_engine.run_cmd(
-            'sshpass -p {0} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {1}@{2}:{3}{4} {5}'.
-            format(engines.dut.password, engines.dut.username, engines.dut.ip, sdk_dump_folder,
-                   sdk_dump, NvosConst.MARS_RESULTS_FOLDER))
+        with allure.step('Validate upload sdkdump to sonic-mgmt'):
+            logging.info('Validate upload sdkdump to sonic-mgmt')
+            player_engine = engines['sonic_mgmt']
+            player_engine.run_cmd(
+                'sshpass -p {0} scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {1}@{2}:{3}{4} {5}'.
+                format(engines.dut.password, engines.dut.username, engines.dut.ip, sdk_dump_folder,
+                       sdk_dump, NvosConst.MARS_RESULTS_FOLDER))
 
-        cmd_output = player_engine.run_cmd('ls {0} | grep {1}'.format(NvosConst.MARS_RESULTS_FOLDER, sdk_dump))
-        assert sdk_dump in cmd_output, 'sdk dump not in results folder'
+            cmd_output = player_engine.run_cmd('ls {0} | grep {1}'.format(NvosConst.MARS_RESULTS_FOLDER, sdk_dump))
+            assert sdk_dump in cmd_output, 'sdk dump not in results folder'
 
-        logging.info('Delete dump file in Mars directory')
-        player_engine.run_cmd('rm -f {0}{1}'.format(NvosConst.MARS_RESULTS_FOLDER, sdk_dump))
+            logging.info('Delete dump file in Mars directory')
+            player_engine.run_cmd('rm -f {0}{1}'.format(NvosConst.MARS_RESULTS_FOLDER, sdk_dump))
+    finally:
+        with allure.step('Reboot system'):
+            logging.info("Reboot system")
+            system.reboot.action_reboot(params='force').verify_result()
