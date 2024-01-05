@@ -6,7 +6,7 @@ from typing import Dict, List, Callable, Any
 
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool, wait_until_cli_is_up
+from ngts.nvos_tools.infra.DutUtilsTool import wait_until_cli_is_up
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -16,7 +16,7 @@ from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingFields, AddressingType, AuthConsts, AuthType
+from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
     detach_config
@@ -200,11 +200,11 @@ def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_ty
 
 def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
     with allure.step('After LDAP configuration - wait for NVUE restart Workaround'):
-        sleep_time = 6
+        sleep_time = 3
         with allure.step(f'Sleep {sleep_time} seconds'):
             time.sleep(sleep_time)
         if not engine_to_use:
-            engine_to_use = test_item.active_remote_admin_engine
+            engine_to_use = test_item.active_remote_admin_engine if hasattr(test_item, 'active_remote_admin_engine') else TestToolkit.engines.dut
         engine_to_use.disconnect()
         with allure.step(f'Start checking connection and services - using user "{engine_to_use.username}"'):
             wait_until_cli_is_up(engine=engine_to_use)

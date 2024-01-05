@@ -3,15 +3,9 @@ import logging
 
 from typing import List
 
-from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import AaaAccountingLogsFileContent, AaaServerManager
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
@@ -350,3 +344,21 @@ def set_local_users(engines, users, apply=False):
         with allure.step('Apply changes together'):
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
                                             True)
+
+
+def check_ldap_user_with_getent_passwd(engine: ProxySshEngine, username: str, user_should_exist: bool):
+    with allure.step('Get getent passwd output'):
+        output = engine.run_cmd('getent passwd | grep ldap')
+    with allure.step(f'Verify "{username}" does not exist'):
+        assert (username in output) == user_should_exist, \
+            f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
+            f'in getent passwd output\ngetent passwd output: {output}\n'
+
+
+def check_ldap_user_groups_with_id(engine: ProxySshEngine, username: str, groupname: str, group_should_exist: bool):
+    with allure.step('Get id output'):
+        output = engine.run_cmd(f'id {username}')
+    with allure.step(f'Verify "{groupname}" does not exist'):
+        assert (groupname in output) == group_should_exist, \
+            f'groupname "{groupname}" unexpectedly {"does not " if not group_should_exist else ""}exist ' \
+            f'in id {username} output\nid {username} output: {output}\n'

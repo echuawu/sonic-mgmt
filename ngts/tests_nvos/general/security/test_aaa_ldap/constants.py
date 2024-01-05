@@ -29,6 +29,19 @@ class LdapConsts:
     SSL_CRL_LIST = 'crl-list'  # decided out of feature
     TLS_CRL_CHECK_FILE = 'tls-crl-check-file'  # decided out of feature
     TLS_CRL_CHECK_STATE = 'tls-crl-check-state'  # decided out of feature
+    # phase 3 keys
+    FILTER = 'filter'
+    MAP = 'map'
+    PASSWD = 'passwd'
+    GROUP = 'group'
+    SHADOW = 'shadow'
+    UID = 'uid'
+    UID_NUMBER = 'uidNumber'
+    GID_NUMBER = 'gidNumber'
+    USER_PASSWORD = 'userPassword'
+    CN = 'cn'
+    MEMBER_UID = 'memberUid'
+    MEMBER = 'member'
 
     LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, SECRET, TIMEOUT_BIND, TIMEOUT, VERSION]
     SSL_FIELDS = [SSL_CA_LIST, SSL_CERT_VERIFY, SSL_MODE, SSL_PORT, SSL_TLS_CIPHERS]
@@ -91,27 +104,6 @@ class LdapConsts:
         TIMEOUT: 5,
         VERSION: 3,
         # ssl defaults
-        SSL_CA_LIST: DEFAULT,
-        SSL_CERT_VERIFY: ENABLED,
-        SSL_MODE: NONE,
-        SSL_PORT: 636,
-        SSL_TLS_CIPHERS: ALL
-    }
-
-    DEFAULT_CONF = {
-        PORT: 389,
-        BASE_DN: 'ou=users,dc=example,dc=com',
-        BIND_DN: '',
-        GROUP_ATTR: 'member',
-        # LOGIN_ATTR: 'cn',  not supported now
-        SECRET: '*',
-        TIMEOUT_BIND: 5,
-        TIMEOUT: 5,
-        VERSION: 3,
-        HOSTNAME: {}
-    }
-    # ssl defaults
-    SSL_DEFAULTS = {
         SSL_CA_LIST: DEFAULT,
         SSL_CERT_VERIFY: ENABLED,
         SSL_MODE: NONE,
@@ -370,3 +362,82 @@ class LdapEncryptionModes:
     START_TLS = 'start-tls'
     SSL = 'ssl'
     ALL_MODES = [NONE, START_TLS, SSL]
+
+
+class LdapFilterFields:
+    PASSWD = LdapConsts.PASSWD
+    GROUP = LdapConsts.GROUP
+    SHADOW = LdapConsts.SHADOW
+    ALL_FIELDS = [PASSWD, GROUP, SHADOW]
+
+
+class LdapPasswdAttributes:
+    UID = LdapConsts.UID
+    UID_NUMBER = LdapConsts.UID_NUMBER
+    GID_MUMBER = LdapConsts.GID_NUMBER
+    USER_PASSWORD = LdapConsts.USER_PASSWORD
+    ALL_ATTRIBUTES = [UID, UID_NUMBER, GID_MUMBER, USER_PASSWORD]
+
+
+class LdapGroupAttributes:
+    CN = LdapConsts.CN
+    GID_NUMBER = LdapConsts.GID_NUMBER
+    MEMBER_UID = LdapConsts.MEMBER_UID
+    ALL_ATTRIBUTES = [CN, GID_NUMBER, MEMBER_UID]
+
+
+class LdapShadowAttributes:
+    USER_PASSWORD = LdapConsts.USER_PASSWORD
+    MEMBER = LdapConsts.MEMBER
+    UID = LdapConsts.UID
+    ALL_ATTRIBUTES = [USER_PASSWORD, MEMBER, UID]
+
+
+class LdapDefaults:
+    GLOBAL_DEFAULTS = {
+        LdapConsts.PORT: 389,
+        LdapConsts.BASE_DN: 'ou=users,dc=example,dc=com',
+        LdapConsts.BIND_DN: '',
+        LdapConsts.GROUP_ATTR: 'member',
+        # LOGIN_ATTR: 'cn',  not supported now
+        LdapConsts.SECRET: '*',
+        LdapConsts.TIMEOUT_BIND: 5,
+        LdapConsts.TIMEOUT: 5,
+        LdapConsts.VERSION: 3,
+        LdapConsts.HOSTNAME: {}
+    }
+
+    SSL_DEFAULTS = {
+        LdapConsts.SSL_CA_LIST: LdapConsts.DEFAULT,
+        LdapConsts.SSL_CERT_VERIFY: LdapConsts.ENABLED,
+        LdapConsts.SSL_MODE: LdapConsts.NONE,
+        LdapConsts.SSL_PORT: 636,
+        LdapConsts.SSL_TLS_CIPHERS: LdapConsts.ALL
+    }
+
+    # TODO: clarify what are default values of phase 3 fields
+    FILTER_DEFAULTS = {
+
+        LdapFilterFields.PASSWD: '',
+        LdapFilterFields.GROUP: '',
+        LdapFilterFields.SHADOW: ''
+    }
+
+    MAP_PASSWD_DEFAULTS = {
+        LdapPasswdAttributes.UID: '',
+        LdapPasswdAttributes.UID_NUMBER: '',
+        LdapPasswdAttributes.GID_MUMBER: '',
+        LdapPasswdAttributes.USER_PASSWORD: ''
+    }
+
+    MAP_GROUP_DEFAULTS = {
+        LdapGroupAttributes.CN: '',
+        LdapGroupAttributes.GID_NUMBER: '',
+        LdapGroupAttributes.MEMBER_UID: ''
+    }
+
+    MAP_SHADOW_DEFAULTS = {
+        LdapShadowAttributes.USER_PASSWORD: '',
+        LdapShadowAttributes.MEMBER: '',
+        LdapShadowAttributes.UID: ''
+    }
