@@ -276,7 +276,7 @@ function add_topo
         echo "$topo" > $cache_files_path_value/${testbed_name%"-$topo"}
         chmod 666 $cache_files_path_value/${testbed_name%"-$topo"}
     else
-        echo "$topo" > $cache_files_path_value/$dut
+        echo "$topo", "$vm_type" > $cache_files_path_value/$dut
         chmod 666 $cache_files_path_value/$dut
     fi
   fi

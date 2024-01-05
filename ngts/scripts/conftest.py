@@ -18,6 +18,7 @@ def pytest_addoption(parser):
                                                             'i.e  --dockers_list=database,swss '
                                                             'will verify database and swss dockers are up',
                      default=",".join(SonicConst.DOCKERS_LIST))
+    parser.addoption('--neighbor_type', action='store', default="ceos")
     parser.addoption('--dut_name', action='store', default=None, help='DUT name, example: r-tigris-06')
 
 
@@ -49,6 +50,16 @@ def sonic_topo(request):
     :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
     """
     return request.config.getoption('--sonic-topo')
+
+
+@pytest.fixture(scope="module")
+def neighbor_type(request):
+    """
+    Method for getting neighbor_type from pytest arguments
+    :param request: pytest builtin
+    :return: neighbor_type (for example: vsonic, sonic, ceos, eos)
+    """
+    return request.config.getoption('--neighbor_type')
 
 
 @pytest.fixture(scope='session')

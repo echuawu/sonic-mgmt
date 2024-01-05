@@ -12,7 +12,7 @@ from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigr
     reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
     config_y_cable_simulator, add_host_for_y_cable_simulator
 from retry.api import retry_call
-from ngts.helpers.run_process_on_host import run_background_process_on_host
+from ngts.helpers.run_process_on_host import run_background_process_on_host, run_process_on_host
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -22,10 +22,11 @@ class SonicInstallationSteps:
 
     @staticmethod
     def pre_installation_steps(
-            sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
+            sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
+        :param neighbor_type: neighbor_type fixture
         :param base_version: base version
         :param target_version: target version if provided
         :param setup_info: dictionary with setup info
@@ -50,7 +51,8 @@ class SonicInstallationSteps:
                                                          sonic_topo=sonic_topo)
 
             SonicInstallationSteps.start_community_background_threads(threads_dict, setup_name,
-                                                                      dut_name, sonic_topo, ptf_tag, port_number,
+                                                                      dut_name, sonic_topo, neighbor_type,
+                                                                      ptf_tag, port_number,
                                                                       ansible_path, setup_info)
             if is_dualtor_topo(sonic_topo):
                 generate_minigraph(ansible_path, setup_info, setup_info['setup_name'], sonic_topo, port_number)
@@ -58,12 +60,17 @@ class SonicInstallationSteps:
             SonicInstallationSteps.start_canonical_background_threads(threads_dict, setup_name, dut_name, is_simx)
 
     @staticmethod
-    def start_community_background_threads(threads_dict, setup_name, dut_name, sonic_topo, ptf_tag, port_number,
-                                           ansible_path, setup_info):
+    def start_community_background_threads(threads_dict, setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag,
+                                           port_number, ansible_path, setup_info):
         """
         Start background threads for community setup
         """
-        add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
+        if neighbor_type == 'vsonic':
+            start_vsonic_vms_cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo,
+                                                                                       "start", "sonic-vs.img")
+            run_background_process_on_host(threads_dict, 'start_vsonic_vms', start_vsonic_vms_cmd, timeout=3600,
+                                           exec_path=ansible_path)
+        add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
         # TODO: Remove the "r-leopard-70" != dut_name and "r-leopard-70" != dut_name in the condition after the
         #  hwsku Mellanox-SN4700-O8V48 is merged to upstream
@@ -164,6 +171,19 @@ class SonicInstallationSteps:
         return ptf_tag
 
     @staticmethod
+    def stop_vsonic_vms(ansible_path, setup_name, dut_names, sonic_topo):
+        """
+        The method removes the topologies to get the clear environment.
+        """
+        for dut_name in dut_names:
+            cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo, "stop",
+                                                                      "sonic-vs.img")
+            try:
+                execute_script(cmd, ansible_path, validate=False, timeout=1200)
+            except Exception as err:
+                logger.warning(f'Failed to stop for dut {dut_name}. Got error: {err}')
+
+    @staticmethod
     def remove_topologies(ansible_path, dut_names, setup_name, sonic_topo):
         """
         The method removes the topologies to get the clear environment.
@@ -171,13 +191,20 @@ class SonicInstallationSteps:
         def _remove_topologies(setup, topo_list):
             logger.info(
                 f"Remove topologies: {topo_list}. This may increase a chance to deploy a new one successful")
+            cached_vm_type = get_cached_vm_type(setup)
             for topo in topo_list:
+                if cached_vm_type == 'vsonic':
+                    logger.info(f"Stopping vsonic VMs")
+                    SonicInstallationSteps.stop_vsonic_vms(ansible_path=ansible_path,
+                                                           setup_name=setup_name,
+                                                           dut_names=dut_names,
+                                                           sonic_topo=topo)
                 if is_dualtor_aa_topo(topo):
-                    cmd = "./testbed-cli.sh -t testbed.yaml -k ceos remove-topo {SETUP}-{TOPO} vault".format(
-                        SETUP=setup, TOPO=topo)
+                    cmd = "./testbed-cli.sh -t testbed.yaml -k {NEIGHBOR_TYPE} remove-topo {SETUP}-{TOPO} vault".format(
+                        SETUP=setup, TOPO=topo, NEIGHBOR_TYPE=cached_vm_type)
                 else:
-                    cmd = "./testbed-cli.sh -k ceos remove-topo {SETUP}-{TOPO} vault".format(
-                        SETUP=setup, TOPO=topo)
+                    cmd = "./testbed-cli.sh -k {NEIGHBOR_TYPE} remove-topo {SETUP}-{TOPO} vault".format(
+                        SETUP=setup, TOPO=topo, NEIGHBOR_TYPE=cached_vm_type)
                 logger.info("Remove topo {}".format(topo))
                 logger.info("Running CMD: {}".format(cmd))
                 try:
@@ -211,15 +238,27 @@ class SonicInstallationSteps:
         return topos_to_remove
 
     @staticmethod
-    def get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag):
+    def get_add_topology_cmd(setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag):
         testbed_file = ''
         if is_dualtor_topo(sonic_topo):
             dut_name = setup_name
             if is_dualtor_aa_topo(sonic_topo):
                 testbed_file = '-t testbed.yaml'
-        cmd = "./testbed-cli.sh {TESTBED_FILE} -k ceos add-topo {SWITCH}-{TOPO} vault -e " \
+        cmd = "./testbed-cli.sh {TESTBED_FILE} -k {NEIGHBOR_TYPE} add-topo {SWITCH}-{TOPO} vault -e " \
               "ptf_imagetag={PTF_TAG} -vvvvv".format(TESTBED_FILE=testbed_file, SWITCH=dut_name,
-                                                     TOPO=sonic_topo, PTF_TAG=ptf_tag)
+                                                     TOPO=sonic_topo, PTF_TAG=ptf_tag, NEIGHBOR_TYPE=neighbor_type)
+        return cmd
+
+    @staticmethod
+    def get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo, action, sonic_file_name):
+        testbed_file = ''
+        if is_dualtor_topo(sonic_topo):
+            dut_name = setup_name
+            if is_dualtor_aa_topo(sonic_topo):
+                testbed_file = '-t testbed.yaml'
+        cmd = "./testbed-cli.sh {TESTBED_FILE} -k vsonic {ACTION}-topo-vms {SWITCH}-{TOPO} vault -e " \
+              "{SONIC_FILE_NAME} -vvvvv".format(TESTBED_FILE=testbed_file, SWITCH=dut_name, TOPO=sonic_topo,
+                                                ACTION=action, SONIC_FILE_NAME=sonic_file_name)
         return cmd
 
     @staticmethod
@@ -614,9 +653,24 @@ def get_cached_topology(dut_name):
     cached_topo_path = f"{MarsConstants.SONIC_MARS_BASE_PATH}/cached_deployed_topologies/"
     setup_cached_topo_file = Path(f"{cached_topo_path}/{dut_name}")
     if setup_cached_topo_file.is_file():
-        cached_topo = setup_cached_topo_file.read_text().strip()
+        cached_topo_vm = setup_cached_topo_file.read_text().strip()
+        if ',' in cached_topo_vm:
+            cached_topo = cached_topo_vm.split(',')[0].strip()
+        else:
+            cached_topo = cached_topo_vm
         if cached_topo not in MarsConstants.TOPO_ARRAY:
             logger.info(f"There is a garbage in the cache file, {cached_topo} is not in {MarsConstants.TOPO_ARRAY}"
                         " removing all topologies")
             cached_topo = None
     return cached_topo
+
+
+def get_cached_vm_type(dut_name):
+    cached_vm_type = 'ceos'
+    cached_topo_vm_type_path = f"{MarsConstants.SONIC_MARS_BASE_PATH}/cached_deployed_topologies/"
+    setup_cached_topo_file = Path(f"{cached_topo_vm_type_path}/{dut_name}")
+    if setup_cached_topo_file.is_file():
+        topo_vm_type = setup_cached_topo_file.read_text().strip()
+        if ',' in topo_vm_type:
+            cached_vm_type = topo_vm_type.split(',')[1].strip()
+    return cached_vm_type
