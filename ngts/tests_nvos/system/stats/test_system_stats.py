@@ -84,7 +84,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             ValidationTool.compare_dictionary_content(stats_category_show, category_disabled_dict).verify_result()
 
         with allure.step("Clear all system stats and delete stats files"):
-            clear_all_internal_and_external_files(system, category_list)
+            clear_all_internal_and_external_files(engine, system, category_list)
 
         with allure.step("Check both internal and external paths"):
             output = engine.run_cmd("ls /var/stats")
@@ -210,7 +210,7 @@ def test_system_stats_generation(engines, devices, test_api):
     try:
 
         with allure.step("Clear all system stats and delete stats files"):
-            clear_all_internal_and_external_files(system, category_list)
+            clear_all_internal_and_external_files(engine, system, category_list)
 
         with allure.step("Set Stats feature to default"):
             system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
@@ -375,7 +375,7 @@ def test_system_stats_performance(engines, devices, test_api):
                 "stats state parameter is expected to be 'enabled'"
 
         with allure.step("Clear all system stats and delete stats files"):
-            clear_all_internal_and_external_files(system, category_list)
+            clear_all_internal_and_external_files(engine, system, category_list)
 
         with allure.step("Update cache duration to 1 minute"):
             DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
@@ -945,7 +945,7 @@ def test_validate_category_file_values(engines, devices, test_api):
             system_show = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
             start_time = datetime.strptime(system_show['date-time'], StatsConsts.SYSTEM_TIME_FORMAT)
             hostname = system_show['hostname']
-            clear_all_internal_and_external_files(system, category_list)
+            clear_all_internal_and_external_files(engine, system, category_list)
 
         with allure.step("Restart process..."):
             engine.run_cmd("sudo systemctl restart stats-reportd")
@@ -1001,7 +1001,7 @@ def set_system_stats_to_default(engine, system):
         DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
 
-def clear_all_internal_and_external_files(system, category_list):
+def clear_all_internal_and_external_files(engine, system, category_list):
     for name in category_list:
         system.stats.category.categoryName[name].action_general(StatsConsts.CLEAR).verify_result()
     stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
@@ -1009,6 +1009,7 @@ def clear_all_internal_and_external_files(system, category_list):
     if stats_files_show != "":
         for file in stats_files_show.keys():
             system.stats.files.action_file(StatsConsts.DELETE, file).verify_result()
+    engine.run_cmd("sudo rm -f /var/stats/*.old")
 
 
 def check_category_internal_files_exist(engine, category_list):
