@@ -331,7 +331,13 @@ tests_nvos/ib/test_ibdiagnet.py:
     conditions:
       - "'marlin' in testbed"
 
-tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_validate_sm_commands_not_exist:
+tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_verify_sm_commands_not_exist:
+  skip:
+    reason: "Should run only on xdr Black Mamba system"
+    conditions:
+      - "'gorilla' or 'marlin' in testbed"
+
+tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_verify_breakout_commands_not_exist:
   skip:
     reason: "Should run only on xdr Black Mamba system"
     conditions:

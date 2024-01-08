@@ -1,10 +1,12 @@
 import pytest
 import logging
+import random
 import time
 
 # from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import ApiType, MultiPlanarConsts
+from ngts.nvos_constants.constants_nvos import ApiType, IbConsts, MultiPlanarConsts
+from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
@@ -714,21 +716,125 @@ def test_fae_invalid_commands(engines, devices, test_api):
 
 
 @pytest.mark.interface
-@pytest.mark.parametrize('test_api', [ApiType.NVUE])
-def test_validate_sm_commands_not_exist(engines, test_api):
+@pytest.mark.multiplanar
+@pytest.mark.simx_xdr
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_verify_sm_commands_not_exist(engines, test_api):
     """
-    Validate sm commands are not exist
+    Validate the following sm commands are not exist nor supported:
+    nv show ib sm
+    nv show ib sm log
+    nv show ib sm log files
+    nv show ib sm log files <file-name>
+    nv set ib sm state (enabled|disabled)
+    nv set ib sm sm-priority (0-15)
+    nv set ib sm sm-sl (0-15)
+    nv unset ib sm
+    nv unset ib sm state
+    nv unset ib sm sm-priority
+    nv unset ib sm sm-sl
 
     Test flow:
     1. run 'nv list-commands | grep " sm" on dut
     2. check if any "sm" command exists
+    3. validate all "sm" commands don't work.
     """
     TestToolkit.tested_api = test_api
     engines_dut = engines.dut
+    ib = Ib(None)
 
-    with allure.step("Search sm commands in commands list"):
+    with allure.step('verify "sm" commands not exist in commands list'):
         output = NvueGeneralCli.search_in_list_commands(engines_dut, " sm")
         assert not output, "sm commands should not exist"
+
+    with allure.step("Validate show ib sm"):
+        ib.sm.show(should_succeed=False)
+
+    with allure.step("Validate show ib sm log"):
+        ib.sm.log.show(should_succeed=False)
+
+    with allure.step("Validate show ib sm log files"):
+        ib.sm.log.show(IbConsts.FILES, should_succeed=False)
+
+    with allure.step("Validate show ib sm log files <file-name>"):
+        ib.sm.log.show(IbConsts.FILES + ' opensm.log', should_succeed=False)
+
+    with allure.step("Validate set ib sm state enabled"):
+        ib.sm.set(op_param_name=IbConsts.SM_STATE, op_param_value=IbConsts.SM_STATE_ENABLE,
+                  apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate set ib sm state disabled"):
+        ib.sm.set(op_param_name=IbConsts.SM_STATE, op_param_value=IbConsts.SM_STATE_DISABLE,
+                  apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate set ib sm sm-priority"):
+        priority_random_val = random.randint(1, 15)
+        ib.sm.set(op_param_name=IbConsts.SM_PRIORITY, op_param_value=str(priority_random_val),
+                  apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate set ib sm sm-sl"):
+        sl_random_val = random.randint(1, 15)
+        ib.sm.set(op_param_name=IbConsts.SM_SL, op_param_value=str(sl_random_val),
+                  apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate unset ib sm command"):
+        ib.sm.unset(apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate unset ib sm state command"):
+        ib.sm.unset(op_param=IbConsts.SM_STATE, apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate unset ib sm sm-priority command"):
+        ib.sm.unset(op_param=IbConsts.SM_PRIORITY, apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate unset ib sm sm-sl command"):
+        ib.sm.unset(op_param=IbConsts.SM_SL, apply=True, ask_for_confirmation=True).verify_result(False)
+
+
+@pytest.mark.interface
+@pytest.mark.multiplanar
+@pytest.mark.simx_xdr
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_verify_breakout_commands_not_exist(engines, test_api):
+    """
+    Validate the following breakout commands are not exist nor supported:
+    nv set interface <interface-id> link breakout (2x-hdr|2x-ndr)
+    nv unset interface <interface-id> link breakout
+    nv action change system profile [breakout-mode (enabled|disabled)]
+
+    Test flow:
+    1. run 'nv list-commands | grep "breakout" on dut
+    2. check if any "breakout" command exists (split port)
+    3. validate all "breakout" commands don't work.
+    """
+    TestToolkit.tested_api = test_api
+    engines_dut = engines.dut
+    mgmt_port = MgmtPort('sw1p1')
+    system = System(None)
+
+    with allure.step('verify "breakout" (split port) commands not exist in commands list'):
+        output = NvueGeneralCli.search_in_list_commands(engines_dut, "breakout")
+        assert not output, "breakout (split port) commands should not exist"
+
+    with allure.step("Validate set interface link breakout command"):
+        mgmt_port.interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
+                                     apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate unset interface link breakout command"):
+        mgmt_port.interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate set interface link breakout command"):
+        mgmt_port.interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
+                                     apply=True, ask_for_confirmation=True).verify_result(False)
+
+    with allure.step("Validate action change system profile breakout-mode enabled command"):
+        system.profile.action_profile_change(params='breakout-mode enabled').verify_result(False)
+
+    with allure.step("Validate action change system profile breakout-mode disabled command"):
+        system.profile.action_profile_change(params='breakout-mode disabled').verify_result(False)
+
+    with allure.step('Validate show system profile'):
+        system_profile = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()).get_returned_value()
+        assert 'breakout-mode' not in system_profile.keys(), "'breakout-mode' should not exists in system profile"
 # ---------------------------------------------
 
 
