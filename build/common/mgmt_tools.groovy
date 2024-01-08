@@ -38,7 +38,7 @@ def get_dpu_lastrc_version(target_branch) {
     try {
         print "Getting lastrc DPU version"
         def version_path = env.DPU_VERSION_DIRECTORY
-        def lastrc = NGCITools().ciTools.run_sh_return_output("readlink ${version_path}/${target_branch}-latest-internal-sonic-nvidia-bluefield.bfb")
+        def lastrc = NGCITools().ciTools.run_sh_return_output("readlink ${version_path}/${target_branch}-lastrc-internal-sonic-nvidia-bluefield.bfb")
         def lastrc_version = lastrc.replace("${version_path}", "").replace("/dev/","/").replace("/Nvidia-bluefield/sonic-nvidia-bluefield.bfb", "").replace("/", "")
         print "CI will use branch:${target_branch} lastrc version: ${lastrc_version} for running BAT"
         return lastrc_version
