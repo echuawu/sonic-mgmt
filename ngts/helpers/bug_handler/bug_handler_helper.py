@@ -290,9 +290,10 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, topology_obj, log_an
             session_tmp_folder = create_session_tmp_folder(session_id)
             redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
             conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
-            tar_file_path = get_tech_support_from_switch(topology_obj)
+            tar_file_path = None
 
             for log_errors_file_path in log_errors_dir_path.iterdir():
+                tar_file_path = get_tech_support_from_switch(topology_obj) if not tar_file_path else tar_file_path
                 with log_errors_file_path.open("r") as log_errors_file:
                     data = json.load(log_errors_file)
                 error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
