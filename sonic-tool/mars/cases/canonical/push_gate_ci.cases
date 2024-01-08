@@ -15,11 +15,27 @@
     </Case>
   </global>
   <case>
+    <name> Test YAML Validation</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_type [[conf:extra_info.test_type]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/test_yaml_validation.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+    <ignore>
+      <condition>
+        <key> test_type </key>
+        <op> != </op>
+        <value> yaml </value>
+      </condition>
+    </ignore>
+  </case>
+  <case>
     <name> PushGate </name>
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results -m push_gate --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_type [[conf:extra_info.test_type]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results -m push_gate --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -28,7 +44,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --test_name=push_gate_ci\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_type [[conf:extra_info.test_type]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --test_name=push_gate_ci\'"</static_args>
       </params>
     </cmd>
   </case>

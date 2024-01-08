@@ -163,7 +163,7 @@
             "device_var": "SWITCH_PANTHER1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC_BAT}",
           "on_failure": "stop",
           "out_of_mail": true
         },
@@ -180,7 +180,7 @@
             "device_var": "SWITCH_ANACONDA1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC2_BAT}",
           "on_failure": "stop",
           "out_of_mail": true
         },
@@ -197,7 +197,7 @@
             "device_var": "SWITCH_LEOPARD1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC3_BAT}",
           "on_failure": "stop",
           "out_of_mail": true
         },
@@ -231,7 +231,7 @@
             "device_var": "SWITCH_PANTHER1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC_BAT}",
           "on_failure": "continue",
           "out_of_mail": true
         },
@@ -248,7 +248,7 @@
             "device_var": "SWITCH_ANACONDA1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC2_BAT}",
           "on_failure": "continue",
           "out_of_mail": true
         },
@@ -265,7 +265,7 @@
             "device_var": "SWITCH_LEOPARD1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC3_BAT}",
           "on_failure": "continue",
           "out_of_mail": true
         },
@@ -282,7 +282,7 @@
             "device_var": "SWITCH_MOOSE1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_SIMX_CI,setup_status:enable"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC4_BAT}",
           "on_failure": "continue",
           "out_of_mail": true
         },
@@ -353,7 +353,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -372,7 +372,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC2_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -391,7 +391,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC3_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -429,7 +429,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -448,7 +448,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC2_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -467,7 +467,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC3_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -486,7 +486,7 @@
             "test_type" : "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC4_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -601,7 +601,7 @@
           "parameters": {
             "setup_name": "${CI_SONIC_SIMX_SPC_SETUP}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC_BAT}",
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true
@@ -614,7 +614,7 @@
           "parameters": {
             "setup_name": "${CI_SONIC_SIMX_SPC2_SETUP}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC2_BAT}",
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true
@@ -627,7 +627,7 @@
           "parameters": {
             "setup_name": "${CI_SONIC_SIMX_SPC3_SETUP}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC3_BAT}",
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true
@@ -640,7 +640,7 @@
           "parameters": {
             "setup_name": "${CI_SONIC_SIMX_SPC4_SETUP}"
           },
-          "skip": "${SKIP_SIMX}",
+          "skip": "${SKIP_SONIC_SIMX_SPC4_BAT}",
           "finally": true,
           "on_failure": "ignore",
           "out_of_mail": true
