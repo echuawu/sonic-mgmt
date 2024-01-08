@@ -68,7 +68,7 @@ def test_show_system_message(engines, devices):
         with allure.step('Verify pre-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.pre_login_message).verify_result()
 
         with allure.step('Run unset system message post-login command and apply config'):
             system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
@@ -77,7 +77,7 @@ def test_show_system_message(engines, devices):
         with allure.step('Verify post-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         with allure.step('Run unset system message post-logout command and apply config'):
             system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
@@ -134,7 +134,7 @@ def test_set_system_message_pre_login(engines, devices):
 
         with allure.step('Verify post-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         with allure.step('Verify post-logout did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
@@ -147,14 +147,14 @@ def test_set_system_message_pre_login(engines, devices):
         with allure.step('Verify pre-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.pre_login_message).verify_result()
 
         with allure.step('Verify pre-login changed to default upon connecting via SSH'):
             output = ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                                            username=SystemConsts.DEFAULT_USER_ADMIN,
                                                                            password=engines.dut.password)
             pre_login_output = output.split('\n')[1].strip()
-            assert pre_login_output == SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE, \
+            assert pre_login_output == devices.pre_login_message, \
                 "Failed to set pre-login message to {pre_login}".format(pre_login=pre_login_output)
 
     finally:
@@ -203,7 +203,7 @@ def test_set_system_message_post_login(engines, devices):
 
         with allure.step('Verify pre-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         with allure.step('Run unset system message post-login command and apply config'):
             system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
@@ -212,7 +212,7 @@ def test_set_system_message_post_login(engines, devices):
         with allure.step('Verify post-login changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         # TBA : SSH test for default post-login message
 
@@ -256,11 +256,11 @@ def test_set_system_message_post_logout(engines, devices):
 
         with allure.step('Verify pre-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         with allure.step('Verify post-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
 
         with allure.step('Run unset system message post-logout command and apply config'):
             system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
@@ -324,9 +324,9 @@ def test_factory_reset_for_system_message(engines, devices):
         with allure.step('Verify system messages are changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.pre_login_message).verify_result()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
                                                         SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
 
@@ -386,9 +386,9 @@ def test_system_reload_for_system_message(engines, devices):
         with allure.step('Verify system messages are changed to default in show system'):
             message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.pre_login_message).verify_result()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                        SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                        devices.post_login_message).verify_result()
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGOUT_MESSAGE,
                                                         SystemConsts.POST_LOGOUT_MESSAGE_DEFAULT_VALUE).verify_result()
 

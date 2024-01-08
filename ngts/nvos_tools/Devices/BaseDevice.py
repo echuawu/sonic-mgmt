@@ -38,6 +38,8 @@ class BaseDevice:
         self.platform_environment_list = []
         self.platform_env_psu_prop = []
         self.hw_comp_prop = []
+        self.pre_login_message = ""
+        self.post_login_message = ""
 
         self._init_available_databases()
         self._init_services()
@@ -349,6 +351,23 @@ class BaseSwitch(BaseDevice, ABC):
                           "fw_trace_string_db.json.gz"]
         firmware = [PlatformConsts.FW_BIOS, PlatformConsts.FW_ONIE, PlatformConsts.FW_SSD, PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
         self.constants = Constants(system_dic, dump_files, sdk_dump_files, firmware)
+        self.pre_login_message = "NVOS switch"
+        self.post_login_message = "\n \u2588\u2588\u2588\u2557   \u2588\u2588\u2557\u2588\u2588\u2557   " \
+            "\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 " \
+            "\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\n \u2588\u2588\u2588\u2588" \
+            "\u2557  \u2588\u2588\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588" \
+            "\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550" \
+            "\u2550\u2550\u255d\n \u2588\u2588\u2554\u2588\u2588\u2557 \u2588\u2588" \
+            "\u2551\u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551   " \
+            "\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\n " \
+            "\u2588\u2588\u2551\u255a\u2588\u2588\u2557\u2588\u2588\u2551\u255a\u2588" \
+            "\u2588\u2557 \u2588\u2588\u2554\u255d\u2588\u2588\u2551   \u2588\u2588\u2551" \
+            "\u255a\u2550\u2550\u2550\u2550\u2588\u2588\u2551\n \u2588\u2588\u2551 \u255a" \
+            "\u2588\u2588\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2554\u255d " \
+            "\u255a\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588" \
+            "\u2588\u2588\u2588\u2588\u2551\n \u255a\u2550\u255d  \u255a\u2550\u2550" \
+            "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550" \
+            "\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
 
     def _init_ib_speeds(self):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'qdr': '40G', 'sdr': '10G'}
@@ -642,7 +661,7 @@ class MarlinSwitch(MultiAsicSwitch):
 
 
 class AnacondaSwitch(BaseSwitch):
-    SWITCH_CORE_COUNT = 4
+    SWITCH_CORE_COUNT = 8
     ASIC_TYPE = 'GEN2'
 
     def __init__(self):
@@ -680,6 +699,11 @@ class AnacondaSwitch(BaseSwitch):
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]
         self.platform_env_psu_prop = ["state"]
+
+    def _init_constants(self):
+        BaseSwitch._init_constants(self)
+        self.pre_login_message = "None\n"     # "Debian GNU/Linux 10\n"
+        self.post_login_message = "\nWelcome to NVIDIA Cumulus (R) Linux (R)\n\nFor support and online technical documentation, visit\nhttps://www.nvidia.com/en-us/support\n\nThe registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
 
 
 # -------------------------- Gorilla Switch ----------------------------

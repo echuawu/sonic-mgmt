@@ -79,6 +79,7 @@ def test_system(test_api, engines, devices, topology_obj, test_name):
 
 @pytest.mark.system
 @pytest.mark.simx
+@pytest.mark.cumulus
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_system_message(test_api, engines, devices):
     """
@@ -105,25 +106,21 @@ def test_system_message(test_api, engines, devices):
     new_post_login_msg = "Testing POST LOGIN MESSAGE"
     system = System()
 
-    with allure.step('Run set system message pre-login command and verify that pre-login is updated'):
+    with allure.step('Run set system message pre/post-login command and verify that pre/post-login are updated'):
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                    SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                    devices.dut.pre_login_message).verify_result()
+        ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
+                                                    devices.dut.post_login_message).verify_result()
+
         system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value=f'"{new_pre_login_msg}"',
+                           apply=True, dut_engine=engines.dut).verify_result()
+        system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
                            apply=True, dut_engine=engines.dut).verify_result()
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
                                                     new_pre_login_msg).verify_result()
-
-    with allure.step('Run set system message post-login command and verify that post-login is updated'):
-        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
-        ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                    SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
-        system.message.set(op_param_name=SystemConsts.POST_LOGIN_MESSAGE, op_param_value=f'"{new_post_login_msg}"',
-                           apply=True, dut_engine=engines.dut).verify_result()
-        time.sleep(3)
-        message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     new_post_login_msg).verify_result()
 
@@ -132,7 +129,7 @@ def test_system_message(test_api, engines, devices):
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                    SystemConsts.PRE_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                    devices.dut.pre_login_message).verify_result()
         logging.info("Verify the post-login was not affected")
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
                                                     new_post_login_msg).verify_result()
@@ -142,7 +139,7 @@ def test_system_message(test_api, engines, devices):
         time.sleep(3)
         message_output = OutputParsingTool.parse_json_str_to_dictionary(system.message.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,
-                                                    SystemConsts.POST_LOGIN_MESSAGE_DEFAULT_VALUE).verify_result()
+                                                    devices.dut.post_login_message).verify_result()
 
 
 @pytest.mark.system
@@ -237,6 +234,7 @@ def test_show_system_memory(test_api, engines, devices):
 
 @pytest.mark.system
 @pytest.mark.simx
+@pytest.mark.cumulus
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_system_cpu(test_api, engines, devices):
     """
