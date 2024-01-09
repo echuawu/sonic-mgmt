@@ -20,7 +20,7 @@ logger = logging.getLogger()
 @pytest.mark.disable_loganalyzer
 @pytest.mark.no_log_test_wrapper
 @pytest.mark.no_cli_coverage_run
-def test_post_checker(engines, topology_obj, dumps_folder, setup_name, aaa_post_checker):
+def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_post_checker):
     """
     Post checker flow:
         1. Check if ssh port is open and we can connect to it
@@ -33,7 +33,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, aaa_post_
         8. Check if ssh port is open, if not perform reboot
         9. Upload sysdump to shared location
     """
-    if aaa_post_checker:
+    if security_post_checker:
         check_switch_connectivity(topology_obj, engines)
 
     system = System()
@@ -55,7 +55,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, aaa_post_
         with allure.step('Run remote reboot and check it go up'):
             subprocess.check_output(remote_reboot, shell=True, universal_newlines=True)
             DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
-    if hasattr(engines, 'ha') and hasattr(engines, 'hb'):
+    if not security_post_checker and hasattr(engines, 'ha') and hasattr(engines, 'hb'):
         try:
             with allure.step('Check traffic hosts and hypervisor are up'):
                 ping_device(engines.ha)

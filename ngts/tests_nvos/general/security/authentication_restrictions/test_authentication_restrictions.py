@@ -562,7 +562,7 @@ def test_auth_restrictions_remote_counting(test_api, engines, request, devices, 
             RestrictionsConsts.LOCKOUT_REATTEMPT: lockout_reattempt,
             RestrictionsConsts.LOCKOUT_STATE: RestrictionsConsts.ENABLED
         }, apply=True, verify_apply=False)
-        update_active_aaa_server(item, servers_info[0])
+        # update_active_aaa_server(item, servers_info[0])
 
     with allure.step('Make 1 authentication failure'):
         with loganalyzer_ignore(False):
