@@ -532,7 +532,7 @@ def validate_health_fix_or_issue(system, health_issue_dict, search_since_datetim
                 search_since_datetime)) > 0, "Didn't find health status in history file since time : {},\n" \
                                              "history:\n {}".format(search_since_datetime, health_history_output)
             for component, issues in health_issue_dict.items():
-                issues_regex = "|".join(issues)
+                issues_regex = "[" + "|".join(issues) + "]"
                 assert len(TestToolkit.search_line_after_a_specific_date_time(
                     regex.format(time_regex=NvosConst.DATE_TIME_REGEX, component=component, issue=issues_regex), health_history_output, search_since_datetime)) > 0
 
