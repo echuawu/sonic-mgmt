@@ -87,6 +87,8 @@ def test_replace_positive(engines):
         ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True, ask_for_confirmation=True).verify_result()
 
     with allure.step("Replace config"):
+        config_after_hostname_change = config_after_hostname_change.replace('"password": "*"',
+                                                                            '"password": "{passw}"'.format(passw=os.environ["NVU_SWITCH_PASSWORD"]))
         file = create_file_with_content(engines.dut, 'replace', 'yaml', config_after_hostname_change)
         output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
         expected_message = "Loading config file: replace.yaml from current directory."
@@ -96,9 +98,9 @@ def test_replace_positive(engines):
         engines.dut.run_cmd('sudo rm {file}'.format(file=file))
 
     with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
-        diff_json = OutputParsingTool.parse_show_interface_output_to_dictionary(NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
-        assert ValidationTool.has_key_with_value(diff_json, 'system', new_hostname_value), "Set system hostname can't be found in pending config"
-        assert ValidationTool.has_key_with_value(diff_json, "description", new_ib0_description), "Set ib0 description can't be found in pending config"
+        diff_json = OutputParsingTool.parse_json_str_to_dictionary(NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
+        assert ValidationTool.has_key_with_value(diff_json, 'hostname', "null"), "Set system hostname can't be found in pending config"
+        assert ValidationTool.has_key_with_value(diff_json, "description", "null"), "Set ib0 description can't be found in pending config"
 
 
 @pytest.mark.general

@@ -17,6 +17,7 @@ from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, Database
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.constants.constants import GnmiConsts
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 logger = logging.getLogger()
@@ -159,18 +160,18 @@ def test_updates_on_gnmi_stream_mode(engines):
             port_description = Tools.RandomizationTool.get_random_string(7)
             selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
             selected_port.update_output_dictionary()
-            Tools.ValidationTool.verify_field_value_in_output(selected_port.show_output_dictionary, NvosConst.DESCRIPTION,
-                                                              port_description).verify_result()
+            verify_description_value(selected_port.show_output_dictionary, port_description)
 
-        with allure_step('Kill gnmi client command and verify updates'):
-            logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until verify gnmi updates")
-            time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
-            os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
-        gnmi_client_output, error = background_process.communicate()
-        assert port_description in str(gnmi_client_output), \
-            "we expect to see the new port description in the gnmi-client output but we didn't.\n" \
-            f"port description: {port_description}\n" \
-            f"but got: {str(gnmi_client_output)}"
+        if not is_redmine_issue_active([3727441]):
+            with allure_step('Kill gnmi client command and verify updates'):
+                logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until verify gnmi updates")
+                time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
+                os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
+            gnmi_client_output, error = background_process.communicate()
+            assert port_description in str(gnmi_client_output), \
+                "we expect to see the new port description in the gnmi-client output but we didn't.\n" \
+                f"port description: {port_description}\n" \
+                f"but got: {str(gnmi_client_output)}"
 
 
 @pytest.mark.system
@@ -263,8 +264,7 @@ def test_gnmi_performance(engines):
     with allure_step(f"change port description"):
         selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
         selected_port.update_output_dictionary()
-        Tools.ValidationTool.verify_field_value_in_output(selected_port.show_output_dictionary, NvosConst.DESCRIPTION,
-                                                          port_description).verify_result()
+        verify_description_value(selected_port.show_output_dictionary, port_description)
         logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")
         time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
 
@@ -423,8 +423,7 @@ def change_port_description_and_validate_gnmi_updates(engines, port_description,
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
     selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
-    Tools.ValidationTool.verify_field_value_in_output(selected_port.show_output_dictionary, NvosConst.DESCRIPTION,
-                                                      port_description).verify_result()
+    verify_description_value(selected_port.show_output_dictionary, port_description)
 
     xpath = f'interfaces/interface[name={selected_port.name}]/state/description'
     logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")
@@ -582,3 +581,9 @@ def validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list):
             assert gnmi_client_output.lower() == command[GnmiConsts.COMPARISON_KEY][redis_output].lower()
         else:
             assert gnmi_client_output.lower() == redis_output.lower()
+
+
+def verify_description_value(output, expected_description):
+    if not is_redmine_issue_active([3727441]):
+        Tools.ValidationTool.verify_field_value_in_output(output, NvosConst.DESCRIPTION,
+                                                          expected_description).verify_result()

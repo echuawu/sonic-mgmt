@@ -1439,3 +1439,10 @@
   Conditions:
     - Redmine:
         - 3544158
+
+# NVOS
+- Errors_list:
+    - ".*Error running command '.*'ip', 'netns', 'exec', 'asic0', 'ip6tables', '-A'.*"
+  Conditions:
+    - Redmine:
+        - 3618235

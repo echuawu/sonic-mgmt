@@ -29,7 +29,8 @@ def test_install_system_firmware(engines, test_name):
     system = System()
     fae = Fae()
     fw_has_changed = False
-    fw_file = "/auto/sw_system_project/NVOS_INFRA/verification_files/fw-QTM2-rel-31_2010_4026-EVB.mfa"
+    fw_file_name = "fw-QTM2-rel-31_2012_2936-EVB.mfa"
+    fw_file = f"/auto/sw_system_project/NVOS_INFRA/verification_files/{fw_file_name}"
     new_fw_name = "31.2010.4026"
     new_fw_to_install = fw_file.split("/")[-1]
     logging.info("using {} fw file".format(fw_file))
@@ -52,7 +53,7 @@ def test_install_system_firmware(engines, test_name):
                 player_engine = engines['sonic_mgmt']
                 scp_path = 'scp://{}:{}@{}'.format(player_engine.username, player_engine.password, player_engine.ip)
                 system.firmware.action_fetch(scp_path + fw_file)
-                firmware_file = File(system.firmware.asic.files, "fw-QTM2-rel-31_2010_4026-EVB.mfa")
+                firmware_file = File(system.firmware.asic.files, fw_file_name)
                 # firmware_file.action_file_install(op_param="")
 
                 res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,
