@@ -167,7 +167,8 @@ def test_techsupport_upload(engines):
         assert "File not found: nonexist" in output.info, "we can not upload a non exist file!"
 
     with allure.step('Generate tech-support file'):
-        tech_file, duration = system.techsupport.action_generate().replace('/host/dump/', '')
+        result_obj, duration = system.techsupport.action_generate()
+        tech_file = result_obj.replace('/host/dump/', '')
 
     with allure.step('try to upload techsupport {} to {} - Positive Flow'.format(tech_file, upload_path)):
         output = system.techsupport.action_upload(upload_path, tech_file).verify_result()
