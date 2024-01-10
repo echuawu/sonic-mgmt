@@ -150,21 +150,30 @@ def get_dut_physical_ports_config(engine, platform):
     return physical_dut_ports
 
 
-def modify_lanes_per_platform(platform, port_lanes):
+def modify_lanes_per_platform(platform, port_lanes, split_x2=False):
+    lanes_4_spit_x2_x2_lanes = False
+    lanes_8_spit_x2_x4_lanes = False
+    lanes_8_spit_x4_x2_lanes = False
+
     four_lanes_x2_split_platforms = [PlatformTypesConstants.PLATFORM_PANTHER, PlatformTypesConstants.PLATFORM_TIGRIS,
                                      PlatformTypesConstants.PLATFORM_TIGON, PlatformTypesConstants.PLATFORM_LIGER]
     lanes_4_spit_x2_x2_lanes = platform in four_lanes_x2_split_platforms
 
     eight_lanes_x4_split_platforms = [PlatformTypesConstants.PLATFORM_OCELOT, PlatformTypesConstants.PLATFORM_LEOPARD,
                                       PlatformTypesConstants.PLATFORM_MOOSE]
-    lanes_8_spit_x4_x2_lanes = platform in eight_lanes_x4_split_platforms
 
-    if lanes_4_spit_x2_x2_lanes:  # 4 lanes, can be split into x2 with 2 lanes each
+    if platform == PlatformTypesConstants.PLATFORM_MOOSE and split_x2:
+        lanes_8_spit_x2_x4_lanes = True
+    else:
+        lanes_8_spit_x4_x2_lanes = platform in eight_lanes_x4_split_platforms
+
+    if lanes_4_spit_x2_x2_lanes:  # 4 lanes, can be split into x2 with 2 lanes each port
         port_lanes = [','.join(port_lanes[0:2]), ','.join(port_lanes[2:4])]
-
     if lanes_8_spit_x4_x2_lanes:  # 8 lanes, can be split into x4 with 2 lanes each port
         port_lanes = [','.join(port_lanes[0:2]), ','.join(port_lanes[2:4]),
                       ','.join(port_lanes[4:6]), ','.join(port_lanes[6:8])]
+    if lanes_8_spit_x2_x4_lanes:  # 8 lanes, can be split into x2 with 4 lanes each port
+        port_lanes = [','.join(port_lanes[0:4]), ','.join(port_lanes[4:8])]
 
     return port_lanes
 
@@ -179,6 +188,7 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
     if platform == PlatformTypesConstants.PLATFORM_MOOSE:
         # Remove service port from list of ports which will be split
         physical_dut_ports.pop('Ethernet512')
+        port_speed = "100000"
     if platform == PlatformTypesConstants.PLATFORM_LEOPARD:
         port_speed = "100000"
     nonsplitable_ports = get_nonsplitable_ports(platform, topology, physical_dut_ports)
@@ -204,7 +214,10 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
             else:
                 port_lanes = [','.join(port_lanes)]
         else:
-            port_lanes = modify_lanes_per_platform(platform, port_lanes)
+            if platform == PlatformTypesConstants.PLATFORM_MOOSE and expected_num_of_ports - added_ports_counter <= 4:
+                port_lanes = modify_lanes_per_platform(platform, port_lanes, split_x2=True)
+            else:
+                port_lanes = modify_lanes_per_platform(platform, port_lanes)
 
         for lane in port_lanes:
             if expected_num_of_ports != added_ports_counter:
