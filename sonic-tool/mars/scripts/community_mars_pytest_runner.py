@@ -181,7 +181,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
-               ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.csv \
+               ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.yaml \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
                --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
         cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
