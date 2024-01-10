@@ -77,7 +77,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def install_nos_using_onie_in_serial(self, nos_image: str, ssh_engine, topology_obj):
         ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
         INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
-        INSTALL_WGET_ERROR = "wget: can't connect to remote host .*: Connection refused"
+        INSTALL_WGET_ERROR = ["wget: can't connect to remote host .*: Connection refused", "wget: download timed out"]
         NVOS_INSTALL_TIMEOUT = 5 * 60  # 5 minutes
 
         if nos_image.startswith('/auto/'):
@@ -96,7 +96,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             for _ in range(3):  # try 3 times using url
                 logger.info('Install image using url')
                 _, index = serial_engine.run_cmd(
-                    f'{ONIE_NOS_INSTALL_CMD} {image_url}', [INSTALL_SUCCESS_PATTERN, INSTALL_WGET_ERROR],
+                    f'{ONIE_NOS_INSTALL_CMD} {image_url}', [INSTALL_SUCCESS_PATTERN] + INSTALL_WGET_ERROR,
                     timeout=NVOS_INSTALL_TIMEOUT)
                 if index == 0:
                     break
@@ -114,7 +114,11 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                     scp_file(scp_engine, image_path, '/tmp/nvos.bin')
                 with allure.step(f'Run: {ONIE_NOS_INSTALL_CMD} ; Expect: {INSTALL_SUCCESS_PATTERN}'):
                     serial_engine.run_cmd(
-                        f'{ONIE_NOS_INSTALL_CMD} {image_path}', INSTALL_SUCCESS_PATTERN, timeout=NVOS_INSTALL_TIMEOUT)
+                        f'{ONIE_NOS_INSTALL_CMD} /tmp/nvos.bin', INSTALL_SUCCESS_PATTERN, timeout=NVOS_INSTALL_TIMEOUT)
+
+    def deploy_onie(self, image_path, in_onie, fw_pkg_path, platform_params, topology_obj):
+        assert in_onie, 'NVOS install failed - not in ONIE'
+        self.install_image_onie(self.engine, image_path, platform_params, topology_obj)
 
     def install_image_onie(self, engine, image_path, platform_params, topology_obj):
         with allure.step('Install image onie - NVOS'):
@@ -343,7 +347,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
 
         logger.info("Pressing Enter to enter ONIE menu")
-        serial_engine.run_cmd('\r', expected_value='.*', timeout=15, send_without_enter=True)
+        serial_engine.run_cmd('\r', expected_value=['\\*ONIE:.*'], timeout=15, send_without_enter=True)
         logger.info("Enter sent")
         for i in range(2):
             logger.info("Sending one arrow up")
@@ -375,10 +379,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         for _ in range(3):
             time.sleep(1)
             logger.info('Send new line')
-            output, respond = serial_engine.run_cmd('\r', '#', timeout=10, send_without_enter=True)
+            output, respond = serial_engine.run_cmd('\r', '.*', timeout=10, send_without_enter=True)
             logger.info(output)
-
-        logger.info('Send onie stop done')
 
     def prepare_for_installation(self, topology_obj):
         '''
