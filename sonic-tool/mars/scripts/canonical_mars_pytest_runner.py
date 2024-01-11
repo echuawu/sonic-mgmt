@@ -10,6 +10,7 @@ from reg2_wrapper.test_wrapper.standalone_wrapper import StandaloneWrapper
 
 from sig_term_handler.handler_mixin import TermHandlerMixin
 from lib.utils import get_allure_project_id
+import time
 
 
 class RunPytest(TermHandlerMixin, StandaloneWrapper):
@@ -32,9 +33,11 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
         allure_project = get_allure_project_id(self.setup_name, self.test_script)
         if self.sonic_topo:
-            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --sonic-topo={} --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
+            random_seed = int(time.time())
+            cmd_template = '/ngts_venv/bin/pytest --setup_name={} --sonic-topo={} --session_id={} --mars_key_id={} {} ' \
+                           '--dynamic_update_skip_reason --allure_server_project_id={} {} --random_seed={} '
             cmd = cmd_template.format(self.setup_name, self.sonic_topo, self.session_id, self.mars_key_id,
-                                      self.raw_options, allure_project, self.test_script)
+                                      self.raw_options, allure_project, self.test_script, random_seed)
         else:
             cmd_template = '/ngts_venv/bin/pytest --setup_name={} --session_id={} --mars_key_id={} {} --dynamic_update_skip_reason --allure_server_project_id={} {}'
             cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,

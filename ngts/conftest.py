@@ -73,7 +73,8 @@ pytest_plugins = ('ngts.tools.sysdumps',
                   'ngts.tools.mars_test_cases_results',
                   'ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore',
                   'tests.common.plugins.collect_test_data_to_sql',
-                  'ngts.tools.ports_modifier'
+                  'ngts.tools.ports_modifier',
+                  'tests.common.plugins.random_seed'
                   )
 
 

@@ -80,7 +80,8 @@ pytest_plugins = ('tests.common.plugins.ptfadapter',
                   'tests.common.plugins.conditional_mark',
                   'tests.common.plugins.mars_test_cases_results',
                   'tests.common.plugins.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore',
-                  'tests.common.plugins.collect_test_data_to_sql')
+                  'tests.common.plugins.collect_test_data_to_sql',
+                  'tests.common.plugins.random_seed')
 
 
 def pytest_addoption(parser):

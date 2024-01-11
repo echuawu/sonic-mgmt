@@ -11,6 +11,8 @@ import pytest
 import copy
 import socket
 from retry import retry
+from tests.common.helpers.constants import RANDOM_SEED
+
 
 logger = logging.getLogger()
 
@@ -89,6 +91,7 @@ def get_setup_session_info(session):
     platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
     hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
     asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
+    random_seed = session.config.cache.get(RANDOM_SEED, None)
     pytest_run_cmd_args = session.config.cache.get(PYTEST_RUN_CMD, None)
     host_executor_ip = get_test_executor_host_ip_address()
 
@@ -98,7 +101,8 @@ def get_setup_session_info(session):
         "HwSKU": hwsku.findall(output)[0] if hwsku.search(output) else "",
         "Executor_IP": host_executor_ip,
         "PyTest_args": pytest_run_cmd_args,
-        "ASIC": asic.findall(output)[0] if asic.search(output) else ""
+        "ASIC": asic.findall(output)[0] if asic.search(output) else "",
+        "Random_seed": random_seed
     }
 
     return result

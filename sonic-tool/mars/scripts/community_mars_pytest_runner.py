@@ -178,12 +178,13 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
 
         pytest_bin_name = "/var/AzDevOps/env-python3/bin/python3 -m pytest"
+        random_seed = int(time.time())
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
         cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                ../ansible/library/ --testbed {DUT_NAME}-{SONIC_TOPO} --testbed_file ../ansible/testbed.yaml \
                --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
+               --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED}"
         cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
                          SCRIPTS=self.test_scripts,
                          DUT_NAME=self.dut_name,
@@ -192,14 +193,16 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                          MARS_KEY_ID=self.mars_key_id,
                          REPORT_FILE=self.report_file,
                          OPTIONS=self.raw_options,
-                         ALLURE_PROJ=allure_proj_pytest_arg)
+                         ALLURE_PROJ=allure_proj_pytest_arg,
+                         RANDOM_SEED=random_seed
+                         )
         # For dualtor test, need to use setup name in --testbed
         if 'dualtor' in (self.sonic_topo):
             testbed_file = '../ansible/testbed.yaml' if 'dualtor-aa' in self.sonic_topo else '../ansible/testbed.csv'
             cmd = "{PYTEST_BIN_NAME} {SCRIPTS} --inventory=\"../ansible/inventory,../ansible/veos\" --host-pattern {DUT_NAME} --module-path \
                            ../ansible/library/ --testbed {SETUP_NAME}-{SONIC_TOPO} --testbed_file {TESTBED_FILE} \
                            --allow_recover  --session_id {SESSION_ID} --mars_key_id {MARS_KEY_ID} \
-                           --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason"
+                           --junit-xml {REPORT_FILE} --assert plain {OPTIONS} {ALLURE_PROJ} --skip_sanity --dynamic_update_skip_reason --random_seed={RANDOM_SEED}"
             cmd = cmd.format(PYTEST_BIN_NAME=pytest_bin_name,
                              SCRIPTS=self.test_scripts,
                              DUT_NAME=self.dut_name,
@@ -210,7 +213,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                              MARS_KEY_ID=self.mars_key_id,
                              REPORT_FILE=self.report_file,
                              OPTIONS=self.raw_options,
-                             ALLURE_PROJ=allure_proj_pytest_arg)
+                             ALLURE_PROJ=allure_proj_pytest_arg,
+                             RANDOM_SEED=random_seed)
         # Take the first epoint as just one is specified in *.setup file. Currently supported are: SONIC_MGMT or NGTS
         # Take the first player as just one is specified in *.setup file
         epoint = self.EPoints[0]
