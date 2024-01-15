@@ -34,18 +34,23 @@ class SecureBootHelper:
 
     @staticmethod
     def get_serial_engine(topology_obj):
+        serial_engine = SecureBootHelper.get_serial_engine_instance(topology_obj)
+        serial_engine.create_serial_engine()
+        return serial_engine
+
+    @staticmethod
+    def get_serial_engine_instance(topology_obj):
         att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
         # add connection options to pass connection problems
         extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
         extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
         extended_rcon_command = ' '.join(extended_rcon_command)
-        serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                            username=att['Topology Conn.']['CONN_USER'],
-                                            password=att['Topology Conn.']['CONN_PASSWORD'],
-                                            rcon_command=extended_rcon_command,
-                                            timeout=30)
-        serial_engine.create_serial_engine()
-        return serial_engine
+        serial_engine_instance = PexpectSerialEngine(ip=att['Specific']['ip'],
+                                                     username=att['Topology Conn.']['CONN_USER'],
+                                                     password=att['Topology Conn.']['CONN_PASSWORD'],
+                                                     rcon_command=extended_rcon_command,
+                                                     timeout=30)
+        return serial_engine_instance
 
     @staticmethod
     def get_non_secure_image_path():
