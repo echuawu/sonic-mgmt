@@ -4,9 +4,13 @@ import os
 import re
 import requests
 import subprocess
-
+import json
+import datetime as dt
 from abc import ABCMeta, abstractmethod
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.redmine.redmine_api import get_issues_active_status
+from perscache import Cache
+
+cache = Cache()
 
 
 logger = logging.getLogger()
@@ -45,8 +49,7 @@ def pytest_runtest_call(item):
     if loganalyzer:
         extended_ignore_list = []
 
-        dynamic_la_ignore_list = read_la_dynamic_ignore_file(item)
-
+        dynamic_la_ignore_list = get_ignore_list()
         for ignore_block in dynamic_la_ignore_list:
 
             errors_regexp_to_be_ignored_list = ignore_block.get(DynamicLaConsts.ERRORS_LIST)
@@ -87,27 +90,25 @@ def extend_la_ignore_regex(loganalyzer, extended_ignore_list):
         loganalyzer.ignore_regex.extend(extended_ignore_list)
 
 
-def read_la_dynamic_ignore_file(item):
-    """
-    Read loganalyzer dynamic ignore file
-    :param item: pytest build-in
-    :return: list
-    """
-    ignore_list = item.session.config.cache.get(DynamicLaConsts.LA_DYNAMIC_IGNORES_LIST, None)
+@cache(ttl=dt.timedelta(hours=36))
+def get_ignore_list():
+    logger.info('Reading dynamic errors ignore data from file')
+    la_dynamic_ignore_folder_path = os.path.dirname(__file__)
+    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path, 'dynamic_loganalyzer_ignores.yaml')
 
-    if ignore_list:
-        logger.info('Reading dynamic errors ignore data from cache')
-    else:
-        logger.info('Reading dynamic errors ignore data from file')
-        la_dynamic_ignore_folder_path = os.path.dirname(__file__)
-        path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path, 'dynamic_loganalyzer_ignores.yaml')
-
-        with open(path_to_dynamic_la_ignore_file) as dynamic_la_ignore_obj:
-            ignore_list = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
-
-        item.session.config.cache.set(DynamicLaConsts.LA_DYNAMIC_IGNORES_LIST, ignore_list)
-
+    with open(path_to_dynamic_la_ignore_file) as dynamic_la_ignore_obj:
+        ignore_list = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
     return ignore_list
+
+
+@cache(ttl=dt.timedelta(hours=36))
+def get_redmine_issues_status():
+    logger.info('Reading Redmine Issues Status from API')
+    ignore_list = get_ignore_list()
+    ignore_list_string = json.dumps(ignore_list)
+    all_redmine_issues = re.findall(r"\"Redmine\":\s*\[(\d+)\]", ignore_list_string)
+    issues_active_status_dict = get_issues_active_status(all_redmine_issues)
+    return issues_active_status_dict
 
 
 def is_nested_dict(dict_obj):
@@ -172,7 +173,7 @@ def get_inventory_argument(inventory):
     """
     inv = ''
 
-    if type(inventory) is list:
+    if isinstance(inventory, list):
         for inv_item in inventory:
             inv += ' -i {}'.format(inv_item)
     else:
@@ -337,7 +338,8 @@ class RedmineDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         if self.conditions_dict.get(self.validation_name):
             is_errors_ignore_required = False
             rm_issues_list = self.conditions_dict[self.validation_name]
-            is_issue_active, issue_id = is_redmine_issue_active(rm_issues_list)
+            redmine_issues_status = get_redmine_issues_status()
+            is_issue_active = any([redmine_issues_status[str(issue)] for issue in rm_issues_list])
             if is_issue_active:
                 is_errors_ignore_required = True
 

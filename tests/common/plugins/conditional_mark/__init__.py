@@ -13,11 +13,10 @@ import glob
 import pytest
 
 from tests.common.testbed import TestbedInfo
-from .issue import check_issues
+from .issue import check_issues, DEFAULT_CONDITIONS_FILE
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONDITIONS_FILE = 'common/plugins/conditional_mark/tests_mark_conditions*.yaml'
 ASIC_NAME_PATH = '/../../../../ansible/group_vars/sonic/variables'
 
 

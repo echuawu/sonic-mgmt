@@ -7,13 +7,57 @@ import re
 import yaml
 import six
 import requests
+import pytest
+import glob
+import json
+import datetime as dt
 
 from abc import ABCMeta, abstractmethod
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from perscache import Cache
+from infra.tools.redmine.redmine_api import get_issues_active_status
+
+logger = logging.getLogger(__name__)
+cache = Cache()
+dir_path = os.path.dirname(os.path.realpath(__file__))
+DEFAULT_CONDITIONS_FILE = os.path.join(dir_path, "tests_mark_conditions*.yaml")
 
 logger = logging.getLogger(__name__)
 
 CREDENTIALS_FILE = 'credentials.yaml'
+
+
+@cache(ttl=dt.timedelta(hours=36))
+def get_conditions_list():
+    logger.info('Reading conditions data from files')
+    conditions_list = list()
+    default_conditions_files = glob.glob(DEFAULT_CONDITIONS_FILE)
+    conditions_files = [f for f in default_conditions_files if os.path.exists(f)]
+    if not conditions_files:
+        pytest.fail('There is no conditions files')
+
+    try:
+        logger.debug('Trying to load test mark conditions files: {}'.format(conditions_files))
+        for conditions_file in conditions_files:
+            with open(conditions_file) as f:
+                logger.debug('Loaded test mark conditions file: {}'.format(conditions_file))
+                conditions = yaml.safe_load(f)
+                for key, value in list(conditions.items()):
+                    conditions_list.append({key: value})
+    except Exception as e:
+        logger.error('Failed to load {}, exception: {}'.format(conditions_files, repr(e)), exc_info=True)
+        pytest.fail('Loading conditions file "{}" failed. Possibly invalid yaml file.'.format(conditions_files))
+
+    return conditions_list
+
+
+@cache(ttl=dt.timedelta(hours=36))
+def get_conditions_redmine_issues_status():
+    logger.info('Reading Redmine Issues Status from API')
+    conditions = get_conditions_list()
+    ignore_list_string = json.dumps(conditions)
+    all_redmine_issues = re.findall(r"https:\/\/redmine\.mellanox\.com\/issues\/(\d+)", ignore_list_string)
+    issues_active_status_dict = get_issues_active_status(all_redmine_issues)
+    return issues_active_status_dict
 
 
 class IssueCheckerBase(six.with_metaclass(ABCMeta, object)):
@@ -44,8 +88,9 @@ class RedmineIssueChecker(IssueCheckerBase):
         Returns:
             bool: False if the issue is closed else True.
         """
+        redmine_issues_status = get_conditions_redmine_issues_status()
         issue_id = self.url.split('/issues/')[1]
-        is_issue_active, issue_id = is_redmine_issue_active([int(issue_id)])
+        is_issue_active = redmine_issues_status[str(issue_id)]
         return is_issue_active
 
 
@@ -161,4 +206,3 @@ def check_issues(issues, proxies=None):
         proc.join(timeout=60)
 
     return dict(check_results)
-
