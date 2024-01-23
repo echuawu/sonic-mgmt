@@ -3487,6 +3487,14 @@
     - Redmine:
       - 3716400
 
+- Errors_list:
+    - '.*ERR kernel:.* sx_core: Failed to get module temperature information.*'
+    - '.*ERR kernel:.*sx_core: Temperature sensing is not supported on module .* status.*'
+    - '.*ERR kernel.*sx_core: Failed to get module.*'
+  Conditions:
+    - Redmine:
+      - 3656762
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
