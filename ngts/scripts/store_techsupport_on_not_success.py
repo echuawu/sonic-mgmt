@@ -40,7 +40,7 @@ def dump_simx_data(topology_obj, dumps_folder, name_prefix=None):
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
     if not name_prefix:
         name_prefix = time.strftime('%Y_%b_%d_%H_%M_%S')
-    src_file_path = '/var/log/libvirt/qemu/d-switch-001-sw.log'
+    src_file_path = '/var/log/libvirt/qemu/d-switch-001.log'
     dst_file_path = dumps_folder + '/{}_{}_simx_vm.log'.format(name_prefix, dut_name)
     hyper_engine = topology_obj.players['hypervisor']['engine']
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
