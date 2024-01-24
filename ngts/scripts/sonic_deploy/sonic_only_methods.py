@@ -65,9 +65,7 @@ class SonicInstallationSteps:
         """
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
-        # TODO: Remove the "mtvr-leopard-01" != dut_name in the condition after the hwsku Mellanox-SN4700-O28 is
-        #  merged to upstream
-        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "mtvr-leopard-01" != dut_name:
+        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo):
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -311,18 +309,6 @@ class SonicInstallationSteps:
         """
         ansible_path = setup_info['ansible_path']
 
-        # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O28 is merged to upstream
-        if "mtvr-leopard-01" in setup_name:
-            dut_name = setup_info['duts'][0]['dut_name']
-            dut_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN4700-O28'
-            sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
-            sonic_user = os.getenv("SONIC_SWITCH_USER")
-            sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
-            execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
-                           f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
-                           f'{sonic_mgmt_hwsku_path}', ansible_path)
-            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
-
         if not is_community(sonic_topo):
             # Enable Port Init Profile for Canonical setups
             logger.info("Prepare sai.xml files for Port Init feature testing")
@@ -348,12 +334,34 @@ class SonicInstallationSteps:
                     general_cli_obj.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                         is_air_setup=platform_params.setup_name.startswith('air'))
                     general_cli_obj.save_configuration()
-
             ##########################################################################################################
-            # TODO: This is a WA for RM issue 3598710 on DPU setups, remove this after the bug is fixed.
+            # TODO: This is a WA for the NTP config schema change.
+            #  remove this after the correct config can be generated from minigraph.
             if is_bf_topo(sonic_topo):
-                topology_obj.players['dut']['engine'].run_cmd("sudo sed -i '/pfc_asym/d' /etc/sonic/config_db.json")
-                setup_info['duts'][0]['cli_obj'].reload_flow(ports_list=['Ethernet0', 'Ethernet4'], reload_force=True)
+                dut_engine = topology_obj.players['dut']['engine']
+                config_db = general_cli_obj.get_config_db()
+                NTP_SERVER_CONFIG = {
+                    "internal_ntp_server": {
+                        "association_type": "server",
+                        "iburst": "on",
+                        "admin_state": "enabled",
+                        "version": 3,
+                        "resolve_as": "10.75.202.2"
+                    }
+                }
+                config_db['NTP_SERVER'] = NTP_SERVER_CONFIG
+                with open('/tmp/config_db.json', 'w') as f:
+                    json.dump(config_db, f, indent=4)
+                os.chmod('/tmp/config_db.json', 0o777)
+                dut_engine.copy_file(source_file='/tmp/config_db.json',
+                                     dest_file="config_db.json", file_system='/tmp/',
+                                     overwrite_file=True, verify_file=False)
+                dut_engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
+                setup_info['duts'][0]['cli_obj'].reload_flow(ports_list=['Ethernet0', 'Ethernet4'],
+                                                             reload_force=True)
+                dut_engine.run_cmd("sudo systemctl stop ntpd")
+                dut_engine.run_cmd("sudo ntpd -gq")
+                dut_engine.run_cmd("sudo systemctl start ntpd")
             ##########################################################################################################
 
             for dut in setup_info['duts']:
