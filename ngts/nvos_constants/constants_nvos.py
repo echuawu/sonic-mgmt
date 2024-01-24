@@ -164,7 +164,8 @@ class ActionType:
     UPLOAD = '@upload'
     RESET = '@reset'
     CHANGE = '@change'
-    CLEAR = '@clear'
+    ENABLE = '@enable'
+    DISABLE = '@disable'
 
 
 class SystemConsts:
@@ -378,6 +379,8 @@ class ActionConsts:
     BOOT_NEXT = "boot-next"
     GENERATE = "generate"
     FETCH = "fetch"
+    ENABLE = 'enable'
+    DISABLE = 'disable'
 
 
 class IpConsts:

@@ -121,6 +121,14 @@ class OpenApiSystemCli(OpenApiBaseCli):
                 ActionType.GENERATE:
                     {
                         "state": "start",
+                    },
+                ActionType.ENABLE:
+                    {
+                        "state": "start",
+                    },
+                ActionType.DISABLE:
+                    {
+                        "state": "start",
                     }
             }
         return OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,

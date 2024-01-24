@@ -6,7 +6,9 @@ from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.PortFastRecovery import PortFastRecovery
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Health import Health
 
@@ -24,9 +26,20 @@ class Fae(BaseComponent):
         self.port = MgmtPort(port_name, self)
         self.fast_recovery = PortFastRecovery(self)
         self.ib = Ib(self)
+        self.sonic_cli = SonicCli(self)
 
 
 class Ib(BaseComponent):
     def __init__(self, parent_obj=None):
-        BaseComponent.__init__(self, parent=parent_obj, path='/ib')
+        super().__init__(parent=parent_obj, path='/ib')
         self.ufm_mad = BaseComponent(self, path='/ufm-mad')
+
+
+class SonicCli(BaseComponent):
+    def __init__(self, parent_obj=None):
+        super().__init__(parent=parent_obj,
+                         api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/sonic-cli')
+
+    def action_general(self, action_str):
+        return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_general,
+                                               TestToolkit.engines.dut, action_str, self.get_resource_path())
