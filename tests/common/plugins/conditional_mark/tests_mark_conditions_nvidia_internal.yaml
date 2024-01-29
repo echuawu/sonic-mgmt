@@ -1778,12 +1778,6 @@ pc/test_po_update.py::test_po_update_io_no_loss:
     conditions:
       - "https://redmine.mellanox.com/issues/3423765"
 
-dash/platform/test_dpu_show_platform_temperature.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3428696"
-    conditions:
-      - https://redmine.mellanox.com/issues/3428696
-
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
@@ -1804,11 +1798,23 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
     conditions:
       - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
 
-dash/test_dash_acl.py::test_acl_tag_scale:
+platform_tests/test_cpu_memory_usage.py::test_cpu_memory_usage:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3679516"
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3754090"
     conditions:
-      - "https://redmine.mellanox.com/issues/3679516 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3754090 and 'nvda_bf' in platform"
+
+platform_tests/test_reboot.py::test_cold_reboot:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3748639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3748639 and 'master' in branch"
+
+platform_tests/test_reboot.py::test_continuous_reboot:
+  skip:
+    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3748639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3748639 and 'master' in branch"
 
 dash/crm/test_dash_crm.py:
   skip:
