@@ -87,11 +87,11 @@ def test_show_diff_history(engines):
 
 @pytest.mark.general
 @pytest.mark.simx
-def test_diff_history_revision_ids(engines):
+def test_diff_history_revision_ids(engines, devices):
     """
         Test flow:
             1. run nv set system hostname <new_hostname> with apply
-            2. run nv set interface ib0 description <new_description> with apply
+            2. run nv set interface eth0 description <new_description> with apply
             3. run nv set interface eth0 description <new_description> with apply
             4. run nv config history - save as history_output1
             5. get last 3 rev id's using history_output1
@@ -111,23 +111,24 @@ def test_diff_history_revision_ids(engines):
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
             system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
 
-        ib0_port = MgmtPort('ib0')
-        new_ib0_description = '"ib0description"'
-        with allure.step('set ib0 description to be {description} - with apply'.format(
-                description=new_ib0_description)):
-            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
+        eth0_port = MgmtPort('eth0')
+        new_eth0_description = 'some_desc'
+        with allure.step('set eth0 description to be {description} - with apply'.format(
+                description=new_eth0_description)):
+            eth0_port.interface.set(NvosConst.DESCRIPTION, new_eth0_description, apply=True).verify_result()
 
-        new_ib0_description = '"testing_second"'
-        with allure.step('set ib0 description to be {description} - with apply'.format(
-                description=new_ib0_description)):
-            ib0_port.interface.set(NvosConst.DESCRIPTION, new_ib0_description, apply=True).verify_result()
+        new_eth0_description = 'another_desc'
+        with allure.step('set eth0 description to be {description} - with apply'.format(
+                description=new_eth0_description)):
+            eth0_port.interface.set(NvosConst.DESCRIPTION, new_eth0_description, apply=True).verify_result()
 
     with allure.step('get the last revision ids'):
         history_output = OutputParsingTool.parse_config_history(NvueGeneralCli.history_config(engines.dut))\
             .get_returned_value()
-
-        one_configs_back_revision = '1'
-        two_configs_back_revision = '2'
+        revs = [rev['ref'] for rev in history_output if rev['ref'].isdigit()]
+        revs.sort(key=int)
+        one_configs_back_revision = revs[-1]
+        two_configs_back_revision = revs[-2]
 
     with allure.step('get the history of the with a specific rev_id'):
         rev_output_id3 = OutputParsingTool.parse_config_history(
