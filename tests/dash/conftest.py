@@ -1,5 +1,7 @@
 import logging
 import pytest
+import random
+import json
 
 from ipaddress import ip_interface
 from constants import ENI, VM_VNI, VNET1_VNI, VNET2_VNI, REMOTE_CA_IP, LOCAL_CA_IP, REMOTE_ENI_MAC,\
@@ -49,6 +51,13 @@ def pytest_addoption(parser):
         "--skip_dataplane_checking",
         action="store_true",
         help="Skip dataplane checking"
+    )
+
+    parser.addoption(
+        "--vxlan_udp_dport",
+        action="store",
+        default="random",
+        help="The vxlan udp dst port used in the test"
     )
 
 
@@ -271,3 +280,45 @@ def asic_db_checker(duthost):
             output = duthost.shell("sonic-db-cli ASIC_DB keys 'ASIC_STATE:{}:*'".format(table))
             assert output["stdout"].strip() != "", "No entries found in ASIC_DB table {}".format(table)
     yield _check_asic_db
+
+
+def config_vxlan_udp_dport(duthost, port):
+    vxlan_port_config = [
+        {
+            "SWITCH_TABLE:switch": {"vxlan_port": f"{port}"},
+            "OP": "SET"
+        }
+    ]
+    config_path = "/tmp/vxlan_port_config.json"
+    duthost.copy(content=json.dumps(vxlan_port_config, indent=4), dest=config_path, verbose=False)
+    apply_swssconfig_file(duthost, config_path)
+
+
+@pytest.fixture(scope="function")
+def vxlan_udp_dport(request, duthost):
+    """
+    Test the traffic with specified or randomly generated VxLAN UDP dst port.
+    Configuration is applied by swssconfig.
+    """
+    UDP_PORT_RANGE = range(0, 65536)
+    WELL_KNOWN_UDP_PORT_RANGE = range(0, 1024)
+    vxlan_udp_dport = request.config.getoption("--vxlan_udp_dport")
+    if vxlan_udp_dport == "random":
+        port_candidate_list = ["default", 4789, 13330, 1024, 65535]
+        while True:
+            random_port = random.choice(UDP_PORT_RANGE)
+            if random_port not in WELL_KNOWN_UDP_PORT_RANGE and random_port not in port_candidate_list:
+                port_candidate_list.append(random_port)
+                break
+        vxlan_udp_dport = random.choice(port_candidate_list)
+    if vxlan_udp_dport != "default":
+        logger.info(f"Configure the VXLAN UDP dst port {vxlan_udp_dport} to DPU")
+        config_vxlan_udp_dport(duthost, vxlan_udp_dport)
+    else:
+        logger.info("Use the default VXLAN UDP dst port 4789")
+        vxlan_udp_dport = 4789
+
+    yield vxlan_udp_dport
+
+    logger.info(f"Restore the VXLAN UDP dst port to 4789")
+    config_vxlan_udp_dport(duthost, 4789)

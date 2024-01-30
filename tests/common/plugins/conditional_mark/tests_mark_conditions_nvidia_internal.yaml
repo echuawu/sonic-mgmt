@@ -1821,6 +1821,12 @@ platform_tests/test_reboot.py::test_continuous_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and branch in ['master', 'bluefield']"
 
+dash/test_relaxed_match_negative.py::test_relaxed_match_invalid_port:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3753419"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3753419"
+
 dash/crm/test_dash_crm.py:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3676635"
