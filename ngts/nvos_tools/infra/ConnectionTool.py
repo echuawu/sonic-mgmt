@@ -81,11 +81,15 @@ class ConnectionTool:
         @summary: Create serial pexpect engine and initiate connection (login)
         """
         with allure.step("create serial connection"):
+            username = username if username else DefaultConnectionValues.DEFAULT_USER
+            password = password if password else DefaultConnectionValues.DEFAULT_PASSWORD
+
             try:
+                logger.info('Try login with given credentials')
                 serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip, username, password)
                 serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
-            except pexpect.exceptions.TIMEOUT as e:
-                logger.info('L')
+            except Exception as e:
+                logger.info('Could not login. Try login with default NVOS credentials')
                 serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip,
                                                                     username=DefaultConnectionValues.DEFAULT_USER,
                                                                     password=DefaultConnectionValues.DEFAULT_PASSWORD)

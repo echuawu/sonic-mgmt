@@ -11,13 +11,11 @@ from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.constants.constants import MarsConstants
 
-
 logger = logging.getLogger()
 server_ip = "10.237.116.60"
 
 
 class NvueGeneralCli(SonicGeneralCliDefault):
-
     """
     This class is for general cli commands for NVOS only
     Most of the methods are inherited from SonicGeneralCli
@@ -84,7 +82,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             image_path = nos_image
             image_url = f"{MarsConstants.HTTP_SERVER_NBU_NFS}{image_path}"
         else:
-            assert nos_image.startswith('http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. Actual "nos_image"={nos_image}'
+            assert nos_image.startswith(
+                'http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. Actual "nos_image"={nos_image}'
             image_path = f'/auto/{nos_image.split("/auto/")[1]}'
             image_url = nos_image
 
@@ -198,7 +197,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 output = 'applied' + NvueGeneralCli.get_rev_id(output)
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
-            assert validate_apply_message in output, 'Message {0} not exist in output {1}'.\
+            assert validate_apply_message in output, 'Message {0} not exist in output {1}'. \
                 format(validate_apply_message, output)
         else:
             output = engine.run_cmd('nv {option} config apply {rev}'.format(option=option, rev=rev_id))
@@ -328,9 +327,12 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         '''
         logger.info("Initializing serial connection to device")
         serial_engine = self.enter_serial_connection_context(topology_obj)
+
         logger.info('Executing remote reboot')
         self.remote_reboot(topology_obj)
+
         logger.info("Enter ONIE install mode")
+        logger.info("Wait for NVOS/ONIE grub menu")
         output, respond = serial_engine.run_cmd('', ['ONIE\\s+', '\\*ONIE: Install OS'], timeout=240,
                                                 send_without_enter=True)
         if respond == 0:
@@ -341,18 +343,25 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                 time.sleep(0.3)
             logger.info("Onie option selected")
 
-            if "MLNX_" in topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', ''):
-                serial_engine.run_cmd('\r', 'Due to security constraints, this option will uninstall your current OS',
-                                      timeout=60, send_without_enter=True)
+            logger.info("Pressing Enter to enter ONIE grub menu")
+            _, respond = serial_engine.run_cmd('\r',
+                                               expected_value=['Due to security constraints, '
+                                                               'this option will uninstall your current OS',
+                                                               'Answer "YES" to continue', '\\*ONIE:.*'],
+                                               timeout=30, send_without_enter=True)
+
+            if "MLNX_" in topology_obj.players['dut']['attributes'] \
+                    .noga_query_data['attributes']['Specific'].get('TYPE', '') and respond != 2:
+                logger.info("MLNX-OS system. Enter 'YES' and wait till in ONIE grub menu")
                 serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
 
-        logger.info("Pressing Enter to enter ONIE menu")
-        serial_engine.run_cmd('\r', expected_value=['\\*ONIE:.*'], timeout=15, send_without_enter=True)
-        logger.info("Enter sent")
-        for i in range(2):
-            logger.info("Sending one arrow up")
-            serial_engine.run_cmd("\x1b[A", expected_value='.*', send_without_enter=True)
-            time.sleep(0.3)
+            logger.info("System in ONIE grub menu")
+            logger.info("Send up arrows for case default mode is Rescue")
+            for i in range(2):
+                logger.info("Sending one arrow up")
+                serial_engine.run_cmd("\x1b[A", expected_value='.*', send_without_enter=True)
+                time.sleep(0.3)
+
         logger.info("Waiting for onie prompt")
         self.wait_for_onie_prompt(serial_engine)
 
