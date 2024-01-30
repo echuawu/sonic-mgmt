@@ -266,6 +266,7 @@ r-r740-08-bf3-sonic-01-dpu-1,vm-t1,dpu-1,docker-ptf-mlnx,ptf-bf3-740-08-01,10.21
 r-r740-08-bf3-sonic-01-ptf-any,vm-t1,dpu,docker-ptf-mlnx,ptf-bf3-740-08-01,10.215.22.122/16,,server_58,VM2301,r-r740-08-bf3-sonic-01,Mellanox MTR testbed
 
 r-r740-09-bf3-sonic-01-dpu,vm-t1,dpu,docker-ptf-mlnx,ptf-bf3-740-09-01,10.215.5.3/16,,server_59,VM2401,r-r740-09-bf3-sonic-01,Mellanox MTR testbed
+r-r740-09-bf3-sonic-01-dpu-1,vm-t1,dpu-1,docker-ptf-mlnx,ptf-bf3-740-09-01,10.215.5.3/16,,server_59,VM2401,r-r740-09-bf3-sonic-01,Mellanox MTR testbed
 r-r740-09-bf3-sonic-01-ptf-any,vm-t1,dpu,docker-ptf-mlnx,ptf-bf3-740-09-01,10.215.5.3/16,,server_59,VM2401,r-r740-09-bf3-sonic-01,Mellanox MTR testbed
 
 r-anaconda-81-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-anaconda-81,10.213.86.93/16,,server_3,VM0301,r-anaconda-81,Mellanox MTR testbed
