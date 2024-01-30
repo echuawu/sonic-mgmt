@@ -77,6 +77,7 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
                 r".*SX_HEALTH_FATAL Detected with cause : FW health issue.*",
                 r".*SDK health event, device.*",
                 r".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*- Stopping further device monitoring.*",
+                r".*SXD_HEALTH_FATAL: On device 1 cause ='FW health'.*- Stopping further device monitoring.*",
                 r".*on_switch_shutdown_request: Syncd stopped.*",
                 r".*ERROR - Read PWM error. Possible hw-management is not running.*",
                 r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
