@@ -17,12 +17,12 @@ pytestmark = [
 
 
 @pytest.fixture(scope="function", autouse=True)
-def acl_default_rule(duthost, ptfhost, dash_config_info):
+def acl_default_rule(localhost, duthost, ptfhost, dash_config_info):
     hwsku = duthost.facts['hwsku']
     hwsku_list_with_default_acl_action_deny = ['Nvidia-9009d3b600CVAA-C1', 'Nvidia-9009d3b600SVAA-C1']
     if hwsku in hwsku_list_with_default_acl_action_deny:
-        default_acl_group = AclGroup(duthost, ptfhost, DEFAULT_ACL_GROUP, dash_config_info[ENI])
-        default_acl_rule = DefaultAclRule(duthost, ptfhost, dash_config_info, "allow")
+        default_acl_group = AclGroup(localhost, duthost, ptfhost, DEFAULT_ACL_GROUP, dash_config_info[ENI])
+        default_acl_rule = DefaultAclRule(localhost, duthost, ptfhost, dash_config_info, "allow")
 
         default_acl_rule.config()
         default_acl_group.bind(1)
