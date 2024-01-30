@@ -301,7 +301,7 @@ def gnmi_get(duthost, ptfhost, path_list):
 
 
 def apply_gnmi_file(localhost, duthost, ptfhost, dest_path=None, config_json=None,
-                    wait_after_apply=5, max_updates_in_single_cmd=4096):
+                    wait_after_apply=5, max_updates_in_single_cmd=1024):
     """
     Apply dash configuration with gnmi client
     Args:
