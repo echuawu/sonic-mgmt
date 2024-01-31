@@ -900,6 +900,24 @@ r-panther-01-t1-lag  ansible_host=10.210.25.27  sonic_version=v2  sonic_hwsku=Me
 r-panther-01-ptf32   ansible_host=10.210.25.27  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1-D48C8 iface_speed=100000 serial_console="ssh -l rcon:7004 10.208.0.80" ptf_host=ptf-r-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
 r-panther-01-ptf-any   ansible_host=10.210.25.27  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1-D48C8 iface_speed=100000 serial_console="ssh -l rcon:7004 10.208.0.80" ptf_host=ptf-r-panther-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
 
+# MTR testbed r-panther-42 topologies
+r-panther-42 ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-t0  ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-t0-56  ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-t1  ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-t1-lag  ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-ptf32   ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+r-panther-42-ptf-any   ansible_host=10.210.25.56  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7011 10.208.0.80" ptf_host=ptf-r-panther-42 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-191
+
+# MTR testbed r-panther-40 topologies
+r-panther-40 ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-t0  ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-t0-56  ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-t1  ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-t1-lag  ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-ptf32   ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+r-panther-40-ptf-any   ansible_host=10.210.25.49  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1 iface_speed=100000 serial_console="ssh -l rcon:7013 10.208.0.80" ptf_host=ptf-r-panther-40 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-192
+
 
 # MTBC testbed mtbc-sonic-03-2700 topologies
 mtbc-sonic-03-2700 ansible_host=10.75.71.251  sonic_version=v2  sonic_hwsku=Mellanox-SN2700 iface_speed=100000 serial_console="ssh -l rcon:2027 10.75.68.208" ptf_host=ptf-mtbc03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-75-68-210
@@ -1000,6 +1018,8 @@ r-r740-09-bf2-sonic-01-ptf-any ansible_host=10.215.5.19 sonic_version=v2 sonic_h
 
 # MTR Lab devices info
 r-panther-08 ansible_host=r-panther-08 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-panther-43 ansible_host=r-panther-43 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-panther-41 ansible_host=r-panther-41 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 arc-build-server ansible_host=arc-build-server ansible_user="{{ lookup('env','BUILD_SERVER_USER') }}" ansible_ssh_pass="{{ lookup('env','BUILD_SERVER_PASSWORD') }}"
 arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-panther-07 ansible_host=r-panther-07 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
@@ -1293,6 +1313,24 @@ r-panther-02-t1
 r-panther-02-t1-lag
 r-panther-02-ptf32
 r-panther-02-ptf-any
+
+# MTR r-panther-42 topologies
+r-panther-42
+r-panther-42-t0
+r-panther-42-t0-56
+r-panther-42-t1
+r-panther-42-t1-lag
+r-panther-42-ptf32
+r-panther-42-ptf-any
+
+# MTR r-panther-40 topologies
+r-panther-40
+r-panther-40-t0
+r-panther-40-t0-56
+r-panther-40-t1
+r-panther-40-t1-lag
+r-panther-40-ptf32
+r-panther-40-ptf-any
 
 # MTBC mtbc-3700c-01 topologies
 mtbc-3700c-01
@@ -1956,6 +1994,24 @@ r-panther-02-t1-lag
 r-panther-02-ptf32
 r-panther-02-ptf-any
 
+# MTR r-panther-42 topologies
+r-panther-42
+r-panther-42-t0
+r-panther-42-t0-56
+r-panther-42-t1
+r-panther-42-t1-lag
+r-panther-42-ptf32
+r-panther-42-ptf-any
+
+# MTR r-panther-40 topologies
+r-panther-40
+r-panther-40-t0
+r-panther-40-t0-56
+r-panther-40-t1
+r-panther-40-t1-lag
+r-panther-40-ptf32
+r-panther-40-ptf-any
+
 # MTR SimX dev-r-vrt-232-010 topologies
 dev-r-vrt-232-010
 dev-r-vrt-232-010-ptf32
@@ -2318,6 +2374,14 @@ ptf-mtbc03 ansible_host=10.75.207.38 ansible_ssh_user="{{ lookup('env','PTF_USER
 # r-panther-02 PTF host
 ptf-r-panther-02 ansible_host=10.215.32.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.32.182 ansible_host=10.215.32.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
+# r-panther-42 PTF host
+ptf-r-panther-42 ansible_host=10.215.34.121 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.34.121 ansible_host=10.215.34.121 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
+# r-panther-40 PTF host
+ptf-r-panther-40 ansible_host=10.215.30.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.30.182 ansible_host=10.215.30.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTBC mtbc-3700c-01 PTF host
 ptf-mtbc04 ansible_host=10.75.205.201 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"

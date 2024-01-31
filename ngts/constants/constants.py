@@ -1287,3 +1287,6 @@ class GnmiConsts:
     REDIS_CMD_DB_NAME = "redis_cmd_db_num"
     REDIS_CMD_TABLE_NAME = "redis_cmd_table"
     REDIS_CMD_PARAM = "redis_cmd_param"
+
+
+SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42']
