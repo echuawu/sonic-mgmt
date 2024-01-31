@@ -1811,15 +1811,15 @@ platform_tests/test_cpu_memory_usage.py::test_cpu_memory_usage:
 
 platform_tests/test_reboot.py::test_cold_reboot:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3748639"
+    reason: "Testcase ignored on master and bluefield branches due to RM issue: https://redmine.mellanox.com/issues/3748639"
     conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and 'master' in branch"
+      - "https://redmine.mellanox.com/issues/3748639 and branch in ['master', 'bluefield']"
 
 platform_tests/test_reboot.py::test_continuous_reboot:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3748639"
+    reason: "Testcase ignored on master and bluefield branches due to RM issue: https://redmine.mellanox.com/issues/3748639"
     conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and 'master' in branch"
+      - "https://redmine.mellanox.com/issues/3748639 and branch in ['master', 'bluefield']"
 
 dash/crm/test_dash_crm.py:
   skip:
