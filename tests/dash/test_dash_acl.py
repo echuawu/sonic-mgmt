@@ -120,4 +120,6 @@ def test_acl_tag_scale(
         ):
     if skip_dataplane_checking:
         return
+    # Wait a few seconds for the scaled configuration to be applied to ASIC
+    time.sleep(5)
     check_dataplane(ptfadapter, acl_tag_scale_test)
