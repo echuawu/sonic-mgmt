@@ -148,6 +148,7 @@
       <Device Hostname="mtvr-moose-07" HwSku="ACS-SN5600" Type="DevSonic"/>
       <Device Hostname="mtvr-moose-08" HwSku="ACS-SN5600" Type="DevSonic"/>
       <Device Hostname="mtvr-leopard-01" HwSku="Mellanox-SN4700-O28" Type="DevSonic"/>
+      <Device Hostname="mtvr-hippo-01" HwSku="ACS-SN5400" Type="DevSonic"/>
       <Device Hostname="r-liger-02" HwSku="ACS-MSN4600" Type="DevSonic"/>
       <Device Hostname="r-tigon-15" HwSku="ACS-MSN4600C" Type="DevSonic"/>
       <Device Hostname="r-lionfish-07" HwSku="ACS-MSN3420" Type="DevSonic"/>
@@ -4301,6 +4302,9 @@
 
       <PowerControlLinkInfo EndDevice="mtvr-moose-08" EndPort="PSU1" StartDevice="pdu-10-245-2-40" StartPort="10"/>
       <PowerControlLinkInfo EndDevice="mtvr-moose-08" EndPort="PSU2" StartDevice="pdu-10-245-2-40" StartPort="14"/>
+
+      <PowerControlLinkInfo EndDevice="mtvr-hippo-01" EndPort="PSU1" StartDevice="pdu-10-245-2-40" StartPort="18"/>
+      <PowerControlLinkInfo EndDevice="mtvr-hippo-01" EndPort="PSU2" StartDevice="pdu-10-245-2-40" StartPort="28"/>
 
       <PowerControlLinkInfo EndDevice="mtvr-leopard-01" EndPort="PSU1" StartDevice="pdu-10-245-2-49" StartPort="19"/>
       <PowerControlLinkInfo EndDevice="mtvr-leopard-01" EndPort="PSU2" StartDevice="pdu-10-245-2-25" StartPort="19"/>

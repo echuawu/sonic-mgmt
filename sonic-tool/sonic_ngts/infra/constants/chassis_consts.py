@@ -13,6 +13,7 @@ class ChassisConst:
     LIGER = 'liger'
     OCELOT = 'ocelot'
     MOOSE = 'moose'
+    HIPPO = 'hippo'
     '''
     the MAIN_FRU_DIC conatains all the information about a new machine and is orgzinized as such-
     MAIN_FRU_DIC[ChassisConst.<system_type>] = {'fru': list of the FRUs of the system type, with and without initials
@@ -80,6 +81,11 @@ class ChassisConst:
                             'port_number':  32,
                             'chip_type': "SPC3"
                             }
+
+    MAIN_FRU_DIC[HIPPO] = {'fru': ['5400'],
+                           'port_number':  64,
+                           'chip_type': "SPC4"
+                           }
 
     MAIN_FRU_DIC[MOOSE] = {'fru': ['5600'],
                            'port_number':  64,
