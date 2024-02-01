@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from infra.tools.redmine.redmine_api import get_issues_status
-from ngts.constants.constants import LinuxConsts
 import logging
 import traceback
 import os
@@ -13,6 +11,9 @@ import re
 path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
 sys.path.append(sonic_mgmt_path)
+
+from infra.tools.redmine.redmine_api import get_issues_status  # noqa F401
+from ngts.constants.constants import LinuxConsts  # noqa F401
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
