@@ -2004,7 +2004,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-13" EndPort="p2p1" StartDevice="r-tigon-22" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-14" EndPort="p2p1" StartDevice="r-tigris-27" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mtvr-r740-04" EndPort="enp135s0f0" StartDevice="mtvr-leopard-02" StartPort="ethernet 1/32"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-14" EndPort="enp136s0f0" StartDevice="r-leopard-80" StartPort="ethernet 1/32"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-14" EndPort="enp135s0f0" StartDevice="r-leopard-80" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/1" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/2" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/3" StartDevice="r-r740-07-bf3-sonic-01" StartPort="Ethernet0"/>
