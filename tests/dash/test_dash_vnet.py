@@ -15,7 +15,7 @@ pytestmark = [
 ]
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 def acl_default_rule(localhost, duthost, ptfhost, dash_config_info):
     hwsku = duthost.facts['hwsku']
     hwsku_list_with_default_acl_action_deny = ['Nvidia-9009d3b600CVAA-C1', 'Nvidia-9009d3b600SVAA-C1']
@@ -42,7 +42,8 @@ def test_outbound_vnet(
         dash_config_info,
         skip_dataplane_checking,
         asic_db_checker,
-        inner_packet_type):
+        inner_packet_type,
+        acl_default_rule):
     """
     Send VXLAN packets from the VM VNI
     """
@@ -62,7 +63,8 @@ def test_outbound_vnet_direct(
         dash_config_info,
         skip_dataplane_checking,
         asic_db_checker,
-        inner_packet_type):
+        inner_packet_type,
+        acl_default_rule):
     asic_db_checker(["SAI_OBJECT_TYPE_VNET", "SAI_OBJECT_TYPE_ENI"])
     if skip_dataplane_checking:
         return
@@ -79,7 +81,8 @@ def test_outbound_direct(
         dash_config_info,
         skip_dataplane_checking,
         asic_db_checker,
-        inner_packet_type):
+        inner_packet_type,
+        acl_default_rule):
     asic_db_checker(["SAI_OBJECT_TYPE_VNET", "SAI_OBJECT_TYPE_ENI"])
     if skip_dataplane_checking:
         return
@@ -96,7 +99,8 @@ def test_inbound_vnet_pa_validate(
         dash_config_info,
         skip_dataplane_checking,
         asic_db_checker,
-        inner_packet_type):
+        inner_packet_type,
+        acl_default_rule):
     """
     Send VXLAN packets from the remote VNI with PA validation enabled
 
