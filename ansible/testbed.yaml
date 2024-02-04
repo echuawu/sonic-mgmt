@@ -3125,6 +3125,19 @@
     - r-r740-08-bf3-sonic-01
   comment: Mellanox MTR testbed
 
+- conf-name: r-r740-08-bf3-sonic-01-dpu-1
+  group-name: vm-t1
+  topo: dpu-1
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-bf3-740-08-01
+  ptf_ip: 10.215.22.122/16
+  ptf_ipv6:
+  server: server_58
+  vm_base: VM2301
+  dut:
+    - r-r740-08-bf3-sonic-01
+  comment: Mellanox MTR testbed
+
 - conf-name: r-r740-08-bf3-sonic-01-ptf-any
   group-name: vm-t1
   topo: dpu
@@ -3141,6 +3154,19 @@
 - conf-name: r-r740-09-bf3-sonic-01-dpu
   group-name: vm-t1
   topo: dpu
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-bf3-740-09-01
+  ptf_ip: 10.215.5.3/16
+  ptf_ipv6:
+  server: server_59
+  vm_base: VM2401
+  dut:
+    - r-r740-09-bf3-sonic-01
+  comment: Mellanox MTR testbed
+
+- conf-name: r-r740-09-bf3-sonic-01-dpu-1
+  group-name: vm-t1
+  topo: dpu-1
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-bf3-740-09-01
   ptf_ip: 10.215.5.3/16
