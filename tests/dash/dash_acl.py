@@ -709,7 +709,7 @@ class AclTagScaleTest(AclRuleTest):
         else:
             address_type = ipaddress.IPv6Address
         first_ip = address_type(BASE_SRC_SCALE_IP)
-        last_ip = first_ip + (SCALE_TAGS * SCALE_TAG_IPS)
+        last_ip = first_ip + (SCALE_TAGS * SCALE_TAG_IPS) - 1
         summarized_range = ipaddress.summarize_address_range(first_ip, last_ip)
         for subnet in summarized_range:
             for ip_address in subnet:
