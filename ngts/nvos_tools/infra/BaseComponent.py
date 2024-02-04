@@ -1,10 +1,11 @@
 import logging
 
 import allure
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 
 
 class BaseComponent:
@@ -22,7 +23,10 @@ class BaseComponent:
         assert force_api in ApiType.ALL_TYPES + [
             None], f'Argument "force_api" must be in {ApiType.ALL_TYPES + [None]}. Given: {force_api}'
 
-        self._force_api = force_api
+        if force_api or not self.parent_obj:
+            self._force_api = force_api
+        else:
+            self._force_api = self.parent_obj._force_api
 
     @property
     def _api_to_use(self):

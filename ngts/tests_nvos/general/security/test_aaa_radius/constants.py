@@ -86,20 +86,42 @@ class RadiusConstants:
                 # the following users were chosen carefully for testing radius feature
                 # please don't change them
                 {
-                    'username': 'azmy',  # TODO: change to volt once it is in
-                    'password': 'azmy',  # TODO: change to volt once it is in
+                    'username': 'rad1adm1',
+                    'password': 'rad1adm1',
                     'role': 'admin'
                 },
                 {
-                    'username': 'admin1',  # TODO: change to volt once it is in
-                    'password': 'admin1',  # TODO: change to volt once it is in
+                    'username': 'rad1mon1',
+                    'password': 'rad1mon1',
                     'role': 'monitor'
-                },
-                {
-                    'username': 'testing',  # TODO: change to volt once it is in
-                    'password': 'asdasd',  # TODO: change to volt once it is in
-                    'role': 'admin'
                 }
+                # {
+                #     'username': 'rad1adm2',
+                #     'password': 'rad1adm2',
+                #     'role': 'admin'
+                # },
+                # {
+                #     'username': 'rad1mon2',
+                #     'password': 'rad1mon2',
+                #     'role': 'monitor'
+                # }
+                # # the following users were chosen carefully for testing radius feature
+                # # please don't change them
+                # {
+                #     'username': 'azmy',  # TODO: change to volt once it is in
+                #     'password': 'azmy',  # TODO: change to volt once it is in
+                #     'role': 'admin'
+                # },
+                # {
+                #     'username': 'admin1',  # TODO: change to volt once it is in
+                #     'password': 'admin1',  # TODO: change to volt once it is in
+                #     'role': 'monitor'
+                # },
+                # {
+                #     'username': 'testing',  # TODO: change to volt once it is in
+                #     'password': 'asdasd',  # TODO: change to volt once it is in
+                #     'role': 'admin'
+                # }
             ]
         }
     }

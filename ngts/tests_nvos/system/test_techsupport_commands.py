@@ -167,8 +167,8 @@ def test_techsupport_upload(engines):
         assert "File not found: nonexist" in output.info, "we can not upload a non exist file!"
 
     with allure.step('Generate tech-support file'):
-        result_obj, duration = system.techsupport.action_generate()
-        tech_file = result_obj.replace('/host/dump/', '')
+        tech_file, duration = system.techsupport.action_generate()
+        tech_file = tech_file.replace('/host/dump/', '')
 
     with allure.step('try to upload techsupport {} to {} - Positive Flow'.format(tech_file, upload_path)):
         output = system.techsupport.action_upload(upload_path, tech_file).verify_result()
@@ -215,15 +215,16 @@ def test_techsupport_size(engines, test_name):
 
     Test flow:
         1. run nv action generate system tech-support
-        2. check file size by du -sh
+        2. check file size by du -sm
         3. assert if size > 50 MB
     """
     engine = engines.dut
     system = System(None)
     with allure.step('Run generate tech-support'):
         tech_support_folder, duration = system.techsupport.action_generate()
-        output = engine.run_cmd('sudo du -sh ' + tech_support_folder)
-        size_in_MB = int(output.split("M")[0])
+        # Round output to MB by -m flag and trim white spaces with column to receive int like output
+        output = engine.run_cmd(f"sudo du -sm {tech_support_folder} | column -t")
+        size_in_MB = int(output.split(" ")[0])
         assert size_in_MB < 50, f"{tech_support_folder} size ({size_in_MB}MB) should be less than 50MB"
 
 

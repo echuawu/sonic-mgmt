@@ -909,10 +909,11 @@ def send_msg_to_server(msg, server_name, server_engine, protocol=None, priority=
 def verify_msg_in_syslog_file(engine, msg_to_find, syslog_file='/var/log/syslog', should_find=True):
     cmd = f'cat {syslog_file}|grep {msg_to_find}'
     output = engine.run_cmd(cmd)
+    msg_in_file = msg_to_find in output
 
-    if output and not should_find:
+    if msg_in_file and not should_find:
         raise Exception("Found the message, but expected not to find it")
-    elif not output and should_find:
+    elif not msg_in_file and should_find:
         raise Exception("Didn't find the message, but expected to find it")
 
     logging.info("{} find the msg as expected".format('' if should_find else 'Did not'))

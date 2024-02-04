@@ -600,7 +600,7 @@
 
 # NVOS - ignore log info message for not a bug
 - Errors_list:
-    - '.* INFO ib-utils#OpenSM\[\d+\]:\s+Loading Cached Option:enable_crashd = FALSE#012.*'
+    - '.*Loading Cached Option:enable_crashd.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/interfaces/test_ib_interface_configuration.py
@@ -616,6 +616,8 @@
         - tests_nvos/interfaces/test_ib0_interface_state.py::test_ib0_interface_state
         - tests_nvos/system/test_techsupport_feature.py::test_techsupport_folder_name
         - tests_nvos/system/test_system_profile_change.py::test_system_profile_adaptive_routing
+        - tests_nvos/multi_asic/test_interface_ipoib.py
+        - tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py
 
 # NVOS
 - Errors_list:
@@ -638,6 +640,13 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_techsupport_feature.py::test_techsupport_with_dockers_down
+
+# NVOS Security
+- Errors_list:
+    - '.*ERR sonic-installer: Error: Failed verify image signature.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_secure_upgrade/test_secure_upgrade.py::test_non_secure_boot_upgrade_failure
 
 # NVOS Security
 - Errors_list:
@@ -718,7 +727,8 @@
 
 # NVOS
 - Errors_list:
-    - '.* ERR nslcd\[\d+\]: .* no available LDAP server found: .*'
+    - '.*ERR nslcd\[\d+\]: .* no available LDAP server found:.*'
+    - '.*WARNING nslcd\[\d+\]:.*no available LDAP server found:.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
@@ -756,9 +766,12 @@
 
 - Errors_list:
     - '.*ERR .*: tac_connect_single: connection failed with .*:.*: Transport endpoint is not connected.*'
+    - '.*ERR service_checker: tac_connect_single: connection failed with.*Transport endpoint is not connected.*'
+    - '.*ERR service_checker: nss_tacplus: failed to connect TACACS\+ server.*Transport endpoint is not connected.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_timeout
 
 - Errors_list:
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
@@ -768,6 +781,7 @@
 
 - Errors_list:
     - '.*ERR nslcd\[\d+\]:.*no available LDAP server found:.*'
+    - '.*WARNING nslcd\[\d+\]:.*no available LDAP server found:.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
@@ -1049,7 +1063,7 @@
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
-    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is not working.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: Invalid fan speed data for.*'
   Conditions:
@@ -1336,9 +1350,10 @@
 
 # NVOS
 - Errors_list:
-    - '.*ERR health-statsd#health_history: FAN\d\/\d: is broken.*'
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: is not working.*'
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
+    - '.*WARNING pmon#psud: PSU absence warning: PSU \d is not present.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
@@ -1358,11 +1373,12 @@
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
 
-# NVOS gorilla-100 PSU2 is missing.
+# NVOS gorilla-100 PSU2 is missing, gorilla-30 PSU \d is not present
 - Errors_list:
     - '.*gorilla-100 ERR health-statsd#health_history: PSU2: is missing or not available.*'
     - '.*gorilla-100 ERR health-statsd#health_history: PSU2/FAN: is missing.*'
     - '.*gorilla-100 ERR health-statsd#health_history: Summary: Not OK.*'
+    - '.*gorilla-30 WARNING pmon#psud: PSU absence warning: PSU \d is not present.*'
   Conditions:
     - Redmine:
         - 3593772
@@ -1435,14 +1451,30 @@
 
 # NVOS
 - Errors_list:
-    - '.*Loading Cached Option:enable_crashd.*'
-  Conditions:
-    - Redmine:
-        - 3544158
-
-# NVOS
-- Errors_list:
     - ".*Error running command '.*'ip', 'netns', 'exec', 'asic0', 'ip6tables', '-A'.*"
   Conditions:
     - Redmine:
         - 3618235
+
+# NVOS
+- Errors_list:
+    - '.*not support op_vls 15 max vl is 8.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/nvl5_port/test_nvl5_port.py::test_nvl5_port_configuration
+
+# NVOS
+- Errors_list:
+    - '.*WARNING kernel: \[.*\d*\.\d*\] ext4 filesystem being mounted at .* supports timestamps until 2038.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/infra/init_flow/init_flow.py::test_partitions_capacity
+
+# NVOS
+- Errors_list:
+    - ".*Container 'snmp' is not running.*"
+    - ".*Summary: Not OK.*"
+    - ".*listen udp4 0.0.0.0:123:.*"
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative

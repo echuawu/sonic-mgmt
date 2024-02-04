@@ -1,10 +1,13 @@
+import inspect
+import logging
 import os
 from contextlib import contextmanager
-import inspect
+
 import allure
-import logging
 
 logger = logging.getLogger()
+
+orig_allure = allure
 
 
 @contextmanager

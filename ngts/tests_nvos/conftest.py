@@ -1,43 +1,37 @@
 import datetime
-import pytest
 import logging
-import time
 import os
-import re
-import math
-import yaml
 import smtplib
-from retry import retry
+import time
 from email.mime.text import MIMEText
 
-from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
-from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
-from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
-from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, NvosConst, SystemConsts
-from ngts.constants.constants import LinuxConsts, PytestConst
-from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
+import pytest
+import yaml
 from dotted_dict import DottedDict
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
-from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
-from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import LdapServerInfo
-from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
-from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from retry import retry
+
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
+from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
-from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
+from ngts.constants.constants import PytestConst
+from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, NvosConst, SystemConsts
+from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool, ping_device
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, wait_for_ldap_nvued_restart_workaround
 
 logger = logging.getLogger()
 
@@ -59,7 +53,8 @@ def pytest_addoption(parser):
                                                            "configurations; False otherwise (only several random "
                                                            "configurations will be picked to testing)")
     parser.addoption("--disable_cli_coverage", action="store_true", default=False, help="Do not run cli coverage")
-    parser.addoption("--security_post_checker", action="store_true", default=False, required=False, help="Whether to run security post checker or not")
+    parser.addoption("--security_post_checker", action="store_true", default=False, required=False,
+                     help="Whether to run security post checker or not")
 
 
 @pytest.fixture(scope='session')
@@ -83,6 +78,13 @@ def engines(topology_obj):
 @pytest.fixture(scope="session")
 def mst_device(request, engines):
     return ""
+
+
+@pytest.fixture(scope='session')
+def original_version(engines):
+    version = OutputParsingTool.parse_json_str_to_dictionary(System().version.show()).get_returned_value()[
+        'image']
+    return version
 
 
 @pytest.fixture(scope='session')
@@ -211,33 +213,39 @@ def interfaces(topology_obj):
     return interfaces_data
 
 
-def clear_security_config(active_aaa_server):
+def clear_security_config(item):
     with allure.step("Clear security config"):
+        TestToolkit.update_apis(ApiType.NVUE)
+
         try:
-            TestToolkit.update_apis(ApiType.NVUE)
-
-            logging.info('Test configured aaa authentication. find remote admin user to use')
-            remote_admin = [user for user in active_aaa_server.users if user.role == 'admin'][0]
-            logging.info(f'Create engine with remote user: {remote_admin.username}')
-            remote_admin_engine = ProxySshEngine(device_type=TestToolkit.engines.dut.device_type,
-                                                 ip=TestToolkit.engines.dut.ip,
-                                                 username=remote_admin.username,
-                                                 password=remote_admin.password)
-            logging.info('Clear authentication settings to allow local admin user engine continue')
-
+            local_dut_engine: ProxySshEngine = TestToolkit.engines.dut
             try:
-                System().aaa.authentication.unset(apply=True, dut_engine=remote_admin_engine).verify_result()
-            except Exception:
-                logging.info('Failed with remote user engine, try with local dut engine')
-                System().aaa.authentication.unset(apply=True).verify_result()
+                active_aaa_server = item.active_remote_aaa_server
 
-            if isinstance(active_aaa_server, LdapServerInfo):
-                logging.info('Remove LDAP users home directories')
-                remote_usernames = [user.username for user in active_aaa_server.users]
-                for username in remote_usernames:
-                    TestToolkit.engines.dut.run_cmd(f'sudo rm -rf /home/{username}')
-        except BaseException as ex:
-            logger.error(f"Failed to clear security config.\nException: {ex}")
+                logging.info('Test configured aaa authentication. find remote admin user to use')
+                remote_admin = [user for user in active_aaa_server.users if user.role == 'admin'][0]
+                logging.info(f'Create engine with remote user: {remote_admin.username}')
+                remote_admin_engine = ProxySshEngine(device_type=TestToolkit.engines.dut.device_type,
+                                                     ip=TestToolkit.engines.dut.ip,
+                                                     username=remote_admin.username,
+                                                     password=remote_admin.password)
+
+                logging.info('Clear authentication settings to allow local admin user engine continue')
+                res = System().aaa.authentication.unset(op_param='order', apply=True, dut_engine=remote_admin_engine)
+                assert 'verifyingreadying' in res.info, f'Expected to have "{"verifyingreadying"}" ' \
+                                                        f'in output. Actual output: {res.info}'
+            finally:
+                item.active_remote_aaa_server = None
+                wait_for_ldap_nvued_restart_workaround(item, engine_to_use=local_dut_engine)
+        except Exception:
+            local_dut_engine.disconnect()
+            wait_for_ldap_nvued_restart_workaround(item, engine_to_use=local_dut_engine)
+
+        # if isinstance(active_aaa_server, LdapServerInfo):
+        #     logging.info('Remove LDAP users home directories')
+        #     remote_usernames = [user.username for user in active_aaa_server.users]
+        #     for username in remote_usernames:
+        #         TestToolkit.engines.dut.run_cmd(f'sudo rm -rf /home/{username}')
 
 
 def clear_config(markers=None):
@@ -263,11 +271,11 @@ def clear_config(markers=None):
 
                 if diff_config:
                     active_port = None
-                    if NvosConst.INTERFACES in diff_config.keys():
+                    if NvosConst.INTERFACE in diff_config.keys():
                         result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
                         if result.result:
                             active_port = result.returned_value[-1]
-                        NvueBaseCli.unset(TestToolkit.engines.dut, 'interface')
+                        NvueBaseCli.unset(TestToolkit.engines.dut, NvosConst.INTERFACE)
 
                     if NvosConst.IB in diff_config.keys():
                         NvueBaseCli.unset(TestToolkit.engines.dut, 'ib')
@@ -275,9 +283,11 @@ def clear_config(markers=None):
                     if NvosConst.SYSTEM in diff_config.keys():
                         with allure.step("Unset each system 'set' command"):
                             unset_system_cli = "nv unset system"
-                            should_wait_for_nvued_after_apply = NvosConst.SYSTEM_AAA in diff_config[NvosConst.SYSTEM].keys() \
+                            should_wait_for_nvued_after_apply = NvosConst.SYSTEM_AAA in diff_config[
+                                NvosConst.SYSTEM].keys() \
                                 and NvosConst.SYSTEM_AUTHENTICATION in \
-                                diff_config[NvosConst.SYSTEM][NvosConst.SYSTEM_AAA].keys() \
+                                diff_config[NvosConst.SYSTEM][
+                                NvosConst.SYSTEM_AAA].keys() \
                                 and NvosConst.SYSTEM_AUTHENTICATION_ORDER in \
                                 diff_config[NvosConst.SYSTEM][NvosConst.SYSTEM_AAA][
                                 NvosConst.SYSTEM_AUTHENTICATION].keys()
@@ -291,7 +301,8 @@ def clear_config(markers=None):
                             # unset system user for non-default users
                             unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} "
                                                        f"{NvosConst.SYSTEM_AAA_USER} {user_comp}; " for user_comp in
-                                                       user_config.keys() if user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
+                                                       user_config.keys() if
+                                                       user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
                                                        user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR])
 
                             # unset system aaa components
@@ -325,7 +336,8 @@ def clear_config(markers=None):
 def clear_system_profile_config():
     with allure.step("Clear system profile"):
         system = System(None)
-        system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()).get_returned_value()
+        system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(
+            system.profile.show()).get_returned_value()
         try:
             ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
                                                             SystemConsts.DEFAULT_SYSTEM_PROFILE_VALUES,
@@ -361,8 +373,8 @@ def save_results_and_clear_after_test(item):
         logging.exception(' ---------------- The test failed - an exception occurred: ---------------- ')
         raise AssertionError(err)
     finally:
-        if hasattr(item, 'active_remote_aaa_server'):
-            clear_security_config(item.active_remote_aaa_server)
+        if hasattr(item, 'active_remote_aaa_server') and item.active_remote_aaa_server:
+            clear_security_config(item)
         clear_config(markers)
 
 
@@ -500,7 +512,7 @@ def extend_log_analyzer_match_regex(loganalyzer):
     if loganalyzer:
         for hostname in loganalyzer.keys():
             loganalyzer[hostname].ignore_regex.extend(list(pytest.dynamic_ignore_set))
-            loganalyzer[hostname].match_regex.extend(["\\.*\\s+WARNING\\s+\\.*"])
+            loganalyzer[hostname].match_regex.extend(["\\.*\\s+WARNING\\s+\\.*", "\\.*\\s+segfault\\s+\\.*"])
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -517,7 +529,37 @@ def initialize_testtoolkit_loganalyzer(loganalyzer):
 def save_nvos_dynamic_error_ignore(request):
     logger.info('Reading NVOS dynamic errors ignore data from file')
     la_dynamic_ignore_folder_path = os.path.dirname(__file__)
-    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path, 'dynamic_nvos_loganalyzer_ignores.yaml')
+    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path,
+                                                  'dynamic_nvos_loganalyzer_ignores.yaml')
     with open(path_to_dynamic_la_ignore_file) as dynamic_la_ignore_obj:
         ignore_list = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
     request.node.session.config.cache.set(PytestConst.LA_DYNAMIC_IGNORES_LIST, ignore_list)
+
+
+@pytest.fixture
+def bring_up_traffic_containers(engines, setup_name):
+    """
+    Bring up traffic containers in case are in down state.
+    """
+    engine_key = list(engines.keys())
+    if NvosConst.HOST_HA in engine_key and NvosConst.HOST_HB in engine_key:
+        with allure.step("Check if traffic containers are already up"):
+            ha_ping = ping_device(engines[NvosConst.HOST_HA].ip)
+            hb_ping = ping_device(engines[NvosConst.HOST_HB].ip)
+        if not (ha_ping and hb_ping):
+            with allure.step("Run reboot on bring-up containers"):
+                engines.sonic_mgmt.run_cmd(SystemConsts.CONTAINER_BU_TEMPLATE.format(
+                    python_path=SystemConsts.PYTHON_PATH, container_bu_script=SystemConsts.CONTAINER_BU_SCRIPT,
+                    setup_name=setup_name))
+    else:
+        logger.info(f'Could not bring-up traffic containers, {NvosConst.HOST_HA} and {NvosConst.HOST_HB} '
+                    f'were not found in engines')
+
+
+@pytest.fixture
+def prepare_traffic(bring_up_traffic_containers, start_sm):
+    """
+    - Bring up traffic containers in case are in down state.
+    - Starts OpenSM
+    """
+    logger.info('Prepare traffic containers...')

@@ -251,6 +251,30 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params)
 
     @staticmethod
+    def action_profile_change(engine, resource_path, params_dict=None, should_wait_till_system_ready=True):
+        logging.info("Running action: 'profile change' on dut using OpenApi, resource: {rsrc}"
+                     .format(rsrc=resource_path))
+
+        params = \
+            {
+                "state": "start",
+                "parameters": params_dict
+            }
+
+        result = OpenApiCommandHelper.execute_action(ActionType.CHANGE, engine.engine.username, engine.engine.password,
+                                                     engine.ip, resource_path, params)
+
+        if "System will be rebooted" in result:
+            logger.info("Waiting for switch shutdown after reload command")
+            check_port_status_till_alive(False, engine.ip, engine.ssh_port)
+            engine.disconnect()
+            logger.info("Waiting for switch to be ready")
+            check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+
+        if should_wait_till_system_ready:
+            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+
+    @staticmethod
     def action_install(engine, resource_path, param_dict={}, unused_param_val=''):
         logging.info(f'Run action install on: {resource_path}')
 

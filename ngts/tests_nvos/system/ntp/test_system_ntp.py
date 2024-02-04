@@ -114,7 +114,7 @@ def test_configure_ntp_server():
         with allure.step("Update existing ntp server with none default values"):
             logging.info("Update existing ntp server with none default values")
             system.ntp.servers.resources_dict[server_name].set(
-                op_param_name=NtpConsts.AGGRESSIVE_POLLING, op_param_value=NtpConsts.AggressivePolling.ON.value).\
+                op_param_name=NtpConsts.AGGRESSIVE_POLLING, op_param_value=NtpConsts.AggressivePolling.ENABLED.value).\
                 verify_result()
             system.ntp.servers.resources_dict[server_name].set(
                 op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value).verify_result()
@@ -245,6 +245,7 @@ def test_configure_ntp_server():
                 system.ntp.unset(op_param=NtpConsts.LISTEN).verify_result()
                 system.ntp.unset(op_param=NtpConsts.STATE).verify_result()
                 system.ntp.unset(op_param=NtpConsts.VRF, apply=True).verify_result()
+            time.sleep(NtpConsts.CONFIG_TIME)
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
             assert ntp_show[NtpConsts.AUTHENTICATION] == NtpConsts.NTP_DEFAULT_DICT[NtpConsts.AUTHENTICATION], \
                 "Ntp parameter should equal to default value"
@@ -646,7 +647,7 @@ def test_configure_ntp_multiple_servers():
 
             server_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 system.ntp.servers.show(NtpConsts.SERVER1_IPV4)).get_returned_value()
-            assert server_dict[NtpConsts.TRUSTED] == NtpConsts.Trusted.NO.value,\
+            assert server_dict[NtpConsts.TRUSTED] == NtpConsts.Trusted.NO.value, \
                 "Server {server} trusted should be {expected}".\
                 format(server=NtpConsts.SERVER1_IPV4, expected=NtpConsts.Trusted.NO.value)
 
@@ -660,7 +661,7 @@ def test_configure_ntp_multiple_servers():
 
             server_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 system.ntp.servers.show(server2_hostname)).get_returned_value()
-            assert server_dict[NtpConsts.TRUSTED] == NtpConsts.Trusted.YES.value,\
+            assert server_dict[NtpConsts.TRUSTED] == NtpConsts.Trusted.YES.value, \
                 "Server {server} trusted should be {expected}".\
                 format(server=server2_hostname, expected=NtpConsts.Trusted.YES.value)
 
@@ -669,7 +670,7 @@ def test_configure_ntp_multiple_servers():
             system.ntp.servers.unset_resource(NtpConsts.SERVER1_IPV4, apply=True).verify_result()
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_show[NtpConsts.REFERENCE] != NtpConsts.SERVER1_IPV4,\
+            assert ntp_show[NtpConsts.REFERENCE] != NtpConsts.SERVER1_IPV4, \
                 "Reference server should be other than {server}".format(server=NtpConsts.SERVER1_IPV4)
 
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
@@ -792,7 +793,7 @@ def test_ntp_performance():
             system.ntp.servers.set_resource(server_name, apply=True)
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_show[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value,\
+            assert ntp_show[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value, \
                 "Synchronization time is longer than expected time of {expected} seconds".\
                 format(actual=show_duration_diff, expected=NtpConsts.SYNCHRONIZATION_MAX_TIME)
 
@@ -848,7 +849,7 @@ def test_ntp_reliability():
         with allure.step("Verify system clock is synchronized"):
             logging.info("Verify system clock is synchronized")
             ntp_dict = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value,\
+            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value, \
                 "Server {server} status should be {expected}".\
                 format(server=server_name, expected=NtpConsts.Status.SYNCHRONISED.value)
 
@@ -860,7 +861,7 @@ def test_ntp_reliability():
             logging.info("Verify system clock is synchronized")
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
             ntp_dict = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value,\
+            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value, \
                 "Server {server} status should be {expected}".\
                 format(server=server_name, expected=NtpConsts.Status.SYNCHRONISED.value)
 
@@ -871,7 +872,7 @@ def test_ntp_reliability():
         with allure.step("Verify system clock is unsynchronized"):
             logging.info("Verify system clock is unsynchronized")
             ntp_dict = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.UNSYNCHRONISED.value,\
+            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.UNSYNCHRONISED.value, \
                 "Server {server} status should be {expected}".\
                 format(server=server_name, expected=NtpConsts.Status.UNSYNCHRONISED.value)
 
@@ -883,7 +884,7 @@ def test_ntp_reliability():
         with allure.step("Verify system clock is synchronized"):
             logging.info("Verify system clock is synchronized")
             ntp_dict = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
-            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value,\
+            assert ntp_dict[NtpConsts.STATUS] == NtpConsts.Status.SYNCHRONISED.value, \
                 "Server {server} status should be {expected}".\
                 format(server=server_name, expected=NtpConsts.Status.SYNCHRONISED.value)
 

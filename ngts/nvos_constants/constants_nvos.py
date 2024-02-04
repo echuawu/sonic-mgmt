@@ -94,7 +94,7 @@ class NvosConst:
     SERVERS_USER_NAME = os.getenv("TEST_SERVER_USER")
 
     SYSTEM = "system"
-    INTERFACES = "interfaces"
+    INTERFACE = "interface"
     IB = "ib"
     SYSTEM_TIMEZONE = "timezone"
     SYSTEM_AAA = 'aaa'
@@ -116,6 +116,22 @@ class NvosConst:
         "timezone": "Asia/Jerusalem"
     }
     }
+
+
+class CertificateFiles:
+    BUNDLE_FILE = 'bundle_uri'
+    PUBLIC_KEY_FILE = 'uri-public-key'
+    PRIVATE_KEY_FILE = 'uri-private-key'
+    BUNDLE_CERTIFICATE_CURRENT_PASSWORD = 'Test_2108'
+    URI_BUNDLE = 'uri-bundle'
+    PUBLIC_PRIVATE = 'public_private'
+    DATA = 'data'
+    PASSPHRASE = "passphrase"
+    CERTIFICATE_PATH = '/auto/sw_system_project/NVOS_INFRA/security/verification/cert_mgmt/'
+    CERTIFICATE = "certificate"
+    DEFAULT_CERTIFICATE = "self-signed"
+    CA_CERTIFICATE = "ca-certificate"
+    PATH_TO_CERTIFICATES = "/etc/ssl/certs/"
 
 
 class ApiType:
@@ -306,7 +322,7 @@ class SystemConsts:
     USERNAME_PASSWORD_UPPER_LABEL = 'upper-class'
     USERNAME_PASSWORD_UPPER_LIST = list(map(chr, range(65, 91)))
     USERNAME_PASSWORD_SPECIAL_LABEL = 'special-class'
-    USERNAME_PASSWORD_SPECIAL_LIST = "_#)(^"   # noqa: E402 "#$%&'()*+,-./:;<=>@[\]^_`{|}~"
+    USERNAME_PASSWORD_SPECIAL_LIST = "_#)(^"  # noqa: E402 "#$%&'()*+,-./:;<=>@[\]^_`{|}~"
     PASSWORD_HARDENING_DEFAULT = [USERNAME_PASSWORD_DIGITS_LABEL, USERNAME_PASSWORD_LOWER_LABEL,
                                   USERNAME_PASSWORD_UPPER_LABEL, USERNAME_PASSWORD_SPECIAL_LABEL]
     PASSWORD_HARDENING_RUNNING_PROCESSES = 'Running processes'
@@ -355,6 +371,10 @@ class SystemConsts:
     EXTERNAL_API_CONN_WAITING = 'waiting'
     EXTERNAL_API_CONN_WRITING = 'writing'
 
+    PYTHON_PATH = 'PYTHONPATH=/ngts_venv/ /ngts_venv/bin/python'
+    CONTAINER_BU_SCRIPT = '/devts/scripts/docker/containers_bringup.py'
+    CONTAINER_BU_TEMPLATE = '{python_path} {container_bu_script} --setup_name {setup_name} --metrox2xc_setup'
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000
@@ -388,9 +408,41 @@ class IpConsts:
     MAX_IPV6_GROUP_VALUE = 65535
     ARP_TIMEOUT = "arp-timeout"
     AUTOCONF = "autoconf"
-    PYTHON_PATH = '/auto/app/Python-3.6.2/bin/'
-    MAD_TO_GET_IP_TEMPLATE = PYTHON_PATH + 'python3.6 nvmad.py --lid {lid} --mad ' \
-                                           'MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
+    PYTHON_PATH = '/auto/app/Python-3.8.8/bin/python3.8'
+    IB_DEV_2_NET_DEV = 'ibdev2netdev'
+    MAD_TEMPLATE = 'sudo {python_path} {nvmad_path}/nvmad.py --lid {lid} --mad MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
+    IPV4_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv4[0].ipv4'
+    IPV4_NETMASK_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv4[0].netmask'
+    IPV6_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv6[0].ipv6'
+    IPV6_NETMASK_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv6[0].netmask'
+    NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE = 4
+    IPV4 = 'ipv4'
+    IPV4_NETMASK = 'ipv4_netmask'
+    IPV6 = 'ipv6'
+    IPV6_NETMASK = 'ipv6_netmask'
+    ADDR = 'address'
+    FUNC = 'function'
+    HEX_TO_IPV4 = 'hex_to_ipv4'
+    HEX_TO_IPV6 = 'hex_to_ipv6'
+    HEX_PREFIX = '0x'
+    PORT_STATE_UP = 'Up'
+    PORT_STATE_DOWN = 'Down'
+    IPV6_HEX_ZERO = '00000000000000000000000000000000'
+    IPV6_ZERO = '0:0:0:0::0:0'
+    MAD_DICT = {
+        IPV4_PREFIX: {
+            ADDR: IPV4,
+            FUNC: HEX_TO_IPV4},
+        IPV4_NETMASK_PREFIX: {
+            ADDR: IPV4_NETMASK,
+            FUNC: HEX_TO_IPV4},
+        IPV6_PREFIX: {
+            ADDR: IPV6,
+            FUNC: HEX_TO_IPV6},
+        IPV6_NETMASK_PREFIX: {
+            ADDR: IPV6_NETMASK,
+            FUNC: HEX_TO_IPV6}
+    }
 
 
 class ConfigConsts:
@@ -484,7 +536,8 @@ class IbConsts:
     IBDIAGNET_LOG_FINE_MIN_LINES = 50
     IBDIAGNET_PHY_INFO = '--get_phy_info'
     IBDIAGNET_CABLE_INFO = '--get_cable_info'
-    IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.db_csv', 'ibdiagnet2.ibnetdiscover', 'ibdiagnet2.log', 'ibdiagnet2.lst',
+    IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.db_csv', 'ibdiagnet2.ibnetdiscover', 'ibdiagnet2.log',
+                                     'ibdiagnet2.lst',
                                      'ibdiagnet2.net_dump', 'ibdiagnet2.nodes_info', 'ibdiagnet2.pkey', 'ibdiagnet2.pm',
                                      'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey']
     IBDIAGNET_EXPECTED_MESSAGE = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
@@ -504,6 +557,7 @@ class ImageConsts:
     FW_STABLE_VERSION = 'rel-31_2010_4100-004-EVB.mfa'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                        'fit70')
+    SCP_PATH_SERVER = 'scp://{username}:{password}@{ip}{path}'
 
 
 class NtpConsts:
@@ -541,8 +595,8 @@ class NtpConsts:
         VERSION_4 = '4'
 
     class AggressivePolling(Enum):
-        ON = 'on'
-        OFF = 'off'
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
 
     class KeyType(Enum):
         MD5 = 'md5'
@@ -594,6 +648,7 @@ class NtpConsts:
     SHOW_TIME_DIFF_THRESHOLD = 0.5  # [sec]
     SYNCHRONIZATION_MAX_TIME = 100  # [sec]
     SYNCHRONIZATION_TIME_AFTER_REBOOT = 60  # [sec]
+    CONFIG_TIME = 5  # [sec]
     NUMBER_OF_ITERATION = 5
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
@@ -624,7 +679,7 @@ class NtpConsts:
                                    "'key': '6', 'resolve_as': '10.7.77.134', 'state': 'disabled', " \
                                    "'trusted': 'yes', 'version': '3'}}"
     LOG_MSG_SERVER_CONFIG_KEY = "NtpCfg: Set keys: {'6': {'trusted': 'yes', 'type': 'SHA1'}}"
-#   LOG_MSG_SERVER_CONFIG_VRF = "..."  # Currently not supported
+    #   LOG_MSG_SERVER_CONFIG_VRF = "..."  # Currently not supported
 
     NTP_DEFAULT_DICT = {
         AUTHENTICATION: Authentication.DISABLED.value,
@@ -637,7 +692,7 @@ class NtpConsts:
     }
     NTP_STATUS_DEFAULT_DICT = {}
     SERVER_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.DISABLED.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         RESOLVE_AS: SERVER_FAILED,
         STATE: State.ENABLED.value,
@@ -645,7 +700,7 @@ class NtpConsts:
         VERSION: Version.VERSION_4.value
     }
     SERVER1_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.DISABLED.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         RESOLVE_AS: SERVER1_IPV4,
         STATE: State.ENABLED.value,
@@ -653,7 +708,7 @@ class NtpConsts:
         VERSION: Version.VERSION_4.value
     }
     SERVER2_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.DISABLED.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         RESOLVE_AS: SERVER2_IPV4,
         STATE: State.ENABLED.value,
@@ -685,7 +740,7 @@ class NtpConsts:
         DUMMY_SERVER8: SERVER_DEFAULT_VALUES_DICT,
     }
     SERVER_NONE_DEFAULT_VALUES_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.ON.value,
+        AGGRESSIVE_POLLING: AggressivePolling.ENABLED.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         KEY: KEY_1,
         RESOLVE_AS: SERVER1_IPV4,
@@ -694,7 +749,7 @@ class NtpConsts:
         VERSION: Version.VERSION_3.value
     }
     SERVER_DISABLED_DICT = {
-        AGGRESSIVE_POLLING: AggressivePolling.OFF.value,
+        AGGRESSIVE_POLLING: AggressivePolling.DISABLED.value,
         ASSOCIATION_TYPE: AssociationType.SERVER.value,
         KEY: KEY_1,
         RESOLVE_AS: SERVER1_IPV4,
@@ -729,8 +784,9 @@ class SyslogConsts:
     PORT_LINE = "input(type=\"im{protocol}\" port=\"{port}\")"
     RSYSLOG_CONF_FILE = '/etc/rsyslog.conf'
     MULTIPLE_SERVERS_NUMBER = 10
-    CONFIG_TIME_DIFF_THRESHOLD = 1.0      # [sec]
-    SHOW_TIME_DIFF_THRESHOLD = 1.0        # [sec]
+    CONFIG_TIME_DIFF_THRESHOLD = 1.0  # [sec]
+    SHOW_TIME_DIFF_THRESHOLD = 1.0  # [sec]
+    NVUE_LOG_PATH = "/var/log/nv-cli.log"
 
 
 class SyslogSeverityLevels:
@@ -743,7 +799,8 @@ class SyslogSeverityLevels:
     INFO = 'info'
     DEBUG = 'debug'
     SEVERITY_LEVEL_LIST = [DEBUG, INFO, NOTICE, WARN, ERROR, CRITICAL]
-    SEVERITY_LEVEL_DICT = {DEBUG: DEBUG,   # key : severity level to configure, value: priority level to send msg, and show commands
+    SEVERITY_LEVEL_DICT = {DEBUG: DEBUG,
+                           # key : severity level to configure, value: priority level to send msg, and show commands
                            INFO: INFO,
                            NOTICE: NOTICE,
                            WARN: WARN,
@@ -985,34 +1042,37 @@ class UfmMadConsts:
         ENABLED = 'enabled'
         DISABLED = 'disabled'
 
-    # LOCATION_TO_RUN_NVMAD = '/auto/sw_system_project/NVOS_INFRA/verification/mad_repository'
     STATE = 'state'
     ADVERTISED_ADDRESSED = 'advertised-addresses'
     IPV4 = 'ipv4'
-    IPV4_0 = 'ipv4_0'
-    IPV4_NETMASK = 'netmask'
-    IPV4_NETMASK_0 = 'netmask_0'
+    IPV4_PREF = 'ipv4_0'
+    IPV4_NETMASK = 'ipv4_netmask'
+    IPV4_NETMASK_PREF = 'netmask_0'
     IPV6 = 'ipv6'
-    IPV6_0 = 'ipv6[0]'
-    IPV6_1 = 'ipv6[1]'
-    IPV6_2 = 'ipv6[2]'
-    IPV6_3 = 'ipv6[3]'
+    IPV6_SLAAC = 'ipv6_slaac'
     IPV6_NETMASK = 'ipv6_netmask'
-    IPV6_NETMASK_0 = 'netmask[0]'
-    IPV6_NETMASK_1 = 'netmask[1]'
-    IPV6_NETMASK_2 = 'netmask[2]'
-    IPV6_NETMASK_3 = 'netmask[3]'
+    IPV6_NETMASK_PREF = 'netmask['
+    LAST_IP_INDEX = '[3]'
     ZEROS_IPV4 = '0.0.0.0/0'
     ZEROS_IPV6 = '0:0:0:0:0:0:0:0/0'
     STATIC_IPV4 = '10.10.10.10/10'
     STATIC_IPV6 = '10:10:10:10:10:10:10:10/10'
     MGMT_PORT0 = 'eth0'
-    # MGMT_PORT1 = 'eth1'
+    MGMT_PORT1 = 'eth1'
     IPV4_PREFIX = 'ipv4-prefix'
     IPV6_PREFIX = 'ipv6-prefix'
     UFM_MAD_TABLE_ETH0 = '\"UFM_MAD_TABLE|eth0\"'
     UFM_MAD_TABLE_GENERAL = '\"UFM_MAD_TABLE|general\"'
     NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE = 4
-    CONFIG_TIME = 100
+    CONFIG_TIME = 100  # [sec]
     MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
-    MST_REGISTER = 'IBSNI'
+    IBSNI_REGISTER = 'IBSNI'
+    NVMAD_PATH = '/auto/sw_system_project/MLNX_OS_INFRA/mad_repository'
+    LID = 1
+    MAD_NO_IPV4 = '0.0.0.0'
+    MAD_NO_IPV6 = '0:0:0:0::0:0'
+
+
+class DiskConsts:
+    DEFAULT_PARTITION_NAME = 'sda'
+    PARTITION_CAPACITY_LIMIT = 40  # Percent value

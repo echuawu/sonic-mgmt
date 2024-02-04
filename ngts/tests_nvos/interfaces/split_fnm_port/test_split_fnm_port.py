@@ -7,10 +7,12 @@ from ngts.nvos_tools.infra.MultiPlanarTool import MultiPlanarTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.tools.test_utils.allure_utils import step as allure_step
+from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.system.System import System
 
@@ -41,7 +43,7 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
     system = System(None)
 
     with allure_step('Change system profile to breakout'):
-        system.profile.action_profile_change(params='adaptive-routing enabled breakout-mode enabled')
+        system.profile.action_profile_change(params_dict={"adaptive-routing": "enabled", "breakout-mode": "enabled"})
         with allure_step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
@@ -55,7 +57,7 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
 
     with allure_step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
-        split_ports = MultiPlanarTool._get_split_ports()
+        split_ports = MultiPlanarTool._get_split_ports(devices.dut.FNM_PORT)
 
     with allure_step("Split splitter port"):
         fnm_port = split_ports[0]
@@ -63,12 +65,8 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
                                        apply=True, ask_for_confirmation=True).verify_result()
 
     with allure_step("Validate split port going to up"):
-        fae_child_port = Fae(port_name='fnm1s1')
-        child_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            fae_child_port.port.interface.show()).get_returned_value()
-        current_state = child_port_output[IbInterfaceConsts.LINK]
-        assert current_state == NvosConsts.LINK_STATE_UP, "Current state {} is not {} as expected". \
-            format(current_state, NvosConsts.LINK_STATE_UP)
+        fnm_child_port = MgmtPort(name=devices.dut.FNM_EXTERNAL_CHILD_PORT)
+        Port.wait_for_port_state(fnm_child_port, "up")
 
     with allure_step("Run traffic and check counters"):
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
@@ -85,5 +83,5 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
         with allure_step("Check counters after clear counters, should be 0"):
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
                 fnm_port.ib_interface.link.stats.show()).get_returned_value()
-            assert (output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] ==
-                    output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]) == 0
+            assert output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] \
+                == output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]

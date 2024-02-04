@@ -502,7 +502,7 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
     exp = random.randint(1, PwhConsts.MAX[PwhConsts.EXPIRATION])
-    exp_warn = random.randint(0, min(exp - 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING]))
+    exp_warn = random.randint(1, min(exp - 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING]))
 
     with allure.step('Set expiration-warning setting to {}'.format(exp_warn)):
         pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn, apply=True).verify_result()

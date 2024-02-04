@@ -20,17 +20,8 @@ def clear_system_messages(system, engines):
     :param system:  System object
            engines: Engines object
     """
-    with allure.step('Run unset system message pre-login command and apply config'):
-        system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE,
-                             apply=True, dut_engine=engines.dut).verify_result()
-
-    with allure.step('Run unset system message post-login command and apply config'):
-        system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
-                             apply=True, dut_engine=engines.dut).verify_result()
-
-    with allure.step('Run unset system message post-logout command and apply config'):
-        system.message.unset(op_param=SystemConsts.POST_LOGOUT_MESSAGE,
-                             apply=True, dut_engine=engines.dut).verify_result()
+    with allure.step('Run unset system message and apply config'):
+        system.message.unset(op_param="", apply=True, dut_engine=engines.dut).verify_result()
 
 
 @pytest.mark.banner
@@ -203,7 +194,7 @@ def test_set_system_message_post_login(engines, devices):
 
         with allure.step('Verify pre-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        devices.dut.post_login_message).verify_result()
+                                                        devices.dut.pre_login_message).verify_result()
 
         with allure.step('Run unset system message post-login command and apply config'):
             system.message.unset(op_param=SystemConsts.POST_LOGIN_MESSAGE,
@@ -256,7 +247,7 @@ def test_set_system_message_post_logout(engines, devices):
 
         with allure.step('Verify pre-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.PRE_LOGIN_MESSAGE,
-                                                        devices.dut.post_login_message).verify_result()
+                                                        devices.dut.pre_login_message).verify_result()
 
         with allure.step('Verify post-login did not change in show system'):
             ValidationTool.verify_field_value_in_output(message_output, SystemConsts.POST_LOGIN_MESSAGE,

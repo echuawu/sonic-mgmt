@@ -827,10 +827,10 @@ def test_verify_breakout_commands_not_exist(engines, test_api):
                                      apply=True, ask_for_confirmation=True).verify_result(False)
 
     with allure.step("Validate action change system profile breakout-mode enabled command"):
-        system.profile.action_profile_change(params='breakout-mode enabled').verify_result(False)
+        system.profile.action_profile_change(params_dict={'breakout-mode': 'enabled'}).verify_result(False)
 
     with allure.step("Validate action change system profile breakout-mode disabled command"):
-        system.profile.action_profile_change(params='breakout-mode disabled').verify_result(False)
+        system.profile.action_profile_change(params_dict={'breakout-mode': 'enabled'}).verify_result(False)
 
     with allure.step('Validate show system profile'):
         system_profile = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()).get_returned_value()

@@ -86,6 +86,8 @@ class TC_CONST(object):
     PWM1_PATH = f"{HW_THERMAL_FOLDER}/pwm1"
     # thermal control config
     TC_CONFIG_FILE = f"{HW_MGMT_FOLDER}/config/tc_config.json"
+    # list of platforms without a link to TC_CONFIG_FILE (copy file instead of link)
+    PLATFORMS_WITHOUT_TC_CONFIG_LINK = ["MQM9700"]
 
     # thermal control log file
     TC_LOG_FILE = "/var/log/tc_log"

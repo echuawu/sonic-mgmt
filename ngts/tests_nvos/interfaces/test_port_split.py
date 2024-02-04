@@ -73,7 +73,8 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
 
     with allure.step('Change system profile to breakout-mode enabled, adaptive-routing enabled'):
         with allure.step("Enable adaptive-routing and enable breakout-mode "):
-            system.profile.action_profile_change(params='adaptive-routing enabled breakout-mode enabled')
+            system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled',
+                                                              'breakout-mode': 'enabled'})
 
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
@@ -133,7 +134,6 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
 
 
 @pytest.mark.ib_interfaces
-@pytest.mark.nvos_build
 def test_ib_split_port_default_values(engines, interfaces, start_sm):
     """
     Test flow:
@@ -465,8 +465,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
     """
     system = System(None)
     with allure.step('Change system profile to breakout'):
-        system.profile.action_profile_change(
-            params='adaptive-routing enabled breakout-mode enabled')
+        system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled', 'breakout-mode': 'enabled'})
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
@@ -514,6 +513,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
 
 
 @pytest.mark.ib_interfaces
+@pytest.mark.disable_loganalyzer
 def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
     """
     Test flow:
@@ -560,7 +560,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
 
     with allure.step('Change system profile to default'):
         system.profile.action_profile_change(
-            params='adaptive-routing enabled adaptive-routing-groups 2048 breakout-mode disabled')
+            params_dict={'adaptive-routing': 'enabled', 'adaptive-routing-groups': '2048', 'breakout-mode': 'disabled'})
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,

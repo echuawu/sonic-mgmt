@@ -1,35 +1,20 @@
-import logging
 import random
-import time
 
-from typing import Dict, List, Callable, Any
 from infra.tools.linux_tools.linux_tools import LinuxSshEngine
-
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.system.Aaa import Aaa
-from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingFields, AddressingType, AuthConsts, AuthType
+from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingFields, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
-    detach_config
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import wait_for_ldap_nvued_restart_workaround
-from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth, verify_user_auth
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import AaaAccountingLogsFileContent, AaaServerManager
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
-    update_active_aaa_server
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_user_auth
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import \
+    AaaAccountingLogsFileContent, AaaServerManager
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
+from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround
 
 
 def generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
@@ -75,14 +60,17 @@ def generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, 
     with allure.step(f'Verify no accounting logs on {remote_aaa_type} server'):
         with allure.step(f'Verify no logs for {remote_aaa_type} admin user'):
             remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
-            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server], expect_accounting_logs=[False])
+            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server],
+                             expect_accounting_logs=[False])
 
         with allure.step(f'Verify no logs for {remote_aaa_type} monitor user'):
             remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
-            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server], expect_accounting_logs=[False])
+            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server],
+                             expect_accounting_logs=[False])
 
         with allure.step('Verify no logs for local user'):
-            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server], expect_accounting_logs=[False])
+            verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server],
+                             expect_accounting_logs=[False])
 
     with allure.step(f'Set {remote_aaa_type} accounting enabled'):
         remote_aaa_obj.accounting.set(AccountingFields.STATE, AaaConsts.ENABLED, apply=True).verify_result()
@@ -92,20 +80,24 @@ def generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, 
     with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users only'):
         with allure.step(f'Verify logs exist for {remote_aaa_type} admin user'):
             remote_adm_user: UserInfo = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
-            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server], expect_accounting_logs=[True])
+            verify_user_auth(engines, topology_obj, remote_adm_user, True, accounting_servers=[server],
+                             expect_accounting_logs=[True])
 
         with allure.step(f'Verify logs exist for {remote_aaa_type} monitor user'):
             remote_mon_user: UserInfo = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
-            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server], expect_accounting_logs=[True])
+            verify_user_auth(engines, topology_obj, remote_mon_user, True, accounting_servers=[server],
+                             expect_accounting_logs=[True])
 
         if not skip_local_users:
             with allure.step('Verify no logs for local user'):
-                verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server], expect_accounting_logs=[False])
+                verify_user_auth(engines, topology_obj, local_adminuser, True, accounting_servers=[server],
+                                 expect_accounting_logs=[False])
 
 
 def generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                                 remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
-                                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo, skip_local_users: bool = True):
+                                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
+                                                skip_local_users: bool = True):
     """
     @summary: Verify that accounting logs are sent to top server only
 
@@ -143,24 +135,30 @@ def generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj,
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st server ({server1.hostname}) only'):
+    with allure.step(
+            f'Verify accounting logs appear for {remote_aaa_type} users on 1st server ({server1.hostname}) only'):
         with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
             server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False,
+                             accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
             with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
                 server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if not skip_local_users:
             with allure.step(f'Verify no logs for local user'):
-                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
+                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
 
 
-def generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+def generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request,
+                                                       local_adminuser: UserInfo,
                                                        remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
-                                                       server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo, skip_local_users: bool = True):
+                                                       server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
+                                                       skip_local_users: bool = True):
     """
     @summary: Verify that when top server becomes unreachable, accounting logs are sent to next available server only
 
@@ -208,52 +206,63 @@ def generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topolo
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
+    with allure.step(
+            f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
         with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
             server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False,
+                             accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
             with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
                 server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if not skip_local_users:
             with allure.step(f'Verify no logs for local user'):
-                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
+                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
 
     with allure.step(f'Make server1 ({server1.hostname}) also unreachable'):
         server1.make_unreachable(engines, apply=True)
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server2.hostname}) only'):
+    with allure.step(
+            f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server2.hostname}) only'):
         with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
             server2_user: UserInfo = random.choice(server2.users)
-            verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, True])
+            verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False,
+                             accounting_servers=[server1, server2], expect_accounting_logs=[False, True])
 
         if not skip_local_users:
             with allure.step(f'Verify no logs for local user'):
-                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
+                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
 
     with allure.step(f'Make server1 ({server1.hostname}) reachable again'):
         server1.make_reachable(engines, apply=True)
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
-    with allure.step(f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
+    with allure.step(
+            f'Verify accounting logs appear for {remote_aaa_type} users on 1st available server ({server1.hostname}) only'):
         with allure.step(f'Verify logs exist for {remote_aaa_type}1 user'):
             server1_user: UserInfo = random.choice(server1.users)
-            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+            verify_user_auth(engines, topology_obj, server1_user, True, verify_authorization=False,
+                             accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP - 2nd server user cant auth even with failthrough enabled
             with allure.step(f'Verify logs exist for {remote_aaa_type}2 user'):
                 server2_user: UserInfo = random.choice(server2.users)
-                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
+                verify_user_auth(engines, topology_obj, server2_user, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[True, False])
 
         if not skip_local_users:
             with allure.step(f'Verify no logs for local user'):
-                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False, accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
+                verify_user_auth(engines, topology_obj, local_adminuser, True, verify_authorization=False,
+                                 accounting_servers=[server1, server2], expect_accounting_logs=[False, False])
 
 
 def generic_aaa_test_accounting_local_first(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
@@ -320,7 +329,9 @@ def generic_aaa_test_accounting_local_first(test_api, engines, topology_obj, req
     with allure.step(f'Verify {"" if expect_logs else "no "}logs for these operations'):
         with allure.step(f'Check accounting on server: {server_mngr.ip} , Expect logs: {expect_logs}'):
             accounting_logs: AaaAccountingLogsFileContent = server_mngr.cat_accounting_logs(grep=remote_user.username)
-            assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{server_mngr.ip}" for user "{remote_user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
+            assert bool(
+                accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{server_mngr.ip}" for user "{remote_user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
 
     with allure.step(f'Verify no logs for new remote connection'):
-        verify_user_auth(engines, topology_obj, remote_user, True, verify_authorization=False, accounting_servers=[server], expect_accounting_logs=[expect_logs])
+        verify_user_auth(engines, topology_obj, remote_user, True, verify_authorization=False,
+                         accounting_servers=[server], expect_accounting_logs=[expect_logs])

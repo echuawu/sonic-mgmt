@@ -1,5 +1,17 @@
 ########################## NVOS IGNORE START ##########################
 
+tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_accounting_top_server_only:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3750857"
+    conditions:
+      - https://redmine.mellanox.com/issues/3750857
+
+tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_accounting_unreachable_top_server:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3750857"
+    conditions:
+      - https://redmine.mellanox.com/issues/3750857
+
 tests_nvos/general/security/test_grub_password/test_grub_password.py::test_grub_password:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3684496"
@@ -287,18 +299,6 @@ tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_
   skip:
     reason: "Testcase skipped due to inability to force update of DB values"
 
-tests_nvos/platform/test_platform_environment.py::test_show_platform_environment_temperature:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633981"
-    conditions:
-      - https://redmine.mellanox.com/issues/3633981
-
-tests_nvos/platform/test_platform_environment.py::test_show_platform_environment_temperature_openapi:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3633981"
-    conditions:
-      - https://redmine.mellanox.com/issues/3633981
-
 tests_nvos/ib/test_set_unset_sm_state.py::test_set_unset_sm_state_many_times:
   skip:
     reason: "Testcase skipped on marlin systems due to RM issue: https://redmine.mellanox.com/issues/3649754"
@@ -336,5 +336,41 @@ tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py::test_
     reason: "Should run only on xdr Black Mamba system"
     conditions:
       - "'gorilla' or 'marlin' in testbed"
+
+tests_nvos/interfaces/test_response_mgmt_ip_inband.py::test_interface_shutdown:
+  skip:
+    reason: "Should run only on xdr Black Mamba system"
+    conditions:
+      - "'gorilla' or 'marlin' in testbed"
+
+tests_nvos/interfaces/test_response_mgmt_ip_inband.py::test_dhcp_shutdown:
+  skip:
+    reason: "Should run only on xdr Black Mamba system"
+    conditions:
+      - "'gorilla' or 'marlin' in testbed"
+
+tests_nvos/platform/test_platform_firmware.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3716349"
+    conditions:
+      - https://redmine.mellanox.com/issues/3716349
+
+tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_poll:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
+    conditions:
+      - https://redmine.mellanox.com/issues/3727441
+
+tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_once:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
+    conditions:
+      - https://redmine.mellanox.com/issues/3727441
+
+tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
+    conditions:
+      - https://redmine.mellanox.com/issues/3727441
 
 ########################## NVOS IGNORE END ##########################

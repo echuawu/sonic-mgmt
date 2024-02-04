@@ -69,15 +69,15 @@ class MultiPlanarTool:
 
     @staticmethod
     @retry(Exception, tries=4, delay=2)
-    def _get_split_ports():
+    def _get_split_ports(port="sw10p1"):
         all_ports = Port.get_list_of_ports()
         split_ports = []
-        split_port_names = ["sw10p1"]
-        for port in all_ports:
-            if port.name in split_port_names:
-                split_ports.append(port)
+        split_port_names = [port]
+        for port_iterator in all_ports:
+            if port_iterator.name in split_port_names:
+                split_ports.append(port_iterator)
         if not split_ports:
-            raise Exception
+            raise Exception("Didn't find split ports on the system")
         return split_ports
 
     @staticmethod

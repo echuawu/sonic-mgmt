@@ -11,7 +11,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+# from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts [TBD]
 from ngts.tools.test_utils.allure_utils import step as allure_step
 
 logger = logging.getLogger()
@@ -35,16 +35,19 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
 
+    with allure_step("Start openSM"):
+        OpenSmTool.start_open_sm(engines.dut).verify_result()
+
     with allure_step("Select nvl5 port"):
         port_name = RandomizationTool.select_random_value(devices.dut.NVL5_PORT).get_returned_value()
         selected_port = MgmtPort(port_name)
         selected_fae_port = Fae(port_name=port_name)
 
     with allure_step("Validate show interface command with all nvl5 interfaces"):
-        show_interface_and_validate(devices)
+        show_interface_and_validate(engines, devices)
 
     with allure_step("Validate show fae interface command with all nvl5 interfaces"):
-        show_interface_and_validate(devices, 'fae')
+        show_interface_and_validate(engines, devices, 'fae')
 
     with allure_step("Validate all multi planar fields exist and port {} type nvl, port speed 400G"
                      .format(selected_port.name)):
@@ -54,21 +57,24 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
         ValidationTool.validate_all_values_exists_in_list(MultiPlanarConsts.MULTI_PLANAR_KEYS, fae_port_keys). \
             verify_result()
         ValidationTool.compare_values(output_fae_port['type'], devices.dut.NVL5_PORT_TYPE).verify_result()
-        ValidationTool.compare_values(output_fae_port['link']['speed'], devices.dut.NVL5_PORT_SPEED).verify_result()
+        # ValidationTool.compare_values(output_fae_port['link']['speed'], devices.dut.NVL5_PORT_SPEED).verify_result()
+        # [TBD] will work only on real system,  when system arrived, bug 3730650
 
-    with allure_step("Validate link diagnostics on nvl5"):
-        output_port = OutputParsingTool.parse_json_str_to_dictionary(
-            selected_port.interface.link.diagnostics.show()).get_returned_value()
-        ValidationTool.compare_values(output_port, {'0': {'status': 'No issue was observed'}}).verify_result()
+    # with allure_step("Validate link diagnostics on nvl5"):
+    #     output_port = OutputParsingTool.parse_json_str_to_dictionary(
+    #         selected_port.interface.link.diagnostics.show()).get_returned_value()
+    #     ValidationTool.compare_values(output_port, {'0': {'status': 'No issue was observed'}}).verify_result()
+    # [TBD] will work only on real system,  when system arrived, bug 3730650
 
     with allure_step("Clear counters and validate"):
         selected_port.interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
 
-        with allure_step("Check counters after clear counters, should be 0"):
-            output_dictionary = OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-                selected_port.interface.link.stats.show()).get_returned_value()
-            assert (output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] ==
-                    output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]) == 0
+        # with allure_step("Check counters after clear counters, should be 0"):
+        #     output_dictionary = OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
+        #         selected_port.interface.link.stats.show()).get_returned_value()
+        #     assert (output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] ==
+        #             output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]) == 0
+        # [TBD] will work only on real system,  when system arrived, bug 3730650
 
 
 @pytest.mark.interface
@@ -152,8 +158,9 @@ def test_nvl5_negative(engines, devices, test_api):
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
 
-def show_interface_and_validate(engines, command=''):
-    output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(Port.show_interface(command))\
+def show_interface_and_validate(engines, devices, command=''):
+    output_dictionary = OutputParsingTool.\
+        parse_show_all_interfaces_output_to_dictionary(Port.show_interface(engines.dut, fae_param=command))\
         .get_returned_value()
     output_keys = list(output_dictionary.keys())
-    ValidationTool.compare_values(output_keys.sort(), engines.dut.ALL_NVL5_PORTS_LIST.sort()).verify_result()
+    ValidationTool.compare_values(output_keys.sort(), devices.dut.ALL_NVL5_PORTS_LIST.sort()).verify_result()

@@ -1,5 +1,7 @@
 import logging
 import time
+
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.system.System import System
@@ -55,7 +57,7 @@ def test_system_ready_state_up(engines, devices, topology_obj):
         DutUtilsTool.wait_for_nvos_to_become_functional(ssh_connection).verify_result()
 
     logs_to_find = ['Wait until the NOS signal we are ready to serve', 'System is ready to serve']
-    verify_expected_logs(ssh_connection, logs_to_find)
+    System().log.verify_expected_logs(logs_to_find, engine=ssh_connection)
 
     with allure.step('check the system status in DB'):
         output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
@@ -94,6 +96,7 @@ def test_system_ready_state_down(engines, devices, topology_obj):
         5. start docker as a cleanup step
     """
     with allure.step('pick a docker to kill'):
+        system = System(None)
         docker_to_kill = [i for i in devices.dut.available_services if i.startswith('swss')][0]
         logger.info("after reboot we will stop {}".format(docker_to_kill))
 
@@ -128,7 +131,7 @@ def test_system_ready_state_down(engines, devices, topology_obj):
                 time.sleep(300)
 
             logs_to_find = ['Wait until the NOS signal we are ready to serve']
-            verify_expected_logs(ssh_connection, logs_to_find)
+            system.log.verify_expected_logs(logs_to_find, engine=ssh_connection)
 
             with allure.step('verify the system status is DOWN'):
                 output = Tools.DatabaseTool.sonic_db_cli_hgetall(engine=ssh_connection, asic="",
@@ -137,7 +140,6 @@ def test_system_ready_state_down(engines, devices, topology_obj):
                 assert SystemConsts.STATUS_DOWN in output, "SYSTEM STATE SHOULD BE DOWN"
 
             with allure.step("verify we can run nvue command and the system status is not ok"):
-                system = System(None)
                 Tools.ValidationTool.verify_field_value_in_output(Tools.OutputParsingTool.parse_json_str_to_dictionary(
                     system.show()).verify_result(), SystemConsts.STATUS, SystemConsts.STATUS_NOT_OK).verify_result()
 
@@ -145,17 +147,3 @@ def test_system_ready_state_down(engines, devices, topology_obj):
         with allure.step('start docker {} as a cleanup step'.format(docker_to_kill)):
             engines.dut.run_cmd('sudo systemctl start {}'.format(docker_to_kill))
             system.reboot.action_reboot(engines.dut)
-
-
-def verify_expected_logs(engine, logs_to_find):
-    """
-
-    :param engine:
-    :param logs_to_find: list of logs to find
-    :return:
-    """
-    with allure.step('verify expected logs'):
-        for log in logs_to_find:
-            with allure.step('try to find "{}" in the logs'.format(log)):
-                log_file = engine.run_cmd(f'cat /var/log/syslog | grep "{log}"')
-                assert log_file, "missing logs, we expect to see {} in the output".format(log)

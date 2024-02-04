@@ -9,7 +9,7 @@ class Profile(BaseComponent):
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/profile')
 
-    def action_profile_change(self, engine=None, params=""):
+    def action_profile_change(self, engine=None, params_dict={}):
         with allure.step('Execute action for {resource_path}'.format(resource_path=self.get_resource_path())):
             if not engine:
                 engine = TestToolkit.engines.dut
@@ -17,7 +17,7 @@ class Profile(BaseComponent):
             marker = TestToolkit.get_loganalyzer_marker(engine)
 
             res = SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_profile_change, engine,
-                                                  self.get_resource_path().replace('/profile', ' '), params)
+                                                  self.get_resource_path(), params_dict)
 
             TestToolkit.add_loganalyzer_marker(engine, marker)
 

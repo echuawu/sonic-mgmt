@@ -31,6 +31,7 @@ KEEP_BASIC = "keep basic"
 @pytest.mark.system
 @pytest.mark.checklist
 @pytest.mark.reset_factory
+@pytest.mark.nvos_build
 def test_reset_factory_without_params(engines, devices, topology_obj, platform_params):
     """
     Validate reset factory without params cleanup done as expected
@@ -92,6 +93,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Get current time"):
+            update_timezone(system)
             current_time = get_current_time(engines)
 
         with allure.step("Run reset factory without params"):
@@ -165,6 +167,7 @@ def test_reset_factory_keep_basic(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Get current time"):
+            update_timezone(system)
             current_time = get_current_time(engines)
 
         with allure.step("Run reset factory with keep basic param"):
@@ -249,6 +252,7 @@ def test_reset_factory_keep_all_config(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Get current time"):
+            update_timezone(system)
             current_time = get_current_time(engines)
 
         with allure.step("Run reset factory with keep all-config param"):
@@ -336,6 +340,7 @@ def test_reset_factory_keep_only_files(engines):
             username = _add_verification_data(engines.dut, system)
 
         with allure.step("Get current time"):
+            update_timezone(system)
             current_time = get_current_time(engines)
 
         with allure.step("Run reset factory without params"):

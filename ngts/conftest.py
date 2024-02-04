@@ -8,14 +8,15 @@ NOTE: Add here only fixtures and methods that can be used for canonical and comm
 if your methods only apply for canonical setups please add them in ngts/tests/conftest.py
 
 """
-import time
-import pytest
-import logging
-import re
-import os
 import json
-from paramiko.ssh_exception import SSHException
+import logging
+import os
+import re
+import time
+
+import pytest
 from dotted_dict import DottedDict
+from paramiko.ssh_exception import SSHException
 
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli, SonicCliStub
@@ -161,7 +162,8 @@ def pytest_fixture_post_finalizer(fixturedef, request):
         if func.name == func_name and getattr(func, 'funcargs', None):
             topology_obj = func.funcargs.get('topology_obj')
             if topology_obj:
-                if getattr(func, 'rep_setup', None) and getattr(func, 'rep_call', None) and func.rep_setup.passed and func.rep_call.failed:
+                if getattr(func, 'rep_setup', None) and getattr(func, 'rep_call',
+                                                                None) and func.rep_setup.passed and func.rep_call.failed:
                     update_fixture_scope_list(topology_obj, fixturedef.argname, fixturedef.scope)
                 else:
                     clean_stored_cmds_with_fixture_scope(topology_obj, fixturedef.argname, fixturedef.scope)
@@ -234,7 +236,9 @@ def topology_obj(setup_name, request):
     update_topology_with_cli_class(topology)
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
-    topology.players['dut']['is_nvos'] = topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes
+    topology.players['dut']['is_nvos'] = \
+        topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.'][
+        'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
     if request.config.option.ports_number == "max":
         # This is used for the fast reboot with max ports
         config_db = topology.players['dut']['cli'].general.get_config_db()
@@ -277,7 +281,8 @@ def update_topology_with_cli_class(topology):
     nvos_setup = False
     for player_key, player_info in topology.players.items():
         if player_key in PlayersAliases.duts_list:
-            if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
+            if player_info['attributes'].noga_query_data['attributes']['Topology Conn.'][
+                    'CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 update_nvos_topology(topology, player_info)
                 nvos_setup = True
             else:
@@ -416,7 +421,7 @@ def is_debug_kernel_run(engines, should_skip_checking_fixture):
 
     try:
         output = engines.dut.run_cmd(f"sudo ls {DebugKernelConsts.KMEMLEAK_PATH}")
-        pytest.is_debug_kernel = False if "No such file or directory" in output else True    # only in debug kernel version we have this file
+        pytest.is_debug_kernel = False if "No such file or directory" in output else True  # only in debug kernel version we have this file
     except SSHException as err:
         logger.warning(f'Unable to check if its debug kernel run. Assuming that the device is not reachable. '
                        f'Setting the is_debug_kernel_run as False, '
@@ -567,7 +572,7 @@ def disable_loganalyzer(request):
 
 @pytest.fixture(scope='function', autouse=True)
 def should_skip_bug_handler_action(request, disable_loganalyzer):
-    if not disable_loganalyzer and request.config.getoption("--skip_bug_handler_action"):
+    if disable_loganalyzer or request.config.getoption("--skip_bug_handler_action"):
         logger.info('Bug handler WILL skip actions for LA errors')
         return True
     else:
@@ -576,12 +581,14 @@ def should_skip_bug_handler_action(request, disable_loganalyzer):
 
 
 @pytest.fixture(scope='function', autouse=True)
-def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer, should_skip_bug_handler_action):
+def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disable_loganalyzer,
+                             should_skip_bug_handler_action):
     """
     fixture that run every test and call function: handle_log_analyzer_errors if the run_log_analyzer_bug_handler is True.
     """
     yield
-    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_skip_bug_handler_action)
+    run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action = is_log_analyzer_handler_enabled(
+        topology_obj, disable_loganalyzer, should_skip_bug_handler_action)
     if run_log_analyzer_bug_handler:
         current_time = str(time.time()).replace('.', '')
         request.session.config.option.allure_server_project_id = current_time
@@ -589,7 +596,9 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
         logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
         bug_handler_dict = {'test_description': request.node.function.__doc__,
                             'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
-                            'system_type': topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type'],
+                            'system_type':
+                                topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+                                    'switch_type'],
                             'detected_in_version': log_analyzer_handler_info['version'],
                             'setup_name': setup_name,
                             'report_url': allure_report_url}
@@ -601,8 +610,9 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
             error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
                         f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE].keys())}\n"
-            for i, (bug_id, bug_title) in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
-                error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
+            for i, (bug_id, bug_title) in enumerate(
+                    log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
+                error_msg += f"{i}) {REDMINE_ISSUES_URL + str(bug_id)}:  {bug_title}\n"
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
             error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
                                     f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
@@ -620,11 +630,12 @@ def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_sk
 
     log_analyzer_handler_info['branch'] = topology_obj.players['dut']['branch']
     log_analyzer_handler_info['cli_type'] = os.environ['CLI_TYPE']
-    log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(log_analyzer_handler_info['cli_type'])
+    log_analyzer_handler_info['version'] = GeneralCliCommon(topology_obj.players['dut']['engine']).get_version(
+        log_analyzer_handler_info['cli_type'])
 
     if log_analyzer_handler_info['cli_type'] == 'NVUE':
         run_log_analyzer_bug_handler = TestToolkit.run_log_analyzer_bug_handler()
         if not should_skip_bug_handler_action:  # if its true by intention, don't consider if it is ci or not
-            bug_handler_no_action = pytest.is_ci_run   # no_action flag in ci run, so it will not open new bugs
+            bug_handler_no_action = pytest.is_ci_run  # no_action flag in ci run, so it will not open new bugs
 
     return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action

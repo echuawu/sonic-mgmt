@@ -210,9 +210,7 @@ class TestNewTc:
         # The below map includes these info
         special_hwsku_to_tc_config_map = {"ACS-MSN4410": "msn4700"}
 
-        with allure.step("Get tc_config link and sku info"):
-            tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
-
+        with allure.step("Get sku info"):
             hwsku = platform_params.hwsku
             reg_hwsku = r'(ACS|Mellanox)-(?P<hwsku>\w+).*'
             sku_res = re.search(reg_hwsku, hwsku)
@@ -223,7 +221,18 @@ class TestNewTc:
             expected_hwsku_in_tc_config_file = special_hwsku_to_tc_config_map.get(hwsku,
                                                                                   expected_hwsku_in_tc_config_file)
 
-        with allure.step(f"Check {expected_hwsku_in_tc_config_file} is in {tc_config_link}"):
-            assert expected_hwsku_in_tc_config_file.lower() in tc_config_link.lower(), \
-                f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, " \
-                f"platform sku: {platform_params.hwsku}"
+        # In case platform name exists in NO_TC_CONFIG_LINK_PLATFORMS list, it means there is no link to TC_CONFIG_FILE,
+        # and therefore just verifying config file contains the hwsku name. otherwise checking the tc_config link.
+        if expected_hwsku_in_tc_config_file in TC_CONST.PLATFORMS_WITHOUT_TC_CONFIG_LINK:
+            with allure.step(f"verify config file contains the hwsku name"):
+                tc_config_content = self.dut_engine.run_cmd(f'sudo cat {TC_CONST.TC_CONFIG_FILE}')
+                assert expected_hwsku_in_tc_config_file.lower() in tc_config_content, \
+                    f"tc_config file should contains hwsku name: {expected_hwsku_in_tc_config_file.lower()}"
+        else:
+            with allure.step("Get tc_config link"):
+                tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
+
+            with allure.step(f"Check {expected_hwsku_in_tc_config_file} is in {tc_config_link}"):
+                assert expected_hwsku_in_tc_config_file.lower() in tc_config_link.lower(), \
+                    f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, " \
+                    f"platform sku: {platform_params.hwsku}"

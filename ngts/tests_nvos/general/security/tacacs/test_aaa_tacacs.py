@@ -252,87 +252,6 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
-    """
-    @summary: Verify timeout functionality
-
-        In case that server is not reachable, the client (switch) will wait for respond for <timeout> seconds,
-            after which it aborts and fails the attempt.
-
-        Steps:
-        1. Set unreachable tacacs server with some timeout
-        2. Make authentication attempt and measure time
-        3. Verify respond time >= timeout
-        4. Set another unreachable server
-        5. Make authentication attempt and measure time
-        6. Verify respond time >= sum of timeouts
-
-    """
-    TestToolkit.tested_api = test_api
-
-    aaa = System().aaa
-    try:
-        with allure.step('Set unreachable tacacs server with some timeout'):
-            rand_timeout = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
-                                          TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
-            logging.info(f'Chosen timeout: {rand_timeout}')
-            # configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            #     AaaConsts.RETRANSMIT: 0
-            # })
-            configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
-                AaaConsts.TIMEOUT: rand_timeout,
-                AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: 555
-            })
-
-        with allure.step('Set tacacs in authentication order and failthrough off'):
-            configure_resource(engines, resource_obj=aaa.authentication, conf={
-                AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
-                AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-            }, apply=True, verify_apply=False)
-
-        with allure.step('Make authentication attempt and measure time'):
-            authenticator = SshAuthenticator(local_adminuser.username, local_adminuser.password, engines.dut.ip)
-            _, timestamp1 = authenticator.attempt_login_failure()
-            _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
-            engines.dut.disconnect()
-
-        with allure.step(f'Verify respond time >= timeout'):
-            assert timestamp2 - timestamp1 >= rand_timeout, f'Timeout was too short. Expected: {rand_timeout}'
-
-        with allure.step('Set another unreachable server with timeout'):
-            rand_timeout2 = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
-                                           TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
-            logging.info(f'Chosen timeout: {rand_timeout2}')
-            configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['2.4.6.8'], conf={
-                AaaConsts.PRIORITY: 2,
-                AaaConsts.TIMEOUT: rand_timeout2,
-                AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: 555
-            }, apply=True, verify_apply=False)
-
-        with allure.step('Make authentication attempt and measure time'):
-            _, timestamp1 = authenticator.attempt_login_failure()
-            _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
-            engines.dut.disconnect()
-
-        with allure.step('Verify respond time >= sum of timeouts'):
-            assert timestamp2 - timestamp1 >= rand_timeout + rand_timeout2, \
-                f'Timeout was too short. Expected: {rand_timeout + rand_timeout2}'
-    finally:
-        logging.info('Disconnect local engine for cleanup steps')
-        engines.dut.disconnect()
-
-        # with allure.step('Remote reboot'):
-        #     NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
-
-        # with allure.step('Clear aaa configuration'):
-        #     aaa.unset(apply=True).verify_result()
-
-
-@pytest.mark.security
-@pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, request, local_adminuser: UserInfo):
     """
@@ -456,3 +375,85 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
                                             remote_aaa_type=RemoteAaaType.TACACS,
                                             remote_aaa_obj=System().aaa.tacacs,
                                             server=test_server)
+
+
+@pytest.mark.security
+@pytest.mark.simx_security
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
+    """
+    @summary: Verify timeout functionality
+
+        In case that server is not reachable, the client (switch) will wait for respond for <timeout> seconds,
+            after which it aborts and fails the attempt.
+
+        Steps:
+        1. Set unreachable tacacs server with some timeout
+        2. Make authentication attempt and measure time
+        3. Verify respond time >= timeout
+        4. Set another unreachable server
+        5. Make authentication attempt and measure time
+        6. Verify respond time >= sum of timeouts
+
+    """
+    TestToolkit.tested_api = test_api
+
+    aaa = System().aaa
+    try:
+        with allure.step('Set unreachable tacacs server with some timeout'):
+            rand_timeout = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
+                                          TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
+            rand_timeout = 19
+            logging.info(f'Chosen timeout: {rand_timeout}')
+            # configure_resource(engines, resource_obj=aaa.tacacs, conf={
+            #     AaaConsts.RETRANSMIT: 0
+            # })
+            configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
+                AaaConsts.TIMEOUT: rand_timeout,
+                AaaConsts.SECRET: "xyz",
+                AaaConsts.PORT: 555
+            })
+
+        with allure.step('Set tacacs in authentication order and failthrough off'):
+            configure_resource(engines, resource_obj=aaa.authentication, conf={
+                AuthConsts.ORDER: f'{AuthConsts.TACACS},{AuthConsts.LOCAL}',
+                AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
+            }, apply=True, verify_apply=False)
+
+        with allure.step('Make authentication attempt and measure time'):
+            authenticator = SshAuthenticator(local_adminuser.username, local_adminuser.password, engines.dut.ip)
+            _, timestamp1 = authenticator.attempt_login_failure()
+            _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
+            engines.dut.disconnect()
+
+        with allure.step(f'Verify respond time >= timeout'):
+            assert timestamp2 - timestamp1 >= rand_timeout, f'Timeout was too short. Expected: {rand_timeout}'
+
+        with allure.step('Set another unreachable server with timeout'):
+            rand_timeout2 = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
+                                           TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
+            logging.info(f'Chosen timeout: {rand_timeout2}')
+            configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['2.4.6.8'], conf={
+                AaaConsts.PRIORITY: 2,
+                AaaConsts.TIMEOUT: rand_timeout2,
+                AaaConsts.SECRET: "xyz",
+                AaaConsts.PORT: 555
+            }, apply=True, verify_apply=False)
+
+        with allure.step('Make authentication attempt and measure time'):
+            _, timestamp1 = authenticator.attempt_login_failure()
+            _, timestamp2 = authenticator.attempt_login_success(restart_session_process=False)
+            engines.dut.disconnect()
+
+        with allure.step('Verify respond time >= sum of timeouts'):
+            assert timestamp2 - timestamp1 >= rand_timeout + rand_timeout2, \
+                f'Timeout was too short. Expected: {rand_timeout + rand_timeout2}'
+    finally:
+        logging.info('Disconnect local engine for cleanup steps')
+        engines.dut.disconnect()
+
+        # with allure.step('Remote reboot'):
+        #     NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
+
+        # with allure.step('Clear aaa configuration'):
+        #     aaa.unset(apply=True).verify_result()

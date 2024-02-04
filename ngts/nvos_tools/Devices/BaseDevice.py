@@ -766,11 +766,13 @@ class GorillaSwitch(MultiAsicSwitch):
         'sw31p2': 'sw32p1pl2'
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
-    FNM_PORT_LIST = ['fnm1']
+    FNM_PORT = 'fnm1'
     AGGREGATED_SPLIT_PORT_LIST = ['sw10p1']
     FNM_INTERNAL_PORT_LIST = ['fnma1p236']
     FNM_EXTERNAL_PORT_LIST = ['fnm1']
+    FNM_EXTERNAL_CHILD_PORT = 'fnm1s1'
     SPLIT_AGGREGATED_PORT = ['sw10p1']
+    CHILD_AGGREGATED_PORT = 'sw10p1s1'
     AGGREGATED_PORT_PLANARIZED_PORTS = 4
     SYSTEM_PROFILE_DEFAULT_VALUES = ['enabled', '2048', 'disabled', 'disabled', '1']
     FNM_PLANE_PORT_LIST = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
@@ -895,8 +897,7 @@ class BlackMambaSwitch(MultiAsicSwitch):
     GORILLA_IB_PORT_NUM = 64
     SWITCH_CORE_COUNT = 4
     ASIC_TYPE = 'Quantum3'
-    DEVICE_LIST = [IbConsts.DEVICE_ASIC_PREFIX + '1', IbConsts.DEVICE_SYSTEM]
-    ASIC_AMOUNT = 1
+    ASIC_AMOUNT = 4
     PRIMARY_ASIC = "ASIC1"
     PRIMARY_SWID = 'SWID0'
     PRIMARY_IPOIB_INTERFACE = "ib0"
@@ -987,7 +988,8 @@ class BlackMambaSwitch(MultiAsicSwitch):
 
     def __init__(self):
         MultiAsicSwitch.__init__(self, self.ASIC_AMOUNT)
-        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format("x86_64-mlnx_mqm9700-r0")
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.\
+            format("x86_64-mlnx_qm8790-r0")
 
     def ib_ports_num(self):
         return self.GORILLA_IB_PORT_NUM
@@ -1000,13 +1002,19 @@ class BlackMambaSwitch(MultiAsicSwitch):
 
     def _init_fan_list(self):
         BaseSwitch._init_fan_list(self)
-        self.fan_list.append("FAN7/1")
-        self.fan_list.append("FAN7/2")
-        self.fan_led_list.append('FAN7')
+        self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
+        self.fan_led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
+
+    def _init_psu_list(self):
+        BaseSwitch._init_psu_list(self)
+        self.psu_list += ["PSU3", "PSU4", "PSU5", "PSU6", "PSU7", "PSU8"]
+        self.psu_fan_list += ["PSU3/FAN", "PSU4/FAN", "PSU5/FAN", "PSU6/FAN", "PSU7/FAN", "PSU8/FAN"]
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
+        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-7-Temp", "SODIMM-1-Temp", "SODIMM-2-Temp"]
+        self.temperature_list.remove("ASIC")
+        self.temperature_list.remove("PSU-1-Temp")
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
@@ -1040,6 +1048,33 @@ class BlackMambaSwitch(MultiAsicSwitch):
                  "KDUMP": 0}
         }
         self.available_tables.update({'database0': available_tables_per_asic})
+
+    VOLTAGE_SENSORS = ["PMIC-1+12V_VDD_ASIC1+Vol+In+1", "PMIC-1+ASIC1_VDD+Vol+Out+1",
+                       "PMIC-2+12V_HVDD_DVDD_ASIC1+Vol+In+1", "PMIC-2+ASIC1_DVDD_PL0+Vol+Out+2",
+                       "PMIC-2+ASIC1_HVDD_PL0+Vol+Out+1", "PMIC-3+12V_HVDD_DVDD_ASIC1+Vol+In+1",
+                       "PMIC-3+ASIC1_DVDD_PL1+Vol+Out+2", "PMIC-3+ASIC1_HVDD_PL1+Vol+Out+1",
+                       "PMIC-4+12V_VDD_ASIC2+Vol+In+1", "PMIC-4+ASIC2_VDD+Vol+Out+1",
+                       "PMIC-5+12V_HVDD_DVDD_ASIC2+Vol+In+1", "PMIC-5+ASIC2_DVDD_PL0+Vol+Out+2",
+                       "PMIC-5+ASIC2_HVDD_PL0+Vol+Out+1", "PMIC-6+12V_HVDD_DVDD_ASIC2+Vol+In+1",
+                       "PMIC-6+ASIC2_DVDD_PL1+Vol+Out+2", "PMIC-6+ASIC2_HVDD_PL1+Vol+Out+1",
+                       "PMIC-7+12V_VDD_ASIC3+Vol+In+1", "PMIC-7+ASIC3_VDD+Vol+Out+1",
+                       "PMIC-8+12V_HVDD_DVDD_ASIC3+Vol+In+1", "PMIC-8+ASIC3_DVDD_PL0+Vol+Out+2",
+                       "PMIC-8+ASIC3_HVDD_PL0+Vol+Out+1", "PMIC-9+12V_HVDD_DVDD_ASIC3+Vol+In+1",
+                       "PMIC-9+ASIC3_DVDD_PL1+Vol+Out+2", "PMIC-9+ASIC3_HVDD_PL1+Vol+Out+1",
+                       "PMIC-10+12V_VDD_ASIC4+Vol+In+1", "PMIC-10+ASIC4_VDD+Vol+Out+1",
+                       "PMIC-11+12V_HVDD_DVDD_ASIC4+Vol+In+1", "PMIC-11+ASIC4_DVDD_PL0+Vol+Out+2",
+                       "PMIC-11+ASIC4_HVDD_PL0+Vol+Out+1", "PMIC-12+12V_HVDD_DVDD_ASIC4+Vol+In+1",
+                       "PMIC-12+ASIC4_DVDD_PL1+Vol+Out+2", "PMIC-12+ASIC4_HVDD_PL1+Vol+Out+1",
+                       "PMIC-13+12V_MAIN+Vol+In+1", "PMIC-13+CEX_VDD+Vol+Out+1", "PSU-1+12V+Vol+Out",
+                       "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
+                       "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
+    TEMPERATURE_SENSORS = ["Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp",
+                           "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PSU-7-Temp", "SODIMM-1-Temp",
+                           "SODIMM-2-Temp"]
+
+    def _init_sensors_dict(self):
+        self.sensors_dict = {"VOLTAGE": self.VOLTAGE_SENSORS,
+                             "TEMPERATURE": self.TEMPERATURE_SENSORS}
 
 
 # -------------------------- Crocodile Switch ----------------------------

@@ -1,7 +1,7 @@
 import logging
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import ActionConsts
+from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.tools.test_utils import allure_utils as allure
@@ -12,7 +12,6 @@ logger = logging.getLogger()
 
 
 class NvueSystemCli(NvueBaseCli):
-
     def __init__(self):
         self.cli_name = "System"
 
@@ -127,8 +126,10 @@ class NvueSystemCli(NvueBaseCli):
         """
         Rebooting the switch
         """
+        list_items = [f'{key} {value}' for key, value in op_param.items()]
+        op_param = ' '.join(list_items)
         path = resource_path.replace('/', ' ')
-        cmd = "nv action change {path} profile {op_param}".format(path=path, op_param=op_param)
+        cmd = "nv action change {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
@@ -217,4 +218,18 @@ class NvueSystemCli(NvueBaseCli):
         path = resource_path.replace('/', ' ')
         cmd = f"nv action clear {path} {op_params}"
         logging.info(f"Running '{cmd}' on dut using NVUE")
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_import(engine, path, import_type, cert_id, uri1, uri2, passphrase):
+        path = path.replace('/', ' ')
+        cmd = ""
+
+        action_import = f"nv action import {path} {cert_id}"
+        action_import_dict = {CertificateFiles.URI_BUNDLE: f"{action_import} {import_type} {uri1} {CertificateFiles.PASSPHRASE} {passphrase}",
+                              CertificateFiles.PUBLIC_PRIVATE: f"{action_import} {CertificateFiles.PUBLIC_KEY_FILE} {uri1} {CertificateFiles.PRIVATE_KEY_FILE} {uri2}",
+                              CertificateFiles.DATA: f"{action_import} {import_type} {uri1}"}
+
+        cmd = " ".join(action_import_dict[import_type].split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)

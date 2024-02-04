@@ -97,10 +97,13 @@ def test_replace_positive(engines):
     with allure.step("Delete created yaml file: {}".format(file)):
         engines.dut.run_cmd('sudo rm {file}'.format(file=file))
 
-    with allure.step('verify the hostname is {hostname} and ib0 description is {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
+    with allure.step('verify the hostname is not{hostname} and ib0 description is not {description}'.format(hostname=new_hostname_value, description=new_ib0_description)):
         diff_json = OutputParsingTool.parse_json_str_to_dictionary(NvueGeneralCli.diff_config(engines.dut)).get_returned_value()
-        assert ValidationTool.has_key_with_value(diff_json, 'hostname', "null"), "Set system hostname can't be found in pending config"
-        assert ValidationTool.has_key_with_value(diff_json, "description", "null"), "Set ib0 description can't be found in pending config"
+        set_diff = next((sub_d for sub_d in diff_json if "set" in sub_d), None)
+        assert not set_diff or not ValidationTool.has_key_with_value(set_diff, 'hostname',
+                                                                     new_hostname_value), "Set system hostname can't be found in pending config"
+        assert not set_diff or not ValidationTool.has_key_with_value(set_diff, "description",
+                                                                     new_ib0_description), "Set ib0 description can't be found in pending config"
 
 
 @pytest.mark.general

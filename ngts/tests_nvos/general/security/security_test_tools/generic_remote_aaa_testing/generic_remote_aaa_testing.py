@@ -1,12 +1,10 @@
 import logging
 import random
 import time
-
 from typing import Dict, List, Callable, Any
 
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.infra.DutUtilsTool import wait_until_cli_is_up
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -26,6 +24,7 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaa
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround
 
 
 def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, main_resource_obj: RemoteAaaResource,
@@ -59,6 +58,11 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
 
     TestToolkit.tested_api = test_api
 
+    def show_and_parse(resource: BaseComponent, rev: str = ''):
+        if TestToolkit.tested_api == ApiType.OPENAPI:
+            time.sleep(0.5)
+        return OutputParsingTool.parse_json_str_to_dictionary(resource.show(rev=rev)).get_returned_value()
+
     with allure.step('Set general configuration'):
         for resource, conf in confs.items():
             configure_resource(engines, resource, conf)
@@ -72,7 +76,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
     with allure.step('Verify general configurations'):
         for resource, expected_conf in confs.items():
             with allure.step(f'Verify {resource.get_resource_path()} configuration'):
-                cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show()).get_returned_value()
+                cur_conf = show_and_parse(resource)
                 if AaaConsts.SECRET in expected_conf.keys():
                     expected_conf[AaaConsts.SECRET] = '*'
                 ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
@@ -81,19 +85,17 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
 
     with allure.step('Verify hostnames exist in show output'):
         show_rev_param = '' if remote_aaa_type == RemoteAaaType.LDAP else ConfState.APPLIED
-        show_hostname_output = OutputParsingTool.parse_json_str_to_dictionary(
-            main_resource_obj.hostname.show(rev=show_rev_param)).get_returned_value()
+        show_hostname_output = show_and_parse(main_resource_obj.hostname, rev=show_rev_param)
         ValidationTool.verify_field_exist_in_json_output(show_hostname_output, [hostname1, hostname2]).verify_result()
 
     with allure.step('Verify hostnames configurations'):
         with allure.step(f'Verify default configuration for hostname {hostname1}'):
-            global_conf = OutputParsingTool.parse_json_str_to_dictionary(main_resource_obj.show()).get_returned_value()
+            global_conf = show_and_parse(main_resource_obj)
             expected_conf = {
                 key: 1 if key == AaaConsts.PRIORITY else global_conf[key]
                 for key in hostname_conf.keys()
             } if remote_aaa_type == RemoteAaaType.LDAP else {AaaConsts.PRIORITY: 1}
-            cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname1].show(rev=show_rev_param)).get_returned_value()
+            cur_hostname_conf = show_and_parse(main_resource_obj.hostname.hostname_id[hostname1], rev=show_rev_param)
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -102,8 +104,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             expected_conf = hostname_conf
             if AaaConsts.SECRET in expected_conf.keys():
                 expected_conf[AaaConsts.SECRET] = '*'
-            cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname2].show(rev=show_rev_param)).get_returned_value()
+            cur_hostname_conf = show_and_parse(main_resource_obj.hostname.hostname_id[hostname2], rev=show_rev_param)
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -116,13 +117,12 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut,
                                             True).verify_result()
         with allure.step(f'Verify default configuration for hostname {hostname2}'):
-            global_conf = OutputParsingTool.parse_json_str_to_dictionary(main_resource_obj.show(rev=show_rev_param)).get_returned_value()
+            global_conf = show_and_parse(main_resource_obj, rev=show_rev_param)
             expected_conf = {
                 key: 2 if key == AaaConsts.PRIORITY else global_conf[key]
                 for key in hostname_conf.keys()
             } if remote_aaa_type == RemoteAaaType.LDAP else {AaaConsts.PRIORITY: 2}
-            cur_hostname_conf = OutputParsingTool.parse_json_str_to_dictionary(
-                main_resource_obj.hostname.hostname_id[hostname2].show(rev=show_rev_param)).get_returned_value()
+            cur_hostname_conf = show_and_parse(main_resource_obj.hostname.hostname_id[hostname2], rev=show_rev_param)
             ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
@@ -133,7 +133,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
     with allure.step('Verify default configuration with show command'):
         for resource, expected_conf in default_confs.items():
             with allure.step(f'Verify default configuration for {resource.get_resource_path()}'):
-                cur_conf = OutputParsingTool.parse_json_str_to_dictionary(resource.show(rev=show_rev_param)).get_returned_value()
+                cur_conf = show_and_parse(resource, rev=show_rev_param)
                 if AaaConsts.SECRET in expected_conf.keys():
                     # expected_conf[AaaConsts.SECRET] = '*'
                     del expected_conf[AaaConsts.SECRET]
@@ -198,21 +198,6 @@ def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_ty
                          skip_auth_mediums=skip_auth_mediums)
 
 
-def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
-    with allure.step('After LDAP configuration - wait for NVUE restart Workaround'):
-        sleep_time = 3
-        with allure.step(f'Sleep {sleep_time} seconds'):
-            time.sleep(sleep_time)
-        if not engine_to_use:
-            engine_to_use = test_item.active_remote_admin_engine if hasattr(test_item, 'active_remote_admin_engine') else TestToolkit.engines.dut
-        engine_to_use.disconnect()
-        with allure.step(f'Start checking connection and services - using user "{engine_to_use.username}"'):
-            wait_until_cli_is_up(engine=engine_to_use)
-            # DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine_to_use,
-            #                                                 find_prompt_tries=2,
-            #                                                 find_prompt_delay=5).verify_result()
-
-
 def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
                           request,
                           remote_aaa_type: str,
@@ -271,6 +256,8 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
         for param in test_param:
             with allure.step(f'Update test param: {param}'):
                 test_param_update_func(engines, item, server, server_resource, param)
+                if remote_aaa_type == RemoteAaaType.LDAP:
+                    wait_for_ldap_nvued_restart_workaround(item)
             with allure.step('Test auth'):
                 auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
     else:
@@ -342,7 +329,8 @@ def generic_aaa_test_unique_priority(test_api, remote_aaa_obj: RemoteAaaResource
 
 def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type: str,
                               remote_aaa_obj: RemoteAaaResource,
-                              server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
+                              server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
+                              skip_auth_mediums: List[str] = None):
     """
     @summary: Verify that auth is done via the top prioritized server
 
@@ -361,6 +349,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
     @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
     assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
     assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
@@ -392,10 +381,11 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
         with allure.step(f'Verify auth is done via top prioritized server: {top_server.hostname}'):
             with allure.step(f'Verify auth via top server: {top_server.hostname} - expect success'):
                 verify_user_auth(engines, topology_obj, top_server.users[0], expect_login_success=True,
-                                 verify_authorization=False)
+                                 verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
             with allure.step(f'Verify auth via lower server: {lower_server.hostname} - expect fail'):
-                verify_user_auth(engines, topology_obj, lower_server.users[0], expect_login_success=False)
+                verify_user_auth(engines, topology_obj, lower_server.users[0], expect_login_success=False,
+                                 skip_auth_mediums=skip_auth_mediums)
 
         if top_server.priority == ValidValues.PRIORITY[-1]:
             break
@@ -564,7 +554,8 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
 
     if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP + failthrough on - only move to next method, and not server
         with allure.step('Verify auth with 2nd server credentials – expect success'):
-            verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=True, verify_authorization=False)
+            verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=True,
+                             verify_authorization=False)
 
     with allure.step('Verify auth with local user credentials - expect success'):
         verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=True, verify_authorization=False)

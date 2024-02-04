@@ -102,7 +102,8 @@ def test_system_stats_configuration(engines, devices, test_api):
                 verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
         with allure.step("Update category configuration"):
             system.stats.category.categoryName[name].set(
@@ -219,7 +220,8 @@ def test_system_stats_generation(engines, devices, test_api):
                 "stats state parameter is expected to be 'enabled'"
 
         with allure.step("Update cache duration to 3 minutes"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="3")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="3")
 
         with allure.step("Update all categories interval values to minimum and states to enable"):
             for name in category_list:
@@ -378,7 +380,8 @@ def test_system_stats_performance(engines, devices, test_api):
             clear_all_internal_and_external_files(engine, system, category_list)
 
         with allure.step("Update cache duration to 1 minute"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
         with allure.step("Select a random category"):
             name = RandomizationTool.select_random_value(list(category_disabled_dict.keys())). \
@@ -504,7 +507,8 @@ def test_stats_reliability(engines, devices, test_api):
             system.stats.unset(apply=True).verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
         with allure.step("Update all categories stats states"):
             for name in category_list:
@@ -805,7 +809,8 @@ def test_system_stats_big_files(engines, devices, test_api):
                 verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
         with allure.step("Restart process..."):
             engine.run_cmd("sudo systemctl restart stats-reportd")
@@ -939,7 +944,8 @@ def test_validate_category_file_values(engines, devices, test_api):
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
 
         with allure.step("Update cache duration to 1 minute"):
-            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+            DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                           db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
         with allure.step("Clear all system stats and delete stats files"):
             system_show = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
@@ -997,8 +1003,10 @@ def set_system_stats_to_default(engine, system):
         system.stats.unset(apply=True).verify_result()
 
     with allure.step("Update cache general configuration to default"):
-        DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="10")
-        DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME, db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
+        DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                       db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="10")
+        DatabaseTool.sonic_db_cli_hset(engine, "", db_name=DatabaseConst.CONFIG_DB_NAME,
+                                       db_config="STATS_CONFIG|GENERAL", param="cache_duration", value="1")
 
 
 def clear_all_internal_and_external_files(engine, system, category_list):
@@ -1063,18 +1071,22 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
 
         idx = 4
         start_data_idx = -1
+        header_list = []
         for row in reader:
             if row:
                 if row[0].startswith("Timestamp"):
                     start_data_idx = idx + 1
                     break
+                elif row[0].startswith("# Column"):
+                    header_list.append(row[0].split(': ')[-1])
             idx += 1
             if idx == StatsConsts.MAX_ROWS_TO_SCAN:
                 break
 
+        assert header_list == row, "there is a mismatch between columns in header to columns list"
         assert start_data_idx >= 0, "did not find data start line"
         assert len(row) == (start_data_idx - StatsConsts.CONST_HEADER_ROWS), \
-            "mismatch between columns defined number"
+            "there is a mismatch between columns defined number"
 
         prev_sample_time = export_time - timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
         col_names = row
@@ -1083,139 +1095,82 @@ def validate_external_file_header_and_data(name, file_path, hostname, start_time
 
         if name == 'cpu':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"CPU timestamp {sample_time} is too far from expected {expected_time}"
-                assert StatsConsts.CPU_FREE_RAM_MIN <= int(row[1]) <= StatsConsts.CPU_FREE_RAM_MAX, \
-                    f"CPU {col_names[1]} not in range ({row[1]}) in sample #{num_of_samples}"
-                assert StatsConsts.CPU_UTIL_MIN <= int(row[2]) <= StatsConsts.CPU_UTIL_MAX, \
-                    f"CPU {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
-                assert StatsConsts.CPU_REBOOT_CNT_MIN <= int(row[3]) <= StatsConsts.CPU_REBOOT_CNT_MAX, \
-                    f"CPU {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
+                check_in_range_without_na(col_names[1], row[1], StatsConsts.CPU_FREE_RAM_MIN,
+                                          StatsConsts.CPU_FREE_RAM_MAX, num_of_samples, name)
+                check_in_range_without_na(col_names[2], row[2], StatsConsts.CPU_UTIL_MIN,
+                                          StatsConsts.CPU_UTIL_MAX, num_of_samples, name)
+                check_in_range_without_na(col_names[3], row[3], StatsConsts.CPU_REBOOT_CNT_MIN,
+                                          StatsConsts.CPU_REBOOT_CNT_MAX, num_of_samples, name)
         elif name == 'disk':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Disk timestamp {sample_time} is too far from expected {expected_time}"
-                if row[1] != 'N/A':
-                    assert StatsConsts.DISK_FREE_SPACE_MIN <= int(row[1]) <= StatsConsts.DISK_FREE_SPACE_MAX, \
-                        f"Disk {col_names[1]} not in range ({row[1]}) in sample #{num_of_samples}"
-                if row[2] != 'N/A':
-                    assert StatsConsts.DISK_RMN_LIFE_MIN <= int(row[2]) <= StatsConsts.DISK_RMN_LIFE_MAX, \
-                        f"Disk {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
-                if row[3] != 'N/A':
-                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[3]) <= StatsConsts.DISK_FAIL_CNT_MAX, \
-                        f"Disk {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
-                if row[4] != 'N/A':
-                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[4]) <= StatsConsts.DISK_FAIL_CNT_MAX, \
-                        f"Disk {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
-                if row[5] != 'N/A':
-                    assert StatsConsts.DISK_FAIL_CNT_MIN <= int(row[5]) <= StatsConsts.DISK_FAIL_CNT_MAX, \
-                        f"Disk {col_names[5]} not in range ({row[5]}) in sample #{num_of_samples}"
-                if row[6] != 'N/A':
-                    assert StatsConsts.DISK_TOTAL_LBA_RW_MIN <= int(row[6]) <= StatsConsts.DISK_TOTAL_LBA_RW_MAX, \
-                        f"Disk {col_names[6]} not in range ({row[6]}) in sample #{num_of_samples}"
-                if row[7] != 'N/A':
-                    assert StatsConsts.DISK_TOTAL_LBA_RW_MIN <= int(row[7]) <= StatsConsts.DISK_TOTAL_LBA_RW_MAX, \
-                        f"Disk {col_names[7]} not in range ({row[7]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
+                check_in_range(col_names[1], row[1], StatsConsts.DISK_FREE_SPACE_MIN,
+                               StatsConsts.DISK_FREE_SPACE_MAX, num_of_samples, name)
+                check_in_range(col_names[2], row[2], StatsConsts.DISK_RMN_LIFE_MIN,
+                               StatsConsts.DISK_RMN_LIFE_MAX, num_of_samples, name)
+                check_in_range(col_names[3], row[3], StatsConsts.DISK_FAIL_CNT_MIN,
+                               StatsConsts.DISK_FAIL_CNT_MAX, num_of_samples, name)
+                check_in_range(col_names[4], row[4], StatsConsts.DISK_FAIL_CNT_MIN,
+                               StatsConsts.DISK_FAIL_CNT_MAX, num_of_samples, name)
+                check_in_range(col_names[5], row[5], StatsConsts.DISK_FAIL_CNT_MIN,
+                               StatsConsts.DISK_FAIL_CNT_MAX, num_of_samples, name)
+                check_in_range(col_names[6], row[6], StatsConsts.DISK_TOTAL_LBA_RW_MIN,
+                               StatsConsts.DISK_TOTAL_LBA_RW_MAX, num_of_samples, name)
+                check_in_range(col_names[7], row[7], StatsConsts.DISK_TOTAL_LBA_RW_MIN,
+                               StatsConsts.DISK_TOTAL_LBA_RW_MAX, num_of_samples, name)
         elif name == 'fan':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Fan timestamp {sample_time} is too far from expected {expected_time}"
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
                 for col in range(1, num_of_columns):
-                    if row[col] != 'N/A':
-                        assert StatsConsts.FAN_MIN <= int(row[col]) <= StatsConsts.FAN_MAX, \
-                            f"Fan {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                    check_in_range(col_names[col], row[col], StatsConsts.FAN_MIN,
+                                   StatsConsts.FAN_MAX, num_of_samples, name)
         elif name == 'temperature':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Temperature timestamp {sample_time} is too far from expected {expected_time}"
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
                 for col in range(1, num_of_columns):
-                    if row[col] != 'N/A':
-                        assert StatsConsts.TEMP_MIN <= int(row[col]) <= StatsConsts.TEMP_MAX, \
-                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                    check_in_range(col_names[col], row[col], StatsConsts.TEMP_MIN,
+                                   StatsConsts.TEMP_MAX, num_of_samples, name)
         elif name == 'mgmt-interface':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Mgmt-Interface timestamp {sample_time} is too far from expected {expected_time}"
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
                 for col in range(1, num_of_columns):
-                    if row[col] != 'N/A':
-                        assert StatsConsts.MGMT_INT_MIN <= int(row[col]) <= StatsConsts.MGMT_INT_MAX, \
-                            f"Mgmt-Interface {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                    check_in_range(col_names[col], row[col], StatsConsts.MGMT_INT_MIN,
+                                   StatsConsts.MGMT_INT_MAX, num_of_samples, name)
         elif name == 'power':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Power timestamp {sample_time} is too far from expected {expected_time}"
-                if row[1] != 'N/A':
-                    assert StatsConsts.PWR_PSU_VOLT_MIN <= int(row[1]) <= StatsConsts.PWR_PSU_VOLT_MAX, \
-                        f"Power {col_names[1]} not in range ({row[1]} in sample #{num_of_samples}"
-                assert StatsConsts.PWR_PSU_VOLT_MIN <= int(row[2]) <= StatsConsts.PWR_PSU_VOLT_MAX, \
-                    f"Power {col_names[2]} not in range ({row[2]}) in sample #{num_of_samples}"
-                if row[3] != 'N/A':
-                    assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[3]) <= StatsConsts.PWR_PSU_CUR_MAX, \
-                        f"Power {col_names[3]} not in range ({row[3]}) in sample #{num_of_samples}"
-                assert StatsConsts.PWR_PSU_CUR_MIN <= int(row[4]) <= StatsConsts.PWR_PSU_CUR_MAX, \
-                    f"Power {col_names[4]} not in range ({row[4]}) in sample #{num_of_samples}"
-                prev_sample_time = sample_time
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
+                check_in_range(col_names[1], row[1], StatsConsts.PWR_PSU_VOLT_MIN,
+                               StatsConsts.PWR_PSU_VOLT_MAX, num_of_samples, name)
+                check_in_range_without_na(col_names[2], row[2], StatsConsts.PWR_PSU_VOLT_MIN,
+                                          StatsConsts.PWR_PSU_VOLT_MAX, num_of_samples, name)
+                check_in_range(col_names[3], row[3], StatsConsts.PWR_PSU_CUR_MIN,
+                               StatsConsts.PWR_PSU_CUR_MAX, num_of_samples, name)
+                check_in_range_without_na(col_names[4], row[4], StatsConsts.PWR_PSU_CUR_MIN,
+                                          StatsConsts.PWR_PSU_CUR_MAX, num_of_samples, name)
         elif name == 'voltage':
             for row in reader:
+                assert len(row) == num_of_columns, f"number of values ({len(row)}) are not as expected (num_of_columns)"
                 num_of_samples += 1
-                sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
-                                                StatsConsts.TIMESTAMP_FORMAT)
-                expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
-                time_low_thresh = expected_time - timedelta(seconds=5)
-                time_high_thresh = expected_time + timedelta(seconds=5)
-                assert time_low_thresh < sample_time < time_high_thresh, \
-                    f"Voltage timestamp {sample_time} is too far from expected {expected_time}"
+                prev_sample_time = check_sample_timestamp(row, prev_sample_time, name)
                 for col in range(1, num_of_columns - 2):
-                    if row[col] != 'N/A':
-                        assert StatsConsts.VOLTAGE_GENERAL_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_GENERAL_MAX, \
-                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
+                    check_in_range(col_names[col], row[col], StatsConsts.VOLTAGE_GENERAL_MIN,
+                                   StatsConsts.VOLTAGE_GENERAL_MAX, num_of_samples, name)
                 for col in range(num_of_columns - 1, num_of_columns):
-                    if row[col] != 'N/A':
-                        assert StatsConsts.VOLTAGE_PSU_MIN <= int(row[col]) <= StatsConsts.VOLTAGE_PSU_MAX, \
-                            f"Temperature {col_names[col]} is not in range ({row[col]}) in sample #{num_of_samples}"
-
-                prev_sample_time = sample_time
+                    check_in_range(col_names[col], row[col], StatsConsts.VOLTAGE_PSU_MIN,
+                                   StatsConsts.VOLTAGE_PSU_MAX, num_of_samples, name)
 
 
 def validate_external_file_timestamps(file_name, clear_time):
@@ -1277,3 +1232,23 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     for stat_file in stats_files:
         assert "{}.gz".format(stat_file) in techsupport_files_list, \
             "Expect to have {} file, in the tech support stats files {}".format(stat_file, techsupport_files_list)
+
+
+def check_sample_timestamp(row, prev_sample_time, category):
+    sample_time = datetime.strptime(row[0].replace(StatsConsts.HEADER_TIME, ''),
+                                    StatsConsts.TIMESTAMP_FORMAT)
+    expected_time = prev_sample_time + timedelta(minutes=int(StatsConsts.INTERVAL_MIN))
+    time_low_thresh = expected_time - timedelta(seconds=5)
+    time_high_thresh = expected_time + timedelta(seconds=5)
+    assert time_low_thresh < sample_time < time_high_thresh, \
+        f"{category} timestamp {sample_time} is too far from expected {expected_time}"
+    return sample_time
+
+
+def check_in_range(col, value, min_val, max_val, sample, category):
+    if value != 'N/A':
+        assert min_val <= int(value) <= max_val, f"{category} {col} not in range ({value} in sample #{sample}"
+
+
+def check_in_range_without_na(col, value, min_val, max_val, sample, category):
+    assert min_val <= int(value) <= max_val, f"{category} {col} not in range ({value} in sample #{sample}"

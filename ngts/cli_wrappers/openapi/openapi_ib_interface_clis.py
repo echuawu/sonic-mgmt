@@ -2,6 +2,7 @@ import logging
 from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OutputFormat, OpenApiReqType
+from ngts.nvos_constants.constants_nvos import ActionType
 
 
 class OpenApiIbInterfaceCli(OpenApiBaseCli):
@@ -36,6 +37,19 @@ class OpenApiIbInterfaceCli(OpenApiBaseCli):
                                                        fae=fae_param + "/" if fae_param else '',
                                                        interface_id="/" + port_name if port_name else '',
                                                        resource_path="/" + resource_path if resource_path else ''))
+
+    @staticmethod
+    def action_clear_counters(engine, resource_path, params_dict=None):
+        logging.info("Running action: 'clear' on dut using OpenApi, resource: {rsrc}".format(rsrc=resource_path))
+
+        params = \
+            {
+                "state": "start",
+                "parameters": params_dict
+            }
+
+        return OpenApiCommandHelper.execute_action(ActionType.CLEAR, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
 
     @staticmethod
     def action_recover(engine, port_name, comp):

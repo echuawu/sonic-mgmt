@@ -69,7 +69,7 @@ def test_system(test_api, engines, devices, topology_obj, test_name):
         system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
         if dhcp_enabled:
             logging.info("Wait till the management interface will be reloaded to get a hostname from DHCP")
-            time.sleep(20)
+            time.sleep(30)
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         time.sleep(3)
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,

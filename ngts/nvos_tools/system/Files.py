@@ -1,5 +1,9 @@
 import logging
+from typing import Dict
+
 import allure
+
+from ngts.nvos_tools.infra.DefaultDict import DefaultDict
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -11,6 +15,7 @@ class Files(BaseComponent):
     def __init__(self, parent_obj=None, path=None):
         file_path = path if path else '/files'
         BaseComponent.__init__(self, parent=parent_obj, path=file_path)
+        self.file_name: Dict[str, BaseComponent] = DefaultDict(lambda file_name: BaseComponent(self, path=f'/{file_name}'))
 
     def set(self, op_param_name="", op_param_value=""):
         raise Exception("set is not implemented for /files")

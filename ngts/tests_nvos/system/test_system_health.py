@@ -184,7 +184,7 @@ def test_ignore_health_issue(engines, devices, loganalyzer):
             if loganalyzer:
                 for hostname in loganalyzer.keys():
                     loganalyzer[hostname].ignore_regex.extend(
-                        [f"\\.*Fan fault warning: {fan_config_name} is broken\\.*",
+                        [f"\\.*Fan fault warning: {fan_config_name} is not working\\.*",
                          f"\\.*Fan removed warning: {psu_fan_config_name} was removed from the system, potential overheat hazard\\.*",
                          f"\\.*PSU absence warning: PSU {psu_id} is not present.\\.*",
                          f"\\.*Insufficient number of working fans warning\\.*"])
@@ -315,13 +315,13 @@ def test_simulate_fan_speed_fault(devices, engines, loganalyzer):
     if loganalyzer:
         for hostname in loganalyzer.keys():
             loganalyzer[hostname].ignore_regex.extend([f"\\.*Fan low speed warning: fan{fan_id} current speed\\.*",
-                                                       f"\\.*Fan fault warning: fan{fan_id} is broken\\.*",
+                                                       f"\\.*Fan fault warning: fan{fan_id} is not working\\.*",
                                                        f"\\.*Insufficient number of working fans warning\\.*"])
 
     try:
         real_speed = HWSimulator.simulate_fan_speed_fault(engines.dut, fan_id)
         fan_display_name = get_fan_display_name(fan_id)
-        health_issue_dict = {fan_display_name: ["speed is out of range", "is broken"]}
+        health_issue_dict = {fan_display_name: ["speed is out of range", "is not working"]}
         retry_validate_health_fix_or_issue(system, health_issue_dict, date_time, False)
 
     finally:

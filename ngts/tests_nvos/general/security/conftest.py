@@ -1,16 +1,18 @@
+import logging
 import time
 
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
-import ngts.tools.test_utils.allure_utils as allure
 import pexpect
-import logging
 import pytest
+
+import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
+from ngts.tools.test_utils.switch_recovery import generate_strong_password
 
 logger = logging.getLogger(__name__)
 
@@ -109,18 +111,16 @@ def show_sys_version(engines):
     """
     with allure.step('Before test case: show system info'):
         system = System()
-        system.show(output_format=OutputFormat.auto)
-        system.show()
-        system.version.show()
-        NvueGeneralCli.show_config(engines.dut)
+        attachment = '\n'.join([system.show(), system.version.show(), NvueGeneralCli.show_config(engines.dut)])
+        allure.orig_allure.attach(attachment, 'system_version_and_conf', allure.orig_allure.attachment_type.TEXT)
 
 
 @pytest.fixture(scope='function')
 def local_adminuser(engines):
-    adminuser = AaaConsts.LOCAL_TEST_ADMIN
+    adminuser = UserInfo(username=AaaConsts.LOCALADMIN, password=generate_strong_password(), role=AaaConsts.ADMIN)
+    logging.info(f'Local admin user for test: "{adminuser.username}", "{adminuser.password}"')
     set_local_users(engines, [adminuser], apply=True)
     return adminuser
-    # System().aaa.user.unset(AaaConsts.USER, adminuser.username, apply=True).verify_result()
 
 
 @pytest.fixture(scope='session', autouse=False)

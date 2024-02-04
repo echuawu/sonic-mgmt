@@ -1,15 +1,20 @@
 import fnmatch
 import logging
-from contextlib import contextmanager
 import os
-import allure
+import time
+from contextlib import contextmanager
+
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, DiskConsts
+from ngts.nvos_tools.infra.DiskTool import DiskTool
+from ngts.nvos_tools.infra.DutUtilsTool import wait_until_cli_is_up
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
+from ngts.tools.test_utils import allure_utils as allure
 
 
 def set_base_configurations(dut_engine, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=False, save_conf=False):
@@ -76,3 +81,48 @@ def get_real_file_path(file_path: str) -> str:
     matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
     real_file_path = os.path.join(containing_dir, matching_filename)
     return real_file_path
+
+
+def check_partitions_capacity(partition_name: str = DiskConsts.DEFAULT_PARTITION_NAME,
+                              allowed_limit: int = DiskConsts.PARTITION_CAPACITY_LIMIT):
+    """
+    Validate there is enough capacity left on disk
+    - Create a folder for disk partition to mount
+    - Mount new folder to check the remaining space
+    - Check if there is enough space
+    - Do cleanup, Unmount and remove temp dirs
+    """
+    switch: ProxySshEngine = TestToolkit.engines.dut
+
+    disk_tool = DiskTool(switch, partition_name)
+    partitions = None
+
+    try:
+        partitions = disk_tool.get_unmounted_partitions()
+        disk_tool.mount_partitions(partitions)
+
+        with allure.step('Check if storage is less than allowed limit'):
+            available_partitions_capacity = disk_tool.get_available_partition_capacity()
+            for storage in available_partitions_capacity:
+                if not storage:
+                    continue
+                logging.info(f"Available disk space for partition is {storage}")
+                # Trim percent symbol from the end, e.g '22%'
+                available_disk_space = int(storage.strip()[:-1])
+                assert available_disk_space < allowed_limit, f'The disk space is over {allowed_limit}%, so image may ' \
+                                                             f'not fit '
+    finally:
+        disk_tool.unmount_partitions(partitions)
+
+
+def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
+    with allure.step('After LDAP configuration - wait for NVUE restart Workaround'):
+        sleep_time = 3
+        if not engine_to_use:
+            engine_to_use = test_item.active_remote_admin_engine if hasattr(test_item,
+                                                                            'active_remote_admin_engine') else TestToolkit.engines.dut
+        with allure.step(f'Disconnect engine of user "{engine_to_use.username}"'):
+            engine_to_use.disconnect()
+            time.sleep(sleep_time)
+        with allure.step(f'Wait till cli up - using user "{engine_to_use.username}"'):
+            wait_until_cli_is_up(engine=engine_to_use)

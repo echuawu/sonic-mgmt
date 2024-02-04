@@ -62,6 +62,7 @@ class System(BaseComponent):
         self.datetime = DateTime(self)
         self.gnmi_server = Gnmi_server(self)
         self.web_server_api = WebServerAPI(self)
+        self.api = Api(self)
 
     def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
         """
@@ -207,3 +208,8 @@ class WebServerAPI(BaseComponent):
         BaseComponent.__init__(self, parent=parent_obj, path='/api')
         self.connections = BaseComponent(self, path='/connections')
         self.listen_address = BaseComponent(self, path='/listening-address')
+
+
+class Api(BaseComponent):
+    def __init__(self, parent_obj=None):
+        BaseComponent.__init__(self, parent=parent_obj, path='/api')

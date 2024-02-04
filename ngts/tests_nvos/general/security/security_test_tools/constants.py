@@ -1,5 +1,4 @@
 # aaa constants
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 
 
 class AaaConsts:
@@ -13,9 +12,6 @@ class AaaConsts:
     LOCALADMIN = 'localadmin'
     LOCALMONITOR = 'localmonitor'
     STRONG_PASSWORD = 'Your_password1'
-
-    LOCAL_TEST_ADMIN = UserInfo(LOCALADMIN, STRONG_PASSWORD, ADMIN)
-    LOCAL_TEST_MONITOR = UserInfo(LOCALMONITOR, STRONG_PASSWORD, MONITOR)
 
     LOCAL_ONLY_TEST_USERS = [
         {

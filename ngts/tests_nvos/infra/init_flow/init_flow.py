@@ -1,9 +1,10 @@
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 import pytest
-from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst, DiskConsts
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.tools.test_utils.nvos_general_utils import check_partitions_capacity
 
 logger = logging.getLogger()
 
@@ -11,6 +12,7 @@ logger = logging.getLogger()
 @pytest.mark.init_flow
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.nvos_ci
 def test_system_services(engines, devices):
     """
     Verifying the NVOS system services are in active state
@@ -24,8 +26,15 @@ def test_system_services(engines, devices):
 
 
 @pytest.mark.init_flow
+def test_partitions_capacity():
+    check_partitions_capacity(partition_name=DiskConsts.DEFAULT_PARTITION_NAME,
+                              allowed_limit=DiskConsts.PARTITION_CAPACITY_LIMIT)
+
+
+@pytest.mark.init_flow
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.nvos_ci
 def test_system_dockers(engines, devices):
     """
     Verifying the NVOS system dockers are up
@@ -38,6 +47,7 @@ def test_system_dockers(engines, devices):
 
 
 @pytest.mark.init_flow
+@pytest.mark.nvos_ci
 def test_existence_of_tables_in_databases(engines, devices):
     """
     Verifying the NVOS Databases created the correct tables in redis
@@ -49,6 +59,7 @@ def test_existence_of_tables_in_databases(engines, devices):
 
 
 @pytest.mark.init_flow
+@pytest.mark.nvos_ci
 def test_ports_are_up(engines, devices):
     """
     Verifying the NVOS ports are up
@@ -60,6 +71,7 @@ def test_ports_are_up(engines, devices):
 
 
 @pytest.mark.init_flow
+@pytest.mark.nvos_ci
 def test_check_firmware(engines):
     """
     Verify installed firmware is equal to actual firmware

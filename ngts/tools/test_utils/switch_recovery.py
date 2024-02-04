@@ -1,19 +1,19 @@
-import random
 import logging
+import random
 import socket
 import string
 
-import ngts.tools.test_utils.allure_utils as allure
+from netmiko.ssh_exception import NetmikoAuthenticationException
 
+import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.infra.PexpectTool import PexpectTool
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.PexpectTool import PexpectTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.conftest import clear_config
-from netmiko.ssh_exception import NetmikoAuthenticationException
 
 logger = logging.getLogger(__name__)
 
@@ -117,9 +117,9 @@ def check_switch_connectivity(topology_obj, engines):
         finally:
             pass
 
-    # res = check_connectivity()
-    # if res == SUCCESS:
-    #     return
+    res = check_connectivity()
+    if res == SUCCESS:
+        return
     with allure.step(f'Disconnect dut engine and try again'):
         engines.dut.disconnect()
         res = check_connectivity()

@@ -11,11 +11,13 @@ from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.constants.constants import MarsConstants
 
+
 logger = logging.getLogger()
 server_ip = "10.237.116.60"
 
 
 class NvueGeneralCli(SonicGeneralCliDefault):
+
     """
     This class is for general cli commands for NVOS only
     Most of the methods are inherited from SonicGeneralCli
@@ -75,7 +77,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def install_nos_using_onie_in_serial(self, nos_image: str, ssh_engine, topology_obj):
         ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
         INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
-        INSTALL_WGET_ERROR = ["wget: can't connect to remote host .*: Connection refused", "wget: download timed out"]
+        INSTALL_WGET_ERROR = ["wget:.*"]
         NVOS_INSTALL_TIMEOUT = 5 * 60  # 5 minutes
 
         if nos_image.startswith('/auto/'):
