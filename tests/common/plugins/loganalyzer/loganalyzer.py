@@ -145,15 +145,15 @@ class LogAnalyzer:
                 raise LogAnalyzerError(err_parse + result_str)
 
             # if the number of expected matches is provided
-            if (self.expect_regex and (self.expected_matches_target > 0) and
-               result["total"]["expected_match"] != self.expected_matches_target):
+            if (self.expect_regex and (self.expected_matches_target > 0)
+               and result["total"]["expected_match"] != self.expected_matches_target):
                 err_target = "Log analyzer expected {} messages but found only {}\n"\
                     .format(self.expected_matches_target, len(self.expect_regex))
                 raise LogAnalyzerError(err_target + result_str)
 
     def save_matching_errors(self, result_log_errors):
         """
-        save all the log errors in a file on the player
+        save all the log errors in a file on the player.
         :param result_log_errors: list of all the errors we found in the log - result["match_messages"].values()
         """
         if result_log_errors:

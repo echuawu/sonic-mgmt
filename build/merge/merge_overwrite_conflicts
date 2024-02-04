@@ -7,6 +7,7 @@ ansible/files/graph_files.yml
 ansible/group_vars/all/inv_mapping.yml
 ansible/group_vars/all/labinfo.json
 ansible/group_vars/all/mux_simulator_http_port_map.yml
+ansible/group_vars/all/nic_simulator_grpc_port_map.yml
 ansible/group_vars/eos/eos.yml
 ansible/group_vars/fanout/secrets.yml
 ansible/group_vars/lab/lab.yml

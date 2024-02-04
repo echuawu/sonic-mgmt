@@ -563,24 +563,6 @@ sensors_checks:
 
 
       temp:
-
-      - mlxsw-i2c-2-48/front panel 001/temp2_crit_alarm
-      - mlxsw-i2c-2-48/front panel 001/temp2_fault
-      - mlxsw-i2c-2-48/front panel 002/temp3_crit_alarm
-      - mlxsw-i2c-2-48/front panel 002/temp3_fault
-      - mlxsw-i2c-2-48/front panel 003/temp4_crit_alarm
-      - mlxsw-i2c-2-48/front panel 003/temp4_fault
-      - mlxsw-i2c-2-48/front panel 004/temp5_crit_alarm
-      - mlxsw-i2c-2-48/front panel 004/temp5_fault
-      - mlxsw-i2c-2-48/front panel 005/temp6_crit_alarm
-      - mlxsw-i2c-2-48/front panel 005/temp6_fault
-      - mlxsw-i2c-2-48/front panel 006/temp7_crit_alarm
-      - mlxsw-i2c-2-48/front panel 006/temp7_fault
-      - mlxsw-i2c-2-48/front panel 007/temp8_crit_alarm
-      - mlxsw-i2c-2-48/front panel 007/temp8_fault
-      - mlxsw-i2c-2-48/front panel 008/temp9_crit_alarm
-      - mlxsw-i2c-2-48/front panel 008/temp9_fault
-
       - pmbus-i2c-5-27/PMB-2 Temp 1/temp1_max_alarm
       - pmbus-i2c-5-27/PMB-2 Temp 1/temp1_crit_alarm
       - pmbus-i2c-5-27/PMB-2 Temp 2/temp2_max_alarm

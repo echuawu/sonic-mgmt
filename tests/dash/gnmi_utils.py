@@ -4,6 +4,7 @@ import time
 import uuid
 import math
 from functools import lru_cache
+import pytest
 
 import proto_utils
 
@@ -13,19 +14,7 @@ logger = logging.getLogger(__name__)
 @lru_cache(maxsize=None)
 class GNMIEnvironment(object):
     def __init__(self, duthost):
-        self.duthost = duthost
         self.work_dir = "/tmp/" + str(uuid.uuid4()) + "/"
-        self.use_gnmi_container = duthost.shell("docker ps | grep -w gnmi", module_ignore_errors=True)['rc'] == 0
-        if self.use_gnmi_container:
-            self.gnmi_config_table = "GNMI"
-            self.gnmi_container = "gnmi"
-            self.gnmi_program = "gnmi-native"
-        else:
-            self.gnmi_config_table = "TELEMETRY"
-            self.gnmi_container = "telemetry"
-            self.gnmi_program = "telemetry"
-        self.gnmi_port = int(duthost.shell(
-            "sonic-db-cli CONFIG_DB hget '%s' 'port'" % (self.gnmi_config_table + '|gnmi'))['stdout'])
         self.gnmi_cert_path = "/etc/sonic/telemetry/"
         self.gnmi_ca_cert = "gnmiCA.pem"
         self.gnmi_ca_key = "gnmiCA.key"
@@ -35,14 +24,39 @@ class GNMIEnvironment(object):
         self.gnmi_client_key = "gnmiclient.key"
         self.gnmi_server_start_wait_time = 30
         self.enable_zmq = duthost.shell("netstat -na | grep -w 8100", module_ignore_errors=True)['rc'] == 0
+        cmd = "docker images | grep -w sonic-gnmi"
+        if duthost.shell(cmd, module_ignore_errors=True)['rc'] == 0:
+            cmd = "docker ps | grep -w gnmi"
+            if duthost.shell(cmd, module_ignore_errors=True)['rc'] == 0:
+                self.gnmi_config_table = "GNMI"
+                self.gnmi_container = "gnmi"
+                self.gnmi_program = "gnmi-native"
+                self.gnmi_port = 50052
+                return
+            else:
+                pytest.fail("GNMI is not running")
+        cmd = "docker images | grep -w sonic-telemetry"
+        if duthost.shell(cmd, module_ignore_errors=True)['rc'] == 0:
+            cmd = "docker ps | grep -w telemetry"
+            if duthost.shell(cmd, module_ignore_errors=True)['rc'] == 0:
+                self.gnmi_config_table = "TELEMETRY"
+                self.gnmi_container = "telemetry"
+                self.gnmi_program = "telemetry"
+                self.gnmi_port = 50051
+                return
+            else:
+                pytest.fail("Telemetry is not running")
+        pytest.fail("Can't find telemetry and gnmi image")
 
 
 def create_ext_conf(ip, filename):
     """
     Generate configuration for openssl
+
     Args:
         ip: server ip address
         filename: configuration file name
+
     Returns:
     """
     text = '''
@@ -62,6 +76,7 @@ def generate_gnmi_cert(localhost, duthost):
     Args:
         localhost: fixture for localhost
         duthost: fixture for duthost
+
     Returns:
     """
     env = GNMIEnvironment(duthost)
@@ -148,9 +163,11 @@ def generate_gnmi_cert(localhost, duthost):
 def apply_gnmi_cert(duthost, ptfhost):
     """
     Upload new certificate to DUT, and restart gnmi server with new certificate
+
     Args:
         duthost: fixture for duthost
         ptfhost: fixture to ptfhost
+
     Returns:
     """
     env = GNMIEnvironment(duthost)
@@ -183,9 +200,11 @@ def apply_gnmi_cert(duthost, ptfhost):
 def recover_gnmi_cert(localhost, duthost):
     """
     Restart gnmi server to use default certificate
+
     Args:
         localhost: fixture for localhost
         duthost: fixture for duthost
+
     Returns:
     """
     env = GNMIEnvironment(duthost)
@@ -204,12 +223,14 @@ def recover_gnmi_cert(localhost, duthost):
 def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     """
     Send GNMI set request with GNMI client
+
     Args:
         duthost: fixture for duthost
         ptfhost: fixture for ptfhost
         delete_list: list for delete operations
         update_list: list for update operations
         replace_list: list for replace operations
+
     Returns:
     """
     env = GNMIEnvironment(duthost)
@@ -259,10 +280,12 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
 def gnmi_get(duthost, ptfhost, path_list):
     """
     Send GNMI get request with GNMI client
+
     Args:
         duthost: fixture for duthost
         ptfhost: fixture for ptfhost
         path_list: list for get path
+
     Returns:
         msg_list: list for get result
     """

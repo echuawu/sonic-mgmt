@@ -388,9 +388,8 @@ class TestSfpApi(PlatformApiTestBase):
                         if info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
                             active_apsel_hostlane_count = 8
                             UPDATED_EXPECTED_XCVR_INFO_KEYS = self.EXPECTED_XCVR_INFO_KEYS + \
-                                                              self.EXPECTED_XCVR_NEW_QSFP_DD_OSFP_INFO_KEYS + \
-                                                              ["active_apsel_hostlane{}".format(n)
-                                                               for n in range(1, active_apsel_hostlane_count + 1)]
+                                self.EXPECTED_XCVR_NEW_QSFP_DD_OSFP_INFO_KEYS + \
+                                ["active_apsel_hostlane{}".format(n) for n in range(1, active_apsel_hostlane_count + 1)]
                             if 'ZR' in info_dict['media_interface_code']:
                                 UPDATED_EXPECTED_XCVR_INFO_KEYS = UPDATED_EXPECTED_XCVR_INFO_KEYS + \
                                                                   self.QSFPZR_EXPECTED_XCVR_INFO_KEYS
@@ -463,6 +462,10 @@ class TestSfpApi(PlatformApiTestBase):
                     if info_dict["type_abbrv_name"] in ["QSFP-DD", "OSFP-8X"]:
                         expected_keys += self.QSFPDD_EXPECTED_XCVR_THRESHOLD_INFO_KEYS
                         if 'ZR' in info_dict["media_interface_code"]:
+                            if 'INPHI CORP' in info_dict['manufacturer'] and 'IN-Q3JZ1-TC' in info_dict['model']:
+                                logger.info("INPHI CORP Transceiver is not populating the associated threshold fields \
+                                             in redis TRANSCEIVER_DOM_THRESHOLD table. Skipping this transceiver")
+                                continue
                             expected_keys += self.QSFPZR_EXPECTED_XCVR_THRESHOLD_INFO_KEYS
 
                     missing_keys = set(expected_keys) - set(actual_keys)
