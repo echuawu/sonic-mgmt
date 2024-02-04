@@ -65,7 +65,10 @@ class SonicInstallationSteps:
         """
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
-        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo):
+        # TODO: Remove the "r-leopard-70" != dut_name and "r-leopard-70" != dut_name in the condition after the
+        #  hwsku Mellanox-SN4700-O8V48 is merged to upstream
+        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "r-leopard-70" != dut_name and \
+                "r-leopard-72" != dut_name:
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -308,6 +311,18 @@ class SonicInstallationSteps:
         :param setup_info: dictionary with setup info
         """
         ansible_path = setup_info['ansible_path']
+
+        # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O8V48 is merged to upstream
+        if "r-leopard-70" in setup_name or "r-leopard-72" in setup_name:
+            dut_name = setup_info['duts'][0]['dut_name']
+            dut_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN4700-O8V48'
+            sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
+            sonic_user = os.getenv("SONIC_SWITCH_USER")
+            sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
+            execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
+                           f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
+                           f'{sonic_mgmt_hwsku_path}', ansible_path)
+            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
 
         if not is_community(sonic_topo):
             # Enable Port Init Profile for Canonical setups

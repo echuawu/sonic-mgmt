@@ -512,6 +512,19 @@
     - r-leopard-70
   comment: Mellanox MTR testbed
 
+- conf-name: r-leopard-70-t0-56-o8v48
+  group-name: vm-t1
+  topo: t0-56-o8v48
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-leopard-70
+  ptf_ip: 10.215.26.182/16
+  ptf_ipv6:
+  server: server_61
+  vm_base: VM2601
+  dut:
+    - r-leopard-70
+  comment: Mellanox MTR testbed
+
 - conf-name: r-leopard-70-t1
   group-name: vm-t1
   topo: t1
@@ -567,6 +580,19 @@
 - conf-name: r-leopard-72-t0
   group-name: vm-t1
   topo: t0
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-leopard-72
+  ptf_ip: 10.215.34.62/16
+  ptf_ipv6:
+  server: server_62
+  vm_base: VM2701
+  dut:
+    - r-leopard-72
+  comment: Mellanox MTR testbed
+
+- conf-name: r-leopard-72-t0-56-o8v48
+  group-name: vm-t1
+  topo: t0-56-o8v48
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-r-leopard-72
   ptf_ip: 10.215.34.62/16
