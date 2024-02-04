@@ -772,12 +772,6 @@ vxlan/test_vxlan_decap.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3419436 and '202211' in release and 't0-64' in topo_name"
 
-vxlan/test_vnet_vxlan.py:
-  skip:
-    reason: "Not enough routes are configured during vnet vxlan test"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/8374
-
 vlan/test_vlan.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 'msn4600c' in platform"
@@ -809,12 +803,6 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
     conditions:
       - https://redmine.mellanox.com/issues/3225815
-
-radv/test_radv_restart.py::test_radv_swss:
-  skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/sonic-net/sonic-mgmt/issues/6457"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/6457
 
 qos/test_buffer.py:
   skip:
@@ -1029,14 +1017,6 @@ ecmp/inner_hashing:
       - "'msn2' in platform"
       - "'202106' in release"
 
-vxlan/test_vxlan_ecmp.py:
-  skip:
-    reason: "Testcase ignored due to branch 202106 and github sonic-mgmt issue 9769"
-    conditions_logical_operator: or
-    conditions:
-      - "'202106' in release"
-      - https://github.com/sonic-net/sonic-mgmt/issues/9769
-
 vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_a[v6_in:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
@@ -1125,11 +1105,11 @@ sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_be
     conditions:
       - "https://redmine.mellanox.com/issues/3576473"
 
-radv/test_radv_ipv6_ra.py:
+generic_config_updater/test_incremental_qos.py::test_incremental_qos_config_updates:
   skip:
-    reason: "Testcase ignored due to GitHub issue: https://github.com/Azure/sonic-mgmt/issues/5878"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681925"
     conditions:
-      - https://github.com/Azure/sonic-mgmt/issues/5878
+      - "https://redmine.mellanox.com/issues/3681925 and 'mtvr-moose-03' in testbed"
 
 generic_config_updater/test_eth_interface.py::test_eth_interface_admin_change[down]:
   skip:
@@ -1148,12 +1128,6 @@ generic_config_updater/test_monitor_config.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3177465"
     conditions:
       - "https://redmine.mellanox.com/issues/3177465 and '202205' in release and ('3800' in platform or '4600' in platform)"
-
-generic_config_updater/test_eth_interface.py::test_update_speed:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3218586"
-    conditions:
-      - https://redmine.mellanox.com/issues/3218586
 
 generic_config_updater/test_pfcwd_interval.py::test_pfcwd_interval_config_updates:
   skip:
@@ -1602,12 +1576,6 @@ ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_dr
     conditions:
       - "https://redmine.mellanox.com/issues/3373836"
 
-telemetry/test_telemetry.py::test_on_change_updates:
-  skip:
-     reason: "Testcase ignored due to a missing PR, Github issue: https://github.com/sonic-net/sonic-mgmt/issues/10281"
-     conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/10281 and '202305' in release"
-
 qos.test_buffer#test_change_speed_cable[10000-1500-15m]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416102"
@@ -1917,12 +1885,6 @@ platform_tests/test_cont_warm_reboot.py::test_continuous_reboot:
     conditions:
       - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
 
-test_nbr_health.py:
-  skip:
-    reason: "Testcase ignored due to sonic-mgmt issue: https://github.com/sonic-net/sonic-mgmt/issues/7883"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/7883"
-
 dualtor/test_orchagent_active_tor_downstream.py::test_downstream_ecmp_nexthops:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3615215"
@@ -1935,46 +1897,11 @@ platform_tests/test_service_warm_restart.py:
     conditions:
       - "https://github.com/sonic-net/sonic-mgmt/issues/10362"
 
-acl/test_acl_outer_vlan.py::TestAclVlanOuter_Egress::test_tagged_forwarded:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630093"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3630093"
-      - "'202305' in release"
-
-acl/test_acl_outer_vlan.py::TestAclVlanOuter_Egress::test_combined_untagged_forwarded:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630093"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3630093"
-      - "'202305' in release"
-
-platform_tests/test_advanced_reboot.py::test_fast_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3628607 and 2700 platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3628607 and '2700' in platform"
-      - "'202305' in release"
-
 dash/test_dash_vnet.py::test_outbound_vnet_direct:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3634592"
     conditions:
       - "https://redmine.mellanox.com/issues/3634592 and 'nvda_bf' in platform"
-
-ntp/test_ntp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647537 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3647537"
-      - "'master_bookworm' in branch"
-
-disk/test_disk_exhaustion.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649677"
-      - "'master_bookworm' in branch"
 
 ssh/test_ssh_default_password.py:
   skip:
