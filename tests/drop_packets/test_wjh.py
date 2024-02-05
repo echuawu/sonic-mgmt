@@ -152,7 +152,7 @@ def check_if_entry_exists(table, pkt):
         src_ip_port = entry['Src IP:Port'].rsplit(':', 1)
         dst_ip_port = entry['Dst IP:Port'].rsplit(':', 1)
         if (pkt.dst.lower() == entry['dMAC'].lower() and
-            pkt.src.lower() == entry['sMAC'].lower()):
+            pkt.src.lower().decode("utf-8") == entry['sMAC'].lower()):
 
                 if src_ip_port[0] != 'N/A':
                     if ip_key in pkt:
@@ -228,11 +228,11 @@ def verify_drop_on_agg_wjh_table(duthost, pkt, num_packets, discard_group, drop_
 
 
 def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None,
-                comparable_pkt=None, skip_counter_check=False, drop_information=None):
+                comparable_pkt=None, skip_counter_check=False, drop_information=None, ip_ver='ipv4'):
     # send packet
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"])
     # verify packet is dropped
-    exp_pkt = expected_packet_mask(pkt)
+    exp_pkt = expected_packet_mask(pkt, ip_ver=ip_ver)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
 
     # Some test cases will not increase the drop counter consistently on certain platforms
@@ -248,11 +248,11 @@ def do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports
 
 
 def do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
-                skip_counter_check=False, drop_information=None):
+                skip_counter_check=False, drop_information=None, ip_ver='ipv4'):
     num_packets = random.randint(2,100)
     send_packets(pkt, ptfadapter, ports_info["ptf_tx_port_id"], num_packets=num_packets)
     # verify packet is dropped
-    exp_pkt = expected_packet_mask(pkt)
+    exp_pkt = expected_packet_mask(pkt, ip_ver=ip_ver)
     testutils.verify_no_packet_any(ptfadapter, exp_pkt, ports=sniff_ports)
 
     # Some test cases will not increase the drop counter consistently on certain platforms
@@ -272,18 +272,20 @@ def do_test(duthosts, rand_one_dut_hostname):
     duthost = duthosts[rand_one_dut_hostname]
 
     def do_wjh_test(discard_group, pkt, ptfadapter, ports_info, sniff_ports, tx_dut_ports=None, comparable_pkt=None,
-                    skip_counter_check=False, drop_information=None):
+                    skip_counter_check=False, drop_information=None, ip_ver='ipv4'):
         try:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('raw') != -1):
                 do_raw_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
-                            comparable_pkt, skip_counter_check=skip_counter_check, drop_information=drop_information)
+                            comparable_pkt, skip_counter_check=skip_counter_check,
+                            drop_information=drop_information, ip_ver=ip_ver)
         finally:
             if (pytest.CHANNEL_CONF['forwarding']['type'].find('aggregate') != -1):
                 # a temporary check. there is a problem with IP header absent in aggregate
                 # TODO: remove this check when issue is fixed
                 if 'IP' in pkt or 'IPv6' in pkt:
                     do_agg_test(discard_group, pkt, ptfadapter, duthost, ports_info, sniff_ports, tx_dut_ports,
-                                comparable_pkt, skip_counter_check=skip_counter_check, drop_information=drop_information)
+                                comparable_pkt, skip_counter_check=skip_counter_check,
+                                drop_information=drop_information, ip_ver=ip_ver)
 
     return do_wjh_test
 

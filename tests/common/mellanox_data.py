@@ -6,20 +6,18 @@ SPC1_HWSKUS = ["ACS-MSN2700", "Mellanox-SN2700", "Mellanox-SN2700-D48C8", "ACS-M
 SPC2_HWSKUS = ["ACS-MSN3700", "ACS-MSN3700C", "ACS-MSN3800", "Mellanox-SN3800-D112C8", "ACS-MSN3420"]
 SPC3_HWSKUS = ["ACS-MSN4700", "Mellanox-SN4700-O28", "ACS-MSN4600C", "ACS-MSN4410", "ACS-MSN4600",
                "Mellanox-SN4600C-D112C8", "Mellanox-SN4600C-C64"]
-SPC4_HWSKUS = ["ACS-SN5600", "Mellanox-SN5600-C8"]
+SPC4_HWSKUS = ["ACS-SN5600"]
 SWITCH_HWSKUS = SPC1_HWSKUS + SPC2_HWSKUS + SPC3_HWSKUS + SPC4_HWSKUS
 
 PSU_CAPABILITIES = [
     ['psu{}_curr', 'psu{}_curr_in', 'psu{}_power', 'psu{}_power_in', 'psu{}_volt', 'psu{}_volt_in', 'psu{}_volt_out'],
     ['psu{}_curr', 'psu{}_curr_in', 'psu{}_power', 'psu{}_power_in', 'psu{}_volt', 'psu{}_volt_in', 'psu{}_volt_out2']
 ]
-
 MULTI_HARDWARE_TYPE_PLATFORMS = ['x86_64-mlnx_msn4700-r0',
                                  'x86_64-mlnx_msn4410-r0',
                                  'x86_64-mlnx_msn4600c-r0',
                                  'x86_64-mlnx_msn3700-r0',
                                  'x86_64-mlnx_msn3700c-r0']
-
 SWITCH_MODELS = {
     "x86_64-nvidia_sn5600-r0": {
         "chip_type": "spectrum4",
@@ -950,68 +948,6 @@ SWITCH_MODELS = {
             },
             "comex_ambient": {
                 "number": 1
-            }
-        }
-    },
-    "x86_64-mlnx_mqm9700-r0": {
-        "chip_type": "Quantum2",
-        "reboot": {
-            "cold_reboot": True,
-            "fast_reboot": True,
-            "warm_reboot": True
-        },
-        "fans": {
-            "number": 16,
-            "hot_swappable": True
-        },
-        "psus": {
-            "number": 2,
-            "hot_swappable": True,
-            "capabilities": PSU_CAPABILITIES[1]
-        },
-        "cpu_pack": {
-            "number": 1
-        },
-        "cpu_cores": {
-            "number": 4
-        },
-        "ports": {
-            "number": 64
-        },
-        "thermals": {
-            "cpu_core": {
-                "start": 0,
-                "number": 4
-            },
-            "module": {
-                "start": 1,
-                "number": 64
-            },
-            "psu": {
-                "start": 1,
-                "number": 2
-            },
-            "cpu_pack": {
-                "number": 1
-            },
-            "asic_ambient": {
-                "number": 1
-            },
-            "port_ambient": {
-                "number": 1
-            },
-            "fan_ambient": {
-                "number": 1
-            },
-            "comex_ambient": {
-                "number": 1
-            },
-            "pch": {
-                "number": 1
-            },
-            "sodimm": {
-                "start": 1,
-                "number": 2
             }
         }
     },

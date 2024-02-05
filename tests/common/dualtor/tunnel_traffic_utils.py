@@ -239,7 +239,7 @@ def tunnel_traffic_monitor(ptfadapter, tbinfo):
             check_res = []
             # For Nvidia platforms, queue check for outer/inner dscp 2/2 and 6/6 will fail due to the diversity
             # in dscp remapping. Since we don't expect such packets in production, skip the queue check in this case.
-            if 'spc' in self.standby_tor.get_asic_name():
+            if self.standby_tor.is_nvidia_platform():
                 logging.info("Skip the queue check for inner/outer dscp 2/2 and 6/6 on Nvidia platforms.")
                 if (inner_dscp, outer_dscp) in [(2, 2), (6, 6)]:
                     return " ,".join(check_res)

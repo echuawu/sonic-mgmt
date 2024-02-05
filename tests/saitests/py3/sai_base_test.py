@@ -103,6 +103,9 @@ class ThriftInterface(BaseTest):
                     continue
                 interface_front_pair = line.split("@")
                 interface_to_front_mapping['src'][interface_front_pair[0]] = interface_front_pair[1].strip()
+                # src = dst on single ASIC device.
+                # Copy the src to dst cause some function will read this key
+                interface_to_front_mapping['dst'] = interface_to_front_mapping['src']
             f.close()
         else:
             exit("No ptf interface<-> switch front port mapping, please specify as parameter or in external file")
@@ -127,7 +130,7 @@ class ThriftInterface(BaseTest):
             self.dst_protocol = TBinaryProtocol.TBinaryProtocol(self.dst_transport)
             self.dst_client = switch_sai_rpc.Client(self.dst_protocol)
             self.dst_transport.open()
-            self.clients['dst'] = self.dst_client
+        self.clients['dst'] = self.dst_client
 
         self.platform_asic = self.test_params.get('platform_asic', None)
 
@@ -237,11 +240,11 @@ class ThriftInterface(BaseTest):
             sai_thrift_port_tx_disable(client, asic_type, port_list, target=target)
 
     def get_dut_port(self, ptf_port):
-        try:
-            dut_port = interface_to_front_mapping['dst'][str(ptf_port)]
-        except KeyError:
-            dut_port = interface_to_front_mapping['src'][str(ptf_port)]
-        return dut_port
+        for port_group in interface_to_front_mapping.keys():
+            if str(ptf_port) in interface_to_front_mapping[port_group].keys():
+                dut_port = interface_to_front_mapping[port_group][str(ptf_port)]
+                return dut_port
+        return None
 
     def disable_mellanox_egress_data_plane(self, ptf_port_list):
         dut_port_list = []

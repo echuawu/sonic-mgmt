@@ -1028,9 +1028,6 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         '''
             Function to handle dependency of tc9 on tc8.
         '''
-        if self.vxlan_test_setup[encap_type].get('tc8_dest', None):
-            return
-
         Logger.info("Pick a vnet for testing.")
         vnet = list(self.vxlan_test_setup[encap_type]['vnet_vni_map'].keys())[0]
 
@@ -1069,8 +1066,6 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         '''
             Function to handle dependency of tc10 on tc9
         '''
-        if self.vxlan_test_setup[encap_type].get('tc9_dest', None):
-            return
         self.setup_route2_single_endpoint(encap_type)
 
         Logger.info("Choose a vnet for testing.")
@@ -1131,8 +1126,6 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         '''
             Function to handle dependency of tc9.2 on tc9
         '''
-        if self.vxlan_test_setup[encap_type].get('tc9_dest', None):
-            return
         self.setup_route2_single_endpoint(encap_type)
 
         Logger.info("Choose a vnet for testing.")
@@ -1144,6 +1137,12 @@ class Test_VxLAN_NHG_Modify(Test_VxLAN):
         tc9_new_dest1 = self.vxlan_test_setup[encap_type]['tc8_dest']
         old_nh = \
             self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet][tc9_new_dest1][0]
+
+        tc9_new_nh = ecmp_utils.get_ip_address(
+            af=ecmp_utils.get_outer_layer_version(encap_type),
+            netid=NEXTHOP_PREFIX)
+        self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet][tc9_new_dest1] = \
+            [tc9_new_nh]
 
         nh1 = None
         nh2 = None
@@ -2026,7 +2025,7 @@ class Test_VxLAN_ECMP_Priority_endpoints(Test_VxLAN):
 
         Logger.info("Choose a vnet.")
         vnet = list(self.vxlan_test_setup[encap_type]['vnet_vni_map'].keys())[0]
-
+        backup_dest = copy.deepcopy(self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet])
         Logger.info("Create a new list of endpoint(s).")
         tc1_end_point_list = []
         for _ in range(2):
@@ -2160,8 +2159,7 @@ class Test_VxLAN_ECMP_Priority_endpoints(Test_VxLAN):
                 tc1_end_point_list,
                 [tc1_end_point_list[0]],
                 "DEL")
-            self.vxlan_test_setup[encap_type]['dest_to_nh_map'] = copy.deepcopy(
-                self.vxlan_test_setup[encap_type]['dest_to_nh_map_orignal'])
+            self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet] = copy.deepcopy(backup_dest)
 
         except Exception:
             ecmp_utils.create_and_apply_priority_config(
@@ -2207,7 +2205,7 @@ class Test_VxLAN_ECMP_Priority_endpoints(Test_VxLAN):
 
         Logger.info("Choose a vnet.")
         vnet = list(self.vxlan_test_setup[encap_type]['vnet_vni_map'].keys())[0]
-
+        backup_dest = copy.deepcopy(self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet])
         Logger.info("Create a new list of endpoint(s).")
         tc2_end_point_list = []
         for _ in range(4):
@@ -2505,6 +2503,15 @@ class Test_VxLAN_ECMP_Priority_endpoints(Test_VxLAN):
 
             time.sleep(10)
             self.dump_self_info_and_run_ptf("test2", encap_type, True)
+            self.vxlan_test_setup[encap_type]['dest_to_nh_map'][vnet] = copy.deepcopy(backup_dest)
+            ecmp_utils.create_and_apply_priority_config(
+                self.vxlan_test_setup['duthost'],
+                vnet,
+                tc2_new_dest,
+                ecmp_utils.HOST_MASK[ecmp_utils.get_payload_version(encap_type)],
+                tc2_end_point_list,
+                primary_nhg,
+                "DEL")
 
         except Exception:
             ecmp_utils.create_and_apply_priority_config(

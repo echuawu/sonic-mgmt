@@ -224,24 +224,17 @@ def pkt_fields(duthosts, enum_rand_one_per_hwsku_frontend_hostname, tbinfo):
     return test_pkt_data
 
 
-def expected_packet_mask(pkt):
+def expected_packet_mask(pkt, ip_ver):
     """ Return mask for sniffing packet """
     exp_pkt = pkt.copy()
     exp_pkt = mask.Mask(exp_pkt)
     exp_pkt.set_do_not_care_scapy(packet.Ether, 'dst')
     exp_pkt.set_do_not_care_scapy(packet.Ether, 'src')
-
-    if packet.IP not in exp_pkt.exp_pkt and packet.IPv6 not in exp_pkt.exp_pkt:
-        # When exp_pkt doesn't include IPv4 or IPv6 header, return the exp_pkt directly
-        return exp_pkt
-    elif packet.IPv6 in exp_pkt.exp_pkt:
-        # For Ipv6 header, hlim is same to ttl of Ipv4, and ipv6 has no chksum
-        exp_pkt.set_do_not_care_scapy(packet.IPv6, 'hlim')
-    else:
-        # For Ipv4 header, need to ignore ttl and chksum
+    if ip_ver == "ipv4" and pkt.haslayer(packet.IP):
         exp_pkt.set_do_not_care_scapy(packet.IP, 'ttl')
         exp_pkt.set_do_not_care_scapy(packet.IP, 'chksum')
-
+    elif ip_ver == "ipv6" and pkt.haslayer(packet.IPv6):
+        exp_pkt.set_do_not_care_scapy(packet.IPv6, 'hlim')
     return exp_pkt
 
 
@@ -386,7 +379,7 @@ def ports_info(ptfadapter, duthosts, enum_rand_one_per_hwsku_frontend_hostname, 
         data["dst_mac"] = setup['intf_per_namespace'][ns][vlan]['macaddress']
     else:
         data["dst_mac"] = setup['intf_per_namespace'][ns][data["dut_iface"]]['macaddress']
-    data["src_mac"] = ptfadapter.dataplane.ports[(0, data["ptf_tx_port_id"])].mac().decode()
+    data["src_mac"] = ptfadapter.dataplane.ports[(0, data["ptf_tx_port_id"])].mac()
     return data
 
 
@@ -770,7 +763,7 @@ def test_src_ip_is_multicast_addr(do_test, ptfadapter, setup, tx_dut_ports, pkt_
                    ports_info["src_mac"], pkt_fields["ipv4_dst"], ip_src)
 
     group = "L3"
-    do_test(group, pkt, ptfadapter, ports_info, setup["neighbor_sniff_ports"], tx_dut_ports)
+    do_test(group, pkt, ptfadapter, ports_info, setup["neighbor_sniff_ports"], tx_dut_ports, ip_ver=ip_addr)
 
 
 def test_src_ip_is_class_e(do_test, ptfadapter, duthosts, enum_rand_one_per_hwsku_frontend_hostname,
@@ -848,7 +841,8 @@ def test_ip_is_zero_addr(do_test, ptfadapter, setup, tx_dut_ports, pkt_fields, a
     if setup.get("platform_asic") == "broadcom-dnx" and addr_direction == "src":
         pytest.skip("Src IP zero packets are not dropped on Broadcom DNX platform currently")
 
-    do_test(group, pkt, ptfadapter, ports_info, list(setup["dut_to_ptf_port_map"].values()), tx_dut_ports)
+    do_test(group, pkt, ptfadapter, ports_info, list(setup["dut_to_ptf_port_map"].values()), tx_dut_ports,
+            ip_ver=addr_type)
 
 
 def test_dst_ip_link_local(do_test, ptfadapter, duthosts, enum_rand_one_per_hwsku_frontend_hostname,

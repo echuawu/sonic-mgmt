@@ -20,3 +20,4 @@ tests/metadata
 # Creadentials for custom_skipif plugin
 tests/common/plugins/custom_skipif/credentials.yaml
 tests/common/plugins/custom_skipif/Redmine.py
+.python-version

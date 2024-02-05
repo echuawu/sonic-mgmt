@@ -6,6 +6,7 @@ from tests.platform_tests.mellanox.mellanox_thermal_control_test_helper import M
 
 HW_MANAGE_VER = '7.0030.2003'
 
+
 class AsicData(object):
     TEMPERATURE_FILE = '/run/hw-management/thermal/asic'
 

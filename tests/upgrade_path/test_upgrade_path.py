@@ -63,30 +63,30 @@ def test_upgrade_path(localhost, duthosts, ptfhost, rand_one_dut_hostname,
             # Install base image
             logger.info("Installing {}".format(from_image))
             try:
-                base_version = install_sonic(duthost, from_image, tbinfo)
+                target_version = install_sonic(duthost, from_image, tbinfo)
             except RunAnsibleModuleFail as err:
                 migration_err_regexp = r"Traceback.*migrate_sonic_packages.*SonicRuntimeException"
                 msg = err.results['msg'].replace('\n', '')
                 if re.search(migration_err_regexp, msg):
                     logger.info(
-                        "Ignore the package migration error when downgrading to base version")
-                    base_version = duthost.shell(
+                        "Ignore the package migration error when downgrading to from_image")
+                    target_version = duthost.shell(
                         "cat /tmp/downloaded-sonic-image-version")['stdout']
                 else:
                     raise err
             # Remove old config_db before rebooting the DUT in case it is not successfully
-            # removed by install_sonic due to migration error
-            logger.info("Remove old config_db file, if exists, to load minigraph from scratch")
+            # removed in install_sonic due to migration error
+            logger.info("Remove old config_db file if exists, to load minigraph from scratch")
             if duthost.shell("ls /host/old_config/minigraph.xml", module_ignore_errors=True)['rc'] == 0:
                 duthost.shell("rm -f /host/old_config/config_db.json")
             # Perform a cold reboot
             logger.info("Cold reboot the DUT to make the base image as current")
             reboot(duthost, localhost)
-            check_sonic_version(duthost, base_version)
+            check_sonic_version(duthost, target_version)
 
             # Install target image
             logger.info("Upgrading to {}".format(to_image))
-            install_sonic(duthost, to_image, tbinfo, keep_config_db_json=True)
+            install_sonic(duthost, to_image, tbinfo)
             if upgrade_type == REBOOT_TYPE_COLD:
                 # advance-reboot test (on ptf) does not support cold reboot yet
                 reboot(duthost, localhost)
@@ -118,11 +118,11 @@ def test_warm_upgrade_sad_path(localhost, duthosts, ptfhost, rand_one_dut_hostna
             logger.info("Test upgrade path from {} to {}".format(from_image, to_image))
             # Install base image
             logger.info("Installing {}".format(from_image))
-            base_version = install_sonic(duthost, from_image, tbinfo)
+            target_version = install_sonic(duthost, from_image, tbinfo)
             # Perform a cold reboot
             logger.info("Cold reboot the DUT to make the base image as current")
             reboot(duthost, localhost)
-            check_sonic_version(duthost, base_version)
+            check_sonic_version(duthost, target_version)
 
             # Install target image
             logger.info("Upgrading to {}".format(to_image))

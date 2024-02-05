@@ -185,7 +185,8 @@ def test_auto_negotiation_advertised_speeds_all(enum_dut_portname_module_fixture
     logger.info('Start test for DUT port {} and fanout port {}'.format(dut_port, fanout_port))
     with shutdown_port_on_duthost(duthost, dut_port):
         success = fanout.set_auto_negotiation_mode(fanout_port, True)
-        pytest_require(success, 'Failed to set autoneg mode on fanout. Fanout: {}, port: {}'.format(fanout, fanout_port))
+        pytest_require(success, 'Failed to set autoneg mode on fanout. Fanout: {}, port: {}'.format(fanout,
+                                                                                                    fanout_port))
 
         # Advertise all supported speeds in fanout port
         success = fanout.set_speed(fanout_port, None)

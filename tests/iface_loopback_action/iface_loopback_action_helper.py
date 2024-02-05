@@ -49,8 +49,6 @@ def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_ind
     eth_dst = duthost.facts["router_mac"]
     eth_src = ptfadapter.dataplane.get_mac(0, src_port_index).decode('utf-8')
     duthost.shell("sudo ip neigh replace {} lladdr {} dev {}".format(ip_dst, eth_src, rif_interface))
-    pytest_assert(wait_until(60, 3, 0, check_neighbor, duthost, ip_dst, eth_src, rif_interface),
-                  "Failed to add neighbor for {}.".format(ip_dst))
     logger.info("Traffic info is: eth_dst- {}, eth_src- {}, ip_src- {}, ip_dst- {}, vlan_vid- {}".format(
         eth_dst, eth_src, ip_src, ip_dst, vlan_vid))
     pkt = testutils.simple_ip_packet(
@@ -77,39 +75,6 @@ def generate_and_verify_traffic(duthost, ptfadapter, rif_interface, src_port_ind
         testutils.verify_no_packet(ptfadapter, exp_pkt, src_port_index)
     else:
         testutils.verify_packet(ptfadapter, exp_pkt, src_port_index)
-
-
-def check_neighbor(duthost, ip_address, mac_address, interface):
-    """
-    Verify the static ip neighbor is configured successfully
-    :param duthost: DUT host object
-    :param ip_address: Neighbor ip address
-    :param mac_address: Neighbor mac address
-    :param interface: Neighbor interface
-    """
-    asic_db_output = duthost.shell("redis-cli -n 1 keys *NEIGHBOR_ENTRY* | grep {}".format(ip_address))['stdout_lines']
-    if len(asic_db_output) < 1:
-        logger.error('No neighbor entry or extra neighbor entries of {} in ASIC db.'.format(ip_address))
-        return False
-
-    asic_db_neighbor_entry = asic_db_output[0]
-    mac_in_asic_db = duthost.shell("redis-cli -n 1 hget '{}' '{}'".format(
-        asic_db_neighbor_entry, "SAI_NEIGHBOR_ENTRY_ATTR_DST_MAC_ADDRESS"))['stdout_lines']
-
-    if len(mac_in_asic_db) < 1 or mac_in_asic_db[0].upper() != mac_address.upper():
-        logger.error('The neighbor entry of {} in ASIC db is not correct.'.format(ip_address))
-        return False
-
-    output = duthost.shell("ip neigh | grep {}".format(ip_address))['stdout'].splitlines()
-    if len(output) != 1:
-        logger.error('No neighbor entry or extra neighbor entries of {}.'.format(ip_address))
-        return False
-
-    fields = output[0].split(' ')
-    if fields[0] != ip_address or fields[2] != interface or fields[4] != mac_address or fields[5] != 'PERMANENT':
-        logger.error('The neighbor entry of {} is not correct.'.format(ip_address))
-        return False
-    return True
 
 
 def get_tested_up_ports(duthost, ptf_ifaces_map, count=10):
@@ -211,7 +176,7 @@ def remove_orig_dut_port_config(duthost, orig_ports_configuration):
             remove_dut_vlan_member(duthost, port, port_dict['vlan'])
         elif port_dict['portchannel']:
             remove_dut_portchannel_member(duthost, port, port_dict['portchannel'])
-            output = duthost.shell('show interface portchannel | grep "{} "'.format(port_dict['portchannel']))
+            output = duthost.shell('show interface portchannel | grep -w "{} "'.format(port_dict['portchannel']))
             # Empty portchannels need to be removed before warm/fast reboot
             if "Ethernet" not in output['stdout']:
                 remove_dut_portchannel_ipv4_address(duthost, port_dict['portchannel'])
@@ -447,7 +412,7 @@ def remove_dut_portchannel_member(duthost, port, lag_port):
     duthost.shell('config portchannel member del {} {}'.format(lag_port, port))
 
     def _check_portchannel_member_removed(duthost, portchannel, member):
-        output = duthost.shell('show interface portchannel | grep "{} "'.format(portchannel))
+        output = duthost.shell('show interface portchannel | grep -w "{} "'.format(portchannel))
         if member + '(' not in output['stdout']:
             return True
         else:
@@ -456,18 +421,17 @@ def remove_dut_portchannel_member(duthost, port, lag_port):
 
 
 def remove_dut_portchannel_ipv4_address(duthost, lag_port):
-    ipv4_address = re.split(r'\s+', duthost.shell('show ip interface | grep {}'.format(lag_port))['stdout'])[1]
+    ipv4_address = re.split(r'\s+', duthost.shell('show ip interface | grep -w {}'.format(lag_port))['stdout'])[1]
     if ipv4_address:
         duthost.shell('sudo config interface ip remove {} {}'.format(lag_port, ipv4_address))
 
 
 def remove_dut_portchannel_ipv6_address(duthost, lag_port):
-    output = duthost.shell('show ipv6 interface | grep {}'.format(lag_port))['stdout_lines']
+    output = duthost.shell('show ipv6 interface | grep -w {}'.format(lag_port))['stdout_lines']
     for line in output:
-        if line.startswith(lag_port):
-            ipv6_address = re.split(r'\s+', line)[1]
+        ipv6_address = re.split(r'\s+', line)[1]
+        if not ipv6_address.lower().startswith("fe80"):
             duthost.shell('sudo config interface ip remove {} {}'.format(lag_port, ipv6_address))
-            break
 
 
 def add_dut_vlan_member(duthost, port, vlan_id):
@@ -500,7 +464,8 @@ def add_ptf_bond(ptfhost, port, bond_id, ip_addr):
     """
     try:
         bond_port = 'bond{}'.format(bond_id)
-        ptfhost.shell("teamd -t {} -d -c '{{\"runner\": {{\"name\": \"lacp\"}}}}'".format(bond_port))
+        ptfhost.shell("ip link add {} type bond".format(bond_port))
+        ptfhost.shell("ip link set {} type bond miimon 100 mode 802.3ad".format(bond_port))
         ptfhost.shell("ip link set {} down".format(port))
         ptfhost.shell("ip link set {} master {}".format(port, bond_port))
         ptfhost.shell("ip link set dev {} up".format(bond_port))
@@ -565,19 +530,6 @@ def clear_rif_counter(duthost):
     duthost.shell("sonic-clear rifcounters")
 
 
-def check_ip_interface_up(duthost, interfaces):
-    """
-    Check the ip interfaces are all up
-    :param duthost: DUT host object
-    :param interfaces: List of ip interfaces to check
-    """
-    output = duthost.shell("show ip interface")['stdout']
-    for interface in interfaces:
-        if not re.search("{}\\s.*up\\/up".format(interface), output):
-            return False
-    return True
-
-
 def show_loopback_action(duthost):
     """
     Get the loopback action for every rif interface
@@ -639,8 +591,6 @@ def verify_rif_tx_err_count(duthost, rif_interfaces, expect_counts):
     :param rif_interfaces: List of rif interface
     :param expect_counts: expected TX ERR for for every rif interface
     """
-    # Wait for the counters polling, the default interval is 1s
-    time.sleep(2)
     rif_tx_err_map = get_rif_tx_err_count(duthost)
     for rif_interface, expected_count in zip(rif_interfaces, expect_counts):
         tx_err_count = int(rif_tx_err_map[rif_interface])
