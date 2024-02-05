@@ -28,7 +28,7 @@
 
     <case>
         <info> Relaxed match negative test </info>
-        <name> test_relaxed_match_nagative </name>
+        <name> test_relaxed_match_negative </name>
         <tout> 1200 </tout>
         <cmd>
              <params>
