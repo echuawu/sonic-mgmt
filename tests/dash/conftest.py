@@ -2,6 +2,7 @@ import logging
 import pytest
 import random
 import json
+import time
 
 from ipaddress import ip_interface
 from constants import ENI, VM_VNI, VNET1_VNI, VNET2_VNI, REMOTE_CA_IP, LOCAL_CA_IP, REMOTE_ENI_MAC,\
@@ -10,6 +11,7 @@ from constants import ENI, VM_VNI, VNET1_VNI, VNET2_VNI, REMOTE_CA_IP, LOCAL_CA_
     ROUTING_ACTION_TYPE, LOOKUP_OVERLAY_IP, ACL_GROUP, ACL_STAGE
 from dash_utils import render_template_to_host, apply_swssconfig_file
 from gnmi_utils import generate_gnmi_cert, apply_gnmi_cert, recover_gnmi_cert, apply_gnmi_file
+from dash_acl import AclGroup, DEFAULT_ACL_GROUP, WAIT_AFTER_CONFIG, DefaultAclRule
 
 logger = logging.getLogger(__name__)
 
@@ -322,3 +324,24 @@ def vxlan_udp_dport(request, duthost):
 
     logger.info(f"Restore the VXLAN UDP dst port to 4789")
     config_vxlan_udp_dport(duthost, 4789)
+
+
+@pytest.fixture(scope="function")
+def acl_default_rule(localhost, duthost, ptfhost, dash_config_info):
+    hwsku = duthost.facts['hwsku']
+    hwsku_list_with_default_acl_action_deny = ['Nvidia-9009d3b600CVAA-C1', 'Nvidia-9009d3b600SVAA-C1']
+    if hwsku in hwsku_list_with_default_acl_action_deny:
+        default_acl_group = AclGroup(localhost, duthost, ptfhost, DEFAULT_ACL_GROUP, dash_config_info[ENI])
+        default_acl_rule = DefaultAclRule(localhost, duthost, ptfhost, dash_config_info, "allow")
+
+        default_acl_rule.config()
+        default_acl_group.bind(1)
+        time.sleep(WAIT_AFTER_CONFIG)
+
+    yield
+
+    if hwsku in hwsku_list_with_default_acl_action_deny:
+        default_acl_group.unbind()
+        default_acl_rule.teardown()
+        del default_acl_group
+        time.sleep(WAIT_AFTER_CONFIG)

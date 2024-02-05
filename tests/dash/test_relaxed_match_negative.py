@@ -31,7 +31,8 @@ def restore_vxlan_udp_dport(duthost):
     config_vxlan_udp_dport(duthost, 4789)
 
 
-def test_relaxed_match_negative(duthost, ptfadapter, apply_vnet_configs, dash_config_info, restore_vxlan_udp_dport):
+def test_relaxed_match_negative(duthost, ptfadapter, apply_vnet_configs, dash_config_info,
+                                acl_default_rule, restore_vxlan_udp_dport):
     """
     Negative test of dynamically changing the VxLAN UDP dst port
     """
@@ -53,7 +54,7 @@ def test_relaxed_match_negative(duthost, ptfadapter, apply_vnet_configs, dash_co
         testutils.verify_no_packet_any(ptfadapter, expected_packet, ports=dash_config_info[REMOTE_PTF_INTF])
 
 
-def test_relaxed_match_invalid_port(duthost, ptfadapter, apply_vnet_configs, dash_config_info):
+def test_relaxed_match_invalid_port(duthost, ptfadapter, apply_vnet_configs, dash_config_info, acl_default_rule):
     """
     Negative test of invalid UDP port
     """
