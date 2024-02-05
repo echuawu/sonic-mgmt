@@ -352,8 +352,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                                                                'Answer "YES" to continue', '\\*ONIE:.*'],
                                                timeout=30, send_without_enter=True)
 
-            if "MLNX_" in topology_obj.players['dut']['attributes'] \
-                    .noga_query_data['attributes']['Specific'].get('TYPE', '') and respond != 2:
+            if respond != 2:
                 logger.info("MLNX-OS system. Enter 'YES' and wait till in ONIE grub menu")
                 serial_engine.run_cmd('YES', '\\*ONIE: Install OS', timeout=420)
 
