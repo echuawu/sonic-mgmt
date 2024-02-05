@@ -15,11 +15,13 @@ logger = logging.getLogger()
 class DutUtilsTool:
 
     @staticmethod
-    def reload(engine, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True, confirm=False):
+    def reload(engine, device, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True,
+               confirm=False):
         """
 
         :param should_wait_till_system_ready: if True then we will wait till the system is ready, if false then we only will wait till we can re-connect to the system
         :param engine:
+        :param device:
         :param command:
         :param find_prompt_tries:
         :param find_prompt_delay:
@@ -28,12 +30,11 @@ class DutUtilsTool:
         with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
             if confirm:
                 list_commands = [command, 'y']
-                engine.send_config_set(list_commands, exit_config_mode=False, cmd_verify=False)
+                device.reload_device(engine, list_commands)
             else:
-                engine.send_config_set(command, exit_config_mode=False, cmd_verify=False)
+                device.reload_device(engine, [command])
 
             with allure.step('Waiting for switch shutdown after reload command'):
-                logger.info("Waiting for switch shutdown after reload command")
                 check_port_status_till_alive(False, engine.ip, engine.ssh_port)
                 engine.disconnect()
 
@@ -42,12 +43,9 @@ class DutUtilsTool:
                 return ResultObj(result=True, info="system is not ready yet")
 
             with allure.step('Waiting for switch to be ready'):
-                logger.info("Waiting for switch to be ready")
                 check_port_status_till_alive(True, engine.ip, engine.ssh_port)
                 retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
-                result_obj = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine,
-                                                                             find_prompt_delay=find_prompt_delay)
-
+                result_obj = device.wait_for_os_to_become_functional(engine, find_prompt_delay=find_prompt_delay)
         return result_obj
 
     @staticmethod
@@ -93,6 +91,13 @@ class DutUtilsTool:
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
     @staticmethod
+    def wait_for_cumulus_to_become_functional(engine, find_prompt_tries=60, find_prompt_delay=10):
+        with allure.step('wait until the CLI is up'):
+            wait_until_cli_is_up(engine)
+
+        return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
+
+    @staticmethod
     def get_url(engine, command_opt='scp', file_full_path=''):
         if not engine or not engine.username:
             return ResultObj(result=False, info="No Engine")
@@ -100,12 +105,14 @@ class DutUtilsTool:
         with allure.step('Trying to create url for {}'.format(engine.username)):
 
             with allure.step('check engine is reachable'):
-                ssh_connection = ConnectionTool.create_ssh_conn(engine.ip, engine.username, engine.password).verify_result()
+                ssh_connection = ConnectionTool.create_ssh_conn(engine.ip, engine.username,
+                                                                engine.password).verify_result()
                 if not ssh_connection:
                     return ResultObj(result=False, info="{} is unreachable".format(engine.ip))
 
             with allure.step('generate url'):
-                remote_url = '{}://{}:{}@{}{}'.format(command_opt, engine.username, engine.password, engine.ip, file_full_path)
+                remote_url = '{}://{}:{}@{}{}'.format(command_opt, engine.username, engine.password, engine.ip,
+                                                      file_full_path)
 
             return ResultObj(result=True, info=remote_url, returned_value=remote_url)
 

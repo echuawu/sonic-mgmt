@@ -92,6 +92,7 @@ def devices(topology_obj):
     devices_date = DottedDict()
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
     devices_date.dut = DeviceFactory.create_device(dut_name)
+    TestToolkit.update_devices(devices_date)
     return devices_date
 
 

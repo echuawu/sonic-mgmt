@@ -69,7 +69,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params[action_type])
 
     @staticmethod
-    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param=""):
         logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
         action_type = '@' + action_str
         params = \
@@ -170,7 +170,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params)
 
     @staticmethod
-    def action_reset(engine, comp, param):
+    def action_reset(engine, device, comp, param):
         logging.info("Running action: reset system {} on dut using OpenApi".format(comp))
 
         assert not param, "params are not supported yet"
@@ -191,7 +191,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, "/system/log", params)
 
     @staticmethod
-    def action_reboot(engine, resource_path, op_param="", should_wait_till_system_ready=True):
+    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True):
         logging.info("Running action: rotate system log on dut using OpenApi")
         parameters_dict = {}
         if "force" in op_param:
@@ -216,7 +216,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
         if should_wait_till_system_ready:
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+            device.wait_for_os_to_become_functional(engine).verify_result()
         return result
 
     @staticmethod
@@ -251,7 +251,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params)
 
     @staticmethod
-    def action_profile_change(engine, resource_path, params_dict=None, should_wait_till_system_ready=True):
+    def action_profile_change(engine, device, resource_path, params_dict=None, should_wait_till_system_ready=True):
         logging.info("Running action: 'profile change' on dut using OpenApi, resource: {rsrc}"
                      .format(rsrc=resource_path))
 

@@ -3,6 +3,7 @@ import logging
 from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
@@ -408,6 +409,14 @@ class BaseSwitch(BaseDevice, ABC):
         self.system_list = []
         self.user_fields = ['admin', 'monitor']
 
+    @abstractmethod
+    def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        raise Exception(f"Not implemented for this switch {self.__class__.__name__}")
+
+    @abstractmethod
+    def reload_device(self, engine, cmd_list, validate=False):
+        raise Exception(f"Not implemented for this switch {self.__class__.__name__}")
+
 
 # -------------------------- Jaguar Switch ----------------------------
 class JaguarSwitch(BaseSwitch):
@@ -566,8 +575,15 @@ class MultiAsicSwitch(BaseSwitch):
 
         return result_obj
 
+    def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
+
+    def reload_device(self, engine, cmd_list, validate=False):
+        engine.send_config_set(cmd_list, exit_config_mode=False, cmd_verify=False)
 
 # -------------------------- Marlin Switch ----------------------------
+
+
 class MarlinSwitch(MultiAsicSwitch):
     ASIC_AMOUNT = 2
     MARLIN_IB_PORT_NUM = 128
@@ -704,6 +720,12 @@ class AnacondaSwitch(BaseSwitch):
         BaseSwitch._init_constants(self)
         self.pre_login_message = "None\n"     # "Debian GNU/Linux 10\n"
         self.post_login_message = "\nWelcome to NVIDIA Cumulus (R) Linux (R)\n\nFor support and online technical documentation, visit\nhttps://www.nvidia.com/en-us/support\n\nThe registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
+
+    def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        return DutUtilsTool.wait_for_cumulus_to_become_functional(engine)
+
+    def reload_device(self, engine, cmd_set, validate=False):
+        engine.run_cmd_set(cmd_set, validate=False)
 
 
 # -------------------------- Gorilla Switch ----------------------------

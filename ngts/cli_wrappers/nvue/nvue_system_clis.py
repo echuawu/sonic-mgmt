@@ -3,7 +3,6 @@ from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.ResultObj import ResultObj
-from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 
@@ -48,13 +47,13 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_install_image_with_reboot(engine, action_str, resource_path, op_param=""):
+    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param=""):
         resource_path = resource_path.replace('/', ' ')
         cmd = "nv action {action_type} {resource_path} {param}" \
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def action_general(engine, action_str, resource_path, op_param=""):
@@ -110,7 +109,7 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_reboot(engine, resource_path, op_param="", should_wait_till_system_ready=True):
+    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True):
         """
         Rebooting the switch
         """
@@ -118,11 +117,11 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reboot {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready,
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready,
                                    confirm=True).verify_result()
 
     @staticmethod
-    def action_profile_change(engine, resource_path, op_param=""):
+    def action_profile_change(engine, device, resource_path, op_param=""):
         """
         Rebooting the switch
         """
@@ -132,7 +131,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action change {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def show_log(engine, log_type='', param='', exit_cmd=''):
@@ -187,11 +186,11 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_reset(engine, comp, param):
+    def action_reset(engine, device, comp, param):
         cmd = "nv action reset system {comp} {params}".format(comp=comp, params=param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, command=cmd, confirm=True).verify_result()
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
 
     @staticmethod
     def show_health_report(engine, param='', exit_cmd=''):

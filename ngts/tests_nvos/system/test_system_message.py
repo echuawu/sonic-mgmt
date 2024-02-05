@@ -369,7 +369,7 @@ def test_system_reload_for_system_message(engines, devices):
         with allure.step('Run system reload command and apply config'):
             reload_cmd_set = "nv action reboot system"
             # Reload system and wait until the system is ready
-            DutUtilsTool.reload(engine=engines.dut, command=reload_cmd_set,
+            DutUtilsTool.reload(engine=engines.dut, device=devices.dut, command=reload_cmd_set,
                                 should_wait_till_system_ready=True, confirm=True).verify_result()
             # Reconnect
             ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username, engines.dut.password).get_returned_value()
