@@ -882,13 +882,6 @@ platform_tests/test_auto_negotiation.py:
       - "'3800' in platform"
       - "'r-tigon-11' in testbed"
 
-ecmp/test_fgnhg.py:
-  skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/2577145 and 'msn2' in platform"
-
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2739322 and platform msn3/msn4"
