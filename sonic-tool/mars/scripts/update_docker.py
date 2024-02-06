@@ -272,7 +272,7 @@ def configure_docker_route(conn, container_name):
         hyper_local_ip = conn.run("docker inspect -f '{}' {}".format(parser_line, container_name)).stdout.strip()
         # Add route to hypervisor via "bridge" network
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip route add {HYPER_IP} via {HYPER_DOCKER_IP}"'
-                 .format(CONTAINER_NAME=container_name, HYPER_IP=conn.host,  HYPER_DOCKER_IP=hyper_local_ip))
+                 .format(CONTAINER_NAME=container_name, HYPER_IP=conn.host, HYPER_DOCKER_IP=hyper_local_ip))
         # Run dhclient on macvlan network and get public IP/default route from DHCP server based on MAC address
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo dhclient {CONTAINER_IFACE} -v"'
                  .format(CONTAINER_NAME=container_name, CONTAINER_IFACE=CONTAINER_IFACE))
@@ -386,7 +386,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.252'}
+    default_list = {'docker-ngts': '1.2.260'}
     return default_list.get(docker_name, latest)
 
 
