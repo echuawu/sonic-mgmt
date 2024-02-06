@@ -1503,9 +1503,9 @@ platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[r-moose-02-cpu]:
 
 platform_tests/test_reload_config.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3695683 on dpu"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639 on dpu"
     conditions:
-      - "https://redmine.mellanox.com/issues/3695683 and 'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
 system_health/test_system_health.py::test_external_checker:
   skip:
