@@ -11,6 +11,7 @@ from ngts.nvos_tools.infra.PortFastRecovery import PortFastRecovery
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Health import Health
+from ngts.nvos_tools.platform.Platform import Platform
 
 logger = logging.getLogger()
 
@@ -27,6 +28,7 @@ class Fae(BaseComponent):
         self.fast_recovery = PortFastRecovery(self)
         self.ib = Ib(self)
         self.sonic_cli = SonicCli(self)
+        self.platform = Platform(self)
 
 
 class Ib(BaseComponent):

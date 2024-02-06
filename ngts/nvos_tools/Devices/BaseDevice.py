@@ -484,6 +484,10 @@ class JaguarSwitch(BaseSwitch):
 
 # -------------------------- Multi ASIC Switch ----------------------------
 class MultiAsicSwitch(BaseSwitch):
+    CURRENT_BIOS_VERSION_NAME = "0ACQF_06.01.003"
+    CURRENT_BIOS_VERSION_PATH = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+    PREVIOUS_BIOS_VERSION_NAME = "0ACQF_06.01.002"
+    PREVIOUS_BIOS_VERSION_PATH = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
 
     def __init__(self, asic_amount):
         self.asic_amount = asic_amount
