@@ -207,7 +207,7 @@ def load_lossless_headroom_data(duthost):
             'cat {}/pg_profile_lookup.ini'.format(skudir))["stdout"]
         DEFAULT_LOSSLESS_HEADROOM_DATA = {}
         for line in lines.split('\n'):
-            if line[0] == '#':
+            if line.strip() == '' or line.startswith('#'):
                 continue
             tokens = line.split()
             speed = tokens[0]
