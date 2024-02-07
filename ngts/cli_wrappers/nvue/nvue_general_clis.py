@@ -297,7 +297,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                                   password=os.getenv("TEST_SERVER_PASSWORD"))
         ssh_conn.run_cmd(cmd)
 
-    def enter_serial_connection_context(self, topology_obj):
+    @staticmethod
+    def enter_serial_connection_context(topology_obj):
         '''
         @summary: in this function we will execute the rcon command and return the serial engine
         :return: serial connection engine

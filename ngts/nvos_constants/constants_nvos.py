@@ -1085,3 +1085,33 @@ class UfmMadConsts:
 class DiskConsts:
     DEFAULT_PARTITION_NAME = 'sda'
     PARTITION_CAPACITY_LIMIT = 40  # Percent value
+
+
+class BiosConsts:
+    BIOS_START_REGEX = "American Megatrends"
+    BIOS_PASSWORD_PROMPT = "Enter Password"
+    CTRL_B = "\x02"
+    ENTER = "\015"
+    LEFT_ARROW = "\033[D"
+    RIGHT_ARROW = "\033[C"
+    DOWN_ARROW = "\033[B"
+    UP_ARROW = "\033[A"
+    F4 = "\033OS"
+    ESC = "\033["
+    BIOS_HOMEPAGE_TITLE = "BIOS Information"
+    DEFAULT_BIOS_PASSWORD = "admin"
+    INVALID_PASSWORD_PROMPT = "Invalid Password"
+    CREATE_NEW_PASSWORD = "Create New Password"
+    ENTER_CURRENT_PASSWORD = "Enter Current Password"
+    CLEAR_OLD_PASSWORD = "Clear Old Password"
+    ENABLED_SELECTED = "[1;37;47m[Enabled]"
+    DISABLED_SELECTED = "[1;37;47m[Disabled]"
+    KEY_STROKE_SLEEP = 0.5
+    SELECTED_PAGE_REGEX = "\\x1b[[]0;34;47m ({}) \\x1b"
+    SELECTED_LINE_REGEX = "\\x1b[[1];37;47m([^\\[\\]]*?)\\x1b"
+    SELECTED_LINE_VAL_REGEX = "\\x1b[[1];37;47m[[]([^\\\\*?)[]]\\x1b"
+    SELECTED_OPTION_LINE_REGEX = "\\x1b[[]1;37;40m([^\\[\\]]*?)\\x1b"
+    BIOS_MENU_PAGES = ["Main", "Advanced", "Chipset", "Security", "Boot", "Save & Exit", "Event Logs"]
+    MISSING_PAGE_ERR = "Target page {} not found in the BIOS setting pages list {}"
+    MAX_SELECTIONS_PER_PAGE = 30
+    PEXPECT_TIMEOUT = 2
