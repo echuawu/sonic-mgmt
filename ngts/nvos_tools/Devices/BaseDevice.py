@@ -792,7 +792,7 @@ class GorillaSwitch(MultiAsicSwitch):
         'sw31p2': 'sw32p1pl2'
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
-    FNM_PORT = 'fnm1'
+    FNM_PORT_LIST = 'fnm1'
     AGGREGATED_SPLIT_PORT_LIST = ['sw10p1']
     FNM_INTERNAL_PORT_LIST = ['fnma1p236']
     FNM_EXTERNAL_PORT_LIST = ['fnm1']
@@ -1038,13 +1038,14 @@ class BlackMambaSwitch(MultiAsicSwitch):
 
     def _init_temperature(self):
         BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-7-Temp", "SODIMM-1-Temp", "SODIMM-2-Temp"]
-        self.temperature_list.remove("ASIC")
+        self.temperature_list += ["ASIC2", "ASIC3", "ASIC4", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-7-Temp",
+                                  "SODIMM-1-Temp", "SODIMM-2-Temp"]
         self.temperature_list.remove("PSU-1-Temp")
 
     def _init_available_databases(self):
         MultiAsicSwitch._init_available_databases(self)
-        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.ib_ports_num(),
+        self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update({"ASIC_STATE:SAI_OBJECT_TYPE_PORT":
+                                                                            self.ib_ports_num(),
                                                                             "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
                                                                             "LANES": 0,
                                                                             "VIDCOUNTER": 0,
@@ -1094,9 +1095,9 @@ class BlackMambaSwitch(MultiAsicSwitch):
                        "PMIC-13+12V_MAIN+Vol+In+1", "PMIC-13+CEX_VDD+Vol+Out+1", "PSU-1+12V+Vol+Out",
                        "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
                        "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
-    TEMPERATURE_SENSORS = ["Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp",
-                           "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp", "PSU-7-Temp", "SODIMM-1-Temp",
-                           "SODIMM-2-Temp"]
+    TEMPERATURE_SENSORS = ["ASIC", "ASIC2", "ASIC3", "ASIC4", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp",
+                           "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
+                           "PSU-7-Temp", "SODIMM-1-Temp", "SODIMM-2-Temp"]
 
     def _init_sensors_dict(self):
         self.sensors_dict = {"VOLTAGE": self.VOLTAGE_SENSORS,
