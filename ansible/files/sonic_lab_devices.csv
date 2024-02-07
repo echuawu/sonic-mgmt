@@ -20,7 +20,7 @@ arc-switch233-005,0.0.0.0/0,Mellanox-2700,FanoutLeaf
 arc-switch233-007,0.0.0.0/0,Mellanox-3700,FanoutLeaf
 r-panther-03,10.210.25.83/22,Mellanox-2700,FanoutLeaf
 r-tigris-17,10.210.25.57/22,Mellanox-3800,FanoutLeaf
-r-tigris-23,10.210.24.81/22,Mellanox-3800,FanoutLeaf
+r-tigon-30,10.210.24.81/22,Mellanox-4600C,FanoutLeaf
 r-liger-12,10.210.24.76/22,ACS-MSN4600,FanoutLeaf
 mtvr-liger-01,10.245.20.43/22,ACS-MSN4600,FanoutLeaf
 mtvr-liger-02,10.245.20.44/22,ACS-MSN4600,FanoutLeaf
