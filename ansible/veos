@@ -1607,10 +1607,10 @@ vm_host_68
 vms_68
 
 [server_68:vars]
-host_var_file=host_vars/R-R740-12.yml
+host_var_file=host_vars/R-R740-12_1.yml
 
 [vms_68:vars]
-host_var_file=host_vars/R-R740-12.yml
+host_var_file=host_vars/R-R740-12_1.yml
 mgmt_prefixlen=16
 
 [server_69:children]
