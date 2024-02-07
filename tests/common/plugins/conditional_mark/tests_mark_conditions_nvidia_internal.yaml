@@ -2314,6 +2314,25 @@ dut_console/test_escape_character.py::test_console_escape:
     conditions:
       - "https://redmine.mellanox.com/issues/3717856"
 
+
+platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_kill_and_start_status:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3771095"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3771095 and 'nvda_bf' in platform"
+
+platform_tests/daemon/test_pcied.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
+
+platform_tests/daemon/test_syseepromd.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 

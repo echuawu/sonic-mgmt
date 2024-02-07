@@ -4,21 +4,17 @@
         <!-- parameters passed to setup steps commands-->
         <default_params_type> basic_setup_step_params </default_params_type>
         <DB>
-            <info> Platform </info>
+            <info> PRE TEST </info>
             <owner> SONiC </owner>
             <group> SONiC </group>
 
             <!-- OPTIONAL TAGS -->
-            <tags> PLATFORM, SENSORS </tags>
+            <tags> PRE TEST </tags>
 
             <!-- pre db commands - executed once before DB run -->
-            <!-- copy remote tests -->
             <pre>
             </pre>
-
-            <!-- post db commands - executed once after DB run -->
-            <post>
-            </post>
+            <post></post>
         </DB>
         <Test>
             <!--Must reset any dynamic ignore tags created by other tests-->
@@ -29,16 +25,6 @@
                 <tout> 60 </tout>
                 <params>
                     <tags_type> ignore_tags </tags_type>
-                </params>
-            </pre>
-            <pre>
-                <type> reg_exec_func </type>
-                <name> pre-test check </name>
-                <mars_cmd_func> run_on_stm </mars_cmd_func>
-                <tout> 300 </tout>
-                <params>
-                    <cmd> /root/pyenv/sonic/bin/python -E [[conf:execution_blocks.B_ID1.local_src_path]]/sonic-mgmt/sonic-tool/mars/scripts/pre_test_check.py </cmd>
-                    <cmd_params> --topo [[conf:topology_file]] --test-name [[run_time:test_name]] --sonic-topo [[conf:extra_info.topology]] --workspace-path /root/mars/workspace --repo-name [[conf:extra_info.sonic_mgmt_repo_name]] </cmd_params>
                 </params>
             </pre>
             <post>
@@ -54,7 +40,7 @@
                         <ep_targets> SONIC_MGMT </ep_targets>
                     </players_selection>
                     <name> run_on_stm </name>
-                    <tout> 600 </tout>
+                    <tout> 1800 </tout>
                     <params>
                         <exec> PYTHONPATH=/devts/ /ngts_venv/bin/pytest /root/mars/workspace/sonic-mgmt/ngts/scripts/store_techsupport_on_not_success.py  --sonic-topo=[[conf:extra_info.topology]]  --setup_name=[[conf:extra_info.setup_name]] --tech_support_duration=7200  --session_id=[[run_time:session_id]]  --rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini     --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results</exec>
                     </params>
@@ -62,21 +48,8 @@
             </on_not_success>
         </Case>
     </global>
-
     <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/platform_bf.cases </cases>
-    </test>
-
-    <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/monit.cases </cases>
-    </test>
-
-    <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/sensors.cases </cases>
-    </test>
-
-    <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/container_checker.cases </cases>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/pretest.cases </cases>
     </test>
 
 </DBDEF>
