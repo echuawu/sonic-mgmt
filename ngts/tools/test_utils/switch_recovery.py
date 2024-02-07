@@ -18,17 +18,19 @@ from ngts.tests_nvos.conftest import clear_config
 logger = logging.getLogger(__name__)
 
 
-def recover_dut_with_remote_reboot(topology_obj, engines):
+def recover_dut_with_remote_reboot(topology_obj, engines, should_clear_config: bool = True):
     with allure.step('Execute remote reboot'):
         NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
     with allure.step('Wait for switch to be up'):
+        engines.dut.disconnect()
         DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
-    with allure.step('Clear config again'):
-        clear_config()
-    #     NvosInstallationSteps.clear_conf(engines.dut)
-    # with allure.step('Set base conf again'):
-    #     set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
-    #                             save_conf=True)
+    if should_clear_config:
+        with allure.step('Clear config again'):
+            clear_config()
+        #     NvosInstallationSteps.clear_conf(engines.dut)
+        # with allure.step('Set base conf again'):
+        #     set_base_configurations(dut_engine=engines.dut, timezone=LinuxConsts.JERUSALEM_TIMEZONE, apply=True,
+        #                             save_conf=True)
 
 
 def generate_strong_password(n: int = 10) -> str:
