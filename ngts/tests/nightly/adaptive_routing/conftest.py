@@ -25,7 +25,7 @@ def is_ar_supported(chip_type, sonic_branch):
     """
     if chip_type == 'SPC' or chip_type == 'SPC1':
         pytest.skip('Spectrum-1,2 does not support Adaptive Routing feature')
-    if sonic_branch not in ["202305"]:
+    if sonic_branch in ['201911', '202012', '202205', '202211']:
         pytest.skip('Adaptive Routing feature supported at 202305 and higher')
 
 
