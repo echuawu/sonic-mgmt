@@ -615,12 +615,13 @@ class PwhTools:
         expected_patterns = []
         try:
             with allure.step('Composing the ssh command to pexpect process'):
-                _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
-                _ssh_command += ['-p', str(PwhConsts.SSH_PORT)]
-                _ssh_command += ['-l', username, ip]
+                ssn_cmd = f'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {username} {ip}'
+                # _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
+                # _ssh_command += ['-p', str(PwhConsts.SSH_PORT)]
+                # _ssh_command += ['-l', username, ip]
 
             with allure.step('Running ssh command with user "{}" to ip "{}"'.format(username, ip)):
-                child = pexpect.spawn(' '.join(_ssh_command))
+                child = pexpect.spawn(ssn_cmd)
                 child.delaybeforesend = DefaultConnectionValues.PEXPECT_DELAYBEFORESEND
 
             with allure.step('Expect shell to prompt "password" (tell the user to enter password)'):

@@ -13,6 +13,7 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo 
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
+from ngts.nvos_constants.constants_nvos import ApiType
 
 
 def check_nslcd_service(engines):
@@ -334,7 +335,7 @@ def set_local_users(engines, users, apply=False):
                 password = user[AaaConsts.PASSWORD]
                 role = user[AaaConsts.ROLE]
             with allure.step(f'Set user "{username}" with role: {role}'):
-                user_obj = System(username=username).aaa.user
+                user_obj = System(username=username, force_api=ApiType.NVUE).aaa.user
                 logging.info(f'Set user: {username} , password: {password}')
                 user_obj.set(AaaConsts.PASSWORD, password).verify_result()
                 logging.info(f'Set user: {username} , role: {role}')

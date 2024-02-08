@@ -8,6 +8,7 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AaaCo
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tools.test_utils import allure_utils as allure
 import logging
+from ngts.nvos_constants.constants_nvos import ApiType
 
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -43,7 +44,7 @@ def testing_users(engines, system):
 
         users = {
             user[AaaConsts.USERNAME]: {
-                PwhConsts.USER_OBJ: System(username=user[AaaConsts.USERNAME]).aaa.user,
+                PwhConsts.USER_OBJ: System(username=user[AaaConsts.USERNAME], force_api=ApiType.NVUE).aaa.user,
                 AaaConsts.PASSWORD: user[AaaConsts.PASSWORD]
             } for user in users_info
         }

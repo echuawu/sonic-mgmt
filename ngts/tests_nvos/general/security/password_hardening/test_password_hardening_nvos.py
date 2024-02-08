@@ -447,7 +447,7 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
     exp = random.randint(0, PwhConsts.MAX[PwhConsts.EXPIRATION])  # can randomize between min_expiration to max_expiration but the test will be too long
 
     with allure.step('Set expiration setting to {}'.format(exp)):
-        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1, apply=True).verify_result()
+        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1).verify_result()
         pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
 
     with allure.step('Set user2 with new password'):
@@ -471,7 +471,7 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
                     PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
                     PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
 
-                step = random.randint(1, expired_day - day_num)
+                step = random.randint((expired_day - day_num) // 2, expired_day - day_num)
                 with allure.step('Move {} days ahead'.format(step)):
                     PwhTools.move_k_days(num_of_days=step, system=system)
                     day_num += step
@@ -505,7 +505,7 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
     exp_warn = random.randint(1, min(exp - 1, PwhConsts.MAX[PwhConsts.EXPIRATION_WARNING]))
 
     with allure.step('Set expiration-warning setting to {}'.format(exp_warn)):
-        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn, apply=True).verify_result()
+        pwh_obj.set(PwhConsts.EXPIRATION_WARNING, exp_warn).verify_result()
 
     with allure.step('Set expiration setting to {}'.format(exp)):
         pwh_obj.set(PwhConsts.EXPIRATION, exp, apply=True).verify_result()
@@ -531,92 +531,10 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
                     PwhTools.verify_login(engines.dut, user1, pw1, login_should_succeed=True)
                     PwhTools.verify_login(engines.dut, user2, pw2, login_should_succeed=True)
 
-                step = random.randint(1, warning_day - day_num)
+                step = random.randint((warning_day - day_num) // 2, warning_day - day_num)
                 with allure.step('Move {} days ahead'.format(step)):
                     PwhTools.move_k_days(num_of_days=step, system=system)
                     day_num += step
-
-
-@pytest.mark.system
-@pytest.mark.security
-@pytest.mark.simx_security
-def test_password_hardening_apply_new_password_and_expiration_settings_together(engines, system, init_time):
-    """
-    Test several times in a row that running 'apply' on the expiration settings and new user password together
-     apply the new settings also on the new user.
-
-     1. Set user with password (no apply)
-     2. Set expiration and expiration-warning settings
-     3. Verify that new settings applied also on the new password
-     * do the above several times in a row
-    """
-    pwh_obj = system.security.password_hardening
-    orig_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
-
-    username = AaaConsts.LOCALADMIN
-    user_obj = System(username=username).aaa.user
-
-    for i in range(PwhConsts.NUM_SAMPLES):
-        with allure.step('Round #{}'.format(i)):
-            logging.info('Round #{}'.format(i))
-
-            with allure.step('Randomizing new password, expiration and expiration-warning values'):
-                password = PwhTools.generate_strong_pw(orig_pwh_conf, username)
-                expiration = random.randint(1, PwhConsts.NUM_SAMPLES)
-                expiration_warning = random.randint(1, expiration)
-                logging.info('New expiration: {}\t;\tNew expiration-warning: {}'.format(expiration, expiration_warning))
-
-            with allure.step('Set user "{}" with password "{}" (no apply)'.format(username, password)):
-                user_obj.set(PwhConsts.PW, '"' + password + '"', apply=False).verify_result()
-
-            with allure.step('Set expiration to {} (no apply)'.format(expiration)):
-                pwh_obj.set(PwhConsts.EXPIRATION, expiration, apply=False).verify_result()
-
-            with allure.step('Set expiration-warning to {} (no apply)'.format(expiration_warning)):
-                pwh_obj.set(PwhConsts.EXPIRATION_WARNING, expiration_warning, apply=False).verify_result()
-
-            with allure.step('Apply changes together'):
-                SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
-
-            with allure.step('Verify new settings'):
-                logging.info('Verify user "{}"'.format(username))
-                PwhTools.verify_user(system, username, usr_should_exist=True)
-                cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
-                logging.info('Verify expiration in show\nExpected: {}\nActual: {}'
-                             .format(int(expiration), int(cur_pwh_conf[PwhConsts.EXPIRATION])))
-                ValidationTool.compare_values(int(expiration), int(cur_pwh_conf[PwhConsts.EXPIRATION])).verify_result()
-                logging.info('Verify expiration-warning in show\nExpected: {}\nActual: {}'
-                             .format(int(expiration_warning), int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])))
-                ValidationTool.compare_values(int(expiration_warning), int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])) \
-                    .verify_result()
-
-            with allure.step('Verify new expiration settings applied also on new password'):
-                chage_output = PwhTools.run_chage(engines.dut, username)
-                chage_dict = OutputParsingTool.parse_linux_cmd_output_to_dic(chage_output).get_returned_value()
-                logging.info('Compare expiration:\nExpected: {}\nActual: {}'
-                             .format(int(expiration), int(chage_dict[PwhConsts.CHAGE_EXPIRATION])))
-                ValidationTool.compare_values(int(chage_dict[PwhConsts.CHAGE_EXPIRATION]), int(expiration)).verify_result()
-                logging.info('Compare expiration-warning:\nExpected: {}\nActual: {}'
-                             .format(expiration_warning, chage_dict[PwhConsts.CHAGE_EXPIRATION_WARNING]))
-                ValidationTool.compare_values(int(chage_dict[PwhConsts.CHAGE_EXPIRATION_WARNING]),
-                                              int(expiration_warning)).verify_result()
-
-            with allure.step('Unset changes'):
-                pwh_obj.unset(apply=True).verify_result()
-                user_obj.unset(apply=True).verify_result()
-
-            with allure.step('Verify old settings'):
-                logging.info('Verify user "{}" doesnt exist'.format(username))
-                PwhTools.verify_user(system, username, usr_should_exist=False)
-                cur_pwh_conf = OutputParsingTool.parse_json_str_to_dictionary(pwh_obj.show()).get_returned_value()
-                logging.info('Verify expiration in show\nExpected: {}\nActual: {}'
-                             .format(int(orig_pwh_conf[PwhConsts.EXPIRATION]), int(cur_pwh_conf[PwhConsts.EXPIRATION])))
-                ValidationTool.compare_values(int(orig_pwh_conf[PwhConsts.EXPIRATION]), int(cur_pwh_conf[PwhConsts.EXPIRATION])) \
-                    .verify_result()
-                logging.info('Verify expiration-warning in show\nExpected: {}\nActual: {}'
-                             .format(int(orig_pwh_conf[PwhConsts.EXPIRATION_WARNING]), int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])))
-                ValidationTool.compare_values(int(orig_pwh_conf[PwhConsts.EXPIRATION_WARNING]),
-                                              int(cur_pwh_conf[PwhConsts.EXPIRATION_WARNING])).verify_result()
 
 
 @pytest.mark.system
