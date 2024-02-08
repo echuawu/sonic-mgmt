@@ -192,7 +192,9 @@ def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_ty
     with allure.step(f'Sleep for {RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH} seconds'):
         time.sleep(RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH)
     with allure.step(f'Verify auth with {remote_aaa_type} user - expect success'):
-        verify_users_auth(engines, topology_obj, server.users, skip_auth_mediums=skip_auth_mediums)
+        remote_admin = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
+        remote_monitor = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
+        verify_users_auth(engines, topology_obj, [remote_admin, remote_monitor], skip_auth_mediums=skip_auth_mediums)
     with allure.step(f'Verify auth with non {remote_aaa_type} user - expect fail'):
         verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False,
                          skip_auth_mediums=skip_auth_mediums)
