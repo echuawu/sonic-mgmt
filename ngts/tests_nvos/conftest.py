@@ -87,7 +87,7 @@ def original_version(engines):
     return version
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def devices(topology_obj):
     devices_date = DottedDict()
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
