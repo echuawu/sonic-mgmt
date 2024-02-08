@@ -25,11 +25,12 @@ class NvueIbInterfaceCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_clear_counters(engine, fae_param=""):
+    def action_clear_counters(engine, resource_path, fae_param=""):
         """
         Clear counters for all interfaces
         """
-        cmd = 'nv action clear {fae_param} interface counters'.format(fae_param=fae_param)
+        cmd = 'nv action clear {fae_param} {resource_path} counters'.format(fae_param=fae_param,
+                                                                            resource_path=resource_path)
         cmd = " ".join(cmd.split())
         logging.info('Running ' + cmd)
         return engine.run_cmd(cmd)

@@ -118,13 +118,13 @@ def test_interface_link_diagnostics_basic(engines):
             for port in all_switch_ports:
                 diagnostics_per_port = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
                     port.ib_interface.link.diagnostics.show()).get_returned_value()
+                output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
+                    any_port.show_interface(port_names='--view link-diagnostics')).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
                 logging.info("Check each port status in all ports status")
                 logging.info("Status dict {0} for port {1}".format(status_dict, port.name))
                 assert status_dict in list_with_status_codes, "Code doesn't exist in status code list"
-                if diagnostics_per_port != status_dict \
-                        and diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED \
-                        and diagnostics_per_port != IbInterfaceConsts.LINK_DIAGNOSTICS_NEGOTIATION_FAILURE_PORT:
+                if diagnostics_per_port != status_dict:
                     raise BaseException("Transceiver diagnostic for all ports not equal {0} to "
                                         "transceiver diagnostic per port {1}".format(status_dict, diagnostics_per_port))
 

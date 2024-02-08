@@ -39,14 +39,16 @@ class OpenApiIbInterfaceCli(OpenApiBaseCli):
                                                        resource_path="/" + resource_path if resource_path else ''))
 
     @staticmethod
-    def action_clear_counters(engine, resource_path, params_dict=None):
+    def action_clear_counters(engine, resource_path, fae_param='', params_dict=None):
+        resource_path = '/' + resource_path
         logging.info("Running action: 'clear' on dut using OpenApi, resource: {rsrc}".format(rsrc=resource_path))
-
-        params = \
+        params = {
+            "state": "start",
+            "parameters":
             {
-                "state": "start",
-                "parameters": params_dict
+                "clear-target": "counters"
             }
+        }
 
         return OpenApiCommandHelper.execute_action(ActionType.CLEAR, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)

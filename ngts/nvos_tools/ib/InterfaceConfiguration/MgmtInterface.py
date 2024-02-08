@@ -17,7 +17,8 @@ logger = logging.getLogger()
 
 
 class MgmtInterface(BaseComponent):
-    def __init__(self, parent_obj, port_name):
+    def __init__(self, parent_obj, port_name, path=None):
+        self.mgmt_path = path if path else 'interface'
         BaseComponent.__init__(self, parent=parent_obj, path='/interface/' + port_name)
         self.port_obj = parent_obj
         self.type = Type(self.port_obj)
@@ -89,9 +90,8 @@ class MgmtInterface(BaseComponent):
 
             if not engine:
                 engine = TestToolkit.engines.dut
-
             result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].
-                                                         action_clear_counters, engine, fae_param)
+                                                         action_clear_counters, engine, self.mgmt_path, fae_param)
             return result_obj
 
     def get_ipv6_address(self):
