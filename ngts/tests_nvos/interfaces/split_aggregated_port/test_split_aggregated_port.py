@@ -50,7 +50,7 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
             selected_fae_aggregated_port.port.interface.show()).get_returned_value()
         # [TBD] doesn't work on simulation, need to verify on real system
         # ValidationTool.compare_values(fae_interface_output['planarized-ports'],
-        #                               devices.dut.AGGREGATED_PORT_PLANARIZED_PORTS).verify_result()
+        #                               devices.dut.aggregated_port_planarized_ports).verify_result()
 
     with allure_step('Change system profile to breakout'):
         system.profile.action_profile_change(params_dict={"adaptive-routing": "enabled", "breakout-mode": "enabled"})
@@ -85,7 +85,7 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
         Fae(port_name='sw11p2s1').port.interface.show(should_succeed=False)
 
     with allure_step("Validate split port going to up"):
-        child_port = MgmtPort(name=devices.dut.CHILD_AGGREGATED_PORT)
+        child_port = MgmtPort(name=devices.dut.child_aggregated_port)
         Port.wait_for_port_state(child_port, "up")
 
     with allure_step("Change mtu on child port and check changes"):

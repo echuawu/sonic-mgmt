@@ -12,7 +12,7 @@ from retry import retry
 
 logger = logging.getLogger()
 
-ENDPOINT_URL_TEMPLATE = 'https://{ip}/nvue_v1'
+ENDPOINT_URL_TEMPLATE = 'https://{ip}:{port_num}/nvue_v1'
 REQ_HEADER = {"Content-Type": "application/json"}
 INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found", "Forbidden", "Internal Server Error"]
 
@@ -37,6 +37,7 @@ class RequestData:
 class OpenApiRequest:
     payload = {}
     changeset = None
+    port_num = "443"
 
     @staticmethod
     def print_request(r: requests.Request):
@@ -52,7 +53,7 @@ class OpenApiRequest:
 
     @staticmethod
     def _get_endpoint_url(request_data):
-        return ENDPOINT_URL_TEMPLATE.format(ip=request_data.endpoint_ip)
+        return ENDPOINT_URL_TEMPLATE.format(ip=request_data.endpoint_ip, port_num=OpenApiRequest.port_num)
 
     @staticmethod
     def _get_http_auth(request_data):
@@ -302,6 +303,11 @@ class OpenApiCommandHelper:
                   OpenApiReqType.DELETE: OpenApiRequest.send_delete_request,
                   OpenApiReqType.ACTION: OpenApiRequest.send_action_request,
                   OpenApiReqType.APPLY: OpenApiRequest.apply_nvue_changeset}
+
+    @staticmethod
+    def update_open_api_port(port_num):
+        OpenApiRequest.port_num = port_num
+        logging.info(f"OpenApi port number updated to {port_num}")
 
     @staticmethod
     def execute_script(user_name, password, req_type, dut_ip, resource_path, op_param_name='', op_param_value=''):

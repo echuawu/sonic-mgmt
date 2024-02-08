@@ -55,6 +55,8 @@ class DatabaseConst:
 
 
 class NvosConst:
+    QTM2 = "Quantum2"
+    QTM3 = "Quantum3"
     DESCRIPTION = 'description'
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
@@ -529,6 +531,9 @@ class IbConsts:
     SIGNAL_DEGRADE_ACTION_NO_SHUTDOWN = "no-shutdown"
     SIGNAL_DEGRADE = "signal-degrade"
     DEVICE_ASIC_PREFIX = 'ASIC'
+    SWID = "SWID"
+    IPOIB_INT0 = "ib0"
+    IPOIB_INT1 = "ib1"
     DEVICE_SYSTEM = 'SYSTEM'
     DEVICE_ASIC_LIST = ['guid', 'lid', 'subnet', 'type']
     DEVICE_SYSTEM_LIST = ['guid']

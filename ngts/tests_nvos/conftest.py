@@ -99,6 +99,11 @@ def devices(topology_obj):
     return devices_date
 
 
+@pytest.fixture(scope='session', autouse=True)
+def update_open_api_port(devices):
+    TestToolkit.update_open_api_port(devices.dut.open_api_port)
+
+
 @pytest.fixture
 def traffic_available(request):
     """

@@ -7,7 +7,7 @@ from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.Devices.BaseDevice import MarlinSwitch
+from ngts.nvos_tools.Devices.IbDevice import MarlinSwitch
 
 logger = logging.getLogger()
 
@@ -36,9 +36,9 @@ def test_show_platform_hardware(devices, test_api):
 
     with allure.step("Check hardware fields values"):
         if PlatformConsts.HW_ASIC_COUNT in output.keys():
-            assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.DEVICE_LIST) - 1, \
+            assert output[PlatformConsts.HW_ASIC_COUNT] == len(devices.dut.device_list) - 1, \
                 "Unexpected value in {}\n Expect to have {}, but got {}"\
-                .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.DEVICE_LIST) - 1,
+                .format(PlatformConsts.HW_ASIC_COUNT, len(devices.dut.device_list) - 1,
                         output[PlatformConsts.HW_ASIC_COUNT])
             assert "qm" in output[PlatformConsts.HW_MODEL], "Invalid model name"
         mac = output[PlatformConsts.HW_MAC].split(":")

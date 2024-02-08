@@ -57,7 +57,7 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
 
     with allure_step("Start OpenSM and check traffic port up"):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
-        split_ports = MultiPlanarTool._get_split_ports(devices.dut.FNM_POR_LIST)
+        split_ports = MultiPlanarTool._get_split_ports(devices.dut.fnm_port_list)
 
     with allure_step("Split splitter port"):
         fnm_port = split_ports[0]
@@ -65,7 +65,7 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
                                        apply=True, ask_for_confirmation=True).verify_result()
 
     with allure_step("Validate split port going to up"):
-        fnm_child_port = MgmtPort(name=devices.dut.FNM_EXTERNAL_CHILD_PORT)
+        fnm_child_port = MgmtPort(name=devices.dut.fnm_external_child_port)
         Port.wait_for_port_state(fnm_child_port, "up")
 
     with allure_step("Run traffic and check counters"):

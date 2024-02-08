@@ -58,9 +58,9 @@ def test_system_stats_configuration(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
-    category_list = devices.dut.CATEGORY_LIST
-    category_disabled_dict = devices.dut.CATEGORY_DISABLED_DICT
-    category_list_default = devices.dut.CATEGORY_LIST_DEFAULT_DICT
+    category_list = devices.dut.category_list
+    category_disabled_dict = devices.dut.category_disabled_dict
+    category_list_default = devices.dut.category_list_default_dict
 
     try:
         with allure.step("Set system stats feature to default"):
@@ -205,8 +205,8 @@ def test_system_stats_generation(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     engine = engines.dut
     player = engines['sonic_mgmt']
-    category_list = devices.dut.CATEGORY_LIST
-    category_list_default = devices.dut.CATEGORY_LIST_DEFAULT_DICT
+    category_list = devices.dut.category_list
+    category_list_default = devices.dut.category_list_default_dict
 
     try:
 
@@ -365,8 +365,8 @@ def test_system_stats_performance(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
-    category_list = devices.dut.CATEGORY_LIST
-    category_disabled_dict = devices.dut.CATEGORY_DISABLED_DICT
+    category_list = devices.dut.category_list
+    category_disabled_dict = devices.dut.category_disabled_dict
     player_engine = engines['sonic_mgmt']
 
     try:
@@ -501,7 +501,7 @@ def test_stats_reliability(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
-    category_list = devices.dut.CATEGORY_LIST
+    category_list = devices.dut.category_list
     try:
         with allure.step("Set Stats feature to default"):
             system.stats.unset(apply=True).verify_result()
@@ -583,7 +583,7 @@ def test_system_stats_log(engines, devices, test_api):
 
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
-    category_list = devices.dut.CATEGORY_LIST
+    category_list = devices.dut.category_list
 
     try:
         with allure.step("Unset stats feature state and check log file"):
@@ -634,7 +634,7 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     player_engine = engines['sonic_mgmt']
-    category_list = devices.dut.CATEGORY_LIST
+    category_list = devices.dut.category_list
 
     try:
         with allure.step("Disable system stats feature"):
@@ -692,7 +692,7 @@ def test_system_stats_invalid_values(engines, devices, test_api):
     TestToolkit.tested_api = test_api
     system = System(devices_dut=devices.dut)
     engine = engines.dut
-    category_list = devices.dut.CATEGORY_LIST
+    category_list = devices.dut.category_list
     player = engines['sonic_mgmt']
     invalid_remote_url = 'scp://{}:{}{}/tmp/'.format(player.username, player.password, player.ip)
     valid_remote_url = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
@@ -926,7 +926,7 @@ def test_validate_category_file_values(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     engine = engines.dut
     player = engines['sonic_mgmt']
-    category_list = devices.dut.CATEGORY_LIST
+    category_list = devices.dut.category_list
 
     try:
         with allure.step("Set system stats feature to default"):

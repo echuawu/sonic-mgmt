@@ -39,7 +39,7 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
         OpenSmTool.start_open_sm(engines.dut).verify_result()
 
     with allure_step("Select nvl5 port"):
-        port_name = RandomizationTool.select_random_value(devices.dut.NVL5_PORT).get_returned_value()
+        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
         selected_port = MgmtPort(port_name)
         selected_fae_port = Fae(port_name=port_name)
 
@@ -56,8 +56,8 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
         fae_port_keys = list(output_fae_port.keys())
         ValidationTool.validate_all_values_exists_in_list(MultiPlanarConsts.MULTI_PLANAR_KEYS, fae_port_keys). \
             verify_result()
-        ValidationTool.compare_values(output_fae_port['type'], devices.dut.NVL5_PORT_TYPE).verify_result()
-        # ValidationTool.compare_values(output_fae_port['link']['speed'], devices.dut.NVL5_PORT_SPEED).verify_result()
+        ValidationTool.compare_values(output_fae_port['type'], devices.dut.nvl5_port_type).verify_result()
+        # ValidationTool.compare_values(output_fae_port['link']['speed'], devices.dut.nvl5_port_speed).verify_result()
         # [TBD] will work only on real system,  when system arrived, bug 3730650
 
     # with allure_step("Validate link diagnostics on nvl5"):
@@ -97,7 +97,7 @@ def test_nvl5_port_configuration(engines, devices, test_api):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
 
         with allure_step("Select nvl5 port"):
-            port_name = RandomizationTool.select_random_value(devices.dut.NVL5_PORT).get_returned_value()
+            port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
             selected_port = MgmtPort(port_name)
 
         with allure_step("Set nvl5 {} port description and validate".format(selected_port.name)):
@@ -131,7 +131,7 @@ def test_nvl5_negative(engines, devices, test_api):
     TestToolkit.tested_api = test_api
 
     with allure_step("Select nvl5 port"):
-        port_name = RandomizationTool.select_random_value(devices.dut.NVL5_PORT).get_returned_value()
+        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
         selected_port = MgmtPort(port_name)
 
     with allure_step("Start open SM"):
@@ -163,4 +163,4 @@ def show_interface_and_validate(engines, devices, command=''):
         parse_show_all_interfaces_output_to_dictionary(Port.show_interface(engines.dut, fae_param=command))\
         .get_returned_value()
     output_keys = list(output_dictionary.keys())
-    ValidationTool.compare_values(output_keys.sort(), devices.dut.ALL_NVL5_PORTS_LIST.sort()).verify_result()
+    ValidationTool.compare_values(output_keys.sort(), devices.dut.all_nvl5_ports_list.sort()).verify_result()

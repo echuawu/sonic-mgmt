@@ -46,7 +46,7 @@ def test_system_profile_change_default(engines, devices):
 
     with allure.step("Verify default values"):
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
@@ -71,7 +71,7 @@ def test_system_profile_negative(engines, devices):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
@@ -155,7 +155,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
@@ -226,7 +226,7 @@ def test_system_profile_change_breakout_mode(engines, devices):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
@@ -283,7 +283,7 @@ def test_system_profile_changes_stress(engines, devices):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
             ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                            devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                            devices.dut.system_profile_default_values,
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
 
@@ -321,7 +321,7 @@ def test_system_profile_redis_db_crash(engines, devices):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 

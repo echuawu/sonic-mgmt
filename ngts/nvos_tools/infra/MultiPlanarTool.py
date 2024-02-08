@@ -46,7 +46,7 @@ class MultiPlanarTool:
     @staticmethod
     def select_random_aggregated_port(devices):
         with allure.step("Select a random aggregated port"):
-            aggregated_port_name = RandomizationTool.select_random_value(devices.dut.AGGREGATED_PORT_LIST). \
+            aggregated_port_name = RandomizationTool.select_random_value(devices.dut.aggregated_port_list). \
                 get_returned_value()
             selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
             return selected_fae_aggregated_port
@@ -54,7 +54,7 @@ class MultiPlanarTool:
     @staticmethod
     def select_random_fnm_port(devices):
         with allure.step("Select a random fnm port"):
-            fnm_port_name = RandomizationTool.select_random_value(devices.dut.FNM_PORT_LIST). \
+            fnm_port_name = RandomizationTool.select_random_value(devices.dut.fmn_port_list). \
                 get_returned_value()
             selected_fae_fnm_port = Fae(port_name=fnm_port_name)
             return selected_fae_fnm_port
@@ -62,7 +62,7 @@ class MultiPlanarTool:
     @staticmethod
     def select_random_plane_port(devices, fae_aggregated_port):
         with allure.step("Choose a random plane port (of the aggregated port)"):
-            plane_name = RandomizationTool.select_random_value(devices.dut.PLANE_PORT_LIST).get_returned_value()
+            plane_name = RandomizationTool.select_random_value(devices.dut.plane_port_list).get_returned_value()
             plane_port_name = fae_aggregated_port.port.name + plane_name
             selected_fae_plane_port = Fae(port_name=plane_port_name)
             return selected_fae_plane_port

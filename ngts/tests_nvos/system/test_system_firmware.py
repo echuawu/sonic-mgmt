@@ -64,7 +64,7 @@ def validate_show_firmware(devices, is_fae_cmd=False):
             assert output_dictionary["asic"], "'asic' field is empty in show system firmware output"
 
             with allure.step("Validate asic amount"):
-                expected_asic_amount = len(devices.dut.DEVICE_LIST) - 1 if is_fae_cmd else 6
+                expected_asic_amount = len(devices.dut.device_list) - 1 if is_fae_cmd else 6
                 assert len(output_dictionary["asic"]) == expected_asic_amount, \
                     "Unexpected num of ASIC\n Expected : {}\n but got {}".format(
                     expected_asic_amount, len(output_dictionary["asic"]))

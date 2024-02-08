@@ -19,7 +19,7 @@ class StatsCategory(BaseComponent):
     def __init__(self, parent_obj, devices_dut):
         BaseComponent.__init__(self, parent=parent_obj, path='/category')
         if devices_dut:
-            for name in devices_dut.CATEGORY_LIST:
+            for name in devices_dut.category_list:
                 self.categoryName.update({name: StatsCategoryName(self, name)})
             self.categoryName.update(
                 {StatsConsts.INVALID_CATEGORY_NAME: StatsCategoryName(self, StatsConsts.INVALID_CATEGORY_NAME)})

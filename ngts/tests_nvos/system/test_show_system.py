@@ -257,7 +257,7 @@ def test_show_system_cpu(test_api, engines, devices):
         assert list(output_dictionary.keys())[0] == SystemConsts.CPU_CORE_COUNT_KEY, "Unexpected Key value"
         assert list(output_dictionary.keys())[1] == SystemConsts.CPU_MODEL_KEY, "Unexpected Key value"
         assert list(output_dictionary.keys())[2] == SystemConsts.CPU_UTILIZATION_KEY, "Unexpected Key value"
-        assert output_dictionary[SystemConsts.CPU_CORE_COUNT_KEY] == devices.dut.SWITCH_CORE_COUNT, \
+        assert output_dictionary[SystemConsts.CPU_CORE_COUNT_KEY] == devices.dut.core_count, \
             "Unexpected switch core-count"
 
         utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]

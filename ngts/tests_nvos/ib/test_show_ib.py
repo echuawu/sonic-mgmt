@@ -35,12 +35,12 @@ def test_show_ib_device(engines, devices):
         output = OutputParsingTool.parse_json_str_to_dictionary(ib.device.show()).get_returned_value()
 
         ValidationTool.verify_all_fields_value_exist_in_output_dictionary(
-            output, devices.dut.DEVICE_LIST).verify_result()
-        assert len(devices.dut.DEVICE_LIST) == len(output), "Unexpected amount of ib devices.\n" \
+            output, devices.dut.device_list).verify_result()
+        assert len(devices.dut.device_list) == len(output), "Unexpected amount of ib devices.\n" \
                                                             "Expect {} devices:{} \n" \
                                                             "but got {} devices: {}".format(
-            len(devices.dut.DEVICE_LIST),
-            devices.dut.DEVICE_LIST,
+            len(devices.dut.device_list),
+            devices.dut.device_list,
             len(output), output.keys())
 
         for device in output:

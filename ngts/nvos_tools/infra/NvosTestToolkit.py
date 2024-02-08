@@ -1,6 +1,7 @@
 from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.openapi.openapi_general_clis import OpenApiGeneralCli
+from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiCommandHelper
 import logging
 import allure
 import re
@@ -24,6 +25,10 @@ class TestToolkit:
         with allure.step("Update tested ports in TestTookit"):
             logging.info("Testes port/s: " + str(tested_ports))
             TestToolkit.tested_ports = tested_ports
+
+    @staticmethod
+    def update_open_api_port(port_num):
+        OpenApiCommandHelper.update_open_api_port(port_num)
 
     @staticmethod
     def update_engines(engines):

@@ -48,7 +48,7 @@ def test_fae_interface_commands(engines, devices, test_api):
     TestToolkit.tested_api = test_api
 
     with allure.step("Select a random non aggregated port"):
-        port_name = RandomizationTool.select_random_value(devices.dut.NON_AGGREGATED_PORT_LIST).\
+        port_name = RandomizationTool.select_random_value(devices.dut.non_aggregated_port_list).\
             get_returned_value()
         selected_port = MgmtPort(port_name)
         selected_fae_port = Fae(port_name=port_name)
@@ -66,21 +66,21 @@ def test_fae_interface_commands(engines, devices, test_api):
         output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             Port.show_interface()).get_returned_value()
         output_keys = list(output_dictionary.keys())
-        ValidationTool.compare_values(output_keys.sort(), devices.dut.ALL_PORT_LIST.sort()).verify_result()
+        ValidationTool.compare_values(output_keys.sort(), devices.dut.all_port_list.sort()).verify_result()
 
     with allure.step("Validate FNM port speed"):
         output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             selected_fae_fnm_plane_port.port.interface.link.show()).get_returned_value()
         if output_dictionary[IbInterfaceConsts.LINK_STATE] == NvosConsts.LINK_STATE_UP:
-            assert output_dictionary[IbInterfaceConsts.LINK_SPEED] == devices.dut.FNM_LINK_SPEED, \
-                f"FNM port speed should be {devices.dut.FNM_LINK_SPEED} instead of" \
+            assert output_dictionary[IbInterfaceConsts.LINK_SPEED] == devices.dut.fnm_link_speed, \
+                f"FNM port speed should be {devices.dut.fnm_link_speed} instead of" \
                 f"{output_dictionary[IbInterfaceConsts.LINK_SPEED]}"
 
     with allure.step("Validate show fae interface command"):
         output_dictionary = OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             Port.show_interface(fae_param='fae')).get_returned_value()
         output_keys = list(output_dictionary.keys())
-        ValidationTool.compare_values(output_keys.sort(), devices.dut.ALL_FAE_PORT_LIST.sort()).\
+        ValidationTool.compare_values(output_keys.sort(), devices.dut.all_fae_port_list.sort()).\
             verify_result()
 
     with allure.step("Validate all multi planar fields exist in show fae interface <port>"):
@@ -129,7 +129,7 @@ def test_fae_interface_commands(engines, devices, test_api):
         output_fae_aport = OutputParsingTool.parse_json_str_to_dictionary(
             selected_fae_aggregated_port.port.interface.plan_ports.show()).get_returned_value()
         fae_aport_plan_ports = list(output_fae_aport.keys())
-        for plane in devices.dut.PLANE_PORT_LIST:
+        for plane in devices.dut.plane_port_list:
             full_plane_name = selected_fae_aggregated_port.port.name + plane
             assert full_plane_name in fae_aport_plan_ports, \
                 f"{full_plane_name} not exists in aggregated port {output_fae_aport.port.name} plan-ports"
@@ -205,7 +205,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
             OpenSmTool.start_open_sm(engines.dut).verify_result()
 
         with allure.step("Select the default aggregated port (connected in loop back to another port)"):
-            selected_fae_aggregated_port = Fae(port_name=devices.dut.DEFAULT_AGGREGATED_PORT)
+            selected_fae_aggregated_port = Fae(port_name=devices.dut.default_aggregated_port)
             selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
 
         with allure.step("Select a random plane port"):
@@ -214,7 +214,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
         # Validate ib-speed field aggregation
         validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_IB_SPEED,
-                                                    devices.dut.SUPPORTED_IB_SPEED, True)
+                                                    devices.dut.supported_ib_speeds.keys(), True)
 
         # # Validate lanes field aggregation - not supported yet
         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
@@ -275,21 +275,21 @@ def test_aggregated_port_mismatch_between_planes(engines, devices, test_api):
 
     try:
         with allure.step(f"Configure ports"):
-            loop_back_name = RandomizationTool.select_random_value(devices.dut.DEFAULT_LOOPBACK_PORTS).\
+            loop_back_name = RandomizationTool.select_random_value(devices.dut.default_loopback_ports).\
                 get_returned_value()
             loop_back_port = MgmtPort(loop_back_name)
-            aggregated_port = MgmtPort(devices.dut.DEFAULT_AGGREGATED_PORT)
-            for port in devices.dut.DEFAULT_LOOPBACK_PORTS:
+            aggregated_port = MgmtPort(devices.dut.default_aggregated_port)
+            for port in devices.dut.default_loopback_ports:
                 if loop_back_name == port:
-                    selected_plane_port = Fae(port_name=devices.dut.LOOP_BACK_TO_PORTS[port])
+                    selected_plane_port = Fae(port_name=devices.dut.loop_back_to_ports[port])
                 else:
-                    other_plane_port = Fae(port_name=devices.dut.LOOP_BACK_TO_PORTS[port])
+                    other_plane_port = Fae(port_name=devices.dut.loop_back_to_ports[port])
 
         with allure.step("Validate ib-speed mismatch aggregation"):
             new_value, aggregated_port_output, selected_plane_port_output, other_plane_port_output = \
                 set_param_value_in_specific_plane(loop_back_port, aggregated_port, selected_plane_port,
                                                   other_plane_port, IbInterfaceConsts.LINK_IB_SPEED,
-                                                  devices.dut.SUPPORTED_IB_SPEED)
+                                                  devices.dut.supported_ib_speeds.keys())
 
             assert selected_plane_port_output[IbInterfaceConsts.LINK_IB_SPEED] == new_value, \
                 f"plane port {IbInterfaceConsts.LINK_IB_SPEED} value is: " \
@@ -471,7 +471,7 @@ def test_symmetry_manager_performance(engines, devices, test_api):
                 port_name_list.append(port.name)
 
         with allure.step("Select a random aggregated port"):
-            aggregated_active_list = list(set(port_name_list).intersection(devices.dut.AGGREGATED_PORT_LIST))
+            aggregated_active_list = list(set(port_name_list).intersection(devices.dut.aggregated_port_list))
             aggregated_port_name = RandomizationTool.select_random_value(aggregated_active_list). \
                 get_returned_value()
             selected_aggregated_port = MgmtPort(aggregated_port_name)
@@ -527,7 +527,7 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 #                 port_name_list.append(port.name)
 #
 #         with allure.step("Select a random aggregated port"):
-#             aggregated_active_list = list(set(port_name_list).intersection(devices.dut.AGGREGATED_PORT_LIST))
+#             aggregated_active_list = list(set(port_name_list).intersection(devices.dut.aggregated_port_list))
 #             aggregated_port_name = RandomizationTool.select_random_value(aggregated_active_list). \
 #                 get_returned_value()
 #             selected_fae_aggregated_port = Fae(port_name=aggregated_port_name)
@@ -539,7 +539,7 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 #         # Validate ib-speed field aggregation
 #         validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
 #                                                     IbInterfaceConsts.LINK_IB_SPEED,
-#                                                     devices.dut.SUPPORTED_IB_SPEED)
+#                                                     devices.dut.supported_ib_speeds.keys())
 #
 #         # # Validate mtu field aggregation
 #         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
@@ -701,7 +701,7 @@ def test_fae_invalid_commands(engines, devices, test_api):
                                                          apply=True).verify_result(should_succeed=False)
 
     with allure.step("Validate set fae interface link lanes with invalid lanes"):
-        port_name = RandomizationTool.select_random_value(devices.dut.ALL_PORT_LIST).get_returned_value()
+        port_name = RandomizationTool.select_random_value(devices.dut.all_port_list).get_returned_value()
         Fae(port_name=port_name).port.interface.link.set(op_param_name='lanes', op_param_value='invalid_lanes',
                                                          apply=True).verify_result(should_succeed=False)
 
@@ -918,11 +918,11 @@ def set_param_value_in_specific_plane(loop_back_port, aggregated_port, selected_
 
 def validate_state_aggregation(engine, devices, aggregated_port, param, value0, value1, expected_value):
     with allure.step(f"Update asic0 {param} state to: {value0} and asic1 {param} state to: {value1}"):
-        DatabaseTool.sonic_db_cli_hset(engine, devices.dut.ASIC0, devices.dut.COUNTERS_DB_NAME,
-                                       devices.dut.OBJECT_NUMBERS[aggregated_port.port.name]['plane1'],
+        DatabaseTool.sonic_db_cli_hset(engine, devices.dut.asic0, devices.dut.counters_db_name,
+                                       devices.dut.object_numbers[aggregated_port.port.name]['plane1'],
                                        param, value0)
-        DatabaseTool.sonic_db_cli_hset(engine, devices.dut.ASIC1, devices.dut.COUNTERS_DB_NAME,
-                                       devices.dut.OBJECT_NUMBERS[aggregated_port.port.name]['plane2'],
+        DatabaseTool.sonic_db_cli_hset(engine, devices.dut.asic1, devices.dut.counters_db_name,
+                                       devices.dut.object_numbers[aggregated_port.port.name]['plane2'],
                                        param, value1)
 
     with allure.step(f"wait {MultiPlanarConsts.SYNC_TIME} secs for sync"):

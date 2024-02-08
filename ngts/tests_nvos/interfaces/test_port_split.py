@@ -37,7 +37,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All expected values were found")
 
@@ -564,7 +564,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
         system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
             .get_returned_value()
         ValidationTool.validate_fields_values_in_output(SystemConsts.PROFILE_OUTPUT_FIELDS,
-                                                        devices.dut.SYSTEM_PROFILE_DEFAULT_VALUES,
+                                                        devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
