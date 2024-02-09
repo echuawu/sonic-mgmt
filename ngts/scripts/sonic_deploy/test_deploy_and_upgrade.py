@@ -24,7 +24,8 @@ logger = logging.getLogger()
 def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dpu, target_version, serve_files,
                             sonic_topo, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
-                            fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url):
+                            fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
+                            verify_secure_boot):
     """
         Deploy SONiC/NVOS testing topology and upgrade switch
 
@@ -161,7 +162,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dp
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
                                 setup_info=setup_info, workspace_path=workspace_path, base_version=base_version,
-                                deploy_dpu=deploy_dpu)
+                                deploy_dpu=deploy_dpu, verify_secure_boot=verify_secure_boot)
 
         # Remove .pytest_cache folder after deploy - otherwise  - cached info from old image will be used in skip tests
         cache_full_path = os.path.join(os.path.dirname(__file__), '../../.pytest_cache')
@@ -190,7 +191,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_dpu,
                             setup_name, platform_params, apply_base_config, target_version,
                             is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                            additional_apps, setup_info, workspace_path, base_version=''):
+                            additional_apps, setup_info, workspace_path, base_version='', verify_secure_boot=True):
     """
     Post-installation steps
     :param topology_obj: topology object
@@ -211,7 +212,8 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
     if isinstance(dut_cli_obj, NvueGeneralCli):
-        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version)
+        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version,
+                                                      verify_secure_boot)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,

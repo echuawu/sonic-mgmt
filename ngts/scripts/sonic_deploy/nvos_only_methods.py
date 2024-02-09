@@ -10,7 +10,7 @@ from ngts.constants.constants import LinuxConsts
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
 from ngts.tests_nvos.system.clock.ClockConsts import ClockConsts
 from ngts.nvos_tools.system.System import System
-from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
+from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, is_secure_boot_enabled
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from infra.tools.linux_tools.linux_tools import scp_file
 
@@ -25,7 +25,8 @@ class NvosInstallationSteps:
         assert target_version, 'Argument "target_version" must be provided for installing NVOS'
 
     @staticmethod
-    def post_installation_steps(topology_obj, workspace_path, base_version='', target_version=''):
+    def post_installation_steps(topology_obj, workspace_path, base_version='', target_version='',
+                                verify_secure_boot: bool = True):
         """
         Post-installation steps for NVOS NOS
         :return:
@@ -54,6 +55,10 @@ class NvosInstallationSteps:
             system = System()
             system.version.show(dut_engine=dut_engine)
             system.firmware.show(dut_engine=dut_engine)
+
+        if verify_secure_boot:
+            with allure.step('Verify Secure-Boot is enabled'):
+                assert is_secure_boot_enabled(dut_engine), "Secure-Boot is expected to be enabled, but it's disabled!"
 
         if base_version:
             with allure.step('========== NVOS - Upgrade With Saved Configuration Flow =========='):

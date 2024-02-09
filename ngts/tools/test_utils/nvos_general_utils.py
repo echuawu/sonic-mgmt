@@ -126,3 +126,8 @@ def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
             time.sleep(sleep_time)
         with allure.step(f'Wait till cli up - using user "{engine_to_use.username}"'):
             wait_until_cli_is_up(engine=engine_to_use)
+
+
+def is_secure_boot_enabled(engine: ProxySshEngine) -> bool:
+    output: str = engine.run_cmd('mokutil --sb-state')
+    return output.replace('SecureBoot ', '').strip() == 'enabled'

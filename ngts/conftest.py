@@ -125,6 +125,8 @@ def pytest_addoption(parser):
                      help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
     parser.addoption("--skip_bug_handler_action", action="store_true", default=False, required=False,
                      help="Whether to skip (True) log analyzer bug handler actions when loganalyzer is enabled, or not (False)")
+    parser.addoption('--fail_install_if_secure_boot_off', action='store', default='yes',
+                     help='Whether to fail NVOS installation due to disabled Secure-Boot')
 
 
 def pytest_runtest_call(item):
@@ -177,6 +179,19 @@ def app_extension_dict_path(request):
     :return: app_extension_dict
     """
     return request.config.getoption('--app_extension_dict_path')
+
+
+@pytest.fixture(scope="session")
+def verify_secure_boot(request):
+    """
+    For NVOS, understand whether the user wants not to fail installation if Secure-Boot is disabled.
+    user can skip this check only if this execution line option is given with value 'no'/'false' (no case sensitivity)
+
+    :return: True if should fail installation if Secure-Boot is disabled; False, otherwise (when user specifies it)
+    """
+    value = request.config.getoption('--fail_install_if_secure_boot_off')
+    value = value.lower() if value and isinstance(value, str) else ''
+    return value not in ['no', 'false']
 
 
 @pytest.fixture(scope="session")
