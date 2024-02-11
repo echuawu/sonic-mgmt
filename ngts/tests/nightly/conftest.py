@@ -278,8 +278,9 @@ def fec_modes_speed_support(chip_type, platform_params):
 @pytest.fixture(autouse=True, scope='session')
 def dut_ports_number_dict(topology_obj, engines, cli_objects):
     dut_ports_number_dict = {}
-    ports = topology_obj.players_all_ports['dut']
-    ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic()
-    for port in ports:
-        dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
+    if hasattr(topology_obj.players_all_ports, 'dut') and hasattr(cli_objects.dut, 'interface'):
+        ports = topology_obj.players_all_ports['dut']
+        ports_aliases_dict = cli_objects.dut.interface.parse_ports_aliases_on_sonic()
+        for port in ports:
+            dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
     return dut_ports_number_dict
