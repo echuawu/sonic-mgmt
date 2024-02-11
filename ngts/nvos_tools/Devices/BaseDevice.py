@@ -792,7 +792,7 @@ class GorillaSwitch(MultiAsicSwitch):
         'sw31p2': 'sw32p1pl2'
     }
     AGGREGATED_PORT_LIST = ['sw1p1', 'sw2p1', 'sw32p1']  # total 3 ports
-    FNM_PORT_LIST = 'fnm1'
+    FNM_PORT_LIST = ['fnm1']
     AGGREGATED_SPLIT_PORT_LIST = ['sw10p1']
     FNM_INTERNAL_PORT_LIST = ['fnma1p236']
     FNM_EXTERNAL_PORT_LIST = ['fnm1']
