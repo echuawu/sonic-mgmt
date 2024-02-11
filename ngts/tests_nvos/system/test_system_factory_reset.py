@@ -61,7 +61,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
         if machine_type != 'MQM9520':
             with allure.step('Validate health status is OK'):
                 system.validate_health_status(HealthConsts.OK)
-                last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
+                last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
         with allure.step('Set description to ib ports'):
             logger.info("Set description to ib ports")
@@ -150,7 +150,7 @@ def test_reset_factory_keep_basic(engines):
         with allure.step('Validate health status is OK'):
             logger.info("Validate health status is OK")
             system.validate_health_status(HealthConsts.OK)
-            last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
+            last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
         with allure.step('Set description to eth0 port'):
             logger.info("Set description to eth0 port")
@@ -220,7 +220,7 @@ def test_reset_factory_keep_all_config(engines):
         with allure.step('Validate health status is OK'):
             logger.info("Validate health status is OK")
             system.validate_health_status(HealthConsts.OK)
-            last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
+            last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
         with allure.step('Set description to ib ports'):
             logger.info("Set description to ib ports")
@@ -307,7 +307,7 @@ def test_reset_factory_keep_only_files(engines):
         with allure.step('Validate health status is OK'):
             logger.info("Validate health status is OK")
             system.validate_health_status(HealthConsts.OK)
-            last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
+            last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
         with allure.step('Set description to ib ports'):
             logger.info("Set description to ib ports")

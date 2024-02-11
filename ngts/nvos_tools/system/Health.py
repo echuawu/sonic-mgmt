@@ -77,3 +77,7 @@ class History(BaseComponent):
         assert self.search_line(HealthConsts.SUMMARY_REGEX_OK, health_history_output)[
             -1] != last_summary_line, "Didn't print new summary line after boot"
         assert "Monitoring service reboot, clearing issues history." in health_history_output
+
+    @retry(Exception, tries=12, delay=30)
+    def retry_get_health_history_file_summary_line(self, summary_regex=HealthConsts.SUMMARY_REGEX_OK):
+        return self.search_line(summary_regex)[-1]

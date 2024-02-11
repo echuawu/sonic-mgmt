@@ -172,7 +172,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_image_uninstall(release_name, test_api, original_version):
+def test_image_uninstall(release_name, test_api, original_version, test_name):
     """
      Will check the uninstall commands
 
@@ -184,14 +184,14 @@ def test_image_uninstall(release_name, test_api, original_version):
     5. Validate that uninstall will success
     """
     TestToolkit.tested_api = test_api
-    image_uninstall_test(release_name, original_version, uninstall_force="")
+    image_uninstall_test(release_name, original_version, uninstall_force="", test_name=test_name)
 
 
 @pytest.mark.checklist
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
-def test_image_uninstall_force(release_name, original_version):
+def test_image_uninstall_force(release_name, original_version, test_name):
     """
      Will check the uninstall force commands
 
@@ -202,7 +202,7 @@ def test_image_uninstall_force(release_name, original_version):
     4. Set the original image to be booted next
     5. Validate that uninstall force will success
     """
-    image_uninstall_test(release_name, original_version, uninstall_force="force")
+    image_uninstall_test(release_name, original_version, uninstall_force="force", test_name=test_name)
 
 
 @pytest.mark.checklist
@@ -336,7 +336,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
 
     try:
         with allure.step("Install the first image"):
-            install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system)
+            install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system, test_name)
         with allure.step("Test partitions available capacity"):
             check_partitions_capacity()
 
@@ -344,7 +344,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
         cleanup_test(system, original_images, original_image_partition, image_files)
 
 
-def image_uninstall_test(release_name, original_version, uninstall_force=""):
+def image_uninstall_test(release_name, original_version, uninstall_force="", test_name=""):
     """
      Will check the uninstall commands
      for uninstall force command , the uninstall_force param need to get "force"
@@ -376,7 +376,7 @@ def image_uninstall_test(release_name, original_version, uninstall_force=""):
     try:
         with allure.step("Install image and verify"):
             installed_images_output = install_image_and_verify(fetched_image, partition_id_for_new_image,
-                                                               original_images, system)
+                                                               original_images, system, test_name)
 
             with allure.step("Set the original image to be booted next and verify"):
                 system.image.boot_next_and_verify(original_image_partition)
