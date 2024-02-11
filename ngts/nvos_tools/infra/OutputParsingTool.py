@@ -261,7 +261,7 @@ class OutputParsingTool:
     @staticmethod
     def parse_show_system_techsupport_output_to_list(output_json):
         """
-        Creates a dictionary according to provided JSON output of "show system tech-support"
+        Creates a list according to provided JSON output of "show system tech-support"
             :param output_json: json output
             :return: a list of techsupports files
 
@@ -291,7 +291,7 @@ class OutputParsingTool:
         paths = json.loads(output_json).values()
         with allure.step('Create a list according to provided JSON string'):
             paths = [list(path.values()) for path in paths]
-            output_list = [path for xs in paths for path in xs]
+            output_list = [path for [path] in paths]
             logger.info(output_list)
             return ResultObj(True, "", output_list)
 

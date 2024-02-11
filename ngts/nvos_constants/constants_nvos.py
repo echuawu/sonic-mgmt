@@ -208,6 +208,8 @@ class SystemConsts:
     SECURITY = 'security'
     DATE_TIME = 'date-time'
     TECHSUPPORT_FILES_PATH = '/host/dump/'
+    PATH_KEY = 'path'
+    LATEST_KEY = 'latest'
 
     MIN_SYSTEM_YEAR = '1970'
     MAX_SYSTEM_YEAR = '2037'

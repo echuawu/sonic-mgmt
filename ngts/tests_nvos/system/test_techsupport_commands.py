@@ -1,6 +1,5 @@
 import pytest
 import datetime
-import json
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -11,6 +10,7 @@ from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_show(engines, test_name):
     """
     Run nv show system tech-support files command and verify the required fields are exist
@@ -21,6 +21,8 @@ def test_techsupport_show(engines, test_name):
         2. run nv action generate system tech-support
         3. run nv action generate system tech-support
         4. validate new tar.gz files exist and first output < second output
+        5. run nv show system tech-support files
+        6. validate the output format
     """
     system = System(None)
     operation = 'generate tech-support'
@@ -40,13 +42,22 @@ def test_techsupport_show(engines, test_name):
 
     with allure.step('Validate show tech-support command format'):
         show_output = system.techsupport.show()
-        tech_support_files_list_with_path = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(show_output).get_returned_value()
-        output_dictionary_json = json.loads(show_output).keys()
-        techsupport_names_without_path = [file.replace('/host/dump/', '') for file in tech_support_files_list_with_path]
-        assert output_dictionary_json != techsupport_names_without_path, "The show tech-support command format is not as expected, output: {} expected: {}".format(output_dictionary_json, techsupport_names_without_path)
+        output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+        assert SystemConsts.LATEST_KEY in output_dict, \
+            f"Output of show tech-support is missing key '{SystemConsts.LATEST_KEY}'. Existing keys: {output_dict.keys()}"
+        latest_file = output_dict.pop(SystemConsts.LATEST_KEY)[SystemConsts.PATH_KEY]
+        output_dict = {key: value[SystemConsts.PATH_KEY] for key, value in output_dict.items()}
+        assert latest_file == max(*output_dict.values()), (
+            f"Output of show tech-support contains a file marked 'latest', but that file either doesn't exist or is not"
+            f" really the latest file. File is {latest_file}."
+        )
+        assert list(output_dict.keys()) == [full_path.replace(SystemConsts.TECHSUPPORT_FILES_PATH, '')
+                                            for full_path in output_dict.values()], \
+            f"Output of show tech-support has mismatch between keys (file names) and full-paths: {output_dict.items()}"
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_since(engines, test_name):
     """
     Run nv show system tech-support files command and verify the required fields are exist
@@ -72,6 +83,7 @@ def test_techsupport_since(engines, test_name):
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_since_invalid_date(engines):
     """
     Run nv show system tech-support files command and verify the required fields are exist
@@ -98,6 +110,7 @@ def test_techsupport_since_invalid_date(engines):
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_delete(engines):
     """
     Run nv show system tech-support files command and verify the required fields are exist
@@ -139,6 +152,7 @@ def test_techsupport_delete(engines):
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_upload(engines):
     """
     Test flow:
@@ -189,6 +203,7 @@ def test_techsupport_upload(engines):
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_multiple_times(engines, test_name):
     """
     Run nv show system tech-support files command and verify the required fields are exist
@@ -208,6 +223,7 @@ def test_techsupport_multiple_times(engines, test_name):
 
 
 @pytest.mark.system
+@pytest.mark.tech_support
 def test_techsupport_size(engines, test_name):
     """
     Run nv action generate system tech-support and verify output file size
@@ -229,9 +245,14 @@ def test_techsupport_size(engines, test_name):
 
 
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after, number_of_expected_files):
+    """
+    Asserts that our actions caused the correct number of files to be created.
+    :param output_dictionary_before: Output of the `nv show tech-support` command.
+    :param output_dictionary_after: Output of the same command after some actions were taken.
+    :param number_of_expected_files: The number of dump files that we expect to be created after the actions.
+    """
     with allure.step('Validating the generate command and show command working as expected'):
-        new_folders = [file for file in output_dictionary_after if file not in output_dictionary_before]
-        assert len(new_folders) == number_of_expected_files + 1, \
+        assert len(set(output_dictionary_after) - set(output_dictionary_before)) == number_of_expected_files + 1, \
             "at least one of the new tech-support folders not found"
 
 
@@ -245,6 +266,7 @@ def validate_techsupport_since(output_dictionary, substring):
 
 @pytest.mark.system
 @pytest.mark.openapi
+@pytest.mark.tech_support
 def test_techsupport_show_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_techsupport_show(engines, test_name)
@@ -252,6 +274,7 @@ def test_techsupport_show_openapi(engines, test_name):
 
 @pytest.mark.system
 @pytest.mark.openapi
+@pytest.mark.tech_support
 def test_techsupport_since_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_techsupport_since(engines, test_name)
@@ -259,6 +282,7 @@ def test_techsupport_since_openapi(engines, test_name):
 
 @pytest.mark.system
 @pytest.mark.openapi
+@pytest.mark.tech_support
 def test_techsupport_since_invalid_date_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_techsupport_since_invalid_date(engines)
@@ -266,6 +290,7 @@ def test_techsupport_since_invalid_date_openapi(engines):
 
 @pytest.mark.system
 @pytest.mark.openapi
+@pytest.mark.tech_support
 def test_techsupport_multiple_times_openapi(engines, test_name):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_techsupport_multiple_times(engines, test_name)
