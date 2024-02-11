@@ -89,7 +89,9 @@ class NvosConst:
     MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
 
     HOST_HA = 'ha'
+    HOST_HA_ATTR = 'ha_attr'
     HOST_HB = 'hb'
+    HOST_HB_ATTR = 'hb_attr'
 
     SERVERS_USER_NAME = os.getenv("TEST_SERVER_USER")
 

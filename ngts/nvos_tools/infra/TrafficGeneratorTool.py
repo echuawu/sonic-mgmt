@@ -1,10 +1,13 @@
 import allure
 import logging
+from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
+from ngts.nvos_tools.hypervisor.VerifyServerFunctionality import verify_server_is_functional, is_device_up
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import InternalNvosConsts
-from infra.tools.validations.traffic_validations.ib_traffic.ib_traffic_checker import IBTrafficChecker
-from infra.tools.validations.traffic_validations.ip_over_ib_traffic.ip_over_ib_traffic_runner import IPoIBTrafficChecker
-from infra.tools.validations.traffic_validations.ib_traffic.ib_traffic_const import IBTrafficConst
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from infra.tools.validations.traffic_validations.ip_over_ib_traffic.ip_over_ib_traffic_runner import IPoIBTrafficChecker
+from infra.tools.validations.traffic_validations.ib_traffic.ib_traffic_checker import IBTrafficChecker
+from infra.tools.validations.traffic_validations.ib_traffic.ib_traffic_const import IBTrafficConst
 
 logger = logging.getLogger()
 
@@ -69,3 +72,29 @@ class TrafficGeneratorTool:
                 validation_obj['ping_args'] = {'count': 5}
 
             return validation_obj
+
+    @staticmethod
+    def bring_up_traffic_containers(engines, setup_name):
+        """
+        Bring up traffic containers in case are in down state.
+        """
+        if hasattr(engines, 'ha') and hasattr(engines, 'hb'):
+            with allure.step("Verify traffic server is up"):
+                ha_name = engines[NvosConst.HOST_HA_ATTR].noga_query_data['attributes']['Common']['Name']
+                server_name = ha_name[:-len(ha_name.split('-')[-1]) - 1]
+                verify_server_is_functional(server_name, NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD)
+            with allure.step("Check if traffic containers are already up"):
+                ha_ping = is_device_up(engines[NvosConst.HOST_HA].ip)
+                hb_ping = is_device_up(engines[NvosConst.HOST_HB].ip)
+
+            if not (ha_ping and hb_ping):
+                with allure.step("Run reboot on bring-up containers"):
+                    engines.sonic_mgmt.run_cmd(SystemConsts.CONTAINER_BU_TEMPLATE.format(
+                        python_path=SystemConsts.PYTHON_PATH, container_bu_script=SystemConsts.CONTAINER_BU_SCRIPT,
+                        setup_name=setup_name))
+
+            with allure.step("Verify openSM is running"):
+                OpenSmTool.start_open_sm(engines.dut)
+        else:
+            logger.info(f'Could not bring-up traffic containers, {NvosConst.HOST_HA} and {NvosConst.HOST_HB} '
+                        f'were not found in engines')

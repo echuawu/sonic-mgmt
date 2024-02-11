@@ -1,17 +1,17 @@
+import logging
 import os
 import pytest
-from ngts.tools.test_utils.switch_recovery import check_switch_connectivity
-from ngts.tools.test_utils import allure_utils as allure
-import logging
-import subprocess
-from retry import retry
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.nvos_tools.hypervisor.VerifyServerFunctionality import is_device_up
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
+from ngts.tools.test_utils.switch_recovery import check_switch_connectivity
 
 logger = logging.getLogger()
 
@@ -36,39 +36,26 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_
     if security_post_checker:
         check_switch_connectivity(topology_obj, engines)
 
-    system = System()
-    serial_engine = topology_obj.players['dut_serial']['engine']
-    remote_reboot = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['remote_reboot']
-    hypervisor_bringup = 'PYTHONPATH=/ngts_venv/ ' \
-                         '/ngts_venv/bin/python ' \
-                         '/root/mars/workspace/sonic-mgmt/ngts/nvos_tools/hypervisor/VerifyServerFunctionality.py ' \
-                         '-u root -p 3tango11 -s all '
-    hosts_bringup = 'PYTHONPATH=/ngts_venv/ /ngts_venv/bin/python ' \
-                    '/devts/scripts/docker/containers_bringup.py --setup_name {} --metrox2xc_setup'.format(setup_name)
-    try:
-        with allure.step('Check dut is up'):
-            ping_device(engines.dut)
+    with allure.step('Check dut is up'):
+        dut_up = is_device_up(engines.dut.ip)
+        if dut_up:
             DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
-    except Exception as err:
-        logger.info(str(err))
-        logger.info("dut {} is unreachable".format(engines.dut.ip))
-        with allure.step('Run remote reboot and check it go up'):
-            subprocess.check_output(remote_reboot, shell=True, universal_newlines=True)
-            DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
-    if not security_post_checker and hasattr(engines, 'ha') and hasattr(engines, 'hb'):
-        try:
-            with allure.step('Check traffic hosts and hypervisor are up'):
-                ping_device(engines.ha)
-                ping_device(engines.hb)
-        except Exception as err:
-            logger.info(str(err))
-            logger.info("dut {} is unreachable".format(engines.dut.ip))
-            with allure.step('Run reboot on hypervisor and bringup containers'):
-                subprocess.check_output(hypervisor_bringup, shell=True, universal_newlines=True)
-                subprocess.check_output(hosts_bringup, shell=True, universal_newlines=True)
+        else:
+            with allure.step('Run remote reboot and check it go up'):
+                remote_reboot = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+                    'remote_reboot']
+                topology_obj.players['server']['engine'].run_cmd(remote_reboot)
+                DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
+
+    if not security_post_checker:
+        TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)
+
     try:
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port, tries=3, delay=2)
     except Exception as err:
+        system = System()
+        serial_engine = topology_obj.players['dut_serial']['engine']
+
         with allure.step('Generating a sysdump'):
             tar_file, duration = system.techsupport.action_generate(engine=serial_engine)
             logger.info("Dump was created at: {}".format(tar_file))
@@ -108,22 +95,6 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_
                                   overwrite_file=True, verify_file=False)
             os.chmod(dest_file, 0o777)
             logger.info('Dump file location: {}'.format(dest_file))
-
-
-@retry(Exception, tries=5, delay=10)
-def ping_device(dut):
-    ip_add = dut.ip
-    logger.info("Ping {}".format(dut))
-    cmd = "ping -c 3 {}".format(ip_add)
-    logger.info("Running cmd: {}".format(cmd))
-    output = subprocess.check_output(cmd, shell=True, universal_newlines=True)
-    logger.info("output: " + str(output))
-    if " 0% packet loss" in str(output):
-        logger.info("Reachable using ip address: " + ip_add)
-        return True
-    else:
-        logger.error("ip address {} is unreachable".format(ip_add))
-        raise Exception("ip address {} is unreachable".format(ip_add))
 
 
 def clear_config(engine):

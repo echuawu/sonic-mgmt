@@ -57,7 +57,7 @@ def is_device_up(server_name):
 
 @retry(Exception, tries=5, delay=10)
 def ping_device(server_name):
-    ip_add = servers_list[server_name]['ip']
+    ip_add = servers_list[server_name]['ip'] if server_name in servers_list else server_name
     logger.info("Ping {}".format(server_name))
     cmd = "ping -c 3 {}".format(ip_add)
     logger.info("Running cmd: {}".format(cmd))

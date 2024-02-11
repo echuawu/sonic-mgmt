@@ -23,11 +23,12 @@ from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool, ping_device
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
@@ -64,8 +65,10 @@ def engines(topology_obj):
     # ha and hb are the traffic dockers
     if "ha" in topology_obj.players:
         engines_data.ha = topology_obj.players['ha']['engine']
+        engines_data.ha_attr = topology_obj.players['ha']['attributes']
     if "hb" in topology_obj.players:
         engines_data.hb = topology_obj.players['hb']['engine']
+        engines_data.hb_attr = topology_obj.players['hb']['attributes']
     if "server" in topology_obj.players:
         engines_data.server = topology_obj.players['server']['engine']
     if "sonic-mgmt" in topology_obj.players:
@@ -538,29 +541,10 @@ def save_nvos_dynamic_error_ignore(request):
 
 
 @pytest.fixture
-def bring_up_traffic_containers(engines, setup_name):
-    """
-    Bring up traffic containers in case are in down state.
-    """
-    engine_key = list(engines.keys())
-    if NvosConst.HOST_HA in engine_key and NvosConst.HOST_HB in engine_key:
-        with allure.step("Check if traffic containers are already up"):
-            ha_ping = ping_device(engines[NvosConst.HOST_HA].ip)
-            hb_ping = ping_device(engines[NvosConst.HOST_HB].ip)
-        if not (ha_ping and hb_ping):
-            with allure.step("Run reboot on bring-up containers"):
-                engines.sonic_mgmt.run_cmd(SystemConsts.CONTAINER_BU_TEMPLATE.format(
-                    python_path=SystemConsts.PYTHON_PATH, container_bu_script=SystemConsts.CONTAINER_BU_SCRIPT,
-                    setup_name=setup_name))
-    else:
-        logger.info(f'Could not bring-up traffic containers, {NvosConst.HOST_HA} and {NvosConst.HOST_HB} '
-                    f'were not found in engines')
-
-
-@pytest.fixture
-def prepare_traffic(bring_up_traffic_containers, start_sm):
+def prepare_traffic(engines, setup_name):
     """
     - Bring up traffic containers in case are in down state.
     - Starts OpenSM
     """
-    logger.info('Prepare traffic containers...')
+    with allure.step('Prepare traffic containers...'):
+        TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)

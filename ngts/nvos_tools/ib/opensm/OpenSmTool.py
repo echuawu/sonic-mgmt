@@ -3,7 +3,7 @@ import time
 import logging
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_constants.constants_nvos import IbConsts
-from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.tools.test_utils import allure_utils as allure
@@ -53,7 +53,7 @@ class OpenSmTool:
     def verify_open_sm_is_running():
         with allure.step("Check if OpenSM is running"):
             ib = Ib(None)
-            sm_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
+            sm_dict = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
             if IbConsts.SM_STATE not in sm_dict.keys():
                 logger.info('state label is not exist')
                 return
@@ -120,5 +120,5 @@ class OpenSmTool:
 
 @retry(Exception, tries=25, delay=4)
 def _wait_until_sm_is_running(ib):
-    sm_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
+    sm_dict = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
     assert sm_dict[IbConsts.IS_RUNNING] == IbConsts.IS_RUNNING_YES
