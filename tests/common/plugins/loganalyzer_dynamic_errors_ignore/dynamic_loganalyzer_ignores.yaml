@@ -2550,8 +2550,6 @@
         - tests/push_build_tests/general/doroce/test_doroce.py
       Redmine:
         - 3538014
-      Platform:
-        - x86_64-nvidia_sn5600-r0
 
 - Errors_list:
     - '.* ERR syncd#SDK: \[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
