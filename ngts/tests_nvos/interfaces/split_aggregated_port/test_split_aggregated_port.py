@@ -24,6 +24,7 @@ logger = logging.getLogger()
 @pytest.mark.interface
 @pytest.mark.multiplanar
 @pytest.mark.simx_xdr
+@pytest.mark.system_profile_cleanup
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_interface_aggregated_port_split(engines, devices, test_api, players, interfaces):
     """
