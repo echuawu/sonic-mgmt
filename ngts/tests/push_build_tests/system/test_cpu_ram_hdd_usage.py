@@ -6,7 +6,7 @@ import logging
 
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 sys.path.append('/devts/tests/skynet')
-from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test,\
+from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test, \
     do_ssd_endurance_test  # noqa
 
 
@@ -43,7 +43,7 @@ class TestCpuRamHddUsage:
             if is_redmine_issue_active([3454585]):
                 partition_usage['max_usage'] = 1000
             platform_hwsku = platform_params.hwsku
-            if re.search('sn5', platform_hwsku):
+            if re.search('SN5', platform_hwsku):
                 partition_usage['max_usage'] = 1500
 
         do_hdd_usage_test(self.dut_engine, partition_usage)
