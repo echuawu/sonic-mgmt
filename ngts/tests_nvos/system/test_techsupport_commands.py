@@ -252,7 +252,7 @@ def validate_techsupport_output(output_dictionary_before, output_dictionary_afte
     :param number_of_expected_files: The number of dump files that we expect to be created after the actions.
     """
     with allure.step('Validating the generate command and show command working as expected'):
-        assert len(set(output_dictionary_after) - set(output_dictionary_before)) == number_of_expected_files + 1, \
+        assert len(set(output_dictionary_after) - set(output_dictionary_before)) == number_of_expected_files, \
             "at least one of the new tech-support folders not found"
 
 
