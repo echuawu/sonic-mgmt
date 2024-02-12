@@ -263,7 +263,7 @@ def test_ib_interface_lanes(engines, players, interfaces, devices, start_sm):
             wait_for_port_to_become_active(selected_port)
             current_lanes = OutputParsingTool.parse_json_str_to_dictionary(
                 selected_port.ib_interface.link.show()).get_returned_value()[IbInterfaceConsts.LINK_LANES]
-            assert current_lanes in IbInterfaceConsts.DEFAULT_LANES,\
+            assert current_lanes in IbInterfaceConsts.DEFAULT_LANES, \
                 "Invalid value for {}".format(IbInterfaceConsts.LINK_LANES)
 
             with allure.step("Verify the 'speed' is updated appropriately"):
@@ -372,10 +372,20 @@ def verify_speed_values(devices, selected_port):
     speed = current_link_dict[IbInterfaceConsts.LINK_SPEED]
     ib_speed = current_link_dict[IbInterfaceConsts.LINK_IB_SPEED]
     lanes = current_link_dict[IbInterfaceConsts.LINK_LANES]
-    ib_int_speed = int(devices.dut.supported_ib_speeds[ib_speed].replace("G", ""))
-    int_lanes = int(lanes.replace("X", ""))
-    int_speed = int(speed.replace("G", ""))
-    assert int((ib_int_speed / 4) * int_lanes) == int_speed, "The values od 'speed' is invalid"
+    ib_speed_val = devices.dut.supported_ib_speeds[ib_speed].replace("G", "")
+    ib_speed_val = round_string_number_with_positivity_check(ib_speed_val, "ib_speed_val")
+    lanes_val = lanes.replace("X", "")
+    lanes_val = round_string_number_with_positivity_check(lanes_val, "lanes_val")
+    speed_val = speed.replace("G", "")
+    speed_val = round_string_number_with_positivity_check(speed_val, "speed_val")
+    expected_speed = round_string_number_with_positivity_check(ib_speed_val / 4 * lanes_val, "expected speed")
+    assert expected_speed == speed_val, "The values of 'speed' is invalid"
+
+
+def round_string_number_with_positivity_check(value, name):
+    res = round(float(value))
+    assert res > 0, f"The {name} should be more than zero but is {res}"
+    return res
 
 
 @retry(Exception, tries=10, delay=10)
@@ -385,7 +395,7 @@ def wait_for_port_to_become_active(port_obj):
             get_returned_value()
         logical_state = current_link_dict[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE]
         state = current_link_dict[IbInterfaceConsts.LINK_STATE]
-        assert logical_state == "Active" and "up" in state.keys(),\
+        assert logical_state == "Active" and "up" in state.keys(), \
             "The logical state of interface {} is not 'Active'".format(port_obj.name)
 
 
