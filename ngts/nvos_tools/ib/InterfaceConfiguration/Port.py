@@ -7,6 +7,7 @@ from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
+from ngts.nvos_tools.acl.acl import Acl
 import allure
 import logging
 from retry import retry
@@ -62,6 +63,7 @@ class Port(BaseComponent):
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
         self.ib_interface = MgmtInterface(self, name)
+        self.acl = Acl(self)
 
     @staticmethod
     def get_list_of_active_ports():

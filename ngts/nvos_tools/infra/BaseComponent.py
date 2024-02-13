@@ -6,11 +6,14 @@ from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 
 class BaseComponent:
     parent_obj = None
-    api_obj = None
+    api_obj = {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}
     _resource_path = ''
 
     def __init__(self, parent=None, api=None, path='', force_api=None):
@@ -57,6 +60,10 @@ class BaseComponent:
             return SendCommandTool.execute_command(self._cli_wrapper.show, dut_engine,
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value(should_succeed=should_succeed)
+
+    def parse_show(self, op_param="", dut_engine=None, should_succeed=True):
+        output = self.show(op_param, OutputFormat.json, dut_engine, should_succeed)
+        return OutputParsingTool.parse_json_str_to_dictionary(output).returned_value
 
     def _set(self, param_name, param_value, expected_str='', apply=False, ask_for_confirmation=False, dut_engine=None):
         if not dut_engine:

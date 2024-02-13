@@ -8,6 +8,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.nvos_tools.acl.acl import Acl
 from retry import retry
 import allure
 import logging
@@ -26,6 +27,7 @@ class MgmtInterface(BaseComponent):
         self.ip = Ip(self)
         self.link = LinkMgmt(self)
         self.plan_ports = self.plan_ports = BaseComponent(self, path='/plan-ports')
+        self.acl = Acl(self)
 
     def wait_for_port_state(self, state, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
