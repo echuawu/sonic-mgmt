@@ -33,7 +33,7 @@ class Firmware(BaseComponent):
                                api={ApiType.NVUE: NvuePlatformCli, ApiType.OPENAPI: OpenApiPlatformCli},
                                path='/firmware')
 
-    def install_bios_firmware(self, bios_image_path):
+    def install_bios_firmware(self, bios_image_path, device):
         with allure.step("installing bios firmware from {action_type}".format(action_type=bios_image_path)):
             return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_install_fae_bios_firmware,
-                                                   TestToolkit.engines.dut, bios_image_path, self.get_resource_path())
+                                                   TestToolkit.engines.dut, bios_image_path, self.get_resource_path(), device)
