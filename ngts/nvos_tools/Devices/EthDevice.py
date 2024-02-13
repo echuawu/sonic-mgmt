@@ -1,5 +1,4 @@
 import logging
-from abc import ABC
 import os
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -7,10 +6,10 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 logger = logging.getLogger()
 
 
-class EthSwitch(BaseSwitch, ABC):
+class EthSwitch(BaseSwitch):
 
     def __init__(self, asic_amount):
-        BaseSwitch.__init__(self)
+        super().__init__()
         self.asic_amount = asic_amount
         self.open_api_port = "8765"
         self.default_password = os.environ["CUMULUS_SWITCH_PASSWORD"]
@@ -35,10 +34,10 @@ class EthSwitch(BaseSwitch, ABC):
 
 
 # -------------------------- Anaconda Switch ----------------------------
-class AnacondaSwitch(EthSwitch, ABC):
+class AnacondaSwitch(EthSwitch):
 
     def __init__(self):
-        EthSwitch.__init__(self, asic_amount=1)
+        super().__init__(asic_amount=1)
 
     def _init_constants(self):
         EthSwitch._init_constants(self)

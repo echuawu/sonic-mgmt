@@ -333,9 +333,9 @@ def get_image_data(system, dut):
     with allure.step("Save original installed image name"):
         original_images = system.firmware.get_fw_image_field_values()
         original_image = original_images[ImageConsts.ACTUAL_FIRMWARE]
-        if dut.ASIC_TYPE == "Quantum2":
+        if dut.asic_type == "Quantum2":
             default_firmware = 'fw-QTM2.mfa'
-        elif dut.ASIC_TYPE == "Quantum":
+        elif dut.asic_type == "Quantum":
             default_firmware = 'fw-QTM.mfa'
         else:
             default_firmware = 'fw-SIB2.mfa'

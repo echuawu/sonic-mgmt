@@ -54,7 +54,7 @@ class MultiPlanarTool:
     @staticmethod
     def select_random_fnm_port(devices):
         with allure.step("Select a random fnm port"):
-            fnm_port_name = RandomizationTool.select_random_value(devices.dut.fmn_port_list). \
+            fnm_port_name = RandomizationTool.select_random_value(devices.dut.fnm_port_list). \
                 get_returned_value()
             selected_fae_fnm_port = Fae(port_name=fnm_port_name)
             return selected_fae_fnm_port

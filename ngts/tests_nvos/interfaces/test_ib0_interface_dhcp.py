@@ -74,7 +74,7 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
             dhcp_client6_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 ipoib_port.interface.ip.dhcp_client6.show()).verify_result()
             Tools.ValidationTool.verify_field_value_in_output(dhcp_client6_dict, IbInterfaceConsts.DHCP_SET_HOSTNAME,
-                                                              'disabled').verify_result()
+                                                              'enabled').verify_result()
 
         with allure.step('check that we can unset the configuration'):
             ipoib_port.interface.ip.dhcp_client.unset(apply=True, ask_for_confirmation=True)
@@ -88,9 +88,11 @@ def test_interface_ib0_dhcp_set_hostname(engines, topology_obj):
                 ipoib_port.interface.ip.dhcp_client6.show()).verify_result()
             Tools.ValidationTool.verify_field_value_in_output(dhcp_client6_dict, IbInterfaceConsts.DHCP_SET_HOSTNAME,
                                                               'enabled').verify_result()
-    with allure.step('check that we can not configure the set-hostname value for dhcp-client6'):
+
+    with allure.step('check that we can configure the set-hostname value for dhcp-client6'):
         with allure.step('config the set-hostname value to disabled'):
-            ipoib_port.interface.ip.dhcp_client6.set(op_param_name='set-hostname', op_param_value='disabled',
+            ipoib_port.interface.ip.dhcp_client6.set(op_param_name=IbInterfaceConsts.DHCP_SET_HOSTNAME,
+                                                     op_param_value='disabled',
                                                      apply=True, ask_for_confirmation=True).verify_result()
 
         with allure.step('verify the value after the change'):

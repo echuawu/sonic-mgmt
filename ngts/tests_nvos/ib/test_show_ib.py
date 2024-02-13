@@ -52,7 +52,7 @@ def test_show_ib_device(engines, devices):
                 verify_device_fields_and_validate_guid_value(IbConsts.DEVICE_ASIC_LIST, dev_output)
                 assert dev_output['lid'] >= 0, "Invalid number of lid"
                 assert dev_output['subnet'] != '', "Subnet should not be none"
-                assert dev_output['type'] == devices.dut.ASIC_TYPE, "Unexpected ASIC type"
+                assert dev_output['type'] == devices.dut.asic_type, "Unexpected ASIC type"
                 if device == IbConsts.DEVICE_ASIC_PREFIX + '1':
                     asic1_guid = dev_output['guid']
 

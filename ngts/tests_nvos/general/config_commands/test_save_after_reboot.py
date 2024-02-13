@@ -34,9 +34,6 @@ def test_save_reboot(engines, devices):
             12. Verify fae fast-recovery trigger event for trigger-id is Error
             13. cleanup - run nv unset system hostname & reboot
     """
-    if devices.dut.ASIC_TYPE == 'Quantum' and is_redmine_issue_active([3292179])[0]:
-        pytest.skip("Test skipped due to an open bug: https://redmine.mellanox.com/issues/3292179")
-
     fae = Fae()
 
     with allure.step('Run show system command and verify that each field has a value'):

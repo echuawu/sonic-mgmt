@@ -37,7 +37,7 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
 
     with allure_step("Check number of swids, ib interfaces and asic related to the system"):
         device = devices.dut
-        primary_ib_interface = device.PRIMARY_IPOIB_INTERFACE
+        primary_ib_interface = device.primary_ipoib_interface
         # primary_asic = device.PRIMARY_ASIC
         # primary_swid = device.PRIMARY_SWID
         values_to_check = [ImageConsts.SWID, ImageConsts.ASIC]
@@ -66,10 +66,10 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
         validate_interface_ip_address(ip_address, ip_output)
 
         with allure_step("Validate params applied to primary/secondary ib interface"):
-            primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.PRIMARY_IPOIB_INTERFACE))
+            primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.primary_ipoib_interface))
             if device.MULTI_ASIC_SYSTEM:
                 secondary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(
-                    device.PRIMARY_IPOIB_INTERFACE))
+                    device.primary_ipoib_interface))
                 assert "UP" in secondary_ib_interface_output, "port not in up state"
                 assert ip_address in primary_ib_interface_output, "address not found on primary ib interface"
                 assert ip_address not in secondary_ib_interface_output, "address found on secondary ib interface"
@@ -92,7 +92,7 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
 
         validate_interface_ip_address(ip_address, output_dictionary, False)
 
-        primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.PRIMARY_IPOIB_INTERFACE))
+        primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.primary_ipoib_interface))
         assert ip_address not in primary_ib_interface_output, "address found on primary ib interface"
 
 

@@ -132,7 +132,6 @@ def validate_ip_fields(output_dictionary):
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.nvos_ci
-@pytest.mark.nvos_chipsim_ci
 def test_ib0_show_interface_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib0_show_interface(engines)
@@ -140,7 +139,6 @@ def test_ib0_show_interface_openapi(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib
-@pytest.mark.nvos_chipsim_ci
 def test_ib0_show_interface_link_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib0_show_interface_link(engines)
@@ -148,7 +146,6 @@ def test_ib0_show_interface_link_openapi(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib
-@pytest.mark.nvos_chipsim_ci
 def test_ib0_show_interface_stats_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib0_show_interface_stats(engines)
@@ -156,7 +153,6 @@ def test_ib0_show_interface_stats_openapi(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib
-@pytest.mark.nvos_chipsim_ci
 def test_ib0_show_interface_ip_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib0_show_interface_ip(engines)

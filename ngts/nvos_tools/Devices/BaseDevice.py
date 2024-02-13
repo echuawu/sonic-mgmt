@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 
 # -------------------------- Base Device ----------------------------
-class BaseDevice:
+class BaseDevice(ABC):
 
     def __init__(self):
         self.default_password = ""
@@ -46,6 +46,7 @@ class BaseDevice:
         self.temperature_sensors = []
         self.available_tables_per_asic = {}
         self.ib_ports_num = 0
+        self.user_fields = []
 
         self._init_constants()
         self._init_available_databases()
@@ -224,11 +225,11 @@ class BaseAppliance(BaseDevice):
 
 
 # -------------------------- Base Switch ----------------------------
-class BaseSwitch(BaseDevice, ABC):
+class BaseSwitch(BaseDevice):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        BaseDevice.__init__(self)
+        super().__init__()
 
     def _init_available_databases(self):
         BaseDevice._init_available_databases(self)

@@ -1,5 +1,4 @@
 import logging
-from abc import ABC
 import os
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
@@ -13,14 +12,15 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 logger = logging.getLogger()
 
 
-class IbSwitch(BaseSwitch, ABC):
+class IbSwitch(BaseSwitch):
 
     def __init__(self, asic_amount):
-        BaseSwitch.__init__(self)
+        super().__init__()
         self.asic_amount = asic_amount
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self.default_username = os.environ["NVU_SWITCH_USER"]
+        self._init_ib_speeds()
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
         logging.info(f"number of ports: {self.ib_ports_num}")
@@ -301,10 +301,10 @@ class IbSwitch(BaseSwitch, ABC):
 
 
 # -------------------------- Gorilla Switch ----------------------------
-class GorillaSwitch(IbSwitch, ABC):
+class GorillaSwitch(IbSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=1)
+        super().__init__(asic_amount=1)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
@@ -337,10 +337,10 @@ class GorillaSwitch(IbSwitch, ABC):
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------
-class GorillaSwitchBF3(GorillaSwitch, ABC):
+class GorillaSwitchBF3(GorillaSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=1)
+        super().__init__(asic_amount=1)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
@@ -369,10 +369,10 @@ class GorillaSwitchBF3(GorillaSwitch, ABC):
 
 
 # -------------------------- BlackMamba Switch ----------------------------
-class BlackMambaSwitch(IbSwitch, ABC):
+class BlackMambaSwitch(IbSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=4)
+        super().__init__(asic_amount=4)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
@@ -423,10 +423,10 @@ class BlackMambaSwitch(IbSwitch, ABC):
 
 
 # -------------------------- Crocodile Switch ----------------------------
-class CrocodileSwitch(IbSwitch, ABC):
+class CrocodileSwitch(IbSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=2)
+        super().__init__(asic_amount=2)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
@@ -454,10 +454,10 @@ class CrocodileSwitch(IbSwitch, ABC):
 
 
 # -------------------------- NvLink Switch ----------------------------
-class NvLinkSwitch(IbSwitch, ABC):
+class NvLinkSwitch(IbSwitch):
 
     def __init__(self, asic_amount):
-        IbSwitch.__init__(self, asic_amount)
+        super().__init__(asic_amount)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
@@ -469,10 +469,10 @@ class NvLinkSwitch(IbSwitch, ABC):
 
 
 # -------------------------- Juliet Switch ----------------------------
-class JulietSwitch(NvLinkSwitch, ABC):
+class JulietSwitch(NvLinkSwitch):
 
     def __init__(self):
-        NvLinkSwitch.__init__(self, asic_amount=1)
+        super().__init__(asic_amount=1)
 
     def _init_constants(self):
         NvLinkSwitch._init_constants(self)
@@ -488,10 +488,10 @@ class JulietSwitch(NvLinkSwitch, ABC):
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
-class JulietScaleoutSwitch(JulietSwitch, ABC):
+class JulietScaleoutSwitch(JulietSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=1)
+        super().__init__(asic_amount=1)
 
     def _init_constants(self):
         JulietSwitch._init_constants(self)
@@ -499,10 +499,10 @@ class JulietScaleoutSwitch(JulietSwitch, ABC):
 
 
 # -------------------------- Caiman Switch ----------------------------
-class CaimanSwitch(NvLinkSwitch, ABC):
+class CaimanSwitch(NvLinkSwitch):
 
     def __init__(self):
-        NvLinkSwitch.__init__(self, asic_amount=4)
+        super().__init__(asic_amount=4)
 
     def _init_constants(self):
         NvLinkSwitch._init_constants(self)
@@ -513,10 +513,10 @@ class CaimanSwitch(NvLinkSwitch, ABC):
 
 
 # -------------------------- Marlin Switch ----------------------------
-class MarlinSwitch(IbSwitch, ABC):
+class MarlinSwitch(IbSwitch):
 
     def __init__(self):
-        IbSwitch.__init__(self, asic_amount=2)
+        super().__init__(asic_amount=2)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)

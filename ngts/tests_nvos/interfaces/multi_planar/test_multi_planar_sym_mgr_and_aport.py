@@ -710,7 +710,7 @@ def test_fae_invalid_commands(engines, devices, test_api):
             verify_result(should_succeed=False)
 
     with allure.step("Validate show interface with internal fnm id"):
-        fnm_internal_port_name = RandomizationTool.select_random_value(devices.dut.FNM_INTERNAL_PORT_LIST).\
+        fnm_internal_port_name = RandomizationTool.select_random_value(devices.dut.fnm_internal_port_list).\
             get_returned_value()
         MgmtPort(fnm_internal_port_name).interface.show(should_succeed=False)
 
