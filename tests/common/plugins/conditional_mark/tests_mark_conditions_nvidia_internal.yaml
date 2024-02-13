@@ -717,15 +717,15 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_b
 
 tests/nightly/adaptive_routing/test_adaptive_routing.py::TestArBasic::test_ar_with_reboot:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681195"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3779674"
     conditions:
-      - "https://redmine.mellanox.com/issues/3681195"
+      - "https://redmine.mellanox.com/issues/3779674"
 
 tests/nightly/adaptive_routing/test_adaptive_routing.py::TestArMaxPort::test_ar_max_port:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681195"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3779719"
     conditions:
-      - "https://redmine.mellanox.com/issues/3681195"
+      - "https://redmine.mellanox.com/issues/3779719"
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ssd_endurance:
   skip:
