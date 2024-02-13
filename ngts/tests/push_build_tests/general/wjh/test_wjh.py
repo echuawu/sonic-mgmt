@@ -762,7 +762,6 @@ def test_l3_dst_ip_is_loopback(engines, cli_objects, topology_obj, interfaces):
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L2 test case')
 def test_l2_src_mac_is_multicast(engines, cli_objects, topology_obj, interfaces):
     src_mac = '01:00:5e:01:02:04'
@@ -807,7 +806,6 @@ def test_l2_src_mac_is_multicast(engines, cli_objects, topology_obj, interfaces)
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_ipv6_dst_multicast_scope_ffx0(engines, cli_objects, topology_obj, interfaces):
     src_mac = "00:11:22:33:44:56"
@@ -852,7 +850,6 @@ def test_l3_ipv6_dst_multicast_scope_ffx0(engines, cli_objects, topology_obj, in
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_ipv6_dst_multicast_scope_ffx1(engines, cli_objects, topology_obj, interfaces):
     src_mac = "00:11:22:33:44:57"
@@ -897,7 +894,6 @@ def test_l3_ipv6_dst_multicast_scope_ffx1(engines, cli_objects, topology_obj, in
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_multicast_mac_mismatch(engines, cli_objects, topology_obj, interfaces):
     src_mac = "00:11:22:33:44:56"
@@ -942,7 +938,6 @@ def test_l3_multicast_mac_mismatch(engines, cli_objects, topology_obj, interface
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_ipv4_limited_broadcast_src_ip(engines, cli_objects, topology_obj, interfaces):
     src_mac = "00:11:22:33:44:56"
@@ -987,7 +982,6 @@ def test_l3_ipv4_limited_broadcast_src_ip(engines, cli_objects, topology_obj, in
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_ipv4_dst_local_network(engines, cli_objects, topology_obj, interfaces):
     src_mac = "00:11:22:33:44:56"
@@ -1032,7 +1026,6 @@ def test_l3_ipv4_dst_local_network(engines, cli_objects, topology_obj, interface
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L2 test case')
 def test_l2_dst_mac_is_reserved(engines, cli_objects, topology_obj, interfaces):
     src_mac = '00:11:22:33:44:55'
@@ -1077,7 +1070,6 @@ def test_l2_dst_mac_is_reserved(engines, cli_objects, topology_obj, interfaces):
 
 @pytest.mark.wjh
 @pytest.mark.build
-@pytest.mark.push_gate
 @allure.title('WJH L3 test case')
 def test_l3_non_ip_packet(engines, cli_objects, topology_obj, interfaces):
     src_mac = '00:11:22:33:44:55'
