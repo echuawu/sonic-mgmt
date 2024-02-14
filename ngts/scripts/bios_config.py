@@ -33,7 +33,6 @@ def configure_bios(topology_obj):
                     'ip address', '')
                 dut_engine = topology_obj.players[host]['engine']
                 bios_obj = BiosTool()
-                TestToolkit.GeneralApi[TestToolkit.tested_api].remote_reboot(None, topology_obj)
                 with allure.step('Entering BIOS on: {}'.format(dut_ip)):
                     bios_obj.enter_bios(topology_obj)
 

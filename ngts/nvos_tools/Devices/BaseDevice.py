@@ -311,6 +311,10 @@ class BaseSwitch(BaseDevice):
         firmware = [PlatformConsts.FW_BIOS, PlatformConsts.FW_ONIE, PlatformConsts.FW_SSD, PlatformConsts.FW_CPLD + '1',
                     PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
         self.constants = Constants(system_dic, dump_files, sdk_dump_files, firmware)
+        self.current_bios_version_name = ""
+        self.current_bios_version_path = ""
+        self.previous_bios_version_name = ""
+        self.previous_bios_version_path = ""
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]

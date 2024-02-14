@@ -325,6 +325,10 @@ class GorillaSwitch(IbSwitch):
                                     "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
                                     "PCH-Temp",
                                     "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
+        self.current_bios_version_name = "0ACQF_06.01.003"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.002"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
 
     def _init_fan_list(self):
         BaseSwitch._init_fan_list(self)
