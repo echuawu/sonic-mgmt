@@ -14,51 +14,14 @@ pytestmark = [
 ]
 
 
-class TestIndependentModuleEnabled:
-
-    @pytest.fixture(autouse=True)
-    def setup(self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index,
-              get_ports_supporting_im):
-        self.duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
-        self.im_port_list = get_ports_supporting_im
-        self.enum_frontend_asic_index = enum_frontend_asic_index
-
-        if len(self.im_port_list) == 0:
-            pytest.skip(f"Skip test suite as Independent Module not supported by available SFP")
-
-    def test_enable_independent_module_feature(self):
-
-        logging.info(f"Enable {IM_SAI_ATTRIBUTE_NAME} in {SAI_PROFILE_FILE_NAME}")
-        add_im_sai_attribute(self.duthost)
-
-        logging.info(f"Set skip_xcvrd_cmis_mgr flag False")
-        enable_cmis_mgr_in_pmon_file(self.duthost)
-
-        logging.info(f"Disable auto negotiation for ports with SW control")
-        disable_autoneg_at_ports(self.duthost, self.im_port_list)
-
-        logging.info(f"Save configuration")
-        self.duthost.shell('sudo config save -y')
-        config_reload(self.duthost, check_intf_up_ports=True)
-
-        logging.info("Check Independent Module enabled in sai.profile")
-        check_im_sai_attribute_value(self.duthost)
-
-        logging.info("Check in pmon_daemon_control.json skip_cmis_mgr set to False")
-        check_cmis_mgr_not_skipped(self.duthost)
-
-        logging.info("Check in pmon container xcvrd process run without skip")
-        check_xcvrd_pmon_process_not_skipped(self.duthost)
-
-
 class TestIndependentModuleFunctional:
 
     @pytest.fixture(autouse=True)
-    def setup(self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index,
-              get_ports_supporting_im):
+    def setup(self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index, conn_graph_facts):
         self.duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
-        self.im_port_list = get_ports_supporting_im
         self.enum_frontend_asic_index = enum_frontend_asic_index
+        self.conn_graph_facts = conn_graph_facts
+        self.im_port_list = get_ports_supporting_im(self.duthost, self.conn_graph_facts)
 
         # Check IM enabled in sai.profile. If not - whole test suite will be skipped
         check_im_sai_attribute_value(self.duthost)

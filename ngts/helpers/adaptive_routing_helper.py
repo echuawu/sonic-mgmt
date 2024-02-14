@@ -8,8 +8,7 @@ from retry.api import retry_call
 from retry import retry
 from functools import partial
 from ngts.tests.nightly.adaptive_routing.constants import ArConsts
-from ngts.tests.performance.constants import ArPerfConsts
-from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.constants.constants import AppExtensionInstallationConstants, PerfConsts
 from ngts.tests.conftest import get_dut_loopbacks
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
@@ -593,11 +592,11 @@ class ArPerfHelper(ArHelper):
         self.tg_engines = self.get_tg_engines(engines)
 
     def generate_traffic_from_node(self, engines, dest_mac, packet_size=4000):
-        num_of_packets = ArPerfConsts.PACKET_SIZE_TO_PACKET_NUM_DICT[packet_size]
+        num_of_packets = PerfConsts.PACKET_SIZE_TO_PACKET_NUM_DICT[packet_size]
         self.verify_traffic_generation_enabled(engines)
         logger.info(f'Generate traffic from left and right node with packet size {packet_size}')
         for engine in self.tg_engines:
-            engines[engine].run_cmd(f'sudo python3 {ArPerfConsts.TRAFFIC_SENDER_SCRIPT_TG} -s {packet_size} '
+            engines[engine].run_cmd(f'sudo python3 {PerfConsts.TRAFFIC_SENDER_SCRIPT_TG} -s {packet_size} '
                                     f'-n {num_of_packets} -m {dest_mac} -g {engine}', validate=True)
 
     def get_tg_engines(self, engines):
@@ -614,10 +613,10 @@ class ArPerfHelper(ArHelper):
                        validate=True)
 
     def copy_traffic_cmds_to_node(self, engine, engine_name):
-        dest_file_name = "_".join([ArPerfConsts.TRAFFIC_SENDER_SCRIPT_TG])
+        dest_file_name = "_".join([PerfConsts.TRAFFIC_SENDER_SCRIPT_TG])
         logger.info("Copying traffic commands to syncd docker")
-        engine.copy_file(source_file=os.path.join(ArPerfConsts.CONFIG_FILES_DIR,
-                                                  ArPerfConsts.TRAFFIC_SENDER_SCRIPT_TG),
+        engine.copy_file(source_file=os.path.join(PerfConsts.CONFIG_FILES_DIR,
+                                                  PerfConsts.TRAFFIC_SENDER_SCRIPT_TG),
                          dest_file=dest_file_name,
                          file_system='/home/admin',
                          direction='put'
@@ -625,13 +624,13 @@ class ArPerfHelper(ArHelper):
 
     def copy_ip_neighbor_cmds_to_dut(self, engine):
         logger.info("Copying ip neighbors commands to DUT")
-        engine.copy_file(source_file=os.path.join(ArPerfConsts.CONFIG_FILES_DIR,
-                                                  ArPerfConsts.IP_NEIGH_SCRIPT),
-                         dest_file=ArPerfConsts.IP_NEIGH_SCRIPT,
+        engine.copy_file(source_file=os.path.join(PerfConsts.CONFIG_FILES_DIR,
+                                                  PerfConsts.IP_NEIGH_SCRIPT),
+                         dest_file=PerfConsts.IP_NEIGH_SCRIPT,
                          file_system='/home/admin',
                          direction='put'
                          )
-        engine.run_cmd(f'chmod +x {ArPerfConsts.IP_NEIGH_SCRIPT}')
+        engine.run_cmd(f'chmod +x {PerfConsts.IP_NEIGH_SCRIPT}')
 
     def config_ip_neighbors_on_dut(self, dut_engine, topology_obj):
         mac_dict = {}
@@ -639,8 +638,8 @@ class ArPerfHelper(ArHelper):
             mac_dict[engine] = self.get_switch_mac(topology_obj, engine)
         logger.info("Config permanent ip neighbors on DUT")
         self.copy_ip_neighbor_cmds_to_dut(dut_engine)
-        ip_neigh_cmd = " ".join([ArPerfConsts.IP_NEIGH_SCRIPT, mac_dict["left_tg"], mac_dict["right_tg"],
-                                 ArPerfConsts.L_IP_NEIGH, ArPerfConsts.R_IP_NEIGH])
+        ip_neigh_cmd = " ".join([PerfConsts.IP_NEIGH_SCRIPT, mac_dict["left_tg"], mac_dict["right_tg"],
+                                 PerfConsts.L_IP_NEIGH, PerfConsts.R_IP_NEIGH])
         ip_neigh_cmd = "sudo ./" + ip_neigh_cmd
         dut_engine.run_cmd(ip_neigh_cmd, validate=True)
 
@@ -648,10 +647,10 @@ class ArPerfHelper(ArHelper):
                                 stress_mode=False, negative_mode=False):
         util_threshold = self.get_util_threshold(device, ibm, packet_size)
         logger.info(f'Utilization threshold is {util_threshold}%')
-        sample_time = ArPerfConsts.DEFAULT_SAMPLE_TIME_IN_SEC
-        total_sample_time = sample_time + ArPerfConsts.SLEEP_TIME_BEFORE_SAMPLE
+        sample_time = PerfConsts.DEFAULT_SAMPLE_TIME_IN_SEC
+        total_sample_time = sample_time + PerfConsts.SLEEP_TIME_BEFORE_SAMPLE
         if stress_mode:
-            sample_time = ArPerfConsts.EXTENDED_SAMPLE_TIME_IN_SEC
+            sample_time = PerfConsts.EXTENDED_SAMPLE_TIME_IN_SEC
             logger.info(f'Stress mode - sampling time of port utilization is {sample_time} seconds')
         util_counters_dict = {}
         logger.info('Check interface counters responding before sampling')
@@ -666,9 +665,9 @@ class ArPerfHelper(ArHelper):
         with allure.step(f'Check the average port utilization on {device}'):
             for port, util_values in util_counters_dict.items():
                 counted_util_values = [value_timestamp_pair for value_timestamp_pair in util_values
-                                       if value_timestamp_pair[ArPerfConsts.TIMESTAMP_INDEX] >=
-                                       start_time + ArPerfConsts.SLEEP_TIME_BEFORE_SAMPLE]
-                sum_of_util = sum(value_timestamp_pair[ArPerfConsts.VALUE_INDEX] for value_timestamp_pair in counted_util_values)
+                                       if value_timestamp_pair[PerfConsts.TIMESTAMP_INDEX] >=
+                                       start_time + PerfConsts.SLEEP_TIME_BEFORE_SAMPLE]
+                sum_of_util = sum(value_timestamp_pair[PerfConsts.VALUE_INDEX] for value_timestamp_pair in counted_util_values)
                 avg_port_util = round(sum_of_util / len(counted_util_values))
                 if not negative_mode:
                     logger.debug(f'Verify that the port utilization of {device} is above {util_threshold}% ')
@@ -687,11 +686,11 @@ class ArPerfHelper(ArHelper):
     def get_util_threshold(self, device, ibm, packet_size):
         if device == 'dut':
             if ibm:
-                util_threshold = ArPerfConsts.DUT_TX_UTIL_W_IBM_TH_DICT[packet_size]
+                util_threshold = PerfConsts.DUT_TX_UTIL_W_IBM_TH_DICT[packet_size]
             else:
-                util_threshold = ArPerfConsts.DUT_TX_UTIL_TH_DICT[packet_size]
+                util_threshold = PerfConsts.DUT_TX_UTIL_TH_DICT[packet_size]
         else:
-            util_threshold = ArPerfConsts.TG_TX_UTIL_TH
+            util_threshold = PerfConsts.TG_TX_UTIL_TH
         return util_threshold
 
     def stop_traffic_generation(self, engines):
@@ -738,7 +737,7 @@ class ArPerfHelper(ArHelper):
 
     def validate_number_of_ports(self, ports_list, port_type, device):
         actual_length = len(ports_list)
-        expected_length = ArPerfConsts.EXPECTED_PORTS_BY_TYPE[port_type]
+        expected_length = PerfConsts.EXPECTED_PORTS_BY_TYPE[port_type]
         if actual_length != expected_length:
             raise AssertionError(f'Ports number on {device} expected to be {expected_length},'
                                  f' but got only {actual_length}')

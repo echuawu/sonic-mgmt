@@ -5,11 +5,14 @@ import logging
 from ngts.helpers.adaptive_routing_helper import ArHelper, ArPerfHelper
 from ngts.helpers.system_helpers import copy_files_to_syncd
 from ngts.tests.nightly.adaptive_routing.constants import ArConsts
-from ngts.tests.performance.constants import ArPerfConsts
+from ngts.constants.constants import PerfConsts
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 ar_helper = ArHelper()
+
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+CONFIG_FILES_DIR = os.path.join(BASE_DIR, 'config_files')
 
 
 @pytest.fixture(scope='module', autouse=True)
@@ -27,11 +30,11 @@ def config_node(cli_objects, engines, topology_obj):
     ar_perf_helper = ArPerfHelper(engines)
     tg_engines = ar_perf_helper.tg_engines
     for engine in tg_engines:
-        copy_files_to_syncd(engines[engine], ArPerfConsts.CONFIG_FILES_DICT[engine], ArPerfConsts.CONFIG_FILES_DIR)
-        ar_perf_helper.run_cmd_on_syncd(engines[engine], ArPerfConsts.DISABLE_MAC_SCRIPT, python=True)
+        copy_files_to_syncd(engines[engine], PerfConsts.CONFIG_FILES_DICT[engine], CONFIG_FILES_DIR)
+        ar_perf_helper.run_cmd_on_syncd(engines[engine], PerfConsts.DISABLE_MAC_SCRIPT, python=True)
         cli_objects[engine].mac.clear_fdb()
-        ar_perf_helper.run_cmd_on_syncd(engines[engine], ArPerfConsts.LB_SCRIPT_TG,
-                                        additional_args=ArPerfConsts.LOG_PORTS_DICT[engine])
+        ar_perf_helper.run_cmd_on_syncd(engines[engine], PerfConsts.LB_SCRIPT_TG,
+                                        additional_args=PerfConsts.LOG_PORTS_DICT[engine])
         ar_perf_helper.copy_traffic_cmds_to_node(engines[engine], engine)
 
 
@@ -47,12 +50,12 @@ def config_dut(cli_objects, engines, topology_obj):
 def load_ibm_profile(engines, cli_objects, topology_obj):
     logger.info('Load ingress buffer mode custom AR profile')
     ar_perf_helper = ArPerfHelper(engines)
-    ar_ibm_profile_config_folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' + ArPerfConsts.AR_PERF_CONFIG_FOLDER
-    ar_perf_helper.copy_and_load_profile_config(engines, cli_objects, ar_ibm_profile_config_folder_path, ArPerfConsts.CUSTOM_IBM_PROFILE_JSON)
+    ar_ibm_profile_config_folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' + PerfConsts.AR_PERF_CONFIG_FOLDER
+    ar_perf_helper.copy_and_load_profile_config(engines, cli_objects, ar_ibm_profile_config_folder_path, PerfConsts.CUSTOM_IBM_PROFILE_JSON)
 
     # Enable AR custom profile
-    with allure.step(f'Enable {ArPerfConsts.IBM_CUSTOM_PROFILE_NAME} profile'):
-        ar_perf_helper.enable_ar_profile(cli_objects, ArPerfConsts.IBM_CUSTOM_PROFILE_NAME, restart_swss=True)
+    with allure.step(f'Enable {PerfConsts.IBM_CUSTOM_PROFILE_NAME} profile'):
+        ar_perf_helper.enable_ar_profile(cli_objects, PerfConsts.IBM_CUSTOM_PROFILE_NAME, restart_swss=True)
         dut_ports = ar_perf_helper.get_dut_ports(topology_obj)
         cli_objects.dut.interface.check_link_state(dut_ports)
         ar_perf_helper.config_ip_neighbors_on_dut(engines.dut, topology_obj)

@@ -615,6 +615,14 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 return interface
         return None
 
+    def get_admin_up_ports(self):
+        intf_status = self.parse_interfaces_status()
+        admin_up_ports = []
+        for interface in intf_status.keys():
+            if intf_status[interface]['Admin'] == 'up' and interface.startswith('Ethernet'):
+                admin_up_ports.append(interface)
+        return admin_up_ports
+
     def show_interfaces_counters(self, validate=False):
         """
         show interfaces counters

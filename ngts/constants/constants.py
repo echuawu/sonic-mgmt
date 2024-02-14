@@ -54,6 +54,8 @@ class SonicConst:
     EXTENDED_CONFIG_DB_PATH = "extended_config_db.json"
     CONFIG_DB_JSON_PATH = SONIC_CONFIG_FOLDER + CONFIG_DB_JSON
     PLATFORM_JSON_PATH = "/usr/share/sonic/device/{PLATFORM}/platform.json"
+    PMON_DAEMON_CONTROL_JSON_PATH = "/usr/share/sonic/device/{PLATFORM}/pmon_daemon_control.json"
+    SAI_PROFILE_FILE_PATH = "/usr/share/sonic/device/{PLATFORM}/{HWSKU}/sai.profile"
     COPP_CONFIG = 'copp_cfg.json'
 
     BREAKOUT_MODE_WITH_DIFF_LANE_SUPPORTED_SPEEDS_REGEX = r"\dx\d+G\(\d\)\+\dx\d+G\(\d\)"  # i.e, 2x25G(2)+1x50G(2)
@@ -129,6 +131,7 @@ class InfraConst:
     HTTP_SERVER = 'http://fit69'
     HTTTP_SERVER_FIT16 = 'http://r-fit16-clone.mtr.labs.mlnx'
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
+    MARS_CMIS_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/cmis/'
     NVOS_REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/NVOS/MARS/results'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
     RELEASE_RESULTS_DIR = '/auto/sw_regression/system/SONIC/release_results'
@@ -1494,6 +1497,55 @@ class CableComplianceConst:
         SPEC_COMPLIANCE_PREFIX: ["active_cable_media_interface", "sm_media_interface",
                                  "nm_850_media_interface"],
         EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC"]}
+
+
+class IndependentModuleConst:
+    IM_SAI_ATTRIBUTE_NAME = "SAI_INDEPENDENT_MODULE_MODE"
+    IM_CONTROL_FILE_PATH = "/sys/module/sx_core/asic0/module{PORT_NUMBER}/control"
+    MEDIA_SETTINGS_FILE_NAME = "media_settings.json"
+    OPTICS_SI_SETTINGS_FILE_NAME = "optics_si_settings.json"
+    IM_INTERFACE_SETTINGS_FILE_PATH = "/usr/share/sonic/device/{PLATFORM}"
+    MS_HWSKU = ['Mellanox-SN4700-O8C48', 'Mellanox-SN4700-O8V48', 'ACS-SN5600', 'ACS-MSN4700']
+    DUTS_SUPPORTING_IM = ['r-leopard-32', 'r-leopard-41', 'r-leopard-56', 'r-leopard-01', 'r-leopard-58',
+                          'r-leopard-70', 'r-leopard-72', 'r-moose-01', 'r-moose-02', 'mtvr-moose-04']
+
+
+class PerfConsts:
+    LEFT_TG_ALIAS = "left_tg"
+    RIGHT_TG_ALIAS = "right_tg"
+    AR_PERF_CONFIG_FOLDER = 'config_files'
+    CUSTOM_IBM_PROFILE_JSON = 'ibm_profile.json'
+    IBM_CUSTOM_PROFILE_NAME = 'ibm_profile'
+    DISABLE_MAC_SCRIPT = "disable_mac_learn.py"
+    LB_FILTER_SCRIPT = "api_for_filter.py"
+    LB_SCRIPT_TG = "run_lb_script.sh"
+    IP_NEIGH_SCRIPT = "config_ip_neigh.sh"
+    TRAFFIC_SENDER_SCRIPT_TG = "traffic_generator.py"
+    CONFIG_FILES_LIST_LEFT_TG = [DISABLE_MAC_SCRIPT, LB_FILTER_SCRIPT, LB_SCRIPT_TG]
+    CONFIG_FILES_LIST_RIGHT_TG = [DISABLE_MAC_SCRIPT, LB_FILTER_SCRIPT, LB_SCRIPT_TG]
+    CONFIG_FILES_DICT = {LEFT_TG_ALIAS: CONFIG_FILES_LIST_LEFT_TG, RIGHT_TG_ALIAS: CONFIG_FILES_LIST_RIGHT_TG}
+    DEFAULT_SAMPLE_TIME_IN_SEC = 20
+    EXTENDED_SAMPLE_TIME_IN_SEC = 60
+    PACKET_SIZE_LIST = [1500, 2000, 4000, 8000]
+    PACKET_SIZE_TO_PACKET_NUM_DICT = {1500: 32, 2000: 16, 4000: 8, 8000: 8}
+    TG_TX_UTIL_TH = 95
+    DUT_TX_UTIL_TH_DICT = {1500: 64, 2000: 80, 4000: 92, 8000: 93}
+    DUT_TX_UTIL_W_IBM_TH_DICT = {1500: 64, 2000: 80, 4000: 96, 8000: 95}
+    EXPECTED_EGRESS_PORTS = 64
+    EXPECTED_MLOOP_PORTS = 64
+    EXPECTED_AR_PORTS = 128
+    EXPECTED_PORTS_BY_TYPE = {"egress": EXPECTED_EGRESS_PORTS,
+                              "mloop": EXPECTED_MLOOP_PORTS,
+                              "ar": EXPECTED_AR_PORTS}
+    VALUE_INDEX = 0
+    TIMESTAMP_INDEX = 1
+    LOG_PORT_LEFT_TG = 0x10001
+    LOG_PORT_RIGHT_TG = 0x10081
+    LOG_PORTS_DICT = {LEFT_TG_ALIAS: LOG_PORT_LEFT_TG, RIGHT_TG_ALIAS: LOG_PORT_RIGHT_TG}
+    L_IP_NEIGH = "10.10.10.10"
+    R_IP_NEIGH = "20.20.20.20"
+    PERF_SUPPORTED_REBOOT_TYPES = ['reboot', 'config reload -y']
+    SLEEP_TIME_BEFORE_SAMPLE = 15
 
 
 SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42', 'r-bobcat-01']

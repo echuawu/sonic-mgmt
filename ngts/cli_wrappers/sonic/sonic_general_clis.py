@@ -17,7 +17,8 @@ from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, PerformanceSetupConstants, \
-    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, PlatformTypesConstants
+    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, \
+    PlatformTypesConstants, PerfConsts
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -34,6 +35,7 @@ from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_stor
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.topology_tools.nogaq import get_noga_entire_resource_data
 from ngts.tools.infra import update_platform_info_files
 from ngts.helpers.secure_boot_helper import SecureBootHelper
 
@@ -173,10 +175,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param wait_after_ping: how long in second wait after ping before ssh connection
         :return: None, raise error in case of unexpected result
         """
-        if not (ports_list or topology_obj):
-            raise Exception('ports_list or topology_obj must be passed to reboot_flow method')
-        if ports_list is None:
-            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        ports_list = self.get_ports_list_reboot_reload_flow(ports_list, topology_obj)
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
@@ -201,15 +200,35 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param reload_force: provide if want to do reload with -f flag(force)
         :return: None, raise error in case of unexpected result
         """
-        if not (ports_list or topology_obj):
-            raise Exception('ports_list or topology_obj must be passed to reload_flow method')
-        if not ports_list:
-            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        ports_list = self.get_ports_list_reboot_reload_flow(ports_list, topology_obj)
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
             self.port_reload_reboot_checks(ports_list)
             self.check_and_apply_dns()
+
+    def get_ports_list_reboot_reload_flow(self, ports_list, topology_obj):
+        if not (ports_list or topology_obj):
+            raise Exception('ports_list or topology_obj must be passed to reload_flow method')
+        if not ports_list:
+            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        # in perf setup, expected ports in up state are left_tg: (Ethernet0::252, 4), right_tg: (Ethernet256::508, 4)
+        if self.cli_obj.dut_alias in [PerfConsts.LEFT_TG_ALIAS, PerfConsts.RIGHT_TG_ALIAS]:
+            ports_list = self.get_performance_ports_list(topology_obj)
+        return ports_list
+
+    def get_performance_ports_list(self, topology_obj):
+        """
+        Method returns ports list of traffic generator from performance setup, which connected to DUT
+        :return: TG ports list
+        """
+        ports_list = []
+        switch_name = topology_obj.players[self.cli_obj.dut_alias]['attributes'].noga_query_data['attributes']['Common']['Name']
+        noga_entire_data = get_noga_entire_resource_data(resource_name=switch_name)
+        for resource in noga_entire_data:
+            if 'etp' in resource['name'] and switch_name not in resource['connected with']:
+                ports_list.append(resource['if'])
+        return ports_list
 
     def port_reload_reboot_checks(self, ports_list):
         self.verify_dockers_are_up()
@@ -915,6 +934,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step('Apply DNS servers configuration'):
                 self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                     is_air_setup=platform_params.setup_name.startswith('air'))
+
         self.cli_obj.general.save_configuration()
 
     def apply_config_files(self, topology_obj, setup_name, platform_params):
@@ -929,6 +949,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.upload_port_config_ini(platform, hwsku, shared_path)
 
         self.upload_config_db_file(topology_obj, setup_name, hwsku, platform, shared_path)
+
+        with allure.step("Disable autoneg on SW control ports if SW control feature enabled"):
+            if self.cli_obj.im.is_im_enabled():
+                port_supporting_im = self.cli_obj.im.get_ports_supporting_im(
+                    self.cli_obj.im.dut_ports_number_dict(topology_obj))
+                if port_supporting_im:
+                    with allure.step('Disable autoneg on ports supporting IM'):
+                        self.cli_obj.im.disable_autoneg_on_ports_supporting_im(port_supporting_im)
 
         if is_redmine_issue_active([3858467]) and platform == 'x86_64-mlnx_msn4700-r0':
             self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj, reload_force=True)
@@ -1399,6 +1427,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         platform = cli_object.chassis.get_platform()
         # if sn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
         return 'sn2' in platform
+
+    def is_spc2(self, cli_object):
+        """
+        Function to check if the current DUT is SPC2
+        :param cli_object: cli_object
+        """
+        platform = cli_object.chassis.get_platform()
+        # if sn3 in platform, it's spc1. e.g. x86_64-mlnx_msn3800-r0
+        return 'sn3' in platform
 
     @classmethod
     def is_simx_moose(cls, engine):

@@ -3,7 +3,7 @@ import pytest
 import random
 
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
-from ngts.tests.performance.constants import ArPerfConsts
+from ngts.constants.constants import PerfConsts
 from ngts.helpers.adaptive_routing_helper import ArHelper, ArPerfHelper
 from retry.api import retry_call
 
@@ -25,11 +25,11 @@ class TestArPerformance:
         self.dut_mac = self.ar_perf_helper.get_switch_mac(self.topology_obj, 'dut')
         self.dut_tx_ports = self.ar_perf_helper.get_dut_ports(self.topology_obj)
         self.tg_ports = self.ar_perf_helper.get_ports_by_type(self.topology_obj)
-        self.tx_ports_left_tg = self.tg_ports['left_tg']["egress_ports"]
-        self.tx_ports_right_tg = self.tg_ports['right_tg']["egress_ports"]
-        self.tg_tx_ports = {'left_tg': self.tx_ports_left_tg, 'right_tg': self.tx_ports_right_tg}
-        self.mloop_ports_left_tg = self.tg_ports['left_tg']["mloop_ports"]
-        self.mloop_ports_right_tg = self.tg_ports['left_tg']["mloop_ports"]
+        self.tx_ports_left_tg = self.tg_ports[PerfConsts.LEFT_TG_ALIAS]["egress_ports"]
+        self.tx_ports_right_tg = self.tg_ports[PerfConsts.RIGHT_TG_ALIAS]["egress_ports"]
+        self.tg_tx_ports = {PerfConsts.LEFT_TG_ALIAS: self.tx_ports_left_tg, PerfConsts.RIGHT_TG_ALIAS: self.tx_ports_right_tg}
+        self.mloop_ports_left_tg = self.tg_ports[PerfConsts.LEFT_TG_ALIAS]["mloop_ports"]
+        self.mloop_ports_right_tg = self.tg_ports[PerfConsts.RIGHT_TG_ALIAS]["mloop_ports"]
         self.random_dut_ports = random.sample(self.dut_tx_ports, 2)
 
     def test_ar_perf_node_full_utilization(self):
@@ -50,7 +50,7 @@ class TestArPerformance:
         finally:
             self.ar_perf_helper.stop_traffic_generation(self.engines)
 
-    @pytest.mark.parametrize("packet_size", ArPerfConsts.PACKET_SIZE_LIST)
+    @pytest.mark.parametrize("packet_size", PerfConsts.PACKET_SIZE_LIST)
     def test_ar_perf_max_bandwidth(self, packet_size):
         """
         Calculate the port utilization on the DUT with AR enabled,
@@ -68,7 +68,7 @@ class TestArPerformance:
         finally:
             self.ar_perf_helper.stop_traffic_generation(self.engines)
 
-    @pytest.mark.parametrize("packet_size", ArPerfConsts.PACKET_SIZE_LIST)
+    @pytest.mark.parametrize("packet_size", PerfConsts.PACKET_SIZE_LIST)
     def test_ar_perf_max_bandwidth_ibm(self, packet_size, load_ibm_profile):
         """
         Calculate the port utilization on the DUT with AR enabled,
@@ -125,7 +125,7 @@ class TestArPerformance:
                        tries=5,
                        delay=5,
                        logger=logger)
-            reboot_type = self.ar_perf_helper.choose_reboot_type(ArPerfConsts.PERF_SUPPORTED_REBOOT_TYPES)
+            reboot_type = self.ar_perf_helper.choose_reboot_type(PerfConsts.PERF_SUPPORTED_REBOOT_TYPES)
             with allure.step(f'Randomly choose {reboot_type} type, and execute it'):
                 self.cli_objects.dut.general.reboot_reload_flow(r_type=reboot_type, topology_obj=self.topology_obj)
 

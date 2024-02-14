@@ -12,7 +12,7 @@ from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigr
     reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
     config_y_cable_simulator, add_host_for_y_cable_simulator
 from retry.api import retry_call
-from ngts.helpers.run_process_on_host import run_background_process_on_host, run_process_on_host
+from ngts.helpers.run_process_on_host import run_background_process_on_host
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -321,7 +321,7 @@ class SonicInstallationSteps:
     def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
                                 deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info,
-                                is_performance, deploy_dpu=False):
+                                is_performance, chip_type, deploy_dpu=False):
         """
         Post-installation steps
         :param topology_obj: topology object
@@ -339,9 +339,12 @@ class SonicInstallationSteps:
         :param additional_apps: additional_apps fixture
         :param setup_info: dictionary with setup info
         :param is_performance: True in case when setup is performance
+        :param chip_type: the type of chip
+        :param deploy_dpu: deploy dpu flag
         """
         ansible_path = setup_info['ansible_path']
         cli = SonicInstallationSteps.get_dut_cli(setup_info)
+        cli.cli_obj.general.update_platform_params(platform_params, setup_name)
 
         # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O8V48 is merged to upstream
         if "r-leopard-70" in setup_name or "r-leopard-72" in setup_name:
@@ -360,9 +363,10 @@ class SonicInstallationSteps:
         if not is_community(sonic_topo):
             # Enable Port Init Profile for Canonical setups
             logger.info("Prepare sai.xml files for Port Init feature testing")
-            cli = setup_info['duts'][0]['cli_obj']
             cli.update_sai_xml_file(platform_params['platform'], platform_params['hwsku'], global_flag=True,
                                     local_flags=False)
+
+            cli.cli_obj.im.enable_im(topology_obj, platform_params, chip_type=chip_type)
 
         # Community only steps
         if is_community(sonic_topo):
@@ -443,6 +447,10 @@ class SonicInstallationSteps:
                     cli = dut['cli_obj']
                     cli.remove_minigraph_ipv6_mgmt_interface()
                     cli.remove_snmp_ipv6_addr()
+            # Enable IM
+            cli.cli_obj.im.enable_im(topology_obj=topology_obj, platform_params=platform_params, chip_type=chip_type,
+                                     enable_im=True, is_community=True)
+
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                 ansible_path=ansible_path)
