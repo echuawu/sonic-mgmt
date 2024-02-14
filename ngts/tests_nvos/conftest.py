@@ -353,7 +353,7 @@ def clear_system_profile_config():
                                                             system_profile_output).verify_result()
         except AssertionError:
             system.profile.action_profile_change(
-                params='adaptive-routing enabled breakout-mode disabled')
+                params_dict={'adaptive-routing': 'enabled', 'breakout-mode': 'disabled'})
 
 
 def pytest_exception_interact(report):

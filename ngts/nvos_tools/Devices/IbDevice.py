@@ -126,7 +126,7 @@ class IbSwitch(BaseSwitch):
                                     "CPU-Core-2-Temp",
                                     "CPU-Core-3-Temp", "CPU-Pack-Temp", "SODIMM-1-Temp"]
 
-        self.system_profile_default_values = ['enabled', '2048', 'enabled', 'disabled', '1']
+        self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
 
         self.category_default_disabled_dict = {
             StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
