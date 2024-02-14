@@ -261,14 +261,13 @@ class OpenApiRequest:
                               data=json.dumps(OpenApiRequest.payload),
                               headers=REQ_HEADER)
             OpenApiRequest.print_request(r.request)
-            response = json.dumps(r.json(), indent=2)
-            if response.isnumeric():
-                rev = response
-            else:
-                response = r.json()
-                assert "title" not in response, response['detail']
-
-            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, rev)
+            r = r.json()
+            response = json.dumps(r, indent=2)
+            if not response.isnumeric():
+                assert isinstance(r, dict) and r.get('status') != 200 and 'title' in r and 'detail' in r, \
+                    f"In case of bad request expect status!=200 and some error message, but response is: {r}"
+                return f"{r['title']}: {r['detail']}"
+            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, response)
 
     @staticmethod
     def _send_get_req_and_wait_till_completed(request_data, rev):

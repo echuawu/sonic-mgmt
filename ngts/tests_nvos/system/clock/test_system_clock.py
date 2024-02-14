@@ -319,69 +319,50 @@ def test_change_invalid_datetime_ntp_off_error_flow(test_api, engines, system, n
         * the 'allowed range' is between ClockConsts.MIN_SYSTEM_DATETIME to ClockConsts.MAX_SYSTEM_DATETIME
 
         Main Steps:
-            1. Try to change date-time with several invalid inputs
-            2. verify error
-            3. verify that date-time hasn't changed
+            1. Generate several invalid inputs, then for each one: (don't stop in case of assertion failure)
+                1. Try to change set date-time to that input
+                2. verify error
+                3. verify the proper error message was printed
+                4. verify that date-time hasn't changed
+            2. Print all the failed assertions (if any)
     """
-    TestToolkit.tested_api = test_api
-
-    with allure.step("Generate several invalid inputs for 'nv action change system date-time"):
-        bad_inputs = ClockTools.generate_invalid_datetime_inputs()
-        logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
-
-    for bad_datetime in bad_inputs:
-        logging.info(f'Check bad datetime: "{bad_datetime}"')
-        if TestToolkit.tested_api == ApiType.OPENAPI:
-            errs = ClockConsts.ERR_OPENAPI_DATETIME
-        elif bad_datetime == '':
-            errs = ClockConsts.ERR_EMPTY_PARAM
-        elif len(bad_datetime.split(' ')) == 1:
-            if ClockTools.is_valid_system_date(bad_datetime):
-                errs = ClockConsts.ERR_EMPTY_PARAM
-            else:
-                errs = [ClockConsts.ERR_INVALID_DATE.format(bad_datetime)]
-        else:  # there are 2 arguments in the input
-            b_date = bad_datetime.split(' ')[0]
-            b_time = bad_datetime.split(' ')[1]
-            if not ClockTools.is_valid_system_date(b_date):
-                errs = [ClockConsts.ERR_INVALID_DATE.format(b_date)]
-            elif not ClockTools.is_valid_time(b_time):
-                errs = [ClockConsts.ERR_INVALID_TIME.format(b_time)]
-            else:
-                errs = ClockConsts.ERR_INVALID_DATETIME
-        ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
+    _change_invalid_datetime_test_flow(test_api, engines, system)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.clock
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, ntp_off):
+def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, ntp_on):
     """
     @summary:
         Check that system date-time change action command works correctly (error) with invalid inputs,
-            and when ntp is on (errors should be of invalid input and not of ntp)
+            and when ntp is on (errors should be the same as they are when ntp is off)
         * valid input can be any parameter in the format "YYYY-MM-DD hh:mm:ss" or just "hh:mm:ss",
             while both date ("YYYY-MM-DD") and time ("hh:mm:ss") define a valid date and time, which exists in the
             calendar year, and is in the 'allowed range'
         * the 'allowed range' is between ClockConsts.MIN_SYSTEM_DATETIME to ClockConsts.MAX_SYSTEM_DATETIME
 
         Main Steps:
-            1. Try to change date-time with several invalid inputs
-            2. verify error
-            3. verify that date-time hasn't changed
+            1. Generate several invalid inputs, then for each one: (don't stop in case of assertion failure)
+                1. Try to change set date-time to that input
+                2. verify error
+                3. verify that error message is about ntp
+                4. verify that date-time hasn't changed
+            2. Print all the failed assertions (if any)
     """
-    TestToolkit.tested_api = test_api
+    _change_invalid_datetime_test_flow(test_api, engines, system)
 
+
+def _change_invalid_datetime_test_flow(test_api, engines, system):
+    TestToolkit.tested_api = test_api
     with allure.step("Generate several invalid inputs for 'nv action change system date-time"):
         bad_inputs = ClockTools.generate_invalid_datetime_inputs()
         logging.info("Generated invalid date-time inputs:\n{bi}".format(bi=bad_inputs))
 
+    errors = list()
     for bad_datetime in bad_inputs:
-        logging.info(f'Check bad datetime: "{bad_datetime}"')
-        if TestToolkit.tested_api == ApiType.OPENAPI:
-            errs = ClockConsts.ERR_OPENAPI_DATETIME
-        elif bad_datetime == '':
+        if bad_datetime == '':
             errs = ClockConsts.ERR_EMPTY_PARAM
         elif len(bad_datetime.split(' ')) == 1:
             if ClockTools.is_valid_system_date(bad_datetime):
@@ -397,7 +378,13 @@ def test_change_invalid_datetime_ntp_on_error_flow(test_api, engines, system, nt
                 errs = [ClockConsts.ERR_INVALID_TIME.format(b_time)]
             else:
                 errs = ClockConsts.ERR_INVALID_DATETIME
-        ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
+        try:
+            with allure.step(f'Check bad datetime: "{bad_datetime}"'):
+                ClockTools.change_datetime_and_verify_error(bad_datetime, system, engines, errs)
+        except AssertionError as e:
+            errors.append(bad_datetime)
+            logging.error(f"AssertionError: {e}")
+    assert not errors, f"Test failed, search the log for 'AssertionError'. Failed inputs: {errors}"
 
 
 # --------------------- Other Flows --------------------- #

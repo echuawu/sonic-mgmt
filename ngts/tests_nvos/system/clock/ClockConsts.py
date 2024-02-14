@@ -17,8 +17,8 @@ class ClockConsts:
     ERR_EMPTY_PARAM = ["Incomplete Command"]
     ERR_INVALID_TIMEZONE = ["is not one of"]
     ERR_INVALID_DATETIME = ["Invalid Command: action change system date-time"]
-    ERR_INVALID_DATE = "Error: '{}' is not a 'clock-date'."
-    ERR_INVALID_TIME = "Error: '{}' is not a 'clock-time'."
+    ERR_INVALID_DATE = "'{}' is not a 'clock-date'."
+    ERR_INVALID_TIME = "'{}' is not a 'clock-time'."
     ERR_DATETIME_NTP = ["Unable to change date and time in case NTP is enabled"]
     ERR_OPENAPI_DATETIME = ["Date-time internal error occurred"]
 
