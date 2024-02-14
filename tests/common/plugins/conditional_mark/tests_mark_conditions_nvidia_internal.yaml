@@ -338,9 +338,11 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_even
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
+    reason: "Testcase ignored - for simx check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml. For other platforms, ignored due to RM issue 3780802"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3780802"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
   skip:
