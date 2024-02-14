@@ -469,7 +469,7 @@ def _add_verification_data(engine, system):
             running_dockers[docker_name] = start_time
 
     with allure.step("Create new user"):
-        username, password = system.create_new_user(engine)
+        username, password = System(force_api=ApiType.NVUE).aaa.user.set_new_user(apply=True)
         return username
 
 

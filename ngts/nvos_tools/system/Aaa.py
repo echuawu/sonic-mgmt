@@ -7,9 +7,9 @@ from ngts.nvos_tools.system.Ldap import Ldap
 
 
 class Aaa(BaseComponent):
-    def __init__(self, parent_obj=None, username='admin'):
+    def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/aaa')
-        self.user = User(self, username)
+        self.user = User(self)
         self.role = BaseComponent(self, path='/role')
         self.radius = Radius(self)
         self.ldap = Ldap(self)

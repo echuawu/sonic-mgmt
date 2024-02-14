@@ -41,14 +41,7 @@ def test_users(engines):
             set_local_users(engines, [user_details], apply=True)
             users.append(user_details)
 
-    yield users
-
-    for user_details in users:
-        with allure.step(f'Clear user {user_details[AaaConsts.USERNAME]}'):
-            System().aaa.user.unset(user_details[AaaConsts.USERNAME])
-
-    with allure.step('Apply users unset'):
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
+    return users
 
 
 @pytest.fixture(scope='function', autouse=True)

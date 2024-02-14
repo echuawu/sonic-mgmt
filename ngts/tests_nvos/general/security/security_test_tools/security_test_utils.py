@@ -335,7 +335,7 @@ def set_local_users(engines, users, apply=False):
                 password = user[AaaConsts.PASSWORD]
                 role = user[AaaConsts.ROLE]
             with allure.step(f'Set user "{username}" with role: {role}'):
-                user_obj = System(username=username, force_api=ApiType.NVUE).aaa.user
+                user_obj = System(force_api=ApiType.NVUE).aaa.user.user_id[username]
                 logging.info(f'Set user: {username} , password: {password}')
                 user_obj.set(AaaConsts.PASSWORD, password).verify_result()
                 logging.info(f'Set user: {username} , role: {role}')

@@ -38,7 +38,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
 
     with allure.step('Pick a strong and a weak password'):
         username = AaaConsts.LOCALADMIN
-        user_obj = System(username=username).aaa.user
+        user_obj = System().aaa.user.user_id[username]
         strong_pw = PwhTools.generate_strong_pw(conf, username, [])
         weak_pw = PwhTools.generate_weak_pw(conf, username, [strong_pw])
         logging.info(

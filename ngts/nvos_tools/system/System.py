@@ -34,13 +34,13 @@ logger = logging.getLogger()
 
 
 class System(BaseComponent):
-    def __init__(self, parent_obj=None, username='admin', devices_dut=None, force_api=None):
+    def __init__(self, parent_obj=None, devices_dut=None, force_api=None):
         assert force_api in ApiType.ALL_TYPES + [None], f'Argument "force_api" must be in {ApiType.ALL_TYPES + [None]}. Given: {force_api}'
         BaseComponent.__init__(self, parent=parent_obj,
                                api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/system', force_api=force_api)
         self.config = Config(self)
         self.documentation = Documentation(self)
-        self.aaa = Aaa(self, username)
+        self.aaa = Aaa(self)
         self.log = Log(self)
         self.debug_log = DebugLog(self)
         self.snmp_server = SnmpServer(self)
@@ -63,50 +63,6 @@ class System(BaseComponent):
         self.gnmi_server = Gnmi_server(self)
         self.web_server_api = WebServerAPI(self)
         self.api = Api(self)
-
-    def create_new_connected_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
-        """
-        :param engine: ssh angine
-        :param username: if it's not a specific username we will generate one
-        :param password:  if it's not a specific password we will generate one
-        :param role: the user role
-        :return: return new user
-        """
-        with allure.step('create new user with ssh connection'):
-            username, password = self.create_new_user(engine, username, password, role)
-            return ConnectionTool.create_ssh_conn(engine.ip, username, password).verify_result()
-
-    def create_new_user(self, engine, username=None, password=None, role=SystemConsts.ROLE_CONFIGURATOR):
-        """
-        Create a new user
-        :param engine: ssh angine
-        :param username: if it's not a specific username we will generate one
-        :param password:  if it's not a specific password we will generate one
-        :param role: the user role
-        :return: the user name and password of the created user
-        """
-        with allure.step('create new user'):
-            if not username:
-                username = User.generate_username()
-
-            logger.info('the new username is {username}'.format(username=username))
-            if not password:
-                password = self.security.password_hardening.generate_password()
-
-            logger.info('the new user password is {password}'.format(password=password))
-            curr_username = self.aaa.user.username
-            self.aaa.user.set_username(username)
-            self.aaa.user.set('password', '"' + password + '"').verify_result()
-            SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                            apply_config, engine, True).verify_result()
-
-            if role is not SystemConsts.ROLE_CONFIGURATOR:
-                self.aaa.user.set('role', role)
-                SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
-                                                apply_config, engine, True).verify_result()
-            self.aaa.user.set_username(curr_username)
-            logging.info("User created: \nuser_name: {} \npassword: {}".format(username, password))
-            return username, password
 
     @staticmethod
     def get_expected_fields(device, resource):

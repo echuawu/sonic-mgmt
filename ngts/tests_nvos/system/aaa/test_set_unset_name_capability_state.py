@@ -4,7 +4,7 @@ from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, ApiType
 from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
@@ -26,16 +26,20 @@ def test_set_unset_full_name(engines):
             9. try to connect as admin - should succeed
             10. try to connect as monitor - should succeed
     """
-    system = System(None)
-    new_full_name = 'TESTING'
-    system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
-    system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
-    system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
-    NvueGeneralCli.apply_config(engines.dut)
-    system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_ADMIN, SystemConsts.USER_FULL_NAME, new_full_name)
-    system.aaa.user.verify_user_label(SystemConsts.DEFAULT_USER_MONITOR, SystemConsts.USER_FULL_NAME, new_full_name)
-    ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN, engines.dut.password).verify_result()
-    #ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_MONITOR, engines.dut.password).verify_result()
+    with allure.step('Set new full name for admin and monitor users'):
+        system = System()
+        admin_user = system.aaa.user.user_id[SystemConsts.DEFAULT_USER_ADMIN]
+        monitor_user = system.aaa.user.user_id[SystemConsts.DEFAULT_USER_MONITOR]
+        new_full_name = 'TESTING'
+        admin_user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
+        monitor_user.set(SystemConsts.USER_FULL_NAME, new_full_name, apply=True).verify_result()
+
+    with allure.step('Verify new full name for both users'):
+        admin_user.verify_user_field(SystemConsts.USER_FULL_NAME, new_full_name)
+        monitor_user.verify_user_field(SystemConsts.USER_FULL_NAME, new_full_name)
+
+    with allure.step('Verify connection with user'):
+        ConnectionTool.create_ssh_conn(engines.dut.ip, SystemConsts.DEFAULT_USER_ADMIN, engines.dut.password).verify_result()
 
 
 @pytest.mark.system
@@ -57,19 +61,25 @@ def test_set_unset_full_name_newuser(engines):
             11. try to connect as <new_user_configurator>
             12. try to connect as <new_user_viewer>
     """
-    system = System(None)
-    new_full_name = 'TESTING'
-    viewer_name, viewer_password = system.create_new_user(engine=engines.dut, role=SystemConsts.ROLE_VIEWER)
-    configurator_name, configurator_password = system.create_new_user(engine=engines.dut)
-    system.aaa.user.set_username(configurator_name)
-    system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
-    system.aaa.user.set_username(viewer_name)
-    system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
-    NvueGeneralCli.apply_config(engines.dut)
-    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_FULL_NAME, new_full_name)
-    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_FULL_NAME, new_full_name)
-    ConnectionTool.create_ssh_conn(engines.dut.ip, viewer_name, viewer_password).verify_result()
-    ConnectionTool.create_ssh_conn(engines.dut.ip, configurator_name, configurator_password).verify_result()
+    with allure.step('Set new admin and monitor users'):
+        system = System(force_api=ApiType.NVUE)
+        admin_username, admin_password = system.aaa.user.set_new_user()
+        monitor_username, monitor_password = system.aaa.user.set_new_user(role=SystemConsts.ROLE_VIEWER, apply=True)
+        admin_user = system.aaa.user.user_id[admin_username]
+        monitor_user = system.aaa.user.user_id[monitor_username]
+
+    with allure.step('Set new full name for admin and monitor users'):
+        new_full_name = 'TESTING'
+        admin_user.set(SystemConsts.USER_FULL_NAME, new_full_name).verify_result()
+        monitor_user.set(SystemConsts.USER_FULL_NAME, new_full_name, apply=True).verify_result()
+
+    with allure.step('Verify new full name for both users'):
+        admin_user.verify_user_field(SystemConsts.USER_FULL_NAME, new_full_name)
+        monitor_user.verify_user_field(SystemConsts.USER_FULL_NAME, new_full_name)
+
+    with allure.step('Verify connection with users'):
+        ConnectionTool.create_ssh_conn(engines.dut.ip, admin_username, admin_password).verify_result()
+        ConnectionTool.create_ssh_conn(engines.dut.ip, monitor_username, monitor_password).verify_result()
 
 
 @pytest.mark.system
@@ -92,16 +102,25 @@ def test_set_unset_state(engines):
             12. try to connect as <new_user_viewer>
 
     """
-    system = System(None)
-    viewer_name, viewer_password = system.create_new_user(engine=engines.dut, role=SystemConsts.ROLE_VIEWER)
-    configurator_name, configurator_password = system.create_new_user(engine=engines.dut)
-    system.aaa.user.set_username(configurator_name)
-    system.aaa.user.set(SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED).verify_result()
-    system.aaa.user.set_username(viewer_name)
-    system.aaa.user.set(SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED).verify_result()
-    NvueGeneralCli.apply_config(engines.dut)
-    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
-    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_STATE, SystemConsts.USER_STATE_DISABLED)
+    with allure.step('Set new admin and monitor users'):
+        system = System(force_api=ApiType.NVUE)
+        admin_username, admin_password = system.aaa.user.set_new_user()
+        monitor_username, monitor_password = system.aaa.user.set_new_user(role=SystemConsts.ROLE_VIEWER, apply=True)
+        admin_user = system.aaa.user.user_id[admin_username]
+        monitor_user = system.aaa.user.user_id[monitor_username]
+
+    with allure.step('Set new full name for admin and monitor users'):
+        new_state = SystemConsts.USER_STATE_DISABLED
+        admin_user.set(SystemConsts.USER_STATE, new_state).verify_result()
+        monitor_user.set(SystemConsts.USER_STATE, new_state, apply=True).verify_result()
+
+    with allure.step('Verify new full name for both users'):
+        admin_user.verify_user_field(SystemConsts.USER_STATE, new_state)
+        monitor_user.verify_user_field(SystemConsts.USER_STATE, new_state)
+
+    with allure.step('Verify connection with users'):
+        ConnectionTool.create_ssh_conn(engines.dut.ip, admin_username, admin_password).verify_result(False)
+        ConnectionTool.create_ssh_conn(engines.dut.ip, monitor_username, monitor_password).verify_result(False)
 
 
 @pytest.mark.system
@@ -124,13 +143,10 @@ def test_set_unset_capability(engines):
             12. try to connect as <new_user_viewer>
 
     """
-    system = System(None)
-    viewer_name, viewer_password = system.create_new_user(engine=engines.dut, role=SystemConsts.ROLE_VIEWER)
-    configurator_name, configurator_password = system.create_new_user(engine=engines.dut)
-    system.aaa.user.set_username(configurator_name)
-    system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER).verify_result()
-    system.aaa.user.set_username(viewer_name)
-    system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR).verify_result()
-    NvueGeneralCli.apply_config(engines.dut)
-    system.aaa.user.verify_user_label(viewer_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)
-    system.aaa.user.verify_user_label(configurator_name, SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)
+    with allure.step('Set new admin and monitor users'):
+        system = System(None)
+        viewer_name, viewer_password = system.aaa.user.set_new_user(role=SystemConsts.ROLE_VIEWER)
+        configurator_name, configurator_password = system.aaa.user.set_new_user(apply=True)
+    with allure.step('Verify role of the users'):
+        system.aaa.user.user_id[viewer_name].verify_user_field(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER)
+        system.aaa.user.user_id[configurator_name].verify_user_field(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR)

@@ -1,11 +1,13 @@
 import logging
 import random
+
+from infra.tools.connection_tools.utils import generate_strong_password
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, ApiType
 from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
@@ -24,18 +26,15 @@ def test_set_password(engines):
             7. connect as admin
             8. connect as monitor
     """
-    system = System(None)
     with allure.step('generating valid password'):
-        new_password = system.security.password_hardening.generate_password(is_valid=True)
+        system = System(force_api=ApiType.NVUE)
+        new_password = generate_strong_password()
     with allure.step('creating two user with different roles'):
-        viewer_name, viewer_password = system.create_new_user(engine=engines.dut, role=SystemConsts.ROLE_VIEWER)
-        configurator_name, configurator_password = system.create_new_user(engine=engines.dut)
+        viewer_name, viewer_password = system.aaa.user.set_new_user(role=SystemConsts.ROLE_VIEWER)
+        configurator_name, configurator_password = system.aaa.user.set_new_user(role=SystemConsts.ROLE_VIEWER, apply=True)
     with allure.step('try to set the password of two user to a new valid password'):
-        system.aaa.user.set_username(configurator_name)
-        system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password + '"').verify_result()
-        system.aaa.user.set_username(viewer_name)
-        system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password + '"').verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
+        system.aaa.user.user_id[configurator_name].set(SystemConsts.USER_PASSWORD, new_password).verify_result()
+        system.aaa.user.user_id[viewer_name].set(SystemConsts.USER_PASSWORD, new_password, apply=True).verify_result()
     with allure.step('try to connect with new users using the new password'):
         ConnectionTool.create_ssh_conn(engines.dut.ip, viewer_name, new_password).verify_result()
         ConnectionTool.create_ssh_conn(engines.dut.ip, configurator_name, new_password).verify_result()
@@ -50,14 +49,13 @@ def test_set_invalid_password(engines):
             3. nv config apply
             3. verify the output message includes relevant error messages
     """
-    system = System(None)
     with allure.step('generate invalid password'):
+        system = System(force_api=ApiType.NVUE)
         secutiry_output = system.security.password_hardening.show()
         password_min_len, enabled_rules = system.security.password_hardening.parse_password_hardening_enabled_rules(secutiry_output)
         invalid_password, random_labels = generate_invalid_password(enabled_rules, password_min_len)
     with allure.step('try to set the invalid password and verify the output message'):
-        system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
-        set_res = system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + invalid_password + '"')
+        set_res = system.aaa.user.user_id[SystemConsts.DEFAULT_USER_MONITOR].set(SystemConsts.USER_PASSWORD, invalid_password)
         verify_invalid_messages(random_labels, set_res.info)
 
     NvueGeneralCli.detach_config(engines.dut)
@@ -76,14 +74,13 @@ def test_set_invalid_password_length(engines):
             3. nv config apply
             3. verify the output message includes relevant error messages
     """
-    system = System(None)
     with allure.step('generate invalid password - length < min'):
+        system = System(force_api=ApiType.NVUE)
         secutiry_output = system.security.password_hardening.show()
         password_min_len, enabled_rules = system.security.password_hardening.parse_password_hardening_enabled_rules(secutiry_output)
         invalid_password, rules = generate_invalid_password(enabled_rules=enabled_rules, password_min_len=password_min_len, length_case=True)
     with allure.step('try to set the invalid password and verify the output message'):
-        system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
-        result_obj = system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + invalid_password + '"', apply=False)
+        result_obj = system.aaa.user.user_id[SystemConsts.DEFAULT_USER_MONITOR].set(SystemConsts.USER_PASSWORD, f'"{invalid_password}"')
         assert not result_obj.result and 'Password should contain at least' in result_obj.info, \
             "length error message not as expected the output = {output} expected = {expected}".format(output=result_obj.info,
                                                                                                       expected='Password should contain at least')
@@ -98,15 +95,14 @@ def test_password_not_in_logs(engines):
             2. run history 3
             3. verify 'password *' in the output
     """
-    system = System(None)
     with allure.step('generate new user password and try to set'):
-        new_password = system.security.password_hardening.generate_password(is_valid=True)
-        system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password + '"').verify_result()
+        System(force_api=ApiType.NVUE).aaa.user.set_new_user()
     with allure.step('run history 3 to verify no password'):
         history_output = engines.dut.run_cmd('history 3')
         assert 'password *' in history_output, "the history output is {history} does not include password * as expected".format(
             history=history_output)
-    NvueGeneralCli.detach_config(engines.dut)
+    with allure.step('Detach config'):
+        NvueGeneralCli.detach_config(engines.dut)
 
 
 def generate_invalid_password(enabled_rules, password_min_len, length_case=False):
@@ -187,27 +183,25 @@ def test_password_history(engines):
             17. nv config apply
             16. run nv show system security password-hardening verify history-cnt = 10
     """
-    system = System(None)
     with allure.step("test password history with default history-cnt = 10"):
+        system = System(force_api=ApiType.NVUE)
         with allure.step('generate two valid password'):
             new_password_1 = system.security.password_hardening.generate_password(is_valid=True)
             new_password_2 = system.security.password_hardening.generate_password(is_valid=True)
             logger.info("the first password is {first}, the second password is {second}".format(first=new_password_1, second=new_password_2))
 
         with allure.step('set the monitor password to {} and apply configuration'.format(new_password_1)):
-            system.aaa.user.set_username(SystemConsts.DEFAULT_USER_MONITOR)
-            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').verify_result()
-            NvueGeneralCli.apply_config(engines.dut)
+            monitor_usr = system.aaa.user.user_id[SystemConsts.DEFAULT_USER_MONITOR]
+            monitor_usr.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"', apply=True).verify_result()
 
         with allure.step('set the monitor password to {} and apply configuration'.format(new_password_2)):
-            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"').verify_result()
-            NvueGeneralCli.apply_config(engines.dut)
+            monitor_usr.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"', apply=True).verify_result()
 
         with allure.step("set the same password again - password = {}".format(new_password_2)):
-            assert "Password should be different than" in system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"').info, "we can not set a previous password"
+            assert "Password should be different than" in monitor_usr.set(SystemConsts.USER_PASSWORD, '"' + new_password_2 + '"').info, "we can not set a previous password"
 
         with allure.step("set the first password again - password = {}".format(new_password_1)):
-            assert "Password should be different than" in system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').info, "we can not set a previous password"
+            assert "Password should be different than" in monitor_usr.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').info, "we can not set a previous password"
 
     with allure.step("test password history after changing history-cnt to 1"):
 
@@ -215,9 +209,8 @@ def test_password_history(engines):
             system.security.password_hardening.set(SystemConsts.USERNAME_PASSWORD_HARDENING_HISTORY_COUNT, '1')
             NvueGeneralCli.apply_config(engines.dut, True)
 
-        with allure.step("set the same password again - password = {} and apply".format(new_password_2)):
-            system.aaa.user.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"').verify_result()
-            NvueGeneralCli.apply_config(engines.dut)
+        with allure.step("set the same password again - password = {} and apply".format(new_password_1)):
+            monitor_usr.set(SystemConsts.USER_PASSWORD, '"' + new_password_1 + '"', apply=True).verify_result()
 
         with allure.step("unset password-hardening history-cnt rule"):
             system.security.password_hardening.unset(SystemConsts.USERNAME_PASSWORD_HARDENING_HISTORY_COUNT)

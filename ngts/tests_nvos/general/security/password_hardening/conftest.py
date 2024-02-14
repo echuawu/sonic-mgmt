@@ -44,19 +44,12 @@ def testing_users(engines, system):
 
         users = {
             user[AaaConsts.USERNAME]: {
-                PwhConsts.USER_OBJ: System(username=user[AaaConsts.USERNAME], force_api=ApiType.NVUE).aaa.user,
+                PwhConsts.USER_OBJ: System(force_api=ApiType.NVUE).aaa.user.user_id[user[AaaConsts.USERNAME]],
                 AaaConsts.PASSWORD: user[AaaConsts.PASSWORD]
             } for user in users_info
         }
 
-    yield users
-
-    for username in users.keys():
-        with allure.step(f'Clear user {username}'):
-            System().aaa.user.unset(username)
-
-    with allure.step('Apply users unset'):
-        SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engines.dut, True)
+    return users
 
 
 @pytest.fixture(scope='function')

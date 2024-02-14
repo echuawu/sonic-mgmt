@@ -1,4 +1,6 @@
 import logging
+
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -24,66 +26,53 @@ def test_capability_functionality(engines):
             6. validate all fields have values
     """
     system = System(None)
-    admin_engine = system.create_new_connected_user(engine=engines.dut)
-    monitor_engine = system.create_new_connected_user(engine=engines.dut, role=SystemConsts.DEFAULT_USER_MONITOR)
-    is_monitor(engines, monitor_engine)
-    is_admin(engines, admin_engine)
+    adminuser, adminpassword = system.aaa.user.set_new_user()
+    monitoruser, monitorpassword = system.aaa.user.set_new_user(role=SystemConsts.DEFAULT_USER_MONITOR, apply=True)
+    is_monitor(monitoruser, monitorpassword, engines)
+    is_admin(adminuser, adminpassword, engines)
 
 
-def is_monitor(engines, engine):
+def is_monitor(username, password, engines):
     monitor_message = 'No permission to execute this command'
 
-    logger.info('setting the new engine as engine.dut and updating user name')
-    system = System(None)
-    tmp_engine = engines.dut
-    engines.dut = engine
-    TestToolkit.update_engines(engines)
-    system.aaa.user.set_username(engine.username)
+    with allure.step(f'Create connection with user "{username}"'):
+        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password)
 
     with allure.step('testing capability positive flow'):
-        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show()).get_returned_value()
+        system = System()
+        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(dut_engine=user_engine)).get_returned_value()
         assert SystemConsts.USER_FULL_NAME in show_output, 'monitor can not set any configuration'
 
-        output = NvueGeneralCli.diff_config(engine)
+        output = NvueGeneralCli.diff_config(user_engine)
         assert not output, "monitor can run nv config diff"
 
-        output = engine.run_cmd('cat /var/log/messages.1')
+        output = user_engine.run_cmd('cat /var/log/messages.1')
         assert output, "monitor can run nv config diff"
 
     with allure.step('testing capability negative flow'):
-        out_set = system.aaa.user.set(SystemConsts.USER_FULL_NAME, 'TESTING').info
+        out_set = system.aaa.user.user_id[username].set(SystemConsts.USER_FULL_NAME, 'TESTING', dut_engine=user_engine).info
         assert monitor_message in out_set, 'monitor can not set any configuration'
 
-        out_unset = system.aaa.user.unset(SystemConsts.USER_FULL_NAME).info
+        out_unset = system.aaa.user.user_id[username].unset(SystemConsts.USER_FULL_NAME, dut_engine=user_engine).info
         assert monitor_message in out_unset, 'monitor can not set any configuration'
 
-        output = NvueGeneralCli.apply_config(engine)
 
-    logger.info('update engine.dut')
-    engines.dut = tmp_engine
-    TestToolkit.update_engines(engines)
-
-
-def is_admin(engines, engine):
-    logger.info('setting the new engine as engine.dut and updating user name')
-    system = System(None)
-    tmp_engine = engines.dut
-    engines.dut = engine
-    TestToolkit.update_engines(engines)
-    system.aaa.user.set_username(engine.username)
+def is_admin(username, password, engines):
+    with allure.step(f'Create connection with user "{username}"'):
+        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password)
 
     with allure.step('testing capability positive flow'):
-        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show()).get_returned_value()
+        system = System()
+
+        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(
+            dut_engine=user_engine)).get_returned_value()
         assert SystemConsts.USER_FULL_NAME in show_output, 'monitor can not set any configuration'
+
         new_full_name = 'TESTING'
-        system.aaa.user.set(SystemConsts.USER_FULL_NAME, new_full_name).get_returned_value()
-        NvueGeneralCli.apply_config(engines.dut)
-        system.aaa.user.verify_user_label(engine.username, SystemConsts.USER_FULL_NAME, new_full_name)
+        system.aaa.user.user_id[username].set(SystemConsts.USER_FULL_NAME, new_full_name, apply=True,
+                                              dut_engine=user_engine).verify_result()
+        system.aaa.user.user_id[username].verify_user_field(SystemConsts.USER_FULL_NAME, new_full_name)
 
-        system.aaa.user.unset(SystemConsts.USER_FULL_NAME)
-        NvueGeneralCli.apply_config(engines.dut)
-        system.aaa.user.verify_user_label(engine.username, SystemConsts.USER_FULL_NAME, '')
-
-    logger.info('update engine.dut')
-    engines.dut = tmp_engine
-    TestToolkit.update_engines(engines)
+        system.aaa.user.user_id[username].unset(SystemConsts.USER_FULL_NAME, apply=True,
+                                                dut_engine=user_engine).verify_result()
+        system.aaa.user.user_id[username].verify_user_field(SystemConsts.USER_FULL_NAME, '')

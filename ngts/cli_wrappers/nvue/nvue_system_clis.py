@@ -1,4 +1,6 @@
 import logging
+import socket
+
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import CertificateFiles
@@ -183,7 +185,12 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action disconnect {path}".format(path=path)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
+        try:
+            return engine.run_cmd(cmd, timeout=5)
+        except socket.error as e:
+            logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
+            engine.disconnect()
+            return "Action succeeded"
 
     @staticmethod
     def action_reset(engine, device, comp, param):

@@ -4,6 +4,7 @@ import re
 import os
 import time
 
+from infra.tools.connection_tools.utils import generate_strong_password
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.tools.test_utils import allure_utils as allure
 import pexpect
@@ -17,7 +18,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, ApiType
 from ngts.tests_nvos.general.security.conftest import ssh_to_device_and_retrieve_raw_login_ssh_notification, create_ssh_login_engine
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 
@@ -64,23 +65,28 @@ def parse_ssh_login_notification(dut_ip, username, password):
     '''
     result = {}
 
-    _, _, notification_login_message = SshAuthenticator(username, password, dut_ip).attempt_login_success(return_output=True)
-    # notification_login_message = ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
-    #                                                                                    username,
-    #                                                                                    password)
-    for key, regex in Consts.LOGIN_SSH_NOTIFICATION_REGEX_DICT.items():
-        match = re.findall(regex, notification_login_message)
-        if regex == Consts.LAST_SUCCESSFUL_LOGIN_DATE_REGEX:
-            # there will be always output to catch it
-            result[Consts.LAST_SUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
-        elif regex == Consts.LAST_UNSUCCESSFUL_LOGIN_DATE_REGEX:
-            # not always the message will appear
-            if len(match) != 0:
-                result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
+    with allure.step(f'Connect to switch with user "{username}"'):
+        _, _, notification_login_message = SshAuthenticator(username, password, dut_ip).attempt_login_success(return_output=True)
+        # notification_login_message = ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
+        #                                                                                    username,
+        #                                                                                    password)
+    with allure.step('Parse ssh login output'):
+        for key, regex in Consts.LOGIN_SSH_NOTIFICATION_REGEX_DICT.items():
+            logging.info(f'Extract key: {key}')
+            match = re.findall(regex, notification_login_message)
+            if regex == Consts.LAST_SUCCESSFUL_LOGIN_DATE_REGEX:
+                assert match, f'could not find {key} in ssh login message.\nregex: {regex}\n' \
+                              f'login message:\n{notification_login_message}'
+                # there will be always output to catch it
+                result[Consts.LAST_SUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
+            elif regex == Consts.LAST_UNSUCCESSFUL_LOGIN_DATE_REGEX:
+                # not always the message will appear
+                if len(match) != 0:
+                    result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = convert_linux_date_output_to_datetime_object(match[0])
+                else:
+                    result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = None
             else:
-                result[Consts.LAST_UNSUCCESSFUL_LOGIN_DATE] = None
-        else:
-            result[key] = match[0] if match else None
+                result[key] = match[0] if match else None
 
     return result
 
@@ -97,9 +103,7 @@ def change_username_password(engines, username, curr_password, new_password):
         logger.info("Changing password for user: {}\n"
                     "Current password: {}\n"
                     "New password proposed: {}".format(username, curr_password, new_password))
-        system = System()
-        system.aaa.user.set_username(username=username)
-        system.aaa.user.set(DefaultConnectionValues.PASSWORD, new_password, apply=True, ask_for_confirmation=True)
+        System(force_api=ApiType.NVUE).aaa.user.user_id[username].set(DefaultConnectionValues.PASSWORD, new_password, apply=True).verify_result()
 
     with allure.step("Sleeping {} secs to allow password change".format(Consts.PASSWORD_UPDATE_WAIT_TIME)):
         time.sleep(Consts.PASSWORD_UPDATE_WAIT_TIME)
@@ -249,30 +253,28 @@ def test_ssh_login_notification_password_change_admin(engines, login_source_ip_a
     '''
     @summary: in this test case we want to validate admin username ssh login notification
     '''
-    system = System()
-    system.aaa.user.set_username(DefaultConnectionValues.ADMIN)
+    with allure.step('Create test user'):
+        system = System(force_api=ApiType.NVUE)
+        username, password = system.aaa.user.set_new_user(apply=True)
+        new_password = generate_strong_password()
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip).attempt_login_success()
+        SshAuthenticator(username, password, engines.dut.ip).attempt_login_success()
         # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-        #                                                       username=DefaultConnectionValues.ADMIN,
-        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
-    try:
-        change_username_password(engines, username=DefaultConnectionValues.ADMIN,
-                                 curr_password=DefaultConnectionValues.DEFAULT_PASSWORD,
-                                 new_password=DefaultConnectionValues.SIMPLE_PASSWORD)
+        #                                                       username=username,
+        #                                                       password=password)
+    with allure.step('Change password'):
+        change_username_password(engines, username=username,
+                                 curr_password=password,
+                                 new_password=new_password)
+    with allure.step('Validate ssh login notification'):
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
-                                                        username=DefaultConnectionValues.ADMIN,
-                                                        password=DefaultConnectionValues.SIMPLE_PASSWORD,
+                                                        username=username,
+                                                        password=new_password,
                                                         capability=Consts.ADMIN_CAPABITILY,
                                                         check_password_change_msg=True,
                                                         last_successful_login=successful_login_time)
-    finally:
-        with allure.step('Restoring original password'):
-            system.aaa.user.set(DefaultConnectionValues.PASSWORD, DefaultConnectionValues.DEFAULT_PASSWORD, apply=True, ask_for_confirmation=True)
-        with allure.step("Sleeping {} secs to allow password change".format(Consts.PASSWORD_UPDATE_WAIT_TIME)):
-            time.sleep(Consts.PASSWORD_UPDATE_WAIT_TIME)
 
 
 @pytest.mark.login_ssh_notification
@@ -282,33 +284,26 @@ def test_ssh_login_notification_role_new_user(engines, login_source_ip_address):
     @summary: in this test case we want to validate new user role change on ssh login notification,
     where we expect role message to appear
     '''
-    try:
-        system = System(None)
-        with allure.step("Creating a new username"):
-            user_name, password = system.create_new_user(engine=engines.dut)
-            system.aaa.user.set_username(user_name)
-            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_CONFIGURATOR, apply=True, ask_for_confirmation=True)
-            logging.info("User created: \nuser_name: {} \npassword: {}\ncapability: {}".format(user_name, password, SystemConsts.ROLE_CONFIGURATOR))
+    with allure.step("Creating a new username"):
+        system = System(force_api=ApiType.NVUE)
+        user_name, password = system.aaa.user.set_new_user(apply=True)
+        logging.info(f"User created: \nusername: {user_name} \npassword: {password}\ncapability: {SystemConsts.ROLE_CONFIGURATOR}")
 
-        with allure.step("Connecting to switch with the new user for first time"):
-            successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-            SshAuthenticator(user_name, password, engines.dut.ip).attempt_login_success()
-            # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
+    with allure.step("Connecting to switch with the new user for first time"):
+        successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
+        SshAuthenticator(user_name, password, engines.dut.ip).attempt_login_success()
+        # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip, username=user_name, password=password)
 
-        with allure.step("Change role for new user: {} to {} role".format(user_name, SystemConsts.ROLE_VIEWER)):
-            system.aaa.user.set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER, apply=True, ask_for_confirmation=True)
+    with allure.step(f"Change user '{user_name}' role to {SystemConsts.ROLE_VIEWER}"):
+        system.aaa.user.user_id[user_name].set(SystemConsts.USER_ROLE, SystemConsts.ROLE_VIEWER, apply=True).verify_result()
 
-        validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
-                                                        username=user_name,
-                                                        password=password,
-                                                        capability=SystemConsts.ROLE_VIEWER,
-                                                        check_password_change_msg=False,
-                                                        check_role_change_msg=True,
-                                                        last_successful_login=successful_login_time)
-    finally:
-        with allure.step('Delete created user {}'.format(user_name)):
-            if system and system.aaa and system.aaa.user:
-                system.aaa.user.unset(apply=True, ask_for_confirmation=True)
+    validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
+                                                    username=user_name,
+                                                    password=password,
+                                                    capability=SystemConsts.ROLE_VIEWER,
+                                                    check_password_change_msg=False,
+                                                    check_role_change_msg=True,
+                                                    last_successful_login=successful_login_time)
 
 
 @pytest.mark.simx_security
