@@ -2625,6 +2625,14 @@
         - 5600
 
 - Errors_list:
+    - '.*ERR swss#orchagent: :- addAclTableType: Table type CUSTOM_L3 already exists'
+  Conditions:
+    - Affected_test_cases:
+        - tests/push_build_tests/general/doroce/test_doroce.py
+      Redmine:
+        - 3781255
+
+- Errors_list:
     - '.* ERR what-just-happened#wjhd: :- parse_packet: Netlink message doesn''t have the NET_DM_ATTR_HW_TRAP_NAME'
     - '.* ERR what-just-happened#wjhd: :- dropmonsock_poll: Failed to read an event from Drop monitor socket'
   Conditions:
