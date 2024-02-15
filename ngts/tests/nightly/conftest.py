@@ -275,7 +275,7 @@ def fec_modes_speed_support(chip_type, platform_params):
         raise AssertionError("Chip type {} is unrecognized".format(chip_type))
 
 
-@pytest.fixture(autouse=True, scope='session')
+@pytest.fixture(autouse=False, scope='session')
 def dut_ports_number_dict(topology_obj, engines, cli_objects):
     dut_ports_number_dict = {}
     if hasattr(topology_obj.players_all_ports, 'dut') and hasattr(cli_objects.dut, 'interface'):
