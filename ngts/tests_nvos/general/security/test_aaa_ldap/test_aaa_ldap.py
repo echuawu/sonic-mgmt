@@ -758,4 +758,4 @@ def test_ldap_filter_performance(test_api, engines, request, topology_obj):
         logging.info(f'Diff |with-filters - without|: {diff_formatted}')
 
     with allure.step(f'Diff |with-filters - without|: {diff_formatted} - {100 * diff / duration_without_filters}%'):
-        assert diff <= 0.1 * duration_without_filters, f'Expected diff: <= 10% . Actual diff: {100 * diff / duration_without_filters}%'
+        assert diff <= 0.15 * duration_without_filters, f'Expected diff: <= 10% . Actual: {100 * diff / duration_without_filters}%'

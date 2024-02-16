@@ -14,7 +14,8 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AccountingConsts, AccountingFields, AuthConsts, AuthType
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AccountingConsts, \
+    AccountingFields, AuthConsts, AuthType, AuthMedium
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_accounting_testing import *
@@ -24,7 +25,8 @@ from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators 
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer1, TacacsDockerServer2, TacacsServers
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer1, TacacsDockerServer2, \
+    TacacsServers
 from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type, \
     get_two_different_tacacs_servers
 from ngts.tools.test_utils import allure_utils as allure
@@ -253,7 +255,8 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
-def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, request, local_adminuser: UserInfo):
+def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, request, local_adminuser: UserInfo,
+                                 switch_hostname: str):
     """
     @summary: Verify accounting basic functionality
 
@@ -269,7 +272,7 @@ def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_ob
     test_server.auth_type = random.choice(AuthType.ALL_TYPES)
     test_server.users = TacacsDockerServer1.USERS_BY_AUTH_TYPE[test_server.auth_type]
 
-    generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, local_adminuser,
+    generic_aaa_test_accounting_basic(test_api, engines, topology_obj, request, switch_hostname, local_adminuser,
                                       remote_aaa_type=RemoteAaaType.TACACS,
                                       remote_aaa_obj=System().aaa.tacacs,
                                       server=test_server)
@@ -278,7 +281,8 @@ def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_ob
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
+def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+                                           switch_hostname: str):
     """
     @summary: Verify that accounting logs are sent to top server only
 
@@ -290,7 +294,8 @@ def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, requ
     """
     addressing_type1 = random.choice(AddressingType.ALL_TYPES)
     auth_type1 = random.choice(AuthType.ALL_TYPES)
-    addressing_type2 = RandomizationTool.select_random_value(AddressingType.ALL_TYPES, [addressing_type1]).get_returned_value()
+    addressing_type2 = RandomizationTool.select_random_value(AddressingType.ALL_TYPES,
+                                                             [addressing_type1]).get_returned_value()
     auth_type2 = random.choice(AuthType.ALL_TYPES)
 
     test_server1 = TacacsDockerServer1.SERVER_BY_ADDRESSING_TYPE[addressing_type1].copy()
@@ -304,7 +309,8 @@ def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, requ
     test_server2.auth_type = auth_type2
     test_server2.users = TacacsDockerServer2.USERS_BY_AUTH_TYPE[auth_type2]
 
-    generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser,
+    generic_aaa_test_accounting_top_server_only(test_api, engines, topology_obj, request, switch_hostname,
+                                                local_adminuser,
                                                 remote_aaa_type=RemoteAaaType.TACACS,
                                                 remote_aaa_obj=System().aaa.tacacs,
                                                 server1=test_server1, server2=test_server2)
@@ -313,7 +319,8 @@ def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, requ
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
+def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+                                                  switch_hostname: str):
     """
     @summary: Verify that when top server becomes unreachable, accounting logs are sent to next available server only
 
@@ -328,7 +335,8 @@ def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_ob
     """
     addressing_type1 = random.choice(AddressingType.ALL_TYPES)
     auth_type1 = random.choice(AuthType.ALL_TYPES)
-    addressing_type2 = RandomizationTool.select_random_value(AddressingType.ALL_TYPES, [addressing_type1]).get_returned_value()
+    addressing_type2 = RandomizationTool.select_random_value(AddressingType.ALL_TYPES,
+                                                             [addressing_type1]).get_returned_value()
     auth_type2 = random.choice(AuthType.ALL_TYPES)
 
     test_server1 = TacacsDockerServer1.SERVER_BY_ADDRESSING_TYPE[addressing_type1].copy()
@@ -342,7 +350,8 @@ def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_ob
     test_server2.auth_type = auth_type2
     test_server2.users = TacacsDockerServer2.USERS_BY_AUTH_TYPE[test_server2.auth_type]
 
-    generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser,
+    generic_aaa_test_accounting_unreachable_top_server(test_api, engines, topology_obj, request, switch_hostname,
+                                                       local_adminuser,
                                                        remote_aaa_type=RemoteAaaType.TACACS,
                                                        remote_aaa_obj=System().aaa.tacacs,
                                                        server1=test_server1, server2=test_server2)
@@ -351,7 +360,8 @@ def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_ob
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request, local_adminuser: UserInfo):
+def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+                                       switch_hostname: str):
     """
     @summary: Verify that when top server becomes unreachable, accounting logs are sent to next available server only
 
@@ -371,7 +381,7 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
     test_server.auth_type = auth_type
     test_server.users = TacacsDockerServer1.USERS_BY_AUTH_TYPE[test_server.auth_type]
 
-    generic_aaa_test_accounting_local_first(test_api, engines, topology_obj, request, local_adminuser,
+    generic_aaa_test_accounting_local_first(test_api, engines, topology_obj, request, switch_hostname, local_adminuser,
                                             remote_aaa_type=RemoteAaaType.TACACS,
                                             remote_aaa_obj=System().aaa.tacacs,
                                             server=test_server)

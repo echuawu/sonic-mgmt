@@ -78,7 +78,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
         INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
         INSTALL_WGET_ERROR = ["wget:.*"]
-        NVOS_INSTALL_TIMEOUT = 6 * 60  # 5 minutes
+        NVOS_INSTALL_TIMEOUT = 6 * 60  # 6 minutes
 
         if nos_image.startswith('/auto/'):
             image_path = nos_image

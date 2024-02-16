@@ -7,7 +7,9 @@ import pytest
 import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
@@ -152,6 +154,11 @@ def prepare_scp(engines):
 
     logging.info('Clean scp test files')
     engines.dut.run_cmd(f'rm -rf {AuthConsts.SWITCH_SCP_TEST_DIR}')
+
+
+@pytest.fixture(scope='session')
+def switch_hostname(engines):
+    return OutputParsingTool.parse_json_str_to_dictionary(System().show()).get_returned_value()[SystemConsts.HOSTNAME]
 
 # @pytest.fixture(scope='function')
 # def disable_remote_auth_after_test(engines):

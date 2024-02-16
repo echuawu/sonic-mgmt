@@ -1,12 +1,14 @@
 import time
 import logging
-
+from datetime import datetime, timedelta
+import pytz
 from typing import List
 
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import AaaAccountingLogsFileContent, AaaServerManager
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import \
+    AaaAccountingLogsFileContent, AaaServerManager
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
@@ -35,9 +37,51 @@ def check_nslcd_service(engines):
                 logging.info(f'Service nslcd is active: {"Active: active (running)" in output}')
 
 
+def sleep_before_auth(sleep_time: int = 3):
+    wait_time_before_auth_test = sleep_time
+    logging.info(f'Wait {wait_time_before_auth_test} seconds')
+    time.sleep(wait_time_before_auth_test)
+
+
+def verify_auth_with_medium(medium, user: UserInfo, expect_login_success: bool, verify_authorization: bool, engines,
+                            topology_obj):
+    with allure.step(f'Verify auth with medium: {medium}'):
+        user_is_admin = user.role == AaaConsts.ADMIN
+        medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
+
+        with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
+            medium_obj.verify_authentication(expect_login_success)
+
+        if verify_authorization and expect_login_success:
+            with allure.step(f'Verify authorization. Role: {user.role}'):
+                medium_obj.verify_authorization(user_is_admin=user_is_admin)
+
+
+def clear_accounting_logs_on_servers(accounting_server_mngrs: List[AaaServerManager]):
+    with allure.step('Clear accounting logs on servers'):
+        for mngr in accounting_server_mngrs:
+            mngr.clear_accounting_logs()
+
+
+def check_accounting(after_time: str, client_ip: str, client_username: str,
+                     accounting_server_mngrs: List[AaaServerManager], expect_accounting_logs: List[bool]):
+    with allure.step('Verify accounting logs on given servers'):
+        for i, mngr in enumerate(accounting_server_mngrs):
+            expect_logs = expect_accounting_logs[i]
+            with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
+                accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(
+                    grep=[client_ip, client_username], after_time=after_time)
+                assert bool(accounting_logs.logs) == expect_logs, \
+                    f'There are {"no " if expect_logs else ""}accounting logs ' \
+                    f'on server "{mngr.ip}" for user "{client_username}", ' \
+                    f'while expected {"" if expect_logs else "not "}to have logs.\n' \
+                    f'Actual raw content:\n{accounting_logs.raw_content}'
+
+
 def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success: bool = True,
                      verify_authorization: bool = True, skip_auth_mediums: List[str] = None,
-                     accounting_servers: List[RemoteAaaServerInfo] = [], expect_accounting_logs: List[bool] = []):
+                     accounting_servers: List[RemoteAaaServerInfo] = [], expect_accounting_logs: List[bool] = [],
+                     switch_hostname: str = ''):
     """
     @summary: Verify authentication and authorization for the given user.
         Authentication will be verified via all possible mediums - SSH, OpenApi, rcon, SCP.
@@ -55,46 +99,34 @@ def verify_user_auth(engines, topology_obj, user: UserInfo, expect_login_success
     @param verify_authorization: Whether to verify also authorization or not (authentication test only)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    assert len(accounting_servers) == len(expect_accounting_logs), f'Arguments "accounting_servers" and "expect_accounting_logs" must be lists of the same length!\nActual accounting_servers: {accounting_servers}\nActual expect_accounting_logs: {expect_accounting_logs}'
+    assert len(accounting_servers) == len(expect_accounting_logs), \
+        f'Arguments "accounting_servers" and "expect_accounting_logs" must be lists of the same length!\n' \
+        f'Actual accounting_servers: {accounting_servers}\nActual expect_accounting_logs: {expect_accounting_logs}'
 
+    should_check_accounting = bool(accounting_servers)
     accounting_server_mngrs = [AaaServerManager(server.ipv4_addr, server.docker_name) for server in accounting_servers]
+    if should_check_accounting:
+        assert switch_hostname, f'Must give "switch_hostname" argument when should check accounting.\n' \
+                                f'Given hostname: {switch_hostname}'
 
     with loganalyzer_ignore(False and (not expect_login_success)):
         with allure.step(f'Verify auth: User: {user.username} , Password: {user.password} , Role: {user.role} , '
                          f'Expect login success: {expect_login_success}'):
-            wait_time_before_auth_test = 3
-            logging.info(f'Wait {wait_time_before_auth_test} seconds')
-            time.sleep(wait_time_before_auth_test)
+            sleep_before_auth()
 
             # for ssh, openapi, rcon: test authentication, and then verify role by running show, set, unset commands
-            user_is_admin = user.role == AaaConsts.ADMIN
             for medium in AuthMedium.ALL_MEDIUMS:
                 if skip_auth_mediums and medium in skip_auth_mediums:
                     continue
 
-                with allure.step(f'Verify auth with medium: {medium}'):
-                    medium_obj = AUTH_VERIFIERS[medium](user.username, user.password, engines, topology_obj)
+                time_at_server: str = datetime.now(pytz.utc).strftime('%b %d %H:%M:%S')  # servers have UTC timezone
+                verify_auth_with_medium(medium, user, expect_login_success, verify_authorization, engines, topology_obj)
 
-                    if accounting_servers:
-                        with allure.step('Clear accounting logs on servers'):
-                            for mngr in accounting_server_mngrs:
-                                mngr.clear_accounting_logs()
+                if should_check_accounting:
+                    check_accounting(time_at_server, switch_hostname, user.username, accounting_server_mngrs,
+                                     expect_accounting_logs)
 
-                    with allure.step(f'Verify authentication. Expect login success: {expect_login_success}'):
-                        medium_obj.verify_authentication(expect_login_success)
-
-                    if verify_authorization and expect_login_success:
-                        with allure.step(f'Verify authorization. Role: {user.role}'):
-                            medium_obj.verify_authorization(user_is_admin=user_is_admin)
-
-                    if accounting_servers:
-                        with allure.step('Verify accounting logs on given servers'):
-                            for i, mngr in enumerate(accounting_server_mngrs):
-                                expect_logs = expect_accounting_logs[i]
-                                with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
-                                    accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(grep=user.username)
-                                    assert bool(accounting_logs.logs) == expect_logs, f'There are {"no " if expect_logs else ""}accounting logs on server "{mngr.ip}" for user "{user.username}", while expected {"" if expect_logs else "not "}to have logs.\nActual raw content:\n{accounting_logs.raw_content}'
-        logging.info('\n')
+            logging.info('\n')
 
 
 def verify_users_auth(engines, topology_obj, users: List[UserInfo], expect_login_success: List[bool] = None,
@@ -352,7 +384,7 @@ def check_ldap_user_with_getent_passwd(engine: ProxySshEngine, username: str, us
         output = engine.run_cmd('getent passwd | grep ldap')
     with allure.step(f'Verify "{username}" does not exist'):
         err_msg = f'username "{username}" unexpectedly {"does not " if not user_should_exist else ""}exist ' \
-            f'in getent passwd output\ngetent passwd output: {output}\n'
+                  f'in getent passwd output\ngetent passwd output: {output}\n'
         if not output:
             assert not user_should_exist, err_msg
         else:

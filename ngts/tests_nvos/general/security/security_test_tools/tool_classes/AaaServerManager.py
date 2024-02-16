@@ -52,20 +52,28 @@ class AaaServerManager:
 
         return self.server_engine.run_cmd(cmd)
 
-    def __show_op_on_accounting_log_file(self, accounting_file_path: str, show_cmd: str, grep: str = '') -> AaaAccountingLogsFileContent:
+    def __show_op_on_accounting_log_file(self, accounting_file_path: str, show_cmd: str, grep: List[str] = None,
+                                         after_time: str = '') -> AaaAccountingLogsFileContent:
         cmd = f'{show_cmd} {accounting_file_path}'
         if grep:
-            cmd = f'{cmd} | grep -E "{grep}"'
+            for gr in grep:
+                cmd = f'{cmd} | grep -E "{gr}"'
+        if after_time:
+            # cmd = f"{cmd} | awk '/{after_time}/" + "{p=1}p'"
+            awk_cmd = f'awk -v target_time="{after_time}" ' + "'{if ($0 >= target_time || p) {print; p=1}}'"
+            cmd = f'{cmd} | {awk_cmd}'
 
         return AaaAccountingLogsFileContent(self.__op_on_accounting_log_file(cmd))
 
-    def cat_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
+    def cat_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: List[str] = None,
+                            after_time: str = '') -> AaaAccountingLogsFileContent:
         self.__assert_ip()
-        return self.__show_op_on_accounting_log_file(accounting_file_path, 'cat', grep)
+        return self.__show_op_on_accounting_log_file(accounting_file_path, 'cat', grep, after_time)
 
-    def tail_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: str = '') -> AaaAccountingLogsFileContent:
+    def tail_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: List[str] = None,
+                             after_time: str = '') -> AaaAccountingLogsFileContent:
         self.__assert_ip()
-        return self.__show_op_on_accounting_log_file(accounting_file_path, 'tail', grep)
+        return self.__show_op_on_accounting_log_file(accounting_file_path, 'tail', grep, after_time)
 
     def clear_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH) -> str:
         self.__assert_ip()
