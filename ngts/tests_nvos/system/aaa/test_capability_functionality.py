@@ -36,12 +36,11 @@ def is_monitor(username, password, engines):
     monitor_message = 'No permission to execute this command'
 
     with allure.step(f'Create connection with user "{username}"'):
-        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password)
+        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password).get_returned_value()
 
     with allure.step('testing capability positive flow'):
         system = System()
-        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(dut_engine=user_engine)).get_returned_value()
-        assert SystemConsts.USER_FULL_NAME in show_output, 'monitor can not set any configuration'
+        OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(dut_engine=user_engine)).verify_result()
 
         output = NvueGeneralCli.diff_config(user_engine)
         assert not output, "monitor can run nv config diff"
@@ -59,14 +58,12 @@ def is_monitor(username, password, engines):
 
 def is_admin(username, password, engines):
     with allure.step(f'Create connection with user "{username}"'):
-        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password)
+        user_engine = ConnectionTool.create_ssh_conn(engines.dut.ip, username, password).get_returned_value()
 
     with allure.step('testing capability positive flow'):
         system = System()
 
-        show_output = OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(
-            dut_engine=user_engine)).get_returned_value()
-        assert SystemConsts.USER_FULL_NAME in show_output, 'monitor can not set any configuration'
+        OutputParsingTool.parse_json_str_to_dictionary(system.aaa.user.show(dut_engine=user_engine)).verify_result()
 
         new_full_name = 'TESTING'
         system.aaa.user.user_id[username].set(SystemConsts.USER_FULL_NAME, new_full_name, apply=True,

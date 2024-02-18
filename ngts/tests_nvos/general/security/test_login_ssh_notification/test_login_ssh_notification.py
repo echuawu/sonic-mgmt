@@ -236,13 +236,13 @@ def test_ssh_login_notifications_default_fields_admin(engines, login_source_ip_a
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         logger.info("Connecting to switch before validation to clear all failed messages")
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(System().show())
-        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip)
+        SshAuthenticator(engines.dut.username, engines.dut.password, engines.dut.ip)
         # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-        #                                                       username=DefaultConnectionValues.ADMIN,
-        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
+        #                                                       username=engines.dut.username,
+        #                                                       password=engines.dut.password)
     validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
-                                                    username=DefaultConnectionValues.ADMIN,
-                                                    password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                    username=engines.dut.username,
+                                                    password=engines.dut.password,
                                                     capability=Consts.ADMIN_CAPABITILY,
                                                     last_successful_login=successful_login_time)
 
@@ -322,10 +322,10 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
 
     with allure.step("Connecting to switch before validation to clear all failed messages"):
         successful_login_time = ClockTools.get_datetime_object_from_show_system_output(system.show())
-        SshAuthenticator(DefaultConnectionValues.ADMIN, DefaultConnectionValues.DEFAULT_PASSWORD, engines.dut.ip).attempt_login_success()
+        SshAuthenticator(engines.dut.username, engines.dut.password, engines.dut.ip).attempt_login_success()
         # ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-        #                                                       username=DefaultConnectionValues.ADMIN,
-        #                                                       password=DefaultConnectionValues.DEFAULT_PASSWORD)
+        #                                                       username=engines.dut.username,
+        #                                                       password=engines.dut.password)
 
     with allure.step("Validating ssh login record period set command"):
         pass
@@ -334,8 +334,8 @@ def test_ssh_login_notification_cli_commands_good_flow(engines, login_source_ip_
         record_days = random.randint(Consts.MIN_RECORD_PERIOD_VAL, Consts.MAX_RECORD_PERIOD_VAL)
         system.ssh_server.set(Consts.RECORD_PERIOD, record_days, apply=True, ask_for_confirmation=True)
         validate_ssh_login_notifications_default_fields(engines, login_source_ip_address,
-                                                        username=DefaultConnectionValues.ADMIN,
-                                                        password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                        username=engines.dut.username,
+                                                        password=engines.dut.password,
                                                         capability=SystemConsts.ROLE_CONFIGURATOR,
                                                         check_password_change_msg=False,
                                                         check_role_change_msg=False,
@@ -375,8 +375,8 @@ def test_login_ssh_notification_performance(engines, login_source_ip_address, re
         logging.info('Remove temp directory from the switch')
         engines.dut.run_cmd(f'rmdir {Consts.TMP_TEST_DIR_SWITCH_PATH}')
         # player_engine = engines['sonic_mgmt']
-        # player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-        #                                     dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+        # player_engine.upload_file_using_scp(dest_username=engines.dut.username,
+        #                                     dest_password=engines.dut.password,
         #                                     dest_folder=Consts.AUTH_LOG_DIR_SWITCH_PATH,
         #                                     dest_ip=engines.dut.ip,
         #                                     local_file_path=Consts.AUTH_LOGS_SHARED_LOCATION)
