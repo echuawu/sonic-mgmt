@@ -6,6 +6,8 @@ import json
 import logging
 import allure
 import pytest
+
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.tools.test_utils.allure_utils import step as allure_step
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
@@ -409,7 +411,8 @@ def get_tech_support_from_switch(topology_obj):
     dumps_folder = os.getenv(InfraConst.ENV_LOG_FOLDER)
     tar_file_path = dumps_folder + '/'
     switch_engine_ip = topology_obj.players['dut']['engine'].ip
-    cmd = f'sudo sshpass -p {DefaultConnectionValues.DEFAULT_PASSWORD} ' \
+    password = topology_obj.players['dut']['engine'].engine.password
+    cmd = f'sudo sshpass -p {password} ' \
           f'scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ' \
           f'{DefaultConnectionValues.DEFAULT_USER}@{switch_engine_ip}:{tar_file_path_on_switch} {tar_file_path}'
     logger.info("Copy CMD: %s" % cmd)

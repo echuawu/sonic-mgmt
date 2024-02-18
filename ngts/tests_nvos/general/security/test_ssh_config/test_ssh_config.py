@@ -1,11 +1,13 @@
 import random
 import time
+
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import logging
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine,\
+from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine, \
     ssh_to_device_and_retrieve_raw_login_ssh_notification
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.tests_nvos.general.security.test_login_ssh_notification.constants import LoginSSHNotificationConsts
@@ -71,7 +73,7 @@ def test_ssh_config_good_flow(engines):
                                   apply=True, ask_for_confirmation=True).verify_result()
             ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
                                                                   username=DefaultConnectionValues.ADMIN,
-                                                                  password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                                  password=NvosConst.DEFAULT_PASS,
                                                                   port=new_login_port)
     with allure.step("Validating ssh login ports passed"):
         logger.info("Validating ssh login ports passed")
@@ -88,7 +90,7 @@ def test_ssh_config_good_flow(engines):
                                                  username=DefaultConnectionValues.ADMIN,
                                                  custom_ssh_options=SshConfigConsts.SSH_CONFIG_CONNECTION_OPTIONS)
             time.sleep(login_timeout + 0.1)  # 0.1 represents a small delta after timeout
-            connection.sendline(DefaultConnectionValues.DEFAULT_PASSWORD)
+            connection.sendline(NvosConst.DEFAULT_PASS)
             connection.expect(["Connection\\s+closed", "connection\\s+closed"])
         finally:
             connection.close()

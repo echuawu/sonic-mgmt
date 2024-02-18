@@ -6,7 +6,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from infra.tools.general_constants.constants import DefaultConnectionValues
 
@@ -52,7 +52,7 @@ def test_set_max_cli_session(engines):
                 connection_list.append(connection)
                 respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
                 if respond == 0:
-                    connection.sendline(DefaultConnectionValues.DEFAULT_PASSWORD)
+                    connection.sendline(NvosConst.DEFAULT_PASS)
                     connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             except Exception as err:
                 logger.info(err)
@@ -156,7 +156,7 @@ def test_set_inactivity_timeout(engines, topology_obj):
                                                  port=22)
             respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
             if respond == 0:
-                connection.sendline(DefaultConnectionValues.DEFAULT_PASSWORD)
+                connection.sendline(NvosConst.DEFAULT_PASS)
                 connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             output = engines.dut.run_cmd("w")
             assert not output or "4 users" in output, "The value of users will be 4"

@@ -88,7 +88,7 @@ def test_replace_positive(engines):
 
     with allure.step("Replace config"):
         config_after_hostname_change = config_after_hostname_change.replace('"password": "*"',
-                                                                            '"password": "{passw}"'.format(passw=os.environ["NVU_SWITCH_PASSWORD"]))
+                                                                            '"password": "{passw}"'.format(passw=NvosConst.DEFAULT_PASS))
         file = create_file_with_content(engines.dut, 'replace', 'yaml', config_after_hostname_change)
         output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
         expected_message = "Loading config file: replace.yaml from current directory."

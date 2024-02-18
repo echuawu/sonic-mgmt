@@ -15,6 +15,7 @@ import re
 import time
 
 import pytest
+import requests
 from dotted_dict import DottedDict
 from paramiko.ssh_exception import SSHException
 
@@ -123,6 +124,8 @@ def pytest_addoption(parser):
                      help="Whether to skip 'is debug-kernel/coverage/sanitizer' auto checks for the session, or not")
     parser.addoption("--sonic-topo", action="store",
                      help="The topo for SONiC testing, for example: t0, t1, t1-lag, ptf32, ...")
+    parser.addoption('--default_pass_env_var', action='store', default='',
+                     help='Which environment variable to use for default dut password')
     parser.addoption("--skip_bug_handler_action", action="store_true", default=False, required=False,
                      help="Whether to skip (True) log analyzer bug handler actions when loganalyzer is enabled, or not (False)")
     parser.addoption('--fail_install_if_secure_boot_off', action='store', default='yes',
@@ -254,6 +257,9 @@ def topology_obj(setup_name, request):
     topology.players['dut']['is_nvos'] = \
         topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.'][
         'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
+
+    if topology.players['dut']['is_nvos']:
+        update_default_password(topology.players['dut'], request)
     if request.config.option.ports_number == "max":
         # This is used for the fast reboot with max ports
         config_db = topology.players['dut']['cli'].general.get_config_db()
@@ -263,6 +269,15 @@ def topology_obj(setup_name, request):
     logger.debug('Cleaning-up the topology object')
     for player_name, player_attributes in topology.players.items():
         player_attributes['engine'].disconnect()
+
+
+def update_default_password(dut, request):
+    default_password_env_var = request.config.getoption('--default_pass_env_var')
+    if default_password_env_var:
+        dut_password = os.getenv(default_password_env_var)
+        assert dut_password is not None, 'Default environment password variable is not provided'
+        dut['engine'] = LinuxSshEngine(dut['engine'].ip, dut['engine'].username,
+                                       dut_password)
 
 
 def update_topology_for_mlnxos_setups(topology):

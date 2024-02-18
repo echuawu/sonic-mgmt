@@ -7,6 +7,7 @@ import pytest
 import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -42,7 +43,7 @@ def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
 
 def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
                                                           username=DefaultConnectionValues.DEFAULT_USER,
-                                                          password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                                          password=NvosConst.DEFAULT_PASS,
                                                           port=22):
     '''
     @summary: in this function we create ssh connection

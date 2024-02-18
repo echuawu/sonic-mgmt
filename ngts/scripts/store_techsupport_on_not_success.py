@@ -7,6 +7,7 @@ import re
 
 from infra.tools.general_constants.constants import DefaultTestServerCred, DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
@@ -58,7 +59,7 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
     hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
     dut_user_name = DefaultConnectionValues.DEFAULT_USER
-    dut_password = DefaultConnectionValues.DEFAULT_PASSWORD
+    dut_password = NvosConst.DEFAULT_PASS
 
     if not name_postfix:
         name_postfix = time.strftime('%Y_%b_%d_%H_%M_%S')

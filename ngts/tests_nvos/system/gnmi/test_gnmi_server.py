@@ -317,7 +317,7 @@ def run_gnmi_client_in_the_background(target_ip, xpath):
     prefix_and_path = xpath.rsplit("/", 1)
     command = f"gnmic -a {target_ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
               f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {DefaultConnectionValues.DEFAULT_PASSWORD} --format flat"
+              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {NvosConst.DEFAULT_PASS} --format flat"
     # Use the subprocess.Popen function to run the command in the background
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     return process
@@ -396,7 +396,7 @@ def run_gnmi_client_and_parse_output(engines, xpath, target_ip, target_port=Gnmi
         mode_flag = f"--mode {mode}" if mode else ''
         cmd = f"gnmic -a {target_ip} --port {target_port} --skip-verify subscribe --prefix '{prefix_and_path[0]}'" \
               f" --path '{prefix_and_path[1]}' --target netq -u {DefaultConnectionValues.DEFAULT_USER} " \
-              f"-p {DefaultConnectionValues.DEFAULT_PASSWORD} {mode_flag} --format flat"
+              f"-p {NvosConst.DEFAULT_PASS} {mode_flag} --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         if "poll" == mode:
             gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'], patterns_list=["select target to poll:", "select subscription to poll:", "failed selecting target to poll:"])
@@ -565,7 +565,7 @@ def validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list):
         prefix_and_path = command[GnmiConsts.XPATH_KEY].rsplit("/", 1)
         cmd = f"gnmic -a {engines.dut.ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
               f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {DefaultConnectionValues.DEFAULT_PASSWORD} --mode once --format flat"
+              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {NvosConst.DEFAULT_PASS} --mode once --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])

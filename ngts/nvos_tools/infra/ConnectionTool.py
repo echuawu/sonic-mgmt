@@ -1,6 +1,6 @@
 import logging
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from netmiko.ssh_exception import NetmikoAuthenticationException
@@ -81,8 +81,8 @@ class ConnectionTool:
         @summary: Create serial pexpect engine and initiate connection (login)
         """
         with allure.step("create serial connection"):
-            username = username if username else DefaultConnectionValues.DEFAULT_USER
-            password = password if password else DefaultConnectionValues.DEFAULT_PASSWORD
+            username = username if username else NvosConst.DEFAULT_USER
+            password = password if password else NvosConst.DEFAULT_PASS
 
             try:
                 logger.info('Try login with given credentials')
@@ -91,8 +91,8 @@ class ConnectionTool:
             except Exception as e:
                 logger.info('Could not login. Try login with default NVOS credentials')
                 serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip,
-                                                                    username=DefaultConnectionValues.DEFAULT_USER,
-                                                                    password=DefaultConnectionValues.DEFAULT_PASSWORD)
+                                                                    username=NvosConst.DEFAULT_USER,
+                                                                    password=NvosConst.DEFAULT_PASS)
                 serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
             return serial_engine
 

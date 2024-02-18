@@ -15,7 +15,7 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo 
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 
 
 def check_nslcd_service(engines):
@@ -248,7 +248,7 @@ def restore_original_engine_credentials(engines):
     """
     logging.info("Restoring default credentials, and logging in to switch")
     engines.dut.update_credentials(username=DefaultConnectionValues.ADMIN,
-                                   password=DefaultConnectionValues.DEFAULT_PASSWORD)
+                                   password=NvosConst.DEFAULT_PASS)
 
 
 def validate_authentication_fail_with_credentials(engines, username, password):

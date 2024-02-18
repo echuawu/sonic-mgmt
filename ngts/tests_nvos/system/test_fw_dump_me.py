@@ -31,7 +31,7 @@ def test_fw_dump_me(engines, devices):
     with allure.step('Upload sdk fw crush file to switch'):
         player_engine = engines['sonic_mgmt']
         player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                            dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                            dest_password=NvosConst.DEFAULT_PASS,
                                             dest_folder=NvosConst.DESTINATION_FW_SCRIPT_PATH,
                                             dest_ip=engines.dut.ip,
                                             local_file_path=NvosConst.FW_DUMP_ME_SCRIPT_PATH)

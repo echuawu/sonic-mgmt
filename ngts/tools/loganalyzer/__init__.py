@@ -5,6 +5,7 @@ import logging
 from pytest_ansible.errors import AnsibleConnectionFailure
 from ngts.tools.infra import update_sys_path_by_community_plugins_path
 from ngts.constants.constants import NvosCliTypes, PlayersAliases
+from ngts.nvos_constants.constants_nvos import NvosConst
 from devices.sonic import SonicHost
 from plugins.ansible_fixtures import ansible_adhoc
 from plugins.loganalyzer import pytest_addoption, loganalyzer
@@ -43,7 +44,9 @@ def duthosts(ansible_adhoc, topology_obj):
             dut_ansible_engine = None
             dut_hostname = dut_info['attributes'].noga_query_data['attributes']['Common']['Name']
             try:
-                dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname)
+                # TODO: need to add a way to receive a password based on device/os or is password inside engine good.
+                password = dut_info['engine'].engine.password
+                dut_ansible_engine = SonicHost(ansible_adhoc, dut_hostname, ssh_user=NvosConst.DEFAULT_USER, ssh_passwd=password)
             except Exception as err:
                 if dut_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] not in \
                         NvosCliTypes.NvueCliTypes:

@@ -1,5 +1,5 @@
 from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.nvos_constants.constants_nvos import MultiPlanarConsts
+from ngts.nvos_constants.constants_nvos import MultiPlanarConsts, NvosConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -28,7 +28,7 @@ class MultiPlanarTool:
         with allure.step("Override platform.json file"):
             file_path = MultiPlanarConsts.SIMULATION_PATH + new_platform
             player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                         dest_password=DefaultConnectionValues.DEFAULT_PASSWORD,
+                                         dest_password=NvosConst.DEFAULT_PASS,
                                          dest_folder=MultiPlanarConsts.INTERNAL_PATH,
                                          dest_ip=engine.ip,
                                          local_file_path=file_path)
