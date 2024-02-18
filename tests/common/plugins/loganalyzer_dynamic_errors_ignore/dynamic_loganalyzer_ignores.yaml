@@ -1539,6 +1539,12 @@
       - 2951102
 
 - Errors_list:
+    - '.*ERR swss#orchagent: :- addAclTableType: Table type CUSTOM_L3 already exists.*'
+  Conditions:
+    - Redmine:
+      - 3782563
+
+- Errors_list:
     - ".*ERR mellanox_buffer_migrator: Trying to get DEVICE_METADATA from DB but doesn't exist, skip migration.*"
   Conditions:
     - Affected_test_cases:
