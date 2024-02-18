@@ -189,6 +189,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
     """
     Validate all planes are configured while configuring the following Aport fields:
     ib-speed, lanes, mtu, op-vls, state.
+    Setup requirements: A physical loopback connection (two ports on the switch connected to each other by cable).
 
     Test flow:
     1. Validate ib-speed field aggregation
@@ -872,8 +873,7 @@ def validate_aggregation_of_specific_link_param(aggregated_port, plane_port, lin
     with allure.step(f"Validate {link_param} field aggregation"):
         aggregated_port_output = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             aggregated_port.interface.link.show()).get_returned_value()
-        if aggregated_port_output[link_param] in link_param_list:
-            link_param_list.remove(aggregated_port_output[link_param])
+        link_param_list = [item for item in link_param_list if item != aggregated_port_output[link_param]]
         param_new_value = RandomizationTool.select_random_value(link_param_list).get_returned_value()
         aggregated_port.interface.link.set(op_param_name=link_param, op_param_value=param_new_value,
                                            apply=True, ask_for_confirmation=True).verify_result()
