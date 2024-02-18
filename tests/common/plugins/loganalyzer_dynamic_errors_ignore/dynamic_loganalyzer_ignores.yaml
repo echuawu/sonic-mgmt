@@ -2633,6 +2633,15 @@
         - 3781255
 
 - Errors_list:
+    - '.* ERR systemctl\[\d+\]: Failed to start bgp\.service: Transaction for bgp\.service\/start is destructive.*'
+    - '.* ERR systemctl\[\d+\]: See system logs and .*systemctl status bgp\.service.* for details.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
+      Redmine:
+        - 3784612
+
+- Errors_list:
     - '.* ERR what-just-happened#wjhd: :- parse_packet: Netlink message doesn''t have the NET_DM_ATTR_HW_TRAP_NAME'
     - '.* ERR what-just-happened#wjhd: :- dropmonsock_poll: Failed to read an event from Drop monitor socket'
   Conditions:
