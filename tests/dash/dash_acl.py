@@ -25,6 +25,8 @@ BASE_SRC_SCALE_IP = '8.0.0.0'
 SCALE_TAGS = 4096
 SCALE_TAG_IPS = 1
 WAIT_AFTER_CONFIG = 5
+DASH_ACL_OUT_TABLE = "DASH_ACL_OUT_TABLE"
+DASH_ACL_IN_TABLE = "DASH_ACL_IN_TABLE"
 
 
 def apply_acl_config(localhost, duthost, ptfhost, template_name, acl_config_info, op):
@@ -33,6 +35,11 @@ def apply_acl_config(localhost, duthost, ptfhost, template_name, acl_config_info
     # apply_swssconfig_file(duthost, dest_path)
     apply_gnmi_file(localhost, duthost, ptfhost, config_json=config_json, wait_after_apply=0)
 
+
+def check_tables_not_exist_in_appl_db(duthost, tables):
+    for table in tables:
+        output = duthost.shell("sonic-db-cli APPL_DB keys '{}*'".format(table))
+        assert output["stdout"].strip() == "", " Table {} still exists in APPL_DB".format(table)
 
 class AclGroup(object):
     def __init__(self, localhost, duthost, ptfhost, acl_group, eni, ip_version="ipv4"):
@@ -750,6 +757,7 @@ def acl_fields_test(request, apply_vnet_configs, localhost, duthost, ptfhost, da
     yield testcases
 
     default_acl_group.unbind()
+    check_tables_not_exist_in_appl_db(duthost, [DASH_ACL_OUT_TABLE, DASH_ACL_IN_TABLE])
     for t in reversed(testcases):
         t.teardown()
     del default_acl_group
