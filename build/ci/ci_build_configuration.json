@@ -202,6 +202,23 @@
           "out_of_mail": true
         },
         {
+          "name": "Allocate setup SPC4",
+          "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
+          "category": "Allocate setups",
+          "node": "MINI_MARS@SPC4",
+          "parameters": {
+            "queue_id": "devops_sonic_ci_spc4",
+            "priority": "${PRIORITY_NUMBER}",
+            "setup_type": "CI_SONIC_SPC4",
+            "setup_var": "CI_SONIC_SPC4_SETUP",
+            "device_var": "SWITCH_MOOSE1",
+            "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
+          },
+          "skip": "${SKIP_BAT}",
+          "on_failure": "stop",
+          "out_of_mail": true
+        },
+        {
           "name": "Allocate setup SIMX SPC",
           "module": "com.mellanox.jenkins.generic_modules.AllocateSetups",
           "category": "Allocate setups",
@@ -379,6 +396,25 @@
           "out_of_mail": false
         },
         {
+          "name": "BAT SPC4",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
+          "category": "BAT",
+          "node": "MINI_MARS@SPC4",
+          "parameters": {
+            "matrix_row": "ETH",
+            "matrix_col": "SPC4",
+            "global_conf": "${MARS_GLOBAL_CONF}",
+            "setup_id": "${CI_SONIC_SPC4_SETUP}",
+            "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC4_SETUP}/",
+            "base_version": "${SONIC_BIN}",
+            "test_type" : "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}"
+          },
+          "skip": "${SKIP_BAT}",
+          "on_failure": "stop",
+          "out_of_mail": false
+        },
+        {
           "name": "BAT SIMX SPC",
           "module": "/auto/sw_system_release/ci/sonic_devops/build/ci/bat.groovy",
           "category": "BAT",
@@ -545,6 +581,19 @@
           "out_of_mail": true
         },
         {
+          "name": "Free SPC4 setup",
+          "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
+          "category": "Clean",
+          "node": "MINI_MARS@SPC4",
+          "parameters": {
+            "setup_name": "${CI_SONIC_SPC4_SETUP}"
+          },
+          "skip": false,
+          "finally": true,
+          "on_failure": "ignore",
+          "out_of_mail": true
+        },
+        {
           "name": "Free SIMX SPC setup",
           "module": "com.mellanox.jenkins.generic_modules.FreeSetup",
           "category": "Clean",
@@ -637,7 +686,8 @@
                 "ETH": [
                   "SPC",
                   "SPC2",
-                  "SPC3"
+                  "SPC3",
+                  "SPC4"
                 ]
               },
               {
