@@ -65,4 +65,15 @@
              </params>
         </cmd>
     </case>
+
+    <case>
+        <info> Retry Count Case </info>
+        <name> retry_count </name>
+        <tout> 900 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pc/test_retry_count.py </static_args>
+             </params>
+        </cmd>
+    </case>
 </CASEDEF>
