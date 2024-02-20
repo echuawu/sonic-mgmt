@@ -609,9 +609,13 @@ marlin-101 ansible_host=marlin-101  sonic_version=v2  sonic_hwsku=ACS-MQM9520   
 marlin-102-ptf-any ansible_host=marlin-102  sonic_version=v2  sonic_hwsku=ACS-MQM9520            serial_console="telnet fit-l-vrt-660 10086" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:56 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 marlin-102 ansible_host=marlin-102  sonic_version=v2  sonic_hwsku=ACS-MQM9520             serial_console="telnet fit-l-vrt-660 10086" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=00:50:56:30:06:56 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'mqm9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
-# NVOS MTR testbed r-anaconda-25 topologies
+# Cumulus MTR testbed r-anaconda-25 topologies
 r-anaconda-25-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="ssh -l rcon:7033 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24 base_mac=98:03:9B:A2:BF:50 serial=MT1903X17381 model=MSN3700-VS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn3700-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN3700-VS2FO', '0x23': u'MT2101X09711', '0x21': u'MSN3700', '0x26': u'1', '0x24': u'1C:34:DA:2D:4D:00', '0x25': u'01/15/2021 04:50:00', '0xfe': u'0xC32982B1', '0x2b': u'Mellanox', '0x2a': u'254'}"
 r-anaconda-25 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="ssh -l rcon:7033 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24 base_mac=98:03:9B:A2:BF:50 serial=MT1903X17381 model=MSN3700-VS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn3700-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN3700-VS2FO', '0x23': u'MT2101X09711', '0x21': u'MSN3700', '0x26': u'1', '0x24': u'1C:34:DA:2D:4D:00', '0x25': u'01/15/2021 04:50:00', '0xfe': u'0xC32982B1', '0x2b': u'Mellanox', '0x2a': u'254'}"
+
+# Cumulus MTR testbed r-anaconda-25 topologies
+r-anaconda-24-ptf-any ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="ssh -l rcon:7033 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24 base_mac=98:03:9B:A2:BF:A0 serial=MT1903X17381 model=MSN3700-VS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn3700-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN3700-VS2FO', '0x23': u'MT2101X09711', '0x21': u'MSN3700', '0x26': u'1', '0x24': u'1C:34:DA:2D:4D:00', '0x25': u'01/15/2021 04:50:00', '0xfe': u'0xC32982B1', '0x2b': u'Mellanox', '0x2a': u'254'}"
+r-anaconda-24 ansible_host=nvidia-arm-orion  sonic_version=v2  sonic_hwsku=ACS-MSN3700             serial_console="ssh -l rcon:7033 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-24 base_mac=98:03:9B:A2:BF:A0 serial=MT1903X17381 model=MSN3700-VS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn3700-r0', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MSN3700-VS2FO', '0x23': u'MT2101X09711', '0x21': u'MSN3700', '0x26': u'1', '0x24': u'1C:34:DA:2D:4D:00', '0x25': u'01/15/2021 04:50:00', '0xfe': u'0xC32982B1', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
 # NVOS testbed gorilla-71 topologies
 gorilla-71-ptf-any ansible_host=gorilla-71  sonic_version=v2  sonic_hwsku=ACS-MQM9700            serial_console="ssh -l rcon:7006 10.7.150.250" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-2-33 base_mac=08:c0:eb:58:7f:90 serial=MT2142X05750 model=MQM9700-WS2F_QP1 syseeprom_info="{'0x28': u'x86_64-mlnx_MQM9700', '0x29': u'2021.05-5.3.0008-9600', '0x22': u'MQM9700-WS2F_QP1', '0x23': u'MT2142X05750', '0x21': u'mqm9700', '0x26': u'17', '0x24': u'08:c0:eb:58:7f:90', '0x25': u'04/01/2021 22:27:42', '0xfe': u'0xF3E7B840', '0x2b': u'Mellanox', '0x2a': u'254'}"
@@ -2269,6 +2273,9 @@ mlx-4700a1-07
 
 r-anaconda-25-ptf-any
 r-anaconda-25
+
+r-anaconda-24-ptf-any
+r-anaconda-24
 
 
 [leaf_topo_1:vars]

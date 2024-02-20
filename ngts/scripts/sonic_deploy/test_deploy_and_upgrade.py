@@ -10,11 +10,15 @@ import concurrent.futures
 from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
 from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
 from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
+from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayersAliases
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.tools.infra import get_platform_info
+from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 
 logger = logging.getLogger()
 
@@ -181,7 +185,9 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     :param setup_info: dictionary with setup info
     """
     cli_type = setup_info['duts'][0]['cli_obj']
-    if isinstance(cli_type, NvueGeneralCli):
+    if isinstance(cli_type, CumulusGeneralCli):
+        CumulusInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
+    elif isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
@@ -211,7 +217,9 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     :param workspace_path: workspace_path fixture
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
-    if isinstance(dut_cli_obj, NvueGeneralCli):
+    if isinstance(dut_cli_obj, CumulusGeneralCli):
+        CumulusInstallationSteps.post_installation_steps()
+    elif isinstance(dut_cli_obj, NvueGeneralCli):
         NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version,
                                                       verify_secure_boot)
     else:
@@ -220,6 +228,21 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
                                                        apply_base_config, target_version,
                                                        is_shutdown_bgp, reboot_after_install, deploy_only_target,
                                                        fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu)
+
+
+def get_cli_obj(topology_obj, cli_type, switch_type, engine, host):
+    if cli_type == NvosConst.NVUE_CLI:
+        device_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].\
+            get('switch_type', '')
+        device = DeviceFactory.create_device(device_name)
+        if switch_type == NvosConst.CUMULUS_SWITCH:
+            cli_obj = CumulusGeneralCli(engine, device)
+        else:
+            cli_obj = NvueGeneralCli(engine, device)
+    else:
+        cli_obj = SonicCli(topology_obj, dut_alias=host).general
+
+    return cli_obj
 
 
 def get_info_from_topology(topology_obj, workspace_path):
@@ -241,10 +264,7 @@ def get_info_from_topology(topology_obj, workspace_path):
                 switch_type = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', '')
                 dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('ip address', '')
                 engine = topology_obj.players[host]['engine']
-                if cli_type == "NVUE":
-                    cli_obj = NvueGeneralCli(engine)
-                else:
-                    cli_obj = SonicCli(topology_obj, dut_alias=host).general
+                cli_obj = get_cli_obj(topology_obj, cli_type, switch_type, engine, host)
                 dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine, 'cli_obj': cli_obj,
                             'dut_alias': dut_alias, 'switch_type': switch_type, 'dut_ip': dut_ip}
                 setup_info['duts'].append(dut_info)

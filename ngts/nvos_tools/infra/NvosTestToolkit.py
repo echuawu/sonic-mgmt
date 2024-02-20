@@ -37,7 +37,7 @@ class TestToolkit:
 
     @staticmethod
     def update_devices(devices):
-        with allure.step("Update device object in TestTookit"):
+        with allure.step("Update devices object in TestTookit"):
             TestToolkit.devices = devices
 
     @staticmethod

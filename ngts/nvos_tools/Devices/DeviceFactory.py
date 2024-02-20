@@ -2,6 +2,7 @@ import logging
 from ngts.nvos_tools.Devices.IbDevice import GorillaSwitch, \
     MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch
 from ngts.nvos_tools.Devices.EthDevice import AnacondaSwitch
+from dotted_dict import DottedDict
 
 logger = logging.getLogger()
 
@@ -33,3 +34,11 @@ class DeviceFactory:
         except Exception:
             logger.error("please configure device_name = %s", device_name)
             raise
+
+    @staticmethod
+    def create_devices_object(topology_obj):
+        device_objects = DottedDict()
+        dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
+            'switch_type']
+        device_objects.dut = DeviceFactory.create_device(dut_name)
+        return device_objects

@@ -36,7 +36,6 @@ class IbSwitch(BaseSwitch):
         return ResultObj(False, err_msg) if err_msg else ResultObj(True, "", "")
 
     def _init_ib_speeds(self):
-        BaseSwitch._init_ib_speeds(self)
         self.invalid_ib_speeds = {'qdr': '40G'}
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'sdr': '10G', 'ndr': '400G'}
 
@@ -119,6 +118,8 @@ class IbSwitch(BaseSwitch):
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = False
+        self.install_from_onie_timeout = 360
+        self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.voltage_sensors = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]

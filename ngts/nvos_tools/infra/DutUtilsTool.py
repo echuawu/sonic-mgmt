@@ -176,7 +176,7 @@ def wait_for_ib_utils_docker(engine):
 @retry(Exception, tries=60, delay=10)
 def wait_until_cli_is_up(engine):
     logger.info('Checking the status of nvued')
-    output = engine.run_cmd('nv show system version')
+    output = engine.run_cmd('nv show system')
     logger.info(output)
     if 'CLI is unavailable' in output:
         raise Exception("Waiting for NVUE to become functional")

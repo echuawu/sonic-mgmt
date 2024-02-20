@@ -3,7 +3,7 @@ from collections import namedtuple
 from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, PlatformConsts
 import time
@@ -47,6 +47,8 @@ class BaseDevice(ABC):
         self.available_tables_per_asic = {}
         self.ib_ports_num = 0
         self.user_fields = []
+        self.install_from_onie_timeout = 360  # seconds
+        self.install_success_patterns = ""
 
         self._init_constants()
         self._init_available_databases()
@@ -79,10 +81,6 @@ class BaseDevice(ABC):
 
     @abstractmethod
     def _init_constants(self):
-        pass
-
-    @abstractmethod
-    def _init_ib_speeds(self):
         pass
 
     @abstractmethod
@@ -194,7 +192,7 @@ class BaseDevice(ABC):
         """
         result_obj = ResultObj(True, "")
         # docker_exec_cmd = 'docker exec -it {database_docker} '.format(database_docker=database_docker) if database_docker else ''
-        output = Tools.DatabaseTool.sonic_db_run_get_keys_in_docker(
+        output = DatabaseTool.sonic_db_run_get_keys_in_docker(
             docker_name=database_docker if database_docker else '', engine=engine, asic="",
             db_name=DatabaseConst.REDIS_DB_NUM_TO_NAME[self.get_database_id(database_name)],
             grep_str=table_name_substring)

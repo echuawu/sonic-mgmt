@@ -271,6 +271,7 @@
       <Device Hostname="marlin-101" HwSku="ACS-MQM9520" Type="DevSonic"/>
       <Device Hostname="marlin-102" HwSku="ACS-MQM9520" Type="DevSonic"/>
       <Device Hostname="r-anaconda-25" HwSku="ACS-MSN3700" Type="DevSonic" />
+      <Device Hostname="r-anaconda-24" HwSku="ACS-MSN3700" Type="DevSonic" />
       <Device Hostname="gorilla-71" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-72" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="mlx-4700a1-07" HwSku="Mellanox-SN4700" Type="DevSonic" />

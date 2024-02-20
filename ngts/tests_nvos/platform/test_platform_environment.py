@@ -14,7 +14,6 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
-@pytest.mark.cumulus
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment(engines, devices, test_api):
     """
@@ -60,7 +59,6 @@ def test_show_platform_environment_fan(engines, devices, test_api):
 
 
 @pytest.mark.platform
-@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_led(engines, devices, test_api):

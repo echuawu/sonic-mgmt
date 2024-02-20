@@ -327,9 +327,7 @@ def update_topology_with_cli_class(topology):
 
 
 def update_nvos_topology(topology, player_info):
-    if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
-        player_info['attributes'].noga_query_data['attributes']['Specific']['TYPE'] = ""
-    else:
+    if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] != "NVUE":
         player_info['engine'] = LinuxSshEngine(player_info['engine'].ip, player_info['engine'].username,
                                                NvosConst.DEFAULT_PASS)
         player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"

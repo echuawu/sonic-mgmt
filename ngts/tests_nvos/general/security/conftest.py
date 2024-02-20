@@ -90,7 +90,7 @@ def post_test_remote_reboot(topology_obj):
     # verify dockers are up
     logging.info("Verifying that dockers are up")
     TestToolkit.engines.dut.disconnect()
-    nvue_cli = NvueGeneralCli(TestToolkit.engines.dut)
+    nvue_cli = NvueGeneralCli(TestToolkit.engines.dut, TestToolkit.devices.dut)
     nvue_cli.verify_dockers_are_up()
 
 
