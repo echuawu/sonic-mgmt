@@ -235,6 +235,7 @@ class PlatformTypesConstants:
     FILTERED_PLATFORM_LEOPARD = "MSN4700"
     FILTERED_PLATFORM_TIGON = "MSN4600C"
     FILTERED_PLATFORM_OCELOT = "MSN4410"
+    FILTERED_PLATFORM_HIPPO = "SN5400"
     FILTERED_PLATFORM_MOOSE = "SN5600"
 
     PLATFORM_BULLDOG = 'x86_64-mlnx_msn2100-r0'
@@ -250,6 +251,7 @@ class PlatformTypesConstants:
     PLATFORM_SPIDER = 'x86_64-mlnx_msn2410-r0'
     PLATFORM_TIGON = 'x86_64-mlnx_msn4600c-r0'
     PLATFORM_TIGRIS = 'x86_64-mlnx_msn3800-r0'
+    PLATFORM_HIPPO = 'x86_64-nvidia_sn5400-r0'
     PLATFORM_MOOSE = 'x86_64-nvidia_sn5600-r0'
 
     LOGS_ON_TMPFS_PLATFORMS = [PLATFORM_PANTHER, PLATFORM_BULLDOG]
@@ -766,6 +768,62 @@ class FecConstants:
                                               '25G': ['CR'],
                                               '40G': ['CR4'],
                                               '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_8: {'10G': ['CR'],
+                                              '25G': ['CR']
+                                              }
+            }
+        },
+        PlatformTypesConstants.FILTERED_PLATFORM_HIPPO: {
+            SonicConst.FEC_FC_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {
+                    '25G': ['CR'],
+                    '50G': ['CR2']
+                },
+                SonicConst.PORT_SPLIT_NUM_2: {
+                    '25G': ['CR'],
+                    '50G': ['CR2']
+                },
+                SonicConst.PORT_SPLIT_NUM_4: {
+                    '25G': ['CR'],
+                    '50G': ['CR2']
+                },
+                SonicConst.PORT_SPLIT_NUM_8: {
+                    '10G': ['CR'],
+                    '25G': ['CR']
+                }
+            },
+            SonicConst.FEC_RS_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {'50G': ['CR'],
+                                              '100G': ['CR2'],
+                                              '200G': ['CR4'],
+                                              '400G': ['CR8']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'50G': ['CR'],
+                                              '100G': ['CR2'],
+                                              '200G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'50G': ['CR'],
+                                              '100G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_8: {'50G': ['CR']
+                                              }
+            },
+            SonicConst.FEC_NONE_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR']
                                               },
                 SonicConst.PORT_SPLIT_NUM_8: {'10G': ['CR'],
                                               '25G': ['CR']

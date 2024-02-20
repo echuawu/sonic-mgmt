@@ -36,6 +36,7 @@ def pytest_collection_modifyitems(session, config, items):
     msn4600  - 124
     msn4600c - 124
     msn4700  - 116
+    sn5400   - 128
     sn5600   - 128
     """
 
@@ -50,6 +51,7 @@ def pytest_collection_modifyitems(session, config, items):
                                      PlatformTypesConstants.PLATFORM_LIGER: 124,
                                      PlatformTypesConstants.PLATFORM_TIGON: 124,
                                      PlatformTypesConstants.PLATFORM_LEOPARD: 116,
+                                     PlatformTypesConstants.PLATFORM_HIPPO: 128,
                                      PlatformTypesConstants.PLATFORM_MOOSE: 128}
 
         setup_name = session.config.option.setup_name
@@ -160,9 +162,9 @@ def modify_lanes_per_platform(platform, port_lanes, split_x2=False):
     lanes_4_spit_x2_x2_lanes = platform in four_lanes_x2_split_platforms
 
     eight_lanes_x4_split_platforms = [PlatformTypesConstants.PLATFORM_OCELOT, PlatformTypesConstants.PLATFORM_LEOPARD,
-                                      PlatformTypesConstants.PLATFORM_MOOSE]
+                                      PlatformTypesConstants.PLATFORM_MOOSE, PlatformTypesConstants.PLATFORM_HIPPO]
 
-    if platform == PlatformTypesConstants.PLATFORM_MOOSE and split_x2:
+    if platform in [PlatformTypesConstants.PLATFORM_MOOSE, PlatformTypesConstants.PLATFORM_HIPPO] and split_x2:
         lanes_8_spit_x2_x4_lanes = True
     else:
         lanes_8_spit_x4_x2_lanes = platform in eight_lanes_x4_split_platforms
@@ -189,6 +191,11 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
         # Remove service port from list of ports which will be split
         physical_dut_ports.pop('Ethernet512')
         port_speed = "100000"
+    if platform == PlatformTypesConstants.PLATFORM_HIPPO:
+        # Remove service port from list of ports which will be split
+        physical_dut_ports.pop('Ethernet512', None)
+        physical_dut_ports.pop('Ethernet513', None)
+        port_speed = "100000"
     if platform == PlatformTypesConstants.PLATFORM_LEOPARD:
         port_speed = "100000"
     nonsplitable_ports = get_nonsplitable_ports(platform, topology, physical_dut_ports)
@@ -214,7 +221,8 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
             else:
                 port_lanes = [','.join(port_lanes)]
         else:
-            if platform == PlatformTypesConstants.PLATFORM_MOOSE and expected_num_of_ports - added_ports_counter <= 4:
+            if (platform in [PlatformTypesConstants.PLATFORM_MOOSE, PlatformTypesConstants.PLATFORM_HIPPO] and
+                    expected_num_of_ports - added_ports_counter <= 4):
                 port_lanes = modify_lanes_per_platform(platform, port_lanes, split_x2=True)
             else:
                 port_lanes = modify_lanes_per_platform(platform, port_lanes)
