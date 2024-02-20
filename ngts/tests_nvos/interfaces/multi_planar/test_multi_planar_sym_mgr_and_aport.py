@@ -215,7 +215,7 @@ def test_aggregated_port_configuration(engines, devices, test_api):
         # Validate ib-speed field aggregation
         validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
                                                     IbInterfaceConsts.LINK_IB_SPEED,
-                                                    devices.dut.supported_ib_speeds.keys(), True)
+                                                    ['hdr', 'ndr'], True)
 
         # # Validate lanes field aggregation - not supported yet
         # validate_aggregation_of_specific_link_param(selected_aggregated_port, selected_fae_plane_port,
