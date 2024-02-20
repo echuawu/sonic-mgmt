@@ -1,11 +1,15 @@
 import logging
+import time
 import pytest
+import random
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.platform.Platform import Platform
+from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import FansConsts
 from ngts.nvos_constants.constants_nvos import ApiType
 
 logger = logging.getLogger()
@@ -40,7 +44,7 @@ def test_show_platform_environment_fan(engines, devices, test_api):
     """
     TestToolkit.tested_api = test_api
 
-    with allure.step("Create System object"):
+    with allure.step("Create Platform object"):
         platform = Platform()
 
     with allure.step("Execute show platform environment fan and make sure all the components exist"):
@@ -216,6 +220,179 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.temperature.show(op_param=temperature_to_check)).verify_result()
         _verify_temp_prop(temperature_to_check, output)
+
+
+@pytest.mark.platform
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_platform_environment_fan_direction_forward(engines, devices, test_api):
+    """
+    Select a fan and cause them to work in forward direction and make sure it is
+    reflected in the show commands.
+    """
+    TestToolkit.tested_api = test_api
+    verify_fan_direction(engines, devices, FansConsts.FORWARD_DIRECTION)
+
+
+@pytest.mark.platform
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_set_platform_environment_fan_direction_backward(engines, devices, test_api):
+    """
+    Select a fan and cause them to work in backward direction and make sure it is
+    reflected in the show commands.
+    """
+    TestToolkit.tested_api = test_api
+    verify_fan_direction(engines, devices, FansConsts.BACKWARD_DIRECTION)
+
+
+@pytest.mark.platform
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_platform_environment_fan_direction_mismatch(engines, devices, test_api):
+    """
+    Select a fan and cause them to work in backward direction and make sure it is
+    reflected in the health events report.
+    """
+    TestToolkit.tested_api = test_api
+    with allure.step('Validate Fan direction mismatch feature enabled'):
+        verify_fan_direction_mismatch_behaviour(engines, devices, True)
+
+
+def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
+    platform = Platform()
+    system = System()
+    state = FansConsts.STATE_OK
+    should_str = 'be'
+    fan_to_check = ""
+    if feature_enable:
+        state = FansConsts.STATE_NOT_OK
+        should_str = 'not be'
+
+    try:
+        with allure.step('Select FAN to test'):
+            output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
+            fan_to_check = random.choice(list(output.keys()))
+
+        with allure.step('Validate System health status should be {}'.format(FansConsts.STATE_OK)):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_status = output['status']
+            assert health_status == FansConsts.STATE_OK, 'System health status is {} instead of {}'.format(
+                health_status, FansConsts.STATE_OK)
+
+        with allure.step("Validate there should not be any Fan direction Health Issues"):
+            output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_issues = output_dict['issues']
+            assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
+                'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+
+        with allure.step("Change Fan direction of {} to Backward and verify".format(fan_to_check)):
+            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check,
+                                                   FansConsts.BACKWARD_DIRECTION)
+
+        with allure.step('Validate System health status should be {}'.format(state)):
+            output = system.health.show(output_format=OutputFormat.json)
+            output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(output).verify_result()
+            health_status = output_dict['status']
+            assert health_status == state, 'System health status is {} instead of {}'.format(health_status, state)
+
+        with allure.step("Validate Issues should {} seen in System Health Report".format(should_str)):
+            health_issues = output_dict['issues']
+            if feature_enable:
+                assert FansConsts.FAN_DIRECTION_MISMATCH_ERR in output, \
+                    'Expected Issue: {} not found in System health status'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+            else:
+                assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
+                    'Unexpected Issue found in System health status : {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+
+    finally:
+        with allure.step("Change Fan direction of {fan} to default and verify".format(fan=fan_to_check)):
+            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, FansConsts.DEF_DIRECTION)
+
+        with allure.step('Check System health status'):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_status = output['status']
+            assert health_status == FansConsts.STATE_OK, 'System health status is {} instead of {}'.\
+                format(health_status, FansConsts.STATE_OK)
+
+        with allure.step("Validate there should not be any Fan direction Health Issues"):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_issues = output['issues']
+            assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
+                'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+
+
+def verify_fan_direction(engines, devices, direction):
+
+    platform = Platform()
+    system = System()
+
+    try:
+        with allure.step('Check System health status'):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_status = output['status']
+            assert health_status == FansConsts.STATE_OK, 'System health status is {}'.format(FansConsts.STATE_NOT_OK)
+
+        with allure.step('Select FAN to test'):
+            output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
+            fan_to_check = random.choice(list(output.keys()))
+
+        with allure.step("Change Fan direction of {} to {} and verify".format(fan_to_check, direction)):
+            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction)
+
+    finally:
+        with allure.step("Change Fan direction of {fan} to default and verify".format(fan=fan_to_check)):
+            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, FansConsts.DEF_DIRECTION)
+
+        with allure.step('Check System health status'):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
+            health_status = output['status']
+            assert health_status == FansConsts.STATE_OK, 'System health status is {}'.format(FansConsts.STATE_NOT_OK)
+
+
+def set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction):
+
+    if "PSU" in fan_to_check:
+        fan_name = fan_to_check.replace("/", "_").lower()
+    else:
+        fan_name = fan_to_check.split('/')[0].lower()
+
+    with allure.step("Set the direction of the fan {} to {} direction".format(fan_name, direction)):
+        simulate_fan_direction(engines, devices, fan_name, direction)
+
+    with allure.step("Check output of a Fan {}".format(fan_name)):
+        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+            platform.environment.fan.show(op_param=fan_to_check)).verify_result()
+        _verify_fan_prop(fan_to_check, output.keys(), devices)
+
+    with allure.step("Check fan state and direction via CLI"):
+        actual_direction = output['direction']
+        state = output['state']
+        assert actual_direction == direction, "Unexpected direction of fan: {} instead of {}".\
+            format(actual_direction, direction)
+        assert state == 'ok', "State of Fan {} is {} instead of ok".format(fan_name, state)
+
+
+def simulate_fan_direction(engines, devices, fan_name, direction):
+    """
+    @summary: Simulate the direction of the module's fan.
+    @param engines : Engine object
+    @param devices : devices object
+    @param fan_name: the module with the fan to simulate its direction.
+    @param direction: the simulated direction, can be FORWARD/BACKWARD_DIRECTION.
+    """
+    direction_integer = 1 if direction == FansConsts.FORWARD_DIRECTION else 0
+    chmod_cmd = "sudo chmod 777 {}/{}_dir".format(devices.dut.fan_direction_dir, fan_name)
+    ret_val = engines.dut.run_cmd(chmod_cmd)
+    assert len(ret_val) == 0, "Chmod command for fan file failed"
+
+    simulate_cmd = "sudo echo {} > {}/{}_dir".format(direction_integer, devices.dut.fan_direction_dir, fan_name)
+    logger.info('simulate {} fan direction to be {}. from linux shell, run: {}'.
+                format(fan_name, direction, simulate_cmd))
+    ret_val = engines.dut.run_cmd(simulate_cmd)
+    assert len(ret_val) == 0, "Write command for fan file failed"
+    time.sleep(5)  # for the change to take affect.
+
+    chmod_cmd = "sudo chmod 644  {}/{}_dir".format(devices.dut.fan_direction_dir, fan_name)
+    ret_val = engines.dut.run_cmd(chmod_cmd)
+    assert len(ret_val) == 0, "Chmod command for fan file failed"
 
 
 def _verify_temp_prop(temp, temp_prop):

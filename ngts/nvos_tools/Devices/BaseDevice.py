@@ -30,6 +30,7 @@ class BaseDevice(ABC):
         self.psu_list = []
         self.psu_fan_list = []
         self.fan_led_list = []
+        self.fan_direction_dir = ""
         self.temperature_list = []
         self.health_components = []
         self.platform_hw_list = []
@@ -59,6 +60,7 @@ class BaseDevice(ABC):
         self._init_dockers()
         self._init_fan_list()
         self._init_psu_list()
+        self._init_fan_direction_dir()
         self._init_temperature()
         self._init_health_components()
         self._init_platform_lists()
@@ -95,6 +97,10 @@ class BaseDevice(ABC):
 
     @abstractmethod
     def _init_psu_list(self):
+        pass
+
+    @abstractmethod
+    def _init_fan_direction_dir(self):
         pass
 
     @abstractmethod
@@ -343,3 +349,6 @@ class BaseSwitch(BaseDevice):
         self.fan_prop = ["max-speed", "min-speed", "current-speed", "state"]
         self.hw_comp_list = self.fan_list + self.psu_list + ["SWITCH"]
         self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
+
+    def _init_fan_direction_dir(self):
+        self.fan_direction_dir = "/var/run/hw-management/thermal"
