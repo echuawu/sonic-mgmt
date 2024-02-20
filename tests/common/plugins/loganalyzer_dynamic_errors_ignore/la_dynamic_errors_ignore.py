@@ -1,4 +1,6 @@
 import logging
+import glob
+import pytest
 import yaml
 import os
 import re
@@ -93,11 +95,24 @@ def extend_la_ignore_regex(loganalyzer, extended_ignore_list):
 @cache(ttl=dt.timedelta(hours=36))
 def get_ignore_list():
     logger.info('Reading dynamic errors ignore data from file')
+    ignore_list = list()
     la_dynamic_ignore_folder_path = os.path.dirname(__file__)
-    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path, 'dynamic_loganalyzer_ignores.yaml')
+    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path, 'dynamic_loganalyzer_ignores*.yaml')
+    ignore_files_list = glob.glob(path_to_dynamic_la_ignore_file)
+    ignore_files = [f for f in ignore_files_list if os.path.exists(f)]
+    if not ignore_files:
+        pytest.fail('There is no ignore file')
 
-    with open(path_to_dynamic_la_ignore_file) as dynamic_la_ignore_obj:
-        ignore_list = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
+    try:
+        logger.info('Trying to load loganalyzer ignore files: {}'.format(ignore_files))
+        for ignore_file in ignore_files:
+            with open(ignore_file) as dynamic_la_ignore_obj:
+                ignore_data = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
+                ignore_list.extend(ignore_data)
+    except Exception as e:
+        logger.error('Failed to load {}, exception: {}'.format(ignore_files, repr(e)), exc_info=True)
+        pytest.fail('Loading ignore file "{}" failed. Possibly invalid yaml file.'.format(ignore_files))
+
     return ignore_list
 
 

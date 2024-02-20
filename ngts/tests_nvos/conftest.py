@@ -534,17 +534,6 @@ def initialize_testtoolkit_loganalyzer(loganalyzer):
     TestToolkit.loganalyzer_duts = loganalyzer
 
 
-@pytest.fixture(scope='session', autouse=True)
-def save_nvos_dynamic_error_ignore(request):
-    logger.info('Reading NVOS dynamic errors ignore data from file')
-    la_dynamic_ignore_folder_path = os.path.dirname(__file__)
-    path_to_dynamic_la_ignore_file = os.path.join(la_dynamic_ignore_folder_path,
-                                                  'dynamic_nvos_loganalyzer_ignores.yaml')
-    with open(path_to_dynamic_la_ignore_file) as dynamic_la_ignore_obj:
-        ignore_list = yaml.load(dynamic_la_ignore_obj, Loader=yaml.FullLoader)
-    request.node.session.config.cache.set(PytestConst.LA_DYNAMIC_IGNORES_LIST, ignore_list)
-
-
 @pytest.fixture
 def prepare_traffic(engines, setup_name):
     """
