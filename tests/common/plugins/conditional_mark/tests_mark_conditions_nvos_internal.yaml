@@ -175,12 +175,6 @@ tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled
     conditions:
       - https://redmine.mellanox.com/issues/3537022
 
-tests_nvos/interfaces/test_port_split.py:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3545600"
-    conditions:
-      - https://redmine.mellanox.com/issues/3545600
-
 tests_nvos/system/test_system_health.py::test_show_system_health:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
