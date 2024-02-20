@@ -18,14 +18,6 @@ logger = logging.getLogger(__name__)
 ENABLE_GNMI_API = True
 
 
-def pytest_generate_tests(metafunc):
-    if 'inner_packet_type' in metafunc.fixturenames:
-        if metafunc.module.__name__ == 'test_dash_vnet':
-            metafunc.parametrize("inner_packet_type", ['udp', 'tcp', 'echo_request', 'echo_reply'])
-        else:
-            metafunc.parametrize("inner_packet_type", ['udp'])
-
-
 def pytest_addoption(parser):
     """
     Adds pytest options that are used by DASH tests
@@ -345,3 +337,8 @@ def acl_default_rule(localhost, duthost, ptfhost, dash_config_info):
         default_acl_rule.teardown()
         del default_acl_group
         time.sleep(WAIT_AFTER_CONFIG)
+
+
+@pytest.fixture(scope="function", params=['udp', 'tcp', 'echo_request', 'echo_reply'])
+def inner_packet_type(request):
+    return request.param
