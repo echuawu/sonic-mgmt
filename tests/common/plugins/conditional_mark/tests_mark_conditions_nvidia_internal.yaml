@@ -1899,6 +1899,12 @@ platform_tests/test_service_warm_restart.py:
     conditions:
       - "https://github.com/sonic-net/sonic-mgmt/issues/10362"
 
+platform_tests/sfp/test_sfpshow.py::test_check_sfpshow_eeprom:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076 and msn4700 in platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3788076 and 'msn4700' in platform"
+
 dash/test_dash_vnet.py::test_outbound_vnet_direct:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3634592"
