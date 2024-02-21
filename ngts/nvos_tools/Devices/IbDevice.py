@@ -18,7 +18,7 @@ class IbSwitch(BaseSwitch):
         super().__init__()
         self.asic_amount = asic_amount
         self.open_api_port = "443"
-        self.default_password = os.environ["NVU_SWITCH_PASSWORD"]
+        self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
         self.default_username = os.environ["NVU_SWITCH_USER"]
         self._init_ib_speeds()
 
@@ -294,6 +294,7 @@ class IbSwitch(BaseSwitch):
                              "TEMPERATURE": self.temperature_sensors}
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):

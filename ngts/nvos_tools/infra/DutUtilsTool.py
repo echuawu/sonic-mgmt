@@ -1,10 +1,13 @@
 import logging
 import time
+
+from paramiko.ssh_exception import AuthenticationException
+
 from .ResultObj import ResultObj, IssueType
 import subprocess
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from retry.api import retry_call, retry
-from ngts.nvos_constants.constants_nvos import SystemConsts, DatabaseConst
+from ngts.nvos_constants.constants_nvos import SystemConsts, DatabaseConst, NvosConst
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
@@ -44,9 +47,18 @@ class DutUtilsTool:
 
             with allure.step('Waiting for switch to be ready'):
                 check_port_status_till_alive(True, engine.ip, engine.ssh_port)
-                retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
                 result_obj = device.wait_for_os_to_become_functional(engine, find_prompt_delay=find_prompt_delay)
         return result_obj
+
+    @staticmethod
+    def check_ssh_for_authentication_error(engine, device):
+        try:
+            retry_call(engine.run_cmd, fargs=[''], tries=2, delay=3, logger=logger)
+        except AuthenticationException as e:
+            if engine.password == device.default_password:
+                engine.password = NvosConst.OLD_PASS
+            else:
+                engine.password = device.default_password
 
     @staticmethod
     def run_cmd_and_reconnect(engine, command, find_prompt_tries=5, find_prompt_delay=2):

@@ -27,7 +27,7 @@ BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}-001.bin"
 BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}-001/amd64/{base_image}"
 
 # will be removed ones merged to develop
-base_version = "/auto/sw_system_release/nos/nvos/25.01.2504/amd64/prod/nvos-amd64-25.01.2504.bin"
+base_version = "/auto/sw_system_release/nos/nvos/25.01.3000/amd64/dev/nvos-amd64-25.01.3000.bin"
 
 
 @pytest.mark.checklist

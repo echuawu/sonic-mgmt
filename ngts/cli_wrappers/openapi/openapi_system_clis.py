@@ -104,7 +104,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             logger.info("Waiting for switch to be ready")
             check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+            device.wait_for_os_to_become_functional(engine).verify_result()
         return result
 
     @staticmethod
