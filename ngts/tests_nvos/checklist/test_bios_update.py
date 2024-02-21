@@ -56,6 +56,7 @@ def test_bios_upgrade(engines: ProxySshEngine, devices, test_api):
                                                                             devices.dut.previous_bios_version_name)
     except Exception as e:
         logger.info("Received Exception during BIOS firmware change: {}".format(e))
+        raise e
     finally:
         TestToolkit.tested_api = ApiType.OPENAPI
         with allure.step(
