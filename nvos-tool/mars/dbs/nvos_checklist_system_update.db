@@ -50,6 +50,9 @@
 		<cases> sonic-mgmt/nvos-tool/mars/cases/checklist/nvos_checklist_ipv6.cases </cases>
 	</test>
 	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/checklist/nvos_checklist_platform_firmware.cases </cases>
+	</test>
+	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/nvos_check_list.cases </cases>
 	</test>
 
