@@ -41,14 +41,17 @@ def dump_simx_data(topology_obj, dumps_folder, name_prefix=None):
     dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
     if not name_prefix:
         name_prefix = time.strftime('%Y_%b_%d_%H_%M_%S')
-    src_file_path = '/var/log/libvirt/qemu/d-switch-001.log'
-    dst_file_path = dumps_folder + '/{}_{}_simx_vm.log'.format(name_prefix, dut_name)
+    first_src_file_path = '/var/log/libvirt/qemu/d-switch-001.log'
+    second_src_file_path = '/var/log/libvirt/qemu/telnet_connection.log'
+    first_dst_file_path = dumps_folder + '/{}_{}_simx_vm.log'.format(name_prefix, dut_name)
+    second_dst_file_path = dumps_folder + '/{}_{}_telnet_connection.log'.format(name_prefix, dut_name)
     hyper_engine = topology_obj.players['hypervisor']['engine']
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
     hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
-    hyper_engine.run_cmd('sudo docker cp {}:{} {}'.format(dut_name, src_file_path, dst_file_path))
+    hyper_engine.run_cmd('sudo docker cp {}:{} {}'.format(dut_name, first_src_file_path, first_dst_file_path))
+    hyper_engine.run_cmd('sudo docker cp {}:{} {}'.format(dut_name, second_src_file_path, second_dst_file_path))
 
-    logger.info('SIMX VM log file location: {}'.format(dst_file_path))
+    logger.info('SIMX VM log file locations: \n{}\n{}'.format(first_dst_file_path, second_dst_file_path))
 
 
 def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
