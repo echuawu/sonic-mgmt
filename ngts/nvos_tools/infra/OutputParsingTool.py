@@ -259,6 +259,29 @@ class OutputParsingTool:
             return ResultObj(True, "", output_dictionary)
 
     @staticmethod
+    def parse_show_files_to_dict(output_json) -> ResultObj:
+        """
+        Parses the output of some `show ... files` commands.
+        Sample input string:    {"1":
+                                    {"path": "/var/my_file"},
+                                "2":
+                                    {"path": "/var/second.txt"} }
+        Output will be {"1": "/var/my_file",
+                        "2": "/var/second.txt"}
+        """
+        dict_from_json = OutputParsingTool.parse_json_str_to_dictionary(output_json).get_returned_value() or {}  # todo: remove `or {}` once the issue is resolved at ResultObj
+        with allure.step("Parsing show-files output to dict"):
+            result = {k: v['path'] for k, v in dict_from_json.items()}
+            logger.info(result)
+        return ResultObj(True, "", result)
+
+    @staticmethod
+    def parse_show_files_to_names(output_json) -> ResultObj:
+        """Like parse_show_files_to_dict but returns a list of the keys."""
+        as_dict = OutputParsingTool.parse_show_files_to_dict(output_json).get_returned_value() or {}  # todo no or {}
+        return ResultObj(True, "", list(as_dict.keys()))
+
+    @staticmethod
     def parse_show_system_techsupport_output_to_list(output_json):
         """
         Creates a list according to provided JSON output of "show system tech-support"

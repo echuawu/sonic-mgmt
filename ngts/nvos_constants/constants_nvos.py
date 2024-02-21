@@ -420,6 +420,7 @@ class ActionConsts:
     FETCH = "fetch"
     ENABLE = 'enable'
     DISABLE = 'disable'
+    DELETE = 'delete'
 
 
 class IpConsts:

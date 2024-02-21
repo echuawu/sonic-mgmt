@@ -125,3 +125,31 @@ class BaseComponent:
                 result_obj = SendCommandTool.execute_command(self._general_cli_wrapper.apply_config, dut_engine,
                                                              ask_for_confirmation)
         return result_obj
+
+    def action(self, action: str, suffix="", param_name="", param_value="", output_format=OutputFormat.json,
+               dut_device=None, dut_engine=None, expected_output='', expect_reboot=False):
+        """
+        Runs nv action commands. The arguments `suffix`, `param_name` and `param_value` are all arguments passed to the
+        the command, the difference is that in OpenAPI the `suffix` is appended to the URL while param_name and
+        param_value are in the message contents. See examples below (also notice how NVUE handles param_name differently
+        in these examples, based on whether or not we have param_value).
+        :param expect_reboot: Set to True if the system is expected to reboot when the action is run.
+
+        Example: fae.platform.firmware.cpld.action('install', "files /path/to/xyz.img", param_name="force")
+        --> NVUE:       nv action install fae platform firmware cpld files /path/to/xyz.img force
+        --> OPENAPI:    /fae/platform/firmware/cpld/files/%2Fpath%2Fto%2Fxyz.img
+                        {"@install": {"state": "start", "parameters": {"force": True}}}
+
+        Example: fae.platform.firmware.cpld.action('fetch', param_name="remote-url", param_value="scp://...")
+        --> NVUE:       nv action fetch fae platform firmware cpld scp://...
+        --> OPENAPI:    /fae/platform/firmware/cpld
+                        {"@fetch": {"state": "start", "parameters": {"remote-url": "scp://..."}}}
+        """
+        dut_engine = dut_engine or TestToolkit.engines.dut
+        dut_device = TestToolkit.devices.dut
+        resource_path = self.get_resource_path()
+        with allure.step(f"Execute action {action} for {resource_path}"):
+            return SendCommandTool.execute_command_expected_str(
+                self.api_obj[TestToolkit.tested_api].action, expected_output,
+                dut_engine, dut_device, action, resource_path, suffix, param_name, param_value, output_format,
+                expect_reboot)

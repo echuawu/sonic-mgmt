@@ -331,6 +331,24 @@ class GorillaSwitch(IbSwitch):
         self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
         self.previous_bios_version_name = "0ACQF_06.01.002"
         self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
+        self.current_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
+            refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
+            version_names={
+                "CPLD1": "CPLD000232_REV0700",
+                "CPLD2": "CPLD000324_REV0300",
+                "CPLD3": "CPLD000268_REV0700",
+            }
+        )
+        self.previous_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_BURN_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600_IPN.vme",
+            refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_REFRESH_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600.vme",
+            version_names={
+                "CPLD1": "CPLD000232_REV0600",
+                "CPLD2": "CPLD000324_REV0100",
+                "CPLD3": "CPLD000268_REV0500",
+            }
+        )
 
     def _init_fan_list(self):
         BaseSwitch._init_fan_list(self)

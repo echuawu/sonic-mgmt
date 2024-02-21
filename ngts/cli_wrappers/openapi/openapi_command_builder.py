@@ -247,7 +247,7 @@ class OpenApiRequest:
                 return res.info
 
     @staticmethod
-    def send_action_request(request_data, resource_path):
+    def send_action_request(request_data, resource_path, expect_reboot):
         with allure.step("Send POST request"):
             logging.info("Send POST request")
             req_url = '{url}{resource_path}'.format(url=OpenApiRequest._get_endpoint_url(request_data),
@@ -266,10 +266,10 @@ class OpenApiRequest:
                 assert isinstance(r, dict) and r.get('status') != 200 and 'title' in r and 'detail' in r, \
                     f"In case of bad request expect status!=200 and some error message, but response is: {r}"
                 return f"{r['title']}: {r['detail']}"
-            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, response)
+            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, response, expect_reboot)
 
     @staticmethod
-    def _send_get_req_and_wait_till_completed(request_data, rev):
+    def _send_get_req_and_wait_till_completed(request_data, rev, expect_fail=False):
         with allure.step("Send GET request"):
             logging.info("Send GET request")
             action_success = False
@@ -279,6 +279,16 @@ class OpenApiRequest:
             auth = OpenApiRequest._get_http_auth(request_data)
 
             while timeout > 0:
+                if expect_fail:
+                    try:
+                        r = requests.get(url=req_url, verify=False, auth=auth)  # should fail here
+                        OpenApiRequest.print_request(r.request)
+                        OpenApiRequest.print_response(r, OpenApiReqType.GET)
+                        raise AssertionError(f"GET request successful but it was expected to fail")
+                    except requests.exceptions.ConnectionError:
+                        logger.info(f"GET request failed as expected. URL: {req_url}")
+                        return ''
+
                 r = requests.get(url=req_url, verify=False, auth=auth)
                 OpenApiRequest.print_request(r.request)
                 OpenApiRequest.print_response(r, OpenApiReqType.GET)
@@ -313,6 +323,6 @@ class OpenApiCommandHelper:
         return OpenApiCommandHelper.req_method[req_type](request_data, op_param_name)
 
     @staticmethod
-    def execute_action(action_type, user_name, password, dut_ip, resource_path, params):
+    def execute_action(action_type, user_name, password, dut_ip, resource_path, params, expect_reboot=False):
         request_data = RequestData(user_name, password, dut_ip, resource_path.strip(), action_type, params)
-        return OpenApiCommandHelper.req_method[OpenApiReqType.ACTION](request_data, resource_path)
+        return OpenApiCommandHelper.req_method[OpenApiReqType.ACTION](request_data, resource_path, expect_reboot)

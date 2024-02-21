@@ -226,6 +226,8 @@ class BaseAppliance(BaseDevice):
 class BaseSwitch(BaseDevice):
     __metaclass__ = ABCMeta
 
+    CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
+
     def __init__(self):
         super().__init__()
 
@@ -313,6 +315,8 @@ class BaseSwitch(BaseDevice):
         self.current_bios_version_path = ""
         self.previous_bios_version_name = ""
         self.previous_bios_version_path = ""
+        self.current_cpld_version = None
+        self.previous_cpld_version = None
 
     def _init_psu_list(self):
         self.psu_list = ["PSU1", "PSU2"]

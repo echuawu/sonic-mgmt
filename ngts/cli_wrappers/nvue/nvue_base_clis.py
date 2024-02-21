@@ -1,5 +1,6 @@
 import logging
 from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 
 logger = logging.getLogger()
 
@@ -34,3 +35,15 @@ class NvueBaseCli:
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
         return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
+               output_format=OutputFormat.json, expect_reboot=False):
+        """See documentation of BaseComponent.action"""
+        command = ' '.join(['nv action', action_type, resource_path.replace('/', ' '), suffix,
+                            (param_value or param_name), '--output', output_format])
+        logger.info(f"Running command: {command}")
+        if expect_reboot:
+            return DutUtilsTool.reload(engine=engine, device=device, command=command, confirm=True).verify_result()
+        else:
+            return engine.run_cmd(command)

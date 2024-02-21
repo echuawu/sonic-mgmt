@@ -2,6 +2,7 @@ import logging
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from .openapi_command_builder import OpenApiCommandHelper
 from ngts.nvos_constants.constants_nvos import OpenApiReqType
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 
 logger = logging.getLogger()
 
@@ -27,3 +28,31 @@ class OpenApiBaseCli:
         logging.info("Running DELETE method on dut using openApi for {}".format(resource_path))
         return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password,
                                                    OpenApiReqType.DELETE, engine.ip, resource_path, op_param, None)
+
+    @staticmethod
+    def _resource_path_to_rest_path(resource_path: str, suffix=''):
+        output = resource_path.replace(' ', '/')
+        if suffix:
+            output += '/' + suffix.replace('/', '%2F').replace(' ', '/')
+        return output
+
+    @staticmethod
+    def _action_key(action: str):
+        return '@' + action
+
+    @staticmethod
+    def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
+               output_format=OutputFormat.json, expect_reboot=False):
+        """See documentation of BaseComponent.action"""
+        url = OpenApiBaseCli._resource_path_to_rest_path(resource_path, suffix)
+        data = {'state': 'start'}
+        if param_name:
+            data['parameters'] = {param_name: (True if (param_value == '') else param_value)}
+        result = OpenApiCommandHelper.execute_action(
+            OpenApiBaseCli._action_key(action_type), engine.engine.username, engine.engine.password, engine.ip,
+            url, data, expect_reboot)
+
+        if expect_reboot:
+            DutUtilsTool.wait_on_system_reboot(engine)
+
+        return result
