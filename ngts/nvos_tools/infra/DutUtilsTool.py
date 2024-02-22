@@ -1,4 +1,5 @@
 import logging
+import socket
 import time
 
 from paramiko.ssh_exception import AuthenticationException
@@ -127,6 +128,15 @@ class DutUtilsTool:
                                                       file_full_path)
 
             return ResultObj(result=True, info=remote_url, returned_value=remote_url)
+
+    @staticmethod
+    def run_cmd_with_disconnect(engine, cmd, timeout=5):
+        try:
+            return engine.run_cmd(cmd, timeout=timeout)
+        except socket.error as e:
+            logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
+            engine.disconnect()
+            return "Action succeeded"
 
 
 def ping_device(ip_add):

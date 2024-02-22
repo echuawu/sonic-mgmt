@@ -1,5 +1,4 @@
 import logging
-import socket
 
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -7,7 +6,6 @@ from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
-
 
 logger = logging.getLogger()
 
@@ -67,6 +65,15 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    def action_general_with_expected_disconnect(engine, action_str, resource_path, op_param="", timeout=10):
+        resource_path = resource_path.replace('/', ' ')
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=timeout)
+
+    @staticmethod
     def action_firmware_install(engine, param=""):
         cmd = "nv action install system firmware asic files {param}".format(param=param)
         logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
@@ -119,7 +126,8 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action reboot {path} {op_param}".format(path=path, op_param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, should_wait_till_system_ready=should_wait_till_system_ready,
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd,
+                                   should_wait_till_system_ready=should_wait_till_system_ready,
                                    confirm=True).verify_result()
 
     @staticmethod
@@ -185,12 +193,7 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action disconnect {path}".format(path=path)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
-        try:
-            return engine.run_cmd(cmd, timeout=5)
-        except socket.error as e:
-            logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
-            engine.disconnect()
-            return "Action succeeded"
+        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=5)
 
     @staticmethod
     def action_reset(engine, device, comp, param):
@@ -232,9 +235,10 @@ class NvueSystemCli(NvueBaseCli):
         cmd = ""
 
         action_import = f"nv action import {path} {cert_id}"
-        action_import_dict = {CertificateFiles.URI_BUNDLE: f"{action_import} {import_type} {uri1} {CertificateFiles.PASSPHRASE} {passphrase}",
-                              CertificateFiles.PUBLIC_PRIVATE: f"{action_import} {CertificateFiles.PUBLIC_KEY_FILE} {uri1} {CertificateFiles.PRIVATE_KEY_FILE} {uri2}",
-                              CertificateFiles.DATA: f"{action_import} {import_type} {uri1}"}
+        action_import_dict = {
+            CertificateFiles.URI_BUNDLE: f"{action_import} {import_type} {uri1} {CertificateFiles.PASSPHRASE} {passphrase}",
+            CertificateFiles.PUBLIC_PRIVATE: f"{action_import} {CertificateFiles.PUBLIC_KEY_FILE} {uri1} {CertificateFiles.PRIVATE_KEY_FILE} {uri2}",
+            CertificateFiles.DATA: f"{action_import} {import_type} {uri1}"}
 
         cmd = " ".join(action_import_dict[import_type].split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))

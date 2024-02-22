@@ -43,5 +43,6 @@ class SonicCli(BaseComponent):
                          api={ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, path='/sonic-cli')
 
     def action_general(self, action_str):
-        return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_general,
-                                               TestToolkit.engines.dut, action_str, self.get_resource_path())
+        return SendCommandTool.execute_command(
+            self.api_obj[TestToolkit.tested_api].action_general_with_expected_disconnect,
+            TestToolkit.engines.dut, action_str, self.get_resource_path())
