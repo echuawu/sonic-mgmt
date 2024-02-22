@@ -1901,9 +1901,15 @@ platform_tests/test_service_warm_restart.py:
 
 platform_tests/sfp/test_sfpshow.py::test_check_sfpshow_eeprom:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076 and msn4700 in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076"
     conditions:
-      - "https://redmine.mellanox.com/issues/3788076 and 'msn4700' in platform"
+    - "https://redmine.mellanox.com/issues/3788076"
+
+platform_tests/sfp/test_show_intf_xcvr.py::test_check_sfpshow_eeprom:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3788076"
 
 dash/test_dash_vnet.py::test_outbound_vnet_direct:
   skip:
