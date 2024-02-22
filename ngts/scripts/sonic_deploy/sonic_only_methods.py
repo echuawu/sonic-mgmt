@@ -461,6 +461,9 @@ class SonicInstallationSteps:
         """
         dut_engine = None
         try:
+            # TODO: Temp workaround for overcoming ipv6 ssh issue
+            sonic_mgmt_engine = topology_obj.players['sonic-mgmt']['engine']
+            sonic_mgmt_engine.run_cmd("sudo /bin/sh -c 'echo \"precedence ::ffff:0:0/96 100\" >> /etc/gai.conf'")
             # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutdown bgp
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:
