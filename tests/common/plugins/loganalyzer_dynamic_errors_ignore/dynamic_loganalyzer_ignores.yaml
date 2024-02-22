@@ -1041,9 +1041,9 @@
         - 3537514
 
 - Errors_list:
-    - '.*ERR kernel: \[ \d+.\d+\] Failed to bind BFD socket to local_addr.*'
-    - '.*ERR kernel: \[ \d+.\d+\] Failed to create TX socket for session.*'
-    - '.*ERR kernel: \[ \d+.\d+\] Parsing BFD command \d+ failed.*'
+    - '.*ERR kernel:.*Failed to bind BFD socket to local_addr.*'
+    - '.*ERR kernel:.*Failed to create TX socket for session.*'
+    - '.*ERR kernel:.*Parsing BFD command \d+ failed.*'
     - '.*ERR syncd#SDK: \[BFD.ERR\] ioctl failed, error description: Input/output error'
     - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed in bfd_offload_set().* error:.*'
     - '.*ERR syncd#SDK: \[SAI_BFD.ERR\] .*mlnx_sai_bfd.c\[\d+\]- mlnx_set_offload_bfd_tx_session.*: Error create TX BFD session.*'
