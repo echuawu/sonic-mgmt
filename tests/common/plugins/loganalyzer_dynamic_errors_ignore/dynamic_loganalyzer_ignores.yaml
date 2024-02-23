@@ -1934,6 +1934,14 @@
       - 3289596
 
 - Errors_list:
+  - ".* ERR swss#supervisor-proc-exit-listener: Process 'orchagent' is stuck in namespace 'host'.*"
+  Conditions:
+  - Affected_test_cases:
+    - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+    Redmine:
+    - 3705311
+
+- Errors_list:
     - '.*ERR kernel.*Unknown EEPROM type.*'
   Conditions:
     - Affected_test_cases:
