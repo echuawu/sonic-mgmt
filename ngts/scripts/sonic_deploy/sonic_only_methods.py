@@ -292,7 +292,7 @@ class SonicInstallationSteps:
     def post_installation_steps(topology_obj, sonic_topo,
                                 recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
-                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu):
+                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu=False):
         """
         Post-installation steps
         :param topology_obj: topology object
