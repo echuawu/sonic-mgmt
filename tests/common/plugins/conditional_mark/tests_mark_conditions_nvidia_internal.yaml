@@ -2471,3 +2471,67 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
       - "https://redmine.mellanox.com/issues/3678432 and 'inde' in branch"
       - "https://redmine.mellanox.com/issues/3715747 and 'master' in branch"
       - "https://redmine.mellanox.com/issues/3570140 and'simx' in platform"
+
+########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE START ############################
+
+platform_tests/test_sensors.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3768210"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3768210 and ('sn5400' in platform)"
+
+tests/nightly/fec/:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3782552"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3782552 and ('sn5400' in platform)"
+
+tests/nightly/auto_negotition/test_auto_neg.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3782552"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3782552 and ('sn5400' in platform)"
+
+tests/nightly/auto_negotition/test_auto_neg_scale.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3782552"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3782552 and ('sn5400' in platform)"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_show:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3783313"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3783313 and ('sn5400' in platform)"
+
+tests/nightly/lag/test_lag.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3783776"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3783776 and ('sn5400' in platform)"
+
+process_monitoring/test_critical_process_monitoring.py::test_monitoring_critical_processes:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785021"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3785021 and ('sn5400' in platform)"
+
+process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785024"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
+
+tests/nightly/secure/test_secure_corrupt_fw/test_secure_corrupt_fw.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788777"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3788777 and ('sn5400' in platform)"
+
+tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3793421"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3793421 and ('sn5400' in platform)"
+
+########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE START ############################
