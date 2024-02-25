@@ -12,5 +12,11 @@ NVOS_BAT_ONLY:
 
 SONIC_BAT_ONLY:
   - ngts/tests
-  - tests
   - ansible
+  - tests/common/devices
+  - tests/common/fixtures
+  - tests/common/platform
+  - tests/conftest.py
+
+SONIC_COMMUNITY_BAT_ONLY:
+  - tests

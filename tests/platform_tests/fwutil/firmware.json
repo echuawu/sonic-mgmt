@@ -579,6 +579,33 @@
 				]
 			}
 		},
+		"SN5400": {
+			"component": {
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "http://nbu-nfs.mellanox.com/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x04_rc5/Release/0ACQF.cab",
+						"version": "0ACQF_06.01.004",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "http://nbu-nfs.mellanox.com/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0011-rc9-dev/115200/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2023.11-5.3.0011-rc9-dev-115200-dev",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD2": [
+					{
+						"firmware": "http://nbu-nfs.mellanox.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI_Local/FUI_Local.mpfa",
+						"version": "CPLD060352_REV0002",
+						"reboot": ["power off", "cold"]
+					}
+				]
+			}
+		},
 		"SN5600": {
 			"component": {
 				"BIOS": [

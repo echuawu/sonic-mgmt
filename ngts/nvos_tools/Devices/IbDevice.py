@@ -18,7 +18,7 @@ class IbSwitch(BaseSwitch):
         super().__init__()
         self.asic_amount = asic_amount
         self.open_api_port = "443"
-        self.default_password = os.environ["NVU_SWITCH_PASSWORD"]
+        self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
         self.default_username = os.environ["NVU_SWITCH_USER"]
         self._init_ib_speeds()
 
@@ -36,7 +36,6 @@ class IbSwitch(BaseSwitch):
         return ResultObj(False, err_msg) if err_msg else ResultObj(True, "", "")
 
     def _init_ib_speeds(self):
-        BaseSwitch._init_ib_speeds(self)
         self.invalid_ib_speeds = {'qdr': '40G'}
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'sdr': '10G', 'ndr': '400G'}
 
@@ -119,6 +118,8 @@ class IbSwitch(BaseSwitch):
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = False
+        self.install_from_onie_timeout = 360
+        self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.voltage_sensors = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
@@ -294,6 +295,7 @@ class IbSwitch(BaseSwitch):
                              "TEMPERATURE": self.temperature_sensors}
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):

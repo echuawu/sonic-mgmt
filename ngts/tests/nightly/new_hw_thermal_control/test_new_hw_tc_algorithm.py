@@ -11,6 +11,7 @@ import re
 from ngts.helpers.new_hw_thermal_control_helper import TC_CONST, MockSensors, SENSOR_DATA, \
     verify_pwd_and_rpm_are_expected_value, get_sensor_temperature_file_name, get_sensor_err_test_data, get_pwm, \
     get_temperature_digit, SENSOR_ERR_TEST_DATA, compare_pwd_with_expected_value, verify_rpm_is_expected_value
+from ngts.common.checkers import is_ver1_greater_or_equal_ver2
 
 logger = logging.getLogger()
 
@@ -21,6 +22,7 @@ class TestNewTc:
     def setup_param(self, topology_obj, engines, cli_objects, interfaces, players):
         self.cli_objects = cli_objects
         self.dut_engine = engines.dut
+        self.topology_obj = topology_obj
 
     @allure.title('test temperature sweep')
     def test_temperature_sweep(self, request, get_dut_supported_sensors_and_tc_config, platform_params):
@@ -228,11 +230,19 @@ class TestNewTc:
                 tc_config_content = self.dut_engine.run_cmd(f'sudo cat {TC_CONST.TC_CONFIG_FILE}')
                 assert expected_hwsku_in_tc_config_file.lower() in tc_config_content, \
                     f"tc_config file should contains hwsku name: {expected_hwsku_in_tc_config_file.lower()}"
-        else:
-            with allure.step("Get tc_config link"):
-                tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
 
-            with allure.step(f"Check {expected_hwsku_in_tc_config_file} is in {tc_config_link}"):
+        # RM issue 3769500
+        current_hw_version = self.cli_objects.dut.hw_mgmt.get_hw_version()
+        base_hw_version = "7.0030.2013"
+        logger.info(f'current hw_version: {current_hw_version}, base hw_version:{base_hw_version}')
+        if is_ver1_greater_or_equal_ver2(current_hw_version, base_hw_version):
+            with allure.step(f"Use {TC_CONST.HW_MGMT_THERMAL_FOLDER}/tc_config_*.json file to verify hwsku"):
+                cmd = f'ls {TC_CONST.HW_MGMT_THERMAL_FOLDER} | grep -i {expected_hwsku_in_tc_config_file.lower()}.json'
+                output = self.dut_engine.run_cmd(cmd)
+                assert expected_hwsku_in_tc_config_file.lower() in output.lower(), "SKU not found in the expected file."
+        else:
+            with allure.step("Use tc_config link to verify hwsku"):
+                tc_config_link = self.dut_engine.run_cmd(f'sudo readlink {TC_CONST.TC_CONFIG_FILE}')
                 assert expected_hwsku_in_tc_config_file.lower() in tc_config_link.lower(), \
                     f"tc_config is linked to wrong file. tc_config link:{tc_config_link}, " \
                     f"platform sku: {platform_params.hwsku}"

@@ -53,7 +53,7 @@ def start_dhclient(duthost):
 def stop_dhclient(duthost):
     yield
 
-    if os.path.exists(DHCLIENT_PID_FILE):
+    if duthost.shell(f'ls {DHCLIENT_PID_FILE}', module_ignore_errors=True)['rc'] == 0:
         duthost.shell(f"sudo kill $(cat {DHCLIENT_PID_FILE})")
         duthost.shell(f"rm -rf {DHCLIENT_PID_FILE}")
 

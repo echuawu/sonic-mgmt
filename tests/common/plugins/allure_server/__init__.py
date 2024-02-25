@@ -11,13 +11,16 @@ import pytest
 import copy
 import socket
 from retry import retry
+from requests.packages import urllib3
 from tests.common.helpers.constants import RANDOM_SEED
 
+urllib3.disable_warnings()
 
 logger = logging.getLogger()
 
 ALLURE_REPORT_URL = 'allure_report_url'
 PYTEST_RUN_CMD = 'pytest_run_cmd'
+SSL_VERIFICATION = False
 
 
 def pytest_addoption(parser):
@@ -59,7 +62,7 @@ def pytest_sessionfinish(session, exitstatus):
                     report_url = allure_server_obj.generate_allure_report()
                     session.config.cache.set(ALLURE_REPORT_URL, report_url)
                 except Exception as err:
-                    logger.error('Failed to upload allure report to server. Allure report not available. '
+                    logger.error('Failed to send-results?project_id= allure report to server. Allure report not available. '
                                  '\nError: {}'.format(err))
             else:
                 logger.error('PyTest argument "--alluredir" not provided. Impossible to generate Allure report')
@@ -227,7 +230,10 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
 class AllureServer:
     def __init__(self, allure_server_ip, allure_server_port, allure_report_dir, project_id=None):
         self.allure_report_dir = allure_report_dir
-        self.base_url = 'http://{}:{}/allure-docker-service'.format(allure_server_ip, allure_server_port)
+        if allure_server_port:
+            self.base_url = 'http://{}:{}/allure-docker-service'.format(allure_server_ip, allure_server_port)
+        else:
+            self.base_url = 'https://{}/allure-docker-service'.format(allure_server_ip)
         self.project_id = project_id if project_id else get_time_stamp_str()
         self.http_headers = {'Content-type': 'application/json'}
 
@@ -249,11 +255,15 @@ class AllureServer:
         data = {'id': self.project_id}
         url = self.base_url + '/projects'
 
-        if requests.get(url + '/' + self.project_id).status_code != 200:
+        if requests.get(url + '/' + self.project_id, verify=SSL_VERIFICATION).status_code != 200:
             logger.info('Creating project {} on allure server'.format(self.project_id))
-            response = requests.post(url, json=data, headers=self.http_headers)
+            start_time = time.time()
+            response = requests.post(url, json=data, headers=self.http_headers, verify=SSL_VERIFICATION)
+            diff_time = time.time() - start_time
+            logger.info("Creating project {} takes {}".format(self.project_id, diff_time))
             if response.raise_for_status():
-                logger.error('Failed to create project on allure server, error: {}'.format(response.content))
+                logger.error('Failed to create project on allure server, error: {}, \n status_code :{}'.format(
+                    response.content, response.status_code))
         else:
             logger.info('Allure project {} already exist on server. No need to create project'.format(self.project_id))
 
@@ -265,10 +275,14 @@ class AllureServer:
         data = {'results': self.get_allure_files_content()}
         url = self.base_url + '/send-results?project_id=' + self.project_id
         logger.info('Sending allure results to allure server')
-        response = requests.post(url, json=data, headers=self.http_headers)
+        start_time = time.time()
+        response = requests.post(url, json=data, headers=self.http_headers, verify=SSL_VERIFICATION)
+        diff_time = time.time() - start_time
+        logger.info("uploading allure results takes {}".format(diff_time))
         if response.status_code != 200:
-            logger.error('Failed to upload results to allure server, error: {}. status_code: {}, headers is :{}'.format(
-                         response.content,response.status_code, self.http_headers))
+            logger.error('Failed to upload results to allure server, error: {}. \n status_code: {},'
+                         ' \n headers is :{}, \n URL :{}, \n SSL_VERIFICATION :{}'.format(
+                         response.content, response.status_code, self.http_headers, url, SSL_VERIFICATION))
             for result in data["results"]:
                 if "json" in result["file_name"]:
                     logger.info(result)
@@ -315,7 +329,10 @@ class AllureServer:
         """
         logger.info('Generating report on allure server')
         url = self.base_url + '/generate-report?project_id=' + self.project_id
-        response = requests.get(url, headers=self.http_headers, timeout=120)
+        start_time = time.time()
+        response = requests.get(url, headers=self.http_headers, timeout=120, verify=SSL_VERIFICATION)
+        diff_time = time.time() - start_time
+        logger.info("generate allure report takes {}".format(diff_time))
         logger.info('Finish generating report on allure server')
         if response.raise_for_status():
             logger.error('Failed to generate report on allure server, error: {}'.format(response.content))
@@ -329,7 +346,7 @@ class AllureServer:
         This method would clean results for project on the remote allure server
         """
         url = self.base_url + '/clean-results?project_id=' + self.project_id
-        response = requests.get(url, headers=self.http_headers)
+        response = requests.get(url, headers=self.http_headers, verify=SSL_VERIFICATION)
 
         if response.raise_for_status():
             logger.error('Failed to clean results on allure server, error: {}'.format(response.content))

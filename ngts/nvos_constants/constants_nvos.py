@@ -65,6 +65,8 @@ class NvosConst:
     DOCKER_STATUS_DISABLED = 'disabled'
     DOCKER_STATUS_UP = 'Up'
     SERVICE_STATUS_ACTIVE = 'active'
+    NVUE_CLI = "NVUE"
+    CUMULUS_SWITCH = "CUMULUS_SWITCH"
 
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     DOCKER_PER_ASIC_LIST = ['syncd-ibv0', 'swss-ibv0', 'database']
@@ -81,6 +83,7 @@ class NvosConst:
 
     DEFAULT_USER = os.getenv("NVU_SWITCH_USER")
     DEFAULT_PASS = os.getenv("NVU_SWITCH_NEW_PASSWORD")
+    OLD_PASS = os.getenv("NVU_SWITCH_PASSWORD")
 
     REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
 
@@ -121,6 +124,13 @@ class NvosConst:
         "timezone": "Asia/Jerusalem"
     }
     }
+
+    ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
+    INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
+    INSTALL_WGET_ERROR = "wget:.*"
+    INSTALL_BOOT_PATTERN = "boot:"
+    INSTALL_CUMULUS_SUCCESS_PATTERN = '.* login:'
+    NVOS_INSTALL_TIMEOUT = 6 * 60  # 6 minutes
 
 
 class CertificateFiles:

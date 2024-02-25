@@ -2,6 +2,7 @@ import logging
 import os
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -14,6 +15,7 @@ class EthSwitch(BaseSwitch):
         self.open_api_port = "8765"
         self.default_password = os.environ["CUMULUS_SWITCH_PASSWORD"]
         self.default_username = os.environ["CUMULUS_SWITCH_USER"]
+        self.manufacture_password = "cumulus"
 
     def _init_constants(self):
         BaseSwitch._init_constants(self)
@@ -22,6 +24,8 @@ class EthSwitch(BaseSwitch):
                                   "technical documentation, visit\nhttps://www.nvidia.com/en-us/support\n\nThe " \
                                   "registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe " \
                                   "exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
+        self.install_from_onie_timeout = 600
+        self.install_success_patterns = ['Debian GNU/Linux 10 .*', NvosConst.INSTALL_BOOT_PATTERN]
 
     def ib_ports_num(self):
         return 0
@@ -32,6 +36,27 @@ class EthSwitch(BaseSwitch):
     def reload_device(self, engine, cmd_set, validate=False):
         engine.run_cmd_set(cmd_set, validate=False)
 
+    def _init_fan_list(self):
+        pass
+
+    def _init_system_lists(self):
+        pass
+
+    def _init_available_databases(self):
+        pass
+
+    def _init_services(self):
+        pass
+
+    def _init_dependent_services(self):
+        pass
+
+    def _init_dockers(self):
+        pass
+
+    def _init_sensors_dict(self):
+        pass
+
 
 # -------------------------- Anaconda Switch ----------------------------
 class AnacondaSwitch(EthSwitch):
@@ -40,12 +65,12 @@ class AnacondaSwitch(EthSwitch):
         super().__init__(asic_amount=1)
 
     def _init_constants(self):
-        EthSwitch._init_constants(self)
+        super()._init_constants()
         self.core_count = 8
         self.asic_type = 'GEN2'
 
     def _init_fan_list(self):
-        EthSwitch._init_fan_list(self)
+        super()._init_fan_list()
 
         self.fan_list = ["Fan1", "Fan2", "Fan3", "Fan4", "Fan5", "Fan6", "Fan7", "Fan8", "Fan9", "Fan10", "Fan11",
                          "Fan12"]

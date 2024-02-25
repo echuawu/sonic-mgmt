@@ -67,7 +67,7 @@ def test_interface_ipoib_mapping_basic_functionality(engines, devices, start_sm)
 
         with allure_step("Validate params applied to primary/secondary ib interface"):
             primary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(device.primary_ipoib_interface))
-            if device.MULTI_ASIC_SYSTEM:
+            if device.multi_asic_system:
                 secondary_ib_interface_output = engines.dut.run_cmd("ip addr show {}".format(
                     device.primary_ipoib_interface))
                 assert "UP" in secondary_ib_interface_output, "port not in up state"

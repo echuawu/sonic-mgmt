@@ -30,8 +30,8 @@ def test_run_nvos_simx_docker(topology_obj, target_version):
     with allure.step("Wait until the switch is ready (~5 min)"):
         wait_till_the_switch_is_ready(dut_engine.ip)
 
-    with allure.step("Check installed image"):
-        dut_engine.run_cmd('nv show system version')
+    with allure.step("Wait until ssh is ready"):
+        wait_till_ssh_is_ready(dut_engine)
 
     with allure.step("Apply basic config"):
         set_base_configurations(dut_engine=dut_engine, apply=True)
@@ -53,3 +53,8 @@ def wait_till_the_switch_is_ready(switch_ip):
 
     assert switch_is_ready, "Failed to initiate simx docker components"
     logging.info("All simx docker components are active")
+
+
+@retry(Exception, tries=10, delay=5)
+def wait_till_ssh_is_ready(dut_engine):
+    dut_engine.run_cmd('nv show system version')

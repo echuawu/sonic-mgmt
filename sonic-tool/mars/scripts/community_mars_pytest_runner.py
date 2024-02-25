@@ -21,6 +21,8 @@ from reg2_wrapper.test_wrapper.standalone_wrapper import StandaloneWrapper
 from sig_term_handler.handler_mixin import TermHandlerMixin
 from lib.utils import get_allure_project_id
 
+ErrorCode.NO_COLLECTION = 5
+
 
 class RunPytest(TermHandlerMixin, StandaloneWrapper):
 
@@ -40,12 +42,14 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         self.add_cmd_argument("--test-scripts", required=True, dest="test_scripts",
                               help="The pytest scripts to be executed. Multiple scripts should be separated by \
                                     whitespace. Both absolute or relative path are OK.")
-        self.add_cmd_argument("--raw-options", nargs="?",default="", dest="raw_options",
+        self.add_cmd_argument("--raw-options", nargs="?", default="", dest="raw_options",
                               help="All the other options that to be passed to py.test")
         self.add_cmd_argument("--json-root-dir", required=True, dest="json_root_dir",
                               help="Root directory for storing json metadata")
         self.add_cmd_argument("--is_python3_test", required=False, default=False, dest="is_python3_test",
                               help="True if test case should run from python3, by default False(use python 2.7)")
+        self.add_cmd_argument("--test_type", required=False, default="", dest="test_type",
+                              help="Decide the pytest marker we want to use in the CI test")
 
     def _parse_junit_xml(self, content):
 
@@ -86,7 +90,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                         case_info["result"] = tag_result_map[case_child.tag.lower()]
                         break
 
-                if not "result" in case_info:
+                if "result" not in case_info:
                     case_info["result"] = "passed"
 
                 all_cases.append(case_info)
@@ -124,7 +128,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         json_dir = os.path.join(self.json_root_dir, self.session_id)
         if not os.path.isdir(json_dir):
             self.Logger.info("Creating directory %s" % json_dir)
-            os.mkdir(json_dir, 0755)
+            os.mkdir(json_dir, 0o755)
 
         json_metadata = {"id": self.mars_key_id, "json": json_obj}
         dump_filename = os.path.join(json_dir, self.mars_key_id + ".json")
@@ -151,6 +155,20 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         rc = ErrorCode.SUCCESS
 
         self.report_file = "junit_%s_%s.xml" % (self.session_id, self.mars_key_id)
+        old_allure_server = "10.215.11.120"
+
+        if old_allure_server in self.raw_options:
+            self.raw_options = self.raw_options.replace(old_allure_server, "allure.nvidia.com")
+        else:
+            self.raw_options = self.raw_options + ' --allure_server_addr="allure.nvidia.com" '
+        self.raw_options += ' --allure_server_port="" '
+
+        if self.test_type:
+            if self.test_type != "default":
+                self.raw_options = re.sub(r" -m \".+\"", "", self.raw_options)
+                self.raw_options = re.sub(r" -m \S+", "", self.raw_options)
+            if self.test_type == "yaml":
+                self.raw_options += " -m yaml"
 
         if '--allure_server_project_id' in self.raw_options:
             allure_proj_pytest_arg = ''
@@ -230,8 +248,9 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
             epoint.Player.run_process(cmd, shell=True, disable_realtime_log=False, delete_files=False)
             # Sleep needed to get logs if tests were not executed or even were not collected and exited immediately.
             time.sleep(2)
-
         rc = player.wait() or rc
+        if rc == ErrorCode.NO_COLLECTION:
+            rc = 0  # In case no tests are collected, should not fail mars step
         player.remove_remote_test_path(player.testPath)
         return rc
 
@@ -247,7 +266,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 json_dir = os.path.join(self.json_root_dir, self.session_id)
                 if not os.path.isdir(json_dir):
                     self.Logger.info("Creating directory %s" % json_dir)
-                    os.mkdir(json_dir, 0755)
+                    os.mkdir(json_dir, 0o755)
                 local_report_file = os.path.join(json_dir, self.mars_key_id + ".xml")
 
                 self.Logger.info("Downloading %s from player to %s" % (self.report_file, local_report_file))
@@ -255,7 +274,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 self.Logger.info("Downloaded report to %s" % local_report_file)
 
                 self.dump_metadata(self._parse_junit_xml(open(local_report_file).read()))
-            except Exception, e:
+            except Exception as e:
                 self.Logger.error(repr(e))
                 self.Logger.warning("Failed to get junit xml test report %s from remote player" % self.report_file)
         return ErrorCode.SUCCESS

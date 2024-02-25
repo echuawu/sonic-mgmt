@@ -6,6 +6,8 @@ import base64
 import argparse
 import logging
 import time
+from requests.packages import urllib3
+urllib3.disable_warnings()
 
 path = os.path.abspath(__file__)
 sonic_mgmt_path = path.split('/ngts/')[0]
@@ -14,7 +16,8 @@ sys.path.append(sonic_mgmt_path)
 from ngts.constants.constants import InfraConst  # noqa: E402
 
 ALLURE_DOCKER_SERVICE = 'allure-docker-service'
-HTTP_TIMEOUT = 120
+HTTP_TIMEOUT = 200
+SSL_VERIFICATION = False
 
 
 def get_logger():
@@ -53,9 +56,9 @@ def create_project(allure_server_url, allure_project):
     http_headers = {'Content-type': 'application/json'}
     url = allure_server_url + '/projects'
 
-    if requests.get(url + '/' + allure_project, timeout=HTTP_TIMEOUT).status_code != 200:
+    if requests.get(url + '/' + allure_project, timeout=HTTP_TIMEOUT, verify=SSL_VERIFICATION).status_code != 200:
         logger.info('Creating project {} on allure server'.format(allure_project))
-        response = requests.post(url, json=data, headers=http_headers, timeout=HTTP_TIMEOUT)
+        response = requests.post(url, json=data, headers=http_headers, timeout=HTTP_TIMEOUT, verify=SSL_VERIFICATION)
         if response.raise_for_status():
             logger.error('Failed to create project on allure server, error: {}'.format(response.content))
     else:
@@ -98,23 +101,22 @@ def upload_data_to_server(allure_report_items_list, allure_server, project_id):
     }
     json_request_body = json.dumps(request_body)
 
-    ssl_verification = True
-
     logger.info("------------------SEND-RESULTS------------------")
     start_time = time.time()
     send_result_url = '{}/send-results?project_id={}'.format(allure_server, project_id)
     diff_time = time.time() - start_time
     logger.info(f"uploading data takes {diff_time}")
-    response = requests.post(send_result_url, headers=headers, data=json_request_body, verify=ssl_verification,
+    response = requests.post(send_result_url, headers=headers, data=json_request_body, verify=SSL_VERIFICATION,
                              timeout=HTTP_TIMEOUT)
     logger.info("STATUS CODE:")
     logger.info(response.status_code)
 
 
 def generate_report(allure_server_url, allure_project):
+    predict_allure_report_link(allure_server_url, allure_project)
     start_time = time.time()
     response = requests.get('{}/generate-report?project_id={}'.format(allure_server_url, allure_project),
-                            timeout=HTTP_TIMEOUT).json()
+                            verify=SSL_VERIFICATION, timeout=HTTP_TIMEOUT).json()
     diff_time = time.time() - start_time
     logger.info(f"generating report takes {diff_time}")
     report_url = response['data']['report_url']
@@ -123,8 +125,31 @@ def generate_report(allure_server_url, allure_project):
     cleanup_report(allure_server_url, allure_project)
 
 
+def predict_allure_report_link(allure_server_url, allure_project):
+    """
+    THe function is to construct allure report link base on the current allure report index.
+     The new allure report index is equal to the current index + 1
+    """
+    try:
+        response = requests.get('{}/projects/{}'.format(allure_server_url, allure_project),
+                                verify=SSL_VERIFICATION, timeout=HTTP_TIMEOUT).json()
+        allure_report_index = int(response['data']['project']["reports_id"][1]) + 1 \
+            if len(response['data']['project']["reports_id"]) > 1 else 1
+
+        allure_report_url = "{}/projects/{}/reports/{}/index.html".format(
+            allure_server_url, allure_project, allure_report_index)
+    except Exception as err:
+        logger.error("Fail to construct allure report url. Err:{}".format(err))
+    else:
+        logger.info("\n\n\n When allure report size it too bigger, generating allure report usually timeouts"
+                    "\n To avoid missing allure report link"
+                    "\n We construct the allure report link base current report index before generating allure report"
+                    "\n Predict Allure report URL:{} \n\n\n".format(allure_report_url))
+
+
 def cleanup_report(allure_server_url, allure_project):
-    requests.get('{}/clean-results?project_id={}'.format(allure_server_url, allure_project), timeout=HTTP_TIMEOUT)
+    requests.get('{}/clean-results?project_id={}'.format(allure_server_url, allure_project),
+                 verify=SSL_VERIFICATION, timeout=HTTP_TIMEOUT)
 
 
 if __name__ == "__main__":

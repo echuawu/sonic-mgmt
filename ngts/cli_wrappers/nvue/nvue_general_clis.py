@@ -23,8 +23,9 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     Most of the methods are inherited from SonicGeneralCli
     """
 
-    def __init__(self, engine):
+    def __init__(self, engine, device=None):
         self.engine = engine
+        self.device = device
 
     @retry(Exception, tries=5, delay=30)
     def generate_techsupport(self, duration=60):
@@ -74,48 +75,68 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def show_version(self, validate=False):
         return self.engine.run_cmd('nv show system version')
 
-    def install_nos_using_onie_in_serial(self, nos_image: str, ssh_engine, topology_obj):
-        ONIE_NOS_INSTALL_CMD = 'onie-nos-install'
-        INSTALL_SUCCESS_PATTERN = 'Installed.*base image.*successfully'
-        INSTALL_WGET_ERROR = ["wget:.*"]
-        NVOS_INSTALL_TIMEOUT = 6 * 60  # 6 minutes
-
+    def _get_image_path_and_url(self, nos_image: str):
         if nos_image.startswith('/auto/'):
             image_path = nos_image
             image_url = f"{MarsConstants.HTTP_SERVER_NBU_NFS}{image_path}"
         else:
             assert nos_image.startswith(
-                'http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. Actual "nos_image"={nos_image}'
+                'http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. ' \
+                            f'Actual "nos_image"={nos_image}'
             image_path = f'/auto/{nos_image.split("/auto/")[1]}'
             image_url = nos_image
+        return image_path, image_url
+
+    def _onie_nos_install_image(self, serial_engine, image_url, expected_patterns):
+        logger.info('Install image using url')
+        _, index = serial_engine.run_cmd(
+            f'{NvosConst.ONIE_NOS_INSTALL_CMD} {image_url}', expected_patterns,
+            timeout=self.device.install_from_onie_timeout)
+        logger.info(f'"{expected_patterns[index]}" pattern found')
+        return index
+
+    def _scp_image(self, ssh_engine, image_path, file_name_on_switch):
+        logger.info('onie-nos-install failed because of wget error. install with scp')
+        with allure.step('Upload nvos to switch with scp'):
+            if not image_path.startswith('/auto'):
+                image_path = f'/auto/{image_path.split("/auto/")[1]}'
+            scp_engine = LinuxSshEngine(ssh_engine.ip, DefaultConnectionValues.ONIE_USERNAME,
+                                        DefaultConnectionValues.ONIE_PASSWORD)
+            scp_file(scp_engine, image_path, file_name_on_switch)
+
+    def _install_image_on_onie(self, serial_engine, ssh_engine, image_path, image_url):
+        wget_error = False
+
+        for _ in range(3):
+            wget_error = False
+            found_pattern_index = self._onie_nos_install_image(serial_engine, image_url,
+                                                               self.device.install_success_patterns +
+                                                               [NvosConst.INSTALL_WGET_ERROR])
+            if found_pattern_index == len(self.device.install_success_patterns):    # wget error
+                logger.info('Failed for wget error. wait and retry')
+                time.sleep(20)
+                wget_error = True
+            else:
+                break
+
+        if wget_error:
+            file_on_switch = '/tmp/nos.bin'
+            self._scp_image(ssh_engine, image_path, file_on_switch)
+            found_pattern_index = self._onie_nos_install_image(serial_engine, file_on_switch,
+                                                               self.device.install_success_patterns)
+            assert found_pattern_index == 0, "Failed to install image on onie"
+
+        logger.info(f'*** Image {image_path} successfully installed ***')
+
+    def install_nos_using_onie_in_serial(self, nos_image: str, ssh_engine, topology_obj):
+        with allure.step("Get image path and url"):
+            image_path, image_url = self._get_image_path_and_url(nos_image)
 
         with allure.step('Create serial connection'):
             serial_engine = self.enter_serial_connection_context(topology_obj)
 
-        with allure.step(f'Run {ONIE_NOS_INSTALL_CMD}'):
-            index = 0
-            for _ in range(3):  # try 3 times using url
-                logger.info('Install image using url')
-                _, index = serial_engine.run_cmd(
-                    f'{ONIE_NOS_INSTALL_CMD} {image_url}', [INSTALL_SUCCESS_PATTERN] + INSTALL_WGET_ERROR,
-                    timeout=NVOS_INSTALL_TIMEOUT)
-                if index == 0:
-                    break
-                else:
-                    logger.info('Failed for wget error. wait and retry')
-                    time.sleep(20)
-
-            if index != 0:
-                logger.info('onie-nos-install failed because of wget error. install with scp')
-                with allure.step('Upload nvos to switch with scp'):
-                    if not image_path.startswith('/auto'):
-                        image_path = f'/auto/{image_path.split("/auto/")[1]}'
-                    scp_engine = LinuxSshEngine(ssh_engine.ip, DefaultConnectionValues.ONIE_USERNAME,
-                                                DefaultConnectionValues.ONIE_PASSWORD)
-                    scp_file(scp_engine, image_path, '/tmp/nvos.bin')
-                with allure.step(f'Run: {ONIE_NOS_INSTALL_CMD} ; Expect: {INSTALL_SUCCESS_PATTERN}'):
-                    serial_engine.run_cmd(
-                        f'{ONIE_NOS_INSTALL_CMD} /tmp/nvos.bin', INSTALL_SUCCESS_PATTERN, timeout=NVOS_INSTALL_TIMEOUT)
+        with allure.step(f'Install image {image_url} using {NvosConst.ONIE_NOS_INSTALL_CMD}'):
+            self._install_image_on_onie(serial_engine, ssh_engine, image_path, image_url)
 
     def deploy_onie(self, image_path, in_onie, fw_pkg_path, platform_params, topology_obj):
         assert in_onie, 'NVOS install failed - not in ONIE'
@@ -127,6 +148,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             #                                                  topology_obj=topology_obj)
             self.install_nos_using_onie_in_serial(image_path, engine, topology_obj)
 
+        with allure.step("Complete installation"):
+            self._wait_nos_to_become_functional(engine, topology_obj)
+
+    def _wait_nos_to_become_functional(self, engine, topology_obj=""):
         with allure.step('Ping switch until shutting down'):
             ping_till_alive(should_be_alive=False, destination_host=engine.ip)
         with allure.step('Ping switch until back alive'):
@@ -297,8 +322,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
                                   password=os.getenv("TEST_SERVER_PASSWORD"))
         ssh_conn.run_cmd(cmd)
 
-    @staticmethod
-    def enter_serial_connection_context(topology_obj):
+    def enter_serial_connection_context(self, topology_obj):
         '''
         @summary: in this function we will execute the rcon command and return the serial engine
         :return: serial connection engine

@@ -19,7 +19,6 @@ from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
 from ngts.constants.constants import PytestConst
 from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, NvosConst, SystemConsts
-from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
@@ -30,6 +29,8 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, wait_for_ldap_nvued_restart_workaround
@@ -92,11 +93,9 @@ def original_version(engines):
 
 @pytest.fixture(scope='session', autouse=True)
 def devices(topology_obj):
-    devices_date = DottedDict()
-    dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['switch_type']
-    devices_date.dut = DeviceFactory.create_device(dut_name)
-    TestToolkit.update_devices(devices_date)
-    return devices_date
+    devices = DeviceFactory.create_devices_object(topology_obj)
+    TestToolkit.update_devices(devices)
+    return devices
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -259,87 +258,100 @@ def clear_security_config(item):
 
 def clear_config(markers=None):
     with allure.step("Clear config"):
-        try:
-            TestToolkit.update_apis(ApiType.NVUE)
+        if isinstance(TestToolkit.devices.dut, EthSwitch):
+            eth_clear_config()
+        else:
+            ib_clear_config(markers)
 
-            if markers and 'system_profile_cleanup' in markers:
-                clear_system_profile_config()
 
-            with allure.step("Detach config"):
-                NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+def eth_clear_config():
+    logging.info("Ethernet clear config")
+    pass
 
-            with allure.step("Get a list of 'set' components"):
-                show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                    NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
 
-                set_comp = {k: v for comp in show_config_output for k, v in comp.get("set", {}).items()}
+def ib_clear_config(markers=None):
+    logging.info("Nvos clear config")
+    try:
+        TestToolkit.update_apis(ApiType.NVUE)
 
-                with allure.step("Get the non-default set components"):
-                    diff_config = ValidationTool.get_dictionaries_diff(set_comp, NvosConst.DEFAULT_CONFIG)
-                    logging.info(diff_config)
+        if markers and 'system_profile_cleanup' in markers:
+            clear_system_profile_config()
 
-                if diff_config:
-                    active_port = None
-                    if NvosConst.INTERFACE in diff_config.keys():
-                        result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
-                        if result.result:
-                            active_port = result.returned_value[-1]
-                        NvueBaseCli.unset(TestToolkit.engines.dut, NvosConst.INTERFACE)
+        with allure.step("Detach config"):
+            NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
-                    if NvosConst.IB in diff_config.keys():
-                        NvueBaseCli.unset(TestToolkit.engines.dut, 'ib')
+        with allure.step("Get a list of 'set' components"):
+            show_config_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                NvueGeneralCli.show_config(TestToolkit.engines.dut)).get_returned_value()
 
-                    if NvosConst.SYSTEM in diff_config.keys():
-                        with allure.step("Unset each system 'set' command"):
-                            unset_system_cli = "nv unset system"
-                            should_wait_for_nvued_after_apply = NvosConst.SYSTEM_AAA in diff_config[
-                                NvosConst.SYSTEM].keys() \
-                                and NvosConst.SYSTEM_AUTHENTICATION in \
-                                diff_config[NvosConst.SYSTEM][
-                                NvosConst.SYSTEM_AAA].keys() \
-                                and NvosConst.SYSTEM_AUTHENTICATION_ORDER in \
-                                diff_config[NvosConst.SYSTEM][NvosConst.SYSTEM_AAA][
-                                NvosConst.SYSTEM_AUTHENTICATION].keys()
+            set_comp = {k: v for comp in show_config_output for k, v in comp.get("set", {}).items()}
 
-                            unset_cli_cmd = ""
+            with allure.step("Get the non-default set components"):
+                diff_config = ValidationTool.get_dictionaries_diff(set_comp, NvosConst.DEFAULT_CONFIG)
+                logging.info(diff_config)
 
-                            system_config = diff_config.get(NvosConst.SYSTEM, {})
-                            aaa_config = system_config.get(NvosConst.SYSTEM_AAA, {})
-                            user_config = aaa_config.get(NvosConst.SYSTEM_AAA_USER, {})
+            if diff_config:
+                active_port = None
+                if NvosConst.INTERFACE in diff_config.keys():
+                    result = Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=1)
+                    if result.result:
+                        active_port = result.returned_value[-1]
+                    NvueBaseCli.unset(TestToolkit.engines.dut, NvosConst.INTERFACE)
 
-                            # unset system user for non-default users
-                            unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} "
-                                                       f"{NvosConst.SYSTEM_AAA_USER} {user_comp}; " for user_comp in
-                                                       user_config.keys() if
-                                                       user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
-                                                       user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR])
+                if NvosConst.IB in diff_config.keys():
+                    NvueBaseCli.unset(TestToolkit.engines.dut, 'ib')
 
-                            # unset system aaa components
-                            unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} {aaa_comp}; " for
-                                                       aaa_comp in aaa_config.keys() if
-                                                       aaa_comp != NvosConst.SYSTEM_AAA_USER])
+                if NvosConst.SYSTEM in diff_config.keys():
+                    with allure.step("Unset each system 'set' command"):
+                        unset_system_cli = "nv unset system"
+                        should_wait_for_nvued_after_apply = NvosConst.SYSTEM_AAA in diff_config[
+                            NvosConst.SYSTEM].keys() \
+                            and NvosConst.SYSTEM_AUTHENTICATION in \
+                            diff_config[NvosConst.SYSTEM][
+                            NvosConst.SYSTEM_AAA].keys() \
+                            and NvosConst.SYSTEM_AUTHENTICATION_ORDER in \
+                            diff_config[NvosConst.SYSTEM][NvosConst.SYSTEM_AAA][
+                            NvosConst.SYSTEM_AUTHENTICATION].keys()
 
-                            # unset other system components
-                            unset_cli_cmd += " ".join([f"{unset_system_cli} {set_comp_name}; " for set_comp_name in
-                                                       system_config.keys() if set_comp_name != NvosConst.SYSTEM_AAA])
+                        unset_cli_cmd = ""
 
-                            logging.info("Execute system unset commands")
-                            TestToolkit.engines.dut.run_cmd(unset_cli_cmd)
+                        system_config = diff_config.get(NvosConst.SYSTEM, {})
+                        aaa_config = system_config.get(NvosConst.SYSTEM_AAA, {})
+                        user_config = aaa_config.get(NvosConst.SYSTEM_AAA_USER, {})
 
-                    with allure.step("Apply configurations"):
-                        set_base_configurations(dut_engine=TestToolkit.engines.dut, apply=True)
+                        # unset system user for non-default users
+                        unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} "
+                                                   f"{NvosConst.SYSTEM_AAA_USER} {user_comp}; " for user_comp in
+                                                   user_config.keys() if
+                                                   user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
+                                                   user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR])
 
-                    if should_wait_for_nvued_after_apply:
-                        DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
-                    if active_port:
-                        active_port.ib_interface.wait_for_port_state(state='up').verify_result()
+                        # unset system aaa components
+                        unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} {aaa_comp}; " for
+                                                   aaa_comp in aaa_config.keys() if
+                                                   aaa_comp != NvosConst.SYSTEM_AAA_USER])
 
-        except Exception as err:
-            logging.warning("Failed to clear config:" + str(err))
+                        # unset other system components
+                        unset_cli_cmd += " ".join([f"{unset_system_cli} {set_comp_name}; " for set_comp_name in
+                                                   system_config.keys() if set_comp_name != NvosConst.SYSTEM_AAA])
 
-        finally:
-            logging.info('Clear global OpenApi changeset and payload')
-            OpenApiRequest.clear_changeset_and_payload()
+                        logging.info("Execute system unset commands")
+                        TestToolkit.engines.dut.run_cmd(unset_cli_cmd)
+
+                with allure.step("Apply configurations"):
+                    set_base_configurations(dut_engine=TestToolkit.engines.dut, apply=True)
+
+                if should_wait_for_nvued_after_apply:
+                    DutUtilsTool.wait_for_nvos_to_become_functional(TestToolkit.engines.dut).verify_result()
+                if active_port:
+                    active_port.ib_interface.wait_for_port_state(state='up').verify_result()
+
+    except Exception as err:
+        logging.warning("Failed to clear config:" + str(err))
+
+    finally:
+        logging.info('Clear global OpenApi changeset and payload')
+        OpenApiRequest.clear_changeset_and_payload()
 
 
 def clear_system_profile_config():

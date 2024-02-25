@@ -71,7 +71,7 @@ def test_rules_order(engines, test_api):
             acl = Acl()
             acl_id = "TEST_ACL1"
             acl.set(acl_id).verify_result()
-            acl_id_obj = acl.acl_dict[acl_id]
+            acl_id_obj = acl.acl_id[acl_id]
             acl_id_obj.set(AclConsts.TYPE, 'ipv4').verify_result()
             expected_acl_dict = {acl_id: {AclConsts.RULE: {}, AclConsts.TYPE: 'ipv4'}}
 
@@ -99,10 +99,10 @@ def test_rules_order(engines, test_api):
     with allure.step("Define ACL to mgmt interface"):
         mgmt_port = MgmtPort()
         mgmt_port.interface.acl.set(acl_id).verify_result()
-        mgmt_port.interface.acl.acl_dict[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True)
+        mgmt_port.interface.acl.acl_id[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True)
 
         with allure.step("Validate configuration with show commands"):
-            interface_acl_output = mgmt_port.interface.acl.acl_dict[acl_id].parse_show()
+            interface_acl_output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE].keys() == interface_acl_output[AclConsts.STATISTICS].keys(), \
                 f'Got unexpected mgmt interface acl output after mgmt configuration\n' \
                 f'expected: {expected_acl_dict[acl_id][AclConsts.RULE].keys()}\n' \
@@ -119,12 +119,12 @@ def test_rules_order(engines, test_api):
             f'we expect to see that the counter of rule id {rule_id_2} will not change - cause the first rule should be applied and not the second'
 
     with allure.step("Remove the first rule"):
-        acl_id_obj.rule.rules_dict[rule_id_1].unset(apply=True)
+        acl_id_obj.rule.rule_id[rule_id_1].unset(apply=True)
         expected_acl_dict[acl_id][AclConsts.RULE].pop(rule_id_1)
         acl_id_output = acl_id_obj.parse_show()
         assert expected_acl_dict[acl_id] == acl_id_output, f'Got unexpected acl output after removing 1 rule\n' \
             f'expected: {expected_acl_dict[acl_id]}\nbut got: {acl_id_output}'
-        interface_acl_output = mgmt_port.interface.acl.acl_dict[acl_id].parse_show()
+        interface_acl_output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
         assert expected_acl_dict[acl_id][AclConsts.RULE].keys() == interface_acl_output[AclConsts.STATISTICS].keys(), \
             f'Got unexpected mgmt interface acl output after removing 1 rule\n' \
             f'expected: {expected_acl_dict[acl_id][AclConsts.RULE].keys()}\n' \
@@ -168,8 +168,8 @@ def test_acl_order(engines, test_api):
                                                                   mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE)
 
     with allure.step("Validate configuration with show commands"):
-        interface_acl_1_output = mgmt_port.interface.acl.acl_dict[acl_id_1].parse_show()
-        interface_acl_2_output = mgmt_port.interface.acl.acl_dict[acl_id_2].parse_show()
+        interface_acl_1_output = mgmt_port.interface.acl.acl_id[acl_id_1].parse_show()
+        interface_acl_2_output = mgmt_port.interface.acl.acl_id[acl_id_2].parse_show()
         assert interface_acl_1_output[AclConsts.STATISTICS].keys() == interface_acl_2_output[AclConsts.STATISTICS].keys(), \
             f'Got unexpected mgmt interface acl output after mgmt configuration'
 
@@ -287,7 +287,7 @@ def test_show_acl_commands(engines, test_api):
             acl = Acl()
             acl_id = "TEST_ACL1"
             acl.set(acl_id).verify_result()
-            acl_id_obj = acl.acl_dict[acl_id]
+            acl_id_obj = acl.acl_id[acl_id]
             acl_id_obj.set(AclConsts.TYPE, 'ipv4').verify_result()
             expected_acl_dict = {acl_id: {AclConsts.RULE: {}, AclConsts.TYPE: 'ipv4'}}
 
@@ -316,7 +316,7 @@ def test_show_acl_commands(engines, test_api):
                                              {AclConsts.FLAGS: {'syn': {}}, AclConsts.MASK: {'syn': {}}}}}}})
 
         with allure.step("Validate configuration with show commands"):
-            rule_id_1_obj = acl_id_obj.rule.rules_dict[rule_id_1]
+            rule_id_1_obj = acl_id_obj.rule.rule_id[rule_id_1]
             acl_output = acl.parse_show()  # nv show acl
             acl_id_output = acl_id_obj.parse_show()  # nv show acl <acl-id>
             rule_output = acl_id_obj.rule.parse_show()  # nv show acl <acl-id> rule
@@ -324,12 +324,12 @@ def test_show_acl_commands(engines, test_api):
             action_show = rule_id_1_obj.action.parse_show()
             match_show = rule_id_1_obj.match.parse_show()
             match_ip_show = rule_id_1_obj.match.ip.parse_show()
-            dest_port_show = acl_id_obj.rule.rules_dict[rule_id_2].match.ip.dest_port.parse_show()
-            tcp_show = acl_id_obj.rule.rules_dict[rule_id_3].match.ip.tcp.parse_show()
-            tcp_flags_show = acl_id_obj.rule.rules_dict[rule_id_3].match.ip.tcp.flags.parse_show()
-            tcp_mask_show = acl_id_obj.rule.rules_dict[rule_id_3].match.ip.tcp.mask.parse_show()
-            ecn_show = acl_id_obj.rule.rules_dict[rule_id_2].match.ip.ecn.parse_show()
-            ecn_flags_show = acl_id_obj.rule.rules_dict[rule_id_2].match.ip.ecn.flags.parse_show()
+            dest_port_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.dest_port.parse_show()
+            tcp_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.parse_show()
+            tcp_flags_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.flags.parse_show()
+            tcp_mask_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.mask.parse_show()
+            ecn_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.parse_show()
+            ecn_flags_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.flags.parse_show()
             assert expected_acl_dict[acl_id] == acl_output[acl_id]
             assert expected_acl_dict[acl_id] == acl_id_output
             assert expected_acl_dict[acl_id][AclConsts.RULE] == rule_output
@@ -347,14 +347,14 @@ def test_show_acl_commands(engines, test_api):
     with allure.step("Define ACL to mgmt interface"):
         mgmt_port = MgmtPort()
         mgmt_port.interface.acl.set(acl_id).verify_result()
-        mgmt_port.interface.acl.acl_dict[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True)
+        mgmt_port.interface.acl.acl_id[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True)
 
         with allure.step("Validate configuration with show commands"):
             interface_acls_output = mgmt_port.interface.acl.parse_show()
-            interface_acl_output = mgmt_port.interface.acl.acl_dict[acl_id].parse_show()
-            statistics_output = mgmt_port.interface.acl.acl_dict[acl_id].statistics.parse_show()
-            rule_statistics_output = mgmt_port.interface.acl.acl_dict[acl_id].statistics.parse_show(rule_id_1)
-            inbound_output = mgmt_port.interface.acl.acl_dict[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
+            interface_acl_output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
+            statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show()
+            rule_statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show(rule_id_1)
+            inbound_output = mgmt_port.interface.acl.acl_id[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
             assert acl_output[acl_id][AclConsts.RULE].keys() == interface_acls_output[acl_id][AclConsts.STATISTICS].keys()
             assert rule_output.keys() == interface_acl_output[AclConsts.STATISTICS].keys()
             assert rule_output.keys() == statistics_output.keys()
@@ -437,7 +437,7 @@ def test_inbound_outbound_counters(engines, test_api):
         assert rule_packets_2_after[rule_id_match_src_ip] == '0'
 
     with allure.step("Unset source-ip rule from inbound acl"):
-        acl_obj_inbound_match_dest_ip.rule.rules_dict[rule_id_match_src_ip].unset(apply=True)
+        acl_obj_inbound_match_dest_ip.rule.rule_id[rule_id_match_src_ip].unset(apply=True)
 
     with allure.step("Validate outbound counters are still 0"):
         send(ping_packet)
@@ -847,7 +847,7 @@ def test_acl_recent_list(engines, test_api):
         assert hit_count <= int(rule_packets_after[update_rule_id]), f"expect to see just {hit_count} packets in the counters of the update rule after ping"
 
     with allure.step("unset the second rule and validate packets received since it should delete the ip from the list"):
-        acl_obj.rule.rules_dict[update_rule_id].unset(apply=True)
+        acl_obj.rule.rule_id[update_rule_id].unset(apply=True)
         amount_of_packet = hit_count
         output = engines.sonic_mgmt.run_cmd_set(['ping {} -c {} -i 0.1'.format(dest_addr, amount_of_packet), "\x03"])
         rule_packets_after3 = get_rule_packets(mgmt_port, acl_id)
@@ -856,7 +856,7 @@ def test_acl_recent_list(engines, test_api):
 
 
 def get_rule_packets(mgmt_port, acl_id, rule_id=None, rule_direction=AclConsts.INBOUND):
-    output = mgmt_port.interface.acl.acl_dict[acl_id].parse_show()
+    output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
     res = {}
     if rule_id:
         res[rule_id] = output[AclConsts.STATISTICS][rule_id][rule_direction]["packet"]
@@ -869,7 +869,7 @@ def get_rule_packets(mgmt_port, acl_id, rule_id=None, rule_direction=AclConsts.I
 def config_rule(engine, acl_id_obj, rule_id, rule_config_dict):
     with allure.step(f"Config rule {rule_id}"):
         acl_id_obj.rule.set(rule_id).verify_result()
-        rule_id_obj = acl_id_obj.rule.rules_dict[rule_id]
+        rule_id_obj = acl_id_obj.rule.rule_id[rule_id]
 
         for key, value in rule_config_dict.items():
             RULE_CONFIG_FUNCTION[key](rule_id_obj, value).verify_result()
@@ -886,7 +886,7 @@ def config_acl_with_rule_attached_to_interface(engine, acl_id, acl_type, rule_id
         else:
             acl = Acl()
             acl.set(acl_id).verify_result()
-            acl_obj = acl.acl_dict[acl_id]
+            acl_obj = acl.acl_id[acl_id]
             acl_obj.set(AclConsts.TYPE, acl_type).verify_result()
             config_rule(engine, acl_obj, rule_id, rule_configuration_dict)
             attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane)
@@ -897,9 +897,9 @@ def attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane=Acl
     with allure.step(f"Attach acl {acl_id} to interface {mgmt_port.name}"):
         mgmt_port.interface.acl.set(acl_id).verify_result()
         if rule_direction == AclConsts.INBOUND:
-            mgmt_port.interface.acl.acl_dict[acl_id].inbound.set(control_plane, apply=True)
+            mgmt_port.interface.acl.acl_id[acl_id].inbound.set(control_plane, apply=True)
         elif rule_direction == AclConsts.OUTBOUND:
-            mgmt_port.interface.acl.acl_dict[acl_id].outbound.set(control_plane, apply=True)
+            mgmt_port.interface.acl.acl_id[acl_id].outbound.set(control_plane, apply=True)
 
 
 def validate_counters_after_traffic(engine, rule_direction, mgmt_port, acl_id, rule_id, ping_dest=None, packet=None):

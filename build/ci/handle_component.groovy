@@ -1,4 +1,57 @@
 package com.mellanox.jenkins.generic_modules
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+def set_bat_skip(name, skip_list) {
+    for (bat_to_skip in skip_list) {
+        switch(bat_to_skip) {
+            case "SPC_HW":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC", "Skipped=status")
+                env.SKIP_SONIC_HW_SPC_BAT = "true"
+                break
+            case "SPC2_HW":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC2", "Skipped=status")
+                env.SKIP_SONIC_HW_SPC2_BAT = "true"
+                break
+            case "SPC3_HW":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC3", "Skipped=status")
+                env.SKIP_SONIC_HW_SPC3_BAT = "true"
+                break
+            case "SPC4_HW":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC4", "Skipped=status")
+                env.SKIP_SONIC_HW_SPC4_BAT = "true"
+                break
+            case "SPC_SIMX":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC", "Skipped=status")
+                env.SKIP_SONIC_SIMX_SPC_BAT = "true"
+                break
+            case "SPC2_SIMX":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC2", "Skipped=status")
+                env.SKIP_SONIC_SIMX_SPC2_BAT = "true"
+                break
+            case "SPC3_SIMX":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC3", "Skipped=status")
+                env.SKIP_SONIC_SIMX_SPC3_BAT = "true"
+                break
+            case "SPC4_SIMX":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC4", "Skipped=status")
+                env.SKIP_SONIC_SIMX_SPC4_BAT = "true"
+                break
+            case "BF3":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "DPU", "BF3", "Skipped=status")
+                env.SKIP_DPU_BAT = "true"
+                break
+            case "QTM2":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM2", "Skipped=status")
+                env.SKIP_NVOS_BAT = "true"
+                break
+            case "ETH_COMMUNITY":
+                NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH_COMMUNITY", "SPC", "Skipped=status")
+                env.SKIP_COMMUNITY_REGRESSION = "true"
+                break
+        }
+    }
+}
 
 def pre(name) {
     return true
@@ -6,38 +59,66 @@ def pre(name) {
 
 
 def run_step(name) {
+    def SONIC_CANONICAL_HW_BAT = ["SPC_HW", "SPC2_HW", "SPC3_HW", "SPC4_HW"]
+    def SONIC_CANONICAL_SIMX_BAT = ["SPC_SIMX", "SPC2_SIMX", "SPC3_SIMX", "SPC4_SIMX"]
+    def SONIC_CANONICAL_BAT = SONIC_CANONICAL_HW_BAT + SONIC_CANONICAL_SIMX_BAT
+    def SONIC_COMMUNITY_BAT = ["BF3", "ETH_COMMUNITY"]
     try {
         print "Component match = ${env.CHANGED_COMPONENTS}"
         if (env.RUN_COMMUNITY_REGRESSION && env.RUN_COMMUNITY_REGRESSION.toBoolean() == true &&  env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("NoMatch")) {
             print "Topic \"RUN_COMMUNITY_REGRESSION=true\" and changed files triggered community regression tests"
         } else {
-            env.SKIP_COMMUNITY_REGRESSION = "true"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH_COMMUNITY", "SPC", "Skipped=status")
-
+            set_bat_skip(name, ["ETH_COMMUNITY"])
         }
 
-        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY")
+        if (env.CHANGED_COMPONENTS && (!env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY")
                 && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
             print "'NVOS' BAT are skipped"
-            env.SKIP_NVOS_BAT = "true"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "IB", "QTM2", "Skipped=status")
+            set_bat_skip(name, ["QTM2"])
+        }
+
+        if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("SONIC_COMMUNITY_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
+                && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
+            print "'SONIC Canonical' BAT are skipped"
+            set_bat_skip(name, SONIC_CANONICAL_BAT)
+        }
+
+        //If only yaml changed, only run SONIC SIMX SPC BAT
+        if (env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
+                && !env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch")){
+            print "Checking whether the changes are only in the error/skip yaml files."
+            def yaml_patterns = [~/tests\/common\/plugins\/loganalyzer_dynamic_errors_ignore\/.*\.yaml/,
+                                 ~/tests\/common\/plugins\/conditional_mark\/.*\.yaml/]
+            def git_change = NGCITools().ciTools.run_sh_with_output("git diff-tree --no-commit-id --name-only -r HEAD").readLines()
+            print git_change
+            env.CHECK_YAML_ONLY = "true"
+            for (def line in git_change){
+                def no_match_yaml = "true"
+                for (def pattern in yaml_patterns) {
+                    if (pattern.matcher(line).matches()) {
+                        no_match_yaml = "false"
+                        break
+                    }
+                }
+                if (no_match_yaml == "true") {
+                    print "The change is not only in the test/error skip yaml files, set env.CHECK_YAML_ONLY to false"
+                    env.CHECK_YAML_ONLY = "false"
+                    break
+                }
+            }
+            if (env.CHECK_YAML_ONLY == "true"){
+                print "The changes are only in the error/skip yaml files, run only the yaml validation test on SPC SIMX."
+                // Only run one SPC SIMX setup
+                set_bat_skip(name, SONIC_CANONICAL_BAT + "BF3" + "QTM2" - "SPC_SIMX")
+            }
         }
 
         //If NVOS only, disable all sonic BAT
         if (env.CHANGED_COMPONENTS && (env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
-                && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
+                && !env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_COMMUNITY_BAT_ONLY")
+                && !env.CHANGED_COMPONENTS.contains("NoMatch"))){
             print "'SONIC' BAT are skipped"
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC2", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "ETH", "SPC3", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC2", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC3", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "SIMX", "SPC4", "Skipped=status")
-            NGCITools().ciTools.insert_test_result_to_matrix(name, "DPU", "BF3", "Skipped=status")
-            env.SKIP_DPU_BAT = "true"
-            env.SKIP_BAT = "true"
-            env.SKIP_SIMX = "true"
+            set_bat_skip(name, SONIC_CANONICAL_BAT + SONIC_COMMUNITY_BAT)
         }
 
         return true
