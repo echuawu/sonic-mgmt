@@ -62,7 +62,7 @@ def dump_simx_syslog_data(topology_obj, dumps_folder, name_postfix=None):
     hyper_engine.username = DefaultTestServerCred.DEFAULT_USERNAME
     hyper_engine.password = DefaultTestServerCred.DEFAULT_PASS
     dut_user_name = DefaultConnectionValues.DEFAULT_USER
-    dut_password = NvosConst.DEFAULT_PASS
+    dut_password = DefaultConnectionValues.DEFAULT_PASSWORD
 
     if not name_postfix:
         name_postfix = time.strftime('%Y_%b_%d_%H_%M_%S')

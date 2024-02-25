@@ -10,11 +10,12 @@ from retry import retry
 class MultiPlanarTool:
 
     @staticmethod
-    def override_platform_file(system, engines, new_platform):
+    def override_platform_file(system, engines, devices, new_platform):
         """
         override platform file on switch.
         """
         engine = engines.dut
+        device = devices.dut
         player = engines['sonic_mgmt']
 
         # in case of installing xdr simulation, save the origin file in order to restore at the end of the test
@@ -27,8 +28,8 @@ class MultiPlanarTool:
 
         with allure.step("Override platform.json file"):
             file_path = MultiPlanarConsts.SIMULATION_PATH + new_platform
-            player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                         dest_password=NvosConst.DEFAULT_PASS,
+            player.upload_file_using_scp(dest_username=device.default_username,
+                                         dest_password=device.default_password,
                                          dest_folder=MultiPlanarConsts.INTERNAL_PATH,
                                          dest_ip=engine.ip,
                                          local_file_path=file_path)

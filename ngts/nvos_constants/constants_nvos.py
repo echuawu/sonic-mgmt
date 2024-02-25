@@ -83,8 +83,6 @@ class NvosConst:
 
     SONIC_MGMT = 'sonic_mgmt'
 
-    DEFAULT_USER = os.getenv("NVU_SWITCH_USER")
-    DEFAULT_PASS = os.getenv("NVU_SWITCH_NEW_PASSWORD")
     OLD_PASS = os.getenv("NVU_SWITCH_PASSWORD")
 
     REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"

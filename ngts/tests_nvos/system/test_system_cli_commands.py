@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.checklist
 @pytest.mark.ssh_config
-def test_set_max_cli_session(engines):
+def test_set_max_cli_session(engines, devices):
     """
     Test flow:
         1. run show system ssh and check default fields and values
@@ -52,7 +52,7 @@ def test_set_max_cli_session(engines):
                 connection_list.append(connection)
                 respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
                 if respond == 0:
-                    connection.sendline(NvosConst.DEFAULT_PASS)
+                    connection.sendline(devices.dut.default_password)
                     connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             except Exception as err:
                 logger.info(err)
@@ -102,7 +102,7 @@ def test_set_max_cli_session(engines):
 
 @pytest.mark.checklist
 @pytest.mark.ssh_config
-def test_set_inactivity_timeout(engines, topology_obj):
+def test_set_inactivity_timeout(engines, devices, topology_obj):
     """
     Test flow:
         1. run show system serial-console and check default fields and values
@@ -156,7 +156,7 @@ def test_set_inactivity_timeout(engines, topology_obj):
                                                  port=22)
             respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
             if respond == 0:
-                connection.sendline(NvosConst.DEFAULT_PASS)
+                connection.sendline(devices.dut.default_password)
                 connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             output = engines.dut.run_cmd("w")
             assert not output or "4 users" in output, "The value of users will be 4"

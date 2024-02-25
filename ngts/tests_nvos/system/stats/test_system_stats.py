@@ -401,8 +401,8 @@ def test_system_stats_performance(engines, devices, test_api):
 
         with allure.step("Create category internal file with old samples"):
             file_path = StatsConsts.OLD_SAMPLES_PATH + name + '.csv'
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -648,8 +648,8 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
             for category in category_list:
                 file_name = category + '.csv'
                 file_path = StatsConsts.MAX_SIZE_FILE_PATH + file_name
-                player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                    dest_password=NvosConst.DEFAULT_PASS,
+                player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                    dest_password=devices.dut.default_password,
                                                     dest_folder=StatsConsts.INTERNAL_PATH,
                                                     dest_ip=engines.dut.ip,
                                                     local_file_path=file_path)
@@ -747,8 +747,8 @@ def test_system_stats_invalid_values(engines, devices, test_api):
         with allure.step("Validate upload system stats file to invalid URL"):
             file_name = 'stats_cpu_gorilla-154_20230702_145940.csv'
             file_path = StatsConsts.GENERATED_FILE_PATH + file_name
-            player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                         dest_password=NvosConst.DEFAULT_PASS,
+            player.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                         dest_password=devices.dut.default_password,
                                          dest_folder=StatsConsts.INTERNAL_PATH,
                                          dest_ip=engines.dut.ip,
                                          local_file_path=file_path)
@@ -818,8 +818,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with a big file"):
             file_name = 'fan.csv'
             file_path = StatsConsts.BIG_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -851,8 +851,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with file without header"):
             file_name = 'power.csv'
             file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -874,8 +874,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with a huge file"):
             file_name = 'temperature.csv'
             file_path = StatsConsts.HUGE_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)

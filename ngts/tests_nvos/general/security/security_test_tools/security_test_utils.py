@@ -241,14 +241,14 @@ def find_server_admin_user(server_info):
     return admin_user
 
 
-def restore_original_engine_credentials(engines):
+def restore_original_engine_credentials(engines, devices):
     """
     @summary:
         in this fixture we will restore default credentials to dut engine
     """
     logging.info("Restoring default credentials, and logging in to switch")
-    engines.dut.update_credentials(username=DefaultConnectionValues.ADMIN,
-                                   password=NvosConst.DEFAULT_PASS)
+    engines.dut.update_credentials(username=devices.dut.default_username,
+                                   password=devices.dut.default_password)
 
 
 def validate_authentication_fail_with_credentials(engines, username, password):

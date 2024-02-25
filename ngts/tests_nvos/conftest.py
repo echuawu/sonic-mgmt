@@ -114,11 +114,11 @@ def traffic_available(request):
 
 
 @pytest.fixture(scope='function')
-def serial_engine(topology_obj):
+def serial_engine(topology_obj, devices):
     """
     :return: serial connection
     """
-    return ConnectionTool.create_serial_connection(topology_obj)
+    return ConnectionTool.create_serial_connection(topology_obj, devices)
 
 
 @pytest.fixture

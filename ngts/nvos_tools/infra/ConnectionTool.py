@@ -76,13 +76,14 @@ class ConnectionTool:
             return serial_engine
 
     @staticmethod
-    def create_serial_connection(topology_obj, ip=None, username=None, password=None, force_new_login=False):
+    def create_serial_connection(topology_obj, devices, ip=None, username=None, password=None, force_new_login=False):
         """
         @summary: Create serial pexpect engine and initiate connection (login)
         """
+        device = devices.dut
         with allure.step("create serial connection"):
-            username = username if username else NvosConst.DEFAULT_USER
-            password = password if password else NvosConst.DEFAULT_PASS
+            username = username if username else device.default_username
+            password = password if password else device.default_password
 
             try:
                 logger.info('Try login with given credentials')
@@ -91,8 +92,8 @@ class ConnectionTool:
             except Exception as e:
                 logger.info('Could not login. Try login with default NVOS credentials')
                 serial_engine = ConnectionTool.create_serial_engine(topology_obj, ip,
-                                                                    username=NvosConst.DEFAULT_USER,
-                                                                    password=NvosConst.DEFAULT_PASS)
+                                                                    username=device.default_username,
+                                                                    password=device.default_password)
                 serial_engine.create_serial_engine(disconnect_existing_login=force_new_login)
             return serial_engine
 
