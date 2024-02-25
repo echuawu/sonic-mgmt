@@ -1354,6 +1354,7 @@
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
     - '.*WARNING pmon#psud: PSU absence warning: PSU \d is not present.*'
+    - '.*WARNING pmon#thermalctld: Fan fault warning: fan\d is not working.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
