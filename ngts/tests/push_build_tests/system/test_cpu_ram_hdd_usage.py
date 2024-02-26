@@ -5,15 +5,22 @@ import sys
 import logging
 
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from pathlib import Path
+
 sys.path.append('/devts/tests/skynet')
 from system.test_cpu_ram_hdd_usage import do_cpu_usage_test, do_ram_usage_test, do_hdd_usage_test, \
     do_ssd_endurance_test  # noqa
 
-
 ONE_DAY_IN_SEC = 86400
 ADDITIONAL_DELAY = 300
 SLEEP_TIME = ONE_DAY_IN_SEC + ADDITIONAL_DELAY
+BYTES_TO_MB_FACTOR = 1 / (1024 * 1024)
+FILE_NAME_IND = 0
+FILE_SIZE_IND = 1
+SDK_DUMPS_PATH = '/var/log/mellanox/sdk-dumps'
 partitions_and_expected_usage = [{'partition': '/', 'max_usage': 9000}, {'partition': '/var/log/', 'max_usage': 500}]
+
+logger = logging.getLogger()
 
 
 @pytest.fixture()
@@ -26,11 +33,45 @@ def skip_test_ram_usage_on_asan(topology_obj):
                     "consumes more RAM then usually expected on dut")
 
 
+def is_parent_folder(parent_path, child_path):
+    """
+    The function returns whether parent_path is indeed a parent path of child_path.
+    """
+    parent = Path(parent_path)
+    child = Path(child_path)
+    return parent in child.parents
+
+
 class TestCpuRamHddUsage:
 
     @pytest.fixture(autouse=True)
     def setup(self, engines):
         self.dut_engine = engines.dut
+
+    def get_sai_fdw_dump_size(self):
+        """
+        The function adds to the hdd threshold used in test_hdd_usage the size of the sdk_dumps, to make sure they
+        do not fail the test. Aside from calculating the size of the sdk_dump folder,
+        The function also creates a dict of {file_name: file_size} mainly used for logging output, so it's easier to
+        track the size of the sdk_dumps.
+        """
+        # The following command parses pairs of {file, fileSize} from the ls command.
+        # We take the output of ls, skip the first line (total line of ls) with tail and then use awk to get the pairs.
+        # The ninth and fifth fields of the ls command are the file name and its size respectfully.
+        fetch_mem_usage_command = f"ls -l {SDK_DUMPS_PATH} | tail -n +2 | awk '{{print $9, $5}}'"
+        dut_ls_output = self.dut_engine.run_cmd(fetch_mem_usage_command)
+        # Parse the output into a dictionary
+        file_sizes = {}
+        total_size = 0
+        for line in dut_ls_output.splitlines():
+            pair = line.split()
+            file_name = pair[FILE_NAME_IND]
+            size = pair[FILE_SIZE_IND]
+            file_sizes[file_name] = int(size) * BYTES_TO_MB_FACTOR
+            total_size += int(size)
+        total_size_in_mb = total_size * BYTES_TO_MB_FACTOR
+        logger.info(f"File sizes in MB in sai dumps folder is {file_sizes}\nTotal size in MB is {total_size_in_mb}\n")
+        return total_size_in_mb
 
     @pytest.mark.parametrize('partition_usage', partitions_and_expected_usage)
     def test_hdd_usage(self, partition_usage, platform_params):
@@ -46,6 +87,11 @@ class TestCpuRamHddUsage:
             if re.search('SN5', platform_hwsku):
                 partition_usage['max_usage'] = 1500
 
+        partition_dir = partition_usage['partition']
+        if is_parent_folder(partition_dir, SDK_DUMPS_PATH):
+            partition_usage['max_usage'] += self.get_sai_fdw_dump_size()
+
+        logger.info(f"\nChecking hdd_usage of {partition_dir} with max_usage of {partition_usage['max_usage']}\n")
         do_hdd_usage_test(self.dut_engine, partition_usage)
 
     @pytest.mark.build
@@ -86,7 +132,8 @@ class TestCpuRamHddUsage:
             do_ssd_endurance_test(self.dut_engine, nos_name, min_gap, release_mode)
         except RuntimeWarning as err:
             if release_mode:
-                logger.info("First iteration of the test ended successfully, sleeping for {} days and rerunning".format(min_gap))
+                logger.info("First iteration of the test ended successfully, sleeping for {} days and rerunning".format(
+                    min_gap))
                 self.dut_engine.disconnect()
                 time.sleep(min_gap * SLEEP_TIME)
                 do_ssd_endurance_test(self.dut_engine, nos_name, min_gap)
