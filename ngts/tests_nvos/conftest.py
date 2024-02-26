@@ -139,7 +139,7 @@ def start_sm(engines, traffic_available):
     Starts OpenSM
     """
     if traffic_available:
-        result = OpenSmTool.start_open_sm(engines.dut)
+        result = OpenSmTool.start_open_sm_on_server(engines)
         if not result.result:
             logging.warning("Failed to start openSM")
     else:
