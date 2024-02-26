@@ -1438,9 +1438,11 @@ acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3556737"
+    reason: "Testcase ignored due to RM issue 3556737 on simx platform or due to RM issue 3796902"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3796902"
 
 bfd/test_bfd.py::test_bfd_basic:
   skip:
