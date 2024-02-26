@@ -230,9 +230,8 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_import(engine, path, import_type, cert_id, uri1, uri2, passphrase):
-        path = path.replace('/', ' ')
-        cmd = ""
+    def action_import(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase):
+        path = resource_path.replace('/', ' ')
 
         action_import = f"nv action import {path} {cert_id}"
         action_import_dict = {

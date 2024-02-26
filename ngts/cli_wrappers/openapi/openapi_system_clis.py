@@ -5,7 +5,7 @@ from ngts.nvos_constants.constants_nvos import OpenApiReqType
 from ngts.nvos_constants.constants_nvos import ActionConsts, ActionType
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
-
+from ngts.nvos_constants.constants_nvos import CertificateFiles
 logger = logging.getLogger()
 
 
@@ -313,4 +313,43 @@ class OpenApiSystemCli(OpenApiBaseCli):
         }
 
         return OpenApiCommandHelper.execute_action(ActionType.INSTALL, engine.username, engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_import_certificate(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase):
+        logging.info(f'Run action import on: {resource_path}')
+
+        action_import_param_dict = {
+            CertificateFiles.URI_BUNDLE:
+                {
+                    CertificateFiles.URI_BUNDLE: uri1,
+                    CertificateFiles.PASSPHRASE: passphrase
+                },
+            CertificateFiles.PUBLIC_PRIVATE:
+                {
+                    CertificateFiles.PUBLIC_KEY_FILE: uri1,
+                    CertificateFiles.PRIVATE_KEY_FILE: uri2
+                },
+            CertificateFiles.DATA:
+                {
+                    CertificateFiles.DATA: uri1
+                }}
+
+        params = {
+            'state': 'start',
+            'parameters': action_import_param_dict[import_type]
+        }
+
+        return OpenApiCommandHelper.execute_action(ActionType.IMPORT, engine.username, engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_delete_certificate(engine, resource_path, cert_id):
+        logging.info(f'Run action delete on: {resource_path}')
+
+        params = {
+            'state': 'start'
+        }
+
+        return OpenApiCommandHelper.execute_action(ActionType.DELETE, engine.username, engine.password,
                                                    engine.ip, resource_path, params)

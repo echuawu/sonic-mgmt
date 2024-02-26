@@ -4,7 +4,6 @@ from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.system.Security import Security
@@ -21,7 +20,6 @@ from ngts.nvos_tools.system.Debug_log import DebugLog
 from ngts.nvos_tools.system.SnmpServer import SnmpServer
 from ngts.nvos_tools.system.Techsupport import TechSupport
 from ngts.nvos_tools.system.Aaa import Aaa
-from ngts.nvos_tools.system.User import User
 from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_tools.system.Gnmi_server import Gnmi_server
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -29,6 +27,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.tools.test_utils import allure_utils as allure
+from ngts.nvos_tools.system.Certificate import Certificate
 
 logger = logging.getLogger()
 
@@ -171,3 +170,4 @@ class WebServerAPI(BaseComponent):
 class Api(BaseComponent):
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/api')
+        self.certificate = Certificate(self)

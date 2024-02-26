@@ -139,6 +139,7 @@ class CertificateFiles:
     PRIVATE_KEY_FILE = 'uri-private-key'
     BUNDLE_CERTIFICATE_CURRENT_PASSWORD = 'Test_2108'
     URI_BUNDLE = 'uri-bundle'
+    URI = 'uri'
     PUBLIC_PRIVATE = 'public_private'
     DATA = 'data'
     PASSPHRASE = "passphrase"
@@ -197,6 +198,7 @@ class ActionType:
     CHANGE = '@change'
     ENABLE = '@enable'
     DISABLE = '@disable'
+    IMPORT = '@import'
 
 
 class SystemConsts:
