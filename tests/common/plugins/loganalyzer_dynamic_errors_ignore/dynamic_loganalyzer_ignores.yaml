@@ -3980,3 +3980,30 @@
   Conditions:
     - Redmine:
         - 3669272
+
+# Hippo regression
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_split_idx_to_local_port: Failed to find local-port.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_bulk_attrs_parse: Failed to get new port from father port.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_hw_lanes_get: Cannot convert OID.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- mlnx_object_to_type: Expected object PORT got NULL.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- get_dispatch_attribs_handler: Failed Get.*'
+    - '.*ERR syncd#SDK: :- saiGetPortLanes: failed to get hardware lane list port RID oid.*'
+    - '.*ERR syncd#SDK: :- run: Runtime error: :- saiGetPortLanes: failed to get hardware lane list port RID oid.*'
+    - '.*ERR kernel: \[.*\] tpm tpm0: \[Firmware Bug\]: TPM interrupt not working, polling instead.*'
+  Conditions:
+  - Redmine:
+    - 3769363
+    Platform:
+    - sn5400
+
+- Errors_list:
+    - '.*ERR kernel: .* SXD_HEALTH_FATAL: On device 1 cause =''PLL lock failure'' \[id = \d+\]- Stopping further device monitoring!.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is not running in namespace.*host.*1.0 minutes.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is stuck in namespace.*host.*1.0 minutes.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: message repeated \d+ times:.* Process .*orchagent.* is stuck in namespace .*host.*'
+  Conditions:
+  - Redmine:
+    - 3772643
+    Platform:
+    - sn5400
