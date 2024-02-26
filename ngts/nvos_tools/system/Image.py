@@ -7,7 +7,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, ActionConsts
 from ngts.nvos_constants.constants_nvos import ImageConsts
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.Files import Files
-from ngts.nvos_tools.system.FilesResource import FilesResource, SystemImageFiles
+
 logger = logging.getLogger()
 
 
@@ -15,7 +15,6 @@ class Image(BaseComponent):
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/image')
         self.files = Files(self)
-        self.files_resource = SystemImageFiles(self)
 
     def unset(self, op_param=""):
         raise Exception("unset is not implemented for /image")

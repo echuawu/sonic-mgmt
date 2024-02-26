@@ -20,6 +20,7 @@ class IbSwitch(BaseSwitch):
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
         self.default_username = os.environ["NVU_SWITCH_USER"]
+        self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):

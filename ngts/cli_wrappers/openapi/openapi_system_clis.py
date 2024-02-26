@@ -69,7 +69,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params[action_type])
 
     @staticmethod
-    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param=""):
+    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param="", recovery_engine=None):
         logging.info("Running file action: '{action_type}' on dut using OpenApi".format(action_type=action_str))
         action_type = '@' + action_str
         params = \
@@ -104,7 +104,8 @@ class OpenApiSystemCli(OpenApiBaseCli):
             logger.info("Waiting for switch to be ready")
             check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
-            device.wait_for_os_to_become_functional(engine).verify_result()
+            recovery_engine = recovery_engine if recovery_engine else engine
+            device.wait_for_os_to_become_functional(recovery_engine).verify_result()
         return result
 
     @staticmethod

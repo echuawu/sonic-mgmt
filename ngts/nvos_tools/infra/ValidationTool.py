@@ -329,14 +329,27 @@ class ValidationTool:
             return ResultObj(True, "all expected files are exist", True)
 
     @staticmethod
-    def get_dictionaries_diff(dict1, dict2):
+    def get_dictionaries_diff(dict1, dict2, exceptions={}):
+        """
+        Compare two given dictionaries and return the diff
+        @param dict1: 1st dict
+        @param dict2: 2nd dict
+        @param exceptions: dict of exceptions. e.g. {"password": "*"} - if we reach key "password", and one of the
+            dicts has "*" as value, count it as ok (don't compare)
+        @return: diff as a dictionary
+        """
         difference = {}
 
         for key, value in dict1.items():
             if key not in dict2:
                 difference[key] = value
+            elif not isinstance(value, dict) and not isinstance(dict2[key], dict) \
+                    and key in exceptions and exceptions[key] in [dict1[key], dict2[key]]:
+                continue
+            elif not isinstance(value, dict) and value != dict2[key]:
+                difference[key] = value
             elif isinstance(value, dict) and isinstance(dict2[key], dict):
-                nested_difference = ValidationTool.get_dictionaries_diff(value, dict2[key])
+                nested_difference = ValidationTool.get_dictionaries_diff(value, dict2[key], exceptions)
                 if nested_difference:
                     difference[key] = nested_difference
 

@@ -20,7 +20,7 @@ class DutUtilsTool:
 
     @staticmethod
     def reload(engine, device, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True,
-               confirm=False):
+               confirm=False, recovery_engine=None):
         """
 
         :param should_wait_till_system_ready: if True then we will wait till the system is ready, if false then we only will wait till we can re-connect to the system
@@ -29,6 +29,8 @@ class DutUtilsTool:
         :param command:
         :param find_prompt_tries:
         :param find_prompt_delay:
+        :param confirm:
+        :param recovery_engine: recover with other engine (optional)
         :return:
         """
         with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
@@ -48,7 +50,8 @@ class DutUtilsTool:
 
             with allure.step('Waiting for switch to be ready'):
                 check_port_status_till_alive(True, engine.ip, engine.ssh_port)
-                result_obj = device.wait_for_os_to_become_functional(engine, find_prompt_delay=find_prompt_delay)
+                recovery_engine = recovery_engine if recovery_engine else engine
+                result_obj = device.wait_for_os_to_become_functional(recovery_engine, find_prompt_delay=find_prompt_delay)
         return result_obj
 
     @staticmethod

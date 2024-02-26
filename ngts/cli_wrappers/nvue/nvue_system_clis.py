@@ -1,4 +1,5 @@
 import logging
+import time
 
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -47,13 +48,14 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param=""):
+    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param="", recovery_engine=None):
         resource_path = resource_path.replace('/', ' ')
         cmd = "nv action {action_type} {resource_path} {param}" \
             .format(action_type=action_str, resource_path=resource_path, param=op_param)
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True,
+                                   recovery_engine=recovery_engine).verify_result()
 
     @staticmethod
     def action_general(engine, action_str, resource_path, op_param=""):
@@ -88,7 +90,7 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     def action_install(engine, resource_path, param='', param_val=''):
-        cmd = f'nv action install {resource_path.replace("/", " ")} {param} {param_val}'.strip()
+        cmd = f'nv action install {resource_path.replace("/", " ").strip()} {param} {param_val}'.strip()
         with allure.step("Run action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd)):
             if 'system/image' in resource_path:
                 res = ResultObj(result=False, info='Switch should have rebooted but possible that it did not')
@@ -98,7 +100,7 @@ class NvueSystemCli(NvueBaseCli):
                     logger.info("Waiting for switch to be ready")
                     # check_port_status_till_alive(True, engine.ip, engine.ssh_port)
                     with allure.step('Ping switch until shutting down'):
-                        ping_till_alive(should_be_alive=False, destination_host=engine.ip, delay=5, tries=150)
+                        ping_till_alive(should_be_alive=False, destination_host=engine.ip, delay=10, tries=75)
                     with allure.step('Ping switch until back alive'):
                         ping_till_alive(should_be_alive=True, destination_host=engine.ip, delay=5, tries=150)
                     with allure.step('Wait till nvos is up again'):

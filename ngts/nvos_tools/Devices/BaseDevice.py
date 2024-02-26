@@ -17,6 +17,7 @@ class BaseDevice(ABC):
     def __init__(self):
         self.default_password = ""
         self.default_username = ""
+        self.prev_default_password = ""
         self.open_api_port = ""
         self.available_databases = {}
         self.available_tables = {}

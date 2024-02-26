@@ -220,8 +220,8 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     if isinstance(dut_cli_obj, CumulusGeneralCli):
         CumulusInstallationSteps.post_installation_steps()
     elif isinstance(dut_cli_obj, NvueGeneralCli):
-        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version,
-                                                      verify_secure_boot)
+        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, setup_info, base_version,
+                                                      target_version, verify_secure_boot)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,
@@ -336,7 +336,11 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
     """
 
     if isinstance(cli_type, NvueGeneralCli):
-        NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
+        base_image_url = image_url
+        # if base version specified, installing version with prev default password - adjust engine
+        if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
+            cli_type.engine.password = cli_type.device.prev_default_password
+        NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, base_image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:
         SonicInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url,

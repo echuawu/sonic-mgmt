@@ -14,14 +14,8 @@ logger = logging.getLogger()
 class Files(BaseComponent):
     def __init__(self, parent_obj=None, path=None):
         file_path = path if path else '/files'
-        BaseComponent.__init__(self, parent=parent_obj, path=file_path)
+        super().__init__(parent=parent_obj, path=file_path)
         self.file_name: Dict[str, BaseComponent] = DefaultDict(lambda file_name: BaseComponent(self, path=f'/{file_name}'))
-
-    def set(self, op_param_name="", op_param_value=""):
-        raise Exception("set is not implemented for /files")
-
-    def unset(self, op_param=""):
-        raise Exception("unset is not implemented for /files")
 
     def show_log_files(self, log_type='', param='', exit_cmd=''):
         with allure.step('Execute show for log file'):
@@ -108,13 +102,16 @@ class File(Files):
                                                                 expected_str, TestToolkit.engines.dut, 'install',
                                                                 resource_path, op_param)
 
-    def action_file_install_with_reboot(self, expected_str="", op_param="force"):
+    def action_file_install_with_reboot(self, expected_str="", op_param="force", engine=None, device=None,
+                                        recovery_engine=None):
+        engine = engine if engine else TestToolkit.engines.dut
+        device = device if device else TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step("Install {resource_path} file '{file}'".format(resource_path=resource_path, file=self.file_name)):
             logging.info("Trying to install {resource_path} '{file}'".format(resource_path=resource_path, file=self.file_name))
             return SendCommandTool.execute_command_expected_str(self.api_obj[TestToolkit.tested_api].action_install_image_with_reboot,
-                                                                expected_str, TestToolkit.engines.dut, TestToolkit.devices.dut, 'install',
-                                                                resource_path, op_param)
+                                                                expected_str, engine, device, 'install',
+                                                                resource_path, op_param, recovery_engine)
 
     def rename_and_verify(self, new_name, expected_str=""):
         original_name = self.file_name
