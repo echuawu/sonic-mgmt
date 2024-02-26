@@ -1,6 +1,8 @@
 import logging
 
 from ngts.tools.test_utils.allure_utils import step as allure_step
+from ngts.nvos_tools.system.System import System
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -31,3 +33,12 @@ class HostMethods:
     def host_ping(host_engine, ip_address, interface, count=5):
         with allure_step("Running ping from host"):
             return host_engine.run_cmd('ping -I {0} {1} -c {2}'.format(interface, ip_address, count))
+
+    @staticmethod
+    def start_snmp_server(engine, state, readonly_community, listening_address):
+        system = System(None)
+        system.snmp_server.set('state', state).verify_result()
+        system.snmp_server.set('readonly-community', readonly_community).verify_result()
+        system.snmp_server.set('listening-address', listening_address).verify_result()
+        NvueGeneralCli.apply_config(engine)
+        logging.info("Snmp enabled successfully")

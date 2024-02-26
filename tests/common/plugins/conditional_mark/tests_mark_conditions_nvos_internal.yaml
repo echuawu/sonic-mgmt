@@ -79,18 +79,6 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_and_global_s
     conditions:
       - https://redmine.mellanox.com/issues/3317752
 
-tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/system/test_system_health.py::test_reboot_test:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3409698"
-    conditions:
-      - https://redmine.mellanox.com/issues/3409698
-
 tests_nvos/system/test_system_health.py::
   skip:
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
@@ -111,99 +99,17 @@ tests_nvos/system/test_system_factory_reset.py:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3484447
 
-tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_on_error_flow:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194"
-    conditions_logical_operator: or
-    conditions:
-      - https://redmine.mellanox.com/issues/3591194
-      - https://redmine.mellanox.com/issues/3631402
-
-tests_nvos/system/clock/test_system_clock.py::test_change_invalid_datetime_ntp_off_error_flow:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3591194"
-    conditions_logical_operator: or
-    conditions:
-      - https://redmine.mellanox.com/issues/3591194
-      - https://redmine.mellanox.com/issues/3631402
-
-tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_on:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3507024"
-    conditions:
-      - https://redmine.mellanox.com/issues/3507024
-
-tests_nvos/system/clock/test_system_clock.py::test_set_unset_timezone_ntp_off:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3507024"
-    conditions:
-      - https://redmine.mellanox.com/issues/3507024
-
 tests_nvos/interfaces/test_eth0_interface_dhcp.py::test_interface_eth0_description:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3527752"
     conditions:
       - https://redmine.mellanox.com/issues/3527752
 
-tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3529578
-
-tests_nvos/system/test_system_documents.py::test_show_document_files:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3529640"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_user_config_file:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_docker_stop:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/interfaces/test_ib0_interface_mtu.py::test_interface_ib0_mtu_disabled_sm_openapi:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3537022"
-    conditions:
-      - https://redmine.mellanox.com/issues/3537022
-
-tests_nvos/system/test_system_health.py::test_show_system_health:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/system/test_system_health.py::test_system_health_files:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
-tests_nvos/system/test_system_health.py::test_system_health_files_with_rotation:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3549081"
-    conditions:
-      - https://redmine.mellanox.com/issues/3549081
-
 tests_nvos/system/test_system_profile_change.py::test_system_profile_redis_db_crash:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3554789"
     conditions:
       - https://redmine.mellanox.com/issues/3554789
-
-tests_nvos/system/test_system_message.py::test_system_reload_for_system_message_openapi:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3555202"
-    conditions:
-      - https://redmine.mellanox.com/issues/3555202
 
 tests_nvos/system/test_system_image.py:
   skip:
@@ -337,12 +243,6 @@ tests_nvos/interfaces/test_response_mgmt_ip_inband.py::test_dhcp_shutdown:
     conditions:
       - "'gorilla' or 'marlin' in testbed"
 
-tests_nvos/platform/test_platform_firmware.py:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3716349"
-    conditions:
-      - https://redmine.mellanox.com/issues/3716349
-
 tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_poll:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
@@ -390,5 +290,11 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3795718"
     conditions:
       - https://redmine.mellanox.com/issues/3795718
+
+tests_nvos/interfaces/test_port_split.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3794691"
+    conditions:
+      - https://redmine.mellanox.com/issues/3794691
 
 ########################## NVOS IGNORE END ##########################

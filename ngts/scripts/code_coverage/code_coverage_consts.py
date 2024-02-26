@@ -13,6 +13,7 @@ class SharedConsts:
 
 
 class NvosConsts:
+    NVOS_EXCLUDE_PATHS = ['/sonic/src/nvos-sairedis/meta', '/sonic/src/nvos-sairedis/SAI']
     NVOS_SOURCE_FILES = ['sonic/src/nvos-swss/cfgmgr/portmgr', 'sonic/src/nvos-swss/orchagent/response_publisher',
                          'sonic/src/nvos-swss/lib/subintf', 'sonic/src/nvos-swss/cfgmgr/portmgrd',
                          'sonic/src/nvos-swss/cfgmgr/intfmgrd', 'sonic/src/nvos-swss/orchagent/request_parser',

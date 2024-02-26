@@ -14,6 +14,7 @@ logger = logging.getLogger()
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
+@pytest.mark.security_ci
 def test_capability_functionality(engines):
     """
     Run show system message command and verify the required message

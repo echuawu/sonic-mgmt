@@ -67,6 +67,8 @@ class NvosConst:
     SERVICE_STATUS_ACTIVE = 'active'
     NVUE_CLI = "NVUE"
     CUMULUS_SWITCH = "CUMULUS_SWITCH"
+    ENABLED = 'enabled'
+    DISABLED = 'disabled'
 
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     DOCKER_PER_ASIC_LIST = ['syncd-ibv0', 'swss-ibv0', 'database']
