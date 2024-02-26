@@ -5,6 +5,7 @@ import socket
 import time
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.nvos_constants.constants_nvos import ApiType, NtpConsts, SystemConsts
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -14,7 +15,8 @@ from ngts.nvos_tools.system.System import System
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_configure_ntp_server():
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_configure_ntp_server(test_api):
     """
     validate:
     - Show NTP global configuration
@@ -51,6 +53,7 @@ def test_configure_ntp_server():
     21.	Validate show system ntp commands output (expect default values)
     22.	Verify ntp daemon state (expect Ntpd running)
     """
+    TestToolkit.tested_api = test_api
     system = System()
     server_name = NtpConsts.SERVER1_IPV4
     ntp_dict = dict(NtpConsts.NTP_DEFAULT_DICT)
@@ -267,7 +270,8 @@ def test_configure_ntp_server():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_system_authentication(engines):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ntp_system_authentication(engines, test_api):
     """
     validate:
     - Show NTP authentication keys inventory
@@ -306,6 +310,7 @@ def test_ntp_system_authentication(engines):
     25. Disable ntp authentication
     26. Validate show system ntp output (expect ntp auth disabled and clock sync)
     """
+    TestToolkit.tested_api = test_api
     system = System()
     player_engine = engines['sonic_mgmt']
     server_name = player_engine.ip
@@ -506,7 +511,8 @@ def test_ntp_system_authentication(engines):
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_configure_ntp_multiple_servers():
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_configure_ntp_multiple_servers(test_api):
     """
     validate:
     - Add and configure multiple servers
@@ -534,6 +540,7 @@ def test_configure_ntp_multiple_servers():
         (The active server does not exist, and another server becomes active)
     9. Check unset of all servers (All servers removed)
     """
+    TestToolkit.tested_api = test_api
     system = System()
     server2_hostname = get_hostname_from_ip(NtpConsts.SERVER2_IPV4)
     ntp_dict = dict(NtpConsts.NTP_DEFAULT_DICT)
@@ -696,7 +703,8 @@ def test_configure_ntp_multiple_servers():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_performance():
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ntp_performance(test_api):
     """
     validate:
     - Similar configuration time for 1 and 10 servers
@@ -716,6 +724,7 @@ def test_ntp_performance():
     9. Remove all ntp servers
     10. Validate system sync time after setting a new server (Sync time < 5 sec)
     """
+    TestToolkit.tested_api = test_api
     system = System()
     server_name = NtpConsts.SERVER1_IPV4
 
@@ -922,7 +931,7 @@ def test_ntp_reliability():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_log():
+def test_ntp_log(engines):
     """
     validate:
     - Configuring commands are logged to system log
@@ -940,6 +949,8 @@ def test_ntp_log():
     """
     server_name = NtpConsts.SERVER1_IPV4
     system = System()
+    ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username,
+                                                    engines.dut.password).get_returned_value()
 
     try:
         with allure.step("Clear all ntp configurations"):
@@ -949,24 +960,16 @@ def test_ntp_log():
             system.ntp.set(op_param_name=NtpConsts.DHCP, op_param_value=NtpConsts.Dhcp.DISABLED.value).verify_result()
             system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value,
                            apply=True).verify_result()
-            time.sleep(2)
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_UNSET_NTP).verify_result()
 
         with allure.step("Configure ntp server and enable ntp"):
             logging.info("Configure ntp server and enable ntp")
-            system.log.rotate_logs()
             system.ntp.servers.set_resource(NtpConsts.SERVER1_IPV4).verify_result()
             system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.ENABLED.value,
                            apply=True).verify_result()
-            time.sleep(2)
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG).verify_result()
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
 
         with allure.step("Update server configuration"):
             logging.info("Update server configuration")
-            system.log.rotate_logs()
             system.ntp.servers.resources_dict[server_name].set(
                 op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.DISABLED.value).verify_result()
             system.ntp.servers.resources_dict[server_name].set(
@@ -975,13 +978,9 @@ def test_ntp_log():
                 op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.YES.value).verify_result()
             system.ntp.servers.resources_dict[server_name].set(
                 op_param_name=NtpConsts.KEY, op_param_value=NtpConsts.KEY_1, apply=True).verify_result()
-            time.sleep(2)
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG_UPDATE).verify_result()
 
         with allure.step("Configure server key and update its configuration"):
             logging.info("Configure server key and update its configuration")
-            system.log.rotate_logs()
             system.ntp.keys.set_resource(NtpConsts.KEY_1).verify_result()
             system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
                 op_param_name=NtpConsts.VALUE, op_param_value=NtpConsts.KEY1_VALUE).verify_result()
@@ -989,17 +988,14 @@ def test_ntp_log():
                 op_param_name=NtpConsts.TYPE, op_param_value=NtpConsts.KeyType.SHA1.value).verify_result()
             system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
                 op_param_name=NtpConsts.TRUSTED, op_param_value=NtpConsts.Trusted.YES.value, apply=True).verify_result()
-            time.sleep(2)
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG_KEY).verify_result()
 
         with allure.step("Configure vrf"):
             logging.info("Configure vrf")
             # Currently not supported
-            # system.log.rotate_logs()
             # system.ntp.vrfs.set_resource(NtpConsts.Vrf.MGMT.value, apply=True).verify_result()
-            # show_output = system.log.show_log(exit_cmd='q')
-            # ValidationTool.verify_expected_output(show_output, NtpConsts.LOG_MSG_SERVER_CONFIG_VRF).verify_result()
+
+        with allure.step("Validate commands exist in system log"):
+            system.log.verify_expected_logs(NtpConsts.LOG_MSG_LIST, engine=ssh_connection)
 
         with allure.step("Validate commands exist in debug dump"):
             logging.info("Validate commands exist in debug dump")
@@ -1014,7 +1010,8 @@ def test_ntp_log():
 @pytest.mark.system
 @pytest.mark.ntp
 @pytest.mark.simx
-def test_ntp_invalid_values():
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ntp_invalid_values(test_api):
     """
     Check all the commands that get param with bad values
 
@@ -1032,6 +1029,7 @@ def test_ntp_invalid_values():
     11. nv set system ntp server <server-id> version <not 3|4> (Failure)
     12. nv set system ntp vrf <random str> (Failure)
     """
+    TestToolkit.tested_api = test_api
     system = System()
     server_name = NtpConsts.SERVER1_IPV4
 
@@ -1126,6 +1124,7 @@ def test_ntp_invalid_values():
 
 
 # ---------------------------------------------
+
 def get_hostname_from_ip(ip):
     host_name_index = 0
     hostname_str = socket.gethostbyaddr(ip)[host_name_index]
@@ -1138,67 +1137,3 @@ def create_ntp_server(player_engine):
     player_engine.run_cmd("apt-get install ntp")
     player_engine.run_cmd(f"cp {NtpConsts.NTP_SERVER_FILES} /etc/")
     player_engine.run_cmd("service ntp restart")
-
-
-# ------------ Open API tests -----------------
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.ntp
-@pytest.mark.simx
-def test_configure_ntp_server_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_configure_ntp_server()
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.ntp
-@pytest.mark.simx
-def test_ntp_system_authentication_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ntp_system_authentication(engines)
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.ntp
-@pytest.mark.simx
-def test_configure_ntp_multiple_servers_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_configure_ntp_multiple_servers()
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.ntp
-@pytest.mark.simx
-def test_ntp_performance_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ntp_performance()
-
-
-# @pytest.mark.openapi
-# @pytest.mark.system
-# @pytest.mark.ntp
-# @pytest.mark.simx
-# def test_ntp_reliability_openapi():
-#     TestToolkit.tested_api = ApiType.OPENAPI
-#     test_ntp_reliability()
-
-
-# @pytest.mark.openapi
-# @pytest.mark.system
-# @pytest.mark.ntp
-# @pytest.mark.simx
-# def test_ntp_log_openapi():
-#     TestToolkit.tested_api = ApiType.OPENAPI
-#     test_ntp_log()
-
-
-@pytest.mark.openapi
-@pytest.mark.system
-@pytest.mark.ntp
-@pytest.mark.simx
-def test_ntp_invalid_values_openapi():
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ntp_invalid_values()

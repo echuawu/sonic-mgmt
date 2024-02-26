@@ -699,6 +699,8 @@ class NtpConsts:
                                    "'key': '6', 'resolve_as': '10.7.77.134', 'state': 'disabled', " \
                                    "'trusted': 'yes', 'version': '3'}}"
     LOG_MSG_SERVER_CONFIG_KEY = "NtpCfg: Set keys: {'6': {'trusted': 'yes', 'type': 'SHA1'}}"
+
+    LOG_MSG_LIST = [LOG_MSG_UNSET_NTP, LOG_MSG_SERVER_CONFIG, LOG_MSG_SERVER_CONFIG_UPDATE, LOG_MSG_SERVER_CONFIG_KEY]
     #   LOG_MSG_SERVER_CONFIG_VRF = "..."  # Currently not supported
 
     NTP_DEFAULT_DICT = {

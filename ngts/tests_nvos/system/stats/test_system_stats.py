@@ -7,6 +7,7 @@ import os
 from datetime import datetime, timedelta
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import ApiType, NvosConst, StatsConsts
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -585,17 +586,16 @@ def test_system_stats_log(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     category_list = devices.dut.category_list
 
+    ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username,
+                                                    engines.dut.password).get_returned_value()
+
     try:
         with allure.step("Unset stats feature state and check log file"):
             system.log.rotate_logs()
             system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_UNSET_STATS).verify_result()
 
         with allure.step("Set category stats configuration and check log file"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
-            log_msg = StatsConsts.LOG_MSG_PATCH_CATEGORY + name
-            system.log.rotate_logs()
             system.stats.category.categoryName[name].set(
                 op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
             system.stats.category.categoryName[name].set(
@@ -605,8 +605,10 @@ def test_system_stats_log(engines, devices, test_api):
                 op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
+
+        with allure.step("Validate commands exist in system log"):
+            log_message_list = [StatsConsts.LOG_MSG_UNSET_STATS, StatsConsts.LOG_MSG_PATCH_CATEGORY + name]
+            system.log.verify_expected_logs(log_message_list, engine=ssh_connection)
 
         with allure.step("Validate stats files in tech support file"):
             stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
