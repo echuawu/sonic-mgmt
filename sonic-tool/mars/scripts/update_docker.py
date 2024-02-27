@@ -375,9 +375,6 @@ def main():
     create_and_start_container(test_server, "{}/{}".format(registry_url, docker_image_name),
                                docker_tag, container_name, mac)
 
-    # TODO: WA to use the pytest-ansible version 2.2.4, after the
-    #  PR https://github.com/sonic-net/sonic-buildimage/pull/15814 merged, can remove it.
-    test_server.run('docker exec {} bash -c "/var/AzDevOps/env-python3/bin/pip install pytest-ansible==2.2.4"'.format(container_name))
     logger.info("Try to delete dangling docker images to save space")
     cleanup_dangling_docker_images(test_server)
 
