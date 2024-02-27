@@ -245,11 +245,12 @@ def get_cli_obj(topology_obj, cli_type, switch_type, engine, host):
     return cli_obj
 
 
-def get_info_from_topology(topology_obj, workspace_path):
+def get_info_from_topology(topology_obj, workspace_path, include_smartswitch_dpu=True):
     """
     Creates a class which contains setup info
     :param topology_obj: topology object
     :param workspace_path: workspace_path argument
+    :param include_smartswitch_dpu: controls whether collect the entries of SmartSwitch DPUs
     :return: SetupInfo object
     """
     ansible_path = os.path.join(workspace_path, "sonic-mgmt/ansible/")
@@ -267,6 +268,8 @@ def get_info_from_topology(topology_obj, workspace_path):
                 cli_obj = get_cli_obj(topology_obj, cli_type, switch_type, engine, host)
                 dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine, 'cli_obj': cli_obj,
                             'dut_alias': dut_alias, 'switch_type': switch_type, 'dut_ip': dut_ip}
+                if 'dut-dpu' in dut_alias and not include_smartswitch_dpu:
+                    continue
                 setup_info['duts'].append(dut_info)
             elif host == 'hypervisor':
                 hypervisor_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
