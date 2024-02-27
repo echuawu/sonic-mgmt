@@ -38,3 +38,13 @@ def dockers_list(request):
     :return: a list of dockers that should be up on the switch, i.e ['database','swss']
     """
     return request.config.getoption('--dockers_list').split(',')
+
+
+@pytest.fixture(scope="module")
+def sonic_topo(request):
+    """
+    Method for getting sonic-topo from pytest arguments
+    :param request: pytest builtin
+    :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
+    """
+    return request.config.getoption('--sonic-topo')

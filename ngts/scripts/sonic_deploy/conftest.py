@@ -167,16 +167,6 @@ def upgrade_only(request):
 
 
 @pytest.fixture(scope="module")
-def sonic_topo(request):
-    """
-    Method for getting sonic-topo from pytest arguments
-    :param request: pytest builtin
-    :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
-    """
-    return request.config.getoption('--sonic-topo')
-
-
-@pytest.fixture(scope="module")
 def post_installation_validation(request):
     """
     Method for getting post-validation from pytest arguments
