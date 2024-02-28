@@ -120,6 +120,7 @@ class IbSwitch(BaseSwitch):
         self.multi_asic_system = False
         self.install_from_onie_timeout = 360
         self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
+        self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.voltage_sensors = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]

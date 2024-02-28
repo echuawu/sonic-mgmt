@@ -1188,3 +1188,12 @@ class AclConsts:
     HASHLIMIT_EXPIRE = 'expire'
     HASHLIMIT_DEST_MASK = 'destination-mask'
     HASHLIMIT_SRC_MASK = 'source-mask'
+
+
+class PtpConsts:
+    class TcState(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+
+    TC_STATE = 'TC-STATE'
+    MTPCPC_REGISTER = 'MTPCPC'  # TODO check name and value

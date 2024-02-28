@@ -62,6 +62,7 @@ class System(BaseComponent):
         self.gnmi_server = Gnmi_server(self)
         self.web_server_api = WebServerAPI(self)
         self.api = Api(self)
+        self.ptp = BaseComponent(self, path='/ptp')
 
     @staticmethod
     def get_expected_fields(device, resource):

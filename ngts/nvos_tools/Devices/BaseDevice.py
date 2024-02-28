@@ -49,6 +49,7 @@ class BaseDevice(ABC):
         self.user_fields = []
         self.install_from_onie_timeout = 360  # seconds
         self.install_success_patterns = ""
+        self.mst_dev_name = ""
 
         self._init_constants()
         self._init_available_databases()
