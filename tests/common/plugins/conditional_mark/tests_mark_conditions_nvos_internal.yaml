@@ -290,11 +290,4 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3795718"
     conditions:
       - https://redmine.mellanox.com/issues/3795718
-
-tests_nvos/interfaces/test_port_split.py:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3794691"
-    conditions:
-      - https://redmine.mellanox.com/issues/3794691
-
 ########################## NVOS IGNORE END ##########################
