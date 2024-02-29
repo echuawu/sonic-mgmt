@@ -1,3 +1,4 @@
+from ngts.nvos_constants.constants_nvos import ConfState
 from .IfIndex import IfIndex
 from .Ip import Ip
 from .Link import LinkMgmt
@@ -29,7 +30,8 @@ class MgmtInterface(BaseComponent):
         self.plan_ports = self.plan_ports = BaseComponent(self, path='/plan-ports')
         self.acl = Acl(self)
 
-    def wait_for_port_state(self, state, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2):
+    def wait_for_port_state(self, state, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2,
+                            dut_engine=None):
         with allure.step("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
                 port=self.port_obj.name, state=state, timeout=timeout)):
             logger.info("Wait for '{port}' to reach state '{state}' (timeout: {timeout})".format(
@@ -38,13 +40,13 @@ class MgmtInterface(BaseComponent):
             result_obj = ResultObj(True, "")
             timer = timeout
             while OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                    self.link.show()).\
+                    self.link.show(dut_engine=dut_engine)).\
                     get_returned_value()[IbInterfaceConsts.LINK_STATE] != state and timer > 0:
                 time.sleep(sleep_time)
                 timer -= sleep_time
 
             if OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                    self.link.show()).get_returned_value()[IbInterfaceConsts.LINK_STATE] == state:
+                    self.link.show(dut_engine=dut_engine)).get_returned_value()[IbInterfaceConsts.LINK_STATE] == state:
                 logger.info("'{port}' successfully reached state '{state}'".format(
                     port=self.port_obj.name, state=state))
                 result_obj.info = "'{port}' successfully reached state '{state}'".format(port=self.port_obj.name,
@@ -58,12 +60,12 @@ class MgmtInterface(BaseComponent):
 
             if logical_state:
                 while OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                        self.port_obj.ib_interface.link.show()). \
+                        self.port_obj.ib_interface.link.show(dut_engine=dut_engine)). \
                         get_returned_value()[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE] != logical_state and timer > 0:
                     time.sleep(sleep_time)
                     timer -= sleep_time
                 if OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                        self.link.show()). \
+                        self.link.show(dut_engine=dut_engine)). \
                         get_returned_value()[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE] == logical_state:
                     logger.info("'{port}' successfully reached logical_state '{state}'".format(
                         port=self.port_obj.name, state=logical_state))
@@ -78,10 +80,10 @@ class MgmtInterface(BaseComponent):
             return result_obj
 
     @retry(Exception, tries=10, delay=2)
-    def wait_for_mtu_changed(self, mtu_to_verify, output_column=""):
+    def wait_for_mtu_changed(self, mtu_to_verify):
         with allure.step("Waiting for ib0 port mtu changed to {}".format(mtu_to_verify)):
             output_dictionary = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                self.link.show(output_column)).get_returned_value()
+                self.link.show(rev=ConfState.APPLIED)).get_returned_value()
             current_mtu = output_dictionary[IbInterfaceConsts.LINK_MTU]
             assert current_mtu == mtu_to_verify, "Current mtu {} is not as expected {}".\
                 format(current_mtu, mtu_to_verify)

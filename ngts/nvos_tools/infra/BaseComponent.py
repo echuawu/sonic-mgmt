@@ -47,16 +47,20 @@ class BaseComponent:
         return "{parent_path}{self_path}".format(
             parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
 
+    def update_param(self, param, rev):
+        if self._api_to_use == ApiType.OPENAPI:
+            param = param.replace('/', "%2F").replace(' ', "/")
+        if rev and rev != ConfState.OPERATIONAL:
+            param += ('?rev=' + rev) if self._api_to_use == ApiType.OPENAPI else f' --{rev}'
+        return param
+
     def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None, should_succeed=True,
              rev=ConfState.OPERATIONAL):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
 
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
-            if TestToolkit.tested_api == ApiType.OPENAPI:
-                op_param = op_param.replace('/', "%2F").replace(' ', "/")
-            if rev and rev != ConfState.OPERATIONAL:
-                op_param += ('?rev=' + rev) if TestToolkit.tested_api == ApiType.OPENAPI else f' --{rev}'
+            op_param = self.update_param(op_param, rev)
             return SendCommandTool.execute_command(self._cli_wrapper.show, dut_engine,
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value(should_succeed=should_succeed)

@@ -30,13 +30,15 @@ class ValidationTool:
                     result_obj.info = "{str_to_search_for} was found".format(str_to_search_for=str_to_search_for)
                 else:
                     result_obj.result = False
-                    result_obj.info = "{str_to_search_for} was found while it should not".format(str_to_search_for=str_to_search_for)
+                    result_obj.info = "{str_to_search_for} was found while it should not".format(
+                        str_to_search_for=str_to_search_for)
             else:
                 if should_be_found:
                     result_obj.result = False
                     result_obj.info = "{str_to_search_for} was not found".format(str_to_search_for=str_to_search_for)
                 else:
-                    result_obj.info = "{str_to_search_for} was not found as expected".format(str_to_search_for=str_to_search_for)
+                    result_obj.info = "{str_to_search_for} was not found as expected".format(
+                        str_to_search_for=str_to_search_for)
             return result_obj
 
     @staticmethod
@@ -74,7 +76,8 @@ class ValidationTool:
                         result_obj.result = False
                         result_obj.info += "'{str_to_search_for}' field was not found\n".format(str_to_search_for=key)
                     else:
-                        logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
+                        logging.info(
+                            "'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
 
             return result_obj
 
@@ -96,7 +99,7 @@ class ValidationTool:
         :return:
         """
         with allure.step('Verify the value of {field} is {no}equal to {expected} as expected'.format(
-                         field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
+                field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
             result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
             if field_name not in output_dictionary.keys():
                 result_obj.result = False
@@ -312,7 +315,8 @@ class ValidationTool:
         """
         with allure.step('Validate all expected files are exist in the compressed folder{}'.format(zipped_folder_name)):
             with allure.step('Get files list in compressed folder'):
-                engine.run_cmd('sudo tar -xf ' + zipped_folder_path + '/' + zipped_folder_name + ' -C ' + zipped_folder_path)
+                engine.run_cmd(
+                    'sudo tar -xf ' + zipped_folder_path + '/' + zipped_folder_name + ' -C ' + zipped_folder_path)
                 output = engine.run_cmd('ls ' + zipped_folder_path + path).split()
                 engine.run_cmd('sudo rm -rf ' + zipped_folder_path + '/' + path.split('/')[1])
 
@@ -334,8 +338,10 @@ class ValidationTool:
         Compare two given dictionaries and return the diff
         @param dict1: 1st dict
         @param dict2: 2nd dict
-        @param exceptions: dict of exceptions. e.g. {"password": "*"} - if we reach key "password", and one of the
-            dicts has "*" as value, count it as ok (don't compare)
+        @param exceptions: dict of exceptions.
+            example1: {"password": "*"} - if we reach key "password", and one of the
+                dicts has "*" as value, count it as ok (don't compare)
+            example2: {"password": None} - if we reach key "password", just don't compare
         @return: diff as a dictionary
         """
         difference = {}
@@ -343,8 +349,9 @@ class ValidationTool:
         for key, value in dict1.items():
             if key not in dict2:
                 difference[key] = value
-            elif not isinstance(value, dict) and not isinstance(dict2[key], dict) \
-                    and key in exceptions and exceptions[key] in [dict1[key], dict2[key]]:
+            elif key in exceptions and (
+                    (exceptions[key] is None) or (not isinstance(value, dict) and not isinstance(dict2[key], dict) and
+                                                  exceptions[key] in [dict1[key], dict2[key]])):
                 continue
             elif not isinstance(value, dict) and value != dict2[key]:
                 difference[key] = value

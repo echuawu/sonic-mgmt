@@ -106,7 +106,7 @@ class NvosInstallationSteps:
                                                  topology_obj, target_version_path: str):
         with allure.step('Strings preparation'):
             ngts_path = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
-            config_filename = 'nvos_config_ga_2500.yml'
+            config_filename = 'nvos_config_ga_3000.yml'
             config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
             logger.info(f'NGTS_PATH: {ngts_path}')
             logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
@@ -157,7 +157,7 @@ class NvosInstallationSteps:
         with allure.step('Check differences between expected and actual configurations'):
             logger.info(f'config before upgrade (expected):\n{expected_config}')
             logger.info(f'config after upgrade (actual):\n{actual_config}')
-            exceptions = {"secret": "*", "password": "*"}
+            exceptions = {"secret": "*", "password": "*", "readonly-community": None}
             dicts_diff = ValidationTool.get_dictionaries_diff(expected_config, actual_config, exceptions=exceptions)
             logger.info(f'configs diff:\n{dicts_diff}')
             assert not dicts_diff, f'Configuration after upgrade is not as saved before the upgrade. diff:\n{dicts_diff}'

@@ -32,7 +32,7 @@ def ib_clear_conf(dut_engine, markers=None):
         if diff_config:
             active_port = None
             if NvosConst.INTERFACE in diff_config.keys():
-                result = RandomizationTool.select_random_ports(num_of_ports_to_select=1)
+                result = RandomizationTool.select_random_ports(num_of_ports_to_select=1, dut_engine=dut_engine)
                 if result.result:
                     active_port = result.returned_value[-1]
                 NvueBaseCli.unset(dut_engine, NvosConst.INTERFACE)
@@ -83,7 +83,7 @@ def ib_clear_conf(dut_engine, markers=None):
             if should_wait_for_nvued_after_apply:
                 DutUtilsTool.wait_for_nvos_to_become_functional(dut_engine).verify_result()
             if active_port:
-                active_port.ib_interface.wait_for_port_state(state='up').verify_result()
+                active_port.ib_interface.wait_for_port_state(state='up', dut_engine=dut_engine).verify_result()
 
 
 def clear_system_profile_config(dut_engine=None):

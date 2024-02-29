@@ -27,21 +27,20 @@ def test_interface_ib0_mtu_disabled_sm(engines, stop_sm):
 
     ipoib_port = MgmtPort('ib0')
     possible_values = [4092]
-    oparam = '--applied'
     with allure.step('pick random mtu value out of {possible_values}'.format(possible_values=possible_values)):
         random_mtu = random.choice(possible_values)
         logger.info('the random mtu is {val}'.format(val=random_mtu))
 
     with allure.step('Run show command on ib0 and verify mtu default value is {value}'.format(
             value=IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)):
-        ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE, oparam)
+        ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)
 
     with allure.step('Set validation with supported for ib0 mtu {random}'.format(random=random_mtu)):
         ipoib_port.interface.link.set(op_param_name='mtu', op_param_value=random_mtu, apply=True,
                                       ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        ipoib_port.interface.wait_for_mtu_changed(random_mtu, oparam)
+        ipoib_port.interface.wait_for_mtu_changed(random_mtu)
 
     with allure.step('Negative validation - not supported ib0 mtu value: 500'):
         ipoib_port.interface.link.set(op_param_name='mtu', op_param_value=500, apply=True,
@@ -49,13 +48,13 @@ def test_interface_ib0_mtu_disabled_sm(engines, stop_sm):
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        ipoib_port.interface.wait_for_mtu_changed(random_mtu, oparam)
+        ipoib_port.interface.wait_for_mtu_changed(random_mtu)
 
     with allure.step('Unset mtu validation'):
         ipoib_port.interface.link.unset(op_param='mtu', apply=True, ask_for_confirmation=True).verify_result()
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
-        ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE, oparam)
+        ipoib_port.interface.wait_for_mtu_changed(IbInterfaceConsts.IB0_LINK_MTU_DEFAULT_VALUE)
 
 
 @pytest.mark.ib
