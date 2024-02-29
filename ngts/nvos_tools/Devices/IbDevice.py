@@ -287,6 +287,9 @@ class IbSwitch(BaseSwitch):
                                   "\u2588\u2588\u2588\u2588\u2551\n \u255a\u2550\u255d  \u255a\u2550\u2550" \
                                   "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550" \
                                   "\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
+        self.ssd_image = {
+            'StorFly VSFBM4XC016G-MLX2': ('0202-002', '/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg'),
+        }
 
     def get_ib_ports_num(self):
         return self.ib_ports_num

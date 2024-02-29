@@ -503,6 +503,7 @@ class PlatformConsts:
     FW_SSD = "SSD"
     FW_COMP = [FW_BIOS, FW_ONIE, FW_SSD, FW_CPLD + '1', FW_CPLD + '2', FW_CPLD + '3']
     FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
+    FW_PART_NUMBER = 'part-number'
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"

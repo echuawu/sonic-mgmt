@@ -46,16 +46,11 @@ def test_cpld_upgrade(engines, devices):
             _firmware_install_test(devices, fae, platform, devices.dut.current_cpld_version)
 
 
-def _get_file_list(fae: Fae):
-    """Run `nv show fae platform firmware cpld files` and return output as a list of file names."""
-    return OutputParsingTool.parse_show_files_to_names(fae.platform.firmware.cpld.show_files()).get_returned_value()
-
-
 def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: BaseSwitch.CpldImageConsts):
     burn_filename = os.path.basename(image_consts.burn_image_path)
     refresh_filename = os.path.basename(image_consts.refresh_image_path)
     with allure.step(f"Asserting the image files don't exist yet"):
-        initial_files = _get_file_list(fae)
+        initial_files = fae.platform.firmware.cpld.show_files_as_list()
         assert burn_filename not in initial_files, f"Can't test `fetch` because file is already present: {burn_filename}"
         assert refresh_filename not in initial_files, f"Can't test `fetch` because file is already present: {refresh_filename}"
 
@@ -66,7 +61,7 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
         fae.platform.firmware.cpld.action_fetch(image_consts.refresh_image_path).verify_result()
 
     with allure.step(f"Asserting fetch was successful"):
-        file_list = _get_file_list(fae)
+        file_list = fae.platform.firmware.cpld.show_files_as_list()
         assert burn_filename in file_list, f"`show` command doesn't show the fetched burn-image {burn_filename}"
         assert refresh_filename in file_list, f"`show` command doesn't show the fetched refresh-image {refresh_filename}"
         assert set(file_list) == set(initial_files) | {burn_filename, refresh_filename}, \
@@ -82,7 +77,6 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
             result.verify_result()
 
         with allure.step(f"Installing REFRESH image (and rebooting) {refresh_filename}"):
-            # todo: this doesn't work at openapi
             fae.platform.firmware.cpld.action_install(refresh_filename, device=devices.dut, expect_reboot=True
                                                       ).verify_result()
 
@@ -105,7 +99,7 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
             fae.platform.firmware.cpld.action_delete(refresh_filename).verify_result()
 
         with allure.step(f"Asserting delete was successful"):
-            final_file_list = _get_file_list(fae)
+            final_file_list = fae.platform.firmware.cpld.show_files_as_list()
             assert set(initial_files) == set(final_file_list), (
                 f"File list is expected to be the same at the start and end of the test, but the initial file list is:\n"
                 f"{initial_files}\nAnd at the end of the test the list is:\n{final_file_list}")

@@ -5,6 +5,7 @@ import allure
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
@@ -131,7 +132,7 @@ class BaseComponent:
         return result_obj
 
     def action(self, action: str, suffix="", param_name="", param_value="", output_format=OutputFormat.json,
-               dut_device=None, dut_engine=None, expected_output='', expect_reboot=False):
+               dut_device=None, dut_engine=None, expected_output='', expect_reboot=False) -> ResultObj:
         """
         Runs nv action commands. The arguments `suffix`, `param_name` and `param_value` are all arguments passed to the
         the command, the difference is that in OpenAPI the `suffix` is appended to the URL while param_name and

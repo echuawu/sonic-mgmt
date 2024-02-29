@@ -50,7 +50,7 @@ class OpenApiBaseCli:
             data['parameters'] = {param_name: (True if (param_value == '') else param_value)}
         result = OpenApiCommandHelper.execute_action(
             OpenApiBaseCli._action_key(action_type), engine.engine.username, engine.engine.password, engine.ip,
-            url, data, expect_reboot)
+            url, data)
 
         if expect_reboot:
             DutUtilsTool.wait_on_system_reboot(engine)
