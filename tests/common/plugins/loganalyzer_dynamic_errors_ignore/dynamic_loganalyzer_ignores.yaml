@@ -3514,8 +3514,6 @@
   Conditions:
     - Redmine:
       - 3715126
-      Platform:
-      - simx
 
 - Errors_list:
     - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected PPCNT group.*'
