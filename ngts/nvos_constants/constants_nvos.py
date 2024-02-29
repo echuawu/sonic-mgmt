@@ -522,6 +522,8 @@ class PlatformConsts:
                HW_MAC, "system-uuid"]
     HW_COMP_SWITCH = "SWITCH"
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
+    TRANSCEIVER_STATUS = "module-status"
+    TRANSCEIVER_ERROR_STATUS = "module-error-status"
 
 
 class IbConsts:
@@ -1092,6 +1094,7 @@ class UfmMadConsts:
     CONFIG_TIME = 100  # [sec]
     MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
     IBSNI_REGISTER = 'IBSNI'
+    PMAOS_REGISTER = 'PMAOS'
     NVMAD_PATH = '/auto/sw_system_project/MLNX_OS_INFRA/mad_repository'
     LID = 1
     MAD_NO_IPV4 = '0.0.0.0'
