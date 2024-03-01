@@ -2216,12 +2216,8 @@
     - '.*sonic ERR kernel:.*ima: impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall.*'
     - '.*ERR kernel:.*x86\/cpu: SGX disabled by BIOS.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      Redmine:
+    - Redmine:
       - 3726137
-      Branch:
-      - master
 
 - Errors_list:
     - '.*ERR systemctl.*: Job for pmon.service canceled.*'
@@ -3534,6 +3530,12 @@
   Conditions:
     - Redmine:
       - 3656762
+
+- Errors_list:
+    - '.*ERR kernel:.*usb usb\d-port\d: connect-debounce failed.*'
+  Conditions:
+    - Redmine:
+      - 3735940
 
 # NVOS
 - Errors_list:
