@@ -124,7 +124,7 @@ class IbSwitch(BaseSwitch):
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
-        self.voltage_sensors = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
+        self.fan_list = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
         self.temperature_sensors = ["ASIC", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp",
                                     "CPU-Core-2-Temp",
                                     "CPU-Core-3-Temp", "CPU-Pack-Temp", "SODIMM-1-Temp"]
@@ -242,13 +242,12 @@ class IbSwitch(BaseSwitch):
             }
         }
 
-        self.voltage_sensors = ["3.3V-OSFP-P01-P08-Out-1", "3.3V-OSFP-P09-P16-Out-2", "3.3V-OSFP-P17-P24-Out-1",
-                                "3.3V-OSFP-P25-P32-Out-2", "12V-ASIC-HVDD-DVDD-In-1", "12V-ASIC-VCORE-In-1",
-                                "12V-PORTS-EAST-In-1", "12V-PORTS-WEST-In-1", "13V5-COMEX-VDD-In-1",
-                                "ASIC-DVDD-EAST-Out-2",
-                                "ASIC-DVDD-WEST-Out-2", "ASIC-HVDD-EAST-Out-1", "ASIC-HVDD-WEST-Out-1",
-                                "ASIC-VCORE-Out-1",
-                                "COMEX-VCCSA-Out-2", "COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
+        self.voltage_sensors = ["PMIC-1-12V-ASIC-VCORE-In-1", "PMIC-1-ASIC-VCORE-Out-1", "PMIC-2-12V-ASIC-HVDD-DVDD-In-1",
+                                "PMIC-2-ASIC-DVDD-WEST-Out-2", "PMIC-2-ASIC-HVDD-WEST-Out-1", "PMIC-3-12V-ASIC-HVDD-DVDD-In-1",
+                                "PMIC-3-ASIC-DVDD-EAST-Out-2", "PMIC-3-ASIC-HVDD-EAST-Out-1", "PMIC-4-3.3V-OSFP-P01-P08-Out-1",
+                                "PMIC-4-3.3V-OSFP-P09-P16-Out-2", "PMIC-4-12V-PORTS-WEST-In-1", "PMIC-5-3.3V-OSFP-P17-P24-Out-1",
+                                "PMIC-5-3.3V-OSFP-P25-P32-Out-2", "PMIC-5-12V-PORTS-EAST-In-1", "PMIC-6-13V5-COMEX-VDD-In-1",
+                                "PMIC-6-COMEX-VCCSA-Out-2", "PMIC-6-COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
         self.temperature_sensors = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
                                     "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
                                     "PCH-Temp",
@@ -318,17 +317,6 @@ class GorillaSwitch(IbSwitch):
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
 
-        self.voltage_sensors = ["3.3V-OSFP-P01-P08-Out-1", "3.3V-OSFP-P09-P16-Out-2", "3.3V-OSFP-P17-P24-Out-1",
-                                "3.3V-OSFP-P25-P32-Out-2", "12V-ASIC-HVDD-DVDD-In-1", "12V-ASIC-VCORE-In-1",
-                                "12V-PORTS-EAST-In-1", "12V-PORTS-WEST-In-1", "13V5-COMEX-VDD-In-1",
-                                "ASIC-DVDD-EAST-Out-2",
-                                "ASIC-DVDD-WEST-Out-2", "ASIC-HVDD-EAST-Out-1", "ASIC-HVDD-WEST-Out-1",
-                                "ASIC-VCORE-Out-1",
-                                "COMEX-VCCSA-Out-2", "COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
-        self.temperature_sensors = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
-                                    "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
-                                    "PCH-Temp",
-                                    "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
         self.current_bios_version_name = "0ACQF_06.01.003"
         self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
         self.previous_bios_version_name = "0ACQF_06.01.002"
@@ -373,18 +361,6 @@ class GorillaSwitchBF3(GorillaSwitch):
         self.ib_ports_num = 64
         self.core_count = 16
         self.asic_type = NvosConst.QTM2
-
-        self.voltage_sensors = ["3.3V-OSFP-P01-P08-Out-1", "3.3V-OSFP-P09-P16-Out-2", "3.3V-OSFP-P17-P24-Out-1",
-                                "3.3V-OSFP-P25-P32-Out-2", "12V-ASIC-HVDD-DVDD-In-1", "12V-ASIC-VCORE-In-1",
-                                "12V-PORTS-EAST-In-1", "12V-PORTS-WEST-In-1", "13V5-COMEX-VDD-In-1",
-                                "ASIC-DVDD-EAST-Out-2",
-                                "ASIC-DVDD-WEST-Out-2", "ASIC-HVDD-EAST-Out-1", "ASIC-HVDD-WEST-Out-1",
-                                "ASIC-VCORE-Out-1",
-                                "COMEX-VCCSA-Out-2", "COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
-        self.temperature_sensors = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
-                                    "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
-                                    "PCH-Temp",
-                                    "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
 
     def _init_temperature(self):
         GorillaSwitch._init_temperature(self)
