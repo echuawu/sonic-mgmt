@@ -459,7 +459,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def deploy_bfb(self, image_path, topology_obj, change_to_one_port_hwsku=False):
         rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
             'Parent_device_NIC_name']
-        hyper_engine = topology_obj.players['hyper']['engine']
+        hyper_name = 'hyper' if 'hyper' in topology_obj.players else 'hypervisor'
+        hyper_engine = topology_obj.players[hyper_name]['engine']
 
         with allure.step('Check RSHIM service running(restart if required'):
             if not LinuxGeneralCli(hyper_engine).systemctl_is_service_active(service='rshim'):
