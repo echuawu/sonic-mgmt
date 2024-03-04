@@ -1604,6 +1604,34 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         """
         return self.engine.run_cmd('bootctl', validate=True)
 
+    def is_async_route_enabled(self, async_route_param):
+        """
+        Checks the status of async_route feature
+
+        :param str async_route_param: async_route feature parameter from sai.profile, f.e. 'SAI_ASYNC_ROUTING_ENABLED=1'
+        :return bool: True if feature is enabled, False otherwise
+        """
+        async_route_status = async_route_param.split('=')[-1]
+        return async_route_status == '1'
+
+    def enable_async_route_feature(self, platform, hwsku):
+        """
+        Checks if async route feature is enabled and enables it otherwise
+        """
+        switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
+        default_sai_xml_file_name = 'sai.profile'
+        async_routing_enabled = 'SAI_ASYNC_ROUTING_ENABLED'
+
+        logger.info('Get SAI init config file path')
+        sai_profile_path = f'{switch_sai_xml_path}/{default_sai_xml_file_name}'
+        async_route_param = self.engine.run_cmd(f'sudo cat {sai_profile_path} | grep {async_routing_enabled}')
+        if async_route_param and not self.is_async_route_enabled(async_route_param):
+            if self.is_async_route_enabled(async_route_param):
+                logger.info('Async_route feature is already enabled')
+            else:
+                self.engine.run_cmd(f'sed -i "/{async_routing_enabled}/d" {sai_profile_path}')
+                self.engine.run_cmd(f'echo "{async_routing_enabled}=1" >> {sai_profile_path}')
+
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
 

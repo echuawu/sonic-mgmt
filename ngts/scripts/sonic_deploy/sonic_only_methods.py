@@ -341,6 +341,7 @@ class SonicInstallationSteps:
         :param is_performance: True in case when setup is performance
         """
         ansible_path = setup_info['ansible_path']
+        cli = SonicInstallationSteps.get_dut_cli(setup_info)
 
         # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O8V48 is merged to upstream
         if "r-leopard-70" in setup_name or "r-leopard-72" in setup_name:
@@ -353,6 +354,8 @@ class SonicInstallationSteps:
                            f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
                            f'{sonic_mgmt_hwsku_path}', ansible_path)
             generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
+
+        cli.enable_async_route_feature(platform_params['platform'], platform_params['hwsku'])
 
         if not is_community(sonic_topo):
             # Enable Port Init Profile for Canonical setups
@@ -484,6 +487,15 @@ class SonicInstallationSteps:
             for dut in setup_info['duts']:
                 ports_list = topology_obj.players_all_ports[dut['dut_alias']]
                 dut['cli_obj'].cli_obj.interface.check_link_state(ports_list)
+
+    @staticmethod
+    def get_dut_cli(setup_info):
+        cli = None
+        for dut in setup_info['duts']:
+            if dut['dut_alias'] == 'dut':
+                cli = dut['cli_obj']
+                break
+        return cli
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,
