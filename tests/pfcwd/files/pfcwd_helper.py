@@ -319,13 +319,17 @@ def select_test_ports(test_ports):
     selected_ports = dict()
     rx_ports = set()
     seed = int(datetime.datetime.today().day)
+    if len(test_ports) <= 64:
+        divisor = 15
+    else:
+        divisor = 30
     for port, port_info in list(test_ports.items()):
         rx_port = port_info["rx_port"]
         if isinstance(rx_port, (list, tuple)):
             rx_ports.update(rx_port)
         else:
             rx_ports.add(rx_port)
-        if (int(port_info['test_port_id']) % 15) == (seed % 15):
+        if (int(port_info['test_port_id']) % divisor) == (seed % divisor):
             selected_ports[port] = port_info
 
     # filter out selected ports that also act as rx ports
