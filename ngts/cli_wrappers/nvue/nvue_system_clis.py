@@ -232,14 +232,15 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_import(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase):
+    def action_import(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase, data):
         path = resource_path.replace('/', ' ')
 
         action_import = f"nv action import {path} {cert_id}"
         action_import_dict = {
             CertificateFiles.URI_BUNDLE: f"{action_import} {import_type} {uri1} {CertificateFiles.PASSPHRASE} {passphrase}",
             CertificateFiles.PUBLIC_PRIVATE: f"{action_import} {CertificateFiles.PUBLIC_KEY_FILE} {uri1} {CertificateFiles.PRIVATE_KEY_FILE} {uri2}",
-            CertificateFiles.DATA: f"{action_import} {import_type} {uri1}"}
+            CertificateFiles.DATA: f"{action_import} {import_type} {data}",
+            CertificateFiles.URI: f"{action_import} {import_type} {uri1}"}
 
         cmd = " ".join(action_import_dict[import_type].split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))

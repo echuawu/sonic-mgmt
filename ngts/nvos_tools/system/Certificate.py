@@ -29,7 +29,7 @@ class Certificate(BaseComponent):
             self._resource_path = f'/{cert_type}'
             self.certificate_path += f"{cert_type}/"
 
-    def import_certificate(self, import_type, cert_id, uri1, uri2="", passphrase=""):
+    def import_certificate(self, import_type, cert_id, uri1, uri2="", passphrase="", data=""):
         """
 
         :param import_type:
@@ -41,14 +41,15 @@ class Certificate(BaseComponent):
         """
         with allure.step("import certificate: {}".format(cert_id)):
             SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_import, TestToolkit.engines.dut,
-                                            self.get_resource_path(), import_type, cert_id, uri1, uri2, passphrase).verify_result()
+                                            self.get_resource_path(), import_type, cert_id, uri1, uri2,
+                                            passphrase, data).verify_result()
 
     def action_delete(self, cert_id, should_succeed=True):
         with allure.step("Delete certificate: {}".format(cert_id)):
             SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_delete, TestToolkit.engines.dut,
                                             self.get_resource_path(), cert_id).verify_result()
 
-    def generate_uri_for_all_types(self, player):
+    def generate_uri_for_type(self, player, type):
         """
         we have use multiple ways to import new certificate, for two of them we need a full uri:
         Example: scp://root:12345@10.237.116.70/auto/sw_system_project/NVOS_INFRA/security/verification/cert_mgmt/test_bundle_uri_again.pem
@@ -57,8 +58,12 @@ class Certificate(BaseComponent):
         :return:
         """
         uri = f'scp://{player.username}:{player.password}@{player.ip}{self.certificate_path}'
-        bundle = uri + "certificate_bundle.p12"
-        private = uri + "certificate_private.pem"
-        public = uri + "certificate_public.pem"
-        data = ''
-        return bundle, private, public, data
+
+        if type == CertificateFiles.URI_BUNDLE:
+            return f"{uri}certificate_bundle.p12"
+        if type == CertificateFiles.PUBLIC_PRIVATE:
+            return f"{uri}certificate_public.pem", f"{uri}certificate_private.pem"
+        if type == CertificateFiles.DATA:
+            return f"{uri}certificate_data.txt"
+        else:  # CertificateFiles.URI:
+            return f"{uri}ca-certificate.crt"

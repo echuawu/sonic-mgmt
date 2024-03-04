@@ -77,8 +77,11 @@ def ib_clear_conf(dut_engine, markers=None):
                     logging.info("Execute system unset commands")
                     dut_engine.run_cmd(unset_cli_cmd)
 
+                with allure.step("Set base configurations"):
+                    set_base_configurations(dut_engine=dut_engine, apply=False)
+
             with allure.step("Apply configurations"):
-                set_base_configurations(dut_engine=dut_engine, apply=True)
+                NvueGeneralCli.apply_config(dut_engine, ask_for_confirmation=True)
 
             if should_wait_for_nvued_after_apply:
                 DutUtilsTool.wait_for_nvos_to_become_functional(dut_engine).verify_result()

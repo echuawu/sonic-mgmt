@@ -306,8 +306,8 @@ class IbSwitch(BaseSwitch):
 # -------------------------- Gorilla Switch ----------------------------
 class GorillaSwitch(IbSwitch):
 
-    def __init__(self):
-        super().__init__(asic_amount=1)
+    def __init__(self, asic_amount=1):
+        super().__init__(asic_amount=asic_amount)
 
     def _init_constants(self):
         IbSwitch._init_constants(self)

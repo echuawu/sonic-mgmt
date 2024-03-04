@@ -152,7 +152,7 @@ def stop_sm(engines):
     """
     Stops OpenSM
     """
-    result = OpenSmTool.stop_open_sm(engines.dut)
+    result = OpenSmTool.stop_open_sm_on_server(engines)
     if not result.result:
         logging.warning("Failed to stop openSM")
 
@@ -274,12 +274,9 @@ def ib_clear_config(markers=None):
     logging.info("Nvos clear config")
     try:
         TestToolkit.update_apis(ApiType.NVUE)
-
         ib_clear_conf(TestToolkit.engines.dut, markers)
-
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
-
     finally:
         logging.info('Clear global OpenApi changeset and payload')
         OpenApiRequest.clear_changeset_and_payload()

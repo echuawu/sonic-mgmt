@@ -119,6 +119,16 @@ class NvosConst:
                     "fail-delay": 0,
                     "lockout-state": "disabled"
                 }
+            },
+            "user": {
+                "admin": {
+                    "password": "*"
+                }
+            }
+        },
+        "security": {
+            "password-hardening": {
+                "state": "enabled"
             }
         },
         "timezone": "Asia/Jerusalem"

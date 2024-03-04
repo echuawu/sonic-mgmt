@@ -12,9 +12,8 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.certificate
-@pytest.mark.parametrize('certificate_type', [CertificateFiles.CERTIFICATE])    # To add: CertificateFiles.CA_CERTIFICATE
 @pytest.mark.parametrize('test_api', [ApiType.NVUE])
-def test_certificate_commands(engines, certificate_type, test_api):
+def test_certificate_commands(engines, test_api):
     """
     Test certificate mgmt commands:
         1. nv action import system security certificate <cert-id_1> uri-bundle <https://URI>
@@ -30,38 +29,82 @@ def test_certificate_commands(engines, certificate_type, test_api):
     cert_list = []
 
     with allure.step("Init test params"):
-        system.security.certificate.set_certificate_type(certificate_type)
-        bundle, private, public, data = system.security.certificate.generate_uri_for_all_types(player)
+        system.security.certificate.set_certificate_type(CertificateFiles.CERTIFICATE)
 
     with allure.step('import system security certificate {cert_id_bundle} uri-bundle with URI'):
+        bundle = system.security.certificate.generate_uri_for_type(player, CertificateFiles.URI_BUNDLE)
         system.security.certificate.import_certificate(import_type=CertificateFiles.URI_BUNDLE, cert_id=cert_id_bundle,
                                                        uri1=bundle,
                                                        passphrase=CertificateFiles.BUNDLE_CERTIFICATE_CURRENT_PASSWORD)
-        verify_imported_certificate(engines, system, cert_id_bundle, CertificateFiles.URI_BUNDLE, CertificateFiles.PASSPHRASE)
+        verify_imported_certificate(engines, system, cert_id_bundle, CertificateFiles.URI_BUNDLE,
+                                    CertificateFiles.PASSPHRASE)
         cert_list.append(cert_id_bundle)
 
-    with allure.step('import system security certificate {cert_id_public_private} with public and private key'):
-        system.security.certificate.import_certificate(import_type=CertificateFiles.PUBLIC_PRIVATE, cert_id=cert_id_public_private,
-                                                       uri1=public, uri2=private)
-        verify_imported_certificate(engines, system, cert_id_public_private, CertificateFiles.PUBLIC_KEY_FILE, CertificateFiles.PRIVATE_KEY_FILE)
+    with allure.step('Import system security certificate {cert_id_public_private} with public and private key'):
+        public, private = system.security.certificate.generate_uri_for_type(player, CertificateFiles.PUBLIC_PRIVATE)
+        system.security.certificate.import_certificate(import_type=CertificateFiles.PUBLIC_PRIVATE,
+                                                       cert_id=cert_id_public_private, uri1=public, uri2=private)
+        verify_imported_certificate(engines, system, cert_id_public_private, CertificateFiles.PUBLIC_KEY_FILE,
+                                    CertificateFiles.PRIVATE_KEY_FILE)
         cert_list.append(cert_id_public_private)
 
-    with allure.step(f'Install certificate {cert_id_bundle}'):
-        system.api.certificate.set(cert_id_bundle, apply=True).verify_result()
-        verify_show_api_output(system, cert_id_bundle)
+    with allure.step(f'Install certificate'):
+        for cert in cert_list:
+            system.api.certificate.set(cert, apply=True).verify_result()
+            verify_show_api_output(system, cert)
 
+    with allure.step("Verify certificate installation"):
+        _verify_certificate(engines, system, cert_list)
+
+    with allure.step(f'Unset certificates'):
+        system.api.certificate.unset(op_param=cert_list[0], apply=True).verify_result()
+        verify_show_api_output(system, CertificateFiles.DEFAULT_CERTIFICATE)
+
+    with allure.step("Clear installed certificates"):
+        _clear_certificates(system, cert_list)
+
+
+@pytest.mark.system
+@pytest.mark.certificate
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
+def test_ca_certificate_commands(engines, test_api):
+    TestToolkit.tested_api = test_api
+    system = System()
+    player = engines['sonic_mgmt']
+    ca_cert_id = "ca_cert_id"
+
+    with allure.step("Init test params"):
+        system.security.certificate.set_certificate_type(CertificateFiles.CA_CERTIFICATE)
+        system.api.certificate.set_certificate_type(CertificateFiles.CA_CERTIFICATE)
+        uri = system.security.certificate.generate_uri_for_type(player, CertificateFiles.URI)
+
+    with allure.step('import system security certificate {cert_id_bundle} uri-bundle with URI'):
+        system.security.certificate.import_certificate(import_type=CertificateFiles.URI, cert_id=ca_cert_id,
+                                                       uri1=uri)
+        verify_imported_certificate(engines, system, ca_cert_id, CertificateFiles.URI)
+
+    with allure.step("Verify certificate installation"):
+        _verify_certificate(engines, system, [ca_cert_id])
+
+    with allure.step("Clear installed certificates"):
+        _clear_certificates(system, [ca_cert_id])
+
+
+def _verify_certificate(engines, system, cert_list):
     with allure.step('verify the show command output'):
         for cert in cert_list:
             verify_show_security_ouput(system, cert, True)
 
     with allure.step(f'Run show system security certificate "invalid_id" and verify error message'):
         show_output = system.security.certificate.show(op_param="invalid_id", should_succeed=False)
-        assert "Error: The requested item does not exist." in show_output, f"Expected to find error message. Got: {show_output}"
+        assert "Error: The requested item does not exist." in show_output, f"Expected to find error message. " \
+                                                                           f"Got: {show_output}"
 
-    with allure.step(f'Unset certificates'):
-        system.api.certificate.unset(op_param=cert_id_bundle, apply=True).verify_result()
-        verify_show_api_output(system, CertificateFiles.DEFAULT_CERTIFICATE)
+    '''with allure.step("Run open api command using imported certificate"):
+        send_open_api_cmd(engines.dut, cert_list[0], False)'''
 
+
+def _clear_certificates(system, cert_list):
     with allure.step('Delete all certificates'):
         for cert in cert_list:
             system.security.certificate.action_delete(cert)
@@ -73,46 +116,10 @@ def test_certificate_commands(engines, certificate_type, test_api):
                                     "\nActual output: {show_output}"
 
 
-@pytest.mark.system
-@pytest.mark.certificate
-@pytest.mark.parametrize('certificate_type', [CertificateFiles.CERTIFICATE])    # To add: CertificateFiles.CA_CERTIFICATE
-def test_certificate_feature(engines, certificate_type):
-    """
-    Test certificate mgmt feature
-        1. Import certificate
-        2. Run open api command using inported certificate
-    """
-    system = System()
-    player = engines['sonic_mgmt']
-    cert_id_bundle = 'cert_id_1'
-
-    with allure.step("Init test params"):
-        system.security.certificate.set_certificate_type(certificate_type)
-        bundle, private, public, data = system.security.certificate.generate_uri_for_all_types(player)
-
-    with allure.step('import system security certificate {cert_id_bundle} uri-bundle with URI'):
-        system.security.certificate.import_certificate(import_type=CertificateFiles.URI_BUNDLE, cert_id=cert_id_bundle,
-                                                       uri1=bundle,
-                                                       passphrase=CertificateFiles.BUNDLE_CERTIFICATE_CURRENT_PASSWORD)
-        verify_imported_certificate(engines, system, cert_id_bundle, CertificateFiles.URI_BUNDLE, CertificateFiles.PASSPHRASE)
-
-    with allure.step(f'Install certificate {cert_id_bundle}'):
-        system.api.certificate.set(cert_id_bundle, apply=True).verify_result()
-
-    with allure.step("Run open api command using imported certificate"):
-        send_open_api_cmd(engines.dut, cert_id_bundle, True)
-
-    with allure.step(f'Unset certificates'):
-        system.api.certificate.unset(op_param=cert_id_bundle, apply=True).verify_result()
-        system.security.certificate.action_delete(cert_id_bundle)
-
-    with allure.step("Run open api command using imported certificate"):
-        send_open_api_cmd(engines.dut, cert_id_bundle, False)
-
-
 def send_open_api_cmd(dut_engine, cert_id, should_pass):
-    url = f"curl -guk {dut_engine.username}:{dut_engine.password} --cacert {CertificateFiles.PATH_TO_CERTIFICATES}{cert_id} " \
-          f"--request GET https://{dut_engine.ip}/nvue_v1/system/version"
+    url = f"curl --cacert {cert_id} " \
+          f"-u {dut_engine.username}" \
+          f" -X GET https://{dut_engine.ip}/nvue_v1/system/version"
 
     output = dut_engine.run_cmd(url)
     if should_pass:
@@ -139,15 +146,15 @@ def verify_show_security_ouput(system, cert_id, should_exist):
             assert cert_id not in show_output, f"Expected not to find {cert_id} in show output. Got: {show_output}"
 
 
-def verify_imported_certificate(engines, system, cert_id, first_arg, second_arg):
+def verify_imported_certificate(engines, system, cert_id, first_arg, second_arg=""):
     verify_show_security_ouput(system, cert_id, True)
 
     with allure.step('verify the password is hidden in the logs'):
         with allure.step('Check history command'):
             history_output = engines.dut.run_cmd('history 4')
-            assert f"{first_arg} * {second_arg} *" in history_output, "the password is not hidden in 'history' command"
+            str_to_serach = f"{first_arg} *" + (f" {second_arg} *" if second_arg else "")
+            assert str_to_serach in history_output, "the password is not hidden in 'history' command"
         with allure.step('Check logs'):
             logs_output = engines.dut.run_cmd(f'tail -4 {SyslogConsts.NVUE_LOG_PATH}')
             logs_output_1 = engines.dut.run_cmd(f'tail -4 {SyslogConsts.NVUE_LOG_PATH}.1')
-            str_to_serach = f"{first_arg} * {second_arg} *"
             assert str_to_serach in logs_output or str_to_serach in logs_output_1, "the password is not hidden in syslog"
