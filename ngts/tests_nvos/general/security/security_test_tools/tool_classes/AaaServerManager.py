@@ -1,4 +1,4 @@
-
+import datetime
 import os
 import re
 from typing import List
@@ -31,10 +31,22 @@ class AaaAccountingLog:
 
 
 class AaaAccountingLogsFileContent:
+    DATETIME_FORMAT = "%b %d %H:%M:%S"
+
     def __init__(self, raw_content: str) -> None:
         self.raw_content = raw_content
         split_rows: List[str] = raw_content.split('\n')
         self.logs: List[AaaAccountingLog] = [AaaAccountingLog(row) for row in split_rows if row != ""]
+
+    def remove_logs_before_time(self, time: str):
+        time_obj = datetime.datetime.strptime(time, AaaAccountingLogsFileContent.DATETIME_FORMAT)
+        filtered_logs: List[AaaAccountingLog] = []
+        for log in self.logs:
+            log_datetime = datetime.datetime.strptime(' '.join([log.date, log.time]),
+                                                      AaaAccountingLogsFileContent.DATETIME_FORMAT)
+            if log_datetime >= time_obj:
+                filtered_logs.append(log)
+        self.logs = filtered_logs
 
 
 class AaaServerManager:
@@ -58,12 +70,15 @@ class AaaServerManager:
         if grep:
             for gr in grep:
                 cmd = f'{cmd} | grep -E "{gr}"'
+        # if after_time:
+        #     # cmd = f"{cmd} | awk '/{after_time}/" + "{p=1}p'"
+        #     awk_cmd = f'awk -v target_time="{after_time}" ' + "'{if ($0 >= target_time || p) {print; p=1}}'"
+        #     cmd = f'{cmd} | {awk_cmd}'
+        logs = AaaAccountingLogsFileContent(self.__op_on_accounting_log_file(cmd))
         if after_time:
-            # cmd = f"{cmd} | awk '/{after_time}/" + "{p=1}p'"
-            awk_cmd = f'awk -v target_time="{after_time}" ' + "'{if ($0 >= target_time || p) {print; p=1}}'"
-            cmd = f'{cmd} | {awk_cmd}'
+            logs.remove_logs_before_time(after_time)
 
-        return AaaAccountingLogsFileContent(self.__op_on_accounting_log_file(cmd))
+        return logs
 
     def cat_accounting_logs(self, accounting_file_path: str = DEFAULT_ACCOUNTING_FILE_PATH, grep: List[str] = None,
                             after_time: str = '') -> AaaAccountingLogsFileContent:

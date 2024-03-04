@@ -69,7 +69,7 @@ def check_accounting(after_time: str, client_ip: str, client_username: str,
         for i, mngr in enumerate(accounting_server_mngrs):
             expect_logs = expect_accounting_logs[i]
             with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
-                accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(
+                accounting_logs: AaaAccountingLogsFileContent = mngr.tail_accounting_logs(
                     grep=[client_ip, client_username], after_time=after_time)
                 assert bool(accounting_logs.logs) == expect_logs, \
                     f'There are {"no " if expect_logs else ""}accounting logs ' \
