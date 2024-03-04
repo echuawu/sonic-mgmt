@@ -1,5 +1,4 @@
 import time
-import allure
 import pytest
 import logging
 from ngts.nvos_tools.system.System import System
@@ -9,6 +8,7 @@ from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngi
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.tools.test_utils import allure_utils as allure
 
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,6 @@ def test_set_max_cli_session(engines, devices):
                                                             ssh_output).verify_result()
 
         with allure.step("Validate login max cli session"):
-            logger.info("Validate login max cli session")
             system.ssh_server.set(SystemConsts.SSH_CONFIG_MAX_SESSIONS, '98', apply=True,
                                   ask_for_confirmation=True).verify_result()
             ssh_output = OutputParsingTool.parse_json_str_to_dictionary(system.ssh_server.show()).get_returned_value()
@@ -43,7 +42,6 @@ def test_set_max_cli_session(engines, devices):
                 .verify_result()
 
     with allure.step("Open more than 98 cli's session and verify result"):
-        logger.info("Open more than 98 cli's session and verify result")
         for _ in range(100):
             try:
                 connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.DEFAULT_USER,
@@ -138,6 +136,7 @@ def test_set_inactivity_timeout(engines, devices, topology_obj):
             output = engines.dut.run_cmd("w")
             assert not output or "2 users" in output, "By default in our infra we have 2 users"
 
+        connection = None
         try:
             logger.info("Serial engine")
             att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
@@ -167,7 +166,8 @@ def test_set_inactivity_timeout(engines, devices, topology_obj):
         except BaseException as ex:
             raise Exception("Failed on {}".format(str(ex)))
         finally:
-            connection.close()
+            if connection:
+                connection.close()
             system.ssh_server.unset(apply=True, ask_for_confirmation=True).verify_result()
             system.serial_console.unset(apply=True, ask_for_confirmation=True).verify_result()
             ssh_output = OutputParsingTool.parse_json_str_to_dictionary(system.ssh_server.show()).get_returned_value()
