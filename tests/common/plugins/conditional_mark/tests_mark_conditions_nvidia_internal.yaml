@@ -2333,6 +2333,12 @@ platform_tests/daemon/test_syseepromd.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
+virtual_smart_switch/test_dpu_ip_assignment.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3757833"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3757833"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
