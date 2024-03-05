@@ -1310,6 +1310,7 @@ class BugHandlerConst:
     BUG_HANDLER_DECISION_CREATE = "create"
     BUG_HANDLER_DECISION_ABORT = "abort"
     BUG_HANDLER_DECISION_REOPEN = "reopen"
+    NO_ACTION_MODE = "no action"
     RC_ABORT = 2
     DECISION = "decision"
     NEW_BUGS = "new_bugs"

@@ -636,11 +636,17 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
         logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
         error_msg = ''
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
-            error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
-                        f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE].keys())}\n"
-            for i, (bug_id, bug_title) in enumerate(
-                    log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
-                error_msg += f"{i}) {REDMINE_ISSUES_URL + str(bug_id)}:  {bug_title}\n"
+            if log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
+                error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
+                            f"should be opened, but we are in no_action mode\n"
+                for i, bug_title in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].values(), start=1):
+                    error_msg += f"{i}) {bug_title}\n"
+            else:
+                error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
+                            f"were opened: {list(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].keys())}\n"
+                for i, (bug_id, bug_title) in enumerate(
+                        log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].items(), start=1):
+                    error_msg += f"{i}) {REDMINE_ISSUES_URL + str(bug_id)}:  {bug_title}\n"
         if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
             error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
                                     f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
