@@ -1905,6 +1905,14 @@
       Platform:
       - 2201
 
+
+- Errors_list:
+    - '.* ERR syncd#SDK.+Unexpected SDK FEC mode.*'
+    - '.* ERR syncd#SDK.+get_dispatch_attribs_handler.*'
+  Conditions:
+    - Redmine:
+      - 3802582
+
 - Errors_list:
     - '.* ERR hostcfgd: Hostname was not updated: Already set up'
   Conditions:
