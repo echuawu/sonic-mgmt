@@ -1650,6 +1650,36 @@
     - Redmine:
       - 3144720
 
+- Errors_list:
+  - '.*ERR kernel:.*rcu: INFO: rcu_sched detected stalls on CPUs.*tasks.*'
+  - '.*ERR kernel:.*rcu: All QSes seen.*last rcu_sched kthread activity .* jiffies_till_next_fqs=1, root.*qsmask.*'
+  - '.*ERR kernel:.*rcu: rcu_sched kthread starved for \d+ jiffies.* RCU_GP_WAIT_FQS.*state.*cpu.*'
+  - ".*ERR kernel:.* rcu: \tUnless rcu_sched kthread gets sufficient CPU time, OOM is now expected behavior.*"
+  - '.*ERR kernel:.*rcu: RCU grace-period kthread stack dump.*'
+  - '.*ERR kernel:.*SX_BULK_CNTR: unable to find buffer for event_id.*'
+  - '.*ERR kernel:.*SXD_HEALTH_FATAL:On device 1 cause =.*EMAD completion timeout.*- Stopping further device monitoring.*'
+  - '.*ERR syncd#SDK: \[EMAD_TRANSACTION.ERR\] ACCESS_REG TIMEOUT .*sent to FW but there was no reply.*timeout_usec=\d+.*tid=0x320101e42d, reg=0x\d+, dev_id=\d+, access_cmd.*'
+  - '.*ERR syncd#SDK: \[EMAD.ERR\] emad-send failed on register 0x.*, iteration \d+, status=.*'
+  - '.*ERR syncd#SDK: \[REG_BULK.ERR\] sx_reg_layer_sxd_reg_call - Error at access reg call reg_id 0x\d+, error: TIMEOUT.*'
+  - '.*ERR syncd#SDK: \[REG_BULK.ERR\] __reg_bulk_post_completion_cb Error got in completion data sxd_status .*TIMEOUT.*'
+  - '.*ERR syncd#SDK:\[EMAD_TRANSACTION.ERR\] EMAD TID 0x.* is unsolicited: there is no in-flight transaction \(dev_id=\d+.*'
+  - '.*ERR syncd#SDK: \[EMAD_RX_THREAD.ERR\] 0x[0-9a-fA-F]+: [0-9a-fA-F]+ [0-9a-fA-F]+ [0-9a-fA-F]+ [0-9a-fA-F]+.*'
+  - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[timeout in FW response\], cause_id.*'
+  - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .\/src\/mlnx_sai_object.c.*- mlnx_set_async_bulk_read: Failed to start bulk read operation: TIMEOUT.*'
+  - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter 0x.*'
+  - '.*ERR syncd#SDK: \[SXD_FW_DBG.ERR\] sxd_secure_fw_op_transaction_dump failed to allocate memory block.*size:.* for device id.*opcode.* chip_type.*'
+  - '.*ERR kernel:.* Size of mapped area \d+ exceed max size.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed on fw core dump.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed to write iriscs core dump.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] IR-Core dump failed.*err=No More Memory.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed on FW trace extract.*'
+  - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] .\/src\/mlnx_sai_switch.c.*- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause HW catastrophic event.*'
+  - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+  Conditions:
+  - Redmine:
+    - 3751411
+    Platform:
+    - simx
 
 - Errors_list:
     - '.* WARNING kernel: .* probe of 5-006a failed with error -22.*'
