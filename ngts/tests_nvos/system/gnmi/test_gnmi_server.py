@@ -209,7 +209,7 @@ def test_gnmi_bad_flow(test_api, engines, devices):
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_simulate_gnmi_client_failure(engines):
+def test_simulate_gnmi_client_failure(engines, devices):
     """
     In this test we will simulate a gnmi-client failure by killing the gnmi-client process,
     will validate that it’s still enabled and running on the switch, health status doesn’t change
@@ -229,7 +229,7 @@ def test_simulate_gnmi_client_failure(engines):
 
     with allure_step('Simulate gnmi client failure'):
         with allure_step('Run gnmi client command in the background and sleep 3 sec'):
-            background_process = run_gnmi_client_in_the_background(engines.dut.ip, '/interfaces')
+            background_process = run_gnmi_client_in_the_background(engines.dut.ip, '/interfaces', devices.dut)
             time.sleep(3)
         with allure_step('Kill gnmi client command'):
             os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
@@ -239,7 +239,7 @@ def test_simulate_gnmi_client_failure(engines):
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_performance(engines):
+def test_gnmi_performance(engines, devices):
     """
     Run 10 gnmi-client process to the same switch, validate stream updates and switch state.
         Test flow:
@@ -256,7 +256,7 @@ def test_gnmi_performance(engines):
 
     with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
         for engine_id in range(num_engines):
-            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"interfaces/interface[name={selected_port.name}]/state/description"))
+            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"interfaces/interface[name={selected_port.name}]/state/description", devices.dut))
 
     with allure_step("validate memory and CPU utilization"):
         validate_memory_and_cpu_utilization()
