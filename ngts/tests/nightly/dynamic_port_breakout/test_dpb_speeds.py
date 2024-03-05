@@ -2,6 +2,7 @@ import allure
 import pytest
 from retry.api import retry_call
 from ngts.constants.constants import AutonegCommandConstants
+from ngts.helpers.breakout_helpers import _mlxlink_get_cable_speeds
 from ngts.helpers.interface_helpers import get_alias_number
 from ngts.tests.nightly.dynamic_port_breakout.conftest import set_dpb_conf, set_ip_conf_for_ping, \
     send_ping_and_verify_results
@@ -73,9 +74,8 @@ class TestDPBSpeed:
         pci_conf = cli_object.chassis.get_pci_conf()
         for port in ports_list:
             port_number = get_alias_number(ports_aliases_dict[port])
-            mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
-            supported_speeds = [speed.split('_')[0] for speed in
-                                mlxlink_actual_conf[AutonegCommandConstants.CABLE_SPEED]]
+            supported_speeds = retry_call(_mlxlink_get_cable_speeds, fargs=[cli_object, pci_conf, port_number], tries=5,
+                                          delay=10, logger=None)
             breakout_mode_speeds = self.ports_breakout_modes[port]['speeds_by_modes'][breakout_mode]
             actual_speeds = set.intersection(set(breakout_mode_speeds), set(supported_speeds))
             speeds_option_sets.append(actual_speeds)

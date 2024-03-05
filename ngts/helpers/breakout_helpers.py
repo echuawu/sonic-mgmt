@@ -1,8 +1,11 @@
 import re
-from ngts.constants.constants import AutonegCommandConstants, ConfigDbJsonConst
-from ngts.helpers.interface_helpers import get_alias_number, get_speed_in_G_format
+
+from retry.api import retry_call
+
 import ngts.helpers.json_file_helper as json_file_helper
 from ngts.cli_util.cli_constants import SonicConstant
+from ngts.constants.constants import AutonegCommandConstants, ConfigDbJsonConst
+from ngts.helpers.interface_helpers import get_alias_number, get_speed_in_G_format
 
 
 def get_breakout_mode_supported_speed_list(breakout_mode):
@@ -196,6 +199,22 @@ def filter_breakout_modes(breakout_modes, cable_speeds):
     return filtered_breakout_modes
 
 
+def _mlxlink_get_cable_speeds(cli_object, pci_conf, port_number):
+    """
+    Parses mlxlink command output and in case Admin status is equal to 'Polling' raise an Exception
+    Otherwise returns cable speeds supported
+
+    :param cli_object: cli_object fixture
+    :param str pci_conf: pci configuration, f.e. /dev/mst/mt53100_pciconf0
+    :param str port_number: port number, f.e. '35'
+    :return str: cable supported speeds
+    """
+    mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
+    if mlxlink_actual_conf[AutonegCommandConstants.ADMIN] == 'Polling':
+        raise Exception("Port is still in polling state, failed to retrieve cable speeds")
+    return mlxlink_actual_conf[AutonegCommandConstants.CABLE_SPEED]
+
+
 def get_breakout_modes(cli_object, port_name, port_dict, parsed_port_dict):
     """
     Parses mlxlink command output for port and check cable supported speeds,
@@ -229,8 +248,8 @@ def get_breakout_modes(cli_object, port_name, port_dict, parsed_port_dict):
     if port_name not in ports_aliases_dict:
         return []
     port_number = get_alias_number(ports_aliases_dict[port_name])
-    mlxlink_actual_conf = cli_object.interface.parse_port_mlxlink_status(pci_conf, port_number)
-    cable_speeds = mlxlink_actual_conf[AutonegCommandConstants.CABLE_SPEED]
+    cable_speeds = retry_call(_mlxlink_get_cable_speeds, fargs=[cli_object, pci_conf, port_number], tries=5,
+                              delay=10, logger=None)
     converted_cable_speeds = convert_cable_speeds(cable_speeds, len(parsed_port_dict[SonicConstant.LANES]))
     return filter_breakout_modes(port_dict[SonicConstant.BREAKOUT_MODES].keys(), converted_cable_speeds)
 
