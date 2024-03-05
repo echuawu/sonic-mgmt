@@ -1703,7 +1703,7 @@
     - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
   Conditions:
     - Redmine:
-        - 3205278
+        - 3703507
       Platform:
         - simx
 
