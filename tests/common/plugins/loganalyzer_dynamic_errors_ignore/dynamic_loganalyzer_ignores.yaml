@@ -67,7 +67,7 @@
     - '.* ERR hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*'
     - '.* ERR hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*'
     - '.* ERR (swss#portsyncd|teamd#teamsyncd):.*netlink reports an error=-33 on reading a netlink socket.*'
-    - '.* ERR systemd-udevd.*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
+    - '.* ERR .*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
     - '.* (ERR|WARNING) syncd#(SAI|SDK):.*Shared memory of the.*already exists,\s*destroying it and re-creating.*'
     - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count \d+|non-empty) LAG PortChannel.*'
     - '.* ERR hostcfgd:.*error returned by select.*'
