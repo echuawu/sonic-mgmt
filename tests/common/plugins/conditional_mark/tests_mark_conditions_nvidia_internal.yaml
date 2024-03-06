@@ -2542,8 +2542,10 @@ tests/nightly/lag/test_lag.py:
 process_monitoring/test_critical_process_monitoring.py::test_monitoring_critical_processes:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785021"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3785021 and ('sn5400' in platform)"
+      - "https://redmine.mellanox.com/issues/3811985 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
 
 process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat:
   skip:
