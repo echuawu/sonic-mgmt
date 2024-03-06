@@ -361,7 +361,7 @@ class SonicInstallationSteps:
                         "iburst": "on",
                         "admin_state": "enabled",
                         "version": 3,
-                        "resolve_as": "10.75.202.2"
+                        "resolve_as": "10.211.0.124"
                     }
                 }
                 config_db['NTP_SERVER'] = NTP_SERVER_CONFIG
