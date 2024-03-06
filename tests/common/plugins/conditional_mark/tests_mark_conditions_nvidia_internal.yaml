@@ -880,11 +880,12 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
 
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance"
+    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance or due to RM 3811231"
     conditions_logical_operator: or
     conditions:
       - "'arm64-nvda_bf-mbf2h536c' in platform"
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
   skip:
@@ -1048,6 +1049,72 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
     conditions_logical_operator: or
     conditions:
       - "'2010' in platform or '2100' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/api/test_sfp.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sfp_eeprom.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sfp_presence.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sysfs.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_hw_management_service_status.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_sfpshow.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_sfputil.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_show_intf_xcvr.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/test_platform_info.py::test_thermal_control_fan_status:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
 platform_tests/fw_utility/test_fwutil.py:
   skip:
