@@ -380,6 +380,7 @@ class BlackMambaSwitch(IbSwitch):
         super().__init__(asic_amount=4)
 
     def _init_constants(self):
+        self.asic_amount = 4
         IbSwitch._init_constants(self)
         self.ib_ports_num = 64
         self.core_count = 4
@@ -411,17 +412,17 @@ class BlackMambaSwitch(IbSwitch):
                                     "CPU-Core-3-Temp", "CPU-Pack-Temp", "PSU-7-Temp", "SODIMM-1-Temp", "SODIMM-2-Temp"]
 
     def _init_fan_list(self):
-        BaseSwitch._init_fan_list(self)
+        IbSwitch._init_fan_list(self)
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
         self.fan_led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
 
     def _init_psu_list(self):
-        BaseSwitch._init_psu_list(self)
+        IbSwitch._init_psu_list(self)
         self.psu_list += ["PSU3", "PSU4", "PSU5", "PSU6", "PSU7", "PSU8"]
         self.psu_fan_list += ["PSU3/FAN", "PSU4/FAN", "PSU5/FAN", "PSU6/FAN", "PSU7/FAN", "PSU8/FAN"]
 
     def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
+        IbSwitch._init_temperature(self)
         self.temperature_list += ["ASIC2", "ASIC3", "ASIC4", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-7-Temp",
                                   "SODIMM-1-Temp", "SODIMM-2-Temp"]
         self.temperature_list.remove("PSU-1-Temp")
@@ -442,18 +443,18 @@ class CrocodileSwitch(IbSwitch):
             format("x86_64-nvidia_qm3400-r0")
 
     def _init_fan_list(self):
-        BaseSwitch._init_fan_list(self)
+        IbSwitch._init_fan_list(self)
         self.fan_list.remove("FAN6/1")
         self.fan_list.remove("FAN6/2")
         self.fan_led_list.remove('FAN6')
 
     def _init_psu_list(self):
-        BaseSwitch._init_psu_list(self)
+        IbSwitch._init_psu_list(self)
         self.psu_list += ["PSU3", "PSU4"]
         self.psu_fan_list += ["PSU3/FAN", "PSU4/FAN"]
 
     def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
+        IbSwitch._init_temperature(self)
         self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-2-Temp", "PSU-3-Temp", "PSU-4-Temp"]
         self.temperature_list.remove("ASIC")
 

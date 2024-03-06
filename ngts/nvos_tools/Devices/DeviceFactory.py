@@ -18,6 +18,7 @@ class DeviceFactory:
             'MSN3700': AnacondaSwitch,
             'MSN3700 - Anaconda': AnacondaSwitch,
             'QM3400': CrocodileSwitch,
+            'QM3400 - Crocodile': CrocodileSwitch,
             'QM8790 - Black Mamba': BlackMambaSwitch
         }
 

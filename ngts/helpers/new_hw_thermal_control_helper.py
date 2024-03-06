@@ -87,7 +87,7 @@ class TC_CONST(object):
     # thermal control config
     TC_CONFIG_FILE = f"{HW_MGMT_FOLDER}/config/tc_config.json"
     # list of platforms without a link to TC_CONFIG_FILE (copy file instead of link)
-    PLATFORMS_WITHOUT_TC_CONFIG_LINK = ["MQM9700"]
+    PLATFORMS_WITHOUT_TC_CONFIG_LINK = ["MQM9700", 'QM8790']
     # hw-management-thermal folder
     HW_MGMT_THERMAL_FOLDER = "/etc/hw-management-thermal"
 
