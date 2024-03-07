@@ -2026,10 +2026,9 @@
     - Affected_test_cases:
       # Canonical
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
       - 3634621
-      Branch:
-      - 202305
 
 - Errors_list:
     - '.* ERR python: :- initializeGlobalConfig: Sonic database config global file doesn.*t exist at \/var\/run\/redis\/sonic-db\/database_global.json.*'
@@ -3438,6 +3437,12 @@
       - 3649836
       Branch:
         - master
+
+- Errors_list:
+    - '.* ERR systemctl.*Failed to start pmon.timer: Unit pmon.timer not found.*'
+  Conditions:
+    - Redmine:
+      - 3813903
 
 - Errors_list:
     - '.* ERR systemctl\[\d+\]: Failed to start dhcp_relay.service: Unit dhcp_relay.service is masked.*'

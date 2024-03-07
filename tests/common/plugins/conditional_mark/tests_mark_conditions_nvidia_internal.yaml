@@ -1726,9 +1726,11 @@ iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_f
 
 iface_loopback_action/test_iface_loopback_action_wjh.py:
   skip:
-    reason: "Testcase ignored due to dualtor topology"
+    reason: "Testcase ignored due to dualtor topology. Ignored due to RM issue: https://redmine.mellanox.com/issues/3813764"
+    conditions_logical_operator: or
     conditions:
       - "'dualtor' in topo_name"
+      - "https://redmine.mellanox.com/issues/3813764"
 
 route/test_route_flow_counter.py:
   skip:
