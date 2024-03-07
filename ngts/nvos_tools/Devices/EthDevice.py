@@ -18,7 +18,7 @@ class EthSwitch(BaseSwitch):
         self.manufacture_password = "cumulus"
 
     def _init_constants(self):
-        BaseSwitch._init_constants(self)
+        super()._init_constants()
         self.pre_login_message = "None\n"
         self.post_login_message = "\nWelcome to NVIDIA Cumulus (R) Linux (R)\n\nFor support and online " \
                                   "technical documentation, visit\nhttps://www.nvidia.com/en-us/support\n\nThe " \
@@ -37,25 +37,22 @@ class EthSwitch(BaseSwitch):
         engine.run_cmd_set(cmd_set, validate=False)
 
     def _init_fan_list(self):
-        pass
+        super()._init_fan_list()
 
     def _init_system_lists(self):
-        pass
+        super()._init_system_lists()
 
     def _init_available_databases(self):
-        pass
+        super()._init_available_databases()
 
     def _init_services(self):
-        pass
+        super()._init_services()
 
     def _init_dependent_services(self):
-        pass
+        super()._init_dependent_services()
 
     def _init_dockers(self):
-        pass
-
-    def _init_sensors_dict(self):
-        pass
+        super()._init_dockers()
 
 
 # -------------------------- Anaconda Switch ----------------------------
@@ -71,30 +68,31 @@ class AnacondaSwitch(EthSwitch):
 
     def _init_fan_list(self):
         super()._init_fan_list()
-
         self.fan_list = ["Fan1", "Fan2", "Fan3", "Fan4", "Fan5", "Fan6", "Fan7", "Fan8", "Fan9", "Fan10", "Fan11",
                          "Fan12"]
-        self.psu_fan_list = ["PSU1Fan1", "PSU2Fan1"]
         self.fan_led_list = ["Fan Tray 1", "Fan Tray 2", "Fan Tray 3", "Fan Tray 4", "Fan Tray 5", "Fan Tray 6",
                              "Psu", "System"]
-        self.fan_prop = ["max-speed", "min-speed", "speed", "state"]
 
     def _init_temperature(self):
-        EthSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
-        self.platform_environment_list = self.fan_list + self.fan_led_list + ["PSU1", "PSU2"] + self.psu_fan_list
+        super()._init_temperature()
+        self.temperature_sensors += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
 
     def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_list = self.fan_list + self.fan_led_list + ["PSU1", "PSU2"] + self.psu_fan_list
         self.platform_hw_list = ["base-mac", "cpu", "disk-size", "manufacturer", "memory", "model", "onie-version",
                                  "part-number", "platform-name", "port-layout", "product-name", "serial-number",
                                  "system-mac", "asic-model", "asic-vendor"]
         self.hw_comp_list = ["device"]
         self.hw_comp_prop = ["model", "type"]
+        self.fan_prop = ["max-speed", "min-speed", "speed", "state"]
 
     def _init_system_lists(self):
-        self.system_list = []
+        super()._init_system_lists()
         self.user_fields = ['root', 'cumulus']
 
     def _init_psu_list(self):
+        super()._init_psu_list()
         self.psu_list = ["PSU1", "PSU2"]
+        self.psu_fan_list = ["PSU1Fan1", "PSU2Fan1"]
         self.platform_env_psu_prop = ["state"]

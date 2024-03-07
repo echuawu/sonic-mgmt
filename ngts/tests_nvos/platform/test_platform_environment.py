@@ -30,7 +30,7 @@ def test_show_platform_environment(engines, devices, test_api):
 
     with allure.step("Execute show platform environment and make sure all the components exist"):
         _verify_output(platform, "", devices.dut.psu_fan_list + devices.dut.fan_list +
-                       devices.dut.temperature_list + devices.dut.fan_led_list +
+                       devices.dut.temperature_sensors + devices.dut.fan_led_list +
                        PlatformConsts.ENV_LED_COMP)
 
 
@@ -194,7 +194,7 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
         platform = Platform()
 
     with allure.step("Execute show platform environment temperature and make sure all the components exist"):
-        output = _verify_output(platform, "temperature", devices.dut.temperature_list)
+        output = _verify_output(platform, "temperature", devices.dut.temperature_sensors)
 
     with allure.step("make sure all temperature sensors are present in the output"):
         with allure.step("Verify for every sensor in sensors_dict[TEMPERATURE], it exist in nv show platform temperature"):

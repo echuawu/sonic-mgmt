@@ -16,6 +16,7 @@ class IbSwitch(BaseSwitch):
 
     def __init__(self, asic_amount):
         super().__init__()
+        self._init_sensors_dict()
         self.asic_amount = asic_amount
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
@@ -41,16 +42,47 @@ class IbSwitch(BaseSwitch):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'sdr': '10G', 'ndr': '400G'}
 
     def _init_fan_list(self):
+        super()._init_fan_list()
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
         self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
     def _init_system_lists(self):
+        super()._init_system_lists()
         self.user_fields = ['admin', 'monitor']
 
     def _init_available_databases(self):
-        BaseSwitch._init_available_databases(self)
-        self.available_tables = {'database': self.available_tables}
+        super()._init_available_databases()
+        self.available_databases.update(
+            {DatabaseConst.APPL_DB_NAME: DatabaseConst.APPL_DB_ID,
+             DatabaseConst.ASIC_DB_NAME: DatabaseConst.ASIC_DB_ID,
+             # DatabaseConst.COUNTERS_DB_NAME: DatabaseConst.COUNTERS_DB_ID, - disabled for now
+             DatabaseConst.CONFIG_DB_NAME: DatabaseConst.CONFIG_DB_ID,
+             DatabaseConst.STATE_DB_NAME: DatabaseConst.STATE_DB_ID
+             })
+
+        self.available_tables['database'] = {
+            DatabaseConst.APPL_DB_ID:
+            {"ALIAS_PORT_MAP": self.get_ib_ports_num()},
+            DatabaseConst.ASIC_DB_ID:
+            {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() + 1,
+             "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 1,
+             "LANES": 1,
+             "VIDCOUNTER": 1,
+             "RIDTOVID": 1,
+             "HIDDEN": 1,
+             "COLDVIDS": 1},
+            DatabaseConst.COUNTERS_DB_ID:
+            {"COUNTERS_PORT_NAME_MAP": 1,
+             "COUNTERS:oid": self.get_ib_ports_num()},
+            DatabaseConst.CONFIG_DB_ID:
+            {"IB_PORT": self.get_ib_ports_num(),
+             "FEATURE": 11,
+             "CONFIG_DB_INITIALIZED": 1,
+             "DEVICE_METADATA": 1,
+             "VERSIONS": 1,
+             "KDUMP": 1}
+        }
         self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update(
             {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() / 2,
              "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 0,
@@ -93,25 +125,30 @@ class IbSwitch(BaseSwitch):
         self.available_tables.update({'database0': self.available_tables_per_asic})
 
     def _init_services(self):
-        BaseSwitch._init_services(self)
+        super()._init_services()
+        self.available_services.extend((
+            'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
+            'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
+            'rsyslog-config.service', 'procdockerstatsd.service',
+            'configmgrd.service', 'countermgrd.service', 'portsyncmgrd.service'
+        ))
         for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
             for asic_num in range(0, self.asic_amount):
                 self.available_services.append('{deamon}@{asic_num}.service'.format(deamon=deamon, asic_num=asic_num))
-        self.available_services.extend(('configmgrd.service', 'countermgrd.service',
-                                        'portsyncmgrd.service'))
 
     def _init_dependent_services(self):
-        BaseSwitch._init_dependent_services(self)
+        super()._init_dependent_services()
         self.dependent_services.append(NvosConst.SYM_MGR_SERVICES)
 
     def _init_dockers(self):
-        BaseSwitch._init_dockers(self)
+        super()._init_dockers()
+        self.available_dockers.extend(('database', 'ib-utils', 'gnmi-server'))
         for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
             for asic_num in range(0, self.asic_amount):
                 self.available_dockers.append("{deamon}{asic_num}".format(deamon=deamon, asic_num=asic_num))
 
     def _init_constants(self):
-        BaseSwitch._init_constants(self)
+        super()._init_constants()
         self.health_monitor_config_file_path = ""
         self.ib_ports_num = 64
         self.device_list = [f"{IbConsts.DEVICE_ASIC_PREFIX}1", IbConsts.DEVICE_SYSTEM]
@@ -125,9 +162,6 @@ class IbSwitch(BaseSwitch):
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.fan_list = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
-        self.temperature_sensors = ["ASIC", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp",
-                                    "CPU-Core-2-Temp",
-                                    "CPU-Core-3-Temp", "CPU-Pack-Temp", "SODIMM-1-Temp"]
 
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
 
@@ -248,10 +282,6 @@ class IbSwitch(BaseSwitch):
                                 "PMIC-4-3.3V-OSFP-P09-P16-Out-2", "PMIC-4-12V-PORTS-WEST-In-1", "PMIC-5-3.3V-OSFP-P17-P24-Out-1",
                                 "PMIC-5-3.3V-OSFP-P25-P32-Out-2", "PMIC-5-12V-PORTS-EAST-In-1", "PMIC-6-13V5-COMEX-VDD-In-1",
                                 "PMIC-6-COMEX-VCCSA-Out-2", "PMIC-6-COMEX-VCORE-Out-1", "PSU-1-12V-Out", "PSU-2-12V-Out"]
-        self.temperature_sensors = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
-                                    "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "CPU-Pack-Temp",
-                                    "PCH-Temp",
-                                    "PSU-1-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
 
         self.device_list = [IbConsts.DEVICE_ASIC_PREFIX + str(index) for index in range(1, self.asic_amount + 1)]
         self.device_list.append(IbConsts.DEVICE_SYSTEM)
@@ -293,6 +323,10 @@ class IbSwitch(BaseSwitch):
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
+
+    def _init_temperature(self):
+        super()._init_temperature()
+        self.temperature_sensors += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp", "SODIMM-1-Temp"]
 
     def _init_sensors_dict(self):
         self.sensors_dict = {"VOLTAGE": self.voltage_sensors,
@@ -344,13 +378,9 @@ class GorillaSwitch(IbSwitch):
         )
 
     def _init_fan_list(self):
-        BaseSwitch._init_fan_list(self)
+        super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
-
-    def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------
@@ -360,17 +390,15 @@ class GorillaSwitchBF3(GorillaSwitch):
         super().__init__(asic_amount=1)
 
     def _init_constants(self):
-        IbSwitch._init_constants(self)
+        super()._init_constants()
+        self.constants.firmware.remove(PlatformConsts.FW_BIOS)
         self.ib_ports_num = 64
         self.core_count = 16
         self.asic_type = NvosConst.QTM2
 
     def _init_temperature(self):
-        GorillaSwitch._init_temperature(self)
-        self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "PSU-1-Temp", "PSU-2-Temp",
-                                 "xSFP-module-26-Temp", "xSFP-module-29-Temp"]
-        GorillaSwitch._init_constants(self)
-        self.constants.firmware.remove(PlatformConsts.FW_BIOS)
+        super()._init_temperature()
+        self.temperature_sensors += ["xSFP-module-26-Temp", "xSFP-module-29-Temp"]
 
 
 # -------------------------- BlackMamba Switch ----------------------------
@@ -381,7 +409,7 @@ class BlackMambaSwitch(IbSwitch):
 
     def _init_constants(self):
         self.asic_amount = 4
-        IbSwitch._init_constants(self)
+        super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
@@ -407,25 +435,21 @@ class BlackMambaSwitch(IbSwitch):
                                 "PMIC-13+12V_MAIN+Vol+In+1", "PMIC-13+CEX_VDD+Vol+Out+1", "PSU-1+12V+Vol+Out",
                                 "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
                                 "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
-        self.temperature_sensors = ["ASIC", "ASIC2", "ASIC3", "ASIC4", "Ambient-Fan-Side-Temp",
-                                    "Ambient-Port-Side-Temp", "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Core-2-Temp",
-                                    "CPU-Core-3-Temp", "CPU-Pack-Temp", "PSU-7-Temp", "SODIMM-1-Temp", "SODIMM-2-Temp"]
 
     def _init_fan_list(self):
-        IbSwitch._init_fan_list(self)
+        super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
         self.fan_led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
 
     def _init_psu_list(self):
-        IbSwitch._init_psu_list(self)
+        super()._init_psu_list()
         self.psu_list += ["PSU3", "PSU4", "PSU5", "PSU6", "PSU7", "PSU8"]
         self.psu_fan_list += ["PSU3/FAN", "PSU4/FAN", "PSU5/FAN", "PSU6/FAN", "PSU7/FAN", "PSU8/FAN"]
 
     def _init_temperature(self):
-        IbSwitch._init_temperature(self)
-        self.temperature_list += ["ASIC2", "ASIC3", "ASIC4", "CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-7-Temp",
-                                  "SODIMM-1-Temp", "SODIMM-2-Temp"]
-        self.temperature_list.remove("PSU-1-Temp")
+        super()._init_temperature()
+        self.temperature_sensors += ["ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
+        self.temperature_sensors.remove("PSU-1-Temp")
 
 
 # -------------------------- Crocodile Switch ----------------------------
@@ -435,7 +459,7 @@ class CrocodileSwitch(IbSwitch):
         super().__init__(asic_amount=2)
 
     def _init_constants(self):
-        IbSwitch._init_constants(self)
+        super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
@@ -443,20 +467,20 @@ class CrocodileSwitch(IbSwitch):
             format("x86_64-nvidia_qm3400-r0")
 
     def _init_fan_list(self):
-        IbSwitch._init_fan_list(self)
+        super()._init_fan_list()
         self.fan_list.remove("FAN6/1")
         self.fan_list.remove("FAN6/2")
         self.fan_led_list.remove('FAN6')
 
     def _init_psu_list(self):
-        IbSwitch._init_psu_list(self)
+        super()._init_psu_list()
         self.psu_list += ["PSU3", "PSU4"]
         self.psu_fan_list += ["PSU3/FAN", "PSU4/FAN"]
 
     def _init_temperature(self):
-        IbSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PSU-2-Temp", "PSU-3-Temp", "PSU-4-Temp"]
-        self.temperature_list.remove("ASIC")
+        super()._init_temperature()
+        self.temperature_sensors += ["PSU-3-Temp", "PSU-4-Temp"]
+        self.temperature_sensors.remove("ASIC")
 
 
 # -------------------------- NvLink Switch ----------------------------
@@ -466,7 +490,7 @@ class NvLinkSwitch(IbSwitch):
         super().__init__(asic_amount)
 
     def _init_constants(self):
-        IbSwitch._init_constants(self)
+        super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
@@ -481,26 +505,22 @@ class JulietSwitch(NvLinkSwitch):
         super().__init__(asic_amount=1)
 
     def _init_constants(self):
-        NvLinkSwitch._init_constants(self)
+        super()._init_constants()
 
     def _init_fan_list(self):
-        BaseSwitch._init_fan_list(self)
+        super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
-
-    def _init_temperature(self):
-        BaseSwitch._init_temperature(self)
-        self.temperature_list += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
 class JulietScaleoutSwitch(JulietSwitch):
 
     def __init__(self):
-        super().__init__(asic_amount=1)
+        super().__init__()
 
     def _init_constants(self):
-        JulietSwitch._init_constants(self)
+        super()._init_constants()
         # will be updated
 
 
@@ -511,7 +531,7 @@ class CaimanSwitch(NvLinkSwitch):
         super().__init__(asic_amount=4)
 
     def _init_constants(self):
-        NvLinkSwitch._init_constants(self)
+        super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
@@ -525,7 +545,7 @@ class MarlinSwitch(IbSwitch):
         super().__init__(asic_amount=2)
 
     def _init_constants(self):
-        IbSwitch._init_constants(self)
+        super()._init_constants()
         self.ib_ports_num = 128
         self.core_count = 4
         self.asic_type = NvosConst.QTM2
@@ -536,7 +556,7 @@ class MarlinSwitch(IbSwitch):
         self.multi_asic_system = True
 
     def _init_available_databases(self):
-        IbSwitch._init_available_databases(self)
+        super()._init_available_databases()
         self.available_tables_per_asic[DatabaseConst.APPL_DB_ID] = {"ALIAS_PORT_MAP": self.get_ib_ports_num() / 2}
         self.available_tables.update({'database0': self.available_tables_per_asic,
                                       'database1': self.available_tables_per_asic})

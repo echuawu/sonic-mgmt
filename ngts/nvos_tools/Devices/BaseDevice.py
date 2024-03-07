@@ -4,8 +4,7 @@ from abc import abstractmethod, ABCMeta, ABC
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, HealthConsts, PlatformConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
 import time
 
 logger = logging.getLogger()
@@ -19,39 +18,8 @@ class BaseDevice(ABC):
         self.default_username = ""
         self.prev_default_password = ""
         self.open_api_port = ""
-        self.available_databases = {}
-        self.available_tables = {}
-        self.available_services = []
-        self.available_dockers = []
         self.dependent_dockers = []
-        self.dependent_services = []
-        self.constants = None
-        self.fan_list = []
-        self.psu_list = []
-        self.psu_fan_list = []
-        self.fan_led_list = []
-        self.fan_direction_dir = ""
-        self.temperature_list = []
-        self.health_components = []
-        self.platform_hw_list = []
-        self.platform_list = []
-        self.system_list = []
-        self.platform_environment_list = []
-        self.platform_env_psu_prop = []
-        self.hw_comp_prop = []
-        self.pre_login_message = ""
-        self.post_login_message = ""
         self.asic_amount = 1
-        self.core_count = 1
-        self.asic_type = ""
-        self.voltage_sensors = []
-        self.temperature_sensors = []
-        self.available_tables_per_asic = {}
-        self.ib_ports_num = 0
-        self.user_fields = []
-        self.install_from_onie_timeout = 360  # seconds
-        self.install_success_patterns = ""
-        self.mst_dev_name = ""
 
         self._init_constants()
         self._init_available_databases()
@@ -65,59 +33,60 @@ class BaseDevice(ABC):
         self._init_health_components()
         self._init_platform_lists()
         self._init_system_lists()
-        self._init_sensors_dict()
 
-    @abstractmethod
     def _init_available_databases(self):
-        pass
+        self.available_databases = {}
+        self.available_tables = {}
+        self.available_tables_per_asic = {}
 
-    @abstractmethod
     def _init_services(self):
-        pass
+        self.available_services = []
 
-    @abstractmethod
     def _init_dependent_services(self):
-        pass
+        self.dependent_services = []
 
-    @abstractmethod
     def _init_dockers(self):
-        pass
+        self.available_dockers = []
 
-    @abstractmethod
     def _init_constants(self):
-        pass
+        self.pre_login_message = ""
+        self.post_login_message = ""
+        self.install_from_onie_timeout = 360  # seconds
+        self.install_success_patterns = ""
+        self.core_count = 1
+        self.asic_type = ""
+        self.ib_ports_num = 0
+        self.mst_dev_name = ""
+        self.constants = None
+        self.voltage_sensors = []
 
-    @abstractmethod
     def _init_fan_list(self):
-        pass
+        self.fan_list = []
+        self.fan_led_list = []
 
-    @abstractmethod
-    def _init_sensors_dict(self):
-        pass
-
-    @abstractmethod
     def _init_psu_list(self):
-        pass
+        self.psu_list = []
+        self.psu_fan_list = []
+        self.platform_env_psu_prop = []
 
-    @abstractmethod
     def _init_fan_direction_dir(self):
-        pass
+        self.fan_direction_dir = ""
 
-    @abstractmethod
     def _init_temperature(self):
-        pass
+        self.temperature_sensors = []
 
-    @abstractmethod
     def _init_health_components(self):
-        pass
+        self.health_components = []
 
-    @abstractmethod
     def _init_platform_lists(self):
-        pass
+        self.platform_hw_list = []
+        self.platform_list = []
+        self.platform_environment_list = []
+        self.hw_comp_list = []
+        self.hw_comp_prop = []
 
-    @abstractmethod
     def _init_system_lists(self):
-        pass
+        self.user_fields = []
 
     @abstractmethod
     def get_ib_ports_num(self):
@@ -234,65 +203,23 @@ class BaseAppliance(BaseDevice):
 class BaseSwitch(BaseDevice):
     __metaclass__ = ABCMeta
 
+    Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware'])
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
 
-    def __init__(self):
-        super().__init__()
-
     def _init_available_databases(self):
-        BaseDevice._init_available_databases(self)
-        self.available_databases.update(
-            {DatabaseConst.APPL_DB_NAME: DatabaseConst.APPL_DB_ID,
-             DatabaseConst.ASIC_DB_NAME: DatabaseConst.ASIC_DB_ID,
-             # DatabaseConst.COUNTERS_DB_NAME: DatabaseConst.COUNTERS_DB_ID, - disabled for now
-             DatabaseConst.CONFIG_DB_NAME: DatabaseConst.CONFIG_DB_ID,
-             DatabaseConst.STATE_DB_NAME: DatabaseConst.STATE_DB_ID
-             })
-
-        self.available_tables.update(
-            {
-                DatabaseConst.APPL_DB_ID:
-                    {"ALIAS_PORT_MAP": self.get_ib_ports_num()},
-                DatabaseConst.ASIC_DB_ID:
-                    {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() + 1,
-                     "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 1,
-                     "LANES": 1,
-                     "VIDCOUNTER": 1,
-                     "RIDTOVID": 1,
-                     "HIDDEN": 1,
-                     "COLDVIDS": 1},
-                DatabaseConst.COUNTERS_DB_ID:
-                    {"COUNTERS_PORT_NAME_MAP": 1,
-                     "COUNTERS:oid": self.get_ib_ports_num()},
-                DatabaseConst.CONFIG_DB_ID:
-                    {"IB_PORT": self.get_ib_ports_num(),
-                     "FEATURE": 11,
-                     "CONFIG_DB_INITIALIZED": 1,
-                     "DEVICE_METADATA": 1,
-                     "VERSIONS": 1,
-                     "KDUMP": 1}
-            })
+        super()._init_available_databases()
 
     def _init_services(self):
-        BaseDevice._init_services(self)
-        self.available_services.extend((
-            'docker.service', 'database.service', 'hw-management.service', 'config-setup.service',
-            'updategraph.service', 'ntp.service', 'hostname-config.service', 'ntp-config.service',
-            'rsyslog-config.service', 'procdockerstatsd.service'))
-
-    def _init_dependent_services(self):
-        BaseDevice._init_dependent_services(self)
+        super()._init_services()
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
 
     def _init_dockers(self):
-        BaseDevice._init_dockers(self)
-        self.available_dockers.extend(('database', 'ib-utils', 'gnmi-server'))
+        super()._init_dockers()
 
     def _init_constants(self):
-        BaseDevice._init_constants(self)
-        Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware'])
+        super()._init_constants()
         system_dic = {
             'system': [SystemConsts.BUILD, SystemConsts.HOSTNAME, SystemConsts.PLATFORM, SystemConsts.PRODUCT_NAME,
                        SystemConsts.PRODUCT_RELEASE, SystemConsts.SWAP_MEMORY, SystemConsts.SYSTEM_MEMORY,
@@ -318,7 +245,7 @@ class BaseSwitch(BaseDevice):
                           "fw_trace_string_db.json.gz"]
         firmware = [PlatformConsts.FW_BIOS, PlatformConsts.FW_ONIE, PlatformConsts.FW_SSD, PlatformConsts.FW_CPLD + '1',
                     PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
-        self.constants = Constants(system_dic, dump_files, sdk_dump_files, firmware)
+        self.constants = BaseSwitch.Constants(system_dic, dump_files, sdk_dump_files, firmware)
         self.current_bios_version_name = ""
         self.current_bios_version_path = ""
         self.previous_bios_version_name = ""
@@ -327,20 +254,25 @@ class BaseSwitch(BaseDevice):
         self.previous_cpld_version = None
 
     def _init_psu_list(self):
+        super()._init_psu_list()
         self.psu_list = ["PSU1", "PSU2"]
         self.psu_fan_list = ["PSU1/FAN", "PSU2/FAN"]
         self.platform_env_psu_prop = ["capacity", "current", "power", "state", "voltage"]
 
     def _init_temperature(self):
-        self.temperature_list = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp", "CPU-Core-0-Temp",
-                                 "CPU-Core-1-Temp", "CPU-Pack-Temp", "PSU-1-Temp"]
+        super()._init_temperature()
+        self.temperature_sensors = ["ASIC", "Ambient-Fan-Side-Temp", "Ambient-Port-Side-Temp",
+                                    "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Pack-Temp",
+                                    "PSU-1-Temp"]
 
     def _init_health_components(self):
+        super()._init_health_components()
         self.health_components = self.fan_list + self.psu_list + self.psu_fan_list + \
             ["ASIC Temperature", "Containers", "CPU utilization", "Disk check", "Disk space",
              "Disk space log"]
 
     def _init_platform_lists(self):
+        super()._init_platform_lists()
         self.platform_hw_list = ["asic-count", "cpu", "cpu-load-averages", "disk-size", "hw-revision", "manufacturer",
                                  "memory", "model", "onie-version", "part-number", "product-name", "serial-number",
                                  "system-mac", "system-uuid"]
@@ -351,4 +283,5 @@ class BaseSwitch(BaseDevice):
         self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
 
     def _init_fan_direction_dir(self):
+        super()._init_fan_direction_dir()
         self.fan_direction_dir = "/var/run/hw-management/thermal"
