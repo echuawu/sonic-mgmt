@@ -5,7 +5,6 @@ import csv
 import os
 
 from datetime import datetime, timedelta
-from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import ApiType, NvosConst, StatsConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -250,12 +249,12 @@ def test_system_stats_generation(engines, devices, test_api):
             validate_upload_stats_file(engines, system, file_name, True)
 
         with allure.step("Validate show file"):
-            show_output = system.stats.files.show_file(file=file_name, exit_cmd='q')
+            show_output = system.stats.files.file_name[file_name].show_file(exit_cmd='q')
             if 'NVUE' == TestToolkit.tested_api:
                 assert name in show_output, "show file is missing category name"
 
         with allure.step("Delete stats external file"):
-            system.stats.files.action_file(StatsConsts.DELETE, file_name).verify_result()
+            system.stats.files.file_name[file_name].action_delete()
             output = engine.run_cmd("ls /var/stats")
             assert name in output, "Category internal file not exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
@@ -739,12 +738,11 @@ def test_system_stats_invalid_values(engines, devices, test_api):
                 verify_result(should_succeed=False)
 
         with allure.step("Validate delete system stats file not exists"):
-            system.stats.files.action_file(StatsConsts.DELETE, StatsConsts.INVALID_FILE_NAME).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[StatsConsts.INVALID_FILE_NAME].action_delete(should_succeed=False)
 
         with allure.step("Validate upload system stats file not exists"):
-            system.stats.files.action_file(StatsConsts.UPLOAD, StatsConsts.INVALID_FILE_NAME, valid_remote_url).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[StatsConsts.INVALID_FILE_NAME].action_upload(valid_remote_url,
+                                                                                      should_succeed=False)
 
         with allure.step("Validate upload system stats file to invalid URL"):
             file_name = 'stats_cpu_gorilla-154_20230702_145940.csv'
@@ -755,8 +753,7 @@ def test_system_stats_invalid_values(engines, devices, test_api):
                                          dest_ip=engines.dut.ip,
                                          local_file_path=file_path)
             engine.run_cmd("sudo cp /tmp/{} /host/stats".format(file_name))
-            system.stats.files.action_file(StatsConsts.UPLOAD, file_name, invalid_remote_url).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[file_name].action_upload(invalid_remote_url, should_succeed=False)
 
         with allure.step("Validate generate system stats invalid category"):
             system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.GENERATE).\
@@ -1018,7 +1015,7 @@ def clear_all_internal_and_external_files(engine, system, category_list):
         get_returned_value()
     if stats_files_show != "":
         for file in stats_files_show.keys():
-            system.stats.files.action_file(StatsConsts.DELETE, file).verify_result()
+            system.stats.files.file_name[file].action_delete(should_succeed=True)
     engine.run_cmd("sudo rm -f /var/stats/*.old")
 
 
@@ -1042,7 +1039,7 @@ def validate_upload_stats_file(engines, system, file, delete=True):
         for protocol in upload_protocols:
             with allure.step("Upload stats file to player with {} protocol".format(protocol)):
                 upload_path = 'scp://{}:{}@{}{}'.format(player.username, player.password, player.ip, dest_path)
-                system.stats.files.action_file(StatsConsts.UPLOAD, file, upload_path).verify_result()
+                system.stats.files.file_name[file].action_upload(upload_path)
 
             with allure.step("Validate file was uploaded to player"):
                 assert player.run_cmd(cmd='ls {} | grep {}'.format(dest_path, file)), \

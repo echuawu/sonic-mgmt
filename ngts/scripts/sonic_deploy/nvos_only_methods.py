@@ -5,15 +5,12 @@ import shutil
 import yaml
 
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.conftest import ProxySshEngine
 from ngts.tools.test_utils import allure_utils as allure
@@ -122,12 +119,13 @@ class NvosInstallationSteps:
                                                           scp_host_creds, system)
 
         with allure.step('Upgrade to target version'):
-            NvosInstallationSteps.upgrade_to_target_version(bin_filename, dut_engine, dut_device, scp_host_creds, system,
+            NvosInstallationSteps.upgrade_to_target_version(bin_filename, dut_engine, dut_device, scp_host_creds,
+                                                            system,
                                                             target_version_path)
 
         with allure.step('Wait until switch is up'):
             dut_engine.disconnect()  # force engines.dut to reconnect
-            dut_engine.password = dut_device.default_password   # after upgrade flow switch has new default password
+            dut_engine.password = dut_device.default_password  # after upgrade flow switch has new default password
 
         with allure.step('Verify configuration after upgrade'):
             NvosInstallationSteps.verify_config_after_upgrade(config_file_path, dut_engine)
@@ -138,16 +136,17 @@ class NvosInstallationSteps:
         with allure.step('Clear fetched files for the tests'):
             system = System()
             with allure.step('Delete config files'):
-                system.config.files.delete_system_files([config_filename], engine=dut_engine)
+                system.config.files.delete_files([config_filename], engine=dut_engine)
             with allure.step('Delete fetched image file'):
-                system.image.files.delete_system_files([bin_filename], engine=dut_engine)
+                system.image.files.delete_files([bin_filename], engine=dut_engine)
             with allure.step('Uninstall older version'):
                 system.image.action_uninstall(engine=dut_engine)
 
     @staticmethod
     def verify_config_after_upgrade(config_file_path, dut_engine):
         with allure.step('Get actual configuration'):
-            actual_config = OutputParsingTool.parse_json_str_to_dictionary(NvueGeneralCli.show_config(dut_engine)).get_returned_value()
+            actual_config = OutputParsingTool.parse_json_str_to_dictionary(
+                NvueGeneralCli.show_config(dut_engine)).get_returned_value()
             actual_config = [item for item in actual_config if 'set' in item][0]
         with allure.step('Get expected configuration from yml file'):
             # safe load my yml file - [{"header":...}, {"set":...}]
@@ -168,8 +167,8 @@ class NvosInstallationSteps:
         system.image.action_fetch(url=image_scp_url, dut_engine=dut_engine)
         # use new default password for recovery after upgrade
         recovery_engine = LinuxSshEngine(dut_engine.ip, dut_engine.username, dut_device.default_password)
-        File(system.image.files, bin_filename).action_file_install_with_reboot(engine=dut_engine, device=dut_device,
-                                                                               recovery_engine=recovery_engine)
+        system.image.files.file_name[bin_filename].action_file_install_with_reboot(engine=dut_engine, device=dut_device,
+                                                                                   recovery_engine=recovery_engine)
 
     @staticmethod
     def fetch_apply_save_config(config_filename, config_file_path, dut_engine, scp_host_creds, system):

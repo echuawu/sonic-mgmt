@@ -1,16 +1,17 @@
-import pytest
 import logging
 import string
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.system.Files import File
+
+import pytest
+
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import MarsConstants
+from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 YAML_FILES_PATH = MarsConstants.SONIC_MGMT_DIR + "/ngts/tests_nvos/general/config_commands/yaml_files/"
@@ -43,7 +44,8 @@ def test_show_fetch_file(engines):
     logger.info('the yaml file name is {}'.format(yaml_file))
 
     with allure.step('get the remote url'):
-        remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp', file_full_path=YAML_FILES_PATH + yaml_file).verify_result()
+        remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp',
+                                          file_full_path=YAML_FILES_PATH + yaml_file).verify_result()
 
     action_expected_str = "File fetched successfully"
 
@@ -55,7 +57,9 @@ def test_show_fetch_file(engines):
         system.config.action_fetch(remote_url, action_expected_str)
 
     with allure.step('verify nv show system config files command after fetch'):
-        assert expected_dict == OutputParsingTool.parse_json_str_to_dictionary(system.config.files.show()).verify_result()[yaml_file], "the dictionary should include only {}".format(yaml_file)
+        assert expected_dict == \
+            OutputParsingTool.parse_json_str_to_dictionary(system.config.files.show()).verify_result()[
+                yaml_file], "the dictionary should include only {}".format(yaml_file)
 
     with allure.step('verify nv show system config files <file_name> command after fetch'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.config.files.show(yaml_file)).verify_result()
@@ -127,7 +131,8 @@ def test_rename_and_upload(engines):
     logger.info('the yaml file name is {}'.format(yaml_file))
 
     with allure.step('get the remote url'):
-        remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp', file_full_path=YAML_FILES_PATH + yaml_file).verify_result()
+        remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp',
+                                          file_full_path=YAML_FILES_PATH + yaml_file).verify_result()
 
     with allure.step('fetch {}'.format(yaml_file)):
         system.config.action_fetch(remote_url)
@@ -135,7 +140,7 @@ def test_rename_and_upload(engines):
     with allure.step('Rename image and verify'):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits) + '.yaml'
         expected_str = "config file {} renamed to {}".format(yaml_file, new_name)
-        fetched_config_file = File(system.config.files, yaml_file)
+        fetched_config_file = system.config.files.file_name[yaml_file]
         fetched_config_file.rename_and_verify(new_name, expected_str)
 
     with allure.step('upload file'):
@@ -177,7 +182,7 @@ def test_patch_replace_delete(engines):
     system = System(None)
 
     with allure.step('delete all files'):
-        delete_all = File(system.config.files, "")
+        delete_all = system.config.files.file_name['']
         delete_all.action_delete()
 
     with allure.step('get remote server engine'):
@@ -186,14 +191,16 @@ def test_patch_replace_delete(engines):
     with allure.step('fetch 3 yaml files'):
         for file in YAML_FILES_LIST:
             with allure.step('get the remote url'):
-                remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp', file_full_path=YAML_FILES_PATH + file).verify_result()
+                remote_url = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp',
+                                                  file_full_path=YAML_FILES_PATH + file).verify_result()
             with allure.step('fetch {}'.format(file)):
                 system.config.action_fetch(remote_url)
 
     with allure.step('run nv config replace'):
         output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, YAML_FILES_LIST[0])
         with allure.step('verify the replace command output'):
-            assert "Loading config file: {} from configuration files directory.".format(YAML_FILES_LIST[0]) in output, "the message after replace is not as expected"
+            assert "Loading config file: {} from configuration files directory.".format(
+                YAML_FILES_LIST[0]) in output, "the message after replace is not as expected"
 
         diff_output_after_replace = NvueGeneralCli.diff_config(engines.dut)
         with allure.step('verify the diff command after replace'):
@@ -202,23 +209,25 @@ def test_patch_replace_delete(engines):
     with allure.step('run nv config patch'):
         output = TestToolkit.GeneralApi[TestToolkit.tested_api].patch_config(engines.dut, YAML_FILES_LIST[2])
         with allure.step('verify the replace command output'):
-            assert "Loading config file: {} from configuration files directory.".format(YAML_FILES_LIST[2]) in output, "the message after replace is not as expected"
+            assert "Loading config file: {} from configuration files directory.".format(
+                YAML_FILES_LIST[2]) in output, "the message after replace is not as expected"
 
         diff_output_after_patch = NvueGeneralCli.diff_config(engines.dut)
         with allure.step('verify the diff command after patch'):
             assert "pre-login" in diff_output_after_patch, ""
 
     with allure.step('delete one of the config files'):
-        file_to_delete = File(system.config.files, YAML_FILES_LIST[1])
+        file_to_delete = system.config.files.file_name[YAML_FILES_LIST[1]]
         file_to_delete.action_delete("Action succeeded")
 
         with allure.step('verify show command output after delete'):
             show_output = OutputParsingTool.parse_json_str_to_dictionary(system.config.files.show()).verify_result()
-            assert len(show_output.keys()) == 2, "after deleting 1 config file out of 3 files we expect to see only two files"
+            assert len(
+                show_output.keys()) == 2, "after deleting 1 config file out of 3 files we expect to see only two files"
             assert YAML_FILES_LIST[1] not in show_output.keys(), "deleted file still exist"
 
     with allure.step('delete all files'):
-        delete_all = File(system.config.files, "")
+        delete_all = system.config.files.file_name['']
         delete_all.action_delete()
 
         with allure.step('verify after delete all'):
@@ -239,13 +248,14 @@ def test_config_bad_flow(engines):
     :return:
     """
     system = System(None)
-    fetched_config_file = File(system.config.files, "NO_FILE")
+    fetched_config_file = system.config.files.file_name["NO_FILE"]
 
     with allure.step('trying to upload non exist file'):
         with allure.step('get remote server engine'):
             remote_server_engine = engines[NvosConst.SONIC_MGMT]
 
-        upload_path = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp', file_full_path='/tmp/').verify_result()
+        upload_path = DutUtilsTool.get_url(engine=remote_server_engine, command_opt='scp',
+                                           file_full_path='/tmp/').verify_result()
         fetched_config_file.action_upload(upload_path, "File not found")
 
     with allure.step('trying to rename non exist file'):

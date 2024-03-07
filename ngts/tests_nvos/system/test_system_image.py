@@ -2,7 +2,6 @@ import pytest
 import time
 import string
 from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.system.Files import File
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -101,7 +100,7 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
 
     original_images, _, original_image_partition, partition_id_for_new_image, fetched_image = \
         get_image_data_and_fetch_base_image(system, base_version)
-    fetched_image_file = File(system.image.files, fetched_image)
+    fetched_image_file = system.image.files.file_name[fetched_image]
 
     with allure.step("Rename image and verify"):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
@@ -109,10 +108,10 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
 
     with allure.step("Install original image name, should fail"):
         logger.info("Install original image name: {}, should fail".format(fetched_image))
-        File(system.image.files, fetched_image).action_file_install("Action failed", "force")
+        system.image.files.file_name[fetched_image].action_file_install("Action failed", "force")
 
     with allure.step("Delete original image name, should fail"):
-        system.image.files.delete_system_files([fetched_image], "File not found")
+        system.image.files.delete_files([fetched_image], "File not found")
 
     try:
         with allure.step("Install new image name"):
@@ -152,7 +151,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version):
     image_name = image_names[0]
     upload_protocols = ['scp', 'sftp']
     player = engines['sonic_mgmt']
-    image_file = File(system.image.files, image_name)
+    image_file = system.image.files.file_name[image_name]
 
     try:
         with allure.step("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols)):
@@ -167,7 +166,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version):
                     player.run_cmd(cmd='rm -f /tmp/{}'.format(image_name))
     finally:
         with allure.step("Delete file from player"):
-            system.image.files.delete_system_files([image_name])
+            system.image.files.delete_files([image_name])
             system.image.files.verify_show_files_output(unexpected_files=[image_name])
 
 
@@ -230,12 +229,12 @@ def test_system_image_bad_flow(engines, release_name, test_api, original_version
     system = System()
     original_images, original_image, original_image_partition, partition_id_for_new_image = get_image_data(system)
     rand_name = RandomizationTool.get_random_string(10, ascii_letters=string.ascii_letters)
-    file_rand_name = File(system.image.files, rand_name)
+    file_rand_name = system.image.files.file_name[rand_name]
 
     with allure.step("Get an available image file"):
         image_name, image_path = get_images_to_fetch(release_name, original_image)[0]
         images_name = []
-        image_file = File(system.image.files, image_name)
+        image_file = system.image.files.file_name[image_name]
 
     with allure.step("Fetch bad flows"):
         with allure.step("Fetch an image"):
@@ -250,7 +249,7 @@ def test_system_image_bad_flow(engines, release_name, test_api, original_version
 
     with allure.step("Delete bad flows"):
         with allure.step("Delete file that does not exist"):
-            system.image.files.delete_system_files([rand_name], "File not found")
+            system.image.files.delete_files([rand_name], "File not found")
 
     with allure.step("Install bad flows"):
         with allure.step("Install image file that does not exist"):
@@ -286,7 +285,7 @@ def test_system_image_bad_flow(engines, release_name, test_api, original_version
                     player.run_cmd(cmd='rm -f /tmp/{}'.format(image_name))
 
     with allure.step("Delete all images that have been fetch during the test"):
-        system.image.files.delete_system_files(images_name)
+        system.image.files.delete_files(images_name)
 
 
 @pytest.mark.checklist
@@ -511,7 +510,7 @@ def normalize_image_name(image_name):
 def install_image_and_verify(image_name, partition_id, original_images, system, test_name=''):
     with allure.step("Installing image {}".format(image_name)):
         OperationTime.save_duration('image install', '', test_name,
-                                    File(system.image.files, image_name).action_file_install_with_reboot)
+                                    system.image.files.file_name[image_name].action_file_install_with_reboot)
     with allure.step("Verify installed image"):
         time.sleep(5)
         expected_show_images_output = create_images_output_dictionary(original_images, image_name, image_name, partition_id)
@@ -569,7 +568,7 @@ def cleanup_test(system, original_images, original_image_partition, fetched_imag
             system.image.verify_show_images_output(original_images)
 
         with allure.step("Delete all images that have been fetch during the test and verify"):
-            system.image.files.delete_system_files(fetched_image_files)
+            system.image.files.delete_files(fetched_image_files)
             system.image.files.verify_show_files_output(unexpected_files=fetched_image_files)
 
 
