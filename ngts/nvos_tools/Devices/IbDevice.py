@@ -354,6 +354,10 @@ class GorillaSwitch(IbSwitch):
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
 
+        self.show_platform_output.update({
+            "product-name": "MQM9700",
+            "asic-model": self.asic_type,
+        })
         self.current_bios_version_name = "0ACQF_06.01.003"
         self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
         self.previous_bios_version_name = "0ACQF_06.01.002"

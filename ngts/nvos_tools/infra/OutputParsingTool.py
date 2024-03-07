@@ -1,12 +1,26 @@
 import logging
 import json
-import allure
+import re
+
 from .ResultObj import ResultObj
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+from ...nvos_constants.constants_nvos import OutputFormat, ApiType, ConfState
+
 logger = logging.getLogger()
 
 
 class OutputParsingTool:
+
+    @staticmethod
+    def parse_show_output_to_dict(output: str, output_format=OutputFormat.json, field_name_dict=None) -> ResultObj:
+        """Parses the output of generic `nv show` commands to a dict"""
+        if output_format == OutputFormat.auto:
+            return OutputParsingTool.parse_auto_output_to_dict(output, field_name_dict)
+        elif output_format == OutputFormat.json:
+            return OutputParsingTool.parse_json_str_to_dictionary(output)
+        else:
+            raise NotImplementedError(f"No parser implemented for {output_format} output format")
 
     @staticmethod
     def parse_show_interface_output_to_dictionary(output_json):
@@ -464,3 +478,53 @@ class OutputParsingTool:
             dic[k] = v
 
         return ResultObj(True, "", dic)
+
+    @staticmethod
+    def _str_multi_split(s: str, spans):
+        return [s[span[0]:span[1] + 1].strip() for span in spans]
+
+    @staticmethod
+    def parse_auto_output_to_dict(output: str, field_name_dict=None, only_operational=True) -> ResultObj:
+        """
+        Example - output of `nv show platform inventory --output auto`:
+                Hw version  Model            Serial        State  Type
+        ------  ----------  ---------------  ------------  -----  ------
+        FAN1/1  N/A         N/A              N/A           ok     fan
+        FAN1/2  N/A         N/A              N/A           ok     fan
+        ...
+
+        Will be transformed to the following dict:  (if we set field_name_dict={'Hw version': 'hardware-version'} )
+        {"FAN1/1":
+            {"hardware-version": "N/A", "model": "N/A", "serial": "N/A", "state": "ok", "type": "fan"}
+         "FAN2/2": {...}
+        ...}
+
+        If only_operational==True and the output is something like:
+             operational  applied
+        ---  -----------  -------
+        abc  11           90
+        xyz  22
+
+        Then the returned dict is {"abc": 11, "xyz": 22}.
+
+        Note: This function infers the fields' lengths according to the second output line ("----  ------ --- " ...)
+        """
+        with allure.step("Parsing auto output into dict"):
+            field_name_dict = field_name_dict or {}
+            output_lines = output.splitlines()
+
+            with allure.step("Parsing field names"):
+                field_indices = [m.span() for m in re.finditer(r"(?<!-)-+(?!-)", output_lines[1])]
+                field_names = OutputParsingTool._str_multi_split(output_lines[0], field_indices)[1:]
+                field_names = [field_name_dict.get(name) or name.lower().replace(' ', '-') for name in field_names]
+                logger.info(f"Infered field names: {field_names}")
+
+            with allure.step("Parsing content"):
+                result = {}
+                for line in output_lines[2:]:
+                    item, *values = OutputParsingTool._str_multi_split(line, field_indices)
+                    result[item] = dict(zip(field_names, values))
+                if only_operational and (ConfState.OPERATIONAL in field_names):
+                    result = {k: v[ConfState.OPERATIONAL] for k, v in result.items()}
+                logger.info(f"Returned dict:\n{result}")
+                return ResultObj(True, "", result)

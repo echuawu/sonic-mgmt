@@ -1,5 +1,4 @@
 import os
-from ngts.constants.constants import InfraConst
 from enum import Enum
 
 
@@ -69,6 +68,7 @@ class NvosConst:
     CUMULUS_SWITCH = "CUMULUS_SWITCH"
     ENABLED = 'enabled'
     DISABLED = 'disabled'
+    NOT_AVAILABLE = 'N/A'
 
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     DOCKER_PER_ASIC_LIST = ['syncd-ibv0', 'swss-ibv0', 'database']
@@ -495,8 +495,6 @@ class PlatformConsts:
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
-    PLATFORM_OUT_COMP = ["fan", "led", "psu", "temperature", "component", PLATFORM_HW, PLATFORM_ENVIRONMENT]
-    PLATFORM_COMP = [PLATFORM_FW, PLATFORM_ENVIRONMENT, PLATFORM_HW, PLATFORM_SW]
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
     FW_ONIE = "ONIE"

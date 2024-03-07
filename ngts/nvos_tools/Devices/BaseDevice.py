@@ -5,7 +5,9 @@ from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
+from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 import time
+
 
 logger = logging.getLogger()
 
@@ -252,6 +254,19 @@ class BaseSwitch(BaseDevice):
         self.previous_bios_version_path = ""
         self.current_cpld_version = None
         self.previous_cpld_version = None
+        self.show_platform_output = {
+            "system-mac": ExpectedString(regex=r"([\dA-F]{2}:){5}[\dA-F]{2}"),
+            "manufacturer": "Nvidia",
+            "product-name": "",     # These fields need to be updated in subclasses.
+            "cpu": None,            # `None` means we expect any string not in ['', 'N/A'].
+            "memory": ExpectedString.number_and_string('kB', range_min=7000000),  # Expects "x kB" where x > 7000000
+            "disk-size": ExpectedString.number_and_string('G', range_min=14.0),
+            "port-layout": None,
+            "part-number": None,
+            "serial-number": None,
+            "asic-model": "",
+            "system-uuid": ExpectedString(regex=r"[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}"),
+        }
 
     def _init_psu_list(self):
         super()._init_psu_list()

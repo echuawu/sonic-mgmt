@@ -42,3 +42,6 @@ class ResultObj:
 
     def get_returned_value(self, should_succeed=True):
         return self.verify_result(should_succeed)
+
+    def __bool__(self):
+        return bool(self.result)
