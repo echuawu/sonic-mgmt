@@ -392,7 +392,6 @@ class SonicInstallationSteps:
                         'sudo cp /etc/sonic/config_db.json /etc/sonic/config_db.backup.json')
                     dut_engine.run_cmd(
                         'sudo sonic-cfggen -j /tmp/dpu_ip_assignment_config.json --write-to-db', validate=True)
-                    dut_engine.run_cmd('sudo config qos clear')
                     general_cli_obj.save_configuration()
 
             # TODO: Remove this WA when RM 3796847 resolved
