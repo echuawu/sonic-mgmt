@@ -206,8 +206,10 @@ def configure_port_shaper(cli_objects, interfaces, engines, topology_obj):
     ar_helper.disable_packet_aging(engines)
 
     yield
-    logger.info('Configure port scheduler to default params')
-    cli_objects.dut.interface.config_port_scheduler(port_scheduler, 0)
+
+    with allure.step("Delete configured qos map and port scheduler"):
+        cli_objects.dut.interface.del_port_qos_map(interfaces.dut_hb_1, port_scheduler)
+        cli_objects.dut.interface.del_port_scheduler(port_scheduler)
 
     logger.info(f'Move file {ArConsts.CONFIG_DB_FILE_NAME} from {ArConsts.DUT_HOME_DIR} to '
                 f'{ArConsts.CONFIG_DB_FILE_PATH}')
