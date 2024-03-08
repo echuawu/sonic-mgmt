@@ -3153,6 +3153,13 @@
         - 3488969
 
 - Errors_list:
+    - '.*ERR systemctl.*Failed to start.*service: Transaction for.*service\/start is destructive \(.* has .stop. job queued, but .start. is included in transaction\).*'
+    - '.*ERR systemctl.*: See system logs and .systemctl status.*service. for details.*'
+  Conditions:
+    - Redmine:
+        - 3814720
+
+- Errors_list:
     - '.*ERR pmon#thermalctld: Got wrong value \d+ for fan direction \/var\/run\/hw-management\/thermal\/fan\d_dir.*'
   Conditions:
     - Redmine:
