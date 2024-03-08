@@ -203,7 +203,7 @@ class ValidationTool:
             result = True
             ret_info = ""
             if expected_fields not in output_dict.keys():
-                ret_info += 'the {field} not found\n'.format(field=field)
+                ret_info += 'the {field} not found\n'.format(field=expected_fields)
                 result = False
 
             return ResultObj(result, ret_info, ret_info)
