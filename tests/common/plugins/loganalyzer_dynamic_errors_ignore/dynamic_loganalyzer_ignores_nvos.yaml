@@ -698,7 +698,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* .* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
+    - '.*ERR nvued:.*ERROR: lifecycle.py:\d+ File not found:.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
@@ -796,6 +796,12 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+
+- Errors_list:
+    - '.*ERR nvued:.*ERROR: lifecycle\.py:164 File not found: /host/tpm/quotes\.json.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tpm_attestation/test_tpm_attestation.py::test_upload_quote_before_generate
 
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'

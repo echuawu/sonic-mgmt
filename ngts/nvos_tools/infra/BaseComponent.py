@@ -2,14 +2,14 @@ import logging
 
 import allure
 
+from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
+from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
-from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 
 
 class BaseComponent:
@@ -155,6 +155,6 @@ class BaseComponent:
         resource_path = self.get_resource_path()
         with allure.step(f"Execute action {action} for {resource_path}"):
             return SendCommandTool.execute_command_expected_str(
-                self.api_obj[TestToolkit.tested_api].action, expected_output,
+                self._cli_wrapper.action, expected_output,
                 dut_engine, dut_device, action, resource_path, suffix, param_name, param_value, output_format,
                 expect_reboot)

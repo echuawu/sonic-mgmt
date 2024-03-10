@@ -1,6 +1,7 @@
 import logging
 import os
 
+import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
@@ -380,6 +381,7 @@ class GorillaSwitch(IbSwitch):
         self.stats_fan_header_num_of_lines = 25
         self.stats_power_header_num_of_lines = 13
         self.stats_temperature_header_num_of_lines = 53
+        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -403,6 +405,7 @@ class GorillaSwitchBF3(GorillaSwitch):
     def _init_constants(self):
         super()._init_constants()
         self.constants.firmware.remove(PlatformConsts.FW_BIOS)
+        self.ib_ports_num = 64
         self.core_count = 16
         self.asic_type = NvosConst.QTM2
 
@@ -418,7 +421,9 @@ class BlackMambaSwitch(IbSwitch):
         super().__init__(asic_amount=4)
 
     def _init_constants(self):
+        self.asic_amount = 4
         super()._init_constants()
+        self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
@@ -468,104 +473,17 @@ class CrocodileSwitch(IbSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
-        self.plane_port_list = ['pl1', 'pl2', 'pl3', 'pl4']
-        self.all_port_list = ['eth0', 'fnm1', 'ib0', 'lo', 'swA1p1', 'swA1p2', 'swA2p1', 'swA2p2', 'swA3p1', 'swA3p2',
-                              'swA4p1', 'swA4p2', 'swA5p1', 'swA5p2', 'swA6p1', 'swA6p2', 'swA7p1', 'swA7p2', 'swA8p1',
-                              'swA8p2', 'swA9p1', 'swA9p2', 'swA10p1', 'swA10p2', 'swA11p1', 'swA11p2', 'swA12p1',
-                              'swA12p2', 'swA13p1', 'swA13p2', 'swA14p1', 'swA14p2', 'swA15p1', 'swA15p2', 'swA16p1',
-                              'swA16p2', 'swA17p1', 'swA17p2', 'swA18p1', 'swA18p2', 'swB1p1', 'swB1p2', 'swB2p1',
-                              'swB2p2', 'swB3p1', 'swB3p2', 'swB4p1', 'swB4p2', 'swB5p1', 'swB5p2', 'swB6p1', 'swB6p2',
-                              'swB7p1', 'swB7p2', 'swB8p1', 'swB8p2', 'swB9p1', 'swB9p2', 'swB10p1', 'swB10p2',
-                              'swB11p1', 'swB11p2', 'swB12p1', 'swB12p2', 'swB13p1', 'swB13p2', 'swB14p1', 'swB14p2',
-                              'swB15p1', 'swB15p2', 'swB16p1', 'swB16p2', 'swB17p1', 'swB17p2', 'swB18p1', 'swB18p2']
-        self.all_fae_port_list = ['eth0', 'fnm1', 'fnm1pl1', 'fnm1pl2', 'fnma0p1', 'fnma0p2', 'fnma0p3', 'fnma0p4',
-                                  'fnma1p1', 'fnma1p2', 'ib0', 'lo', 'swA1p1', 'swA1p1pl1', 'swA1p1pl2', 'swA1p1pl3',
-                                  'swA1p1pl4', 'swA1p2', 'swA1p2pl1', 'swA1p2pl2', 'swA1p2pl3', 'swA1p2pl4', 'swA2p1',
-                                  'swA2p1pl1', 'swA2p1pl2', 'swA2p1pl3', 'swA2p1pl4', 'swA2p2', 'swA2p2pl1',
-                                  'swA2p2pl2', 'swA2p2pl3', 'swA2p2pl4', 'swA3p1', 'swA3p1pl1', 'swA3p1pl2',
-                                  'swA3p1pl3', 'swA3p1pl4', 'swA3p2', 'swA3p2pl1', 'swA3p2pl2', 'swA3p2pl3',
-                                  'swA3p2pl4', 'swA4p1', 'swA4p1pl1', 'swA4p1pl2', 'swA4p1pl3', 'swA4p1pl4', 'swA4p2',
-                                  'swA4p2pl1', 'swA4p2pl2', 'swA4p2pl3', 'swA4p2pl4', 'swA5p1', 'swA5p1pl1',
-                                  'swA5p1pl2', 'swA5p1pl3', 'swA5p1pl4', 'swA5p2', 'swA5p2pl1', 'swA5p2pl2',
-                                  'swA5p2pl3', 'swA5p2pl4', 'swA6p1', 'swA6p1pl1', 'swA6p1pl2', 'swA6p1pl3',
-                                  'swA6p1pl4', 'swA6p2', 'swA6p2pl1', 'swA6p2pl2', 'swA6p2pl3', 'swA6p2pl4', 'swA7p1',
-                                  'swA7p1pl1', 'swA7p1pl2', 'swA7p1pl3', 'swA7p1pl4', 'swA7p2', 'swA7p2pl1',
-                                  'swA7p2pl2', 'swA7p2pl3', 'swA7p2pl4', 'swA8p1', 'swA8p1pl1', 'swA8p1pl2',
-                                  'swA8p1pl3', 'swA8p1pl4', 'swA8p2', 'swA8p2pl1', 'swA8p2pl2', 'swA8p2pl3',
-                                  'swA8p2pl4', 'swA9p1', 'swA9p1pl1', 'swA9p1pl2', 'swA9p1pl3', 'swA9p1pl4', 'swA9p2',
-                                  'swA9p2pl1', 'swA9p2pl2', 'swA9p2pl3', 'swA9p2pl4', 'swA10p1', 'swA10p1pl1',
-                                  'swA10p1pl2', 'swA10p1pl3', 'swA10p1pl4', 'swA10p2', 'swA10p2pl1', 'swA10p2pl2',
-                                  'swA10p2pl3', 'swA10p2pl4', 'swA11p1', 'swA11p1pl1', 'swA11p1pl2', 'swA11p1pl3',
-                                  'swA11p1pl4', 'swA11p2', 'swA11p2pl1', 'swA11p2pl2', 'swA11p2pl3', 'swA11p2pl4',
-                                  'swA12p1', 'swA12p1pl1', 'swA12p1pl2', 'swA12p1pl3', 'swA12p1pl4', 'swA12p2',
-                                  'swA12p2pl1', 'swA12p2pl2', 'swA12p2pl3', 'swA12p2pl4', 'swA13p1', 'swA13p1pl1',
-                                  'swA13p1pl2', 'swA13p1pl3', 'swA13p1pl4', 'swA13p2', 'swA13p2pl1', 'swA13p2pl2',
-                                  'swA13p2pl3', 'swA13p2pl4', 'swA14p1', 'swA14p1pl1', 'swA14p1pl2', 'swA14p1pl3',
-                                  'swA14p1pl4', 'swA14p2', 'swA14p2pl1', 'swA14p2pl2', 'swA14p2pl3', 'swA14p2pl4',
-                                  'swA15p1', 'swA15p1pl1', 'swA15p1pl2', 'swA15p1pl3', 'swA15p1pl4', 'swA15p2',
-                                  'swA15p2pl1', 'swA15p2pl2', 'swA15p2pl3', 'swA15p2pl4', 'swA16p1', 'swA16p1pl1',
-                                  'swA16p1pl2', 'swA16p1pl3', 'swA16p1pl4', 'swA16p2', 'swA16p2pl1', 'swA16p2pl2',
-                                  'swA16p2pl3', 'swA16p2pl4', 'swA17p1', 'swA17p1pl1', 'swA17p1pl2', 'swA17p1pl3',
-                                  'swA17p1pl4', 'swA17p2', 'swA17p2pl1', 'swA17p2pl2', 'swA17p2pl3', 'swA17p2pl4',
-                                  'swA18p1', 'swA18p1pl1', 'swA18p1pl2', 'swA18p1pl3', 'swA18p1pl4', 'swA18p2',
-                                  'swA18p2pl1', 'swA18p2pl2', 'swA18p2pl3', 'swA18p2pl4', 'swB1p1', 'swB1p1pl1',
-                                  'swB1p1pl2', 'swB1p1pl3', 'swB1p1pl4', 'swB1p2', 'swB1p2pl1', 'swB1p2pl2',
-                                  'swB1p2pl3', 'swB1p2pl4', 'swB2p1', 'swB2p1pl1', 'swB2p1pl2', 'swB2p1pl3',
-                                  'swB2p1pl4', 'swB2p2', 'swB2p2pl1', 'swB2p2pl2', 'swB2p2pl3', 'swB2p2pl4', 'swB3p1',
-                                  'swB3p1pl1', 'swB3p1pl2', 'swB3p1pl3', 'swB3p1pl4', 'swB3p2', 'swB3p2pl1',
-                                  'swB3p2pl2', 'swB3p2pl3', 'swB3p2pl4', 'swB4p1', 'swB4p1pl1', 'swB4p1pl2',
-                                  'swB4p1pl3', 'swB4p1pl4', 'swB4p2', 'swB4p2pl1', 'swB4p2pl2', 'swB4p2pl3',
-                                  'swB4p2pl4', 'swB5p1', 'swB5p1pl1', 'swB5p1pl2', 'swB5p1pl3', 'swB5p1pl4', 'swB5p2',
-                                  'swB5p2pl1', 'swB5p2pl2', 'swB5p2pl3', 'swB5p2pl4', 'swB6p1', 'swB6p1pl1',
-                                  'swB6p1pl2', 'swB6p1pl3', 'swB6p1pl4', 'swB6p2', 'swB6p2pl1', 'swB6p2pl2',
-                                  'swB6p2pl3', 'swB6p2pl4', 'swB7p1', 'swB7p1pl1', 'swB7p1pl2', 'swB7p1pl3',
-                                  'swB7p1pl4', 'swB7p2', 'swB7p2pl1', 'swB7p2pl2', 'swB7p2pl3', 'swB7p2pl4', 'swB8p1',
-                                  'swB8p1pl1', 'swB8p1pl2', 'swB8p1pl3', 'swB8p1pl4', 'swB8p2', 'swB8p2pl1',
-                                  'swB8p2pl2', 'swB8p2pl3', 'swB8p2pl4', 'swB9p1', 'swB9p1pl1', 'swB9p1pl2',
-                                  'swB9p1pl3', 'swB9p1pl4', 'swB9p2', 'swB9p2pl1', 'swB9p2pl2', 'swB9p2pl3',
-                                  'swB9p2pl4', 'swB10p1', 'swB10p1pl1', 'swB10p1pl2', 'swB10p1pl3', 'swB10p1pl4',
-                                  'swB10p2', 'swB10p2pl1', 'swB10p2pl2', 'swB10p2pl3', 'swB10p2pl4', 'swB11p1',
-                                  'swB11p1pl1', 'swB11p1pl2', 'swB11p1pl3', 'swB11p1pl4', 'swB11p2', 'swB11p2pl1',
-                                  'swB11p2pl2', 'swB11p2pl3', 'swB11p2pl4', 'swB12p1', 'swB12p1pl1', 'swB12p1pl2',
-                                  'swB12p1pl3', 'swB12p1pl4', 'swB12p2', 'swB12p2pl1', 'swB12p2pl2', 'swB12p2pl3',
-                                  'swB12p2pl4', 'swB13p1', 'swB13p1pl1', 'swB13p1pl2', 'swB13p1pl3', 'swB13p1pl4',
-                                  'swB13p2', 'swB13p2pl1', 'swB13p2pl2', 'swB13p2pl3', 'swB13p2pl4', 'swB14p1',
-                                  'swB14p1pl1', 'swB14p1pl2', 'swB14p1pl3', 'swB14p1pl4', 'swB14p2', 'swB14p2pl1',
-                                  'swB14p2pl2', 'swB14p2pl3', 'swB14p2pl4', 'swB15p1', 'swB15p1pl1', 'swB15p1pl2',
-                                  'swB15p1pl3', 'swB15p1pl4', 'swB15p2', 'swB15p2pl1', 'swB15p2pl2', 'swB15p2pl3',
-                                  'swB15p2pl4', 'swB16p1', 'swB16p1pl1', 'swB16p1pl2', 'swB16p1pl3', 'swB16p1pl4',
-                                  'swB16p2', 'swB16p2pl1', 'swB16p2pl2', 'swB16p2pl3', 'swB16p2pl4', 'swB17p1',
-                                  'swB17p1pl1', 'swB17p1pl2', 'swB17p1pl3', 'swB17p1pl4', 'swB17p2', 'swB17p2pl1',
-                                  'swB17p2pl2', 'swB17p2pl3', 'swB17p2pl4', 'swB18p1', 'swB18p1pl1', 'swB18p1pl2',
-                                  'swB18p1pl3', 'swB18p1pl4', 'swB18p2', 'swB18p2pl1', 'swB18p2pl2', 'swB18p2pl3',
-                                  'swB18p2pl4']
-        self.voltage_sensors = ["PMIC-1-12V-VDD-ASIC1-In-1", "PMIC-1-ASIC1-VDD-Out-1", "PMIC-2-12V-HVDD-DVDD-ASIC1-In-1",
-                                "PMIC-2-ASIC1-DVDD-PL0-Out-2", "PMIC-2-ASIC1-HVDD-PL0-Out-1", "PMIC-3-12V-HVDD-DVDD-ASIC1-In-1",
-                                "PMIC-3-ASIC1-DVDD-PL1-Out-2", "PMIC-3-ASIC1-HVDD-PL1-Out-1", "PMIC-4-12V-VDD-ASIC2-In-1",
-                                "PMIC-4-ASIC2-VDD-Out-1", "PMIC-5-12V-HVDD-DVDD-ASIC2-In-1", "PMIC-5-ASIC2-DVDD-PL0-Out-2",
-                                "PMIC-5-ASIC2-HVDD-PL0-Out-1", "PMIC-6-12V-HVDD-DVDD-ASIC2-In-1", "PMIC-6-ASIC2-DVDD-PL1-Out-2",
-                                "PMIC-6-ASIC2-HVDD-PL1-Out-1", "PMIC-7-12V-MAIN-In-1", "PMIC-7-CEX-VDD-Out-1", "PSU-1-12V-Out",
-                                "PSU-2-12V-Out", "PSU-3-12V-Out", "PSU-4-12V-Out"]
-        self.stats_fan_header_num_of_lines = 23
-        self.stats_power_header_num_of_lines = 17
-        self.stats_temperature_header_num_of_lines = 62
 
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list.remove("FAN6/1")
         self.fan_list.remove("FAN6/2")
         self.fan_led_list.remove('FAN6')
-
-    def _init_platform_lists(self):
-        super()._init_platform_lists()
-        self.platform_environment_fan_values = {
-            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
-            "min-speed": ExpectedString(range_min=2000, range_max=10000),
-            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
 
     def _init_psu_list(self):
         super()._init_psu_list()
@@ -574,7 +492,8 @@ class CrocodileSwitch(IbSwitch):
 
     def _init_temperature(self):
         super()._init_temperature()
-        self.temperature_sensors += ["ASIC2", "PSU-3-Temp", "PSU-4-Temp"]
+        self.temperature_sensors += ["PSU-3-Temp", "PSU-4-Temp"]
+        self.temperature_sensors.remove("ASIC")
 
 
 # -------------------------- Crocodile Simx Switch ----------------------------
@@ -592,6 +511,7 @@ class NvLinkSwitch(IbSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
@@ -632,6 +552,7 @@ class CaimanSwitch(NvLinkSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.ib_ports_num = 64
         self.core_count = 4
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")

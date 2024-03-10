@@ -1,13 +1,12 @@
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_tools.system.PasswordHardening import PasswordHardening
 from ngts.nvos_tools.system.Certificate import Certificate
+from ngts.nvos_tools.system.PasswordHardening import PasswordHardening
+from ngts.nvos_tools.system.Tpm import Tpm
 
 
 class Security(BaseComponent):
     def __init__(self, parent_obj=None):
-        BaseComponent.__init__(self, parent=parent_obj, path='/security')
+        super().__init__(parent=parent_obj, path='/security')
         self.password_hardening = PasswordHardening(self)
         self.certificate = Certificate(self)
-
-    def unset(self, op_param=""):
-        raise Exception("unset is not implemented for /security")
+        self.tpm = Tpm(self)

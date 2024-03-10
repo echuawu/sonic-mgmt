@@ -61,6 +61,7 @@ class BaseDevice(ABC):
         self.mst_dev_name = ""
         self.constants = None
         self.voltage_sensors = []
+        self.supported_tpm_attestation_algos = []
 
     def _init_fan_list(self):
         self.fan_list = []
