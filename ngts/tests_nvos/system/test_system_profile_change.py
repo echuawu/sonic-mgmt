@@ -9,7 +9,6 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_constants.constants_nvos import DatabaseConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
@@ -90,8 +89,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
         traffic_hosts = [engines.ha, engines.hb]
         assert engines.ha and engines.hb, "Traffic hosts details can't be found in Noga setup"
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm(engines.dut).verify_result()
+    with allure.step("Check traffic port up"):
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
@@ -124,8 +122,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
 
         update_timezone(engines)
 
-        with allure.step("Start OpenSM and check traffic port up"):
-            OpenSmTool.start_open_sm(engines.dut).verify_result()
+        with allure.step("Check traffic port up"):
             for port in active_ports:
                 port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
                                                       logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
@@ -161,8 +158,7 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
 
         update_timezone(engines)
 
-        with allure.step("Start OpenSM and check traffic port up"):
-            OpenSmTool.start_open_sm(engines.dut).verify_result()
+        with allure.step("Check traffic port up"):
             for port in active_ports:
                 port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
                                                       logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()

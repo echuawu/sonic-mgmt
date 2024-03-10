@@ -185,7 +185,7 @@ def test_fae_interface_commands(engines, devices, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_aggregated_port_configuration(engines, devices, test_api):
+def test_aggregated_port_configuration(engines, devices, start_sm, test_api):
     """
     Validate all planes are configured while configuring the following Aport fields:
     ib-speed, lanes, mtu, op-vls, state.
@@ -202,9 +202,6 @@ def test_aggregated_port_configuration(engines, devices, test_api):
     TestToolkit.tested_api = test_api
 
     try:
-        with allure.step("Start open SM"):
-            OpenSmTool.start_open_sm(engines.dut).verify_result()
-
         with allure.step("Select the default aggregated port (connected in loop back to another port)"):
             selected_fae_aggregated_port = Fae(port_name=devices.dut.default_aggregated_port)
             selected_aggregated_port = MgmtPort(selected_fae_aggregated_port.port.name)
@@ -249,9 +246,6 @@ def test_aggregated_port_configuration(engines, devices, test_api):
     finally:
         with allure.step("set config to default"):
             selected_aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
-
-        with allure.step("Stop open SM"):
-            OpenSmTool.stop_open_sm(engines.dut).verify_result()
 
 
 @pytest.mark.interface
@@ -447,7 +441,7 @@ def test_aggregated_port_physical_and_logical_state_machines(engines, devices, t
 @pytest.mark.multiplanar
 @pytest.mark.simx_xdr
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_symmetry_manager_performance(engines, devices, test_api):
+def test_symmetry_manager_performance(engines, devices, start_sm, test_api):
     """
     Validate configuring an aggregated port total time is not significantly longer than
     configuring a regular (non-aggregated) port.
@@ -461,9 +455,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
     TestToolkit.tested_api = test_api
 
     try:
-        with allure.step("Start open SM"):
-            OpenSmTool.start_open_sm(engines.dut).verify_result()
-
         with allure.step('Get a list of active ports'):
             active_port_list = Port.get_list_of_active_ports()
             assert active_port_list, "No active ports"
@@ -489,8 +480,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
         with allure.step("set config to default"):
             if active_port_list:
                 selected_aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
-            with allure.step("Stop open SM"):
-                OpenSmTool.stop_open_sm(engines.dut).verify_result()
 
 
 # @pytest.mark.interface
@@ -516,10 +505,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 #     system = System(devices_dut=devices.dut)
 #
 #     try:
-#         with allure.step("Start open SM"):
-#             OpenSmTool.start_open_sm(engines.dut).verify_result()
-#             time.sleep(30)
-#
 #         with allure.step('Get a list of active ports'):
 #             active_port_list = Port.get_list_of_active_ports()
 #             assert active_port_list, "No active ports"
@@ -554,10 +539,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 #         with allure.step("Perform system reboot"):
 #             system.reboot.action_reboot(params='force').verify_result()
 #
-#         with allure.step("Start open SM"):
-#             OpenSmTool.start_open_sm(engines.dut).verify_result()
-#             time.sleep(30)
-#
 #         with allure.step("Save aggregated port link output after reboot"):
 #             output_after_reboot = OutputParsingTool.parse_show_interface_link_output_to_dictionary(
 #                 selected_aggregated_port.interface.link.show()).get_returned_value()
@@ -590,9 +571,6 @@ def test_symmetry_manager_performance(engines, devices, test_api):
 #         with allure.step("set config to default"):
 #             if active_port_list:
 #                 selected_aggregated_port.interface.link.unset(apply=True, ask_for_confirmation=True).verify_result()
-#
-#         with allure.step("Stop open SM"):
-#             OpenSmTool.stop_open_sm(engines.dut).verify_result()
 
 
 @pytest.mark.interface
@@ -843,6 +821,8 @@ def validate_mp_show_interface_commands(parse_func, port_cmd, port_fae_cmd, apor
     with allure.step("Show interface of a non aggregated port"):
         output_port = parse_func(port_cmd()).get_returned_value()
         port_keys = list(output_port.keys())
+        if 'acl' in port_keys:
+            port_keys.remove('acl')
 
     with allure.step("Show fae interface of a non aggregated port"):
         output_fae_port = parse_func(port_fae_cmd()).get_returned_value()

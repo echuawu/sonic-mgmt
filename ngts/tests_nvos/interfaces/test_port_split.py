@@ -13,7 +13,6 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 
@@ -104,8 +103,7 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
         output = NvueGeneralCli.diff_config(TestToolkit.engines.dut)
         assert not output, "config not detached"
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
 
@@ -147,8 +145,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
         8. Check it returned to default values
     """
     system = System(None)
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
@@ -162,8 +159,7 @@ def test_ib_split_port_default_values(engines, interfaces, start_sm):
                                                         values_to_verify, system_profile_output).verify_result()
         logging.info("All expected values were found")
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
 
@@ -278,8 +274,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
             child_ports[0].ib_interface.link.stats.show()).get_returned_value()
         assert output_dictionary['out-pkts'] == 0
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
@@ -295,8 +290,7 @@ def test_split_port_counters(engines, players, interfaces, start_sm):
     with allure.step("Unset parent port"):
         parent_port.ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).verify_result()
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
@@ -495,8 +489,7 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
     _run_cmd_nvue(engines, cmds, num_of_iterations)
     logging.info(cmds[0] + "and" + cmds[1] + " succeeded -----------------------------------")
 
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         split_ports, active_ports = _get_split_ports()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()
@@ -522,8 +515,7 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
         3. Check no system not crashed
     """
     system = System(None)
-    with allure.step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm_on_server(engines).verify_result()
+    with allure.step("Check traffic port up"):
         split_ports, active_ports = _get_split_ports()
         for port in active_ports:
             port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=30).verify_result()

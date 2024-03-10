@@ -1,14 +1,13 @@
 import pytest
 from ngts.tools.test_utils import allure_utils as allure
 import logging
-import time
 from ngts.nvos_tools.ib.Ib import Ib
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import IbConsts, NvosConst
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
