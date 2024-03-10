@@ -1219,6 +1219,18 @@ class PtpConsts:
     class TcState(Enum):
         ENABLED = 'enabled'
         DISABLED = 'disabled'
+        INVALID = 'invalid'
 
-    TC_STATE = 'TC-STATE'
-    MTPCPC_REGISTER = 'MTPCPC'  # TODO check name and value
+    TC_STATE = 'tc'
+    MTPCPC_REGISTER = 'MTPCPC'
+    MTPCPC_INDEXES = '--indexes "lp_msb=0x0,local_port=0x0,pport=0x0"'
+    ING_CORRECTION_MSG_TYPE = 'ing_correction_message_type'
+    EGR_CORRECTION_MSG_TYPE = 'egr_correction_message_type'
+    REG_NA_VALUE = '0xffffffff'
+    REG_DISABLE_VALUE = '0x00000000'
+    REG_ENABLE_VALUE = '0x0000070f'
+    DEFAULT_DICT = {
+        ING_CORRECTION_MSG_TYPE: REG_NA_VALUE,
+        EGR_CORRECTION_MSG_TYPE: REG_NA_VALUE
+    }
+    PTP_TABLE_TC = '\"PTP_TABLE|tc\"'
