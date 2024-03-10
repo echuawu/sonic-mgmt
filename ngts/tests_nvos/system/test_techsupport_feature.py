@@ -20,12 +20,12 @@ def test_techsupport_folder_name(engines):
     """
     with allure.step('Run nv action generate system tech-support and validate the tech-support name'):
         system = System(None)
-        output_dictionary_before = OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary_before = list(OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
         tech_support_folder, duration = system.techsupport.action_generate()
         validate_techsupport_folder_name(system, tech_support_folder)
-        output_dictionary_after = OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary_after = list(OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
 
         cleanup_techsupport(engines.dut, output_dictionary_before, output_dictionary_after)
 

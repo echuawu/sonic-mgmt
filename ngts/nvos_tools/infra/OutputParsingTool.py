@@ -283,7 +283,7 @@ class OutputParsingTool:
         Output will be {"1": "/var/my_file",
                         "2": "/var/second.txt"}
         """
-        dict_from_json = OutputParsingTool.parse_json_str_to_dictionary(output_json).get_returned_value() or {}  # todo: remove `or {}` once the issue is resolved at ResultObj
+        dict_from_json = OutputParsingTool.parse_json_str_to_dictionary(output_json).get_returned_value()
         with allure.step("Parsing show-files output to dict"):
             result = {k: v['path'] for k, v in dict_from_json.items()}
             logger.info(result)
@@ -292,45 +292,10 @@ class OutputParsingTool:
     @staticmethod
     def parse_show_files_to_names(output_json) -> ResultObj:
         """Like parse_show_files_to_dict but returns a list of the keys."""
-        as_dict = OutputParsingTool.parse_show_files_to_dict(output_json).get_returned_value() or {}  # todo no or {}
-        return ResultObj(True, "", list(as_dict.keys()))
-
-    @staticmethod
-    def parse_show_system_techsupport_output_to_list(output_json):
-        """
-        Creates a list according to provided JSON output of "show system tech-support"
-            :param output_json: json output
-            :return: a list of techsupports files
-
-                     Example of the input json:
-                        {
-                          "1": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_070154.tar.gz"
-                          },
-                          "2": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_070725.tar.gz"
-                          },
-                          "3": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_073216.tar.gz"
-                          },
-                          "4": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_073506.tar.gz"
-                          }
-                        }
-                    output:
-                        ["/var/dump/nvos_dump_jaguar-25_20220619_070154.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_070725.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_073216.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_073506.tar.gz"]
-        """
-        if output_json == {}:
-            return ResultObj(True, "no tech-support files", [])
-        paths = json.loads(output_json).values()
-        with allure.step('Create a list according to provided JSON string'):
-            paths = [list(path.values()) for path in paths]
-            output_list = [path for [path] in paths]
-            logger.info(output_list)
-            return ResultObj(True, "", output_list)
+        as_dict = OutputParsingTool.parse_show_files_to_dict(output_json).get_returned_value()
+        result = list(as_dict.keys())
+        logger.info(f"File names: {result}")
+        return ResultObj(True, "", result)
 
     @staticmethod
     def parse_config_history(output_json):

@@ -28,16 +28,16 @@ def test_techsupport_show(engines, test_name):
     operation = 'generate tech-support'
     duration = 0
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
-        output_dictionary_before_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary_before_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
         folder, duration = system.techsupport.action_generate(test_name=test_name)
         assert OperationTime.verify_operation_time(duration, operation), \
             '{op} took more time than threshold value'.format(op=operation)
         folder, duration = system.techsupport.action_generate()
         assert OperationTime.verify_operation_time(duration, operation), \
             '{op} took more time than threshold value'.format(op=operation)
-        output_dictionary_after_actions = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary_after_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
         validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions, 2)
 
     with allure.step('Validate show tech-support command format'):
@@ -75,8 +75,8 @@ def test_techsupport_since(engines, test_name):
         yesterday_str = yesterday.strftime("%Y%m%d")
         tech_support_folder, duration = system.techsupport.action_generate(engines.dut, SystemConsts.ACTIONS_GENERATE_SINCE,
                                                                            yesterday_str, test_name=test_name)
-        output_dictionary = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary = list(Tools.OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
         validate_techsupport_since(output_dictionary, tech_support_folder)
         assert OperationTime.verify_operation_time(duration, operation), \
             '{op} took more time than threshold value'.format(op=operation)
@@ -138,8 +138,8 @@ def test_techsupport_delete(engines):
             output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()
 
         assert success_message in output, 'failed to delete'
-        output_dictionary_after_delete = Tools.OutputParsingTool.parse_show_system_techsupport_output_to_list(
-            system.techsupport.show()).get_returned_value()
+        output_dictionary_after_delete = list(Tools.OutputParsingTool.parse_show_files_to_dict(
+            system.techsupport.show()).get_returned_value().values())
 
         with allure.step('Check {} has been deleted and {} still exist'.format(first_file, second_file)):
             assert first_file not in output_dictionary_after_delete, "{} still exist even after deleting it".format(first_file)

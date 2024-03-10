@@ -34,7 +34,10 @@ class SendCommandTool:
                 return ResultObj(False, "Timeout occurred with the following output: \n" + str(cmd_output), None,
                                  IssueType.TestIssue)
 
-        return ResultObj(expected_str == "", "Got empty output but expected: {}".format(expected_str), str(cmd_output))
+        if expected_str == "":
+            return ResultObj(True, returned_value=str(cmd_output))
+        else:
+            return ResultObj(False, "Got empty output but expected: {}".format(expected_str), str(cmd_output))
 
     @staticmethod
     def execute_command_expected_str(command_to_execute, expected_str, *args, **kwargs) -> ResultObj:

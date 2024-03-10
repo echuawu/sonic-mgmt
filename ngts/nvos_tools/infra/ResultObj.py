@@ -37,8 +37,7 @@ class ResultObj:
         else:
             assert not self.result, self.info if self.info else "The operation succeeded while it is expected to fail"
 
-        return self.returned_value if self.returned_value else self.info
-        # todo return self.returned_value if self.result else self.info
+        return self.returned_value if self.result else self.info
 
     def get_returned_value(self, should_succeed=True):
         return self.verify_result(should_succeed)
