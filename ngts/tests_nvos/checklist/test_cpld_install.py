@@ -1,6 +1,7 @@
 import logging
 import pytest
 import os.path
+from retry.api import retry_call
 
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
@@ -33,17 +34,22 @@ def test_cpld_upgrade(engines, devices):
         6. Assert the images no longer exist
         7. Repeat steps 1-6 on for the new CPLD firmware image
     """
-    TestToolkit.tested_api = ApiType.NVUE
     with allure.step('Create System objects'):
         platform = Platform()
         fae = Fae()
     try:
+        TestToolkit.tested_api = ApiType.NVUE
         with allure.step(f"Fetch, install and assert old CPLD version (through {TestToolkit.tested_api})"):
             _firmware_install_test(devices, fae, platform, devices.dut.previous_cpld_version)
     finally:
         TestToolkit.tested_api = ApiType.OPENAPI
         with allure.step(f"Fetch, install and assert original CPLD version (through {TestToolkit.tested_api})"):
-            _firmware_install_test(devices, fae, platform, devices.dut.current_cpld_version)
+            # retry is necessary because of firmware bug prior to version CPLD000268_REV0700 which sometimes causes the
+            # installation of CPLD3 to fail (`nv show platform firmware CPLD3` returns CPLD000000_REV0000). Once both
+            # versions (previous_cpld_version and current_cpld_version) are newer than this, retry can be removed.
+            retry_call(_firmware_install_test,
+                       [devices, fae, platform, devices.dut.current_cpld_version],
+                       exceptions=AssertionError, tries=2, logger=logger)
 
 
 def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: BaseSwitch.CpldImageConsts):
