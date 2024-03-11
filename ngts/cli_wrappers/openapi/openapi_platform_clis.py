@@ -15,6 +15,19 @@ class OpenApiPlatformCli(OpenApiBaseCli):
         self.cli_name = "Platform"
 
     @staticmethod
+    def action_turn(engine, turn_type="", led=""):
+        logging.info("Running action: 'turn' on dut using OpenApi")
+        led = led.replace('/', '%2F')
+        resource_path = '/platform/environment/led/{led}'.format(led=led)
+        params = {"state": "start"}
+        if turn_type == 'on':
+            action = ActionType.TURNON
+        else:
+            action = ActionType.TURNOFF
+        return OpenApiCommandHelper.execute_action(action, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
     def action_install_fae_bios_firmware(engine, bios_image_path, resource_path='', device=None):
         """
         Method to install BIOS firmware using rest api
