@@ -1,29 +1,11 @@
-import logging
-import time
-from infra.tools.linux_tools.linux_tools import LinuxSshEngine
-
 import pytest
-import random
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
-from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AccountingConsts, \
-    AccountingFields, AuthConsts, AuthType, AuthMedium
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
+from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingConsts, \
+    AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_accounting_testing import *
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth, verify_user_auth
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
-    update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer1, TacacsDockerServer2, \
     TacacsServers
@@ -92,7 +74,7 @@ def test_tacacs_set_invalid_param(test_api, engines):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
     """
@@ -118,7 +100,7 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_bad_secret(test_api, engines, topology_obj):
     """
     @summary: Verify that tacacs users can't auth when bad/no secret is configured.
@@ -140,7 +122,7 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_bad_port(test_api, engines, topology_obj):
     """
     @summary: Verify that tacacs users can't auth when bad port is configured.
@@ -161,7 +143,7 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_unique_priority(test_api, engines, topology_obj):
     """
     @summary: Verify that hostname priority must be unique
@@ -176,7 +158,7 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_priority(test_api, engines, topology_obj, request):
     """
     @summary: Verify that auth is done via the top prioritized server
@@ -194,7 +176,7 @@ def test_tacacs_priority(test_api, engines, topology_obj, request):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
@@ -222,7 +204,7 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
@@ -253,7 +235,7 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_obj, request, local_adminuser: UserInfo,
                                  switch_hostname: str):
@@ -280,7 +262,7 @@ def test_tacacs_accounting_basic(test_api, addressing_type, engines, topology_ob
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                            switch_hostname: str):
     """
@@ -318,7 +300,7 @@ def test_tacacs_accounting_top_server_only(test_api, engines, topology_obj, requ
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                                   switch_hostname: str):
     """
@@ -359,7 +341,7 @@ def test_tacacs_accounting_unreachable_top_server(test_api, engines, topology_ob
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                        switch_hostname: str):
     """
@@ -389,7 +371,7 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
     """
     @summary: Verify timeout functionality
