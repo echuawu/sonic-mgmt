@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Warm Upgrade </info>
         <name> Warm Upgrade test </name>
         <tout> 3600 </tout>
@@ -27,6 +35,7 @@
     </case>
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -44,6 +53,7 @@
     </case>
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -62,6 +72,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -79,6 +90,7 @@
     </case>
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -96,6 +108,7 @@
     </case>
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>

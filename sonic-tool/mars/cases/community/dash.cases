@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DASH Vnet-to-Vnet test </info>
         <name> test_dash </name>
         <tout> 2400 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Relaxed match negative test </info>
         <name> test_relaxed_match_negative </name>
         <tout> 2400 </tout>

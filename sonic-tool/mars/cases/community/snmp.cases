@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_cpu  </info>
         <name> snmp_cpu </name>
         <tout> 900 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_interfaces </info>
         <name> snmp_interfaces </name>
         <tout> 900 </tout>
@@ -38,6 +54,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_lldp </info>
         <name> snmp_lldp </name>
         <tout> 900 </tout>
@@ -49,6 +73,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_pfc_counters </info>
         <name> snmp_pfc_counters </name>
         <tout> 900 </tout>
@@ -60,6 +92,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_queue </info>
         <name> snmp_queue </name>
         <tout> 900 </tout>
@@ -71,6 +111,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_psu </info>
         <name> snmp_psu </name>
         <tout> 900 </tout>
@@ -82,6 +130,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_phy_entity </info>
         <name> snmp_phy_entity </name>
         <tout> 1200 </tout>
@@ -93,6 +149,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_loopback </info>
         <name> snmp_loopback </name>
         <tout> 900 </tout>
@@ -104,6 +168,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_v2mib </info>
         <name> snmp_v2mib </name>
         <tout> 900 </tout>
@@ -115,6 +187,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_memory </info>
         <name> snmp_memory </name>
         <tout> 900 </tout>
@@ -126,6 +206,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_default_route </info>
         <name> snmp_default_route </name>
         <tout> 900 </tout>
@@ -137,6 +225,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> snmp_fdb </info>
         <name> snmp_fdb </name>
         <tout> 900 </tout>

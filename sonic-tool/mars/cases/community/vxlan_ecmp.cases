@@ -18,7 +18,8 @@
         <name> test_vxlan_ecmp </name>
         <tout> 3600 </tout>
         <ignore>
-             <condition>
+            <!-- weekend case  -->
+            <condition>
                 <key> skip_weekend_cases </key>
                 <op> != </op>
                 <value> yes </value>
@@ -33,7 +34,8 @@
 
     <case>
         <ignore>
-             <condition>
+            <!-- weekend case  -->
+            <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
                 <value> yes </value>

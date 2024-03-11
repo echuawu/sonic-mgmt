@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DHCP_RELAY Case </info>
         <name> dhcp_relay </name>
         <tout> 3000 </tout>
@@ -29,6 +37,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DHCP_RELAY Packet Forwarding Case </info>
         <name> dhcp_pkt_fwd </name>
         <tout> 1800 </tout>
@@ -41,6 +57,14 @@
         </ignore>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DHCPv6_RELAY Case </info>
         <name> dhcpv6_relay </name>
         <tout> 3000 </tout>

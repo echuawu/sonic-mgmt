@@ -14,6 +14,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Link_Flap Case </info>
         <name> link_flap </name>
         <tout> 9600 </tout>
@@ -25,6 +33,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Continuous_Link_Flap Case </info>
         <name> continuous_link_flap </name>
         <tout> 7200 </tout>

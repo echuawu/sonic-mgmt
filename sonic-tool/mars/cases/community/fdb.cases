@@ -17,6 +17,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> FDB Case </info>
         <name> fdb </name>
         <tout> 1800 </tout>
@@ -28,6 +36,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> FDB MAC Expire Case </info>
         <name> fdb_mac_expire </name>
         <tout> 1800 </tout>
@@ -38,6 +54,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> FDB MAC Move Case </info>
         <name> fdb_mac_move </name>
         <tout> 1200 </tout>
@@ -48,6 +72,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> FDB Flush Case </info>
         <name> fdb_flush </name>
         <tout> 1200 </tout>

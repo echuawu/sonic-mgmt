@@ -34,6 +34,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Port Channel Update Case </info>
         <name> po_update </name>
         <tout> 1800 </tout>
@@ -45,6 +53,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Port Channel Cleanup Case </info>
         <name> po_cleanup </name>
         <tout> 1800 </tout>
@@ -56,6 +72,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Port Channel Member Case </info>
         <name> lag_member </name>
         <tout> 900 </tout>
@@ -67,6 +91,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Retry Count Case </info>
         <name> retry_count </name>
         <tout> 900 </tout>

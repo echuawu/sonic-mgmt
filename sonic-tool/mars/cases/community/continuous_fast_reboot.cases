@@ -22,6 +22,7 @@
                 <op> in </op>
                 <value> ["spectrum2"] </value>
             </condition>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>

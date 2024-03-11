@@ -14,6 +14,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Dynamic-Buffer-Calc Case </info>
         <name> dynamic-buffer-calculation </name>
         <tout> 5400 </tout>

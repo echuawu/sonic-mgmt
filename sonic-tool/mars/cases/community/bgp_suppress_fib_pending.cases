@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> BGP Suppress Fib Pending Case </info>
         <name> bgp_suppress_fib_pending </name>
         <tout> 3600 </tout>

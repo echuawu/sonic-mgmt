@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Control Plane ACL Case </info>
         <name> cacl_function </name>
         <tout> 3600 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Control Plane ACL Ebtables Case </info>
         <name> ebtables_application </name>
         <tout> 3600 </tout>
@@ -38,6 +54,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Control Plane ACL Application Case(Non-dualtor) </info>
         <name> cacl_application </name>
         <tout> 3600 </tout>
@@ -49,6 +73,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> ACL Case </info>
         <name> acl </name>
         <tout> 3600 </tout>
@@ -61,6 +93,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -78,6 +111,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> ACL Outer Vlan Case </info>
         <name> acl_outer_vlan </name>
         <tout> 2000 </tout>
@@ -89,6 +130,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> ACL null route helper Case </info>
         <name> acl_null_route_helper </name>
         <tout> 1000 </tout>
@@ -100,6 +149,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> ACL stress test Case </info>
         <name> test_stress_acl </name>
         <tout> 3000 </tout>
@@ -111,6 +168,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Custom ACL table Case </info>
         <name> custom_acl_table </name>
         <tout> 600 </tout>

@@ -24,6 +24,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> PFCWD config Case</info>
         <name> pfc_wd_config </name>
         <tout> 1500  </tout>
@@ -34,6 +42,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> PFCWD function Case</info>
         <name> pfc_wd_func </name>
         <tout> 4800 </tout>
@@ -44,6 +60,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> PFCWD All ports storm Case</info>
         <name> pfc_wd_ports_storm </name>
         <tout> 1500 </tout>
@@ -54,6 +78,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> PFCWD timer accuracy Case</info>
         <name> pfc_wd_timer_accuracy </name>
         <tout> 1500 </tout>
@@ -64,6 +96,14 @@
         </cmd>
     </case>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> PFCWD Warm Reboot Case </info>
         <name> pfc_wd_warm_reboot </name>
         <tout> 10800 </tout>

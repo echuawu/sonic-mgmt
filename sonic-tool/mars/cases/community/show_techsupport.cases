@@ -15,6 +15,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> SHOW_TECHSUPPORT Case </info>
         <name> show_techsupport </name>
         <tout> 3600 </tout>

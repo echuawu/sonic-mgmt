@@ -38,6 +38,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> pre_tests install saithrift in ptf </info>
         <name> pre_tests install saithrift in ptf </name>
         <tout> 300 </tout>
@@ -49,6 +57,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> QOS Case </info>
         <name> qos </name>
         <tout> 5000 </tout>
