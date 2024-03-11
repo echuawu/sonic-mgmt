@@ -2549,6 +2549,12 @@ process_monitoring/test_critical_process_monitoring.py::test_monitoring_critical
       - "https://redmine.mellanox.com/issues/3785021 and ('sn5400' in platform)"
       - "https://redmine.mellanox.com/issues/3811985 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
 
+cacl/test_cacl_application.py/test_cacl_application_nondualtor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3817421 on virtual smartswitch testbed"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3817421 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
 process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785024"
