@@ -1,4 +1,6 @@
 import random
+import time
+
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 import yaml
@@ -437,6 +439,11 @@ class ClockTools:
             system.log.rotate_logs()
             show_output = system.show()
             logs = system.log.show_log(exit_cmd='q', expected_str=' ')
+            if not logs or ("q: command not found" in logs):
+                # this is a workaround: sometimes `nv show system log` just doesn't do anything
+                logging.warning(f"'nv show system log' did not work, retrying once")
+                time.sleep(5)
+                logs = system.log.show_log(exit_cmd='q', expected_str=' ')
 
             last_log_datetime = ' '.join((re.findall(NvosConst.DATE_TIME_REGEX, logs)[-1]).split(' '))
             show_datetime = ClockTools.get_datetime_from_show_system_output(show_output)
