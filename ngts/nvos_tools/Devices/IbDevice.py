@@ -487,6 +487,13 @@ class CrocodileSwitch(IbSwitch):
         self.temperature_sensors.remove("ASIC")
 
 
+# -------------------------- Crocodile Simx Switch ----------------------------
+class CrocodileSimxSwitch(IbSwitch):
+
+    def __init__(self):
+        super().__init__(asic_amount=1)
+
+
 # -------------------------- NvLink Switch ----------------------------
 class NvLinkSwitch(IbSwitch):
 

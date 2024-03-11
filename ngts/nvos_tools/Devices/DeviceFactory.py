@@ -1,6 +1,6 @@
 import logging
 from ngts.nvos_tools.Devices.IbDevice import GorillaSwitch, \
-    MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch
+    MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch, CrocodileSimxSwitch
 from ngts.nvos_tools.Devices.EthDevice import AnacondaSwitch
 from dotted_dict import DottedDict
 
@@ -19,6 +19,7 @@ class DeviceFactory:
             'MSN3700 - Anaconda': AnacondaSwitch,
             'QM3400': CrocodileSwitch,
             'QM3400 - Crocodile': CrocodileSwitch,
+            'QM3400_simx - Crocodile': CrocodileSimxSwitch,
             'QM8790 - Black Mamba': BlackMambaSwitch
         }
 
