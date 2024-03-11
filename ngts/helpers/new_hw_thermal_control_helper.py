@@ -776,7 +776,7 @@ def get_sensor_err_test_data(sensor_err_type, mock_sensor, tc_config_dict):
     # For all sensor errors, we all use min(port_amb, fan_abm) as the key to get the expected pwm from dmin table
     temperature_port = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/port_amb")
     temperature_fan = mock_sensor.read_value(f"{TC_CONST.HW_THERMAL_FOLDER}/fan_amb")
-    logger.info("temperature_port :{temperature_port}, temperature_fan:{temperature_fan}")
+    logger.info(f"temperature_port :{temperature_port}, temperature_fan:{temperature_fan}")
     current_temp = min(temperature_port, temperature_fan)
 
     expected_pwm = get_expected_pwm_by_temp_from_dmin_table(tc_config_dict, current_temp, sys_fan_dir_str,
