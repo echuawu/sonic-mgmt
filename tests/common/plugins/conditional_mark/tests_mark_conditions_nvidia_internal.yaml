@@ -1478,7 +1478,7 @@ qos/test_qos_sai_dual_tor.py:
   skip:
     reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64 and Mellanox-SN2700-D48C8"
     conditions:
-      - "hwsku not in ['Mellanox-SN4600C-C64', 'Mellanox-SN2700-D48C8']"
+      - "hwsku not in ['Mellanox-SN4600C-C64', 'Mellanox-SN2700-D48C8', 'Mellanox-SN4700-O8V48']"
 
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
   skip:
