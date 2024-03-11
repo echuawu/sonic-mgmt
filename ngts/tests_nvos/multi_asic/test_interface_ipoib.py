@@ -5,6 +5,7 @@ from ngts.tools.test_utils.allure_utils import step as allure_step
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import *
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_constants.constants_nvos import ImageConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.infra.HostMethods import HostMethods
 from ngts.nvos_tools.infra.Fae import Fae
 
@@ -109,6 +110,7 @@ def test_interface_ipoib_ping_functionality(engines, devices, start_sm, players,
 
     with allure_step("Set ip on switch ipoib interface and host ib interface connected to switch"):
         ib0_port.interface.ip.address.set(op_param_name='1.1.1.1/24', apply=True).verify_result()
+        Port.wait_for_port_state(ib0_port, "up")
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
             ib0_port.interface.ip.show()).get_returned_value()
         validate_interface_ip_address('1.1.1.1/24', output_dictionary)
