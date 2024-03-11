@@ -181,8 +181,6 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
 
     container_mountpoints = " ".join(container_mountpoints_list)
 
-    logger.info("Try to remove existing docker container anyway")
-    conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
     mars_docker_env_secrets = os.getenv("MARS_DOCKER_ENV_SECRETS")
     secrets_vars_script_path = create_secrets_vars_script(conn, mars_docker_env_secrets, container_name)
     cmd_tmplt = "docker run --init -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
@@ -197,18 +195,26 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
         IMAGE_TAG=image_tag,
         MARS_DOCKER_ENV_SECRETS=mars_docker_env_secrets
     )
-    conn.run(cmd, warn=True)
-    logger.info("Created container, wait a few seconds for it to start")
-    time.sleep(5)
-    logger.info("Check whether the container is started successfully.")
-    container_state = json.loads(conn.run("docker inspect --format '{{json .State}}' %s" % container_name)
-                                 .stdout.strip())
 
-    if not container_state["Running"]:
-        logger.error("The created container is not started, try to restart it")
-        if not start_container(conn, container_name, max_retries=3):
-            logger.error("Restart container failed.")
-            sys.exit(1)
+    @retry(tries=3, delay=3)
+    def _remove_and_create_container():
+        logger.info("Try to remove existing docker container anyway")
+        conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
+
+        conn.run(cmd, warn=True)
+        logger.info("Created container, wait a few seconds for it to start")
+        time.sleep(5)
+        logger.info("Check whether the container is started successfully.")
+        container_state = json.loads(conn.run("docker inspect --format '{{json .State}}' %s" % container_name)
+                                     .stdout.strip())
+
+        if not container_state["Running"]:
+            logger.error("The created container is not started, try to restart it")
+            if not start_container(conn, container_name, max_retries=1):
+                logger.error("Restart container failed.")
+                assert False, "Failed to create the container."
+
+    _remove_and_create_container()
 
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
@@ -366,10 +372,6 @@ def main():
                 else:
                     logger.error("Starting container %s failed. Will delete it and re-create" % container_name)
                     delete_container_required = True
-
-    if inspect_res["container_matches_image"] is False or delete_container_required:
-        logger.info("Deleting container")
-        test_server.run("docker rm -f {}".format(container_name), warn=True)
 
     logger.info("Need to create and start sonic-mgmt container")
     create_and_start_container(test_server, "{}/{}".format(registry_url, docker_image_name),
