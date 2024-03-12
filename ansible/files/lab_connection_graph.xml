@@ -4228,6 +4228,7 @@
       <DevicePowerControlInfo Hostname="pdu-10-208-0-18" HwSku="Sentry" ManagementIp="10.208.0.18" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-19" HwSku="Sentry" ManagementIp="10.208.0.19" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-20" HwSku="Sentry" ManagementIp="10.208.0.20" Protocol="snmp" Type="CDU"/>
+      <DevicePowerControlInfo Hostname="pdu-10-208-0-21" HwSku="Sentry" ManagementIp="10.208.0.21" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-22" HwSku="Sentry" ManagementIp="10.208.0.22" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-23" HwSku="Sentry" ManagementIp="10.208.0.23" Protocol="snmp" Type="CDU"/>
       <DevicePowerControlInfo Hostname="pdu-10-208-0-24" HwSku="Sentry" ManagementIp="10.208.0.24" Protocol="snmp" Type="CDU"/>
@@ -4394,6 +4395,9 @@
 
       <PowerControlLinkInfo EndDevice="r-leopard-70" EndPort="PSU1" StartDevice="pdu-10-208-0-22" StartPort="1.12"/>
       <PowerControlLinkInfo EndDevice="r-leopard-70" EndPort="PSU2" StartDevice="pdu-10-208-0-22" StartPort="1.16"/>
+
+      <PowerControlLinkInfo EndDevice="r-leopard-72" EndPort="PSU1" StartDevice="pdu-10-208-0-21" StartPort="1.5"/>
+      <PowerControlLinkInfo EndDevice="r-leopard-72" EndPort="PSU2" StartDevice="pdu-10-208-0-21" StartPort="1.6"/>
 
       <PowerControlLinkInfo EndDevice="r-panther-01" EndPort="PSU1" StartDevice="pdu-10-208-0-192" StartPort="1.13"/>
       <PowerControlLinkInfo EndDevice="r-panther-01" EndPort="PSU2" StartDevice="pdu-10-208-0-192" StartPort="1.14"/>
