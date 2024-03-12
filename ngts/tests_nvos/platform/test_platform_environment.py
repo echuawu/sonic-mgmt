@@ -223,33 +223,24 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
 
 
 @pytest.mark.platform
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_set_platform_environment_fan_direction_forward(engines, devices, test_api):
-    """
-    Select a fan and cause them to work in forward direction and make sure it is
-    reflected in the show commands.
-    """
-    TestToolkit.tested_api = test_api
-    verify_fan_direction(engines, devices, FansConsts.FORWARD_DIRECTION)
-
-
-@pytest.mark.platform
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_set_platform_environment_fan_direction_backward(engines, devices, test_api):
-    """
-    Select a fan and cause them to work in backward direction and make sure it is
-    reflected in the show commands.
-    """
-    TestToolkit.tested_api = test_api
-    verify_fan_direction(engines, devices, FansConsts.BACKWARD_DIRECTION)
-
-
-@pytest.mark.platform
+@pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_platform_environment_fan_direction_mismatch(engines, devices, test_api):
     """
-    Select a fan and cause them to work in backward direction and make sure it is
-    reflected in the health events report.
+    Set FAN direction test
+
+    Test flow:
+    1. Select a FAN to test
+    2. Validate System health should be OK
+    3. Validate there should not be any FAN direction related issues
+    4. Assign default FAN direction for this system
+    5. Assign wrong FAN direction for this system
+    6. Change FAN direction to wrong direction and verify via CLI
+    7. Validate System health should be NOT OK
+    8. Validate FAN related health issues in System health
+    9. Change FAN direction to system default abd verify via CLI
+    10. Validate System health should be OK
+    11. Validate there should not be any FAN direction related issues
     """
     TestToolkit.tested_api = test_api
     with allure.step('Validate Fan direction mismatch feature enabled'):
@@ -260,11 +251,12 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
     platform = Platform()
     system = System()
     state = FansConsts.STATE_OK
-    should_str = 'be'
+    should_str = 'not be'
     fan_to_check = ""
+    def_direction = FansConsts.DEF_DIRECTION
     if feature_enable:
         state = FansConsts.STATE_NOT_OK
-        should_str = 'not be'
+        should_str = 'be'
 
     try:
         with allure.step('Select FAN to test'):
@@ -283,9 +275,19 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
             assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
                 'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
 
-        with allure.step("Change Fan direction of {} to Backward and verify".format(fan_to_check)):
-            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check,
-                                                   FansConsts.BACKWARD_DIRECTION)
+        with allure.step("Assign default FAN direction as per this System"):
+            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
+                platform.environment.fan.show(op_param=fan_to_check)).verify_result()
+            def_direction = output['direction']
+
+        with allure.step("Assign wrong direction (opposite to default) as per this System"):
+            if def_direction == FansConsts.FORWARD_DIRECTION:
+                wrong_direction = FansConsts.BACKWARD_DIRECTION
+            else:
+                wrong_direction = FansConsts.FORWARD_DIRECTION
+
+        with allure.step("Change direction of {} to wrong dir({}) and verify".format(fan_to_check, wrong_direction)):
+            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, wrong_direction)
 
         with allure.step('Validate System health status should be {}'.format(state)):
             output = system.health.show(output_format=OutputFormat.json)
@@ -303,7 +305,7 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
                     'Unexpected Issue found in System health status : {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
 
     finally:
-        with allure.step("Change Fan direction of {fan} to default and verify".format(fan=fan_to_check)):
+        with allure.step("Change Fan direction of {} to default({}) and verify".format(fan_to_check, def_direction)):
             set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, FansConsts.DEF_DIRECTION)
 
         with allure.step('Check System health status'):
@@ -317,34 +319,6 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
             health_issues = output['issues']
             assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
                 'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
-
-
-def verify_fan_direction(engines, devices, direction):
-
-    platform = Platform()
-    system = System()
-
-    try:
-        with allure.step('Check System health status'):
-            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
-            health_status = output['status']
-            assert health_status == FansConsts.STATE_OK, 'System health status is {}'.format(FansConsts.STATE_NOT_OK)
-
-        with allure.step('Select FAN to test'):
-            output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
-            fan_to_check = random.choice(list(output.keys()))
-
-        with allure.step("Change Fan direction of {} to {} and verify".format(fan_to_check, direction)):
-            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction)
-
-    finally:
-        with allure.step("Change Fan direction of {fan} to default and verify".format(fan=fan_to_check)):
-            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, FansConsts.DEF_DIRECTION)
-
-        with allure.step('Check System health status'):
-            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
-            health_status = output['status']
-            assert health_status == FansConsts.STATE_OK, 'System health status is {}'.format(FansConsts.STATE_NOT_OK)
 
 
 def set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction):
