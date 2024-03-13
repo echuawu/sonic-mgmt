@@ -183,6 +183,10 @@ r-leopard-simx-33 ansible_host=r-leopard-simx-33  sonic_version=v2  sonic_hwsku=
 r-bobcat-simx-87-ptf-any ansible_host=r-bobcat-simx-87  sonic_version=v2  sonic_hwsku=ACS-SN2480             serial_console="telnet r-sonic-10 13005" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu- base_mac=00:50:56:28:0E:57 serial=MT2231X26009 model=SN4280 syseeprom_info="{'0x21': 'sn4280_simx', '0x22': 'SN4280', '0x23': 'MT2231X26009', '0x24': '00:50:56:28:0E:57', '0x25': '08/30/2022 16:18:10', '0x26': '0', '0x28': 'x86_64-nvidia_sn4280-r0', '0x29': '2023.11-5.3.0012-rc-dirty', '0x2a': '32', '0x2b': 'Nvidia', '0xfe': '0x1B297F34'}"
 r-bobcat-simx-87 ansible_host=r-bobcat-simx-87  sonic_version=v2  sonic_hwsku=ACS-SN2480             serial_console="telnet r-sonic-10 13005" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu- base_mac=00:50:56:28:0E:57 serial=MT2231X26009 model=SN4280 syseeprom_info="{'0x21': 'sn4280_simx', '0x22': 'SN4280', '0x23': 'MT2231X26009', '0x24': '00:50:56:28:0E:57', '0x25': '08/30/2022 16:18:10', '0x26': '0', '0x28': 'x86_64-nvidia_sn4280-r0', '0x29': '2023.11-5.3.0012-rc-dirty', '0x2a': '32', '0x2b': 'Nvidia', '0xfe': '0x1B297F34'}"
 
+# MTR canonical testbed r-bobcat-simx-144 topologies
+r-bobcat-simx-144-ptf-any ansible_host=r-bobcat-simx-144  sonic_version=v2  sonic_hwsku=ACS-SN4280             serial_console="telnet r-sonic-10 13015" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu- base_mac=EC:0D:9A:55:55:99 serial=MT2231X26009 model=SN4280 syseeprom_info="{'0x21': 'sn4280_simx', '0x22': 'SN4280', '0x23': 'MT2231X26009', '0x24': 'EC:0D:9A:55:55:99', '0x25': '08/30/2022 16:18:10', '0x26': '0', '0x28': 'x86_64-nvidia_sn4280-r0', '0x29': '2023.11-5.3.0012-rc-dirty', '0x2a': '32', '0x2b': 'Nvidia', '0xfe': '0xDF881AF0'}"
+r-bobcat-simx-144 ansible_host=r-bobcat-simx-144  sonic_version=v2  sonic_hwsku=ACS-SN4280             serial_console="telnet r-sonic-10 13015" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu- base_mac=EC:0D:9A:55:55:99 serial=MT2231X26009 model=SN4280 syseeprom_info="{'0x21': 'sn4280_simx', '0x22': 'SN4280', '0x23': 'MT2231X26009', '0x24': 'EC:0D:9A:55:55:99', '0x25': '08/30/2022 16:18:10', '0x26': '0', '0x28': 'x86_64-nvidia_sn4280-r0', '0x29': '2023.11-5.3.0012-rc-dirty', '0x2a': '32', '0x2b': 'Nvidia', '0xfe': '0xDF881AF0'}"
+
 # MTR canonical testbed r-buffalo-simx-28 topologies
 r-buffalo-simx-28-ptf-any ansible_host=r-buffalo-simx-28  sonic_version=v2  sonic_hwsku=ACS-MSN4800             serial_console="telnet r-sonic-02 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
 r-buffalo-simx-28 ansible_host=r-buffalo-simx-28  sonic_version=v2  sonic_hwsku=ACS-MSN4800             serial_console="telnet r-sonic-02 15000" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-
@@ -1596,6 +1600,9 @@ r-leopard-simx-33
 
 r-bobcat-simx-87-ptf-any
 r-bobcat-simx-87
+
+r-bobcat-simx-144-ptf-any
+r-bobcat-simx-144
 
 r-buffalo-simx-28-ptf-any
 r-buffalo-simx-28
