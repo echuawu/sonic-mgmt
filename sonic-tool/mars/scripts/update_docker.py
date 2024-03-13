@@ -196,11 +196,14 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
         MARS_DOCKER_ENV_SECRETS=mars_docker_env_secrets
     )
 
-    @retry(tries=3, delay=3)
-    def _remove_and_create_container():
-        logger.info("Try to remove existing docker container anyway")
-        conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
+    logger.info("Try to remove existing docker container anyway")
+    conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
 
+    global failed_in_creating_container
+    failed_in_creating_container = False
+
+    @retry(exceptions=AssertionError, tries=10, delay=60)
+    def _create_container():
         conn.run(cmd, warn=True)
         logger.info("Created container, wait a few seconds for it to start")
         time.sleep(5)
@@ -211,10 +214,24 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
         if not container_state["Running"]:
             logger.error("The created container is not started, try to restart it")
             if not start_container(conn, container_name, max_retries=1):
-                logger.error("Restart container failed.")
+                logger.error("Restart container failed. "
+                             "Remove the container and delay 60s before recreating.")
+                global failed_in_creating_container
+                failed_in_creating_container = True
+                conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
                 assert False, "Failed to create the container."
 
-    _remove_and_create_container()
+    _create_container()
+    # Send an email for debugging the issue RM#3735134, remove this part when closing the ticket
+    if failed_in_creating_container:
+        import smtplib
+        from email.mime.text import MIMEText
+        msg = MIMEText(os.path.abspath(__file__))
+        msg['From'] = "issue_reproduce@nvidia.com"
+        msg['To'] = "congh@nvidia.com"
+        smtpserver = smtplib.SMTP("mailgw.nvidia.com", 25)
+        smtpserver.sendmail('skynet@nvidia.com', "congh@nvidia.com", msg.as_string())
+        smtpserver.quit()
 
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
