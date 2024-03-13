@@ -2,13 +2,14 @@ import logging
 import os
 
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
 
@@ -385,6 +386,15 @@ class GorillaSwitch(IbSwitch):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": FansConsts.FORWARD_DIRECTION,
+            "current-speed": ExpectedString(range_min=5000, range_max=29500), "min-speed": "5000", "max-speed": "29500"}
+        self.platform_environment_psu_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": FansConsts.FORWARD_DIRECTION,
+            "current-speed": ExpectedString(range_min=4600, range_max=23000), "min-speed": "4600", "max-speed": "23000"}
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------
