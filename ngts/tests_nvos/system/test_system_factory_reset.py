@@ -386,7 +386,7 @@ def _validate_port_description(engine, port, expected_description):
 
 def _split_port(engine):
     with allure.step("Start openSM"):
-        OpenSmTool.start_open_sm_on_server(engine)
+        OpenSmTool.start_open_sm_on_server(engine).verify_result()
         time.sleep(7)
 
     with allure.step("Select an active random port"):
@@ -625,7 +625,7 @@ def _verify_the_setup_is_functional(system, engines):
     logging.info("Verify the setup is functional")
 
     with allure.step("Start OpenSM"):
-        OpenSmTool.start_open_sm_on_server(engines.dut).verify_result()
+        OpenSmTool.start_open_sm_on_server(engines).verify_result()
 
     with allure.step("Run show commands"):
         system.message.show()

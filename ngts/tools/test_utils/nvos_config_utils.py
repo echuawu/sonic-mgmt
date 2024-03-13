@@ -40,6 +40,8 @@ def ib_clear_conf(dut_engine, markers=None):
             if NvosConst.IB in diff_config.keys():
                 NvueBaseCli.unset(dut_engine, 'ib')
 
+            should_wait_for_nvued_after_apply = False
+
             if NvosConst.SYSTEM in diff_config.keys():
                 with allure.step("Unset each system 'set' command"):
                     unset_system_cli = "nv unset system"
