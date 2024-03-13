@@ -86,4 +86,4 @@ class TestAutoNegScale(TestAutoNegBase):
             port_conf_dict[AutonegCommandConstants.ADMIN] = "up"
         logger.info("verify speed, type was modified for all ports")
         self.verify_auto_neg_configuration(dut_conf)
-        self.auto_fec_checker(tested_lb_all_dict, dut_conf, lldp_checker=False)
+        self.auto_fec_checker(dut_conf)

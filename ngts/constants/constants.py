@@ -30,6 +30,7 @@ class SonicConst:
     FEC_RS_MODE = 'rs'
     FEC_FC_MODE = 'fc'
     FEC_NONE_MODE = 'none'
+    FEC_AUTO_MODE = 'auto'
     FEC_MODE_LIST = [FEC_RS_MODE, FEC_FC_MODE, FEC_NONE_MODE]
     DOCKERS_LIST = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'dhcp_relay']
     DOCKERS_LIST_BF = ['swss', 'syncd', 'bgp', 'pmon', 'lldp']
@@ -206,6 +207,7 @@ class AutonegCommandConstants:
     ADMIN = "Admin"
     FEC = "FEC"
     FEC_OPER = "FEC Oper"
+    FEC_ADMIN = "FEC Admin"
     WIDTH = "Width"
     REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
         ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down", None),
