@@ -4,8 +4,7 @@ import allure
 
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
-from ngts.nvos_constants.constants_nvos import ApiType, ConfState
-from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import ApiType, ConfState, ImageConsts, ActionConsts, OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
@@ -158,3 +157,9 @@ class BaseComponent:
                 self._cli_wrapper.action, expected_output,
                 dut_engine, dut_device, action, resource_path, suffix, param_name, param_value, output_format,
                 expect_reboot)
+
+    def action_fetch(self, path, base_url='') -> ResultObj:
+        """nv action fetch <resource-path> <remote-url>"""
+        url = (base_url or ImageConsts.SCP_PATH) + path
+        with allure.step(f"Fetching: {url}"):
+            return self.action(ActionConsts.FETCH, '', 'remote-url', url, expected_output='File fetched successfully')

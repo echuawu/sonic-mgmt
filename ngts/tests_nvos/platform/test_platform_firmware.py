@@ -1,10 +1,11 @@
 import logging
 import pytest
+
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.platform.Platform import Platform
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import PlatformConsts
-from ngts.nvos_constants.constants_nvos import OutputFormat
+from ngts.nvos_constants.constants_nvos import PlatformConsts, NvosConst, ImageConsts
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
@@ -13,62 +14,38 @@ logger = logging.getLogger()
 
 @pytest.mark.platform
 @pytest.mark.nvos_ci
-def test_show_platform_firmware(engines, devices):
-    """
-    Show platform firmware test
-    """
-    with allure.step("Create System object"):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_firmware(engines, devices, test_api, output_format):
+    """Tests nv show platform firmware"""
+    TestToolkit.tested_api = test_api
+    with allure.step("Create Platform object"):
         platform = Platform()
 
-    """with allure.step("Check tab suggestion"):
-        output = platform.get_tab_output("firmware")
-        Tools.ValidationTool.validate_all_values_exists_in_list(PlatformConsts.FW_COMP, output).verify_result()"""
+    with allure.step("Test output of nv show platform firmware"):
+        firmware_items = devices.dut.constants.firmware
+        all_output = OutputParsingTool.parse_show_output_to_dict(
+            platform.firmware.show(output_format=output_format),
+            output_format=output_format, field_name_dict=PlatformConsts.FW_FIELD_NAME_DICT).get_returned_value()
+        ValidationTool.validate_set_equal(all_output.keys(), firmware_items)
 
-    with allure.step("Check show firmware output"):
-        with allure.step("Verify text output"):
-            logging.info("Verify text output")
-            output = platform.firmware.show(output_format=OutputFormat.auto)
-            fw_list = devices.dut.constants.firmware
-            logging.info("Required comp: " + str(fw_list))
-            assert not any(comp not in output for comp in fw_list), \
-                "Not all required component were found"
+    with allure.step("Test specific firmware components"):
+        errors = {}
+        for component in firmware_items:
+            try:
+                with allure.step(f"Test output of nv show platform firmware {component}"):
+                    output = OutputParsingTool.parse_show_output_to_dict(
+                        platform.firmware.show(component, output_format=output_format),
+                        output_format=output_format, field_name_dict=PlatformConsts.FW_FIELD_NAME_DICT).get_returned_value()
+                    assert output[PlatformConsts.FW_ACTUAL] not in {'', NvosConst.NOT_AVAILABLE}, \
+                        f"{component}.{PlatformConsts.FW_ACTUAL} is empty or N/A"
+                    # todo: should I test other fields? part-number, fw-source
+                    with allure.step(f"Compare {component} output against {component} entry in general output"):
+                        if test_api == ApiType.NVUE and component == PlatformConsts.FW_ASIC:
+                            # only ASIC has the auto-update option, so auto-update is omitted from the general output
+                            del output[PlatformConsts.FW_AUTO_UPDATE]
+                        ValidationTool.compare_dictionaries(all_output[component], output).verify_result()
+            except Exception as e:
+                errors[component] = e
 
-        with allure.step("Verify json output"):
-            logging.info("Verify json output")
-            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).get_returned_value()
-            Tools.ValidationTool.verify_field_exist_in_json_output(output, fw_list, True).verify_result()
-
-        with allure.step("Compare general output to each firmware component"):
-            logging.info("Compare general output to each firmware component")
-            for comp_name, comp_output in output.items():
-                _compare_general_output_to_comp_output(platform, comp_name, comp_output)
-
-
-def _compare_general_output_to_comp_output(platform, comp_name, general_comp_output):
-    logging.info("Check {} component output")
-    with allure.step("Verify all fields exist in the output"):
-        comp_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show(
-            comp_name)).verify_result()
-        Tools.ValidationTool.verify_field_exist_in_json_output(comp_output, PlatformConsts.FW_FIELDS).verify_result()
-
-    with allure.step("Verify 'type' and 'actual-firmware'"):
-        assert comp_output["type"] in comp_name, "the type is not equal to component name"
-        assert comp_output["actual-firmware"] != "N/A", "actual-firmware can't be N/A"
-
-    if comp_name == PlatformConsts.FW_SSD:
-        with allure.step("Verify 'part-number' and 'serial-number' foe FW SSD"):
-            assert comp_output["part-number"] != "N/A", "part-number can't be N/A"
-            assert comp_output["serial-number"] != "N/A", "serial-number can't be N/A"
-
-    with allure.step("Verify all {} fields and values equal to general output".format(comp_name)):
-        Tools.ValidationTool.compare_dictionary_content(comp_output, general_comp_output).verify_result()
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.platform
-@pytest.mark.nvos_ci
-def test_show_platform_firmware_openapi(engines, devices):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_show_platform_firmware(engines, devices)
+        assert not errors, f"Test failed for components {list(errors.keys())}. Errors were:\n" + \
+                           '\n\n'.join(f"{component}:\n{error}" for component, error in errors.items())

@@ -1,15 +1,17 @@
 import logging
-import pytest
 import os.path
 
+import pytest
+
+from ngts.nvos_constants.constants_nvos import ApiType, PlatformConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
+from ngts.nvos_tools.Devices.IbDevice import GorillaSwitch
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_constants.constants_nvos import ApiType, ImageConsts
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -47,7 +49,8 @@ def test_cpld_upgrade(engines, devices):
             # installation of CPLD3 to fail (`nv show platform firmware CPLD3` returns CPLD000000_REV0000). Once both
             # versions (previous_cpld_version and current_cpld_version) are newer than this, you can remove the
             # port_pre_authentication argument and all its usages.
-            do_workaround = ("CPLD000268_REV0500" == devices.dut.previous_cpld_version.version_names["CPLD3"])
+            do_workaround = (isinstance(devices.dut, GorillaSwitch) and
+                             devices.dut.previous_cpld_version.version_names["CPLD3"] == "CPLD000268_REV0500")
             _firmware_install_test(devices, fae, platform, devices.dut.current_cpld_version,
                                    port_pre_authentication=do_workaround)
 
@@ -101,7 +104,7 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
         with allure.step(f"Asserting install was successful"):
             firmware_shown = OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).get_returned_value()
             for cpld_number, expected_version in image_consts.version_names.items():
-                actual_firmware = firmware_shown[cpld_number][ImageConsts.ACTUAL_FIRMWARE]
+                actual_firmware = firmware_shown[cpld_number][PlatformConsts.FW_ACTUAL]
                 assert actual_firmware == expected_version, \
                     f"Expected {cpld_number} version: {expected_version}. Actual version: {actual_firmware}"
 

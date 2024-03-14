@@ -3001,7 +3001,7 @@
         - tests_nvos/system/test_system_reboot.py
         - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
-        - tests_nvos/system/test_install_system_firmware.py::test_install_system_firmware
+        - tests_nvos/platform/test_install_platform_firmware.py::test_install_platform_firmware
 
 # NVOS : Error - Bug 3494774 related
 - Errors_list:

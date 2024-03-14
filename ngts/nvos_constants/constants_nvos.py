@@ -258,6 +258,7 @@ class SystemConsts:
     # VERSION_BUILT_BY = 'built-by'
     VERSION_IMAGE = 'image'
     VERSION_KERNEL = 'kernel'
+    VERSION_ONIE = 'onie'
 
     PROFILE_ADAPTIVE_ROUTING = 'adaptive-routing'
     PROFILE_ADAPTIVE_ROUTING_GROUPS = 'adaptive-routing-groups'
@@ -503,13 +504,18 @@ class PlatformConsts:
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
+    FW_ASIC = "ASIC"
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
-    FW_ONIE = "ONIE"
     FW_SSD = "SSD"
-    FW_COMP = [FW_BIOS, FW_ONIE, FW_SSD, FW_CPLD + '1', FW_CPLD + '2', FW_CPLD + '3']
-    FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
+    FW_FIELD_NAME_DICT = {"Actual FW": "actual-firmware"}
+    FW_ACTUAL = "actual-firmware"
     FW_PART_NUMBER = 'part-number'
+    FW_AUTO_UPDATE = "auto-update"
+    FW_SOURCE = "fw-source"
+    FW_SOURCE_DEFAULT = "default"
+    FW_SOURCE_CUSTOM = "custom"
+    FW_FIELDS = [FW_ACTUAL, FW_PART_NUMBER, FW_AUTO_UPDATE, FW_SOURCE]
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
@@ -532,14 +538,7 @@ class PlatformConsts:
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
-    HW_ASIC_COUNT = "asic-count"
-    HW_MODEL = "model"
-    HW_MAC = "system-mac"
-    HW_COMP = [HW_ASIC_COUNT, "cpu", "cpu-load-averages", "disk-size", "hw-revision", "manufacturer",
-               "memory", HW_MODEL, "onie-version", "part-number", "product-name", "serial-number",
-               HW_MAC, "system-uuid"]
     HW_COMP_SWITCH = "SWITCH"
-    HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
     SW_FIELD_NAMES = ('description', 'package', 'version')
@@ -551,7 +550,7 @@ class FansConsts:
     ALL_DIRECTIONS = [FORWARD_DIRECTION, BACKWARD_DIRECTION]
     FEATURE_ENABLED = 'enabled'
     FEATURE_DISABLED = 'disabled'
-    STATE_OK = 'OK'
+    STATE_OK = 'ok'
     STATE_NOT_OK = 'Not OK'
     FAN_DIRECTION_MISMATCH_ERR = "is not aligned with fan1 direction"
 
@@ -603,8 +602,6 @@ class ImageConsts:
     CURRENT_IMG = 'current'
     PARTITION1_IMG = 'partition1'
     PARTITION2_IMG = 'partition2'
-    ACTUAL_FIRMWARE = 'actual-firmware'
-    INSTALLED_FIRMWARE = 'installed-firmware'
     TYPE = 'type'
     ASIC = 'asic'
     SWID = 'swid'

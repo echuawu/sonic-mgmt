@@ -1,10 +1,10 @@
 import logging
-from ngts.nvos_constants.constants_nvos import ActionType
-from .openapi_command_builder import OpenApiCommandHelper
-from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
+from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
+from ngts.nvos_constants.constants_nvos import ActionType
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from .openapi_command_builder import OpenApiCommandHelper
 
 logger = logging.getLogger()
 

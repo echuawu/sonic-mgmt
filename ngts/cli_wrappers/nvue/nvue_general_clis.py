@@ -285,31 +285,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             NvueGeneralCli.verify_dockers_are_up()
             DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
 
-    @staticmethod
-    def upgrade_firmware(engine, path_to_fw_img):
-        """
-        Installing provided firmware image on dut
-        """
-        logging.info("Installing platform firmware")
-
-        with allure.step("Copying firmware image to dut"):
-            logging.info("Copy fw from {src} to {dest}".format(src=path_to_fw_img,
-                                                               dest=NvosConst.FM_PATH_ON_SWITCH))
-            if not path_to_fw_img.startswith('http'):
-                fw_image_path = '{}{}'.format(InfraConst.HTTP_SERVER, path_to_fw_img)
-                engine.run_cmd('sudo curl {} -o {}'.format(fw_image_path, NvosConst.FM_PATH_ON_SWITCH), validate=True)
-
-        with allure.step("Install system firmware file - " + NvosConst.FM_PATH_ON_SWITCH):
-            NvueSystemCli.action_firmware_install(engine=engine, action_component_str="firmware",
-                                                  op_param=NvosConst.FM_PATH_ON_SWITCH)
-
-        with allure.step("Reboot dut"):
-            NvueGeneralCli.reboot(engine)
-
-        with allure.step("Verifying NVOS initialized successfully"):
-            NvueGeneralCli.verify_dockers_are_up()
-            DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
-
     def remote_reboot(self, topology_obj):
         '''
         @summary: perform remote reboot from the physical server using the noga remote reboot command,

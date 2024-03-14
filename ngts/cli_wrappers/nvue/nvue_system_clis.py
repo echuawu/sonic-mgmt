@@ -1,11 +1,8 @@
 import logging
 
-from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -38,25 +35,6 @@ class NvueSystemCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action_files(engine, action_str, resource_path, op_param=""):
-        resource_path = resource_path.replace('/', ' ')
-        cmd = "nv action {action_type} {resource_path} {param}" \
-            .format(action_type=action_str, resource_path=resource_path, param=op_param)
-        cmd = " ".join(cmd.split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param="", recovery_engine=None):
-        resource_path = resource_path.replace('/', ' ')
-        cmd = "nv action {action_type} {resource_path} {param}" \
-            .format(action_type=action_str, resource_path=resource_path, param=op_param)
-        cmd = " ".join(cmd.split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True,
-                                   recovery_engine=recovery_engine).verify_result()
-
-    @staticmethod
     def action_general(engine, action_str, resource_path, op_param=""):
         resource_path = resource_path.replace('/', ' ')
         cmd = "nv action {action_type} {resource_path} {param}" \
@@ -73,42 +51,6 @@ class NvueSystemCli(NvueBaseCli):
         cmd = " ".join(cmd.split())
         logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
         return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=timeout)
-
-    @staticmethod
-    def action_firmware_install(engine, param=""):
-        cmd = "nv action install system firmware asic files {param}".format(param=param)
-        logging.info("Running action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_firmware_image(engine, action_str, action_component_str, op_param=""):
-        cmd = "nv action {action_type} system firmware asic {param}".format(action_type=action_str, param=op_param)
-        cmd = " ".join(cmd.split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_install(engine, resource_path, param='', param_val=''):
-        cmd = f'nv action install {resource_path.replace("/", " ").strip()} {param} {param_val}'.strip()
-        with allure.step("Run action cmd: '{cmd}' onl dut using NVUE".format(cmd=cmd)):
-            if 'system/image' in resource_path:
-                res = ResultObj(result=False, info='Switch should have rebooted but possible that it did not')
-                try:
-                    engine.run_cmd(cmd, timeout=30)
-                except Exception:
-                    logger.info("Waiting for switch to be ready")
-                    # check_port_status_till_alive(True, engine.ip, engine.ssh_port)
-                    with allure.step('Ping switch until shutting down'):
-                        ping_till_alive(should_be_alive=False, destination_host=engine.ip, delay=10, tries=75)
-                    with allure.step('Ping switch until back alive'):
-                        ping_till_alive(should_be_alive=True, destination_host=engine.ip, delay=5, tries=150)
-                    with allure.step('Wait till nvos is up again'):
-                        engine.disconnect()
-                        res = DutUtilsTool.wait_for_nvos_to_become_functional(engine=engine)
-                finally:
-                    return res.verify_result()
-            else:
-                return engine.run_cmd(cmd)
 
     @staticmethod
     def action_generate_techsupport(engine, resource_path, option="", time=""):

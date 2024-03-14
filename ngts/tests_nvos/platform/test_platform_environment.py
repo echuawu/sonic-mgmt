@@ -10,7 +10,7 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import PlatformConsts
+from ngts.nvos_constants.constants_nvos import PlatformConsts, HealthConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_constants.constants_nvos import FansConsts
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -23,7 +23,7 @@ logger = logging.getLogger()
 @pytest.mark.nvos_ci
 @pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_platform_environment(engines, devices, test_api):
+def test_show_platform_environment(engines, devices, test_api, output_format):
     """
     Show platform environment test
     """
@@ -32,10 +32,20 @@ def test_show_platform_environment(engines, devices, test_api):
     with allure.step("Create System object"):
         platform = Platform()
 
-    with allure.step("Execute show platform environment and make sure all the components exist"):
-        _verify_output(platform, "", devices.dut.psu_fan_list + devices.dut.fan_list +
-                       devices.dut.temperature_sensors + devices.dut.fan_led_list +
-                       PlatformConsts.ENV_LED_COMP)
+    with allure.step("Get output"):
+        raw_output = platform.environment.show(output_format=output_format)
+
+    with allure.step("Validate field names (titles)"):
+        output_field_names = OutputParsingTool.parse_show_output_to_field_names(raw_output, output_format
+                                                                                ).get_returned_value()
+        ValidationTool.validate_set_equal(output_field_names, ['type', 'state']).verify_result()
+
+    with allure.step("Validate all environment items are present"):
+        output = OutputParsingTool.parse_show_output_to_dict(raw_output, output_format).get_returned_value()
+        ValidationTool.validate_set_equal(output.keys(),
+                                          devices.dut.psu_fan_list + devices.dut.fan_list + devices.dut.psu_list +
+                                          devices.dut.temperature_sensors + devices.dut.fan_led_list +
+                                          devices.dut.voltage_sensors).verify_result()
 
 
 @pytest.mark.platform
@@ -295,11 +305,11 @@ def _verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
             choose_from = devices.dut.fan_list[2:]
             fan_to_check = random.choice(choose_from)
 
-        with allure.step('Validate System health status should be {}'.format(FansConsts.STATE_OK)):
+        with allure.step('Validate System health status should be {}'.format(HealthConsts.OK)):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
             health_status = output['status']
-            assert health_status == FansConsts.STATE_OK, 'System health status is {} instead of {}'.format(
-                health_status, FansConsts.STATE_OK)
+            assert health_status == HealthConsts.OK, 'System health status is {} instead of {}'.format(
+                health_status, HealthConsts.OK)
 
         with allure.step("Validate there should not be any Fan direction Health Issues"):
             output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
@@ -341,8 +351,8 @@ def _verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
         with allure.step('Check System health status'):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
             health_status = output['status']
-            assert health_status == FansConsts.STATE_OK, 'System health status is {} instead of {}'.\
-                format(health_status, FansConsts.STATE_OK)
+            assert health_status == HealthConsts.OK, 'System health status is {} instead of {}'.\
+                format(health_status, HealthConsts.OK)
 
         with allure.step("Validate there should not be any Fan direction Health Issues"):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
