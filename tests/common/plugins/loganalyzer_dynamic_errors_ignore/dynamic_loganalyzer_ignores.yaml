@@ -1652,6 +1652,7 @@
 
 - Errors_list:
   - '.*ERR kernel:.*rcu: INFO: rcu_sched detected stalls on CPUs.*tasks.*'
+  - '.*ERR kernel:.*rcu: .*idle=.* softirq=.* fqs=.*'
   - '.*ERR kernel:.*rcu: All QSes seen.*last rcu_sched kthread activity .* jiffies_till_next_fqs=1, root.*qsmask.*'
   - '.*ERR kernel:.*rcu: rcu_sched kthread starved for \d+ jiffies.* RCU_GP_WAIT_FQS.*state.*cpu.*'
   - ".*ERR kernel:.* rcu: \tUnless rcu_sched kthread gets sufficient CPU time, OOM is now expected behavior.*"
