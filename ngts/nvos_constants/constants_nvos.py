@@ -547,6 +547,7 @@ class FansConsts:
     FEATURE_DISABLED = 'disabled'
     STATE_OK = 'OK'
     STATE_NOT_OK = 'Not OK'
+    FAN_DIRECTION_MISMATCH_ERR = "is not aligned with fan1 direction"
 
 
 class IbConsts:
