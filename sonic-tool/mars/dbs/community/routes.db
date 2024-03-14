@@ -70,5 +70,8 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/route_flap.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/duplicate_route.cases </cases>
+    </test>
 
 </DBDEF>
