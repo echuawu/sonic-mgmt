@@ -57,5 +57,5 @@ def test_show_platform_software(engines, test_api):
             logging.info("Verify json output for a specific SW")
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 platform.software.installed.show(format(list(output.keys())[1]))).get_returned_value()
-            assert not any(field not in output for field in ["Description", "Package", "Version"]), \
+            assert not any(field not in output for field in ["description", "package", "version"]), \
                 "Not all required fields were found"

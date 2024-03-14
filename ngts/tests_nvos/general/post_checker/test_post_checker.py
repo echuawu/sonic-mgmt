@@ -64,8 +64,8 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_
                         NvueGeneralCli(engines.dut).remote_reboot(topology_obj)
                         DutUtilsTool.wait_for_nvos_to_become_functional(engines.dut).verify_result()
 
-        '''if not security_post_checker:
-            TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)'''
+        if not security_post_checker:
+            TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)
 
     except BaseException as err:
         logging.error(f"Exception during post checker: {err}")
