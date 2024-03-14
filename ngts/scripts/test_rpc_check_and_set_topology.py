@@ -170,5 +170,5 @@ def test_rpc_check_and_set_topology(topology_obj, engines, cli_objects, current_
     hwsku = get_sonic_hwsku(engines.dut)
     if expected_topo == "ptf32" and hwsku in ["Mellanox-SN4600C-C64"]:
         mock_t1_topo_on_ptf32(engines.dut)
-    elif expected_topo == "ptf32" and hwsku in ["Mellanox-SN2700-D48C8"]:
+    elif expected_topo == "ptf32" and hwsku in ["Mellanox-SN2700-D48C8", "Mellanox-SN4700-O8V48"]:
         mock_t0_topo_on_ptf32(engines.dut)
