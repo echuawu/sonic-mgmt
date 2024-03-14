@@ -814,7 +814,7 @@
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
 
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid credentials.*'

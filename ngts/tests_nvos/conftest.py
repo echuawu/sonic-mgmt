@@ -15,6 +15,8 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
 from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts
+from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
@@ -22,8 +24,6 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
-from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
-from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_config_utils import ib_clear_conf
@@ -276,12 +276,14 @@ def ib_clear_config(markers=None):
 
 
 def pytest_exception_interact(report):
-    try:
-        TestToolkit.engines.dut.run_cmd("docker ps")
-        TestToolkit.engines.dut.run_cmd("systemctl --type=service")
-    except BaseException as err:
-        logging.warning(err)
-    save_results_and_clear_after_test(pytest.item)
+    if TestToolkit and hasattr(TestToolkit, 'engines') and TestToolkit.engines and TestToolkit.engines.dut:
+        try:
+            TestToolkit.engines.dut.run_cmd("docker ps")
+            TestToolkit.engines.dut.run_cmd("systemctl --type=service")
+        except BaseException as err:
+            logging.warning(err)
+    if pytest and hasattr(pytest, 'item') and pytest.item:
+        save_results_and_clear_after_test(pytest.item)
     logging.error(f'---------------- The test failed - an exception occurred: ---------------- \n{report.longreprtext}')
 
 
