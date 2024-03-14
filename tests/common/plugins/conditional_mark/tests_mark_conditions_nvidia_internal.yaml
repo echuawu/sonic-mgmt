@@ -732,6 +732,12 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
     reason: "Test is not supported on SIMX platform"
     conditions:
       - "'simx' in platform"
+
+tests/push_build_tests/general/wjh/test_wjh.py::test_l1_raw_drop:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3821591"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3821591"
 ########################## NGTS IGNORE END ##########################
 
 
