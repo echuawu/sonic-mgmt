@@ -110,11 +110,11 @@ tests/nightly/copp/test_copp.py:
 
 tests/nightly/sflow/test_sflow.py:
   skip:
-    reason: "sflow still isn't supported on Simx "
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3824269"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2271111 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3236544 and 'x86_64-mlnx_msn2100-r0' in platform and '202205' in release"
+      - "https://redmine.mellanox.com/issues/3824269"
 
 tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
   skip:
