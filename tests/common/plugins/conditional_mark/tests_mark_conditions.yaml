@@ -991,6 +991,12 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     conditions:
       - "https://github.com/sonic-net/sonic-buildimage/issues/17792 and 'sn2700' in platform"
 
+platform_tests/test_secure_upgrade.py:
+  skip:
+    reason: "platform does not support secure upgrade"
+    conditions:
+      - "asic_gen in ['spc1', 'spc2', 'spc3']"
+
 platform_tests/test_service_warm_restart.py:
   skip:
     reason: "Testcase ignored due to sonic-mgmt issue: https://github.com/sonic-net/sonic-mgmt/issues/10362"

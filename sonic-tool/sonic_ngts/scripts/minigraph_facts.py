@@ -127,7 +127,7 @@ def generate_minigraph_facts(hostname):
     minigraph_facts["minigraph_devices"] = {}
     minigraph_facts["minigraph_neighbors"] = {}
     minigraph_facts["minigraph_device_metadata"] = {"device_type": config_db_json["DEVICE_METADATA"]["localhost"]["type"]}
-
+    minigraph_facts["minigraph_mgmt_interface"] = {"gwaddr": config_db_json["MGMT_INTERFACE"][list(config_db_json["MGMT_INTERFACE"].keys())[0]]["gwaddr"]}
     minigraph_facts['logs'] = logs
     return minigraph_facts
 
