@@ -1,8 +1,9 @@
 import logging
 import os
+
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -24,7 +25,7 @@ class EthSwitch(BaseSwitch):
                                   "technical documentation, visit\nhttps://www.nvidia.com/en-us/support\n\nThe " \
                                   "registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe " \
                                   "exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
-        self.install_from_onie_timeout = 600
+        self.install_from_onie_timeout = 10 * 60
         self.install_success_patterns = ['Debian GNU/Linux 10 .*', NvosConst.INSTALL_BOOT_PATTERN]
 
     def ib_ports_num(self):

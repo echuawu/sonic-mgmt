@@ -1,13 +1,13 @@
 import logging
-from collections import namedtuple
-from abc import abstractmethod, ABCMeta, ABC
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
-from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 import time
+from abc import abstractmethod, ABCMeta, ABC
+from collections import namedtuple
 
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
+from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
 
@@ -53,7 +53,7 @@ class BaseDevice(ABC):
     def _init_constants(self):
         self.pre_login_message = ""
         self.post_login_message = ""
-        self.install_from_onie_timeout = 360  # seconds
+        self.install_from_onie_timeout = 7 * 60  # seconds
         self.install_success_patterns = ""
         self.core_count = 1
         self.asic_type = ""

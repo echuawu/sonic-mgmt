@@ -1,13 +1,14 @@
 import logging
 import os
-from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
+
+from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
-from ngts.nvos_tools.infra.ResultObj import ResultObj
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
 
@@ -156,7 +157,6 @@ class IbSwitch(BaseSwitch):
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = False
-        self.install_from_onie_timeout = 360
         self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
