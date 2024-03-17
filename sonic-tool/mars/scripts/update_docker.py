@@ -9,17 +9,17 @@ run commands on it. Purpose is to prepare the SONiC testing topology using the t
 # Builtin libs
 import argparse
 import json
+import os
+import re
 import sys
 import time
 import traceback
-import os
-import re
-from retry import retry
 
 # Third-party libs
 from fabric import Config
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
+from retry import retry
 from retry.api import retry_call
 
 # Home-brew libs
@@ -402,7 +402,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.281'}
+    default_list = {'docker-ngts': '1.2.285'}
     return default_list.get(docker_name, latest)
 
 

@@ -14,6 +14,18 @@ from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import *
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore, wait_for_ldap_nvued_restart_workaround
 
+TEST_TIMEOUT = 10
+
+
+@pytest.mark.timeout(TEST_TIMEOUT, func_only=True)
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ldap_dummy_pytest_timeout_check(test_api):
+    sleep_time = 2 * TEST_TIMEOUT
+    with allure.step(f'Sleep for {sleep_time} seconds'):
+        for _ in range(sleep_time):
+            with allure.step('Sleep for 1 second'):
+                time.sleep(1)
+
 
 @pytest.mark.security
 @pytest.mark.simx_security
