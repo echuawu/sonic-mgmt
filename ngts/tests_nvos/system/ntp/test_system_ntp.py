@@ -75,7 +75,7 @@ def test_configure_ntp_server(test_api):
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
             ValidationTool.compare_dictionary_content(ntp_show, ntp_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            assert server_list == '', f"server list {server_list} should be empty"
+            assert not server_list, f"server list {server_list} should be empty"
 
         with allure.step("Set different date and time"):
             logging.info("Set different date and time")
@@ -234,9 +234,9 @@ def test_configure_ntp_server(test_api):
             default_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ValidationTool.compare_dictionary_content(ntp_show, default_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            assert server_list == '', f"server list {server_list} should be empty"
+            assert not server_list, f"server list {server_list} should be empty"
             key_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.keys.show()).get_returned_value()
-            assert key_list == '', f"key list {key_list} should be empty"
+            assert not key_list, f"key list {key_list} should be empty"
 
         with allure.step("Validate unset system ntp commands"):
             logging.info("Validate unset system ntp commands")
@@ -489,7 +489,7 @@ def test_ntp_system_authentication(engines, test_api):
         with allure.step("Validate show system ntp key output"):
             logging.info("Validate show system ntp key output")
             key_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.keys.show()).get_returned_value()
-            assert key_list == "", "Key list should be empty"
+            assert not key_list, "Key list should be empty"
 
         with allure.step("Disable ntp authentication"):
             logging.info("Disable ntp authentication")
@@ -692,7 +692,7 @@ def test_configure_ntp_multiple_servers(test_api):
             ntp_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
             ValidationTool.compare_dictionary_content(ntp_show, NtpConsts.NTP_DEFAULT_DICT).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
-            assert server_list == '', f"server list {server_list} should be empty"
+            assert not server_list, f"server list {server_list} should be empty"
 
     finally:
         with allure.step("Unset system ntp"):

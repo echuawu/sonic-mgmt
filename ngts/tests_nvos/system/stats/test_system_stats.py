@@ -91,7 +91,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Select a random category and unset its configuration"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
@@ -125,7 +125,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Enable feature and disable category"):
             system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value). \
@@ -149,7 +149,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Enable category"):
             system.stats.category.categoryName[name].set(
@@ -168,7 +168,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert output == name + '.csv', "Category internal file does not exist, or not the only one that exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -259,7 +259,7 @@ def test_system_stats_generation(engines, devices, test_api):
             assert name in output, "Category internal file not exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Clear system stats specific category"):
             clear_time = datetime.now()
@@ -275,7 +275,7 @@ def test_system_stats_generation(engines, devices, test_api):
             assert name in output, "Category internal file does not exist, or not the only one that exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Generate and upload stats file to URL"):
             system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
