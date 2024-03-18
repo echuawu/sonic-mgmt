@@ -3592,6 +3592,16 @@
     - Redmine:
       - 3735940
 
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- set_dispatch_attrib_handler: Failed Set NEXT_HOP_ID, key:ROUTE_ENTRY .*val:NEXT_HOP_GROUP .*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- sai_set_attribute: Failed to set the attribute.*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- set_dispatch_attrib_handler: Failed Set NEXT_HOP_ID, key:ROUTE_ENTRY .*val:NEXT_HOP.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/crm/test_crm.py
+      Redmine:
+      - 3814899
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
