@@ -70,18 +70,6 @@
           "out_of_mail": true
         },
         {
-          "name": "Check SIMX compatibility",
-          "module": "/auto/sw_system_release/ci/sonic_devops/build/release/simx_compatibility.groovy",
-          "category": "Pre BAT",
-          "node": "SONIC_LITE",
-          "parameters": {
-            "readme_folder" : "${README_PATH}"
-          },
-          "skip": "${SKIP_SIMX}",
-          "on_failure": "stop",
-          "out_of_mail": true
-        },
-        {
           "parallel_build": [
             {
               "name": "Beautify",
@@ -117,6 +105,18 @@
           "skip": false,
           "on_failure": "stop",
           "out_of_mail": false
+        },
+        {
+          "name": "Check SIMX compatibility",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/release/simx_compatibility.groovy",
+          "category": "Pre BAT",
+          "node": "SONIC_LITE",
+          "parameters": {
+            "readme_folder" : "${README_PATH}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "stop",
+          "out_of_mail": true
         },
         {
           "name": "Create tarball",
@@ -357,7 +357,7 @@
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -377,7 +377,7 @@
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC2_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -397,7 +397,7 @@
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC3_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -417,7 +417,7 @@
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC4_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
