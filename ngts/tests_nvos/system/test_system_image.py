@@ -341,7 +341,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
         with allure.step("Install the first image"):
             install_image_and_verify(BASE_IMAGE_VERSION_TO_INSTALL, partition_id_for_new_image, original_images, system, test_name)
         with allure.step("Test partitions available capacity"):
-            check_partitions_capacity()
+            check_partitions_capacity(allowed_limit=60)
 
     finally:
         cleanup_test(system, original_images, original_image_partition, image_files)

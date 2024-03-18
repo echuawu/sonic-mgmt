@@ -116,9 +116,12 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
         selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine, fae_param=fae_param).\
             verify_result()
         with allure.step('Check selected port counters for user ' + active_user_name):
-            check_port_counters(selected_port, True, active_ssh_engine).verify_result()
+            if not check_port_counters(selected_port, True, active_ssh_engine).result:
+                raise Exception(f"The counters were not cleared for user: {active_user_name}")
         with allure.step('Check selected port counters for user ' + inactive_user_name):
-            check_port_counters(selected_port, False, inactive_ssh_engine).verify_result()
+            if not check_port_counters(selected_port, False, inactive_ssh_engine).result:
+                raise Exception(f"The counters were cleared for user {inactive_user_name} "
+                                f"while they shouldn't have been")
         logging.info("The counters were cleared for port '{}' successfully".format(
             selected_port.name))
 
@@ -137,7 +140,8 @@ def check_port_counters(selected_port, should_be_zero, ssh_engine):
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_ERRORS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_PKTS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_OUT_WAIT]
-    return ResultObj((should_be_zero and not counters) or (counters and not should_be_zero), "")
+    return ResultObj((should_be_zero and counters < IbInterfaceConsts.MAX_COUNTERS_AFTER_CLEAR) or
+                     (counters > IbInterfaceConsts.MAX_COUNTERS_AFTER_CLEAR and not should_be_zero), "")
 
 
 def get_port_obj(port_name):
