@@ -533,7 +533,6 @@ class PlatformConsts:
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
-    SW_FIELD_NAMES = ('description', 'package', 'version')
 
 
 class FansConsts:

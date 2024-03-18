@@ -443,7 +443,7 @@ class ExpectedString:
         """
         self.range_min = range_min
         self.range_max = range_max
-        self.regex = re.compile(regex) if regex else None
+        self.regex = re.compile(regex)
 
     @staticmethod
     def number_and_string(s: str, range_min=None, range_max=None):

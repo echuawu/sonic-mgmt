@@ -14,7 +14,7 @@ from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
-from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, OutputFormat
+from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
@@ -463,8 +463,3 @@ def prepare_traffic(engines, setup_name):
     """
     with allure.step('Prepare traffic containers...'):
         TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)
-
-
-@pytest.fixture
-def output_format(test_api):
-    return OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
