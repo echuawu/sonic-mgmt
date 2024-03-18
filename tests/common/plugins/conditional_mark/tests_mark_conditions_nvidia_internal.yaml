@@ -1182,19 +1182,6 @@ hash/test_generic_hash.py::test_lag_member_flap:
     conditions:
       - "https://redmine.mellanox.com/issues/3647677"
 
-dut_console/test_idle_timeout.py::test_timeout:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3717856"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3717856"
-
-dut_console/test_escape_character.py::test_console_escape:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3717856"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3717856"
-
-
 platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_kill_and_start_status:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3771095"

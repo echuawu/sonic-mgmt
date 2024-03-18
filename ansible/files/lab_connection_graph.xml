@@ -4376,13 +4376,14 @@
   </DataPlaneGraph>
   <ConsoleGraphDeclaration>
     <DevicesConsoleInfo>
-      <DeviceConsoleInfo Hostname="console-1" HwSku="Cisco" ManagementIp="192.168.10.1" Protocol="ssh" Type="ConsoleServer"/>
-      <DeviceConsoleInfo Hostname="r-leopard-73" HwSku="Mellanox-SN4700-O8V48" ManagementIp='10.210.24.210' Os="sonic" ManagementGw="10.210.24.1" Protocol="" Type="FanoutLeaf"/>
+      <DeviceConsoleInfo Hostname="r-leopard-73" HwSku="MLNX-OS" ManagementIp='10.210.24.210' Os="" Protocol="" Type="FanoutLeaf"/>
+      <DeviceConsoleInfo Hostname="dev-r-vrt-249" HwSku="TestServ" ManagementIp='10.215.34.60' Os="" Protocol="" Type="Server"/>
+      <DeviceConsoleInfo Hostname="r-leopard-72" HwSku="Mellanox-SN4700-O8V48" ManagementIp='10.210.24.196' Os="sonic" Protocol="" Type="DevSonic"/>
+      <DeviceConsoleInfo Hostname="rcon-sws-3-8" HwSku="" ManagementIp='10.208.0.47' Os="sonic" Protocol="ssh" Type="ConsoleServer"/>
     </DevicesConsoleInfo>
     <ConsoleLinksInfo>
-      <ConsoleLinkInfo Console_type="ssh" EndDevice="str-msn2700-01" Proxy="root" StartDevice="console-1" StartPort="10"/>
-      <ConsoleLinkInfo Console_type="ssh" EndDevice="str-7260-10" Proxy="root" StartDevice="console-1" StartPort="11"/>
-      <ConsoleLinkInfo Console_type="ssh" EndDevice="str-7260-11" Proxy="root" StartDevice="console-1" StartPort="12"/>
+      <ConsoleLinkInfo Console_type="ssh" EndDevice="r-leopard-72" Proxy="root" StartDevice="rcon-sws-3-8" StartPort="7004"/>
+      <ConsoleLinkInfo Console_type="ssh" EndDevice="r-leopard-73" Proxy="root" StartDevice="rcon-sws-3-8" StartPort="7012"/>
     </ConsoleLinksInfo>
   </ConsoleGraphDeclaration>
   <PowerControlGraphDeclaration>
