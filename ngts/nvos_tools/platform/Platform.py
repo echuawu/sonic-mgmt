@@ -84,5 +84,6 @@ class FaeCpldComponent(FaePlatformComponent):
         except requests.exceptions.ConnectionError:
             if expect_reboot:
                 logger.info(f"GET request failed as expected")
+                return ResultObj(True)
             else:
                 raise

@@ -2,13 +2,14 @@ import logging
 import os
 
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
 
@@ -161,7 +162,6 @@ class IbSwitch(BaseSwitch):
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
-        self.fan_list = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
 
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
 
@@ -385,6 +385,13 @@ class GorillaSwitch(IbSwitch):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------

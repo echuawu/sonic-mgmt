@@ -293,9 +293,10 @@ class BaseSwitch(BaseDevice):
                                  "system-mac", "system-uuid"]
         self.platform_list = ["fan", "led", "psu", "temperature", "component", "hardware", "environment"]
         self.platform_environment_list = ["fan", "led", "psu", "temperature"]
-        self.fan_prop = ["max-speed", "min-speed", "current-speed", "state"]
         self.hw_comp_list = self.fan_list + self.psu_list + ["SWITCH"]
         self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
+        self.fan_prop_auto = {"Fan State": "state", "Current Speed (RPM)": "current-speed",
+                              "Fan Direction": "direction"}
 
     def _init_fan_direction_dir(self):
         super()._init_fan_direction_dir()

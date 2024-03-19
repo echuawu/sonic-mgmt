@@ -1,6 +1,7 @@
 import logging
 import json
 import re
+from typing import List
 
 from .ResultObj import ResultObj
 from ngts.tools.test_utils import allure_utils as allure
@@ -11,6 +12,19 @@ logger = logging.getLogger()
 
 
 class OutputParsingTool:
+
+    @staticmethod
+    def parse_show_output_to_field_names(output: str, output_format=OutputFormat.json, field_name_dict=None
+                                         ) -> ResultObj:
+        """Parses the output of generic `nv show` commands to a list/set of the fields (column headers)"""
+        if output_format == OutputFormat.auto:
+            return OutputParsingTool.parse_auto_output_to_field_names(output, field_name_dict)
+        elif output_format == OutputFormat.json:
+            as_dict = OutputParsingTool.parse_json_str_to_dictionary(output).get_returned_value()
+            result = tuple(as_dict.values())[0].keys()
+            return ResultObj(True, returned_value=result)
+        else:
+            raise NotImplementedError(f"No parser implemented for {output_format} output format")
 
     @staticmethod
     def parse_show_output_to_dict(output: str, output_format=OutputFormat.json, field_name_dict=None) -> ResultObj:
@@ -449,6 +463,28 @@ class OutputParsingTool:
         return [s[span[0]:span[1] + 1].strip() for span in spans]
 
     @staticmethod
+    def _get_field_titles_and_indices(output_lines: List[str], name_dict=None):
+        with allure.step("Parsing field names"):
+            name_dict = name_dict or {}
+            if set(output_lines[1]) != {' ', '-'}:
+                return None, None
+            indices = [m.span() for m in re.finditer(r"-+", output_lines[1])]
+            titles = OutputParsingTool._str_multi_split(output_lines[0], indices)[1:]
+            titles = [name_dict.get(name) or name.lower().replace(' ', '-') for name in titles]
+            logger.info(f"Inferred field names: {titles}")
+            return titles, indices
+
+    @staticmethod
+    def parse_auto_output_to_field_names(output: str, name_dict=None) -> ResultObj:
+        output_lines = output.splitlines()
+        result, _ = OutputParsingTool._get_field_titles_and_indices(output_lines, name_dict)
+        if result:
+            return ResultObj(True, "", result)
+        else:
+            return ResultObj(False, f"Parsing error: expected the second line of output to contain only '-' and "
+                                    f"spaces, but line is {output_lines[1]}")
+
+    @staticmethod
     def parse_auto_output_to_dict(output: str, field_name_dict=None, only_operational=True) -> ResultObj:
         """
         Example - output of `nv show platform inventory --output auto`:
@@ -477,12 +513,16 @@ class OutputParsingTool:
         with allure.step("Parsing auto output into dict"):
             field_name_dict = field_name_dict or {}
             output_lines = output.splitlines()
+            if set(output_lines[1]) <= {' ', '='}:
+                output_lines = output_lines[2:]
+                if any([line for line in output_lines if set(line) <= {'=', ' '}]):
+                    raise NotImplementedError(
+                        "Output contains multiple sections but the function currently supports only a single section")
 
-            with allure.step("Parsing field names"):
-                field_indices = [m.span() for m in re.finditer(r"(?<!-)-+(?!-)", output_lines[1])]
-                field_names = OutputParsingTool._str_multi_split(output_lines[0], field_indices)[1:]
-                field_names = [field_name_dict.get(name) or name.lower().replace(' ', '-') for name in field_names]
-                logger.info(f"Infered field names: {field_names}")
+            field_names, field_indices = OutputParsingTool._get_field_titles_and_indices(output_lines, field_name_dict)
+            if not field_names:
+                return ResultObj(False, f"Parsing error: expected the second line of output to contain only '-' and "
+                                        f"spaces, but line is {output_lines[1]}")
 
             with allure.step("Parsing content"):
                 result = {}

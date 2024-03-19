@@ -533,19 +533,17 @@ class PlatformConsts:
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
+    SW_FIELD_NAMES = ('description', 'package', 'version')
 
 
 class FansConsts:
     FORWARD_DIRECTION = 'B2F'
     BACKWARD_DIRECTION = 'F2B'
     ALL_DIRECTIONS = [FORWARD_DIRECTION, BACKWARD_DIRECTION]
-    DEF_DIRECTION = FORWARD_DIRECTION
-    NO_DIRECTION = '-'
     FEATURE_ENABLED = 'enabled'
     FEATURE_DISABLED = 'disabled'
     STATE_OK = 'OK'
     STATE_NOT_OK = 'Not OK'
-    FAN_DIRECTION_MISMATCH_ERR = "direction exhaust is not aligned"
 
 
 class IbConsts:
