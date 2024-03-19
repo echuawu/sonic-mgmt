@@ -12,6 +12,7 @@ class PytestConst:
     CUSTOM_SKIP_IF_DICT = 'custom_skip_if_dict'
     CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
     CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
+    CUSTOM_TEST_SKIP_IMAGE_TYPE = "dynamic_tests_skip_image_type"
     LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
     GET_DUMP_AT_TEST_FALIURE = "GET_DUMP"
     IS_SANITIZER_IMAGE = 'IS_SANITIZER_IMAGE'
