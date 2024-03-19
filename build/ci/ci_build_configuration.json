@@ -11,7 +11,8 @@
     "PRIORITY_NUMBER=4",
     "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz",
     "OFFICIAL_TESTS=SONIC_MGMT",
-    "MARS_RELEASE_VERSION=/auto/sw_tools/Internal/MARS/mars_apps/RELEASE/4_3_6/"
+    "MARS_RELEASE_VERSION=/auto/sw_tools/Internal/MARS/mars_apps/RELEASE/4_3_6/",
+    "SIMX_ON_FAILURE=stop"
   ],
   "phases": [
     {
@@ -112,7 +113,7 @@
           "category": "Pre BAT",
           "node": "SONIC_LITE",
           "parameters": {
-            "readme_folder" : "${README_PATH}"
+            "readme_folder": "${README_PATH}"
           },
           "skip": "${SKIP_SIMX}",
           "on_failure": "stop",
@@ -354,12 +355,12 @@
             "setup_id": "${CI_SONIC_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC_BAT}",
-          "on_failure": "${SIMX_ON_FAILURE}",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -375,12 +376,12 @@
             "setup_id": "${CI_SONIC_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC2_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC2_BAT}",
-          "on_failure": "${SIMX_ON_FAILURE}",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -396,12 +397,12 @@
             "setup_id": "${CI_SONIC_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC3_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC3_BAT}",
-          "on_failure": "${SIMX_ON_FAILURE}",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -417,12 +418,12 @@
             "setup_id": "${CI_SONIC_SPC4_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC4_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC4_BAT}",
-          "on_failure": "${SIMX_ON_FAILURE}",
+          "on_failure": "stop",
           "out_of_mail": false
         },
         {
@@ -438,12 +439,12 @@
             "setup_id": "${CI_SONIC_SIMX_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -459,12 +460,12 @@
             "setup_id": "${CI_SONIC_SIMX_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC2_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC2_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -480,12 +481,12 @@
             "setup_id": "${CI_SONIC_SIMX_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC3_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC3_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -501,12 +502,12 @@
             "setup_id": "${CI_SONIC_SIMX_SPC4_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC4_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC4_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -543,7 +544,7 @@
             "setup_id": "${CI_SONIC_BF3_SETUP}",
             "setup_conf_file_path": "/auto/sw_regression/system/SONIC/MARS/conf/setups/${CI_SONIC_BF3_SETUP}/",
             "base_version": "${DPU_BIN}",
-            "test_type" : "CI",
+            "test_type": "CI",
             "sonic_mgmt_repo_url": "${nfs_dir}",
             "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
