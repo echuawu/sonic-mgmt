@@ -37,19 +37,7 @@ tests/nightly/runtime/test_runtime.py:
     reason: "Performance testcase ignored on simx platform"
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3649746 and 'master_bookworm' in branch"
-
-tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3499268"
-    conditions:
-      - https://redmine.mellanox.com/issues/3499268
-
-tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[show_system_health]:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://github.com/sonic-net/sonic-buildimage/issues/14030"
-    conditions:
-      - https://github.com/sonic-net/sonic-buildimage/issues/14030
+      - "https://redmine.mellanox.com/issues/3649746"
 
 tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_temperature_sweep:
   skip:
