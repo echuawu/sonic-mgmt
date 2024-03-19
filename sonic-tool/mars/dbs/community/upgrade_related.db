@@ -15,11 +15,16 @@
             <pre>
             </pre>
             <ignore>
-            <condition>
-                <key> topology </key>
-                <op> not in </op>
-                <value> ["t0", "t0-56", "t0-64", "t0-120", "t0-56-o8v48"] </value>
-            </condition>
+                <condition>
+                    <key> topology </key>
+                    <op> not in </op>
+                    <value> ["t0", "t0-56", "t0-64", "t0-120", "t0-56-o8v48"] </value>
+                </condition>
+                <condition>
+                    <key> target_version_specified:(no) </key>
+                    <op> == </op>
+                    <value> no </value>
+                </condition>
             </ignore>
             <post></post>
         </DB>
