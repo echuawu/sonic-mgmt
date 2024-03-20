@@ -980,8 +980,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         tree.write(filepath, encoding="utf-8")
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku):
+        branch = get_sonic_branch(topology_obj)
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
-        base_config_db_json = self.get_config_db_json_obj(setup_name)
+        if branch in ['202205', '202211', '202305']:
+            base_config_db_json_file_name = SonicConst.CONFIG_DB_JSON
+        else:
+            base_config_db_json_file_name = SonicConst.CONFIG_DB_GNMI_JSON
+        base_config_db_json = self.get_config_db_json_obj(setup_name, base_config_db_json_file_name)
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
         self.update_config_db_metadata_router(setup_name, config_db_file_name)
         self.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
