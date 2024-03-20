@@ -3602,6 +3602,12 @@
       Redmine:
       - 3814899
 
+- Errors_list:
+    - '.* ERR kernel:.*i2c i2c-\d+: Invalid block size returned.*'
+  Conditions:
+    - Redmine:
+      - 3827149
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
