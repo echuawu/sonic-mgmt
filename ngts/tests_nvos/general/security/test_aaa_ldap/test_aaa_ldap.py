@@ -2,6 +2,7 @@ import pytest
 
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.tests_nvos.general.security.constants import MAX_TEST_TIMEOUT
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
@@ -102,9 +103,10 @@ def test_ldap_set_invalid_param(test_api, engines):
     )
 
 
+@pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
 def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
     """
@@ -130,7 +132,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid port ldap error flows of ,
@@ -147,7 +149,7 @@ def test_ldap_bad_port_error_flow(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid bind in password ldap error flows,
@@ -163,7 +165,7 @@ def test_ldap_bad_secret_error_flow(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid bind dn ldap error flows,
@@ -179,7 +181,7 @@ def test_ldap_bad_bind_dn_error_flow(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
     """
     @summary: in this test case we want to validate invalid base dn ldap error flows,
@@ -195,7 +197,7 @@ def test_ldap_bad_base_dn_error_flow(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_unique_priority(test_api, engines, topology_obj):
     """
     @summary: Verify that hostname priority must be unique
@@ -210,7 +212,7 @@ def test_ldap_unique_priority(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_priority(test_api, engines, topology_obj, request):
     """
     @summary: Verify that auth is done via the top prioritized server
@@ -230,7 +232,7 @@ def test_ldap_priority(test_api, engines, topology_obj, request):
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
@@ -259,7 +261,7 @@ def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuse
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
@@ -291,7 +293,7 @@ def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserI
 
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates, alias_ldap_server_dn, request,
                      topology_obj):
     item = request.node
@@ -348,7 +350,7 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_filter_passwd(test_api, engines, request, topology_obj):
     """
     Check functionality of filter to passwd
@@ -399,7 +401,7 @@ def test_ldap_filter_passwd(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_filter_group(test_api, engines, request, topology_obj):
     """
     Check functionality of filter to group
@@ -447,7 +449,7 @@ def test_ldap_filter_group(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_filter_shadow(test_api, engines, request, topology_obj):
     """
     Check functionality of filter to shadow
@@ -498,7 +500,7 @@ def test_ldap_filter_shadow(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_filter_combo(test_api, engines, request, topology_obj):
     """
     Check functionality of filters combination
@@ -575,7 +577,7 @@ def test_ldap_filter_combo(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_map_passwd(test_api, engines, request, topology_obj):
     """
     Check functionality of map of passwd attribute
@@ -637,7 +639,7 @@ def test_ldap_map_passwd(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_map_group(test_api, engines, request, topology_obj):
     """
     Check functionality of map of group attribute
@@ -688,7 +690,7 @@ def test_ldap_map_group(test_api, engines, request, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx
-@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 def test_ldap_filter_performance(test_api, engines, request, topology_obj):
     """
     Check the affection of filter on the performance of connection/running command

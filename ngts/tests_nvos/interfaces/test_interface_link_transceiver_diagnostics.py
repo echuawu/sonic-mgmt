@@ -1,12 +1,10 @@
 import pytest
 
-from retry import retry
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.platform.Platform import Platform
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
@@ -158,7 +156,7 @@ def test_interface_link_diagnostics_basic(engines):
 
 
 @pytest.mark.ib
-def test_interface_link_diagnostics_functional(engines):
+def test_interface_link_diagnostics_functional(engines, start_sm):
     """
     The test will check functionality of link diagnostics in different scenarios.
 
@@ -169,9 +167,6 @@ def test_interface_link_diagnostics_functional(engines):
     4. Rewrite transceiver opcode for port to negative value, check output, should be empty
     5. Rewrite transceiver opcode for port to 0, check output, system should return correct code and status
     """
-    with allure.step("Start open SM"):
-        OpenSmTool.start_open_sm(engines.dut).verify_result()
-
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
                                                                     num_of_ports_to_select=0).get_returned_value()
     ports_connected = []

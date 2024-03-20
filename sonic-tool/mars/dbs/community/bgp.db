@@ -112,4 +112,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_update_timer.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/bgp_sentinel.cases </cases>
+    </test>
+
 </DBDEF>

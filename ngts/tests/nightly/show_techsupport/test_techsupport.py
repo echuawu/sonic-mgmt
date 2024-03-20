@@ -88,7 +88,7 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
                     r".*SXD_HEALTH_FW_FATAL: FW Fatal:fw_cause.*",
                     r".*SX_HEALTH_FATAL: cause_string = \[PLL lock failure\].*",
                     r".*Failed command read at communication channel: Connection reset by peer.*",
-                    r".*SXD_HEALTH_FATAL:On device \d+ cause =\'PLL lock failure\'.*"
+                    r".*SXD_HEALTH_FATAL:\s?On device \d+ cause =\'PLL lock failure\'.*"
                 ])
             loganalyzer[dut].ignore_regex.extend(ignoreRegex)
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):

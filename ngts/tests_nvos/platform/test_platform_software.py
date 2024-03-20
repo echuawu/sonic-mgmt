@@ -44,7 +44,7 @@ def test_show_platform_software(engines, test_api):
                 logging.info("Verify text output")
                 output = platform.software.installed.show(output_format=OutputFormat.auto)
                 list_of_sw = output.split("\n", 3)
-                assert "Installed software" in list_of_sw[0], "'Installed software' title can't be found in the output"
+                assert "Installed Software" in list_of_sw[0], "'Installed software' title can't be found in the output"
                 assert len(list_of_sw) > 2 and list_of_sw[2], "The list of installed software is empty"
 
         with allure.step("Verify json output"):

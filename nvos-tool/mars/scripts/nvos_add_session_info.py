@@ -107,10 +107,13 @@ class NvosAddSessionInfo(SessionAddInfo):
         sanitizer_run = self.conf_obj.get_extra_info().get("sanitizer_run")
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
 
-        cmd_system = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show system -o json'"
-        cmd_device = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show ib device -o json'"
-        cmd_system = cmd_system.format(DUT_NAME=dut_name, TOPOLOGY=topology)
-        cmd_device = cmd_device.format(DUT_NAME=dut_name, TOPOLOGY=topology)
+        nvue_sswitch_user = os.getenv("NVU_SWITCH_USER")
+        nvue_sswitch_pass = os.getenv("NVU_SWITCH_NEW_PASSWORD")
+
+        cmd_system = "ansible -m command --extra-vars 'ansible_ssh_user={USER} ansible_ssh_pass={PASSWORD}' -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show system -o json'"
+        cmd_device = "ansible -m command --extra-vars 'ansible_ssh_user={USER} ansible_password={PASSWORD}' -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show ib device -o json'"
+        cmd_system = cmd_system.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name, TOPOLOGY=topology)
+        cmd_device = cmd_device.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name, TOPOLOGY=topology)
         print("cmd=" + cmd_system)
         print("cmd=" + cmd_device)
 

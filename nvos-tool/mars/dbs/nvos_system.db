@@ -85,4 +85,10 @@
     <test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_gnmi.cases </cases>
     </test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/nvos_system_certificate_mgmt.cases </cases>
+	</test>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/system/nvos_system_ptp.cases </cases>
+    </test>
 </DBDEF>

@@ -6,7 +6,6 @@ from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
@@ -42,7 +41,7 @@ def test_ib_show_interface_name(engines):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_show_interface_all_state_up(engines):
+def test_ib_show_interface_all_state_up(engines, start_sm):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface
@@ -90,8 +89,6 @@ def test_ib_show_interface_all_state_up(engines):
             with allure.step('Set the state of selected port to "up"'):
                 selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
                                                           ask_for_confirmation=True).verify_result()
-                with allure.step("Start openSM"):
-                    OpenSmTool.start_open_sm(engines.dut).verify_result()
                 selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                                logical_state='Active').verify_result()
 
@@ -105,8 +102,6 @@ def test_ib_show_interface_all_state_up(engines):
         with allure.step('Set the state of selected port to "up"'):
             selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
                                                       ask_for_confirmation=True).verify_result()
-            with allure.step("Start openSM"):
-                OpenSmTool.start_open_sm(engines.dut).verify_result()
             selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                            logical_state='Active').verify_result()
 
@@ -343,9 +338,9 @@ def test_ib_show_interface_name_openapi(engines):
 
 @pytest.mark.openapi
 @pytest.mark.ib_interfaces
-def test_ib_show_interface_all_state_up_openapi(engines):
+def test_ib_show_interface_all_state_up_openapi(engines, start_sm):
     TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_all_state_up(engines)
+    test_ib_show_interface_all_state_up(engines, start_sm)
 
 
 @pytest.mark.openapi

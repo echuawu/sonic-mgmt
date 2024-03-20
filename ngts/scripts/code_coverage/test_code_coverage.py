@@ -10,6 +10,8 @@ from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.constants.constants import NvosCliTypes
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.scripts.code_coverage.code_coverage_consts import SharedConsts, NvosConsts, SonicConsts
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -51,7 +53,7 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
         with allure.step('Check that sources exist on the switch'):
             cli_obj.general.ls(SharedConsts.NVOS_SOURCES_PATH[0], validate=True)
         with allure.step('Extract c coverage for NVOS'):
-            extract_c_coverage_for_nvos(c_dest, engines, engine, cli_obj)
+            extract_c_coverage_for_nvos(dest, engines, engine, cli_obj)
     else:
         with allure.step('Check that sources exist on the switch'):
             cli_obj.general.ls(SharedConsts.SONIC_SOURCES_PATH[0], validate=True)
@@ -96,7 +98,7 @@ def extract_c_coverage_for_nvos(dest, engines, engine, cli_obj):
         timestamp = int(time.time())
         gcov_report_file = os.path.join(SharedConsts.GCOV_DIR, f'{gcov_filename_prefix}-{timestamp}.xml')
         with allure.step(f'Combine GCOV JSON reports into a single report for SonarQube'):
-            create_and_copy_xml_coverage_file(engine, sudo_cli_general, gcov_report_file, dest, gcov_filename_prefix)
+            create_and_copy_xml_coverage_file(engine, sudo_cli_general, gcov_report_file, c_dest, gcov_filename_prefix)
         with allure.step("Delete JSON and LCOV files"):
             sudo_cli_general.rm(gcov_report_file, flags='-f')
             sudo_cli_general.rm(SharedConsts.GCOV_DIR + "/*.json", flags='-f')
@@ -158,6 +160,9 @@ def extract_python_coverage_for_nvos(dest, engines, engine, cli_obj):
 
     with allure.step('Restart system services to get coverage for running services'):
         engines.dut.run_cmd('sudo systemctl restart nvued.service')
+
+    with allure.step("Pre step - start dockers"):
+        nvos_pre_step(engine)
 
     with allure.step("Collect python coverage"):
         collect_python_coverage(cli_obj, engine, dest, coverage_file)
@@ -399,9 +404,14 @@ def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, conta
     container_gcov_json_file = os.path.join(SharedConsts.GCOV_DIR, f'{gcov_filename_prefix}-{container}.json')
     for source_path in source_paths:
         docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
-    docker_cli_obj.gcovr(paths=SharedConsts.GCOV_DIR, flags=f'--json-pretty -r {SharedConsts.GCOV_DIR} '
-                                                            f'-o {container_gcov_json_file}',
-                         additional_flags='--exclude-unreachable-branches --exclude-throw-branches --decisions')
+
+    flags = f'--json-pretty -r {SharedConsts.GCOV_DIR} -o {container_gcov_json_file}'
+    additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions ' \
+                       '--gcov-ignore-parse-errors --gcov-ignore-errors=source_not_found'
+    for path in NvosConsts.NVOS_EXCLUDE_PATHS:
+        additional_flags += f' --exclude-directories {path}'
+
+    docker_cli_obj.gcovr(paths=SharedConsts.GCOV_DIR, flags=flags, additional_flags=additional_flags)
     return container_gcov_json_file
 
 
@@ -411,3 +421,12 @@ def create_lcov_report_for_container(docker_cli_obj, lcov_filename_prefix, conta
     docker_cli_obj.lcovr(flags=f'--gcov-tool gcov --capture --directory {SharedConsts.GCOV_DIR} '
                                f'--output-file {container_lcov_file}')
     return container_lcov_file
+
+
+def nvos_pre_step(engine):
+    try:
+        with allure.step("Start SNMP"):
+            DutUtilsTool.start_snmp_server(engine=engine, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                           listening_address='all')
+    except BaseException as ex:
+        logging.info("NVOS pre step failed")

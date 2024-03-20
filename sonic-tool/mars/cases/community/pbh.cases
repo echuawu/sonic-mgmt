@@ -15,6 +15,7 @@
 
     <case>
         <ignore>
+            <!-- daily case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -34,6 +35,7 @@
 
     <case>
         <ignore>
+            <!-- daily case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -53,6 +55,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -72,6 +75,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -91,6 +95,7 @@
 
     <case>
         <ignore>
+            <!-- daily case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -110,6 +115,7 @@
 
     <case>
         <ignore>
+            <!-- daily case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -129,6 +135,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -148,6 +155,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>

@@ -1,12 +1,26 @@
 import logging
 import json
-import allure
+import re
+
 from .ResultObj import ResultObj
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+from ...nvos_constants.constants_nvos import OutputFormat, ApiType, ConfState
+
 logger = logging.getLogger()
 
 
 class OutputParsingTool:
+
+    @staticmethod
+    def parse_show_output_to_dict(output: str, output_format=OutputFormat.json, field_name_dict=None) -> ResultObj:
+        """Parses the output of generic `nv show` commands to a dict"""
+        if output_format == OutputFormat.auto:
+            return OutputParsingTool.parse_auto_output_to_dict(output, field_name_dict)
+        elif output_format == OutputFormat.json:
+            return OutputParsingTool.parse_json_str_to_dictionary(output)
+        else:
+            raise NotImplementedError(f"No parser implemented for {output_format} output format")
 
     @staticmethod
     def parse_show_interface_output_to_dictionary(output_json):
@@ -259,41 +273,29 @@ class OutputParsingTool:
             return ResultObj(True, "", output_dictionary)
 
     @staticmethod
-    def parse_show_system_techsupport_output_to_list(output_json):
+    def parse_show_files_to_dict(output_json) -> ResultObj:
         """
-        Creates a list according to provided JSON output of "show system tech-support"
-            :param output_json: json output
-            :return: a list of techsupports files
+        Parses the output of some `show ... files` commands.
+        Sample input string:    {"1":
+                                    {"path": "/var/my_file"},
+                                "2":
+                                    {"path": "/var/second.txt"} }
+        Output will be {"1": "/var/my_file",
+                        "2": "/var/second.txt"}
+        """
+        dict_from_json = OutputParsingTool.parse_json_str_to_dictionary(output_json).get_returned_value()
+        with allure.step("Parsing show-files output to dict"):
+            result = {k: v['path'] for k, v in dict_from_json.items()}
+            logger.info(result)
+        return ResultObj(True, "", result)
 
-                     Example of the input json:
-                        {
-                          "1": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_070154.tar.gz"
-                          },
-                          "2": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_070725.tar.gz"
-                          },
-                          "3": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_073216.tar.gz"
-                          },
-                          "4": {
-                            "path": "/var/dump/nvos_dump_jaguar-25_20220619_073506.tar.gz"
-                          }
-                        }
-                    output:
-                        ["/var/dump/nvos_dump_jaguar-25_20220619_070154.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_070725.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_073216.tar.gz",
-                        "/var/dump/nvos_dump_jaguar-25_20220619_073506.tar.gz"]
-        """
-        if output_json == {}:
-            return ResultObj(True, "no tech-support files", [])
-        paths = json.loads(output_json).values()
-        with allure.step('Create a list according to provided JSON string'):
-            paths = [list(path.values()) for path in paths]
-            output_list = [path for [path] in paths]
-            logger.info(output_list)
-            return ResultObj(True, "", output_list)
+    @staticmethod
+    def parse_show_files_to_names(output_json) -> ResultObj:
+        """Like parse_show_files_to_dict but returns a list of the keys."""
+        as_dict = OutputParsingTool.parse_show_files_to_dict(output_json).get_returned_value()
+        result = list(as_dict.keys())
+        logger.info(f"File names: {result}")
+        return ResultObj(True, "", result)
 
     @staticmethod
     def parse_config_history(output_json):
@@ -441,3 +443,53 @@ class OutputParsingTool:
             dic[k] = v
 
         return ResultObj(True, "", dic)
+
+    @staticmethod
+    def _str_multi_split(s: str, spans):
+        return [s[span[0]:span[1] + 1].strip() for span in spans]
+
+    @staticmethod
+    def parse_auto_output_to_dict(output: str, field_name_dict=None, only_operational=True) -> ResultObj:
+        """
+        Example - output of `nv show platform inventory --output auto`:
+                Hw version  Model            Serial        State  Type
+        ------  ----------  ---------------  ------------  -----  ------
+        FAN1/1  N/A         N/A              N/A           ok     fan
+        FAN1/2  N/A         N/A              N/A           ok     fan
+        ...
+
+        Will be transformed to the following dict:  (if we set field_name_dict={'Hw version': 'hardware-version'} )
+        {"FAN1/1":
+            {"hardware-version": "N/A", "model": "N/A", "serial": "N/A", "state": "ok", "type": "fan"}
+         "FAN2/2": {...}
+        ...}
+
+        If only_operational==True and the output is something like:
+             operational  applied
+        ---  -----------  -------
+        abc  11           90
+        xyz  22
+
+        Then the returned dict is {"abc": 11, "xyz": 22}.
+
+        Note: This function infers the fields' lengths according to the second output line ("----  ------ --- " ...)
+        """
+        with allure.step("Parsing auto output into dict"):
+            field_name_dict = field_name_dict or {}
+            output_lines = output.splitlines()
+
+            with allure.step("Parsing field names"):
+                field_indices = [m.span() for m in re.finditer(r"(?<!-)-+(?!-)", output_lines[1])]
+                field_names = OutputParsingTool._str_multi_split(output_lines[0], field_indices)[1:]
+                field_names = [field_name_dict.get(name) or name.lower().replace(' ', '-') for name in field_names]
+                logger.info(f"Infered field names: {field_names}")
+
+            with allure.step("Parsing content"):
+                result = {}
+                for line in output_lines[2:]:
+                    item, *values = OutputParsingTool._str_multi_split(line, field_indices)
+                    result[item] = dict(zip(field_names, values))
+                if only_operational and (ConfState.OPERATIONAL in field_names):
+                    result = {k: v[ConfState.OPERATIONAL] for k, v in result.items()}
+                logger.info(f"Returned dict:\n{result}")
+                return ResultObj(True, "", result)

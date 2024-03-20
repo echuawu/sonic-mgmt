@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> ROUTE_FLOW_COUNTER Case </info>
         <name> route_flow_counter </name>
         <tout> 3600 </tout>

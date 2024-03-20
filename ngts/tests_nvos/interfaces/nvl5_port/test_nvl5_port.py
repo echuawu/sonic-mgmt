@@ -21,7 +21,7 @@ logger = logging.getLogger()
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_nvl5_interface_commands(engines, devices, test_api):
+def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
     """
     validate all show fae interface nvl5 commands.
 
@@ -34,9 +34,6 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
     """
 
     TestToolkit.tested_api = test_api
-
-    with allure_step("Start openSM"):
-        OpenSmTool.start_open_sm(engines.dut).verify_result()
 
     with allure_step("Select nvl5 port"):
         port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
@@ -81,7 +78,7 @@ def test_show_nvl5_interface_commands(engines, devices, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_port_configuration(engines, devices, test_api):
+def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
     """
     Validate configuration applied on interface
 
@@ -93,9 +90,6 @@ def test_nvl5_port_configuration(engines, devices, test_api):
     TestToolkit.tested_api = test_api
 
     try:
-        with allure_step("Start open SM"):
-            OpenSmTool.start_open_sm(engines.dut).verify_result()
-
         with allure_step("Select nvl5 port"):
             port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
             selected_port = MgmtPort(port_name)
@@ -110,15 +104,12 @@ def test_nvl5_port_configuration(engines, devices, test_api):
         with allure_step("Unset configuration"):
             selected_port.interface.unset(apply=True, ask_for_confirmation=True).verify_result()
 
-        with allure_step("Stop open SM"):
-            OpenSmTool.stop_open_sm(engines.dut).verify_result()
-
 
 @pytest.mark.interface
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_negative(engines, devices, test_api):
+def test_nvl5_negative(engines, devices, start_sm, test_api):
     """
     Validate negative testing on nvl5 port
 
@@ -133,9 +124,6 @@ def test_nvl5_negative(engines, devices, test_api):
     with allure_step("Select nvl5 port"):
         port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
         selected_port = MgmtPort(port_name)
-
-    with allure_step("Start open SM"):
-        OpenSmTool.start_open_sm(engines.dut).verify_result()
 
     try:
         with allure_step("Negative testing with split nvl5 {} port".format(selected_port.name)):

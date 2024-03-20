@@ -1,5 +1,9 @@
 import re
 
+ACL_INGRESS_TABLE_NAME = "DATA_INGRESS_L3TEST"
+BUFFER_TABLE_SEPARATOR = "Buffer Info"
+ACL_TABLE_SEPARATOR = "Rules Info"
+
 
 def parse_ip_address_from_packet(ip_string):
     """
@@ -25,4 +29,24 @@ def parse_ip_address_from_packet(ip_string):
         return ip
 
     # Return N/A if the input doesn't match one of the patterns
+    return 'N/A'
+
+
+def get_drop_src_ip_from_ingress_acl_table(cli_obj):
+    """
+    Returns an ipv4 src_ip which matches a drop rule from the ACL_INGRESS_TABLE_NAME table
+    """
+    acl_rules = cli_obj.acl.show_and_parse_acl_rule()[ACL_INGRESS_TABLE_NAME]
+
+    # Filter the table to drop rules only
+    drop_rules = [rule for rule in acl_rules if rule['Action'] == 'DROP']
+
+    # Extract a src_ip that matches a drop rule, without the ip mask
+    for rule in drop_rules:
+        for match in rule['Match']:
+            if 'SRC_IP' in match:
+                # The match will be of format SRC_IP: IP_ADDR/IP_MASK, so we extract the ip address without mask.
+                src_ip = match.split(': ')[1].split('/')[0]
+                return src_ip
+    # Returns N/A if no src_ip was found in a drop acl rule - shouldn't happen with push-gate acl configuration.
     return 'N/A'

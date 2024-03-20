@@ -6,6 +6,9 @@ sonic-dual-tor-tigon,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/
 sonic-dual-tor-tigon-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],4600C Active-Standby Dual-TOR testbed
 sonic-dual-tor-tigon-dualtor-64,vm-t1,dualtor-64,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],4600C Active-Standby Dual-TOR testbed
 
+sonic-dual-tor-leopard,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,[r-leopard-70;r-leopard-72],Dual-TOR testbed
+sonic-dual-tor-leopard-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,[r-leopard-70;r-leopard-72],4700 Active-Standby Dual-TOR testbed
+
 mts-sonic-dut-t0,vm-t1,t0,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
 mts-sonic-dut-t1,vm-t1,t1,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
 mts-sonic-dut-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,mts-ptf,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
@@ -50,6 +53,7 @@ r-leopard-70-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,serv
 r-leopard-70-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
 r-leopard-70-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
 r-leopard-70-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
+r-leopard-70-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,r-leopard-70,Mellanox MTR testbed
 
 r-leopard-72-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
 r-leopard-72-t0-56-o8v48,vm-t1,t0-56-o8v48,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
@@ -58,6 +62,7 @@ r-leopard-72-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/1
 r-leopard-72-t1-28-lag,vm-t1,t1-28-lag,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
 r-leopard-72-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
 r-leopard-72-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
+r-leopard-72-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-72,10.215.34.62/16,,server_62,VM2701,r-leopard-72,Mellanox MTR testbed
 
 r-leopard-79-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-79,10.215.28.182/16,,server_69,VM3401,r-leopard-79,Mellanox MTR testbed
 r-leopard-79-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-leopard-79,10.215.28.182/16,,server_69,VM3401,r-leopard-79,Mellanox MTR testbed
@@ -364,6 +369,8 @@ r-leopard-simx-21-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,se
 r-leopard-simx-25-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-25,Mellanox MTR testbed
 r-leopard-simx-29-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-29,Mellanox MTR testbed
 r-leopard-simx-33-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-leopard-simx-33,Mellanox MTR testbed
+r-bobcat-simx-87-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bobcat-simx-87,Mellanox MTR testbed
+r-bobcat-simx-144-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bobcat-simx-144,Mellanox MTR testbed
 r-panther-simx-13-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-13,Mellanox MTR testbed
 r-panther-simx-18-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-18,Mellanox MTR testbed
 r-panther-simx-23-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-simx-23,Mellanox MTR testbed
@@ -407,6 +414,7 @@ gorilla-154-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_5
 gorilla-152-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-152,Mellanox MTR testbed
 gorilla-100-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-100,Mellanox MTR testbed
 nvidia-arm-orion-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,nvidia-arm-orion,Mellanox MTR testbed
+croc-skt-208-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,croc-skt-208,Mellanox MTR testbed
 bm-bu-nos-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,bm-bu-nos,Mellanox MTR testbed
 r-bsp-qm3400-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bsp-qm3400,Mellanox MTR testbed
 r-come-bf3-01-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,nvidia-arm-orion,Mellanox MTR testbed
@@ -417,6 +425,7 @@ gorilla-simx-87-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,serv
 gorilla-simx-88-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-88,Mellanox MTR testbed
 gorilla-simx-93-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-93,Mellanox MTR testbed
 gorilla-simx-95-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-95,Mellanox MTR testbed
+gorilla-simx-91-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-91,Mellanox MTR testbed
 gorilla-simx-97-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-simx-97,Mellanox MTR testbed
 gorilla-chipsim-62-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-62,Mellanox MTR testbed
 gorilla-chipsim-63-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,gorilla-chipsim-63,Mellanox MTR testbed

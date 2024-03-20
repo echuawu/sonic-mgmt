@@ -8,17 +8,10 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.platform.Platform import Platform
-from ngts.scripts.bios_config import configure_bios
 from ngts.tests_nvos.conftest import ProxySshEngine
 
 
 logger = logging.getLogger()
-
-
-@pytest.fixture(scope='module', autouse=True)
-def restore_bios(topology_obj):
-    yield
-    configure_bios(topology_obj)
 
 
 @pytest.mark.bios

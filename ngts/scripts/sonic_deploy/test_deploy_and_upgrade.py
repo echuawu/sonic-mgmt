@@ -220,8 +220,8 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     if isinstance(dut_cli_obj, CumulusGeneralCli):
         CumulusInstallationSteps.post_installation_steps()
     elif isinstance(dut_cli_obj, NvueGeneralCli):
-        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, base_version, target_version,
-                                                      verify_secure_boot)
+        NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, setup_info, base_version,
+                                                      target_version, verify_secure_boot)
     else:
         SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
                                                        setup_name, platform_params,
@@ -245,11 +245,12 @@ def get_cli_obj(topology_obj, cli_type, switch_type, engine, host):
     return cli_obj
 
 
-def get_info_from_topology(topology_obj, workspace_path):
+def get_info_from_topology(topology_obj, workspace_path, include_smartswitch_dpu=True):
     """
     Creates a class which contains setup info
     :param topology_obj: topology object
     :param workspace_path: workspace_path argument
+    :param include_smartswitch_dpu: controls whether collect the entries of SmartSwitch DPUs
     :return: SetupInfo object
     """
     ansible_path = os.path.join(workspace_path, "sonic-mgmt/ansible/")
@@ -267,6 +268,8 @@ def get_info_from_topology(topology_obj, workspace_path):
                 cli_obj = get_cli_obj(topology_obj, cli_type, switch_type, engine, host)
                 dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine, 'cli_obj': cli_obj,
                             'dut_alias': dut_alias, 'switch_type': switch_type, 'dut_ip': dut_ip}
+                if 'dut-dpu' in dut_alias and not include_smartswitch_dpu:
+                    continue
                 setup_info['duts'].append(dut_info)
             elif host == 'hypervisor':
                 hypervisor_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Common']['Name']
@@ -333,7 +336,11 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
     """
 
     if isinstance(cli_type, NvueGeneralCli):
-        NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url, deploy_type,
+        base_image_url = image_url
+        # if base version specified, installing version with prev default password - adjust engine
+        if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
+            cli_type.engine.password = cli_type.device.prev_default_password
+        NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, base_image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:
         SonicInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url,

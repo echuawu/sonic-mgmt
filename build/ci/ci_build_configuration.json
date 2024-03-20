@@ -10,7 +10,9 @@
     "PIPELINE_FORCE_CLEAN=true",
     "PRIORITY_NUMBER=4",
     "TARBALL_NAME=SONIC_MGMT_TAR.db.1.tgz",
-    "OFFICIAL_TESTS=SONIC_MGMT"
+    "OFFICIAL_TESTS=SONIC_MGMT",
+    "MARS_RELEASE_VERSION=/auto/sw_tools/Internal/MARS/mars_apps/RELEASE/4_3_6/",
+    "SIMX_ON_FAILURE=stop"
   ],
   "phases": [
     {
@@ -69,18 +71,6 @@
           "out_of_mail": true
         },
         {
-          "name": "Check SIMX compatibility",
-          "module": "/auto/sw_system_release/ci/sonic_devops/build/release/simx_compatibility.groovy",
-          "category": "Pre BAT",
-          "node": "SONIC_LITE",
-          "parameters": {
-            "readme_folder" : "${README_PATH}"
-          },
-          "skip": "${SKIP_SIMX}",
-          "on_failure": "stop",
-          "out_of_mail": true
-        },
-        {
           "parallel_build": [
             {
               "name": "Beautify",
@@ -116,6 +106,18 @@
           "skip": false,
           "on_failure": "stop",
           "out_of_mail": false
+        },
+        {
+          "name": "Check SIMX compatibility",
+          "module": "/auto/sw_system_release/ci/sonic_devops/build/release/simx_compatibility.groovy",
+          "category": "Pre BAT",
+          "node": "SONIC_LITE",
+          "parameters": {
+            "readme_folder": "${README_PATH}"
+          },
+          "skip": "${SKIP_SIMX}",
+          "on_failure": "stop",
+          "out_of_mail": true
         },
         {
           "name": "Create tarball",
@@ -214,7 +216,7 @@
             "device_var": "SWITCH_MOOSE1",
             "setup_requirements": "group_name:Sagi,sub_group:SONIC_CI,setup_status:enable"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC4_BAT}",
           "on_failure": "stop",
           "out_of_mail": true
         },
@@ -329,11 +331,13 @@
             "matrix_row": "ETH_COMMUNITY",
             "matrix_col": "SPC",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_COMMUNITY_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_COMMUNITY_SPC_SETUP}/",
             "base_version": "${SONIC_BIN}",
             "test_type": "REGRESSION",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_COMMUNITY_REGRESSION}",
           "on_failure": "stop"
@@ -347,11 +351,13 @@
             "matrix_row": "ETH",
             "matrix_col": "SPC",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC_BAT}",
           "on_failure": "stop",
@@ -366,11 +372,13 @@
             "matrix_row": "ETH",
             "matrix_col": "SPC2",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC2_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC2_BAT}",
           "on_failure": "stop",
@@ -385,11 +393,13 @@
             "matrix_row": "ETH",
             "matrix_col": "SPC3",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC3_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_HW_SPC3_BAT}",
           "on_failure": "stop",
@@ -404,13 +414,15 @@
             "matrix_row": "ETH",
             "matrix_col": "SPC4",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SPC4_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SPC4_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
-          "skip": "${SKIP_BAT}",
+          "skip": "${SKIP_SONIC_HW_SPC4_BAT}",
           "on_failure": "stop",
           "out_of_mail": false
         },
@@ -423,14 +435,16 @@
             "matrix_row": "SIMX",
             "matrix_col": "SPC",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -442,14 +456,16 @@
             "matrix_row": "SIMX",
             "matrix_col": "SPC2",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC2_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC2_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC2_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -461,14 +477,16 @@
             "matrix_row": "SIMX",
             "matrix_col": "SPC3",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC3_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC3_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC3_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -480,14 +498,16 @@
             "matrix_row": "SIMX",
             "matrix_col": "SPC4",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_SIMX_SPC4_SETUP}",
             "setup_conf_file_path": "${MARS_CONF_BASE}/${CI_SONIC_SIMX_SPC4_SETUP}/",
             "base_version": "${SONIC_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_SONIC_SIMX_SPC4_BAT}",
-          "on_failure": "stop",
+          "on_failure": "${SIMX_ON_FAILURE}",
           "out_of_mail": false
         },
         {
@@ -499,11 +519,13 @@
             "matrix_row": "IB",
             "matrix_col": "QTM2",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_NVOS_QTM2_SETUP}",
             "setup_conf_file_path": "/auto/sysgwork/G/MARS_conf/stm_10_7_225_113/setups/${CI_NVOS_QTM2_SETUP}/",
             "target_version": "${NVOS_BIN}",
             "base_version": "${NVOS_BIN}",
-            "custom_tarball_name": "${nfs_dir}/${TARBALL_NAME}"
+            "custom_tarball_name": "${nfs_dir}/${TARBALL_NAME}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_NVOS_BAT}",
           "on_failure": "stop",
@@ -518,11 +540,13 @@
             "matrix_row": "DPU",
             "matrix_col": "BF3",
             "global_conf": "${MARS_GLOBAL_CONF}",
+            "local_conf": "${MARS_LOCAL_CONF}",
             "setup_id": "${CI_SONIC_BF3_SETUP}",
             "setup_conf_file_path": "/auto/sw_regression/system/SONIC/MARS/conf/setups/${CI_SONIC_BF3_SETUP}/",
             "base_version": "${DPU_BIN}",
-            "test_type" : "CI",
-            "sonic_mgmt_repo_url": "${nfs_dir}"
+            "test_type": "CI",
+            "sonic_mgmt_repo_url": "${nfs_dir}",
+            "mars_release_version": "${MARS_RELEASE_VERSION}"
           },
           "skip": "${SKIP_DPU_BAT}",
           "on_failure": "stop",
@@ -787,7 +811,7 @@
             "cmd": "timeout 300 sudo scp ${nfs_dir}/${TARBALL_NAME} root@mtbc-stm-003:/auto/sw_regression/mtbcsw/system/SONIC/MARS/tarballs/SONIC_CANONICAL-sonic-mgmt_${GERRIT_BRANCH}.db.1.tgz"
           },
           "skip": false,
-          "on_failure": "continue",
+          "on_failure": "ignore",
           "out_of_mail": true
         },
         {

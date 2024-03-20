@@ -463,10 +463,13 @@ def summarize_la_bug_handler(la_bug_handler_result):
                                 }
             }
     """
+    no_action_mode = False
     create_and_update_bugs_dict = {BugHandlerConst.BUG_HANDLER_DECISION_CREATE: {}, BugHandlerConst.BUG_HANDLER_DECISION_UPDATE: {},
-                                   BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {}, BugHandlerConst.BUG_HANDLER_FAILURE: []}
+                                   BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {}, BugHandlerConst.BUG_HANDLER_FAILURE: [],
+                                   BugHandlerConst.NO_ACTION_MODE: no_action_mode}
 
     for bug_handler_result_dict in la_bug_handler_result:
+        no_action_mode = no_action_mode or bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] == 'no_action mode'
         if bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_ACTION] in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
                 and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] in ['done', 'no_action mode']:
             bug_id = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_BUG_ID]
@@ -474,4 +477,6 @@ def summarize_la_bug_handler(la_bug_handler_result):
                 {bug_id: bug_handler_result_dict[BugHandlerConst.LA_ERROR]})
         else:
             create_and_update_bugs_dict[BugHandlerConst.BUG_HANDLER_FAILURE].append(bug_handler_result_dict)
+
+    create_and_update_bugs_dict[BugHandlerConst.NO_ACTION_MODE] = no_action_mode
     return create_and_update_bugs_dict

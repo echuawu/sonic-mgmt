@@ -13,10 +13,10 @@ def install_and_uninstall_platform_file(engines, devices):
     system = System(devices_dut=devices.dut)
 
     with allure.step("install xdr simulation on switch"):
-        MultiPlanarTool.override_platform_file(system, engines, MultiPlanarConsts.A_PORT_SPLIT_SIMULATION_FILE)
+        MultiPlanarTool.override_platform_file(system, engines, devices, MultiPlanarConsts.A_PORT_SPLIT_SIMULATION_FILE)
 
     yield
 
     with allure.step("uninstall xdr simulation on switch"):
-        MultiPlanarTool.override_platform_file(system, engines, MultiPlanarConsts.ORIGIN_FILE)
+        MultiPlanarTool.override_platform_file(system, engines, devices, MultiPlanarConsts.ORIGIN_FILE)
         engines.dut.run_cmd("sudo rm -f {}".format(MultiPlanarConsts.ORIGIN_FULL_PATH))

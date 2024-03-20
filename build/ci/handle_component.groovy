@@ -110,6 +110,7 @@ def run_step(name) {
                 print "The changes are only in the error/skip yaml files, run only the yaml validation test on SPC SIMX."
                 // Only run one SPC SIMX setup
                 set_bat_skip(name, SONIC_CANONICAL_BAT + "BF3" + "QTM2" - "SPC_SIMX")
+                env.SIMX_NONE_BLOCKER = "false"
             }
         }
 

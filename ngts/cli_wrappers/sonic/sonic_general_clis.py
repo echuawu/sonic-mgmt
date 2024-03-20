@@ -459,7 +459,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def deploy_bfb(self, image_path, topology_obj, change_to_one_port_hwsku=False):
         rshim = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
             'Parent_device_NIC_name']
-        hyper_engine = topology_obj.players['hyper']['engine']
+        hyper_name = 'hyper' if 'hyper' in topology_obj.players else 'hypervisor'
+        hyper_engine = topology_obj.players[hyper_name]['engine']
 
         with allure.step('Check RSHIM service running(restart if required'):
             if not LinuxGeneralCli(hyper_engine).systemctl_is_service_active(service='rshim'):
@@ -902,6 +903,29 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                               dest_file=SonicConst.CONFIG_DB_JSON, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}')
+
+    def remove_snmp_ipv6_addr(self):
+        if is_redmine_issue_active([3796847]):
+            if 'master' in self.get_image_sonic_version():
+                logger.info("Update SNMP config started")
+                config_db = self.cli_obj.general.get_config_db()
+                if 'SNMP_AGENT_ADDRESS_CONFIG' in config_db.keys():
+                    logger.info("SNMP_AGENT_ADDRESS_CONFIG in config_db.keys")
+                    snmp_config = config_db['SNMP_AGENT_ADDRESS_CONFIG']
+                    ipv6_add_to_remove = re.search(r"(\w{4}::.+)", ",".join(snmp_config.keys())).group(1)
+                    if ipv6_add_to_remove:
+                        snmp_config.pop(ipv6_add_to_remove)
+                        config_db['SNMP_AGENT_ADDRESS_CONFIG'] = snmp_config
+                        with open('/tmp/config_db.json', 'w') as f:
+                            json.dump(config_db, f, indent=4)
+                        os.chmod('/tmp/config_db.json', 0o777)
+                        self.engine.copy_file(source_file='/tmp/config_db.json',
+                                              dest_file="config_db.json", file_system='/tmp/',
+                                              overwrite_file=True, verify_file=False)
+                        self.engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
+                        self.reload_configuration(force=True)
+                        self.verify_dockers_are_up()
+                        logger.info("Update SNMP config finished")
 
     def update_sai_xml_file(self, platform, hwsku, global_flag=False, local_flags=False):
         switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'

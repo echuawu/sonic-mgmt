@@ -7,12 +7,12 @@ import time
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.HostMethods import HostMethods
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, DatabaseConst
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.infra.HostMethods import HostMethods
 
 
 @pytest.mark.system
@@ -37,12 +37,9 @@ def test_snmp_default_values_fields(engines):
             logging.info("All expected values were found")
 
     with allure.step("Enable snmp"):
-        system.snmp_server.set('state', 'enabled').verify_result()
-        system.snmp_server.set('readonly-community', 'qwerty12').verify_result()
-        system.snmp_server.set('listening-address', 'all').verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
+        HostMethods.start_snmp_server(engine=engines.dut, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                      listening_address='all')
         _wait_for_snmp_is_running(system)
-        logging.info("Snmp enabled successfully")
 
     with allure.step('Verify fields and values after snmp enabled'):
         listening_address_output = OutputParsingTool.parse_json_str_to_dictionary(
@@ -200,11 +197,8 @@ def test_system_snmp_functional(engines, topology_obj):
     ip_address = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['ip_address']
     dhcp_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['dhcp_hostname']
     with allure.step("Enable snmp"):
-        system.snmp_server.set('state', 'enabled').verify_result()
-        system.snmp_server.set('readonly-community', 'qwerty12').verify_result()
-        system.snmp_server.set('listening-address', ip_address).verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
-        logging.info("Snmp enabled successfully")
+        HostMethods.start_snmp_server(engine=engines.dut, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                      listening_address=ip_address)
 
         with allure.step("Check snmpget with listening eth0 ip address"):
             host_output = HostMethods.host_snmp_get(host_engine, ip_address)
@@ -273,11 +267,8 @@ def test_system_snmp_redis_crash(engines, topology_obj):
     system = System(None)
     host_engine = engines.ha
     with allure.step("Enable snmp"):
-        system.snmp_server.set('state', 'enabled').verify_result()
-        system.snmp_server.set('readonly-community', 'qwerty12').verify_result()
-        system.snmp_server.set('listening-address', 'all').verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
-        logging.info("Snmp enabled successfully")
+        HostMethods.start_snmp_server(engine=engines.dut, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                      listening_address='all')
 
     with allure.step("Rewrite value for snmp community with redis db"):
         with allure.step('Write value to snmp community via redis cli'):
@@ -311,11 +302,8 @@ def test_system_snmp_load_test(engines, topology_obj):
     host_a_engine = engines.ha
     host_b_engine = engines.hb
     with allure.step("Enable snmp"):
-        system.snmp_server.set('state', 'enabled').verify_result()
-        system.snmp_server.set('readonly-community', 'qwerty12').verify_result()
-        system.snmp_server.set('listening-address', 'all').verify_result()
-        NvueGeneralCli.apply_config(engines.dut)
-        logging.info("Snmp enabled successfully")
+        HostMethods.start_snmp_server(engine=engines.dut, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                      listening_address='all')
 
     with allure.step("Enable snmp"):
         ip_address = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][

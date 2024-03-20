@@ -67,7 +67,7 @@
     - '.* ERR hostcfgd:.*sudo systemctl (enable|disable).*failed. RC: 1.*'
     - '.* ERR hostcfgd:.*Feature.*failed to be\s+(enabled and started|stopped and disabled).*'
     - '.* ERR (swss#portsyncd|teamd#teamsyncd):.*netlink reports an error=-33 on reading a netlink socket.*'
-    - '.* ERR systemd-udevd.*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
+    - '.* ERR .*: could not read from ''\/sys\/module\/acpi_cpufreq\/initstate'': No such device.*'
     - '.* (ERR|WARNING) syncd#(SAI|SDK):.*Shared memory of the.*already exists,\s*destroying it and re-creating.*'
     - '.* ERR swss#orchagent:.*removeLag: Failed to remove (ref count \d+|non-empty) LAG PortChannel.*'
     - '.* ERR hostcfgd:.*error returned by select.*'
@@ -999,13 +999,9 @@
       - 3038334
 
 - Errors_list:
-    - '.* ERR kernel: \[.*\] Fails to access MCIA, module: \d, status:.*'
+    - '.* ERR kernel: \[.*\] Fails to access MCIA, module: \d+, status:.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/push_build_tests/L2/vlan/test_lldp.py::test_show_lldp_neighbors_output
-      - tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_4094_5
-      - tests/push_build_tests/general/wjh/test_wjh.py::test_l2_dst_mac_is_reserved
-      Redmine:
+    - Redmine:
       - 3793376
 
 - Errors_list:
@@ -1654,6 +1650,41 @@
     - Redmine:
       - 3144720
 
+- Errors_list:
+  - '.*ERR kernel:.*rcu: INFO: rcu_sched detected stalls on CPUs.*tasks.*'
+  - '.*ERR kernel:.*rcu: .*idle=.* softirq=.* fqs=.*'
+  - '.*ERR kernel:.*rcu: All QSes seen.*last rcu_sched kthread activity .* jiffies_till_next_fqs=1, root.*qsmask.*'
+  - '.*ERR kernel:.*rcu: rcu_sched kthread starved for \d+ jiffies.* RCU_GP_WAIT_FQS.*state.*cpu.*'
+  - ".*ERR kernel:.* rcu: \tUnless rcu_sched kthread gets sufficient CPU time, OOM is now expected behavior.*"
+  - '.*ERR kernel:.*rcu: RCU grace-period kthread stack dump.*'
+  - '.*ERR kernel:.*SX_BULK_CNTR: unable to find buffer for event_id.*'
+  - '.*ERR kernel:.*SXD_HEALTH_FATAL:On device 1 cause =.*EMAD completion timeout.*- Stopping further device monitoring.*'
+  - '.*ERR syncd#SDK: \[EMAD_TRANSACTION.ERR\] ACCESS_REG TIMEOUT .*sent to FW but there was no reply.*timeout_usec=\d+.*tid=0x320101e42d, reg=0x\d+, dev_id=\d+, access_cmd.*'
+  - '.*ERR syncd#SDK: \[EMAD.ERR\] emad-send failed on register 0x.*, iteration \d+, status=.*'
+  - '.*ERR syncd#SDK: \[REG_BULK.ERR\] sx_reg_layer_sxd_reg_call - Error at access reg call reg_id 0x\d+, error: TIMEOUT.*'
+  - '.*ERR syncd#SDK: \[REG_BULK.ERR\] __reg_bulk_post_completion_cb Error got in completion data sxd_status .*TIMEOUT.*'
+  - '.*ERR syncd#SDK:\[EMAD_TRANSACTION.ERR\] EMAD TID 0x.* is unsolicited: there is no in-flight transaction \(dev_id=\d+.*'
+  - '.*ERR syncd#SDK: \[EMAD_RX_THREAD.ERR\] 0x[0-9a-fA-F]+: [0-9a-fA-F]+ [0-9a-fA-F]+ [0-9a-fA-F]+ [0-9a-fA-F]+.*'
+  - '.*ERR syncd#SDK: \[HOST_INTERFACE.ERR\] SX_HEALTH_FATAL: cause_string = \[timeout in FW response\], cause_id.*'
+  - '.*ERR syncd#SDK: \[SAI_OBJECT.ERR\] .\/src\/mlnx_sai_object.c.*- mlnx_set_async_bulk_read: Failed to start bulk read operation: TIMEOUT.*'
+  - '.*ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter 0x.*'
+  - '.*ERR syncd#SDK: \[SXD_FW_DBG.ERR\] sxd_secure_fw_op_transaction_dump failed to allocate memory block.*size:.* for device id.*opcode.* chip_type.*'
+  - '.*ERR kernel:.* Size of mapped area \d+ exceed max size.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed on fw core dump.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Iriscs cannot halt.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] IR-Core dump failed.*err=.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] core dump scan failed.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] .* halt irisc 2  halt_addr.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed to write iriscs core dump.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] IR-Core dump failed.*err=No More Memory.*'
+  - '.*ERR syncd#SDK: \[SX_API_DBG.ERR\] Failed on FW trace extract.*'
+  - '.*ERR syncd#SDK: \[SAI_SWITCH.ERR\] .\/src\/mlnx_sai_switch.c.*- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause HW catastrophic event.*'
+  - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+  Conditions:
+  - Redmine:
+    - 3751411
+    Platform:
+    - simx
 
 - Errors_list:
     - '.* WARNING kernel: .* probe of 5-006a failed with error -22.*'
@@ -1707,7 +1738,7 @@
     - '.* ERR syncd#SDK: :- collectData: Failed to get stats of Port Counter.*'
   Conditions:
     - Redmine:
-        - 3205278
+        - 3703507
       Platform:
         - simx
 
@@ -1909,6 +1940,14 @@
       Platform:
       - 2201
 
+
+- Errors_list:
+    - '.* ERR syncd#SDK.+Unexpected SDK FEC mode.*'
+    - '.* ERR syncd#SDK.+get_dispatch_attribs_handler.*'
+  Conditions:
+    - Redmine:
+      - 3802582
+
 - Errors_list:
     - '.* ERR hostcfgd: Hostname was not updated: Already set up'
   Conditions:
@@ -1992,10 +2031,9 @@
     - Affected_test_cases:
       # Canonical
       - tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf
+      - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       Redmine:
       - 3634621
-      Branch:
-      - 202305
 
 - Errors_list:
     - '.* ERR python: :- initializeGlobalConfig: Sonic database config global file doesn.*t exist at \/var\/run\/redis\/sonic-db\/database_global.json.*'
@@ -2220,12 +2258,8 @@
     - '.*sonic ERR kernel:.*ima: impossible to appraise a kernel image without a file descriptor; try using kexec_file_load syscall.*'
     - '.*ERR kernel:.*x86\/cpu: SGX disabled by BIOS.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      Redmine:
+    - Redmine:
       - 3726137
-      Branch:
-      - master
 
 - Errors_list:
     - '.*ERR systemctl.*: Job for pmon.service canceled.*'
@@ -3124,6 +3158,13 @@
         - 3488969
 
 - Errors_list:
+    - '.*ERR systemctl.*Failed to start.*service: Transaction for.*service\/start is destructive \(.* has .stop. job queued, but .start. is included in transaction\).*'
+    - '.*ERR systemctl.*: See system logs and .systemctl status.*service. for details.*'
+  Conditions:
+    - Redmine:
+        - 3814720
+
+- Errors_list:
     - '.*ERR pmon#thermalctld: Got wrong value \d+ for fan direction \/var\/run\/hw-management\/thermal\/fan\d_dir.*'
   Conditions:
     - Redmine:
@@ -3410,6 +3451,12 @@
         - master
 
 - Errors_list:
+    - '.* ERR systemctl.*Failed to start pmon.timer: Unit pmon.timer not found.*'
+  Conditions:
+    - Redmine:
+      - 3813903
+
+- Errors_list:
     - '.* ERR systemctl\[\d+\]: Failed to start dhcp_relay.service: Unit dhcp_relay.service is masked.*'
     - '.* ERR systemctl\[\d+\]: Job for syncd.service canceled.*'
     - '.* ERR systemctl\[\d+\]: Failed to start .*\.service: Transaction for .*\.service\/start is destructive.*'
@@ -3518,8 +3565,6 @@
   Conditions:
     - Redmine:
       - 3715126
-      Platform:
-      - simx
 
 - Errors_list:
     - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected PPCNT group.*'
@@ -3540,6 +3585,22 @@
   Conditions:
     - Redmine:
       - 3656762
+
+- Errors_list:
+    - '.*ERR kernel:.*usb usb\d-port\d: connect-debounce failed.*'
+  Conditions:
+    - Redmine:
+      - 3735940
+
+- Errors_list:
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- set_dispatch_attrib_handler: Failed Set NEXT_HOP_ID, key:ROUTE_ENTRY .*val:NEXT_HOP_GROUP .*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- sai_set_attribute: Failed to set the attribute.*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .\/src\/mlnx_sai_utils.c.*- set_dispatch_attrib_handler: Failed Set NEXT_HOP_ID, key:ROUTE_ENTRY .*val:NEXT_HOP.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/crm/test_crm.py
+      Redmine:
+      - 3814899
 
 # NVOS
 - Errors_list:
@@ -3980,3 +4041,30 @@
   Conditions:
     - Redmine:
         - 3669272
+
+# Hippo regression
+- Errors_list:
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_split_idx_to_local_port: Failed to find local-port.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_bulk_attrs_parse: Failed to get new port from father port.*'
+    - '.*ERR syncd#SDK: \[SAI_PORT\.ERR\] \.\/src\/mlnx_sai_port\.c.*- mlnx_port_hw_lanes_get: Cannot convert OID.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- mlnx_object_to_type: Expected object PORT got NULL.*'
+    - '.*ERR syncd#SDK: \[SAI_UTILS\.ERR\] \.\/src\/mlnx_sai_utils\.c.*- get_dispatch_attribs_handler: Failed Get.*'
+    - '.*ERR syncd#SDK: :- saiGetPortLanes: failed to get hardware lane list port RID oid.*'
+    - '.*ERR syncd#SDK: :- run: Runtime error: :- saiGetPortLanes: failed to get hardware lane list port RID oid.*'
+    - '.*ERR kernel: \[.*\] tpm tpm0: \[Firmware Bug\]: TPM interrupt not working, polling instead.*'
+  Conditions:
+  - Redmine:
+    - 3769363
+    Platform:
+    - sn5400
+
+- Errors_list:
+    - '.*ERR kernel: .* SXD_HEALTH_FATAL: On device 1 cause =''PLL lock failure'' \[id = \d+\]- Stopping further device monitoring!.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is not running in namespace.*host.*1.0 minutes.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: Process.*orchagent.*is stuck in namespace.*host.*1.0 minutes.*'
+    - '.*ERR swss#supervisor-proc-exit-listener: message repeated \d+ times:.* Process .*orchagent.* is stuck in namespace .*host.*'
+  Conditions:
+  - Redmine:
+    - 3772643
+    Platform:
+    - sn5400

@@ -13,6 +13,14 @@
         </Case>
     </global>
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> BGP Multipath Relax Case </info>
         <name> bgp_multipath_relax </name>
         <tout> 1800 </tout>

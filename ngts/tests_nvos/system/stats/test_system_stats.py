@@ -5,8 +5,8 @@ import csv
 import os
 
 from datetime import datetime, timedelta
-from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_constants.constants_nvos import ApiType, NvosConst, StatsConsts
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
@@ -91,7 +91,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Select a random category and unset its configuration"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
@@ -125,7 +125,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Enable feature and disable category"):
             system.stats.set(op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value). \
@@ -149,7 +149,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert not output or "No such file or directory" in output, "Category internal files were not cleared"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Enable category"):
             system.stats.category.categoryName[name].set(
@@ -168,7 +168,7 @@ def test_system_stats_configuration(engines, devices, test_api):
             assert output == name + '.csv', "Category internal file does not exist, or not the only one that exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()). \
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
     finally:
         set_system_stats_to_default(engine, system)
@@ -249,17 +249,17 @@ def test_system_stats_generation(engines, devices, test_api):
             validate_upload_stats_file(engines, system, file_name, True)
 
         with allure.step("Validate show file"):
-            show_output = system.stats.files.show_file(file=file_name, exit_cmd='q')
+            show_output = system.stats.files.file_name[file_name].show_file(exit_cmd='q')
             if 'NVUE' == TestToolkit.tested_api:
                 assert name in show_output, "show file is missing category name"
 
         with allure.step("Delete stats external file"):
-            system.stats.files.action_file(StatsConsts.DELETE, file_name).verify_result()
+            system.stats.files.file_name[file_name].action_delete()
             output = engine.run_cmd("ls /var/stats")
             assert name in output, "Category internal file not exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Clear system stats specific category"):
             clear_time = datetime.now()
@@ -275,7 +275,7 @@ def test_system_stats_generation(engines, devices, test_api):
             assert name in output, "Category internal file does not exist, or not the only one that exists"
             stats_files_show = OutputParsingTool.parse_json_str_to_dictionary(system.stats.files.show()).\
                 get_returned_value()
-            assert stats_files_show == "", "External stats files should not exist"
+            assert not stats_files_show, "External stats files should not exist"
 
         with allure.step("Generate and upload stats file to URL"):
             system.stats.category.categoryName[name].action_general(StatsConsts.GENERATE).verify_result()
@@ -401,8 +401,8 @@ def test_system_stats_performance(engines, devices, test_api):
 
         with allure.step("Create category internal file with old samples"):
             file_path = StatsConsts.OLD_SAMPLES_PATH + name + '.csv'
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -585,17 +585,16 @@ def test_system_stats_log(engines, devices, test_api):
     system = System(devices_dut=devices.dut)
     category_list = devices.dut.category_list
 
+    ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip, engines.dut.username,
+                                                    engines.dut.password).get_returned_value()
+
     try:
         with allure.step("Unset stats feature state and check log file"):
             system.log.rotate_logs()
             system.stats.unset(op_param=StatsConsts.STATE, apply=True).verify_result()
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, StatsConsts.LOG_MSG_UNSET_STATS).verify_result()
 
         with allure.step("Set category stats configuration and check log file"):
             name = RandomizationTool.select_random_value(category_list).get_returned_value()
-            log_msg = StatsConsts.LOG_MSG_PATCH_CATEGORY + name
-            system.log.rotate_logs()
             system.stats.category.categoryName[name].set(
                 op_param_name=StatsConsts.INTERVAL, op_param_value=int(StatsConsts.INTERVAL_MIN)).verify_result()
             system.stats.category.categoryName[name].set(
@@ -605,8 +604,10 @@ def test_system_stats_log(engines, devices, test_api):
                 op_param_name=StatsConsts.STATE, op_param_value=StatsConsts.State.ENABLED.value).verify_result()
             SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].
                                             apply_config, TestToolkit.engines.dut, False).verify_result()
-            show_output = system.log.show_log(exit_cmd='q')
-            ValidationTool.verify_expected_output(show_output, log_msg).verify_result()
+
+        with allure.step("Validate commands exist in system log"):
+            log_message_list = [StatsConsts.LOG_MSG_UNSET_STATS, StatsConsts.LOG_MSG_PATCH_CATEGORY + name]
+            system.log.verify_expected_logs(log_message_list, engine=ssh_connection)
 
         with allure.step("Validate stats files in tech support file"):
             stats_files = list(engines.dut.run_cmd("ls /var/stats").split())
@@ -648,8 +649,8 @@ def test_validate_tech_support_with_max_size(engines, devices, test_api):
             for category in category_list:
                 file_name = category + '.csv'
                 file_path = StatsConsts.MAX_SIZE_FILE_PATH + file_name
-                player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                    dest_password=NvosConst.DEFAULT_PASS,
+                player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                    dest_password=devices.dut.default_password,
                                                     dest_folder=StatsConsts.INTERNAL_PATH,
                                                     dest_ip=engines.dut.ip,
                                                     local_file_path=file_path)
@@ -737,24 +738,22 @@ def test_system_stats_invalid_values(engines, devices, test_api):
                 verify_result(should_succeed=False)
 
         with allure.step("Validate delete system stats file not exists"):
-            system.stats.files.action_file(StatsConsts.DELETE, StatsConsts.INVALID_FILE_NAME).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[StatsConsts.INVALID_FILE_NAME].action_delete(should_succeed=False)
 
         with allure.step("Validate upload system stats file not exists"):
-            system.stats.files.action_file(StatsConsts.UPLOAD, StatsConsts.INVALID_FILE_NAME, valid_remote_url).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[StatsConsts.INVALID_FILE_NAME].action_upload(valid_remote_url,
+                                                                                      should_succeed=False)
 
         with allure.step("Validate upload system stats file to invalid URL"):
             file_name = 'stats_cpu_gorilla-154_20230702_145940.csv'
             file_path = StatsConsts.GENERATED_FILE_PATH + file_name
-            player.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                         dest_password=NvosConst.DEFAULT_PASS,
+            player.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                         dest_password=devices.dut.default_password,
                                          dest_folder=StatsConsts.INTERNAL_PATH,
                                          dest_ip=engines.dut.ip,
                                          local_file_path=file_path)
             engine.run_cmd("sudo cp /tmp/{} /host/stats".format(file_name))
-            system.stats.files.action_file(StatsConsts.UPLOAD, file_name, invalid_remote_url).\
-                verify_result(should_succeed=False)
+            system.stats.files.file_name[file_name].action_upload(invalid_remote_url, should_succeed=False)
 
         with allure.step("Validate generate system stats invalid category"):
             system.stats.category.categoryName[StatsConsts.INVALID_CATEGORY_NAME].action_general(StatsConsts.GENERATE).\
@@ -818,8 +817,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with a big file"):
             file_name = 'fan.csv'
             file_path = StatsConsts.BIG_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -851,8 +850,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with file without header"):
             file_name = 'power.csv'
             file_path = StatsConsts.NO_HEADER_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -874,8 +873,8 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Replace internal file with a huge file"):
             file_name = 'temperature.csv'
             file_path = StatsConsts.HUGE_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=DefaultConnectionValues.ADMIN,
-                                                dest_password=NvosConst.DEFAULT_PASS,
+            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                dest_password=devices.dut.default_password,
                                                 dest_folder=StatsConsts.INTERNAL_PATH,
                                                 dest_ip=engines.dut.ip,
                                                 local_file_path=file_path)
@@ -1016,7 +1015,7 @@ def clear_all_internal_and_external_files(engine, system, category_list):
         get_returned_value()
     if stats_files_show != "":
         for file in stats_files_show.keys():
-            system.stats.files.action_file(StatsConsts.DELETE, file).verify_result()
+            system.stats.files.file_name[file].action_delete(should_succeed=True)
     engine.run_cmd("sudo rm -f /var/stats/*.old")
 
 
@@ -1040,7 +1039,7 @@ def validate_upload_stats_file(engines, system, file, delete=True):
         for protocol in upload_protocols:
             with allure.step("Upload stats file to player with {} protocol".format(protocol)):
                 upload_path = 'scp://{}:{}@{}{}'.format(player.username, player.password, player.ip, dest_path)
-                system.stats.files.action_file(StatsConsts.UPLOAD, file, upload_path).verify_result()
+                system.stats.files.file_name[file].action_upload(upload_path)
 
             with allure.step("Validate file was uploaded to player"):
                 assert player.run_cmd(cmd='ls {} | grep {}'.format(dest_path, file)), \

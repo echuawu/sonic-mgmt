@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> BGP Session Flap </info>
         <name> bgp_session_flap </name>
         <tout> 1200 </tout>

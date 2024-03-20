@@ -814,7 +814,7 @@
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_auth_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
 
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Invalid credentials.*'
@@ -1354,6 +1354,7 @@
     - '.*ERR health-statsd#health_history: PSU\d\/FAN: is missing.*'
     - '.*ERR health-statsd#health_history: PSU\d: is missing or not available.*'
     - '.*WARNING pmon#psud: PSU absence warning: PSU \d is not present.*'
+    - '.*WARNING pmon#thermalctld: Fan fault warning: fan\d is not working.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator

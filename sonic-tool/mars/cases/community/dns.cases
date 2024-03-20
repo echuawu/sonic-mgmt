@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DNS </info>
         <name> Static DNS </name>
         <tout> 1800 </tout>
@@ -26,7 +34,15 @@
         </cmd>
     </case>
 
-        <case>
+    <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DNS resolv conf </info>
         <name> DNS resolv conf</name>
         <tout> 1800 </tout>

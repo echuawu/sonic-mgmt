@@ -1114,7 +1114,7 @@ class MarsConstants:
 
     TOPO_ARRAY = ("t0-56-po2vlan", "t0", "t1-lag", "t1-28-lag", "ptf32",
                   "t0-64", "t1-64-lag", "t0-56", "t0-56-o8v48", "t0-120", "t1-56-lag")
-    TOPO_ARRAY_DUALTOR = ("dualtor-64", "dualtor-aa")
+    TOPO_ARRAY_DUALTOR = ("dualtor", "dualtor-64", "dualtor-aa")
     REBOOT_TYPES = {
         "reboot": "reboot",
         "fast-reboot": "fast-reboot",
@@ -1310,6 +1310,7 @@ class BugHandlerConst:
     BUG_HANDLER_DECISION_CREATE = "create"
     BUG_HANDLER_DECISION_ABORT = "abort"
     BUG_HANDLER_DECISION_REOPEN = "reopen"
+    NO_ACTION_MODE = "no action"
     RC_ABORT = 2
     DECISION = "decision"
     NEW_BUGS = "new_bugs"
@@ -1324,7 +1325,8 @@ class BugHandlerConst:
     BUG_HANDLER_ACTION = "action"
     BUG_HANDLER_BUG_ID = "bug_id"
     BUG_HANDLER_MESSAGES = "messages"
-    BUG_HANDLER_SUCCESS_ACTIONS_LIST = [BUG_HANDLER_DECISION_CREATE, BUG_HANDLER_DECISION_UPDATE, BUG_HANDLER_DECISION_SKIP]
+    BUG_HANDLER_SUCCESS_ACTIONS_LIST = [BUG_HANDLER_DECISION_CREATE, BUG_HANDLER_DECISION_UPDATE,
+                                        BUG_HANDLER_DECISION_SKIP]
     BUG_TITLE_LIMIT = 230
 
 

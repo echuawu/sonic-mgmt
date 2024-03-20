@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.checklist
 @pytest.mark.ssh_config
-def test_ssh_config_good_flow(engines):
+def test_ssh_config_good_flow(engines, devices):
     """
     @summary: we want to test the good flow of ssh-server config.
     we want to validate the following parameters: authentication-retries,
@@ -72,8 +72,8 @@ def test_ssh_config_good_flow(engines):
             system.ssh_server.set(SshConfigConsts.PORTS, '{},{}'.format(SshConfigConsts.DEFAULT_PORT, new_login_port),
                                   apply=True, ask_for_confirmation=True).verify_result()
             ssh_to_device_and_retrieve_raw_login_ssh_notification(engines.dut.ip,
-                                                                  username=DefaultConnectionValues.ADMIN,
-                                                                  password=NvosConst.DEFAULT_PASS,
+                                                                  username=devices.dut.default_username,
+                                                                  password=devices.dut.default_password,
                                                                   port=new_login_port)
     with allure.step("Validating ssh login ports passed"):
         logger.info("Validating ssh login ports passed")
@@ -90,7 +90,7 @@ def test_ssh_config_good_flow(engines):
                                                  username=DefaultConnectionValues.ADMIN,
                                                  custom_ssh_options=SshConfigConsts.SSH_CONFIG_CONNECTION_OPTIONS)
             time.sleep(login_timeout + 0.1)  # 0.1 represents a small delta after timeout
-            connection.sendline(NvosConst.DEFAULT_PASS)
+            connection.sendline(devices.dut.default_password)
             connection.expect(["Connection\\s+closed", "connection\\s+closed"])
         finally:
             connection.close()

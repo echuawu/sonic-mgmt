@@ -25,4 +25,7 @@
           timeout-bind: 5
           timeout-search: 5
           version: 3
+      security:
+        password-hardening:
+          state: enabled
       timezone: Asia/Jerusalem

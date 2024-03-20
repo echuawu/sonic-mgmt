@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> DROP_COUNTER Case </info>
         <name> drop_counter </name>
         <tout> 6600 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Configurable Drop Counters Case </info>
         <name> configurable_drop_counters </name>
         <tout> 3600 </tout>

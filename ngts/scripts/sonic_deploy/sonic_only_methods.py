@@ -342,6 +342,16 @@ class SonicInstallationSteps:
                 deploy_minigpraph(ansible_path=ansible_path, dut_name=dut['dut_name'], sonic_topo=sonic_topo,
                                   recover_by_reboot=recover_by_reboot, topology_obj=topology_obj,
                                   cli_obj=general_cli_obj)
+            ##########################################################################################################
+            # TODO: This is a WA for DPU before the Mars python3 migrations is completed.
+            #  A new version of libdashapi_1.0.0 is needed
+            if is_bf_topo(sonic_topo):
+                logger.info("Temp WA to install the libdashapi_1.0.0")
+                os.system("wget 'https://sonic-build.azurewebsites.net/api/sonic/artifacts?branchName=master&"
+                          "definitionId=1055&artifactName=sonic-buildimage.amd64.ubuntu20_04&"
+                          "target=libdashapi_1.0.0_amd64.deb' -O libdashapi_1.0.0_amd64.deb")
+                os.system("dpkg --install ./libdashapi_1.0.0_amd64.deb")
+
             with allure.step('Apply DNS servers configuration'):
                 for dut in setup_info['duts']:
                     general_cli_obj = dut['cli_obj']
@@ -361,7 +371,7 @@ class SonicInstallationSteps:
                         "iburst": "on",
                         "admin_state": "enabled",
                         "version": 3,
-                        "resolve_as": "10.75.202.2"
+                        "resolve_as": "10.211.0.124"
                     }
                 }
                 config_db['NTP_SERVER'] = NTP_SERVER_CONFIG
@@ -392,9 +402,11 @@ class SonicInstallationSteps:
                         'sudo cp /etc/sonic/config_db.json /etc/sonic/config_db.backup.json')
                     dut_engine.run_cmd(
                         'sudo sonic-cfggen -j /tmp/dpu_ip_assignment_config.json --write-to-db', validate=True)
-                    dut_engine.run_cmd('sudo config qos clear')
                     general_cli_obj.save_configuration()
 
+            # TODO: Remove this WA when RM 3796847 resolved
+            cli = setup_info['duts'][0]['cli_obj']
+            cli.remove_snmp_ipv6_addr()
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                 ansible_path=ansible_path)
@@ -461,6 +473,8 @@ class SonicInstallationSteps:
         """
         dut_engine = None
         try:
+            # TODO: Temp workaround for overcoming ipv6 ssh issue
+            os.system("sudo /bin/sh -c 'echo \"precedence ::ffff:0:0/96 100\" >> /etc/gai.conf'")
             # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutdown bgp
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:

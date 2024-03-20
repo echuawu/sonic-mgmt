@@ -1,4 +1,5 @@
 import logging
+import socket
 import time
 
 from paramiko.ssh_exception import AuthenticationException
@@ -19,7 +20,7 @@ class DutUtilsTool:
 
     @staticmethod
     def reload(engine, device, command, find_prompt_tries=80, find_prompt_delay=2, should_wait_till_system_ready=True,
-               confirm=False):
+               confirm=False, recovery_engine=None):
         """
 
         :param should_wait_till_system_ready: if True then we will wait till the system is ready, if false then we only will wait till we can re-connect to the system
@@ -28,6 +29,8 @@ class DutUtilsTool:
         :param command:
         :param find_prompt_tries:
         :param find_prompt_delay:
+        :param confirm:
+        :param recovery_engine: recover with other engine (optional)
         :return:
         """
         with allure.step('Reload the system with {} command, and wait till system is ready'.format(command)):
@@ -47,7 +50,8 @@ class DutUtilsTool:
 
             with allure.step('Waiting for switch to be ready'):
                 check_port_status_till_alive(True, engine.ip, engine.ssh_port)
-                result_obj = device.wait_for_os_to_become_functional(engine, find_prompt_delay=find_prompt_delay)
+                recovery_engine = recovery_engine if recovery_engine else engine
+                result_obj = device.wait_for_os_to_become_functional(recovery_engine, find_prompt_delay=find_prompt_delay)
         return result_obj
 
     @staticmethod
@@ -77,6 +81,17 @@ class DutUtilsTool:
             retry_call(engine.run_cmd, fargs=[''], tries=find_prompt_tries, delay=find_prompt_delay, logger=logger)
 
             return ResultObj(result=True, info="Reconnected After Running {}".format(command))
+
+    @staticmethod
+    def wait_on_system_reboot(engine):
+        """Call this after an operation that should trigger a reboot. Will wait on the switch until it's functional."""
+        with allure.step("Waiting for system to reboot and become available"):
+            with allure.step("Waiting for switch shutdown after reload command"):
+                check_port_status_till_alive(False, engine.ip, engine.ssh_port)
+                engine.disconnect()
+            with allure.step("Waiting for switch to be ready"):
+                check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+                DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
 
     @staticmethod
     def wait_for_nvos_to_become_functional(engine, find_prompt_tries=60, find_prompt_delay=10):
@@ -127,6 +142,15 @@ class DutUtilsTool:
                                                       file_full_path)
 
             return ResultObj(result=True, info=remote_url, returned_value=remote_url)
+
+    @staticmethod
+    def run_cmd_with_disconnect(engine, cmd, timeout=5):
+        try:
+            return engine.run_cmd(cmd, timeout=timeout)
+        except socket.error as e:
+            logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
+            engine.disconnect()
+            return "Action succeeded"
 
 
 def ping_device(ip_add):

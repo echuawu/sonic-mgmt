@@ -42,14 +42,18 @@ def create_ssh_login_engine(dut_ip, username, port=22, custom_ssh_options=None):
 
 
 def ssh_to_device_and_retrieve_raw_login_ssh_notification(dut_ip,
-                                                          username=DefaultConnectionValues.DEFAULT_USER,
-                                                          password=NvosConst.DEFAULT_PASS,
+                                                          username=None,
+                                                          password=None,
                                                           port=22):
     '''
     @summary: in this function we create ssh connection
     and return the raw output after connecting to device
     '''
     notification_login_message = ''
+    device = TestToolkit.devices.dut
+    if not username or not password:
+        username = device.default_username
+        password = device.default_password
 
     with allure.step("Connection to dut device with SSH"):
         logger.info("Connection to dut device with SSH")

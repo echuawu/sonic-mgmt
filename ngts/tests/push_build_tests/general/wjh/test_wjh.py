@@ -33,6 +33,8 @@ l3_drop_reason_dict = {
     "limited_broadcast_src_ip": "IPv4 source IP is limited broadcast - Bad packet was received from the peer",
     "non_ip_packet": "Non IP packet - Destination MAC is the router, packet is not routable"}
 
+acl_drop_reason_dict = {"ingress_router_acl": "Ingress port ACL - Validate ACL configuration"}
+
 table_parser_info = {
     'raw':
         {'headers_ofset': 0,
@@ -42,7 +44,7 @@ table_parser_info = {
          'column_ofset': 1,
          'output_key': '#'
          },
-    'raw_buffer_info':
+    'raw_acl_buffer_info':
         {'headers_ofset': 1,
          'header_len': 1,
          'len_ofset': 2,
@@ -58,7 +60,7 @@ table_parser_info = {
          'column_ofset': 1,
          'output_key': '#'
          },
-    'agg_buffer_info':
+    'agg_acl_buffer_info':
         {'headers_ofset': 1,
          'header_len': 1,
          'len_ofset': 2,
@@ -208,8 +210,9 @@ def wjh_buffer_configuration(topology_obj, cli_objects, interfaces):
 
 @pytest.fixture(scope="function", autouse=True)
 def flush_wjh_table(engines):
-    logger.info("\n\nFlushing WJH Table before running the test case to avoid background noise from dropped packets\n\n")
-    engines.dut.run_cmd("show what-just-happened poll forwarding")
+    logger.info(
+        "\n\nFlushing WJH Table before running the test case to avoid background noise from dropped packets\n\n")
+    engines.dut.run_cmd("show what-just-happened poll")
     yield
 
 
@@ -322,10 +325,10 @@ def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, prot
         pytest.fail("Could not find drop in WJH {} table.\n The table is: \n{}".format(table_type, table))
 
 
-def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message, dst_mac,
-                              src_mac, drop_reason):
+def validate_wjh_acl_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message,
+                                  dst_mac, src_mac, drop_reason, table_separator):
     """
-    A function that checks the WJH buffer tables (raw/agg + second page)
+    A function that checks the WJH buffer/acl tables (raw/agg + second page)
     :param engines: engines fixture
     :param cmd: command to execute on DUT
     :param table_types: table types
@@ -337,11 +340,11 @@ def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_
     :param dst_mac: dst mac
     :param src_mac: src mac
     :param drop_reason: drop reason
+    :param table_separator: name of second table in WJH output of buffer/acl, used to parse the tables.
     """
     output = engines.dut.run_cmd(cmd)
-    split_tables = output.split("Buffer Info")
+    split_tables = output.split(table_separator)
     parsed_tables = []
-
     for table_type, table in zip(table_types, split_tables):
         parser = table_parser_info[table_type]
         parsed_table = generic_sonic_output_parser(table, headers_ofset=parser['headers_ofset'],
@@ -357,6 +360,8 @@ def validate_wjh_buffer_table(engines, cmd, table_types, interface, dst_ip, src_
     if not result['result']:
         pytest.fail("Could not find drop in WJH {} table".format(table_type[0]))
 
+    # If the call is from test_buffer, drop reason will be one of these, else, it will be None and this clause will
+    # be skipped
     if drop_reason in ['buffer_congestion', 'buffer_latency']:
         check_buffer_info_table(parsed_tables[1], result['entry'], drop_reason, table_types[0],
                                 is_dynamic_buffer_configured(engines))
@@ -465,8 +470,8 @@ def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
                tries=3, delay=3, logger=logger)
 
 
-def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
-                       drop_reason_message, dst_mac, src_mac, command, drop_reason):
+def do_acl_buffer_raw_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
+                           drop_reason_message, dst_mac, src_mac, command, table_separator, drop_reason=None):
     """
     A function that checks the WJH feature with raw channel type
     :param engines: engines fixture
@@ -482,11 +487,13 @@ def do_buffer_raw_test(engines, cli_object, channel, channel_types, interface, d
     :param src_mac: src mac
     :param command: raw command
     :param drop_reason: drop reason
+    :param table_separator: table separator that will be used in validate_wjh_acl_buffer_table to split the two tables
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
 
-    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
-                                                 drop_reason_message, dst_mac, src_mac, drop_reason],
+    retry_call(validate_wjh_acl_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
+                                                     drop_reason_message, dst_mac, src_mac,
+                                                     drop_reason, table_separator],
                tries=3, delay=3, logger=logger)
 
 
@@ -512,8 +519,8 @@ def do_agg_test(engines, cli_object, channel, channel_type, interface, dst_ip, s
                tries=3, delay=3, logger=logger)
 
 
-def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
-                       drop_reason_message, dst_mac, src_mac, command, drop_reason):
+def do_acl_buffer_agg_test(engines, cli_object, channel, channel_types, interface, dst_ip, src_ip, proto,
+                           drop_reason_message, dst_mac, src_mac, command, table_separator, drop_reason=None):
     """
     A function that checks the WJH feature with aggregated channel type
     :param engines: engines fixture
@@ -529,11 +536,12 @@ def do_buffer_agg_test(engines, cli_object, channel, channel_types, interface, d
     :param src_mac: src mac
     :param command: raw command
     :param drop_reason: drop reason
+    :param table_separator: table separator that will be used in validate_wjh_acl_buffer_table to split the two tables
     """
     check_if_channel_enabled(cli_object, engines, channel, channel_types[0])
-
-    retry_call(validate_wjh_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
-                                                 drop_reason_message, dst_mac, src_mac, drop_reason],
+    retry_call(validate_wjh_acl_buffer_table, fargs=[engines, command, channel_types, interface, dst_ip, src_ip, proto,
+                                                     drop_reason_message, dst_mac, src_mac,
+                                                     drop_reason, table_separator],
                tries=3, delay=3, logger=logger)
 
 
@@ -579,14 +587,15 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
     ha_ip = '40.0.0.2'
     hb_ip = '40.0.0.3'
     drop_reason_message = drop_reason_dict[drop_reason]
-
     cli_object = topology_obj.players['dut']['cli']
     with allure.step('Validating WJH raw table output'):
-        do_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
-                           channel_types=['raw', 'raw_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
-                           src_ip=hb_ip, proto='udp', drop_reason_message=drop_reason_message,
-                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac, command='show what-just-happened poll buffer',
-                           drop_reason=drop_reason)
+        do_acl_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
+                               channel_types=['raw', 'raw_acl_buffer_info'], interface=interfaces.dut_hb_2,
+                               dst_ip=ha_ip,
+                               src_ip=hb_ip, proto='udp', drop_reason_message=drop_reason_message,
+                               dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
+                               command='show what-just-happened poll buffer',
+                               drop_reason=drop_reason, table_separator=utils.BUFFER_TABLE_SEPARATOR)
 
     with allure.step('Sending iPerf traffic'):
         logger.info('Sending iPerf traffic')
@@ -598,11 +607,13 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
         # As Extend WJH linux channel support with current buffer capabilities via WJH lib feature
         # It will be displayed as "udp" in the pull buffer aggregate table in master and 202311 branch
         agg_proto = 'ip' if sonic_branch in ['202211', '202305'] else 'udp'
-        do_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
-                           channel_types=['agg', 'agg_buffer_info'], interface=interfaces.dut_hb_2, dst_ip=ha_ip,
-                           src_ip=hb_ip, proto=agg_proto, drop_reason_message=drop_reason_message,
-                           dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
-                           command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason)
+        do_acl_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
+                               channel_types=['agg', 'agg_acl_buffer_info'], interface=interfaces.dut_hb_2,
+                               dst_ip=ha_ip,
+                               src_ip=hb_ip, proto=agg_proto, drop_reason_message=drop_reason_message,
+                               dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
+                               command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason,
+                               table_separator=utils.BUFFER_TABLE_SEPARATOR)
 
 
 @pytest.mark.wjh
@@ -1109,6 +1120,52 @@ def test_l3_non_ip_packet(engines, cli_objects, topology_obj, interfaces):
                         interface=interfaces.dut_ha_2, dst_ip=dst_ip, src_ip=src_ip, proto=proto,
                         drop_reason=drop_reason_message, dst_mac=broadcast_mac, src_mac=src_mac,
                         command='show what-just-happened poll forwarding --aggregate')
+
+    except Exception as e:
+        pytest.fail("Could not finish the test.\nAborting!.")
+
+
+@pytest.mark.wjh
+@allure.title('WJH ACL test case')
+def test_acl_ingress_router(engines, cli_objects, topology_obj, interfaces):
+    src_mac = "00:11:22:33:44:55"
+    broadcast_mac = cli_objects.dut.mac.get_mac_address_for_interface(interfaces.dut_ha_2)
+    src_ip = utils.get_drop_src_ip_from_ingress_acl_table(topology_obj.players['dut']['cli'])
+    dst_ip = "40.0.0.1"
+    count = 50
+    pkt = f'Ether(src="{src_mac}", dst="{broadcast_mac}")/IP(dst="{dst_ip}", src="{src_ip}")/TCP()'
+    drop_reason_message = acl_drop_reason_dict["ingress_router_acl"]
+    try:
+        with allure.step('Sending a packet when acl is configured to drop it'):
+            validation = {
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': 1}
+            }
+            ScapyChecker(topology_obj.players, validation).run_validation()
+
+        with allure.step('Validating WJH ACL raw table output'):
+            do_acl_buffer_raw_test(engines=engines, cli_object=cli_objects.dut, channel='acl',
+                                   channel_types=['raw', 'raw_acl_buffer_info'], interface=interfaces.dut_ha_2,
+                                   dst_ip=dst_ip, src_ip=src_ip, proto='tcp', drop_reason_message=drop_reason_message,
+                                   dst_mac=broadcast_mac, src_mac=src_mac, command='show what-just-happened poll acl',
+                                   table_separator=utils.ACL_TABLE_SEPARATOR)
+
+        with allure.step('Sending {} packets when acl is configured to drop them'.format(count)):
+            validation = {
+                'sender': 'ha', 'send_args': {'interface': '{}.40'.format(interfaces.ha_dut_2),
+                                              'packets': pkt,
+                                              'count': 50}
+            }
+            ScapyChecker(topology_obj.players, validation).run_validation()
+
+        with allure.step('Validating WJH ACL aggregated table output'):
+            do_acl_buffer_agg_test(engines=engines, cli_object=cli_objects.dut, channel='acl',
+                                   channel_types=['agg', 'agg_acl_buffer_info'], interface=interfaces.dut_ha_2,
+                                   dst_ip=dst_ip, src_ip=src_ip, proto='tcp', drop_reason_message=drop_reason_message,
+                                   dst_mac=broadcast_mac, src_mac=src_mac,
+                                   command='show what-just-happened poll acl --aggregate',
+                                   table_separator=utils.ACL_TABLE_SEPARATOR)
 
     except Exception as e:
         pytest.fail("Could not finish the test.\nAborting!.")

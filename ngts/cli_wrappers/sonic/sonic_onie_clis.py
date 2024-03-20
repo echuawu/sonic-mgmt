@@ -113,7 +113,7 @@ class SonicOnieCli:
 
     def post_reboot_delay(self):
         check_port_status_till_alive(should_be_alive=False, destination_host=self.ip, destination_port=self.ssh_port,
-                                     tries=10)
+                                     tries=30)
         check_port_status_till_alive(should_be_alive=True, destination_host=self.ip, destination_port=self.ssh_port)
         logger.info(
             f'Sleeping {InfraConst.SLEEP_AFTER_RRBOOT} seconds after switch reply to ping to handle ssh session')

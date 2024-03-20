@@ -14,6 +14,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Dynamic-Buffer-Calc-SHP Case </info>
         <name> dynamic-buffer-calculation-with-shared-headroom-pool </name>
         <tout> 4800 </tout>

@@ -1,9 +1,10 @@
 import logging
 import pytest
+
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.platform.Platform import Platform
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -18,31 +19,19 @@ logger = logging.getLogger()
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform(engines, test_api):
     """
-    Show platform hardware test
+    Validates the output of nv show platform.
+    The OpenAPI test checks the JSON output while the NVUE test checks the auto output.
+    Test flow:
+        1. nv show platform (json output for OpenAPI test, auto output for NVUE test)
+        2. Parse output to dict
+        3. Validate all keys (field names) exist and there are no extra keys
+        4. Validate all values are correct
     """
     TestToolkit.tested_api = test_api
-
-    with allure.step("Create System object"):
+    with allure.step("Create system object"):
         platform = Platform()
 
-    with allure.step("Check show platform output"):
-        with allure.step("Verify text output"):
-            logging.info("Verify text output")
-            logging.info("Required comp: " + str(PlatformConsts.PLATFORM_OUT_COMP))
-            output = platform.show(output_format=OutputFormat.auto)
-            assert not any(comp not in output for comp in PlatformConsts.PLATFORM_OUT_COMP), \
-                "Not all required components were found"
-
-        with allure.step("Verify json output"):
-            logging.info("Verify json output")
-            output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                platform.show()).verify_result()
-            main_keys = output.keys()
-            assert PlatformConsts.PLATFORM_ENVIRONMENT in main_keys, \
-                PlatformConsts.PLATFORM_ENVIRONMENT + " can't be found in the output"
-            assert PlatformConsts.PLATFORM_HW in main_keys, \
-                PlatformConsts.PLATFORM_HW + " can't be found in the output"
-            Tools.ValidationTool.verify_field_exist_in_json_output(output[PlatformConsts.PLATFORM_ENVIRONMENT],
-                                                                   PlatformConsts.ENV_COMP).verify_result()
-            Tools.ValidationTool.verify_field_exist_in_json_output(output[PlatformConsts.PLATFORM_HW],
-                                                                   ["component"]).verify_result()
+    output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
+    output = OutputParsingTool.parse_show_output_to_dict(platform.show(output_format=output_format),
+                                                         output_format=output_format).get_returned_value()
+    ValidationTool.validate_output_of_show(output, TestToolkit.devices.dut.show_platform_output).verify_result()

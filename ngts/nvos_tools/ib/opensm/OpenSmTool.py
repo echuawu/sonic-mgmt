@@ -101,8 +101,33 @@ class OpenSmTool:
 
     @staticmethod
     def stop_open_sm_on_server(engines):
-        engines.ha.run_cmd("reset")
-        return ResultObj(True, "")
+        try:
+            if not hasattr(engines, "ha"):
+                logging.warning("HA can't be found in topology")
+                return ResultObj(False, "HA can't be found in topology")
+
+            is_running, port_name = OpenSmTool.is_sm_running_on_server(engines)
+
+            if not is_running:
+                logging.info("Open SM is not running")
+                return ResultObj(True, "Open SM is not running")
+
+            with allure.step("Get opensm process ids to stop"):
+                output = engines.ha.run_cmd(f"ps aux | grep opensm")
+                lines = [line for line in output.split('\n') if 'grep' not in line]
+                if not lines:
+                    return ResultObj(True, "No opensm processes")
+
+            with allure.step("Stop open sm process"):
+                process_ids = [line.split()[1] for line in lines]
+                cmd = "sudo kill -9"
+                for process_id in process_ids:
+                    cmd += f" {process_id}"
+                output = engines.ha.run_cmd(cmd)
+                return ResultObj(True, info=output)
+        except BaseException as ex:
+            logging.error("Failed to start opensm")
+            return False, 0
 
     @staticmethod
     def is_sm_running_on_server(engines):

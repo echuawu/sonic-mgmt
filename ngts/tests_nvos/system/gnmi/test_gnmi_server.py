@@ -138,7 +138,7 @@ def test_simulate_gnmi_server_failure(test_api, engines):
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_updates_on_gnmi_stream_mode(engines):
+def test_updates_on_gnmi_stream_mode(engines, devices):
     """
         Test flow:
             1. validate gnmi is running and send updates
@@ -154,7 +154,7 @@ def test_updates_on_gnmi_stream_mode(engines):
         xpath = f'interfaces/interface[name={selected_port.name}]/state/description'
 
         with allure_step('Run gnmi client command in the background'):
-            background_process = run_gnmi_client_in_the_background(engines.dut.ip, xpath)
+            background_process = run_gnmi_client_in_the_background(engines.dut.ip, xpath, devices.dut)
 
         with allure_step('Set port description'):
             port_description = Tools.RandomizationTool.get_random_string(7)
@@ -177,7 +177,7 @@ def test_updates_on_gnmi_stream_mode(engines):
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_gnmi_bad_flow(test_api, engines):
+def test_gnmi_bad_flow(test_api, engines, devices):
     """
     Check gnmi bad flow:
         Test flow:
@@ -196,20 +196,20 @@ def test_gnmi_bad_flow(test_api, engines):
 
     with allure_step("Subscribe to the gnmi server for data that is not supported"):
         xpath = 'interfaces/interface[name=sw1p1]/state/counters/in-broadcast-pkts'
-        gnmi_stream_updates = run_gnmi_client_and_parse_output(engines, xpath, engines.dut.ip)
+        gnmi_stream_updates = run_gnmi_client_and_parse_output(engines, devices, xpath, engines.dut.ip)
         gnmi_stream_updates_value = list(gnmi_stream_updates.values())[0]
         assert gnmi_stream_updates_value == '0', f'{xpath} is unsupported field,' \
                                                  f' so we expect to have 0, but got {gnmi_stream_updates_value}'
 
     with allure_step("Subscribe to the gnmi server with bad xpath"):
         xpath = f'/{Tools.RandomizationTool.get_random_string(5)}/{Tools.RandomizationTool.get_random_string(5)}'
-        run_gnmi_client_and_parse_output(engines, xpath, engines.dut.ip)
+        run_gnmi_client_and_parse_output(engines, devices, xpath, engines.dut.ip)
         # just want to be sure no LA errors
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_simulate_gnmi_client_failure(engines):
+def test_simulate_gnmi_client_failure(engines, devices):
     """
     In this test we will simulate a gnmi-client failure by killing the gnmi-client process,
     will validate that it’s still enabled and running on the switch, health status doesn’t change
@@ -229,7 +229,7 @@ def test_simulate_gnmi_client_failure(engines):
 
     with allure_step('Simulate gnmi client failure'):
         with allure_step('Run gnmi client command in the background and sleep 3 sec'):
-            background_process = run_gnmi_client_in_the_background(engines.dut.ip, '/interfaces')
+            background_process = run_gnmi_client_in_the_background(engines.dut.ip, '/interfaces', devices.dut)
             time.sleep(3)
         with allure_step('Kill gnmi client command'):
             os.killpg(os.getpgid(background_process.pid), signal.SIGTERM)
@@ -239,7 +239,7 @@ def test_simulate_gnmi_client_failure(engines):
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_performance(engines):
+def test_gnmi_performance(engines, devices):
     """
     Run 10 gnmi-client process to the same switch, validate stream updates and switch state.
         Test flow:
@@ -256,7 +256,7 @@ def test_gnmi_performance(engines):
 
     with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
         for engine_id in range(num_engines):
-            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"interfaces/interface[name={selected_port.name}]/state/description"))
+            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"interfaces/interface[name={selected_port.name}]/state/description", devices.dut))
 
     with allure_step("validate memory and CPU utilization"):
         validate_memory_and_cpu_utilization()
@@ -280,7 +280,7 @@ def test_gnmi_performance(engines):
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_mapping_table(engines):
+def test_gnmi_mapping_table(engines, devices):
     """
     test will validate all the mapping tables between the redis DB data and the gnmic output
     """
@@ -290,13 +290,13 @@ def test_gnmi_mapping_table(engines):
     port_oid = get_port_oid_from_infiniband_port(engines.dut, infiniband_name)
     with allure_step("Validate infiniband table mapping"):
         gnmi_list = create_gnmi_infiniband_list(port_name, port_oid, infiniband_name)
-        validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list)
+        validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list)
     with allure_step("Validate interface state table mapping"):
         gnmi_list = create_interface_state_commands_list(port_name, infiniband_name)
-        validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list)
+        validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list)
     with allure_step("Validate counter table mapping"):
         gnmi_list = create_gnmi_counter_list(port_name, port_oid)
-        validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list)
+        validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list)
 
 
 # ------------ test functions -----------------
@@ -313,11 +313,11 @@ def validate_memory_and_cpu_utilization():
         "".format(actual=cpu_utilization, expected=SystemConsts.CPU_PERCENT_THRESH_MAX)
 
 
-def run_gnmi_client_in_the_background(target_ip, xpath):
+def run_gnmi_client_in_the_background(target_ip, xpath, device):
     prefix_and_path = xpath.rsplit("/", 1)
     command = f"gnmic -a {target_ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
               f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {NvosConst.DEFAULT_PASS} --format flat"
+              f"-u {device.default_username} -p {device.default_password} --format flat"
     # Use the subprocess.Popen function to run the command in the background
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     return process
@@ -389,14 +389,14 @@ def validate_gnmi_disabled_and_not_running(gnmi_server_obj, engines):
                        gnmi_is_running=GnmiConsts.GNMI_IS_NOT_RUNNING)
 
 
-def run_gnmi_client_and_parse_output(engines, xpath, target_ip, target_port=GnmiConsts.GNMI_DEFAULT_PORT, mode=''):
+def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_port=GnmiConsts.GNMI_DEFAULT_PORT, mode=''):
     with allure_step("run gnmi-client and parse output"):
         sonic_mgmt_engine = engines.sonic_mgmt
         prefix_and_path = xpath.rsplit("/", 1)
         mode_flag = f"--mode {mode}" if mode else ''
         cmd = f"gnmic -a {target_ip} --port {target_port} --skip-verify subscribe --prefix '{prefix_and_path[0]}'" \
-              f" --path '{prefix_and_path[1]}' --target netq -u {DefaultConnectionValues.DEFAULT_USER} " \
-              f"-p {NvosConst.DEFAULT_PASS} {mode_flag} --format flat"
+              f" --path '{prefix_and_path[1]}' --target netq -u {devices.dut.default_username} " \
+              f"-p {devices.dut.default_password} {mode_flag} --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         if "poll" == mode:
             gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'], patterns_list=["select target to poll:", "select subscription to poll:", "failed selecting target to poll:"])
@@ -425,10 +425,12 @@ def change_port_description_and_validate_gnmi_updates(engines, port_description,
     selected_port.update_output_dictionary()
     verify_description_value(selected_port.show_output_dictionary, port_description)
 
+    devices = TestToolkit.devices
+
     xpath = f'interfaces/interface[name={selected_port.name}]/state/description'
     logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")
     time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
-    gnmi_stream_updates = run_gnmi_client_and_parse_output(engines, xpath, target_ip, mode=mode)
+    gnmi_stream_updates = run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, mode=mode)
     assert port_description in list(gnmi_stream_updates.values()), \
         "we expect to see the new port description in the gnmi-client output but we didn't.\n" \
         f"port description: {port_description}\n" \
@@ -559,13 +561,13 @@ def create_gnmi_infiniband_list(port_name, port_oid, infiniband_name):
     return gnmi_list
 
 
-def validate_redis_cli_and_gnmi_commands_results(engines, gnmi_list):
+def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list):
     sonic_mgmt_engine = engines.sonic_mgmt
     for command in gnmi_list:
         prefix_and_path = command[GnmiConsts.XPATH_KEY].rsplit("/", 1)
         cmd = f"gnmic -a {engines.dut.ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
               f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {DefaultConnectionValues.DEFAULT_USER} -p {NvosConst.DEFAULT_PASS} --mode once --format flat"
+              f"-u {devices.dut.default_username} -p {devices.dut.default_password} --mode once --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])

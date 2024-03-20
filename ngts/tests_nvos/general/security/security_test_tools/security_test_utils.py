@@ -1,21 +1,20 @@
 import time
-import logging
-from datetime import datetime, timedelta
-import pytz
+from datetime import datetime
 from typing import List
 
-from infra.tools.general_constants.constants import DefaultConnectionValues
+import pytz
+
+from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AaaServerManager import \
     AaaAccountingLogsFileContent, AaaServerManager
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.AuthVerifier import *
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
-from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
-from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 
 
 def check_nslcd_service(engines):
@@ -69,7 +68,7 @@ def check_accounting(after_time: str, client_ip: str, client_username: str,
         for i, mngr in enumerate(accounting_server_mngrs):
             expect_logs = expect_accounting_logs[i]
             with allure.step(f'Check accounting on server: {mngr.ip} , Expect logs: {expect_logs}'):
-                accounting_logs: AaaAccountingLogsFileContent = mngr.cat_accounting_logs(
+                accounting_logs: AaaAccountingLogsFileContent = mngr.tail_accounting_logs(
                     grep=[client_ip, client_username], after_time=after_time)
                 assert bool(accounting_logs.logs) == expect_logs, \
                     f'There are {"no " if expect_logs else ""}accounting logs ' \
@@ -241,14 +240,14 @@ def find_server_admin_user(server_info):
     return admin_user
 
 
-def restore_original_engine_credentials(engines):
+def restore_original_engine_credentials(engines, devices):
     """
     @summary:
         in this fixture we will restore default credentials to dut engine
     """
     logging.info("Restoring default credentials, and logging in to switch")
-    engines.dut.update_credentials(username=DefaultConnectionValues.ADMIN,
-                                   password=NvosConst.DEFAULT_PASS)
+    engines.dut.update_credentials(username=devices.dut.default_username,
+                                   password=devices.dut.default_password)
 
 
 def validate_authentication_fail_with_credentials(engines, username, password):

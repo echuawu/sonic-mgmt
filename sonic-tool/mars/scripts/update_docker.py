@@ -9,17 +9,17 @@ run commands on it. Purpose is to prepare the SONiC testing topology using the t
 # Builtin libs
 import argparse
 import json
+import os
+import re
 import sys
 import time
 import traceback
-import os
-import re
-from retry import retry
 
 # Third-party libs
 from fabric import Config
 from fabric import Connection
 from invoke.exceptions import UnexpectedExit
+from retry import retry
 from retry.api import retry_call
 
 # Home-brew libs
@@ -181,8 +181,6 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
 
     container_mountpoints = " ".join(container_mountpoints_list)
 
-    logger.info("Try to remove existing docker container anyway")
-    conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
     mars_docker_env_secrets = os.getenv("MARS_DOCKER_ENV_SECRETS")
     secrets_vars_script_path = create_secrets_vars_script(conn, mars_docker_env_secrets, container_name)
     cmd_tmplt = "docker run --init -d -t --cap-add=NET_ADMIN {CONTAINER_MOUNTPOINTS} " \
@@ -197,18 +195,43 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
         IMAGE_TAG=image_tag,
         MARS_DOCKER_ENV_SECRETS=mars_docker_env_secrets
     )
-    conn.run(cmd, warn=True)
-    logger.info("Created container, wait a few seconds for it to start")
-    time.sleep(5)
-    logger.info("Check whether the container is started successfully.")
-    container_state = json.loads(conn.run("docker inspect --format '{{json .State}}' %s" % container_name)
-                                 .stdout.strip())
 
-    if not container_state["Running"]:
-        logger.error("The created container is not started, try to restart it")
-        if not start_container(conn, container_name, max_retries=3):
-            logger.error("Restart container failed.")
-            sys.exit(1)
+    logger.info("Try to remove existing docker container anyway")
+    conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
+
+    global failed_in_creating_container
+    failed_in_creating_container = False
+
+    @retry(exceptions=AssertionError, tries=10, delay=60)
+    def _create_container():
+        conn.run(cmd, warn=True)
+        logger.info("Created container, wait a few seconds for it to start")
+        time.sleep(5)
+        logger.info("Check whether the container is started successfully.")
+        container_state = json.loads(conn.run("docker inspect --format '{{json .State}}' %s" % container_name)
+                                     .stdout.strip())
+
+        if not container_state["Running"]:
+            logger.error("The created container is not started, try to restart it")
+            if not start_container(conn, container_name, max_retries=1):
+                logger.error("Restart container failed. "
+                             "Remove the container and delay 60s before recreating.")
+                global failed_in_creating_container
+                failed_in_creating_container = True
+                conn.run("docker rm -f {CONTAINER_NAME}".format(CONTAINER_NAME=container_name), warn=True)
+                assert False, "Failed to create the container."
+
+    _create_container()
+    # Send an email for debugging the issue RM#3735134, remove this part when closing the ticket
+    if failed_in_creating_container:
+        import smtplib
+        from email.mime.text import MIMEText
+        msg = MIMEText(os.path.abspath(__file__))
+        msg['From'] = "issue_reproduce@nvidia.com"
+        msg['To'] = "congh@nvidia.com"
+        smtpserver = smtplib.SMTP("mailgw.nvidia.com", 25)
+        smtpserver.sendmail('skynet@nvidia.com', "congh@nvidia.com", msg.as_string())
+        smtpserver.quit()
 
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
@@ -367,17 +390,10 @@ def main():
                     logger.error("Starting container %s failed. Will delete it and re-create" % container_name)
                     delete_container_required = True
 
-    if inspect_res["container_matches_image"] is False or delete_container_required:
-        logger.info("Deleting container")
-        test_server.run("docker rm -f {}".format(container_name), warn=True)
-
     logger.info("Need to create and start sonic-mgmt container")
     create_and_start_container(test_server, "{}/{}".format(registry_url, docker_image_name),
                                docker_tag, container_name, mac)
 
-    # TODO: WA to use the pytest-ansible version 2.2.4, after the
-    #  PR https://github.com/sonic-net/sonic-buildimage/pull/15814 merged, can remove it.
-    test_server.run('docker exec {} bash -c "/var/AzDevOps/env-python3/bin/pip install pytest-ansible==2.2.4"'.format(container_name))
     logger.info("Try to delete dangling docker images to save space")
     cleanup_dangling_docker_images(test_server)
 
@@ -386,7 +402,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.276'}
+    default_list = {'docker-ngts': '1.2.285'}
     return default_list.get(docker_name, latest)
 
 

@@ -1,5 +1,4 @@
 import time
-import allure
 import pytest
 import logging
 from ngts.nvos_tools.system.System import System
@@ -9,6 +8,7 @@ from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngi
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.tools.test_utils import allure_utils as allure
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.checklist
 @pytest.mark.ssh_config
-def test_set_max_cli_session(engines):
+def test_set_max_cli_session(engines, devices):
     """
     Test flow:
         1. run show system ssh and check default fields and values
@@ -35,7 +35,6 @@ def test_set_max_cli_session(engines):
                                                             ssh_output).verify_result()
 
         with allure.step("Validate login max cli session"):
-            logger.info("Validate login max cli session")
             system.ssh_server.set(SystemConsts.SSH_CONFIG_MAX_SESSIONS, '98', apply=True,
                                   ask_for_confirmation=True).verify_result()
             ssh_output = OutputParsingTool.parse_json_str_to_dictionary(system.ssh_server.show()).get_returned_value()
@@ -43,7 +42,6 @@ def test_set_max_cli_session(engines):
                 .verify_result()
 
     with allure.step("Open more than 98 cli's session and verify result"):
-        logger.info("Open more than 98 cli's session and verify result")
         for _ in range(100):
             try:
                 connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.DEFAULT_USER,
@@ -52,7 +50,7 @@ def test_set_max_cli_session(engines):
                 connection_list.append(connection)
                 respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
                 if respond == 0:
-                    connection.sendline(NvosConst.DEFAULT_PASS)
+                    connection.sendline(devices.dut.default_password)
                     connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             except Exception as err:
                 logger.info(err)
@@ -102,7 +100,7 @@ def test_set_max_cli_session(engines):
 
 @pytest.mark.checklist
 @pytest.mark.ssh_config
-def test_set_inactivity_timeout(engines, topology_obj):
+def test_set_inactivity_timeout(engines, devices, topology_obj):
     """
     Test flow:
         1. run show system serial-console and check default fields and values
@@ -138,6 +136,7 @@ def test_set_inactivity_timeout(engines, topology_obj):
             output = engines.dut.run_cmd("w")
             assert not output or "2 users" in output, "By default in our infra we have 2 users"
 
+        connection = None
         try:
             logger.info("Serial engine")
             att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
@@ -156,7 +155,7 @@ def test_set_inactivity_timeout(engines, topology_obj):
                                                  port=22)
             respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
             if respond == 0:
-                connection.sendline(NvosConst.DEFAULT_PASS)
+                connection.sendline(devices.dut.default_password)
                 connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
             output = engines.dut.run_cmd("w")
             assert not output or "4 users" in output, "The value of users will be 4"
@@ -167,7 +166,8 @@ def test_set_inactivity_timeout(engines, topology_obj):
         except BaseException as ex:
             raise Exception("Failed on {}".format(str(ex)))
         finally:
-            connection.close()
+            if connection:
+                connection.close()
             system.ssh_server.unset(apply=True, ask_for_confirmation=True).verify_result()
             system.serial_console.unset(apply=True, ask_for_confirmation=True).verify_result()
             ssh_output = OutputParsingTool.parse_json_str_to_dictionary(system.ssh_server.show()).get_returned_value()

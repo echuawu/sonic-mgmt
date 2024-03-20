@@ -1,7 +1,13 @@
 import logging
+import re
+from enum import Enum
+from typing import Iterable, Dict
+
+from ngts.tools.test_utils import allure_utils as allure
 from .ResultObj import ResultObj, IssueType
 from retry import retry
-import allure
+
+from ...nvos_constants.constants_nvos import NvosConst
 
 logger = logging.getLogger()
 
@@ -30,13 +36,15 @@ class ValidationTool:
                     result_obj.info = "{str_to_search_for} was found".format(str_to_search_for=str_to_search_for)
                 else:
                     result_obj.result = False
-                    result_obj.info = "{str_to_search_for} was found while it should not".format(str_to_search_for=str_to_search_for)
+                    result_obj.info = "{str_to_search_for} was found while it should not".format(
+                        str_to_search_for=str_to_search_for)
             else:
                 if should_be_found:
                     result_obj.result = False
                     result_obj.info = "{str_to_search_for} was not found".format(str_to_search_for=str_to_search_for)
                 else:
-                    result_obj.info = "{str_to_search_for} was not found as expected".format(str_to_search_for=str_to_search_for)
+                    result_obj.info = "{str_to_search_for} was not found as expected".format(
+                        str_to_search_for=str_to_search_for)
             return result_obj
 
     @staticmethod
@@ -74,7 +82,8 @@ class ValidationTool:
                         result_obj.result = False
                         result_obj.info += "'{str_to_search_for}' field was not found\n".format(str_to_search_for=key)
                     else:
-                        logging.info("'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
+                        logging.info(
+                            "'{str_to_search_for}' field was not found as expected".format(str_to_search_for=key))
 
             return result_obj
 
@@ -96,7 +105,7 @@ class ValidationTool:
         :return:
         """
         with allure.step('Verify the value of {field} is {no}equal to {expected} as expected'.format(
-                         field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
+                field=field_name, expected=expected_value, no="" if should_be_equal else "not ")):
             result_obj = ResultObj(result=True, info="", issue_type=IssueType.PossibleBug)
             if field_name not in output_dictionary.keys():
                 result_obj.result = False
@@ -200,7 +209,7 @@ class ValidationTool:
             result = True
             ret_info = ""
             if expected_fields not in output_dict.keys():
-                ret_info += 'the {field} not found\n'.format(field=field)
+                ret_info += 'the {field} not found\n'.format(field=expected_fields)
                 result = False
 
             return ResultObj(result, ret_info, ret_info)
@@ -312,7 +321,8 @@ class ValidationTool:
         """
         with allure.step('Validate all expected files are exist in the compressed folder{}'.format(zipped_folder_name)):
             with allure.step('Get files list in compressed folder'):
-                engine.run_cmd('sudo tar -xf ' + zipped_folder_path + '/' + zipped_folder_name + ' -C ' + zipped_folder_path)
+                engine.run_cmd(
+                    'sudo tar -xf ' + zipped_folder_path + '/' + zipped_folder_name + ' -C ' + zipped_folder_path)
                 output = engine.run_cmd('ls ' + zipped_folder_path + path).split()
                 engine.run_cmd('sudo rm -rf ' + zipped_folder_path + '/' + path.split('/')[1])
 
@@ -329,14 +339,30 @@ class ValidationTool:
             return ResultObj(True, "all expected files are exist", True)
 
     @staticmethod
-    def get_dictionaries_diff(dict1, dict2):
+    def get_dictionaries_diff(dict1, dict2, exceptions={}):
+        """
+        Compare two given dictionaries and return the diff
+        @param dict1: 1st dict
+        @param dict2: 2nd dict
+        @param exceptions: dict of exceptions.
+            example1: {"password": "*"} - if we reach key "password", and one of the
+                dicts has "*" as value, count it as ok (don't compare)
+            example2: {"password": None} - if we reach key "password", just don't compare
+        @return: diff as a dictionary
+        """
         difference = {}
 
         for key, value in dict1.items():
             if key not in dict2:
                 difference[key] = value
+            elif key in exceptions and (
+                    (exceptions[key] is None) or (not isinstance(value, dict) and not isinstance(dict2[key], dict) and
+                                                  exceptions[key] in [dict1[key], dict2[key]])):
+                continue
+            elif not isinstance(value, dict) and value != dict2[key]:
+                difference[key] = value
             elif isinstance(value, dict) and isinstance(dict2[key], dict):
-                nested_difference = ValidationTool.get_dictionaries_diff(value, dict2[key])
+                nested_difference = ValidationTool.get_dictionaries_diff(value, dict2[key], exceptions)
                 if nested_difference:
                     difference[key] = nested_difference
 
@@ -350,3 +376,99 @@ class ValidationTool:
             if isinstance(value, dict) and ValidationTool.has_key_with_value(value, req_key, req_val):
                 return True
         return False
+
+    @staticmethod
+    def validate_set_equal(actual: Iterable, expected: Iterable, should_be_equal=True) -> ResultObj:
+        """Tests whether the two lists are identical (by set comparison: ignoring duplicates, ignoring order)."""
+        actual = set(actual)
+        expected = set(expected)
+        missing = expected - actual
+        excess = actual - expected
+        equal = not (missing or excess)
+        return ResultObj((equal == should_be_equal), f"Missing fields: {missing}\nUnexpected fields: {excess}")
+
+    @staticmethod
+    def validate_output_of_show(actual: Dict, expected: Dict, should_be_valid=True) -> ResultObj:
+        with allure.step(f"Verify output is {'valid' if should_be_valid else 'invalid'}"):
+            with allure.step(f"Testing keys:"):
+                logger.info(f"Expected keys: {expected.keys()}")
+                keys_comparison = ValidationTool.validate_set_equal(actual.keys(), expected.keys(), should_be_valid)
+                if should_be_valid and not keys_comparison.result:
+                    return keys_comparison
+
+            with allure.step(f"Checking values:"):
+                errors = []
+                for key, expected_value in expected.items():
+                    actual_value = actual[key]
+                    logger.info(f"Checking '{key}' (value '{actual_value}')")
+                    if expected_value is None:
+                        if actual_value in ('', NvosConst.NOT_AVAILABLE):
+                            errors.append(f"Field {key} is {actual_value or 'empty'}")
+                    elif isinstance(expected_value, str):
+                        if expected_value != actual_value:
+                            errors.append(f"Field '{key}' expected value '{expected_value}' but actual value is "
+                                          f"'{actual_value}'")
+                    elif isinstance(expected_value, ExpectedString):
+                        result = expected_value.validate(actual_value)
+                        if not result:
+                            if result.info == ExpectedString.Result.REGEX_FAIL:
+                                errors.append(f"Field '{key}' expected to match regex '{expected_value.regex}' "
+                                              f"but value is '{actual_value}'")
+                            if result.info == ExpectedString.Result.NOT_A_NUMBER:
+                                errors.append(f"Field '{key}' expected to be a number but value is '{actual_value}'")
+                            elif result.info == ExpectedString.Result.TOO_SMALL:
+                                errors.append(f"Numeric value in field '{key}' expected to be at least "
+                                              f"{expected_value.range_min} but field value is '{actual_value}'")
+                            elif result.info == ExpectedString.Result.TOO_LARGE:
+                                errors.append(f"Numeric value in field '{key}' expected to be at most "
+                                              f"{expected_value.range_max} but field value is '{actual_value}'")
+                            else:
+                                raise ValueError()
+
+                    else:
+                        raise TypeError()  # if we got here, there's a bug in the test itself (check the `expected` obj)
+
+            return ResultObj(bool(errors) != should_be_valid,
+                             f"{len(errors)} validation errors encountered:\n" + '.\n'.join(errors))
+
+
+class ExpectedString:
+    Result = Enum('Result', ['SUCCESS', 'REGEX_FAIL', 'NOT_A_NUMBER', 'TOO_SMALL', 'TOO_LARGE'])
+
+    def __init__(self, regex=None, range_min=None, range_max=None):
+        """
+        String will be tested for full-match to regex. If range_min and/or range_max are given, then the first group
+        inside the regex is expected to contain a float or int and the class validates the number is in range.
+        If `regex` is omitted, the entire string is expected to be numeric.
+        """
+        self.range_min = range_min
+        self.range_max = range_max
+        self.regex = re.compile(regex)
+
+    @staticmethod
+    def number_and_string(s: str, range_min=None, range_max=None):
+        """Initializes an ExpectedString object that expects a string of the form '<number> <s>' """
+        return ExpectedString(r"(\d+(\.\d*)?) ?" + re.escape(s), range_min, range_max)
+
+    def _validate_range(self, s) -> Result:
+        try:
+            n = float(s.strip())
+        except ValueError:
+            return ResultObj(False, ExpectedString.Result.NOT_A_NUMBER)
+        if self.range_min is not None and n < self.range_min:
+            return ResultObj(False, ExpectedString.Result.TOO_SMALL)
+        if self.range_max is not None and n > self.range_max:
+            return ResultObj(False, ExpectedString.Result.TOO_LARGE)
+        return ResultObj(True, ExpectedString.Result.SUCCESS)
+
+    def validate(self, s) -> Result:
+        if self.regex:
+            match = self.regex.fullmatch(s)
+            if not match:
+                return ResultObj(False, ExpectedString.Result.REGEX_FAIL)
+            if self.range_min or self.range_max:
+                return self._validate_range(match.group(1))
+            else:
+                return ResultObj(True, ExpectedString.Result.SUCCESS)
+        else:
+            return self._validate_range(s)

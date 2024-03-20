@@ -5,6 +5,7 @@ import allure
 from ngts.nvos_constants.constants_nvos import ApiType, ConfState
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
@@ -47,16 +48,20 @@ class BaseComponent:
         return "{parent_path}{self_path}".format(
             parent_path=self.parent_obj.get_resource_path() if self.parent_obj else "", self_path=self._resource_path)
 
+    def update_param(self, param, rev):
+        if self._api_to_use == ApiType.OPENAPI:
+            param = param.replace('/', "%2F").replace(' ', "/")
+        if rev and rev != ConfState.OPERATIONAL:
+            param += ('?rev=' + rev) if self._api_to_use == ApiType.OPENAPI else f' --{rev}'
+        return param
+
     def show(self, op_param="", output_format=OutputFormat.json, dut_engine=None, should_succeed=True,
              rev=ConfState.OPERATIONAL):
         if not dut_engine:
             dut_engine = TestToolkit.engines.dut
 
         with allure.step('Execute show for {}'.format(self.get_resource_path())):
-            if TestToolkit.tested_api == ApiType.OPENAPI:
-                op_param = op_param.replace('/', "%2F").replace(' ', "/")
-            if rev and rev != ConfState.OPERATIONAL:
-                op_param += ('?rev=' + rev) if TestToolkit.tested_api == ApiType.OPENAPI else f' --{rev}'
+            op_param = self.update_param(op_param, rev)
             return SendCommandTool.execute_command(self._cli_wrapper.show, dut_engine,
                                                    self.get_resource_path(), op_param,
                                                    output_format).get_returned_value(should_succeed=should_succeed)
@@ -125,3 +130,31 @@ class BaseComponent:
                 result_obj = SendCommandTool.execute_command(self._general_cli_wrapper.apply_config, dut_engine,
                                                              ask_for_confirmation)
         return result_obj
+
+    def action(self, action: str, suffix="", param_name="", param_value="", output_format=OutputFormat.json,
+               dut_device=None, dut_engine=None, expected_output='', expect_reboot=False) -> ResultObj:
+        """
+        Runs nv action commands. The arguments `suffix`, `param_name` and `param_value` are all arguments passed to the
+        the command, the difference is that in OpenAPI the `suffix` is appended to the URL while param_name and
+        param_value are in the message contents. See examples below (also notice how NVUE handles param_name differently
+        in these examples, based on whether or not we have param_value).
+        :param expect_reboot: Set to True if the system is expected to reboot when the action is run.
+
+        Example: fae.platform.firmware.cpld.action('install', "files /path/to/xyz.img", param_name="force")
+        --> NVUE:       nv action install fae platform firmware cpld files /path/to/xyz.img force
+        --> OPENAPI:    /fae/platform/firmware/cpld/files/%2Fpath%2Fto%2Fxyz.img
+                        {"@install": {"state": "start", "parameters": {"force": True}}}
+
+        Example: fae.platform.firmware.cpld.action('fetch', param_name="remote-url", param_value="scp://...")
+        --> NVUE:       nv action fetch fae platform firmware cpld scp://...
+        --> OPENAPI:    /fae/platform/firmware/cpld
+                        {"@fetch": {"state": "start", "parameters": {"remote-url": "scp://..."}}}
+        """
+        dut_engine = dut_engine or TestToolkit.engines.dut
+        dut_device = TestToolkit.devices.dut
+        resource_path = self.get_resource_path()
+        with allure.step(f"Execute action {action} for {resource_path}"):
+            return SendCommandTool.execute_command_expected_str(
+                self.api_obj[TestToolkit.tested_api].action, expected_output,
+                dut_engine, dut_device, action, resource_path, suffix, param_name, param_value, output_format,
+                expect_reboot)

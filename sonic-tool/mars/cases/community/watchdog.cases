@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> WATCHDOG Case </info>
         <name> watchdog </name>
         <tout> 3600 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> System health WATCHDOG Case </info>
         <name> system_health_watchdog </name>
         <tout> 900 </tout>

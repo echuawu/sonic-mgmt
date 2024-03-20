@@ -39,7 +39,7 @@ def test_checklist_ipv6(engines):
 
         with allure.step("Verify OpenApi command using ipv6 address " + ipv6_add):
             logging.info("Verify OpenApi command using ipv6 address " + ipv6_add)
-            _send_open_api_request(ipv6_add, engines.dut.username, engines.dut.password)
+            _send_open_api_request(ipv6_add, engines.dut)
 
     except BaseException as ex:
         assert str(ex)
@@ -82,16 +82,13 @@ def _check_ssh_connection(ipv6_add, username, password):
         assert "SSH connection using ipv6 was failed"
 
 
-def _send_open_api_request(ipv6_add, username, password):
+def _send_open_api_request(ipv6_add, dut_engine):
     try:
-        url = "curl -guk {user_name}:{password} --request GET https://[{ipv6_add}]/nvue_v1/system/version".format(
-            user_name=username, password=password, ipv6_add=ipv6_add)
+        url = "curl -k -g -6 -u {user_name}:{password} --request GET https://[{ipv6_add}]/nvue_v1/system/version".format(
+            user_name=dut_engine.username, password=dut_engine.password, ipv6_add=ipv6_add)
         logging.info("url: " + url)
-        process = subprocess.Popen(url.split(), stdout=subprocess.PIPE)
-        output, error = process.communicate()
-        logging.info("output: " + str(output))
-        logging.info("error: " + str(error))
-        assert "build-by" in str(output) and "build-date" in str(output), "API request failed using ipv6 address"
+        output = dut_engine.run_cmd(url)
+        assert "build-date" in output and "image" in output, "API request failed using ipv6 address"
     except BaseException as ex:
         logging.error(str(ex))
         assert "API request failed using ipv6 address"

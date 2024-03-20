@@ -1,20 +1,14 @@
 import pytest
-import logging
 
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_constants.constants_nvos import DatabaseConst
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.MultiPlanarTool import MultiPlanarTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.tools.test_utils.allure_utils import step as allure_step
 
 
@@ -26,7 +20,7 @@ logger = logging.getLogger()
 @pytest.mark.simx_xdr
 @pytest.mark.system_profile_cleanup
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_interface_aggregated_port_split(engines, devices, test_api, players, interfaces):
+def test_interface_aggregated_port_split(engines, devices, test_api, players, interfaces, start_sm):
     """
     validate all show fae interface commands.
 
@@ -66,8 +60,7 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
 
-    with allure_step("Start OpenSM and check traffic port up"):
-        OpenSmTool.start_open_sm(engines.dut).verify_result()
+    with allure_step("Check traffic port up"):
         split_ports = MultiPlanarTool._get_split_ports()
 
     with allure_step("Split splitter port"):

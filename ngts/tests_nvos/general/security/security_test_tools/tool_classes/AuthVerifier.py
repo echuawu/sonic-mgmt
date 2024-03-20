@@ -1,16 +1,16 @@
 import logging
 import os
-import subprocess
 
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
-from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from infra.tools.linux_tools.linux_tools import LinuxSshEngine, scp_file
+from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AuthMedium
 from ngts.tools.test_utils import allure_utils as allure
-from infra.tools.linux_tools.linux_tools import LinuxSshEngine, scp_file
 
 
 class AuthVerifier:
@@ -49,13 +49,14 @@ class AuthVerifier:
                 system.version.show(dut_engine=self.engine)
             with allure.step(f'Run set command. Expect success: {user_is_admin}'):
                 system.message.set(op_param_name=SystemConsts.PRE_LOGIN_MESSAGE, op_param_value='"NVOS TESTS"',
-                                   apply=user_is_admin,
                                    dut_engine=self.engine).verify_result(should_succeed=user_is_admin)
 
             with allure.step(f'Run unset command. Expect success: {user_is_admin}'):
-                system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE, apply=user_is_admin,
+                system.message.unset(op_param=SystemConsts.PRE_LOGIN_MESSAGE,
                                      dut_engine=self.engine).verify_result(should_succeed=user_is_admin)
         finally:
+            logging.info('Clear global OpenApi changeset and payload')
+            OpenApiRequest.clear_changeset_and_payload()
             self.change_test_api(orig_test_api)
 
 
@@ -82,8 +83,15 @@ class RconAuthVerifier(AuthVerifier):
     def __init__(self, username, password, engines, topology_obj):
         super().__init__(username, password, engines, topology_obj)
         logging.info(f'Create pexpect serial engine for user: {username}')
-        self.engine = ConnectionTool.create_serial_engine(topology_obj=topology_obj, ip=engines.dut.ip,
-                                                          username=username, password=password)
+        self.engine: PexpectSerialEngine = ConnectionTool.create_serial_engine(topology_obj=topology_obj,
+                                                                               ip=engines.dut.ip, username=username,
+                                                                               password=password)
+
+    def __del__(self):
+        if self.engine:
+            with allure.step('Logout rcon login before delete auth verifier'):
+                logging.info('send ctrl+D to logout')
+                self.engine.run_cmd('\x04', DefaultConnectionValues.LOGIN_REGEX)
 
     def _authenticate(self, expect_success):
         with allure.step('For RCON - start rcon connection and force new login'):

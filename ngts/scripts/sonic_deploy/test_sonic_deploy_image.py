@@ -28,7 +28,7 @@ def test_deploy_sonic_image(topology_obj, setup_name, sonic_topo, platform_param
     :param fw_pkg_path: fw_pkg_path fixture
     :return: raise assertion error in case of script failure
     """
-    setup_info = get_info_from_topology(topology_obj, workspace_path)
+    setup_info = get_info_from_topology(topology_obj, workspace_path, include_smartswitch_dpu=False)
     for dut in setup_info['duts']:
         try:
             # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutdown bgp

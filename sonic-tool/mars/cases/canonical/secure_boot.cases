@@ -16,7 +16,15 @@
   </global>
 
     <case>
-    <name> Secure Boot </name>
+     <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+     <name> Secure Boot </name>
      <info> </info>
      <cmd>
        <params>
@@ -25,6 +33,14 @@
      </cmd>
     </case>
     <case>
+     <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
      <name> Secure Upgrade </name>
      <info> </info>
      <cmd>
@@ -34,6 +50,14 @@
      </cmd>
     </case>
    <case>
+     <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+     </ignore>
      <name> Secure Corrupt FW </name>
      <info> </info>
      <cmd>

@@ -121,4 +121,8 @@
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/dut_console.cases </cases>
     </test>
 
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/community/pktgen.cases </cases>
+    </test>
+
 </DBDEF>

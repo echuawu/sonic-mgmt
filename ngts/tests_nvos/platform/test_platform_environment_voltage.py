@@ -1,4 +1,5 @@
 import logging
+import re
 import pytest
 import random
 from ngts.tools.test_utils import allure_utils as allure
@@ -35,7 +36,11 @@ def test_show_platform_environment_voltage(engines):
             sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 platform.environment.voltage.show(random_sensor)).verify_result()
             with allure.step("Verify both dictionaries are equal"):
-                assert sensor_output == voltage_output[random_sensor], ""
+                voltage_output_for_sensor = voltage_output[random_sensor]
+                # the actual voltage might fluctuate between the two `nv show` commands, so we don't compare it
+                del sensor_output['actual']
+                del voltage_output_for_sensor['actual']
+                assert sensor_output == voltage_output_for_sensor, ""
 
         random_sensor = get_random_sensor_max_min(voltage_output)
         check_voltage_in_range(voltage_output[random_sensor])
@@ -75,10 +80,10 @@ def test_database_platform_environment_voltage(engines, devices):
         logger.info("the sensors from switch's CLI are: {}".format(cli_sensors_list))
 
     with allure.step("get all the tabled with SENSOR in STATE_DB"):
-        database_output = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=engines.dut, asic="",
-                                                                   db_name=DatabaseConst.STATE_DB_NAME,
-                                                                   grep_str="VOLTAGE").splitlines()
-        # database_output = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
+        raw_database_output = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=engines.dut, asic="",
+                                                                       db_name=DatabaseConst.STATE_DB_NAME,
+                                                                       grep_str="VOLTAGE").splitlines()
+        database_output = [re.sub(r"PMIC-\d+ ", "", sensor_str) for sensor_str in raw_database_output]
 
     with allure.step("Check the Sensors output from CLI"):
         with allure.step("Verify for every sensor in sensors_dict[VOLTAGE], it exist in nv show platform environment voltage"):

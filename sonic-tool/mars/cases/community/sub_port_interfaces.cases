@@ -16,6 +16,14 @@
     </global>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Show Sub Interfaces Case </info>
         <name> show_subinterface </name>
         <tout> 1200 </tout>
@@ -27,6 +35,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Sub Port Interfaces Daily Cases </info>
         <name> sub_port_interfaces_daily_cases </name>
         <tout> 5400 </tout>
@@ -39,6 +55,7 @@
 
     <case>
         <ignore>
+            <!-- weekend case  -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
@@ -56,6 +73,14 @@
     </case>
 
     <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
         <info> Sub Port L2 Forwarding Case </info>
         <name> sub_port_l2_forwarding </name>
         <tout> 1200 </tout>

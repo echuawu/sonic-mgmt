@@ -1,14 +1,15 @@
 import logging
+
 import pytest
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.system.Files import File
+
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -53,7 +54,7 @@ def test_install_system_firmware(engines, test_name):
                 player_engine = engines['sonic_mgmt']
                 scp_path = 'scp://{}:{}@{}'.format(player_engine.username, player_engine.password, player_engine.ip)
                 system.firmware.action_fetch(scp_path + fw_file)
-                firmware_file = File(system.firmware.asic.files, fw_file_name)
+                firmware_file = system.firmware.asic.files.file_name[fw_file_name]
                 # firmware_file.action_file_install(op_param="")
 
                 res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,

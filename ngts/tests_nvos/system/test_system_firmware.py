@@ -1,18 +1,17 @@
 import logging
-import pytest
-from ngts.tools.test_utils import allure_utils as allure
 import string
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.infra.Fae import Fae
-from ngts.nvos_tools.system.Files import File
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+
+import pytest
+
 from ngts.nvos_constants.constants_nvos import ImageConsts
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_constants.constants_nvos import PlatformConsts
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -67,7 +66,7 @@ def validate_show_firmware(devices, is_fae_cmd=False):
                 expected_asic_amount = len(devices.dut.device_list) - 1 if is_fae_cmd else 6
                 assert len(output_dictionary["asic"]) == expected_asic_amount, \
                     "Unexpected num of ASIC\n Expected : {}\n but got {}".format(
-                    expected_asic_amount, len(output_dictionary["asic"]))
+                        expected_asic_amount, len(output_dictionary["asic"]))
 
             with allure.step("Validate asic fields"):
                 verify_asic_fields(output_dictionary["asic"], is_fae_cmd)
@@ -193,10 +192,12 @@ def test_system_firmware_image_rename(engines, devices, topology_obj):
     dut = devices.dut
     original_images, original_image, fetched_image, default_firmware = \
         get_image_data_and_fetch_random_image_files(system, dut, topology_obj)
-    fetched_image_file = File(system.firmware.asic.files, fetched_image)
+    fetched_image_file = system.firmware.asic.files.file_name[fetched_image]
     player = engines['sonic_mgmt']
     with allure.step("Rename image without mfa ending"):
-        system.firmware.asic.action_fetch(url="scp://{}:{}@{}{}/{}".format(player.username, player.password, player.ip, PlatformConsts.FM_PATH, fetched_image))
+        system.firmware.asic.action_fetch(
+            url="scp://{}:{}@{}{}/{}".format(player.username, player.password, player.ip, PlatformConsts.FM_PATH,
+                                             fetched_image))
 
     with allure.step("Rename image and verify"):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
@@ -211,7 +212,7 @@ def test_system_firmware_image_rename(engines, devices, topology_obj):
 
     with allure.step("Delete original image name, should fail"):
         logging.info("Delete original image name, should fail")
-        system.firmware.asic.files.delete_system_files([fetched_image], "File not found")
+        system.firmware.asic.files.delete_files([fetched_image], "File not found")
 
     try:
         with allure.step("Install new image name"):
@@ -237,10 +238,11 @@ def test_system_firmware_image_upload(engines, devices, topology_obj):
     """
     system = System()
     dut = devices.dut
-    original_images, original_image, fetched_image, _ = get_image_data_and_fetch_random_image_files(system, dut, topology_obj)
+    original_images, original_image, fetched_image, _ = get_image_data_and_fetch_random_image_files(system, dut,
+                                                                                                    topology_obj)
     upload_protocols = ['scp', 'sftp']
     player = engines['sonic_mgmt']
-    image_file = File(system.firmware.asic.files, fetched_image)
+    image_file = system.firmware.asic.files.file_name[fetched_image]
 
     with allure.step("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols)):
         logging.info("Upload image to player {} with the next protocols : {}".format(player.ip, upload_protocols))
@@ -248,17 +250,19 @@ def test_system_firmware_image_upload(engines, devices, topology_obj):
         for protocol in upload_protocols:
             with allure.step("Upload image to player with {} protocol".format(protocol)):
                 logging.info("Upload image to player with {} protocol".format(protocol))
-                upload_path = '{}://{}:{}@{}/tmp/{}'.format(protocol, player.username, player.password, player.ip, fetched_image)
+                upload_path = '{}://{}:{}@{}/tmp/{}'.format(protocol, player.username, player.password, player.ip,
+                                                            fetched_image)
                 image_file.action_upload(upload_path, expected_str='File upload successfully')
 
             with allure.step("Validate file was uploaded to player and delete it"):
                 logging.info("Validate file was uploaded to player and delete it")
-                assert player.run_cmd(cmd='ls /tmp/ | grep {}'.format(fetched_image)), "Did not find the file with ls cmd"
+                assert player.run_cmd(
+                    cmd='ls /tmp/ | grep {}'.format(fetched_image)), "Did not find the file with ls cmd"
                 player.run_cmd(cmd='rm -f /tmp/{}'.format(fetched_image))
 
     with allure.step("Delete file from player"):
         logging.info("Delete file from player")
-        system.firmware.asic.files.delete_system_files([fetched_image])
+        system.firmware.asic.files.delete_files([fetched_image])
         system.firmware.asic.files.verify_show_files_output(unexpected_files=[fetched_image])
 
 

@@ -1,5 +1,4 @@
 import os
-from ngts.constants.constants import InfraConst
 from enum import Enum
 
 
@@ -67,6 +66,9 @@ class NvosConst:
     SERVICE_STATUS_ACTIVE = 'active'
     NVUE_CLI = "NVUE"
     CUMULUS_SWITCH = "CUMULUS_SWITCH"
+    ENABLED = 'enabled'
+    DISABLED = 'disabled'
+    NOT_AVAILABLE = 'N/A'
 
     DOCKERS_LIST = ['pmon', 'syncd-ibv0', 'swss-ibv0', 'database']
     DOCKER_PER_ASIC_LIST = ['syncd-ibv0', 'swss-ibv0', 'database']
@@ -81,8 +83,6 @@ class NvosConst:
 
     SONIC_MGMT = 'sonic_mgmt'
 
-    DEFAULT_USER = os.getenv("NVU_SWITCH_USER")
-    DEFAULT_PASS = os.getenv("NVU_SWITCH_NEW_PASSWORD")
     OLD_PASS = os.getenv("NVU_SWITCH_PASSWORD")
 
     REBOOT_CMD_TO_RUN = "ipmitool -I lanplus -H {ip} -U {username} -P {password} chassis power cycle"
@@ -119,6 +119,16 @@ class NvosConst:
                     "fail-delay": 0,
                     "lockout-state": "disabled"
                 }
+            },
+            "user": {
+                "admin": {
+                    "password": "*"
+                }
+            }
+        },
+        "security": {
+            "password-hardening": {
+                "state": "enabled"
             }
         },
         "timezone": "Asia/Jerusalem"
@@ -139,6 +149,7 @@ class CertificateFiles:
     PRIVATE_KEY_FILE = 'uri-private-key'
     BUNDLE_CERTIFICATE_CURRENT_PASSWORD = 'Test_2108'
     URI_BUNDLE = 'uri-bundle'
+    URI = 'uri'
     PUBLIC_PRIVATE = 'public_private'
     DATA = 'data'
     PASSPHRASE = "passphrase"
@@ -197,6 +208,7 @@ class ActionType:
     CHANGE = '@change'
     ENABLE = '@enable'
     DISABLE = '@disable'
+    IMPORT = '@import'
 
 
 class SystemConsts:
@@ -418,6 +430,7 @@ class ActionConsts:
     FETCH = "fetch"
     ENABLE = 'enable'
     DISABLE = 'disable'
+    DELETE = 'delete'
 
 
 class IpConsts:
@@ -482,14 +495,13 @@ class PlatformConsts:
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
-    PLATFORM_OUT_COMP = ["fan", "led", "psu", "temperature", "component", PLATFORM_HW, PLATFORM_ENVIRONMENT]
-    PLATFORM_COMP = [PLATFORM_FW, PLATFORM_ENVIRONMENT, PLATFORM_HW, PLATFORM_SW]
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
     FW_ONIE = "ONIE"
     FW_SSD = "SSD"
     FW_COMP = [FW_BIOS, FW_ONIE, FW_SSD, FW_CPLD + '1', FW_CPLD + '2', FW_CPLD + '3']
     FW_FIELDS = ["actual-firmware", "installed-firmware", "part-number", "serial-number", "type"]
+    FW_PART_NUMBER = 'part-number'
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
@@ -519,6 +531,21 @@ class PlatformConsts:
                HW_MAC, "system-uuid"]
     HW_COMP_SWITCH = "SWITCH"
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
+    TRANSCEIVER_STATUS = "module-status"
+    TRANSCEIVER_ERROR_STATUS = "module-error-status"
+
+
+class FansConsts:
+    FORWARD_DIRECTION = 'B2F'
+    BACKWARD_DIRECTION = 'F2B'
+    ALL_DIRECTIONS = [FORWARD_DIRECTION, BACKWARD_DIRECTION]
+    DEF_DIRECTION = FORWARD_DIRECTION
+    NO_DIRECTION = '-'
+    FEATURE_ENABLED = 'enabled'
+    FEATURE_DISABLED = 'disabled'
+    STATE_OK = 'OK'
+    STATE_NOT_OK = 'Not OK'
+    FAN_DIRECTION_MISMATCH_ERR = "direction exhaust is not aligned"
 
 
 class IbConsts:
@@ -699,6 +726,8 @@ class NtpConsts:
                                    "'key': '6', 'resolve_as': '10.7.77.134', 'state': 'disabled', " \
                                    "'trusted': 'yes', 'version': '3'}}"
     LOG_MSG_SERVER_CONFIG_KEY = "NtpCfg: Set keys: {'6': {'trusted': 'yes', 'type': 'SHA1'}}"
+
+    LOG_MSG_LIST = [LOG_MSG_UNSET_NTP, LOG_MSG_SERVER_CONFIG, LOG_MSG_SERVER_CONFIG_UPDATE, LOG_MSG_SERVER_CONFIG_KEY]
     #   LOG_MSG_SERVER_CONFIG_VRF = "..."  # Currently not supported
 
     NTP_DEFAULT_DICT = {
@@ -864,7 +893,7 @@ class OperationTimeConsts:
                   'reset factory': 240,
                   'install user FW': 450,
                   'install default fw': 360,
-                  'port goes up': 20,
+                  'port goes up': 30,
                   'port goes down': 4,
                   'reboot with default FW installation': 360,
                   'reboot with new user FW': 450,
@@ -1087,6 +1116,7 @@ class UfmMadConsts:
     CONFIG_TIME = 100  # [sec]
     MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
     IBSNI_REGISTER = 'IBSNI'
+    PMAOS_REGISTER = 'PMAOS'
     NVMAD_PATH = '/auto/sw_system_project/MLNX_OS_INFRA/mad_repository'
     LID = 1
     MAD_NO_IPV4 = '0.0.0.0'
@@ -1183,3 +1213,24 @@ class AclConsts:
     HASHLIMIT_EXPIRE = 'expire'
     HASHLIMIT_DEST_MASK = 'destination-mask'
     HASHLIMIT_SRC_MASK = 'source-mask'
+
+
+class PtpConsts:
+    class TcState(Enum):
+        ENABLED = 'enabled'
+        DISABLED = 'disabled'
+        INVALID = 'invalid'
+
+    TC_STATE = 'tc'
+    MTPCPC_REGISTER = 'MTPCPC'
+    MTPCPC_INDEXES = '--indexes "lp_msb=0x0,local_port=0x0,pport=0x0"'
+    ING_CORRECTION_MSG_TYPE = 'ing_correction_message_type'
+    EGR_CORRECTION_MSG_TYPE = 'egr_correction_message_type'
+    REG_NA_VALUE = '0xffffffff'
+    REG_DISABLE_VALUE = '0x00000000'
+    REG_ENABLE_VALUE = '0x0000070f'
+    DEFAULT_DICT = {
+        ING_CORRECTION_MSG_TYPE: REG_NA_VALUE,
+        EGR_CORRECTION_MSG_TYPE: REG_NA_VALUE
+    }
+    PTP_TABLE_TC = '\"PTP_TABLE|tc\"'

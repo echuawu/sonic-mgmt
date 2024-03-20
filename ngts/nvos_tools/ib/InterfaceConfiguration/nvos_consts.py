@@ -90,6 +90,7 @@ class IbInterfaceConsts:
     IB0_IP_ARP_DEFAULT_VALUE = 1800
     IB0_IP_AUTOCONF_DEFAULT_VALUE = 'disabled'
     IB0_DHCP_STATE_DEFAULT_VALUE = 'disabled'
+    MAX_COUNTERS_AFTER_CLEAR = 700
 
 
 class DataBaseNames:

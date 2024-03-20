@@ -51,7 +51,7 @@ def test_replace_empty_file(engines):
 
 @pytest.mark.general
 @pytest.mark.simx
-def test_replace_positive(engines):
+def test_replace_positive(engines, devices):
     """
 
     Test flow:
@@ -88,7 +88,7 @@ def test_replace_positive(engines):
 
     with allure.step("Replace config"):
         config_after_hostname_change = config_after_hostname_change.replace('"password": "*"',
-                                                                            '"password": "{passw}"'.format(passw=NvosConst.DEFAULT_PASS))
+                                                                            '"password": "{passw}"'.format(passw=devices.dut.default_password))
         file = create_file_with_content(engines.dut, 'replace', 'yaml', config_after_hostname_change)
         output = TestToolkit.GeneralApi[TestToolkit.tested_api].replace_config(engines.dut, file)
         expected_message = "Loading config file: replace.yaml from current directory."
