@@ -1,0 +1,33 @@
+# In this file stored expected CPU usage in total and per process
+# All values in %, all values for are for all available cores(maximum value is 100%)
+# YAML file have next structure:
+#master:                  <<< branch
+#  MSN3420:               <<< platform
+#    total: 20            <<< total CPU usage which is expected on DUT
+#    sx_sdk: 10           <<< CPU usage expected by process sx_sdk
+#    syncd: 5             <<< CPU usage expected by process syncd
+
+master:
+  #QTM2
+  MQM9700: # Gorilla
+    total: 35
+    sx_sdk: 5
+    syncd: 2
+    redis-server: 2
+  #  snmpd: 2
+  #  zebra: 2
+  #  bgpd: 2
+  #  bgpcfgd: 2
+  #  bgpmon: 2
+  #  fpmsyncd: 2
+    orchagent: 2
+    ntpd: 2
+   # neighsyncd: 2
+   # vlanmgrd: 2
+    intfmgrd: 2
+    portmgrd: 2
+   # buffermgrd: 2
+   # vrfmgrd: 2
+   # nbrmgrd: 2
+   # vxlanmgrd: 2
+   # sensord: 2
