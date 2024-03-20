@@ -110,6 +110,7 @@ def pytest_collection_modifyitems(session, config, items):
                                                  dut_to_host_ports_list, topology)
             save_config_db_json(dut_engine, modified_config)
             cli_object.general.reload_configuration(force=True)
+            cli_object.ip.apply_dns_servers_into_resolv_conf()
 
 
 def pytest_sessionfinish(session, exitstatus):
