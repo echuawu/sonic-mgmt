@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_tools.platform.Platform import Platform
+from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 
 logger = logging.getLogger()
 
@@ -29,6 +30,7 @@ class Fae(BaseComponent):
         self.ib = Ib(self)
         self.sonic_cli = SonicCli(self)
         self.platform = Platform(self)
+        self.interface = Interface(self, port_name)
 
 
 class Ib(BaseComponent):

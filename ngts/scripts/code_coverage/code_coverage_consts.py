@@ -7,7 +7,6 @@ class SharedConsts:
     ENV_COVERAGE_FILE = 'COVERAGE_FILE'
     GCOV_DIR = '/sonic'
     SONIC_SOURCES_PATH = ['/src/sonic_src_cov.tar.gz']
-    NVOS_SOURCES_PATH = ['/src/sonic_swss_src_cov.tar.gz', '/src/sonic_syncd_src_cov.tar.gz']
     C_DIR = "/c_coverage/"
     PYTHON_DIR = "/python_coverage/"
 
@@ -89,8 +88,9 @@ class NvosConsts:
                          'sonic/src/nvos-sairedis/lib/sai_redis_router_interface',
                          'sonic/src/nvos-sairedis/lib/sai_redis_bmtor',
                          'sonic/src/nvos-sairedis/lib/sai_redis_interfacequery']
-
-    GCOV_CONTAINERS_NVOS = ['swss-ibv00', 'syncd-ibv00']
+    NVOS_SOURCE_PATH = '/src'
+    GCOV_CONTAINERS_SOURCES_PATH = {'swss-ibv00': '/src/sonic_swss_src_cov.tar.gz',
+                                    'syncd-ibv00': '/src/sonic_syncd_src_cov.tar.gz'}
 
 
 class SonicConsts:
