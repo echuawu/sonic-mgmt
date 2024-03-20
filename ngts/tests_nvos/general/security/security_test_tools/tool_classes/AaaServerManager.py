@@ -2,6 +2,7 @@ import datetime
 import os
 import re
 from typing import List
+
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 
 DEFAULT_ACCOUNTING_FILE_PATH = '/var/log/tac.acct'
@@ -66,10 +67,19 @@ class AaaServerManager:
 
     def __show_op_on_accounting_log_file(self, accounting_file_path: str, show_cmd: str, grep: List[str] = None,
                                          after_time: str = '') -> AaaAccountingLogsFileContent:
-        cmd = f'{show_cmd} {accounting_file_path}'
         if grep:
-            for gr in grep:
-                cmd = f'{cmd} | grep -E "{gr}"'
+            cmd = f'grep -E "{grep[0]}'
+            for pattern in grep[1:]:
+                cmd += f'|{pattern}'
+            cmd += f'" {accounting_file_path} | {show_cmd}'
+        else:
+            cmd = f'{show_cmd} {accounting_file_path}'
+
+        # cmd = f'{show_cmd} {accounting_file_path}'
+        # if grep:
+        #     for gr in grep:
+        #         cmd = f'{cmd} | grep -E "{gr}"'
+
         # if after_time:
         #     # cmd = f"{cmd} | awk '/{after_time}/" + "{p=1}p'"
         #     awk_cmd = f'awk -v target_time="{after_time}" ' + "'{if ($0 >= target_time || p) {print; p=1}}'"

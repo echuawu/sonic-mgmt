@@ -1,5 +1,6 @@
 import pytest
 
+from ngts.tests_nvos.general.security.constants import MAX_TEST_TIMEOUT
 from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingConsts, \
     AuthType
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_accounting_testing import *
@@ -72,6 +73,7 @@ def test_tacacs_set_invalid_param(test_api, engines):
     )
 
 
+@pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
@@ -369,6 +371,7 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
                                             server=test_server)
 
 
+@pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
