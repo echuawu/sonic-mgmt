@@ -25,6 +25,12 @@
                     <op> == </op>
                     <value> no </value>
                 </condition>
+                <!-- weekend case -->
+                <condition>
+                    <key> skip_weekend_cases </key>
+                    <op> == </op>
+                    <value> yes </value>
+                </condition>
             </ignore>
             <post></post>
         </DB>
