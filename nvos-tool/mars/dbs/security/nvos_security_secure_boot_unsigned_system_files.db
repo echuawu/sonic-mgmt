@@ -38,6 +38,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/security/separated_cases/nvos_security_secure_boot_unsigned_system_files.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/cases/nvos_security_secure_boot_unsigned_system_files.cases </cases>
 	</test>
 </DBDEF>
