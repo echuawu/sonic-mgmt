@@ -1616,6 +1616,12 @@ crm/test_crm.py::test_acl_counter:
     conditions:
       - "https://redmine.mellanox.com/issues/3415969"
 
+system_health/test_system_health.py::test_device_checker:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3808455"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3808455"
+
 drop_packets/test_wjh.py::test_acl_drop:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
