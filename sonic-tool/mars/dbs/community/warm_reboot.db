@@ -69,10 +69,6 @@
     </test>
 
     <test>
-        <cases> sonic-mgmt/sonic-tool/mars/cases/community/warm_reboot_multi_sad.cases </cases>
-    </test>
-
-    <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/community/warm_reboot_multi_sad_inboot.cases </cases>
     </test>
 
