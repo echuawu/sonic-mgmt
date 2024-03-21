@@ -54,6 +54,7 @@ class System(BaseComponent):
         self.firmware = Firmware(self)
         self.message = BaseComponent(self, path='/message')
         self.version = BaseComponent(self, path='/version')
+        self.events = BaseComponent(self, path='/events')
         self.reboot = Reboot(self)
         self.factory_default = FactoryDefault(self)
         self.profile = Profile(self)

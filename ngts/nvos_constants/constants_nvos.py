@@ -406,6 +406,11 @@ class SystemConsts:
     CONTAINER_BU_SCRIPT = '/devts/scripts/docker/containers_bringup.py'
     CONTAINER_BU_TEMPLATE = '{python_path} {container_bu_script} --setup_name {setup_name} --metrox2xc_setup'
 
+    EVENTS_TABLE_SIZE = 'table-size'
+    EVENTS_TABLE_OCCUPANCY = 'table-occupancy'
+    EVENTS_TABLE_SIZE_DEFAULT = 1000
+    EVENTS_TABLE_SIZE_MAX = 10000
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000
@@ -433,6 +438,7 @@ class ActionConsts:
     ENABLE = 'enable'
     DISABLE = 'disable'
     DELETE = 'delete'
+    CLEAR = 'clear'
 
 
 class IpConsts:

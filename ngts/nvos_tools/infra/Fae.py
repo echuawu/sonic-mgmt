@@ -13,6 +13,7 @@ from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Health import Health
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
+from ngts.nvos_tools.system.System import System
 
 logger = logging.getLogger()
 
@@ -21,7 +22,7 @@ class Fae(BaseComponent):
     def __init__(self, parent_obj=None, port_name='eth0'):
         BaseComponent.__init__(self, parent=parent_obj,
                                api={ApiType.NVUE: NvueBaseCli, ApiType.OPENAPI: OpenApiBaseCli}, path='/fae')
-        self.system = BaseComponent(self, {ApiType.NVUE: NvueSystemCli, ApiType.OPENAPI: OpenApiSystemCli}, '/system')
+        self.system = System(self)
         self.firmware = Firmware(self)
         self.ipoibmapping = BaseComponent(self, path='/ipoib-mapping')
         self.health = Health(self)
