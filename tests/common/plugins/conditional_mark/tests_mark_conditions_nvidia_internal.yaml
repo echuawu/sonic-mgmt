@@ -408,9 +408,9 @@ tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_evp
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634590 and branch 202305"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3832426"
     conditions:
-      - "https://redmine.mellanox.com/issues/3634590 and '202305' in release"
+    - "https://redmine.mellanox.com/issues/3832426"
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
