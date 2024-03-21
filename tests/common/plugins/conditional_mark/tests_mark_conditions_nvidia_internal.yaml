@@ -998,6 +998,12 @@ mvrf/test_mgmtvrf.py:
     conditions:
       - https://github.com/Azure/sonic-mgmt/issues/3589
 
+fib/test_fib.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3811962 on r-panther-02"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811962 and 'r-panther-02' in testbed"
+
 ecmp/inner_hashing:
   skip:
     reason: "Testcase ignored due to platform msn2 or branch 202106"
@@ -2328,12 +2334,6 @@ platform_tests/daemon/test_syseepromd.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639"
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
-
-virtual_smart_switch/test_dpu_ip_assignment.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3757833"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3757833"
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
