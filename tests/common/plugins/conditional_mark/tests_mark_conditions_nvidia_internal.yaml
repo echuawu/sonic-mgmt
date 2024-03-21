@@ -14,9 +14,15 @@ scripts/test_verify_secure_boot_enabled.py:
 
 tests/simx/test_simx_custom_base_mac.py:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3344406"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3771102"
     conditions:
-      - https://redmine.mellanox.com/issues/3344406
+      - https://redmine.mellanox.com/issues/3771102
+
+tests/nightly/rocev2_acl_counter:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3820604"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3820604 and 'simx' in platform "
 
 tests/nightly/cpld/test_cpld.py::test_cpld_version_check:
   skip:
