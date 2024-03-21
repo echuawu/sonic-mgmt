@@ -2461,10 +2461,10 @@ platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
 
 platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
   skip:
-    reason: "Testcase ignored due to bug of https://redmine.mellanox.com/issues/3715758"
+    reason: "bobcat driver doesn't need /var/run/hw-management/thermal/asic due to using independent mode"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3715758 and'simx' in platform"
+      - "'sn4280_simx' in platform"
 
 platform_tests/api/test_sfp.py:
   skip:
@@ -2483,6 +2483,13 @@ platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_running_status:
     reason: "Skip simx platform by bug of https://redmine.mellanox.com/issues/3715826"
     conditions:
       - "https://redmine.mellanox.com/issues/3715826 and'simx' in platform"
+
+platform_tests/mellanox/test_reboot_cause.py:
+  skip:
+    reason: "bobcat driver doesn't support reset_from_asic and reset_reload_bios"
+    conditions:
+    - "'sn4280_simx' in platform"
+
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
