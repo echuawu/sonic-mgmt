@@ -41,6 +41,7 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
 tests/nightly/runtime/test_runtime.py:
   skip:
     reason: "Performance testcase ignored on simx platform"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3649746"
