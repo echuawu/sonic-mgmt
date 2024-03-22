@@ -1544,6 +1544,14 @@
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
 
 - Errors_list:
+    - '.*ERR systemctl.*Job for resolv-config.service canceled.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3834976
+
+- Errors_list:
     - '.*sonic ERR hostcfgd: sonic-kdump-config --disable - failed: return code.*output:#.*None.*'
     - '.*sonic ERR hostcfgd: sonic-kdump-config --memory.*failed: return code.*, output:#.*None.*'
   Conditions:
