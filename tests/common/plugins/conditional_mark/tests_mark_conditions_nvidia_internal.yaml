@@ -2336,6 +2336,12 @@ platform_tests/daemon/test_syseepromd.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
+bgp/test_bgp_update_timer.py:
+  xfail:
+    reason: "Testcase statistically fails due to RM issue: https://redmine.mellanox.com/issues/3790712"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3790712"
+
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE END ############################
 
 
