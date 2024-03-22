@@ -1008,6 +1008,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         # TODO: WA for the PR: https://github.com/sonic-net/sonic-buildimage/pull/16116,
         #  after the PR merged, it can be removed
         self.update_database_version(setup_name, config_db_file_name)
+        if branch not in ['202205', '202211', '202305']:
+            self.remove_syslog_telemetry_entry(setup_name, config_db_file_name)
         return config_db_file_name
 
     def update_config_db_features(self, setup_name, hwsku, config_db_json_file_name):
@@ -1087,6 +1089,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_1_0_6"
         else:
             config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
+        return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
+
+    def remove_syslog_telemetry_entry(self, setup_name, config_db_json_file_name):
+        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        syslog_config_key = "SYSLOG_CONFIG_FEATURE"
+        if syslog_config_key in config_db_json:
+            if "telemetry" in config_db_json[syslog_config_key]:
+                config_db_json[syslog_config_key].pop("telemetry")
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_mgmt_ip(self, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):
