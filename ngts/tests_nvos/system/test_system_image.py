@@ -522,7 +522,11 @@ def get_list_of_directories(current_installed_img, starts_with=None):
     def mtime(f): return os.stat(os.path.join(PATH_TO_IMAGED_DIRECTORY, f)).st_mtime
     temp_directories = [dev for dev in os.listdir(PATH_TO_IMAGED_DIRECTORY) if "lastrc" not in str(dev)]
     temp_directories = list(sorted(temp_directories, key=mtime))
-    all_directories = list(directory for directory in temp_directories if directory.startswith(starts_with + "-"))
+
+    all_directories = list(directory for directory in temp_directories if directory.startswith(starts_with))
+    # above line will be replaced with below line once merged to develop
+    # all_directories = list(directory for directory in temp_directories if directory.startswith(starts_with + "-"))
+
     all_directories.reverse()
     return_directories = {}
     for directory in all_directories:
