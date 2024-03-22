@@ -1180,6 +1180,7 @@ class VxlanConstants:
     PACKET_NUM_400 = 400
     PACKET_NUM_200 = 200
     PACKET_NUM_100 = 100
+    PACKET_NUM_10 = 10
     PACKET_NUM_3 = 3
     PACKET_NUM_0 = 0
     STATIC_MAC_OPERATION_SET = 'SET'
@@ -1190,6 +1191,7 @@ class VxlanConstants:
     JUMBO_PACKET_LEN = 9000
     NORMAL_PACKET_LEN = 1000
     PCAP_PATH = '/tmp/evpn_ecmp_{}.pcap'
+    INTF_CNT_STAT_ITEMS = ['RX_DRP', 'RX_ERR', 'RX_OK', 'RX_OVR', 'TX_DRP', 'TX_ERR', 'TX_OK', 'TX_OVR']
 
     DUT_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.1'
     VM_VNI_INTF_ADDRESS_TEMPLATE = '200.{}.0.2'
@@ -1278,6 +1280,8 @@ class VxlanConstants:
     BROADCAST_IP = '255.255.255.255'
     ECMP_TRAFFIC_SRC_IP_LIST = ['3.3.3.3', '3.3.3.4', '3.3.3.5', '3.3.3.6']
     ECMP_TRAFFIC_SRC_IPV6_LIST = ['2000::3', '2000::4', '2000::5', '2000::6']
+    BULK_ECMP_TRAFFIC_SRC_IP_LIST = eval("['3.3.3.' + str(i+1) for i in range(100)]")
+    BULK_ECMP_TRAFFIC_SRC_IPV6_LIST = eval("['2000::' + str(i+1) for i in range(100)]")
 
 
 class SanitizerConst:
