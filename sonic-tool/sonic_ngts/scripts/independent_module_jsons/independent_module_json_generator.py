@@ -139,10 +139,10 @@ def parse_args():
     """
     @summary: generate the ArgumentParser, parse arguments and return them
     """
-    parser = argparse.ArgumentParser(description='Create Independent Module jsons')
-    parser.add_argument('-s', '--spc', type=str, choices=['spc3', 'spc4'], help="spectrum3 or spectrum4 indication", required=True)
-    parser.add_argument('-e', '--eeprom_input', type=str, help="Path to modules EEPROM input data")
-    parser.add_argument('-m', '--mode', type=str, choices=['port', 'module'], help="The required IM json - 'port' or 'module' SI data", required=True)
+    parser = argparse.ArgumentParser(description='Generate Independent Module jsons')
+    parser.add_argument('-s', '--spc', type=str, choices=['spc3', 'spc4'], help="Spectrum3 or Spectrum4 indication", required=True)
+    parser.add_argument('-e', '--eeprom_input', type=str, help="Path to a txt file containing module's EEPROM data")
+    parser.add_argument('-m', '--mode', type=str, choices=['port', 'module'], help="The required IM json file - 'port' or 'module' SI data", required=True)
     return parser.parse_args()
 
 
