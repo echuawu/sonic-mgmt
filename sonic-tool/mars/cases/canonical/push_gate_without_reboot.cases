@@ -15,14 +15,6 @@
     </Case>
   </global>
   <case>
-    <ignore>
-      <!-- daily case  -->
-      <condition>
-        <key> skip_weekend_cases </key>
-        <op> == </op>
-        <value> no </value>
-      </condition>
-    </ignore>
     <name> PushGate without reboot </name>
     <info> </info>
     <cmd>
@@ -32,14 +24,6 @@
     </cmd>
   </case>
   <case>
-    <ignore>
-      <!-- daily case  -->
-      <condition>
-        <key> skip_weekend_cases </key>
-        <op> == </op>
-        <value> no </value>
-      </condition>
-    </ignore>
     <name> push_gate_without_reboot_sanitizer_checker </name>
     <info> </info>
     <cmd>

@@ -50,11 +50,11 @@
   </case>
   <case>
     <ignore>
-      <!-- daily case  -->
+      <!-- weekend case  -->
       <condition>
         <key> skip_weekend_cases </key>
         <op> == </op>
-        <value> no </value>
+        <value> yes </value>
       </condition>
     </ignore>
     <name> COPP </name>
@@ -79,7 +79,25 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/lag --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/lag --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"not test_core_functionality_with_reboot and not test_lags_scale\"\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> LAG_LACP weekend </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/lag --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"test_core_functionality_with_reboot or test_lags_scale\"\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -151,7 +169,25 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fec --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fec --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"not test_fec_bug_2705016 and not test_fec_capabilities_hosts_ports\"\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> FEC tests weekend</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fec --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"test_fec_bug_2705016 or test_fec_capabilities_hosts_ports\"\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -169,7 +205,41 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/auto_negotition --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/auto_negotition/test_auto_neg.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> Auto negotiation negative</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/auto_negotition/test_auto_neg_negative.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> Auto negotiation scale</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/auto_negotition/test_auto_neg_scale.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -188,7 +258,83 @@
     <tout> 3600 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension/test_app_extension_basic.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+    <name> APP Extension install uninstall</name>
+    <info> </info>
+    <tout> 3600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension/test_app_extension_install_uninstall.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"test_app_install_uninstall[cpu-report-None-True]\"\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> APP Extension install uninstall weekend</name>
+    <info> </info>
+    <tout> 3600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension/test_app_extension_install_uninstall.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+    <name> APP Extension upgrade </name>
+    <info> </info>
+    <tout> 3600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension/test_app_extension_upgrade.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"test_app_upgrade[repo]\"\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> APP Extension upgrade weekend</name>
+    <info> </info>
+    <tout> 3600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/app_extension/test_app_extension_upgrade.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -231,11 +377,11 @@
   </case>
   <case>
     <ignore>
-      <!-- daily case  -->
+      <!-- weekend case  -->
       <condition>
         <key> skip_weekend_cases </key>
         <op> == </op>
-        <value> no </value>
+        <value> yes </value>
       </condition>
     </ignore>
     <name> FDB </name>
@@ -243,7 +389,25 @@
     <tout> 3600 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fdb --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fdb/test_fdb_advance.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+    <name> FDB weekend</name>
+    <info> </info>
+    <tout> 3600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/fdb/test_fdb_basic.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -313,7 +477,75 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan/test_evpn_vxlan  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+    <name> Evpn Vxlan type5 </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan/test_evpn_vxlan_type5  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- daily case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> no </value>
+      </condition>
+    </ignore>
+    <name> Evpn Vxlan underlay ecmp </name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan/underlay_ecmp  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> Evpn Vxlan config changes</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan/config_changes  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> Evpn Vxlan tech support</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/evpn_vxlan/tech_support  --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -347,7 +579,24 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/ecmp_calculator --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/ecmp_calculator --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"not TestInterfaceVlanVrf\"\'"</static_args>
+      </params>
+    </cmd>
+  </case>
+  <case>
+    <ignore>
+      <!-- weekend case  -->
+      <condition>
+        <key> skip_weekend_cases </key>
+        <op> == </op>
+        <value> yes </value>
+      </condition>
+    </ignore>
+    <name> ECMP Calculator weekend</name>
+    <info> </info>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/ecmp_calculator --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals -k=\"TestInterfaceVlanVrf\"\'"</static_args>
       </params>
     </cmd>
   </case>
