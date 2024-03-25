@@ -1165,8 +1165,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         platform_json_obj = json_file_helper.get_platform_json(self.engine, self.cli_obj)
         parsed_platform_json_by_breakout_modes = self.parse_platform_json(topology_obj, platform_json_obj,
                                                                           parse_by_breakout_modes=True)
-        split_ports_for_update = get_all_split_ports_parents(config_db_json)
-        unsplit_ports_for_update = get_all_unsplit_ports(config_db_json)
+        split_ports_for_update = get_all_split_ports_parents(config_db_json, topology_obj)
+        unsplit_ports_for_update = get_all_unsplit_ports(config_db_json, topology_obj)
         # TODO this is WA for virtual smartswitch, when last 4 ports connected to DPU and supports only 1x200G
         if hwsku == 'Mellanox-SN4700-O28':
             for i in range(1, 6):
