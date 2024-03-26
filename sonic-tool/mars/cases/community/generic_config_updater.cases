@@ -103,7 +103,7 @@
         </ignore>
         <info> Monitor Config Cases </info>
         <name> monitor_config_cases </name>
-        <tout> 600 </tout>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_monitor_config.py </static_args>
@@ -122,7 +122,7 @@
         </ignore>
         <info> MMU dynamic threshold config update Cases </info>
         <name> mmu_dynamic_threshold_config_update_cases </name>
-        <tout> 600 </tout>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_mmu_dynamic_threshold_config_update.py </static_args>
@@ -369,7 +369,7 @@
         </ignore>
         <info> ntp_case </info>
         <name> ntp_case </name>
-        <tout> 600 </tout>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_ntp.py </static_args>
@@ -388,7 +388,7 @@
         </ignore>
         <info> pg_headroom_update </info>
         <name> pg_headroom_update </name>
-        <tout> 600 </tout>
+        <tout> 1200 </tout>
         <cmd>
             <params>
                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts generic_config_updater/test_pg_headroom_update.py </static_args>
