@@ -222,16 +222,6 @@ def create_and_start_container(conn, image_name, image_tag, container_name, mac_
                 assert False, "Failed to create the container."
 
     _create_container()
-    # Send an email for debugging the issue RM#3735134, remove this part when closing the ticket
-    if failed_in_creating_container:
-        import smtplib
-        from email.mime.text import MIMEText
-        msg = MIMEText(os.path.abspath(__file__))
-        msg['From'] = "issue_reproduce@nvidia.com"
-        msg['To'] = "congh@nvidia.com"
-        smtpserver = smtplib.SMTP("mailgw.nvidia.com", 25)
-        smtpserver.sendmail('skynet@nvidia.com', "congh@nvidia.com", msg.as_string())
-        smtpserver.quit()
 
     validate_docker_is_up(conn, container_name)
     logger.info("Configure container after starting it")
