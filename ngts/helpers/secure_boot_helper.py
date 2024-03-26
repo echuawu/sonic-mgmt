@@ -438,7 +438,7 @@ class SonicSecureBootHelper(SecureBootHelper):
 
         with allure.step('Check if Secure Boot is enabled'):
             if not SonicSecureBootHelper.is_secure_boot_enabled(boot_config_status):
-                pytest.skip(SonicSecureBootConsts.SECURE_BOOT_NOT_ENABLED_MESSAGE)
+                pytest.fail(SonicSecureBootConsts.SECURE_BOOT_NOT_ENABLED_MESSAGE)
 
     def copy_kernel_module_to_ngts_docker(self, kernel_module_file_path):
         """
