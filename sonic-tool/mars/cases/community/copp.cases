@@ -14,33 +14,6 @@
     </global>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
-        <info> COPP Case </info>
-        <name> copp </name>
-        <tout> 7200 </tout>
-        <cmd>
-             <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --send_rate_limit=4000 --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" -k=\"[BGP]\"\'" --test-scripts copp/test_copp.py </static_args>
-             </params>
-        </cmd>
-    </case>
-
-    <case>
-        <ignore>
-            <!-- weekend case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> yes </value>
-            </condition>
-        </ignore>
         <info> COPP Case </info>
         <name> copp </name>
         <tout> 7200 </tout>
