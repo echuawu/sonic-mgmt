@@ -2626,15 +2626,14 @@
         - 3538014
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
-    - '.* ERR syncd#SDK: \[SAI_ACL\.ERR\] mlnx_sai_acl\.c\[\d+\]- mlnx_create_acl_table:  Failed to create flex key - Internal Error.*'
+    - '.* ERR syncd#SDK: \[SAI_ACL\.ERR\].*mlnx_sai_acl\.c\[\d+\]- mlnx_create_acl_table:  Failed to create flex key - Internal Error.*'
     - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_ACL_TABLE_ATTR_.*:.*'
     - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
-    - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table EVERFLOWV6.*'
+    - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table DATA.*'
   Conditions:
     - Redmine:
-        - 3415969
+        - 3841291
 
 - Errors_list:
     - '.*ERR swss#orchagent.*doPortTask: Failed to get port id by alias:Ethernet.*'
