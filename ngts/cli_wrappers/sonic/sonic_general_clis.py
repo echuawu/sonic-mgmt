@@ -1528,7 +1528,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         This method is to get the output of bootctl command
         :return: bootctl output
         """
-        return self.engine.run_cmd('bootctl')
+        return self.engine.run_cmd('bootctl', validate=True)
 
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):
