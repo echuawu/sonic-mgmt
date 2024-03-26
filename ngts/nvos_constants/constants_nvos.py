@@ -517,10 +517,11 @@ class PlatformConsts:
     ENV_LED_COLOR_RED = "red"
     ENV_LED_COLOR_BLUE = "blue"
     ENV_LED_COLOR_AMBER = "amber"
+    ENV_LED_COLOR_AMBER_BLINK = "amber_blink"
     ENV_LED_COLOR_OFF = "off"
     ENV_LED_TURN_ON = "on"
     ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
-                             ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER]
+                             ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     HW_ASIC_COUNT = "asic-count"
@@ -965,9 +966,6 @@ class StatsConsts:
     MAX_ROWS_TO_SCAN = 300
     CONST_HEADER_ROWS = 8
     BIG_FILE_NUM_OF_LINES = 600026
-    FUN_HEADER_NUM_OF_LINES = 12
-    POWER_HEADER_NUM_OF_LINES = 13
-    TEMPERATURE_HEADER_NUM_OF_LINES = 11
 
     TEMP_MIN = 15  # [Celsius]
     TEMP_MAX = 90  # [Celsius]

@@ -15,13 +15,13 @@ logger = logging.getLogger()
 # -------------------------- Base Device ----------------------------
 class BaseDevice(ABC):
 
-    def __init__(self):
+    def __init__(self, asic_amount=1):
         self.default_password = ""
         self.default_username = ""
         self.prev_default_password = ""
         self.open_api_port = ""
         self.dependent_dockers = []
-        self.asic_amount = 1
+        self.asic_amount = asic_amount
 
         self._init_constants()
         self._init_available_databases()

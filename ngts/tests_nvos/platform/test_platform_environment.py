@@ -427,7 +427,7 @@ def _verify_led_prop(led, led_prop):
     assert PlatformConsts.ENV_LED_COLOR_LABEL in led_prop.keys(), \
         PlatformConsts.ENV_LED_COLOR_LABEL + " not found for " + led
     assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS, \
-        led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + "is not a legal value"
+        led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + " is not a legal value"
 
 
 def _verify_led_color(led, led_prop):

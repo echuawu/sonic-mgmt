@@ -841,8 +841,8 @@ def test_system_stats_big_files(engines, devices, test_api):
             time.sleep(StatsConsts.SLEEP_15_SECONDS)
 
         with allure.step("Validate clearing big file"):
-            validate_number_of_lines_in_external_file(engines, system, 'fan', StatsConsts.FUN_HEADER_NUM_OF_LINES,
-                                                      StatsConsts.FUN_HEADER_NUM_OF_LINES + 30)
+            validate_number_of_lines_in_external_file(engines, system, 'fan', devices.dut.stats_fan_header_num_of_lines,
+                                                      devices.dut.stats_fan_header_num_of_lines + 30)
 
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
@@ -864,8 +864,9 @@ def test_system_stats_big_files(engines, devices, test_api):
             time.sleep(StatsConsts.SLEEP_15_SECONDS)
 
         with allure.step("Validate creating new category file when header is corrupted"):
-            validate_number_of_lines_in_external_file(engines, system, 'power', StatsConsts.FUN_HEADER_NUM_OF_LINES,
-                                                      StatsConsts.POWER_HEADER_NUM_OF_LINES + 3)
+            validate_number_of_lines_in_external_file(engines, system, 'power',
+                                                      devices.dut.stats_power_header_num_of_lines,
+                                                      devices.dut.stats_power_header_num_of_lines + 3)
 
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
@@ -888,8 +889,8 @@ def test_system_stats_big_files(engines, devices, test_api):
 
         with allure.step("Validate creating new category file when file size is over 600MB"):
             validate_number_of_lines_in_external_file(engines, system, 'temperature',
-                                                      StatsConsts.TEMPERATURE_HEADER_NUM_OF_LINES,
-                                                      StatsConsts.TEMPERATURE_HEADER_NUM_OF_LINES + 100)
+                                                      devices.dut.stats_temperature_header_num_of_lines,
+                                                      devices.dut.stats_temperature_header_num_of_lines + 100)
 
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
