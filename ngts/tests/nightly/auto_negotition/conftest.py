@@ -4,9 +4,10 @@ import os
 import re
 import json
 
-from ngts.constants.constants import InterfacesTypeConstants, PlatformTypesConstants, SonicConst
-from ngts.tests.conftest import get_dut_loopbacks
+from ngts.constants.constants import InterfacesTypeConstants, PlatformTypesConstants, SonicConst, CableComplianceConst
+from ngts.tests.conftest import get_dut_loopbacks, get_dut_host_loopbacks
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
+from ngts.cli_util.cli_parsers import parse_show_interfaces_transceiver_eeprom
 
 logger = logging.getLogger()
 
@@ -27,9 +28,10 @@ def auto_neg_configuration(topology_obj, setup_name, engines, cli_objects, platf
 
 
 @pytest.fixture(scope='session')
-def tested_lb_dict(topology_obj, split_mode_supported_speeds):
+def tested_lb_dict(topology_obj, split_mode_supported_speeds, ports_spec_compliance):
     """
     :param topology_obj: topology object fixture
+    :param ports_spec_compliance: ports_spec_compliance fixture
     :return: a dictionary of loopback list for each split mode on the dut
     {1: [('Ethernet52', 'Ethernet56')],
     2: [('Ethernet12', 'Ethernet16')],
@@ -40,17 +42,18 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
     update_split_2_if_possible(topology_obj, tested_lb_dict)
     update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
     update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
-
     split_mode = 1
-    dut_lbs = get_dut_loopbacks(topology_obj)
+    dut_lbs = list(filter(lambda lb: is_auto_neg_supported_lb(lb, ports_spec_compliance),
+                          get_dut_loopbacks(topology_obj)))
     tested_lb_dict[split_mode].append(get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds))
     logger.info("Tests will run on the following ports :\n{}".format(tested_lb_dict))
     return tested_lb_dict
 
 
 def get_dut_lb_with_max_capability(dut_lbs, split_mode_supported_speeds):
-    return max(dut_lbs, key=lambda lb: speed_string_to_int_in_mb(max(get_lb_mutual_speed(lb, 1, split_mode_supported_speeds),
-                                                                     key=speed_string_to_int_in_mb)))
+    return max(dut_lbs,
+               key=lambda lb: speed_string_to_int_in_mb(max(get_lb_mutual_speed(lb, 1, split_mode_supported_speeds),
+                                                            key=speed_string_to_int_in_mb)))
 
 
 @pytest.fixture(scope='session')
@@ -108,13 +111,20 @@ def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested
 
 
 @pytest.fixture(scope='session')
-def tested_dut_host_lb_dict(topology_obj, interfaces, split_mode_supported_speeds):
+def tested_dut_host_lb_dict(topology_obj, interfaces, split_mode_supported_speeds, ports_spec_compliance):
     """
     :param topology_obj: topology object fixture
+    :param ports_spec_compliance - ports_spec_compliance fixture
     :return: a dictionary of loopback of dut - host ports connectivity
     {1: [('Ethernet64', 'enp66s0f0')]}
     """
-    tested_dut_host_lb_dict = {1: [(interfaces.dut_ha_1, interfaces.ha_dut_1)]}
+    tested_dut_host_lb_dict = dict()
+    for dut_host_lb in get_dut_host_loopbacks(interfaces):
+        if is_auto_neg_supported_port(dut_host_lb[0], ports_spec_compliance):
+            tested_dut_host_lb_dict[1] = [dut_host_lb]
+            break
+    if not tested_dut_host_lb_dict:
+        pytest.skip("Skipping test as there are no auto-neg supporting dut_host loopbacks")
     logger.info("Test will run on the following ports:\n{}".format(tested_dut_host_lb_dict))
     return tested_dut_host_lb_dict
 
@@ -191,7 +201,7 @@ def interfaces_types_port_dict(engines, cli_objects, platform_params, chip_type,
         engines.dut.copy_file(source_file=get_port_cap_file,
                               file_system='/tmp',
                               dest_file=get_port_cap_file_name,
-                              overwrite_file=True,)
+                              overwrite_file=True, )
         cmd_copy_file_to_syncd = f"docker cp /tmp/{get_port_cap_file_name} syncd:/"
         engines.dut.run_cmd(cmd_copy_file_to_syncd)
 
@@ -289,7 +299,7 @@ def expected_auto_neg_loganalyzer_exceptions(request, cli_objects, loganalyzer):
     if loganalyzer:
         expected_regex_list = \
             loganalyzer[dut_hostname].parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                        "expected_negative_auto_neg_logs.txt")))
+                                                                             "expected_negative_auto_neg_logs.txt")))
         loganalyzer[dut_hostname].expect_regex.extend(expected_regex_list)
 
     yield
@@ -298,8 +308,9 @@ def expected_auto_neg_loganalyzer_exceptions(request, cli_objects, loganalyzer):
     if request.node.rep_setup.skipped:
         if loganalyzer:
             expected_regex_list = \
-                loganalyzer[dut_hostname].parse_regexp_file(src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                            "expected_negative_auto_neg_logs.txt")))
+                loganalyzer[dut_hostname].parse_regexp_file(
+                    src=str(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                         "expected_negative_auto_neg_logs.txt")))
 
             for regexp in expected_regex_list:
                 loganalyzer[dut_hostname].expect_regex.remove(regexp)
@@ -320,7 +331,116 @@ def get_all_advertised_speeds_sorted_string(speeds_list, physical_interface_type
 
 
 def is_aoc_cable(engines):
-    extended_spc = engines.dut.run_cmd("show interfaces transceiver eeprom Ethernet0 | grep \"Extended Specification Compliance\"")
+    extended_spc = engines.dut.run_cmd(
+        "show interfaces transceiver eeprom Ethernet0 | grep \"Extended Specification Compliance\"")
     if re.search("AOC", extended_spc):
         return True
     return False
+
+
+@pytest.fixture(scope='session')
+def ports_spec_compliance(topology_obj, engines, cable_compliance_info):
+    """
+    The function parses the information of the command show interfaces transceiver eeprom to a dictionary that contains
+    the compliance eeprom data for each port.
+    :param topology_obj: topology_obj fixture
+    :param engines: engines fixture
+    :param cable_compliance_info: cable_compliance_info fixture
+    :return: A dictionary mapping each port to a tuple of 2 values. The first value is the specification compliance
+    type (extended or not) and the second value is the actual specification compliance value.
+    It should be noted that eeprom_info_per_port contains the entire eeprom output of a port,
+    so if it is needed for future usage, the function can be adjusted to return it as well.
+    Example for entry in the dictionary - {"Ethernet8": ("Specification compliance", "passive_copper_media_interface")}
+    """
+    eeprom_info_per_port = parse_show_interfaces_transceiver_eeprom(cable_compliance_info)
+    ports_compliance = dict()
+    for port_name, port_info in eeprom_info_per_port.items():
+        ports_compliance[port_name] = parse_port_compliance(port_info)
+    return ports_compliance
+
+
+def parse_port_compliance(port_info):
+    """
+    The function parses the port compliance information from the output of "show interfaces transceiver eeprom" command
+    :param port_info:  The port information, as it appears in the output of "show interfaces transceiver eeprom"
+    :return: A tuple of 2 values. The first value is the specification compliance
+    type (extended or not) and the second value is the actual specification compliance value.
+    Example for return value - ("Specification compliance", "passive_copper_media_interface")
+    """
+    port_compliance = get_port_compliance(port_info)
+    if isinstance(port_compliance, str):
+        port_compliance_type = CableComplianceConst.SPEC_COMPLIANCE_PREFIX
+    else:  # This means the compliance is a dict
+        port_compliance_type, port_compliance = parse_port_compliance_dict(port_compliance)
+    return port_compliance_type, port_compliance
+
+
+def get_port_compliance(port_info):
+    """
+    The function returns the port compliance.
+    :param port_info: The port information, as it appears in the output of "show interfaces transceiver eeprom"
+    :return: The port compliance, which can either be a single value or a dictionary.
+    """
+    if CableComplianceConst.SPEC_COMPLIANCE_PREFIX in port_info.keys():
+        port_compliance = port_info[CableComplianceConst.SPEC_COMPLIANCE_PREFIX]
+    else:
+        # In the case the port compliance is a dictionary, the function parse_show_interfaces_transceiver_eeprom parses
+        # it with the ':'
+        port_compliance = port_info[f'{CableComplianceConst.SPEC_COMPLIANCE_PREFIX}:']
+    return port_compliance
+
+
+def parse_port_compliance_dict(port_compliance_dict):
+    """
+    The function parses the port compliance in the case it is a dictionary.
+    :param port_compliance_dict: The port compliance dictionary, as it appears in "show interfaces transceiver eeprom"
+    :return: A tuple of 2 values, containing the port compliance type and port compliance value. Supported types can be
+    seen in the keys of CableComplianceConst.SUPPORTED_SPECIFICATION_COMPLIANCE
+    """
+    port_compliance_type = None
+    port_compliance = None
+    if CableComplianceConst.EXTENDED_SPEC_COMPLIANCE_PREFIX in port_compliance_dict.keys():
+        port_compliance_type = CableComplianceConst.EXTENDED_SPEC_COMPLIANCE_PREFIX
+        port_compliance = port_compliance_dict[port_compliance_type]
+    elif CableComplianceConst.SFP_COMPLIANCE in port_compliance_dict.keys():
+        port_compliance_type = CableComplianceConst.SFP_COMPLIANCE
+        port_compliance = port_compliance_dict[port_compliance_type]
+    return port_compliance_type, port_compliance
+
+
+def is_auto_neg_supported_port(port, compliance_info_per_port):
+    """
+    The function returns True if the port supports auto-neg and false otherwise.
+    :param port: port to check
+    :param compliance_info_per_port: output of compliance_info_per_port fixture
+    :return: True if the port supports auto-neg and False otherwise
+
+    """
+    port_supports_auto_neg = False
+    port_spec_type, port_spec_value = compliance_info_per_port[port]
+
+    matched_supported_regex = any(re.search(regex_pattern, port_spec_value) for regex_pattern in
+                                  CableComplianceConst.SUPPORTED_SPECIFICATION_COMPLIANCE[port_spec_type])
+    if matched_supported_regex:
+        logger.debug(f"Supported port is - {port}. {port_spec_type} : {port_spec_value}\n")
+        port_supports_auto_neg = True
+    if not port_supports_auto_neg:
+        matched_unsupported_regex = any(re.search(regex_pattern, port_spec_value) for regex_pattern in
+                                        CableComplianceConst.UNSUPPORTED_SPECIFICATION_COMPLIANCE[port_spec_type])
+        if matched_unsupported_regex:
+            logger.warning(f"Tests will not run on port {port} because of unsupported cable type - "
+                           f"{port_spec_type} : {port_spec_value}\n")
+        else:
+            raise AssertionError(f"Test failed because port {port} has unknown {port_spec_type} : {port_spec_value}\n"
+                                 f"Check if the cable should support auto-negotiation and update test accordingly\n")
+    return port_supports_auto_neg
+
+
+def is_auto_neg_supported_lb(lb, compliance_info_per_port):
+    """
+    The function returns True if the both ports of the lb support auto-neg and false otherwise.
+    :param lb: lb to check
+    :param compliance_info_per_port: output of compliance_info_per_port fixture
+    :return: True if the lb supports auto-neg and False otherwise
+    """
+    return all(is_auto_neg_supported_port(port, compliance_info_per_port) for port in lb)

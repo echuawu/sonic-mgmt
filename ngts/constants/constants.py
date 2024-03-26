@@ -1397,4 +1397,25 @@ class GnmiConsts:
     REDIS_CMD_PARAM = "redis_cmd_param"
 
 
+class CableComplianceConst:
+    EXTENDED_SPEC_COMPLIANCE_PREFIX = "Extended Specification Compliance"
+    SPEC_COMPLIANCE_PREFIX = "Specification compliance"
+    SFP_COMPLIANCE = "SFP+CableTechnology"
+    UNDETECTED_EEPROM_MSG = "SFP EEPROM Not detected"
+    # Used to simulate cable which supports auto-neg by default like in simx
+    SUPPORTED_CABLE_DEFAULT = "Cable Always Supports Auto-Neg"
+    DEFAULT_CABLE_COMPLIANCE_TUPLE = (SUPPORTED_CABLE_DEFAULT, SUPPORTED_CABLE_DEFAULT)
+    SUPPORTED_SPECIFICATION_COMPLIANCE = {SPEC_COMPLIANCE_PREFIX: ["passive_copper_media_interface"],
+                                          SFP_COMPLIANCE: ["Passive Cable"],
+                                          # This following regex will match the pattern iff it
+                                          # contains a iGBASE-?R and for each iGBASE-?R, ?=C
+                                          EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"^(?=.*\d+GBASE-CR)(?!\d+GBASE-[^C]R).*$"],
+                                          SUPPORTED_CABLE_DEFAULT: [".*"]  # which match anything
+                                          }
+    UNSUPPORTED_SPECIFICATION_COMPLIANCE = {
+        SPEC_COMPLIANCE_PREFIX: ["active_cable_media_interface", "sm_media_interface",
+                                 "nm_850_media_interface"],
+        EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC"]}
+
+
 SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42']
