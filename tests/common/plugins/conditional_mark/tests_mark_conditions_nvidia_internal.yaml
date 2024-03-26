@@ -718,9 +718,9 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_l1_raw_drop:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3821591"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3834140"
     conditions:
-      - "https://redmine.mellanox.com/issues/3821591"
+      - "https://redmine.mellanox.com/issues/3834140"
 
 tests/nightly/secure/test_secure_boot.py:
   skip:
