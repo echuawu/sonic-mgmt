@@ -845,6 +845,18 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
     conditions:
       - "https://redmine.mellanox.com/issues/3500047 and '202211' in release and 'sn3800' in platform"
 
+telemetry/test_events.py::test_events:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3842291"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3842291"
+
+snmp/test_snmp_queue.py::test_snmp_queue:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3840674"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3840674 and '5600' in platform"
+
 platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
