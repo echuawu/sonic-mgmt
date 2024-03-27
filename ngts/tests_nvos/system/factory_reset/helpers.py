@@ -3,7 +3,6 @@ import os
 import time
 from datetime import datetime
 
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, ApiType, SystemConsts
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
@@ -79,14 +78,14 @@ def create_date_time_obj(str_info):
 
 
 def add_verification_data(engine, system):
-    with allure.step("Add file to /host/mlnx/images"):
+    with allure.step(f"Add file to {NvosConst.PATH_TO_IMAGES}"):
         output = engine.run_cmd("ls /host/mlnx")
         if "No such file or directory" in output:
             output = engine.run_cmd("sudo mkdir /host/mlnx")
-        output = engine.run_cmd("ls /host/mlnx/images")
+        output = engine.run_cmd(f"ls {NvosConst.PATH_TO_IMAGES}")
         if "No such file or directory" in output:
-            output = engine.run_cmd("sudo mkdir /host/mlnx/images")
-        output = engine.run_cmd("sudo touch /host/mlnx/images/verification_test")
+            output = engine.run_cmd(f"sudo mkdir {NvosConst.PATH_TO_IMAGES}")
+        output = engine.run_cmd(f"sudo touch {NvosConst.PATH_TO_IMAGES}/verification_test")
 
     with allure.step("Add file to /var/dump/"):
         output = engine.run_cmd("ls /var/dump/")
@@ -94,18 +93,17 @@ def add_verification_data(engine, system):
             output = engine.run_cmd("sudo mkdir /var/dump/")
         output = engine.run_cmd("sudo touch /var/dump/verification_test")
 
-    if is_redmine_issue_active([3532683]):
-        with allure.step("Add file to /var/stats/"):
-            output = engine.run_cmd("ls /var/stats/")
-            if "No such file or directory" in output:
-                output = engine.run_cmd("sudo mkdir /var/stats/")
-            output = engine.run_cmd("sudo touch /var/stats/verification_test")
+    with allure.step("Add file to /var/stats/"):
+        output = engine.run_cmd("ls /var/stats/")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /var/stats/")
+        output = engine.run_cmd("sudo touch /var/stats/verification_test")
 
-        with allure.step("Add file to /host/stats/"):
-            output = engine.run_cmd("ls /host/stats/")
-            if "No such file or directory" in output:
-                output = engine.run_cmd("sudo mkdir /host/stats/")
-            output = engine.run_cmd("sudo touch /host/stats/verification_test")
+    with allure.step("Add file to /host/stats/"):
+        output = engine.run_cmd("ls /host/stats/")
+        if "No such file or directory" in output:
+            output = engine.run_cmd("sudo mkdir /host/stats/")
+        output = engine.run_cmd("sudo touch /host/stats/verification_test")
 
     with allure.step("Add history files to /home"):
         output = engine.run_cmd("ls /home")
@@ -180,9 +178,9 @@ def verify_cleanup_done(engine, current_time, system, username, param=''):
 
     with allure.step("Verify NVOS HOOKs were deleted"):
         if param != KEEP_ONLY_FILES:
-            output = engine.run_cmd("ls /host/mlnx/images")
-            if output and "No such file or directory" not in output:
-                errors += "\nNVOS Hooks were not deleted"
+            output = engine.run_cmd(f"ls {NvosConst.PATH_TO_IMAGES}")
+            if output:
+                errors += f"\n{NvosConst.PATH_TO_IMAGES} is not empty as expected"
 
     with allure.step("Verify tech-support files were deleted"):
         if param != KEEP_ONLY_FILES:

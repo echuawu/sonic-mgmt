@@ -94,6 +94,8 @@ class NvosConst:
     SDK_DUMP_FOLDER = "/var/log/mellanox/sdk-dumps/"
     MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
 
+    PATH_TO_IMAGES = "/host/nos-images"
+
     HOST_HA = 'ha'
     HOST_HA_ATTR = 'ha_attr'
     HOST_HB = 'hb'

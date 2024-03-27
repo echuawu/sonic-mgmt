@@ -3,12 +3,12 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> System Reboot Commands</name>
+      <name> PTP </name>
       <info></info>
       <owner> NVOS </owner>
     </Test>
     <Case>
-      <tags> system reboot commands </tags>
+      <tags> ptp commands </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
       <tout> 2400 </tout>
       <tags>ALL</tags>

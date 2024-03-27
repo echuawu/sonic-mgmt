@@ -151,13 +151,6 @@ tests_nvos/system/stats/test_system_stats.py:
     conditions:
       - "'marlin' in testbed"
 
-tests_nvos/system/gnmi/test_gnmi_server.py:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3599682 or if it is marlin setup"
-    conditions:
-      - https://redmine.mellanox.com/issues/3599682
-      - "'marlin' in testbed"
-
 tests_nvos/system/test_system_image.py::test_system_image_rename_openapi:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3610263"
@@ -172,10 +165,10 @@ tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication:
 
 tests_nvos/ib/test_show_ib.py::test_show_ib_device:
   skip:
-    reason: "Testcase skipped due to image install is not supported yet for Marlin and issue 3825753"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3831424"
     conditions:
       - "'marlin' in testbed"
-      - https://redmine.mellanox.com/issues/3825753
+      - https://redmine.mellanox.com/issues/3831424
 
 tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
   skip:
@@ -284,4 +277,16 @@ tests_nvos/system/test_system_ptp.py:
     reason: "Should run only on gorilla system"
     conditions:
       - "'gorilla' not in testbed"
+
+tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_once:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
+    conditions:
+      - https://redmine.mellanox.com/issues/3727441
+
+tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
+    conditions:
+      - https://redmine.mellanox.com/issues/3727441
 ########################## NVOS IGNORE END ##########################
