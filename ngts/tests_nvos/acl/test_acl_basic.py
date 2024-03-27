@@ -19,16 +19,18 @@ RULE_CONFIG_FUNCTION = {
     AclConsts.ACTION_LOG_PREFIX: lambda rule_id_obj, param: rule_id_obj.action.log.set_log_prefix(param),
     AclConsts.REMARK: lambda rule_id_obj, param: rule_id_obj.set_remark(param),
 
-    AclConsts.SOURCE_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.source_port.set(param),
-    AclConsts.DEST_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.dest_port.set(param),
+    AclConsts.TCP_SOURCE_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.source_port.set(param),
+    AclConsts.UDP_SOURCE_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.udp.source_port.set(param),
+    AclConsts.TCP_DEST_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.dest_port.set(param),
+    AclConsts.UDP_DEST_PORT: lambda rule_id_obj, param: rule_id_obj.match.ip.udp.dest_port.set(param),
     AclConsts.FRAGMENT: lambda rule_id_obj, param: rule_id_obj.match.ip.set_fragment(),
     AclConsts.ECN_FLAGS: lambda rule_id_obj, param: rule_id_obj.match.ip.ecn.flags.set(param),
     AclConsts.ECN_IP_ECT: lambda rule_id_obj, param: rule_id_obj.match.ip.ecn.set_ecn_ip_ect(param),
     AclConsts.TCP_FLAGS: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.flags.set(param),
     AclConsts.TCP_MASK: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.mask.set(param),
     AclConsts.TCP_STATE: lambda rule_id_obj, param: rule_id_obj.match.ip.state.set(param),
-    AclConsts.TCPMSS: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.set_tcpmss(param),
-    AclConsts.ALL_TCPMSS_EXCEPT: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.set_all_tcpmss_except(param),
+    AclConsts.MSS: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.set_mss(param),
+    AclConsts.ALL_MSS_EXCEPT: lambda rule_id_obj, param: rule_id_obj.match.ip.tcp.set_all_mss_except(param),
     AclConsts.SOURCE_IP: lambda rule_id_obj, param: rule_id_obj.match.ip.set_source_ip(param),
     AclConsts.DEST_IP: lambda rule_id_obj, param: rule_id_obj.match.ip.set_dest_ip(param),
     AclConsts.ICMP_TYPE: lambda rule_id_obj, param: rule_id_obj.match.ip.set_icmp_type(param),
@@ -37,7 +39,7 @@ RULE_CONFIG_FUNCTION = {
     AclConsts.RECENT_LIST_NAME: lambda rule_id_obj, param: rule_id_obj.match.ip.recent_list.set_name(param),
     AclConsts.RECENT_LIST_UPDATE: lambda rule_id_obj, param: rule_id_obj.match.ip.recent_list.set_update_interval(param),
     AclConsts.RECENT_LIST_HIT: lambda rule_id_obj, param: rule_id_obj.match.ip.recent_list.set_hit_count(param),
-    AclConsts.RECENT_LIST_ACTION: lambda rule_id_obj, param: rule_id_obj.recent_list.set_action(param),
+    AclConsts.RECENT_LIST_ACTION: lambda rule_id_obj, param: rule_id_obj.match.ip.recent_list.set_action(param),
     AclConsts.HASHLIMIT_NAME: lambda rule_id_obj, param: rule_id_obj.match.ip.hashlimit.set_name(param),
     AclConsts.HASHLIMIT_RATE: lambda rule_id_obj, param: rule_id_obj.match.ip.hashlimit.set_rate_limit(param),
     AclConsts.HASHLIMIT_BURST: lambda rule_id_obj, param: rule_id_obj.match.ip.hashlimit.set_burst(param),
@@ -70,7 +72,7 @@ def test_rules_order(engines, test_api):
 
         with allure.step("Define ACL"):
             acl = Acl()
-            acl_id = "TEST_ACL1"
+            acl_id = "AA_TEST_ACL1"
             acl.set(acl_id).verify_result()
             acl_id_obj = acl.acl_id[acl_id]
             acl_id_obj.set(AclConsts.TYPE, 'ipv4').verify_result()
@@ -158,11 +160,11 @@ def test_acl_order(engines, test_api):
         rule_configuration_dict = {AclConsts.ACTION: AclConsts.DENY, AclConsts.SOURCE_IP: sonic_mgmt_ip,
                                    AclConsts.IP_PROTOCOL: 'icmp', AclConsts.ICMP_TYPE: 'echo-request'}
 
-        acl_id_1 = "TEST_ACL_1"
+        acl_id_1 = "AA_TEST_ACL_1"
         acl_id_1_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_1, acl_type, rule_id,
                                                                   rule_configuration_dict, mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE)
 
-        acl_id_2 = "TEST_ACL_2"
+        acl_id_2 = "AA_TEST_ACL_2"
         sonic_mgmt_prefix_or_netmask = sonic_mgmt_ip + random.choice(['/255.255.255.0', '/32'])
         rule_conf_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.SOURCE_IP: sonic_mgmt_prefix_or_netmask,
                           AclConsts.IP_PROTOCOL: 'icmp', AclConsts.ICMP_TYPE: 'echo-request'}
@@ -221,7 +223,7 @@ def test_acl_ipv6(engines, test_api):
         rule_id = '1'
         rule_configuration_dict = {AclConsts.ACTION: AclConsts.DENY, AclConsts.SOURCE_IP: ipv6_addr}
 
-        acl_id_1 = "TEST_ACL_IPV6"
+        acl_id_1 = "AA_TEST_ACL_IPV6"
         acl_id_1_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_1, acl_type, rule_id,
                                                                   rule_configuration_dict, mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE)
 
@@ -265,7 +267,7 @@ def test_acl_loopback(engines, test_api):
         rule_id = '1'
         rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT}
 
-        acl_id_1 = "TEST_ACL_LOOPBACK"
+        acl_id_1 = "AA_TEST_ACL_LOOPBACK"
         acl_id_1_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_1, acl_type, rule_id,
                                                                   rule_configuration_dict, mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE)
 
@@ -290,7 +292,7 @@ def test_show_acl_commands(engines, test_api):
 
         with allure.step("Define ACL"):
             acl = Acl()
-            acl_id = "TEST_ACL1"
+            acl_id = "AA_TEST_ACL1"
             acl.set(acl_id).verify_result()
             acl_id_obj = acl.acl_id[acl_id]
             acl_id_obj.set(AclConsts.TYPE, 'ipv4').verify_result()
@@ -306,10 +308,10 @@ def test_show_acl_commands(engines, test_api):
 
             rule_id_2 = '2'
             config_rule(engines.dut, acl_id_obj, rule_id_2, {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.IP_PROTOCOL: 'tcp',
-                                                             AclConsts.DEST_PORT: 'snmp', AclConsts.ECN_FLAGS: 'tcp-ece', AclConsts.ECN_IP_ECT: 2})
+                                                             AclConsts.TCP_DEST_PORT: 'snmp', AclConsts.ECN_FLAGS: 'tcp-ece', AclConsts.ECN_IP_ECT: 2})
             expected_acl_dict[acl_id][AclConsts.RULE].update(
                 {rule_id_2: {AclConsts.ACTION: {AclConsts.PERMIT: {}}, AclConsts.MATCH:
-                             {AclConsts.IP: {AclConsts.PROTOCOL: 'tcp', AclConsts.DEST_PORT: {'snmp': {}},
+                             {AclConsts.IP: {AclConsts.PROTOCOL: 'tcp', 'tcp': {'dest-port': {'snmp': {}}},
                                              'ecn': {AclConsts.FLAGS: {'tcp-ece': {}}, AclConsts.IP_ECT: 2}}}}})
 
             rule_id_3 = '3'
@@ -322,27 +324,25 @@ def test_show_acl_commands(engines, test_api):
 
         with allure.step("Validate configuration with show commands"):
             rule_id_1_obj = acl_id_obj.rule.rule_id[rule_id_1]
-            acl_output = acl.parse_show()  # nv show acl
             acl_id_output = acl_id_obj.parse_show()  # nv show acl <acl-id>
             rule_output = acl_id_obj.rule.parse_show()  # nv show acl <acl-id> rule
             rule_id_1_output = rule_id_1_obj.parse_show()  # nv show acl <acl-id> rule <rule-id>
             action_show = rule_id_1_obj.action.parse_show()
             match_show = rule_id_1_obj.match.parse_show()
             match_ip_show = rule_id_1_obj.match.ip.parse_show()
-            dest_port_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.dest_port.parse_show()
+            dest_port_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.tcp.dest_port.parse_show()
             tcp_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.parse_show()
             tcp_flags_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.flags.parse_show()
             tcp_mask_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.mask.parse_show()
             ecn_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.parse_show()
             ecn_flags_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.flags.parse_show()
-            assert expected_acl_dict[acl_id] == acl_output[acl_id]
             assert expected_acl_dict[acl_id] == acl_id_output
             assert expected_acl_dict[acl_id][AclConsts.RULE] == rule_output
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1] == rule_id_1_output
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.ACTION] == action_show  # bug 3659032
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.MATCH] == match_show
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.MATCH][AclConsts.IP] == match_ip_show
-            assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_2][AclConsts.MATCH][AclConsts.IP][AclConsts.DEST_PORT] == dest_port_show
+            assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_2][AclConsts.MATCH][AclConsts.IP]['tcp']['dest-port'] == dest_port_show
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'] == tcp_show
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'][AclConsts.FLAGS] == tcp_flags_show
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'][AclConsts.MASK] == tcp_mask_show
@@ -393,13 +393,13 @@ def test_inbound_outbound_counters(engines, test_api):
         rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.DEST_IP: sonic_mgmt_ip,
                                    AclConsts.IP_PROTOCOL: 'icmp', AclConsts.ICMP_TYPE: 'echo-request'}
 
-        acl_id_inbound_match_dest_ip = "TEST_A_ACL_INBOUND_MATCH_DEST_IP"
+        acl_id_inbound_match_dest_ip = "AA_TEST_A_ACL_INBOUND_MATCH_DEST_IP"
         acl_obj_inbound_match_dest_ip = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_inbound_match_dest_ip,
                                                                                    acl_type, rule_id_match_dest_ip,
                                                                                    rule_configuration_dict, mgmt_port,
                                                                                    AclConsts.INBOUND, control_plane)
 
-        acl_id_outbound_match_dest_ip = "TEST_B_ACL_OUTBOUND_MATCH_DEST_IP"
+        acl_id_outbound_match_dest_ip = "AA_TEST_B_ACL_OUTBOUND_MATCH_DEST_IP"
         acl_obj_outbound_match_dest_ip = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_outbound_match_dest_ip,
                                                                                     acl_type, rule_id_match_dest_ip,
                                                                                     rule_configuration_dict, mgmt_port,
@@ -468,12 +468,12 @@ def test_acl_match_dest_ip(engines, test_api):
     with allure.step("ACL type ipv4 test"):
         ipv4_addr = engines.sonic_mgmt.ip
         dest_ip_list = ['ANY', ipv4_addr, ipv4_addr + '/32', ipv4_addr + '/255.255.255.0']
-        dest_ip_test(engines, mgmt_port, 'ipv4', "TEST_ACL_IPV4", dest_ip_list, ipv4_addr)
+        dest_ip_test(engines, mgmt_port, 'ipv4', "AA_TEST_ACL_IPV4", dest_ip_list, ipv4_addr)
 
     with allure.step("ACL type ipv6 test"):
         ipv6_addr = "2001:db8:abcd:0012:0000:0000:0000:00ef"
         dest_ip_list = [ipv6_addr, ipv6_addr + '/64']
-        dest_ip_test(engines, mgmt_port, 'ipv6', "TEST_ACL_IPV6", dest_ip_list, ipv6_addr)
+        dest_ip_test(engines, mgmt_port, 'ipv6', "AA_TEST_ACL_IPV6", dest_ip_list, ipv6_addr)
 
 
 @pytest.mark.acl
@@ -489,7 +489,7 @@ def test_acl_match_source_port(engines, test_api):
     TestToolkit.tested_api = test_api
     mgmt_port = MgmtPort()
     src_port_list = ['ANY', 'ssh', 1244]
-    match_ip_port_test(engines, mgmt_port, 'ipv4', 'TEST_ACL_SOURCE_PORT', src_port_list, engines.dut.ip, AclConsts.SOURCE_PORT)
+    match_ip_port_test(engines, mgmt_port, 'ipv4', 'AA_TEST_ACL_SOURCE_PORT', src_port_list, engines.dut.ip, AclConsts.TCP_SOURCE_PORT, engines.sonic_mgmt)
 
 
 @pytest.mark.acl
@@ -505,7 +505,7 @@ def test_acl_match_dest_port(engines, test_api):
     TestToolkit.tested_api = test_api
     mgmt_port = MgmtPort()
     dest_port_list = ['ANY', 'ssh', 1244]
-    match_ip_port_test(engines, mgmt_port, 'ipv4', 'TEST_ACL_DEST_PORT', dest_port_list, engines.sonic_mgmt.ip, AclConsts.DEST_PORT)
+    match_ip_port_test(engines, mgmt_port, 'ipv4', 'AA_TEST_ACL_DEST_PORT', dest_port_list, engines.sonic_mgmt.ip, AclConsts.TCP_DEST_PORT, engines.dut)
 
 
 @pytest.mark.acl
@@ -519,7 +519,7 @@ def test_acl_match_protocol(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_PROTOCOL"
+    acl_id = "AA_TEST_ACL_PROTOCOL"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     protocol_packet_dict = {'tcp': f"IP(dst=\"{dest_addr}\") / TCP()",
@@ -549,7 +549,7 @@ def test_acl_match_fragment(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_FRAGMENT"
+    acl_id = "AA_TEST_ACL_FRAGMENT"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     packet = f"IP(dst=\"{dest_addr}\") /  ICMP() / (\"X\" * (8000))"
@@ -571,7 +571,7 @@ def test_acl_match_tcp_flag_mask(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_TCP_FLAG_MASK"
+    acl_id = "AA_TEST_ACL_TCP_FLAG_MASK"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     flag_packet_dict = {'ack': f"IP(dst=\"{dest_addr}\") / TCP(flags=\"A\")",
@@ -617,7 +617,7 @@ def test_acl_match_ip_state(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_IP_STATE"
+    acl_id = "AA_TEST_ACL_IP_STATE"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     state_packet_dict = {'new': f"IP(dst=\"{dest_addr}\") / TCP(flags=\"S\")",
@@ -648,7 +648,7 @@ def test_acl_match_icmp_type(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_ICMP_TYPE"
+    acl_id = "AA_TEST_ACL_ICMP_TYPE"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     rand_num_type = random.randint(0, 255)
@@ -682,7 +682,7 @@ def test_acl_match_icmpv6_type(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_ICMPV6_TYPE"
+    acl_id = "AA_TEST_ACL_ICMPV6_TYPE"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     icmpv6_type_packet_dict = {'router-solicitation': f"IP(dst=\"{dest_addr}\") / ICMPv6ND_RS()",
@@ -704,33 +704,33 @@ def test_acl_match_icmpv6_type(engines, test_api):
 
 @pytest.mark.acl
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_acl_match_tcpmss(engines, test_api):
+def test_acl_match_mss(engines, test_api):
     """
-    Validate ACL match ip tcpmss rules.
+    Validate ACL match ip mss rules.
     steps:
-    1. config ACL with a match ip tcpmss rule
+    1. config ACL with a match ip mss rule
     2. send packet
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_TCPMSS"
+    acl_id = "AA_TEST_ACL_MSS"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
-    rand_tcpmss = str(random.randint(1500, 2500))
-    packet = f"IP(dst=\"{dest_addr}\") / TCP(options=[('MSS', {rand_tcpmss})])"
+    rand_mss = str(random.randint(1500, 2500))
+    packet = f"IP(dst=\"{dest_addr}\") / TCP(options=[('MSS', {rand_mss})])"
     rule_id = str(random.randint(2, 10))
 
-    with allure.step("tcpmss rules"):
-        rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.TCPMSS: rand_tcpmss, AclConsts.IP_PROTOCOL: 'tcp'}
+    with allure.step("mss rules"):
+        rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.MSS: rand_mss, AclConsts.IP_PROTOCOL: 'tcp'}
         acl_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id, 'ipv4', rule_id,
                                                              rule_configuration_dict, mgmt_port, AclConsts.INBOUND,
                                                              AclConsts.CONTROL_PLANE)
         validate_counters_after_traffic(engines.sonic_mgmt, AclConsts.INBOUND, mgmt_port, acl_id, rule_id, dest_addr,
                                         packet=packet)
 
-    with allure.step("all-tcpmss-except rules"):
+    with allure.step("all-mss-except rules"):
         rule_id = str(int(rule_id) - 1)
-        rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.ALL_TCPMSS_EXCEPT: rand_tcpmss, AclConsts.IP_PROTOCOL: 'tcp'}
+        rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.ALL_MSS_EXCEPT: rand_mss, AclConsts.IP_PROTOCOL: 'tcp'}
         config_acl_with_rule_attached_to_interface(engines.dut, acl_id, 'ipv4', rule_id, rule_configuration_dict,
                                                    mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE, acl_obj=acl_obj)
         validate_counters_after_traffic(engines.sonic_mgmt, AclConsts.INBOUND, mgmt_port, acl_id, rule_id, dest_addr,
@@ -748,7 +748,7 @@ def test_acl_match_ecn(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_ECN"
+    acl_id = "AA_TEST_ACL_ECN"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     ecn_flags_dict = {'tcp-cwr': f"IP(dst=\"{dest_addr}\") / TCP(flags=\"C\")",
@@ -792,7 +792,7 @@ def test_acl_hashlimit(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_HASH_LIMIT"
+    acl_id = "AA_TEST_ACL_HASH_LIMIT"
     mgmt_port = MgmtPort()
     dest_addr = engines.sonic_mgmt.ip
     rule_id = '1'
@@ -826,7 +826,7 @@ def test_acl_recent_list(engines, test_api):
     3. validate counter increased
     """
     TestToolkit.tested_api = test_api
-    acl_id = "TEST_ACL_RECENT_LIST"
+    acl_id = "AA_TEST_ACL_RECENT_LIST"
     mgmt_port = MgmtPort()
     dest_addr = engines.dut.ip
     src_ip = engines.sonic_mgmt.ip
@@ -1007,10 +1007,10 @@ def test_override_default_rule(engines):
                     f'the rule should not catch this packet because we override it with src ip that not exist in this setup'
 
         with allure.step("override default rules - change existing field"):
-            config_rule(engines.dut, acl_obj, default_rule_to_override_field, {AclConsts.DEST_PORT: '52'})
+            config_rule(engines.dut, acl_obj, default_rule_to_override_field, {AclConsts.TCP_DEST_PORT: '52'})
             with allure.step("validate with show command"):
                 rule_output = acl_obj.rule.parse_show(default_rule_to_override_field)
-                assert '52' in rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.DEST_PORT].keys()
+                assert '52' in rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.TCP_DEST_PORT].keys()
 
             with allure.step("Validate ACL counters"):
                 rule_packets_1_before = get_rule_packets(mgmt_port, default_chosen_acl, default_rule_to_override_field)
@@ -1110,9 +1110,8 @@ def scapy_send_packet(engine, packet):
     return engine.run_cmd_set(cmd_set, validate=False, patterns_list=[">>>"])
 
 
-def match_ip_port_test(engines, mgmt_port, acl_type, acl_id, port_list, dest_addr, port_direction=AclConsts.DEST_PORT):
+def match_ip_port_test(engines, mgmt_port, acl_type, acl_id, port_list, dest_addr, port_direction, engine_send_packet):
     rule_id = str(len(port_list))
-    engine_send_packet = engines.dut if port_direction == AclConsts.DEST_PORT else engines.sonic_mgmt
     acl_obj = None
 
     for port in port_list:
