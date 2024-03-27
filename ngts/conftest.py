@@ -28,13 +28,15 @@ from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConst
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
-from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
+from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, \
+    clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.bug_handler.bug_handler_helper import handle_log_analyzer_errors
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from infra.tools.redmine.redmine_api import REDMINE_ISSUES_URL
+from ngts.helpers.general_helper import get_all_setups
 
 logger = logging.getLogger()
 
@@ -673,3 +675,8 @@ def is_log_analyzer_handler_enabled(topology_obj, disable_loganalyzer, should_sk
             bug_handler_no_action = pytest.is_ci_run  # no_action flag in ci run, so it will not open new bugs
 
     return run_log_analyzer_bug_handler, log_analyzer_handler_info, bug_handler_no_action
+
+
+@pytest.fixture(autouse=False)
+def setups_list():
+    return get_all_setups()

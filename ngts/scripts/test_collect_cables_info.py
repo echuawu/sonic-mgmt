@@ -1,7 +1,6 @@
 import logging
 import pytest
 import csv
-
 from ngts.tools.topology_tools.topology_by_setup import get_topology_by_setup_name_and_aliases
 from ngts.cli_util.cli_parsers import parse_show_interfaces_transceiver_eeprom
 
@@ -26,31 +25,6 @@ COPPER_CABLES_LIST = ['MCP1600-C00AE30N', 'MCP1600-C001E30N', 'MCP1600-C01AE30N'
                       'MCP1600-E001', 'MCP7H00-G001', 'MCP1600-E01A', 'MCP1600-C00A', 'MCP1600-C001', 'MC2609125-005']
 
 OPTIC_CABLES_LIST = ['MFA1A00-C003', 'MFA1A00-E003', 'MFA1A00-C005', 'MFS1200-C003', 'MFA7A20-C003', 'MFA1A00-C010']
-
-
-@pytest.fixture()
-def setups_list():
-
-    # Canonical
-    canonical_setups = ['sonic_leopard_r-leopard-41', 'sonic_panther_r-panther-13', 'sonic_anaconda_r-anaconda-15',
-                        'sonic_moose_r-moose-02', 'sonic_alligator_r-alligator-04', 'sonic_leopard_r-leopard-56',
-                        'sonic_tigon_r-tigon-15', 'sonic_liger_r-liger-02', 'sonic_tigris_r-tigris-22',
-                        'sonic_ocelot_r-ocelot-02', 'sonic_spider_r-spider-05', 'sonic_bulldog_r-bulldog-02',
-                        'sonic_boxer_r-boxer-sw01', 'sonic_panther_r-panther-36', 'sonic_panther_r-panther-03',
-                        'sonic_leopard_r-leopard-32', 'sonic_lionfish_r-lionfish-16', 'sonic_ocelot_r-ocelot-07',
-                        'sonic_bulldog_r-bulldog-03', 'sonic_panther_r-panther-23', 'sonic_lionfish_r-lionfish-14',
-                        'sonic_bulldog_r-bulldog-04', 'sonic_lionfish_r-lionfish-07', 'sonic_anaconda_r-anaconda-51']
-
-    # Community
-    community_setups = ['r-moose-01_setup', 'r-tigon-11_setup', 'r-leopard-01_setup', 'r-tigris-04_setup',
-                        'r-leopard-58_setup', 'r-tigris-13_setup', 'r-tigon-04_setup', 'arc-switch1004_setup',
-                        'arc-switch1025_setup', 'r-tigon-21_setup', 'r-tigon-20_setup', 'r-leopard-72_setup',
-                        'c-panther-01_setup', 'r-leopard-70_setup', 'r-tigris-25_setup', 'r-tigris-26_setup',
-                        'mtbc-sonic-03-2700_setup']
-
-    list_of_setups = canonical_setups + community_setups
-
-    return list_of_setups
 
 
 @pytest.mark.disable_loganalyzer

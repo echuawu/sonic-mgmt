@@ -88,6 +88,9 @@ class SonicConst:
     MAX_SHAPER_RATE_BPS = 0
 
     CONFIG_RELOAD_CMD = 'config reload -y'
+    SONIC_CANONICAL_NOGA_GROUP = "SONiC_Canonical"
+    SONIC_COMMUNITY_NOGA_GROUP = "SONiC_Community"
+    SONIC_NOGA_GROUPS = [SONIC_CANONICAL_NOGA_GROUP, SONIC_COMMUNITY_NOGA_GROUP]
 
 
 class CliType:
@@ -125,6 +128,7 @@ class InfraConst:
     MARS_TOPO_FOLDER_PATH = '/auto/sw_regression/system/SONIC/MARS/conf/topo/'
     NVOS_REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/NVOS/MARS/results'
     REGRESSION_SHARED_RESULTS_DIR = '/auto/sw_regression/system/SONIC/MARS/results'
+    RELEASE_RESULTS_DIR = '/auto/sw_regression/system/SONIC/release_results'
     HTTP_SERVER_MARS_TOPO_FOLDER_PATH = '{}{}'.format(HTTP_SERVER, MARS_TOPO_FOLDER_PATH)
     MYSQL_SERVER = '10.208.1.11'
     MYSQL_USER = 'sonic'
@@ -146,6 +150,7 @@ class InfraConst:
     ENV_LOG_FOLDER = 'LOG_FOLDER'
     CASES_DUMPS_DIR = 'cases_dumps'
     CASES_SYSLOG_DIR = 'cases_syslog'
+    STM_IP = "10.209.104.53"
 
 
 class LinuxConsts:
@@ -1105,8 +1110,8 @@ class MarsConstants:
         '/auto/sw_system_project': '/auto/sw_system_project',
         '/auto/sw_system_release': '/auto/sw_system_release',
         '/.autodirect/sw_system_release/': '/.autodirect/sw_system_release/',
-        '/auto/sw_regression/system/SONIC/MARS': '/auto/sw_regression/system/SONIC/MARS',
-        '/.autodirect/sw_regression/system/SONIC/MARS': '/.autodirect/sw_regression/system/SONIC/MARS',
+        '/auto/sw_regression/system/SONIC': '/auto/sw_regression/system/SONIC/',
+        '/.autodirect/sw_regression/system/SONIC': '/.autodirect/sw_regression/system/SONIC',
         '/workspace': '/workspace',
         '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS'
     }
@@ -1296,6 +1301,37 @@ class SanitizerConst:
         {"MLNX_OS": NVOS_MAIL,
          "NVUE": NVOS_MAIL,
          "Sonic": SONIC_MAIL}
+
+
+class ResultUploaderConst:
+    SONIC_CANONICAL_NOGA_GROUP = "SONiC_Canonical"
+    SONIC_COMMUNITY_NOGA_GROUP = "SONiC_Community"
+    SONIC_NOGA_GROUPS = [SONIC_CANONICAL_NOGA_GROUP, SONIC_COMMUNITY_NOGA_GROUP]
+    XLSX_HEADER = ["session_id", "mars_key_id", "testbed", "test name", "start", "end", "result", "message",
+                   "topology", "host", "asic", "platform", "hwsku", "os_version", "xml_path",
+                   "was_xml_updated", "modify_xml", "sanitized_testname"]
+    MSFT_XLSX_HEADER = ["testbed", "test name", "start", "end", "result", "message",
+                        "topology", "host", "asic", "platform", "hwsku",
+                        "os_version", "xml_path", "sanitized_testname"]
+    SANITIZED_HOSTNAME = "switch-hostname"
+    REMOVE_FAILED_TESTCASE = "REMOVE_FAILED_TESTCASE"
+    DATABASE_NAME = "NvidiaTestData"
+    UPLOADER_SCRIPT_RELATIVE_PATH = "test_reporting/report_uploader.py"
+    COMMUNITY_DBS_RELATIVE_PATH = "sonic-tool/mars/dbs/community"
+    MSFT_PLATFORMS = ["4600C", "4700", "2700", "3800"]
+    MARS_RELEASE = "/auto/sw_tools/Internal/MARS/mars_apps/RELEASE/4_3_3/bin/"
+    QUERY_SESSIONS_SCRIPT = os.path.join(MARS_RELEASE, "save_delete_sessions_query.py")
+    SAVE_SESSIONS_SCRIPT = os.path.join(MARS_RELEASE, "save_delete_sessions.py")
+    SESSION_STARTED_BY_REGEX = ["mars_orch_sw-mars-orch@friday_canonical_full_regression_main_branch",
+                                "mars_orch_sw-mars-orch@canonical_full_regression_main_branch",
+                                "mars_orch_sw-mars-orch@Comex_Friday_Set",
+                                "mars_orch_sw-mars-orch@Community_Comex_Regression",
+                                "mars_orch_sw-mars-orch@Community_Regression_Dual_Tor",
+                                "mars_orch_sw-mars-orch@Community_Regression",
+                                "mars_orch_sw-mars-orch@Friday_Community_Regression"]
+    HOST_INTERNAL_NAMES_LIST = ["boxer", "bulldog", "spider", "panther",
+                                "lionfish", "anaconda", "tigris", "ocelot",
+                                "liger", "tigon", "leopard", "moose"]
 
 
 class BugHandlerConst:

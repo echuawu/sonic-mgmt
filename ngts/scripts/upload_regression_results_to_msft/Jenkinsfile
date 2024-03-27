@@ -1,0 +1,23 @@
+pipeline {
+    agent none
+    options {
+        timestamps()
+        buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '30', numToKeepStr: '150')
+    }
+    environment {
+        GENERIC_CI_GIT_BRANCH = '5.0'
+        MAIN_NODE = 'SONIC_MGMT_LITE'
+        JSON_FILE = 'ngts/scripts/upload_regression_results_to_msft/build/build_config.json'
+    }
+    stages {
+        stage("Main") {
+        agent { label "${MAIN_NODE}" }
+            steps {
+                script {
+                    library changelog: false, identifier: "ci_framework@$GENERIC_CI_GIT_BRANCH"
+                            LoadNGCI()
+                }
+            }
+        }
+    }
+}
