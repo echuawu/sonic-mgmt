@@ -991,7 +991,6 @@ platform_tests/mellanox/test_check_sfp_using_ethtool.py:
     reason: "Deprecated as Mellanox do not use ethtool in release 202305 or higher"
     conditions: "release in ['202305', 'master']"
 
-
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode:
   skip:
     reason: "Get/Set low power mode is not supported in Cisco 8000 platform or bluefield platform"
