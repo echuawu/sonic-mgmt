@@ -13,6 +13,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_constants.constants_nvos import DatabaseConst
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.constants.constants import LinuxConsts
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -109,6 +110,9 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
                                                               'adaptive-routing-groups': positive_group_value,
                                                               'breakout-mode': 'disabled'})
 
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
+
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
@@ -155,6 +159,9 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
                                                         devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
+
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
 
         update_timezone(engines)
 

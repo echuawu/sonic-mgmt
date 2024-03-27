@@ -76,8 +76,8 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
             system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled',
                                                               'breakout-mode': 'enabled'})
 
-        with allure.step("Check OpenSM status"):
-            OpenSmTool.verify_open_sm_is_running()
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
 
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
@@ -465,8 +465,8 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
     with allure.step('Change system profile to breakout'):
         system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled', 'breakout-mode': 'enabled'})
 
-        with allure.step("Check OpenSM status"):
-            OpenSmTool.verify_open_sm_is_running()
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
 
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
