@@ -305,6 +305,12 @@
     - Branch:
       - 202111
 
+- Errors_list:
+  - '.* ERR memory_threshold_check: Free memory (\d+(\.\d+)?) is less then free memory threshold (\d+(\.\d+)?).*'
+  Conditions:
+  - Image_type:
+    - ASAN
+
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
