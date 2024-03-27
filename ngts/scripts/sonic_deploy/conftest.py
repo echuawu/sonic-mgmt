@@ -89,7 +89,7 @@ def pytest_addoption(parser):
     parser.addoption("--post_validation", help="Specify whether do post installation validation",
                      default=False, action="store")
     logger.info('Parsing deploy_dpu')
-    parser.addoption("--deploy_dpu", help="Specify whether to deploy dpu for smart switch setup.",
+    parser.addoption("--deploy_dpu", type=bool, help="Specify whether to deploy dpu for smart switch setup.",
                      action="store", default=False)
 
 
