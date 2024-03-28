@@ -2631,6 +2631,7 @@
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_ACL_TABLE_ATTR_.*:.*'
     - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
     - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table DATA.*'
+    - '.* ERR syncd#SDK: \[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
   Conditions:
     - Redmine:
         - 3841291
