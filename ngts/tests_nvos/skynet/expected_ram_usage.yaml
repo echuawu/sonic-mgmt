@@ -1,0 +1,33 @@
+# In this file stored expected RAM usage in total and per process
+# All values in Mb
+# YAML file have next structure:
+#master:                   <<< branch
+#  MSN3420:                <<< platform
+#    total: 3750           <<< total expected RAM usage on DUT
+#    sx_sdk: 1000          <<< RAM usage expected by process sx_sdk
+#    syncd: 70             <<< RAM usage expected by process syncd
+
+master:
+  # QTM2
+  MQM9700: # Gorilla
+    total: 7634
+    sx_sdk: 1200
+    syncd: 300
+    redis-server: 70
+  #  snmpd: 20
+  #  zebra: 85
+  #  bgpd: 75
+  #  bgpcfgd: 30
+  #  bgpmon: 20
+  #  fpmsyncd: 5
+    orchagent: 55
+    ntpd: 5
+   # neighsyncd: 5
+   # vlanmgrd: 5
+    intfmgrd: 5
+    portmgrd: 5
+   # buffermgrd: 5
+   # vrfmgrd: 5
+   # nbrmgrd: 5
+   # vxlanmgrd: 5
+   # sensord: 10

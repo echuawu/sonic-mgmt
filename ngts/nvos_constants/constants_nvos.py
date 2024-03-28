@@ -94,6 +94,8 @@ class NvosConst:
     SDK_DUMP_FOLDER = "/var/log/mellanox/sdk-dumps/"
     MARS_RESULTS_FOLDER = "/auto/sw_regression/system/NVOS/MARS/results/"
 
+    PATH_TO_IMAGES = "/host/nos-images"
+
     HOST_HA = 'ha'
     HOST_HA_ATTR = 'ha_attr'
     HOST_HB = 'hb'
@@ -517,10 +519,11 @@ class PlatformConsts:
     ENV_LED_COLOR_RED = "red"
     ENV_LED_COLOR_BLUE = "blue"
     ENV_LED_COLOR_AMBER = "amber"
+    ENV_LED_COLOR_AMBER_BLINK = "amber_blink"
     ENV_LED_COLOR_OFF = "off"
     ENV_LED_TURN_ON = "on"
     ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
-                             ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER]
+                             ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     HW_ASIC_COUNT = "asic-count"
@@ -533,19 +536,18 @@ class PlatformConsts:
     HW_COMP_LIST = ["hardware-version", HW_MODEL, "serial", "state", "type"]
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
+    SW_FIELD_NAMES = ('description', 'package', 'version')
 
 
 class FansConsts:
     FORWARD_DIRECTION = 'B2F'
     BACKWARD_DIRECTION = 'F2B'
     ALL_DIRECTIONS = [FORWARD_DIRECTION, BACKWARD_DIRECTION]
-    DEF_DIRECTION = FORWARD_DIRECTION
-    NO_DIRECTION = '-'
     FEATURE_ENABLED = 'enabled'
     FEATURE_DISABLED = 'disabled'
     STATE_OK = 'OK'
     STATE_NOT_OK = 'Not OK'
-    FAN_DIRECTION_MISMATCH_ERR = "direction exhaust is not aligned"
+    FAN_DIRECTION_MISMATCH_ERR = "is not aligned with fan1 direction"
 
 
 class IbConsts:
@@ -967,9 +969,6 @@ class StatsConsts:
     MAX_ROWS_TO_SCAN = 300
     CONST_HEADER_ROWS = 8
     BIG_FILE_NUM_OF_LINES = 600026
-    FUN_HEADER_NUM_OF_LINES = 12
-    POWER_HEADER_NUM_OF_LINES = 13
-    TEMPERATURE_HEADER_NUM_OF_LINES = 11
 
     TEMP_MIN = 15  # [Celsius]
     TEMP_MAX = 90  # [Celsius]

@@ -206,7 +206,8 @@ class SonicOnieCli:
                                  'mount /dev/sda3  /boot/',
                                  'grub-editenv /boot/grub/grubenv set next_entry=ONIE']
                     self.run_cmd_set(cmds_list)
-                self.run_cmd_set([f'onie-self-update {self.latest_onie_url}'])
+                cmd_output, _ = self.run_cmd_set([f'onie-self-update {self.latest_onie_url}'])
+                logger.info(f'onie-self-update command output:\n{cmd_output}')
                 self.post_reboot_delay()
         else:
             with allure.step(f"Doesn't required ONIE installation"):

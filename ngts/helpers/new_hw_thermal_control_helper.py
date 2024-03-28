@@ -867,8 +867,11 @@ def check_periodic_report(dut):
 
 def is_support_new_hw_tc(cli_objects, is_simx):
     if is_simx:
-        logger.info('simx does not support new hw tc')
-        return False
+        platform = cli_objects.dut.chassis.get_platform()
+        support_new_hw_tc_platform_list = ["x86_64-nvidia_sn4280_simx-r0", "x86_64-mlnx_msn4700_simx-r0"]
+        if platform not in support_new_hw_tc_platform_list:
+            logger.info(f'simx platform {platform} does not support new hw tc')
+            return False
 
     hw_version = cli_objects.dut.hw_mgmt.get_hw_version()
     base_hw_version = "7.0030.0951"

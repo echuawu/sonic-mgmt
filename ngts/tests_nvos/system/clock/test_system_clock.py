@@ -78,7 +78,7 @@ def test_set_unset_timezone_ntp_off(test_api, engines, system, valid_timezones, 
 
     with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
-                                                             forbidden_values=[orig_timezone]).get_returned_value()
+                                                             forbidden_values=[orig_timezone, None]).get_returned_value()
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
         ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
@@ -110,7 +110,7 @@ def test_set_unset_timezone_ntp_on(test_api, engines, system, valid_timezones, o
 
     with allure.step("Pick a random new timezone to set (from timezone.yaml)"):
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
-                                                             forbidden_values=[orig_timezone]).get_returned_value()
+                                                             forbidden_values=[orig_timezone, None]).get_returned_value()
 
     with allure.step("Set the new timezone with 'nv set system timezone'"):
         ClockTools.set_timezone(new_timezone, system, apply=True).verify_result()
@@ -230,6 +230,7 @@ def test_set_system_invalid_timezone_ntp_off_error_flow(test_api, engines, syste
     # try to change random existing timezones from timezone.yaml and set them
     with allure.step("Pick 3 random timezone from timezone.yaml and change them to test case sensitivity"):
         random_timezones = RandomizationTool.select_random_values(list_of_values=valid_timezones,
+                                                                  forbidden_values=[None],
                                                                   number_of_values_to_select=3).get_returned_value()
         bad_timezones = list(map(lambda s: ClockTools.alternate_capital_lower(s), random_timezones))
 
@@ -412,7 +413,8 @@ def test_new_time_in_logs(engines, system, orig_timezone, valid_timezones, init_
 
     with allure.step('Set a random timezone'):
         new_timezone = RandomizationTool.select_random_value(list_of_values=valid_timezones,
-                                                             forbidden_values=[orig_timezone]).get_returned_value()
+                                                             forbidden_values=[orig_timezone, None]
+                                                             ).get_returned_value()
         logging.info('Random timezone: "{}"'.format(new_timezone))
 
         logging.info("Set the new timezone")

@@ -1,0 +1,71 @@
+{
+  "author": "slutati@nvidia.com",
+  "notify": "BUILD_USER_ID",
+  "properties": [
+    "default_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swfw_default_params.properties",
+    "gerrit_propertiesFile=/auto/sw_system_release/ci/general/ngci_properties/swgerrit.properties",
+    "ENABLE_VAULT=true",
+    "VAULT_NAMESPACE=nbu-system-sw-sonic",
+    "VAULT_HCL_TEMPLATE=/auto/sw_regression/system/SONIC/MARS/conf/jenkins_vault.hcl",
+    "VAULT_URL=https://prod.vault.nvidia.com",
+    "VAULT_CREDENTIALS_ID=vault-sonic-approle-prod",
+    "SECRETS_YAML_SONIC=ngts/scripts/upload_regression_results_to_msft/build/sonic_secret_template.yaml"
+  ],
+  "timeout": "1",
+  "phases": [
+    {
+      "phase_1": [
+        {
+          "name": "Clone",
+          "module": "com.mellanox.jenkins.generic_modules.Checkout",
+          "category": "Clone sonic-mgmt repo",
+          "node": "SONIC_MGMT_LITE",
+          "parameters": {
+            "GIT_REPOSITORY": "ssh://git-nbu-sw.nvidia.com:12024/switchx/sonic/sonic-mgmt",
+            "BRANCH_NAME": "debug_jenkins_msft_job",
+            "CLONE_PATH": "sonic-mgmt",
+            "SUBMODULES": "false"
+          },
+          "skip": false,
+          "on_failure": "stop",
+          "out_of_mail": true
+        },
+        {
+          "name": "Get ngts version",
+          "module": "ngts/scripts/upload_regression_results_to_msft/build/set_ngts_version.groovy",
+          "category": "Get ngts version",
+          "node": "SONIC_MGMT_LITE",
+          "parameters": {},
+          "skip": false,
+          "on_failure": "stop"
+        },
+         {
+          "name": "Run sonic mgmt ngts docker",
+          "module": "ngts/scripts/upload_regression_results_to_msft/build/start_sonic_mgmt_ngts_docker.groovy",
+          "category": "Run sonic mgmt ngts docker",
+          "node": "SONIC_MGMT_LITE",
+          "parameters": {
+              "ngts_version": "${NGTS_VERSION}",
+              "container_name": "sonic-mgmt-${USER}"
+          },
+          "skip": false,
+          "on_failure": "stop"
+        },
+        {
+          "name": "Exec upload script on docker",
+          "module": "ngts/scripts/upload_regression_results_to_msft/build/run_upload_script.groovy",
+          "category": "exec upload script on docker",
+          "node": "SONIC_MGMT_LITE",
+          "parameters": {
+              "sonic_version": "${sonic_version}",
+              "command": "${command}",
+              "parameters": "${parameters}",
+              "container_name": "sonic-mgmt-${USER}"
+          },
+          "skip": false,
+          "on_failure": "stop"
+        }
+      ]
+    }
+  ]
+}

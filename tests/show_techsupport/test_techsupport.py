@@ -82,6 +82,24 @@ def setup_acl_rules(duthost, acl_setup):
     duthost.command('config acl update full {}'.format(dut_conf_file_path))
 
 
+def check_dut_is_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+    """
+    Check dut is dpu or not. True when dut is dpu, else False
+    """
+    duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+    config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
+    return config_facts['DEVICE_METADATA']['localhost'].get('switch_type', '') == 'dpu'
+
+
+@pytest.fixture(scope='module')
+def skip_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+    """
+    When dut is dpu, skip the case
+    """
+    if check_dut_is_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+        pytest.skip("Skip the test, as it is not supported on DPU.")
+
+
 @pytest.fixture(scope='function')
 def acl_setup(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
     """
@@ -343,7 +361,7 @@ def gen_dump_file(duthost, since):
     return tar_file
 
 
-def test_techsupport(request, config, duthosts, enum_rand_one_per_hwsku_frontend_hostname):
+def test_techsupport(request, config, duthosts, enum_rand_one_per_hwsku_frontend_hostname, skip_on_dpu):  # noqa F811
     """
     test the "show techsupport" command in a loop
     :param config: fixture to configure additional setups_list on dut.
@@ -554,8 +572,7 @@ def check_cmds(cmd_group_name, cmd_group_to_check, cmdlist, strbash_in_cmdlist):
 
 
 def test_techsupport_commands(
-        duthosts, enum_rand_one_per_hwsku_frontend_hostname, commands_to_check
-):
+        duthosts, enum_rand_one_per_hwsku_frontend_hostname, commands_to_check, skip_on_dpu):  # noqa F811
     """
     This test checks list of commands that will be run when executing
     'show techsupport' CLI against a standard expected list of commands
@@ -609,8 +626,7 @@ def test_techsupport_on_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname)
     :param duthosts: DUT host
     """
     duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
-    config_facts = duthost.config_facts(host=duthost.hostname, source="running")['ansible_facts']
-    if config_facts['DEVICE_METADATA']['localhost'].get('switch_type', '') != 'dpu':
+    if not check_dut_is_dpu(duthosts, enum_rand_one_per_hwsku_frontend_hostname):
         pytest.skip("Skip the test, as it is supported only on DPU.")
 
     since = str(randint(1, 5)) + " minute ago"

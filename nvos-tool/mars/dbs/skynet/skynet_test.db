@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<DBDEF>
+	<global>
+		<default_params_type> extended_setup_step_params </default_params_type>
+		<DB>
+			<info> </info>
+			<owner> reeft </owner>
+			<group> NVOS </group>
+			<dimension> VER </dimension>
+            <pre> </pre>
+		</DB>
+        <Test>
+            <pre> </pre>
+            <post> </post>
+            <on_not_success>
+                <name> Send Failure Report </name>
+                <type> setup_mode </type>
+                <cmd>
+                    <type> reg_exec_cmd </type>
+                    <players_selection>
+                        <ep_targets> SONIC_MGMT </ep_targets>
+                    </players_selection>
+                    <name> Send Failure Report </name>
+                    <tout> 600 </tout>
+                    <params>
+                        <exec> PYTHONPATH=/devts/ /ngts_venv/bin/python /devts/infra/tools/sql/skynet_failure_report.py  --setup_name=[[conf:extra_info.setup_name]] --session_id=[[run_time:session_id]] --project_name NVOS --report_recipients reeft@exchange.nvidia.com</exec>
+                    </params>
+                </cmd>
+            </on_not_success>
+        </Test>
+		<Case>
+		    <pre> </pre>
+		    <post> </post>
+		</Case>
+	</global>
+	<test>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/skynet/skynet_test.cases </cases>
+	</test>
+</DBDEF>

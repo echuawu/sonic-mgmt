@@ -1,4 +1,4 @@
-from .MgmtInterface import MgmtInterface
+from .Interface import Interface
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -19,7 +19,7 @@ class MgmtPort(BaseComponent):
         self.name = name
         self.show_output_dictionary = {}
         self.name_in_redis = ''
-        self.interface = MgmtInterface(self, name)
+        self.interface = Interface(self, name)
 
     def update_output_dictionary(self):
         """

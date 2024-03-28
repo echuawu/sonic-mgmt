@@ -98,7 +98,7 @@ class TrafficGeneratorTool:
                         subprocess.run(cmd, shell=True, check=True, timeout=240)
 
             with allure.step("Verify openSM is running"):
-                OpenSmTool.start_open_sm_on_server(engines)
+                OpenSmTool.start_open_sm(engines)
         else:
             logger.info(f'Could not bring-up traffic containers, {NvosConst.HOST_HA} and {NvosConst.HOST_HB} '
                         f'were not found in engines')

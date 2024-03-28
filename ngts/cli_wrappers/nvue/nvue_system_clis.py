@@ -1,12 +1,11 @@
 import logging
-import time
 
+from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import CertificateFiles
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.tools.test_utils import allure_utils as allure
-from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 
 logger = logging.getLogger()
 
@@ -117,6 +116,26 @@ class NvueSystemCli(NvueBaseCli):
         cmd = "nv action generate {path} {option} {time}".format(path=path, option=option, time=time)
         cmd = " ".join(cmd.split())
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_generate_tpm_quote(engine, resource_path, pcrs='', nonce='', algorithm=''):
+        path = resource_path.replace('/', ' ').strip()
+        cmd = f'nv action generate {path}'
+        for param in [pcrs, nonce]:
+            if param:
+                cmd += f' {param}'
+        if algorithm:
+            cmd += f' algorithm {algorithm}'
+        cmd = ' '.join(cmd.split())
+        logging.info(f"Running '{cmd}' on dut using NVUE")
+        return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_upload_tpm_file(engine, resource_path, file_name, remote_url):
+        path = resource_path.replace('/', ' ').strip()
+        cmd = f'nv action upload {path} {file_name} {remote_url}'
+        logging.info(f"Running '{cmd}' on dut using NVUE")
         return engine.run_cmd(cmd)
 
     @staticmethod

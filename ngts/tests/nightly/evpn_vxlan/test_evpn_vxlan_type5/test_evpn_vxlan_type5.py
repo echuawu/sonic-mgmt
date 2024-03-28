@@ -412,10 +412,10 @@ class TestEvpnVxlan:
         }
 
         self.ecmp_traffic_list = {
-            'ip': {'sip_list': VxlanConstants.ECMP_TRAFFIC_SRC_IP_LIST, 'dip': self.ha_dummy_ip, 'd_iface': 'ha',
+            'ip': {'sip_list': VxlanConstants.BULK_ECMP_TRAFFIC_SRC_IP_LIST, 'dip': self.ha_dummy_ip, 'd_iface': 'ha',
                    'hex_dip': VxlanConstants.HEX_5_5_5_1},
-            'ipv6': {'sip_list': VxlanConstants.ECMP_TRAFFIC_SRC_IPV6_LIST, 'dip': self.ha_dummy_ipv6, 'd_iface': 'hb',
-                     'hex_dip': VxlanConstants.HEX_5000_2}
+            'ipv6': {'sip_list': VxlanConstants.BULK_ECMP_TRAFFIC_SRC_IPV6_LIST, 'dip': self.ha_dummy_ipv6,
+                     'd_iface': 'hb', 'hex_dip': VxlanConstants.HEX_5000_2}
         }
 
         self.filter_format_list = {
@@ -503,8 +503,8 @@ class TestEvpnVxlan:
         pcap_path_list = [VxlanConstants.PCAP_PATH.format('ha'), VxlanConstants.PCAP_PATH.format('hb')]
         for ip_ver in self.ecmp_traffic_list.keys():
             proto = IP if ip_ver == 'ip' else IPv6
-            ip_check_list = VxlanConstants.ECMP_TRAFFIC_SRC_IP_LIST if ip_ver == 'ip' else \
-                VxlanConstants.ECMP_TRAFFIC_SRC_IPV6_LIST
+            ip_check_list = VxlanConstants.BULK_ECMP_TRAFFIC_SRC_IP_LIST if ip_ver == 'ip' else \
+                VxlanConstants.BULK_ECMP_TRAFFIC_SRC_IPV6_LIST
             with allure.step(f"Send IP Overlay ECMP traffic from HA to HA and HB via VLAN {VxlanConstants.VLAN_10} to "
                              f"L3 VNI {VxlanConstants.VNI_500100}"):
                 if receiver_count == -1:
@@ -734,13 +734,13 @@ class TestEvpnVxlan:
             self.validate_ecmp_evpn_type5_route(cli_objects)
 
         with allure.step('Validate IP and IPv6 Overlay ECMP traffic and counters'):
-            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_100,
+            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_10,
                                                             self.ecmp_traffic_format_list['ecmp_simple'])
 
         with allure.step(f'Config MTU to {VxlanConstants.MTU_9100} for all the ports through path'):
             MTUConfigTemplate.configuration(topology_obj, self.mtu_config_list)
         with allure.step('Validate Jumbo IP and IPv6 Overlay ECMP traffic and counters'):
-            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_100,
+            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_10,
                                                             self.ecmp_traffic_format_list['ecmp_variable_length'],
                                                             packet_len=VxlanConstants.JUMBO_PACKET_LEN)
 
@@ -749,7 +749,7 @@ class TestEvpnVxlan:
 
         with allure.step(f'Validate IP and IPv6 Overlay ECMP traffic with length {VxlanConstants.MTU_1000} could not '
                          f'be forwarded through'):
-            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_100,
+            self.validate_overlay_ecmp_traffic_and_counters(cli_objects, engines, VxlanConstants.PACKET_NUM_10,
                                                             self.ecmp_traffic_format_list['ecmp_variable_length'],
                                                             packet_len=VxlanConstants.NORMAL_PACKET_LEN,
                                                             receiver_count=VxlanConstants.PACKET_NUM_0)

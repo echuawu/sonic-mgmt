@@ -16,14 +16,6 @@
     </global>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Show Platform CLI Case </info>
         <name> show_platform </name>
         <tout> 300 </tout>
@@ -35,14 +27,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Platform Info Case Mocked </info>
         <name> platform_info_mocked </name>
         <tout> 2700 </tout>
@@ -55,11 +39,11 @@
 
     <case>
         <ignore>
-            <!-- daily case  -->
+            <!-- weekend case -->
             <condition>
                 <key> skip_weekend_cases </key>
                 <op> == </op>
-                <value> no </value>
+                <value> yes </value>
             </condition>
         </ignore>
         <info> Test Thermal Control Fan Status </info>
@@ -73,14 +57,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test PSU Power threshold  </info>
         <name> test_psu_power_threshold.py </name>
         <tout> 600 </tout>
@@ -92,14 +68,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Enhance Reboot Cause Test </info>
         <name> test_reboot_cause </name>
         <tout> 600 </tout>
@@ -111,20 +79,12 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Platform Info Case </info>
         <name> platform_info </name>
         <tout> 4800 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"not test_show_platform_temperature_mocked and not test_show_platform_fanstatus_mocked and not test_thermal_control_fan_status and not test_thermal_control_load_invalid_format_json and not test_thermal_control_load_invalid_value_json\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/test_platform_info.py </static_args>
              </params>
         </cmd>
     </case>
@@ -149,14 +109,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Reload Config Case </info>
         <name> reload_config </name>
         <tout> 2000 </tout>
@@ -168,14 +120,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Sequential Restart Case </info>
         <name> sequential_restart </name>
         <tout> 1200 </tout>
@@ -187,14 +131,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test SFP Show </info>
         <name> sfp_show </name>
         <tout> 3600 </tout>
@@ -206,14 +142,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test SFP Show Transceivers </info>
         <name> sfp_show_transceivers </name>
         <tout> 3600 </tout>
@@ -225,14 +153,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test SFP Util </info>
         <name> sfp_util </name>
         <tout> 3600 </tout>
@@ -244,14 +164,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test XCVR Info in DB Case </info>
         <name> xcvr_info_in_db </name>
         <tout> 1200 </tout>
@@ -263,14 +175,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Check SFP Presence Case </info>
         <name> sfp_presence </name>
         <tout> 1200 </tout>
@@ -282,14 +186,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Check SFP eeprom Case </info>
         <name> sfp_eeprom </name>
         <tout> 1000 </tout>
@@ -301,14 +197,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Check sysfs Case </info>
         <name> check_sysfs </name>
         <tout> 600 </tout>
@@ -320,14 +208,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test hw-management Service Case </info>
         <name> hw_management_service </name>
         <tout> 1200 </tout>
@@ -341,14 +221,6 @@
     <!-- Platform API Test Case Begin-->
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Watchdog Case </info>
         <name> watchdog </name>
         <tout> 1200 </tout>
@@ -360,14 +232,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Chassis API Case </info>
         <name> platform_api_chassis </name>
         <tout> 1200 </tout>
@@ -380,14 +244,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Chassis Fan API Case </info>
         <name> platform_api_chassis_fans </name>
         <tout> 1200 </tout>
@@ -400,14 +256,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Thermal API Case </info>
         <name> platform_api_thermal </name>
         <tout> 1200 </tout>
@@ -424,14 +272,6 @@
     -->
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test PSU API Case  </info>
         <name> platform_api_psu_tempreture </name>
         <tout> 1200 </tout>
@@ -444,33 +284,17 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test PSU API Case </info>
         <name> platform_api_psu </name>
         <tout> 1200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"not test_temperature\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/api/test_psu.py </static_args>
              </params>
         </cmd>
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test PSU Fan API Case </info>
         <name> platform_api_psu_fans </name>
         <tout> 1000 </tout>
@@ -483,14 +307,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Fan Drawer API Case </info>
         <name> platform_api_fan_drawer </name>
         <tout> 1200 </tout>
@@ -503,14 +319,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Fan Drawer Fans API Case </info>
         <name> platform_api_fan_drawer_fans </name>
         <tout> 1200 </tout>
@@ -538,14 +346,6 @@
     -->
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test SFP API Case</info>
         <name> platform_api_sfp </name>
         <tout> 1200 </tout>
@@ -556,14 +356,6 @@
         </cmd>
     </case>
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test CPU memory usage Case </info>
         <name> cpu_memory_usage </name>
         <tout> 1800 </tout>
@@ -575,14 +367,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test Component Case </info>
         <name> component </name>
         <tout> 1800 </tout>
@@ -594,14 +378,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Pcied Daemon Status Case </info>
         <name> pcied </name>
         <tout> 900 </tout>
@@ -613,14 +389,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Critical Process Monitoring Case </info>
         <name> critical_process_monitoring </name>
         <tout> 1800 </tout>
@@ -632,14 +400,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test syseepromd </info>
         <name> test_syseepromd </name>
         <tout> 600 </tout>
@@ -651,14 +411,6 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test psud </info>
         <name> test_psud </name>
         <tout> 600 </tout>
@@ -670,20 +422,23 @@
     </case>
 
     <case>
-        <ignore>
-            <!-- daily case  -->
-            <condition>
-                <key> skip_weekend_cases </key>
-                <op> == </op>
-                <value> no </value>
-            </condition>
-        </ignore>
         <info> Test system status </info>
         <name> test_system_status </name>
         <tout> 900 </tout>
         <cmd>
              <params>
                  <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts system_health/test_system_status.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <info> Test counterpoll watermark </info>
+        <name> test_counterpoll_watermark </name>
+        <tout> 900 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/counterpoll/test_counterpoll_watermark.py </static_args>
              </params>
         </cmd>
     </case>
@@ -697,12 +452,31 @@
                 <value> no </value>
             </condition>
         </ignore>
-        <info> Test counterpoll watermark </info>
-        <name> test_counterpoll_watermark </name>
-        <tout> 900 </tout>
+        <info> Test Secure Upgrade Non_Signed </info>
+        <name> test_secure_upgrade_non_signed </name>
+        <tout> 600 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/counterpoll/test_counterpoll_watermark.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --target_image_list=http://nbu-nfs.mellanox.com/auto/sw_regression/system/SONIC/security/secure_boot/non_signed_image/sonic-mellanox.bin\'" --test-scripts platform_tests/test_secure_upgrade.py </static_args>
+             </params>
+        </cmd>
+    </case>
+
+    <case>
+        <ignore>
+            <!-- daily case  -->
+            <condition>
+                <key> skip_weekend_cases </key>
+                <op> == </op>
+                <value> no </value>
+            </condition>
+        </ignore>
+        <info> Test Secure Upgrade Mismatched_Signed </info>
+        <name> test_secure_upgrade_mismatched_signed </name>
+        <tout> 600 </tout>
+        <cmd>
+             <params>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --target_image_list=http://nbu-nfs.mellanox.com/auto/sw_regression/system/SONIC/security/secure_boot/sig_mismatch_image/sonic-mellanox.bin\'" --test-scripts platform_tests/test_secure_upgrade.py </static_args>
              </params>
         </cmd>
     </case>

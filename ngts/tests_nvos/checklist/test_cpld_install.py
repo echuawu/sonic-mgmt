@@ -1,7 +1,6 @@
 import logging
 import pytest
 import os.path
-from retry.api import retry_call
 
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
@@ -44,15 +43,17 @@ def test_cpld_upgrade(engines, devices):
     finally:
         TestToolkit.tested_api = ApiType.OPENAPI
         with allure.step(f"Fetch, install and assert original CPLD version (through {TestToolkit.tested_api})"):
-            # retry is necessary because of firmware bug prior to version CPLD000268_REV0700 which sometimes causes the
+            # Workaround is necessary because of firmware bug prior to version CPLD000268_REV0700 which causes the
             # installation of CPLD3 to fail (`nv show platform firmware CPLD3` returns CPLD000000_REV0000). Once both
-            # versions (previous_cpld_version and current_cpld_version) are newer than this, retry can be removed.
-            retry_call(_firmware_install_test,
-                       [devices, fae, platform, devices.dut.current_cpld_version],
-                       exceptions=AssertionError, tries=2, logger=logger)
+            # versions (previous_cpld_version and current_cpld_version) are newer than this, you can remove the
+            # port_pre_authentication argument and all its usages.
+            do_workaround = ("CPLD000268_REV0500" == devices.dut.previous_cpld_version.version_names["CPLD3"])
+            _firmware_install_test(devices, fae, platform, devices.dut.current_cpld_version,
+                                   port_pre_authentication=do_workaround)
 
 
-def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: BaseSwitch.CpldImageConsts):
+def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: BaseSwitch.CpldImageConsts,
+                           port_pre_authentication=False):
     burn_filename = os.path.basename(image_consts.burn_image_path)
     refresh_filename = os.path.basename(image_consts.refresh_image_path)
     with allure.step(f"Asserting the image files don't exist yet"):
@@ -74,6 +75,12 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
             f"Expected only two new files {(burn_filename, refresh_filename)} but the old file list is {initial_files} " \
             f"and the new one is {file_list}"
 
+    if port_pre_authentication:  # todo: remove this block once the workaround is no longer needed
+        with allure.step(f"Fetch workaround file (needed when upgrading from CPLD000268_REV0500)"):
+            wa_path = '/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/PORT_PRE_AUTHENTICATION.vme'
+            wa_filename = 'PORT_PRE_AUTHENTICATION.vme'
+            fae.platform.firmware.cpld.action_fetch(wa_path).verify_result()
+
     try:
         with allure.step(f"Installing BURN image (no reboot required) {burn_filename}"):
             result, _ = OperationTime.save_duration(
@@ -81,6 +88,11 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
                 fae.platform.firmware.cpld.action_install,
                 burn_filename, device=devices.dut, expect_reboot=False)
             result.verify_result()
+
+        if port_pre_authentication:  # todo: remove this block once the workaround is no longer needed
+            with allure.step(f"Run workaround file (needed when upgrading from CPLD000268_REV0500)"):
+                fae.platform.firmware.cpld.action_install(wa_filename, device=devices.dut, expect_reboot=False
+                                                          ).verify_result()
 
         with allure.step(f"Installing REFRESH image (and rebooting) {refresh_filename}"):
             fae.platform.firmware.cpld.action_install(refresh_filename, device=devices.dut, expect_reboot=True
@@ -98,6 +110,13 @@ def _firmware_install_test(devices, fae: Fae, platform: Platform, image_consts: 
         raise
 
     finally:
+        if port_pre_authentication:  # todo: remove this block once the workaround is no longer needed
+            try:
+                with allure.step(f"Delete workaround file (needed when upgrading from CPLD000268_REV0500)"):
+                    fae.platform.firmware.cpld.action_delete(wa_filename).verify_result()
+            except Exception as e:
+                logger.error(f"{type(e).__name__}: {e}")
+
         with allure.step(f"Deleting BURN image file"):
             fae.platform.firmware.cpld.action_delete(burn_filename).verify_result()
 

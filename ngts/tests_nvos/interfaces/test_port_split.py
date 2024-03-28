@@ -15,6 +15,7 @@ from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 invalid_cmd_str = ['Invalid config', 'Error', 'command not found', 'Bad Request', 'Not Found', "unrecognized arguments",
                    "error: unrecognized arguments", "invalid choice", "Action failed", "Invalid Command",
@@ -74,6 +75,9 @@ def test_ib_split_port_no_breakout_profile(engines, interfaces, start_sm, device
         with allure.step("Enable adaptive-routing and enable breakout-mode "):
             system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled',
                                                               'breakout-mode': 'enabled'})
+
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
 
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
@@ -460,6 +464,10 @@ def test_ib_split_port_stress(engines, interfaces, start_sm):
     system = System(None)
     with allure.step('Change system profile to breakout'):
         system.profile.action_profile_change(params_dict={'adaptive-routing': 'enabled', 'breakout-mode': 'enabled'})
+
+        with allure.step("Start OpenSm"):
+            OpenSmTool.start_open_sm(engines).verify_result()
+
         with allure.step('Verify changed values'):
             system_profile_output = OutputParsingTool.parse_json_str_to_dictionary(system.profile.show()) \
                 .get_returned_value()
@@ -559,6 +567,9 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
                                                         devices.dut.system_profile_default_values,
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
+
+        with allure.step("Check OpenSM status"):
+            OpenSmTool.verify_open_sm_is_running()
 
 
 def _run_cmd_nvue(engines, cmds_to_run, num_of_iterations):

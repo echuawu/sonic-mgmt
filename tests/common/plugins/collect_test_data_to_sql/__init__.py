@@ -13,14 +13,21 @@ logger = logging.getLogger()
 @pytest.fixture(autouse=True)
 def collect_tests_data_to_sql(request):
     skynet_run = False
+    setup_name = ''
     if hasattr(request.config.option, 'skynet'):
         skynet_run = request.config.getoption("skynet")
-    cpu_ram_usage_collector = SkynetSonicCpuRamUsageCollector if skynet_run else NgtsCpuRamUsageCollector
-
+    if hasattr(request.config.option, 'setup_name'):
+        setup_name = request.config.getoption('setup_name')
+    if skynet_run:
+        cpu_ram_usage_collector = SkynetNvosCpuRamUsageCollector if "NVOS" in setup_name else SkynetSonicCpuRamUsageCollector
+    else:
+        cpu_ram_usage_collector = NgtsCpuRamUsageCollector
     pytest_node_ids_which_should_be_collected = {
         'tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer': NgtsPushGateRebootLossTimeCollector,
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': cpu_ram_usage_collector,
         'tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': cpu_ram_usage_collector,
+        'tests_nvos/skynet/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_cpu_usage': cpu_ram_usage_collector,
+        'tests_nvos/skynet/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage': cpu_ram_usage_collector,
         'tests/push_build_tests/system/test_startup_time_degradation.py::TestStartupTime::test_startup_time_degradation': StartupTimeCollector,
         'platform_tests/test_advanced_reboot.py::test_fast_reboot': AdvancedRebootCollector,
         'platform_tests/test_advanced_reboot.py::test_warm_reboot': AdvancedRebootCollector,
@@ -28,7 +35,6 @@ def collect_tests_data_to_sql(request):
     }
 
     yield
-
     for test_prefix in pytest_node_ids_which_should_be_collected.keys():
         if test_prefix in request.node.nodeid:
             try:
@@ -386,6 +392,29 @@ class SkynetSonicCpuRamUsageCollector(SkynetGenericCollector):
         test_rc = 'failed' if self.request.node.rep_call.failed else 'passed'
         super(SkynetSonicCpuRamUsageCollector, self).__init__(setup_name, topology, sonic_version, project_name,
                                                               platform, test_name, test_rc)
+
+    def get_test_results(self):
+        test_report_filename = os.path.join('/tmp/', self.request.node.originalname)
+        with open(test_report_filename) as test_report_file_obj:
+            test_report_dict = json.load(test_report_file_obj)
+            self.test_data = test_report_dict
+
+
+class SkynetNvosCpuRamUsageCollector(SkynetGenericCollector):
+    """
+    Class which collects CPU/RAM usage for Skynet CPU/RAM usage test cases
+    """
+    def __init__(self, request):
+        self.request = request
+        setup_name = self.request.getfixturevalue('setup_name')
+        project_name = 'nvos'
+        nvos_version = self.request.getfixturevalue('sonic_version')
+        platform = self.request.getfixturevalue('platform_params').platform
+        test_name = self.request.node.nodeid
+        topology = 'ptf-any'
+        test_rc = 'failed' if self.request.node.rep_call.failed else 'passed'
+        super(SkynetNvosCpuRamUsageCollector, self).__init__(setup_name, topology, nvos_version, project_name,
+                                                             platform, test_name, test_rc)
 
     def get_test_results(self):
         test_report_filename = os.path.join('/tmp/', self.request.node.originalname)

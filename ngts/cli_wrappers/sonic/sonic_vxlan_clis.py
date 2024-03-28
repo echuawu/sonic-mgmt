@@ -4,6 +4,7 @@ import re
 from retry import retry
 from ngts.cli_wrappers.common.vxlan_clis_common import VxlanCliCommon
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
+from ngts.constants.constants import VxlanConstants
 
 
 class SonicVxlanCli(VxlanCliCommon):
@@ -365,6 +366,33 @@ class SonicVxlanCli(VxlanCliCommon):
                                                               output_key='IFACE')
             return vxlan_counters_dict
 
+    def clean_parsed_counter_value(self, raw_interface_counter_value):
+        """
+        This method is used to remove comma in the parsed counter values, there is a typical data structure of the
+        parsed counter values
+        'Ethernet88': {'IFACE': 'Ethernet88',
+                       'RX_BPS': '0.14 B/s',
+                       'RX_DRP': '0',
+                       'RX_ERR': '0',
+                       'RX_OK': '0',
+                       'RX_OVR': '0',
+                       'RX_UTIL': '0.00%',
+                       'STATE': 'U',
+                       'TX_BPS': '0.14 B/s',
+                       'TX_DRP': '0',
+                       'TX_ERR': '0',
+                       'TX_OK': '0',
+                       'TX_OVR': '0',
+                       'TX_UTIL': '0.00%'}
+        :param raw_interface_counter_value: parsed interface counter value
+        :return: counters value dict without comma
+        """
+        for raw_counters in raw_interface_counter_value.values():
+            for stat_item in VxlanConstants.INTF_CNT_STAT_ITEMS:
+                if ',' in raw_counters[stat_item]:
+                    raw_counters[stat_item] = raw_counters[stat_item].replace(",", "")
+        return raw_interface_counter_value
+
     def show_interface_counter(self):
         """
         This method is used to get interface counter info from command "show interface counters"
@@ -377,7 +405,7 @@ class SonicVxlanCli(VxlanCliCommon):
                                                               data_ofset_from_start=2,
                                                               column_ofset=2,
                                                               output_key='IFACE')
-        return interface_counters_dict
+        return self.clean_parsed_counter_value(interface_counters_dict)
 
     def show_vxlan_interface(self):
         """

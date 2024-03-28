@@ -25,72 +25,29 @@ class TestAutoFecBase:
         self.dut_mac = self.cli_objects.dut.mac.get_mac_address_for_interface("eth0")
         self.dut_hostname = self.cli_objects.dut.chassis.get_hostname()
 
-    def auto_fec_checker(self, tested_lb_dict, conf, lldp_checker=True):
+    def auto_fec_checker(self, conf):
         """
         The function does as following:
-         1) Calculate what the expected fec mode should be based on the port current speed/type
-         2) Verify the fec change to the expected result
-
-        :param tested_lb_dict:  a dictionary of loopback list for each split mode on the dut
-        {1: [('Ethernet52', 'Ethernet56')],
-        2: [('Ethernet12', 'Ethernet16')],
-        4: [('Ethernet20', 'Ethernet24')]}
+         1) Verify the link is up
+         2) Verify fec admin mode is auto
+         3) Verify fec operational mode is a valid fec mode
         :param conf: a dictionary of the port auto negotiation configuration and expected outcome
         :return: raise a assertion error in case validation failed
         """
         with allure.step("Auto Fec checker"):
             logger.info(f'Verify Fec mode on ports: {list(conf.keys())}')
-            fec_verification_conf = self.get_fec_verification_conf(tested_lb_dict, conf)
-            self.verify_fec_configuration(fec_verification_conf, lldp_checker)
-
-    def get_fec_verification_conf(self, tested_lb_dict, conf):
-        """
-        Calculate what the expected fec mode should be based on the port current speed/type
-        :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
-        {1: [('Ethernet52', 'Ethernet56')],
-        2: [('Ethernet12', 'Ethernet16')],
-        4: [('Ethernet20', 'Ethernet24')]}
-        :param conf: a dictionary of the port auto negotiation configuration and expected outcome
-        :return: dictionary of expected fec mode for ports, i.e,
-        {'Ethernet4': {'FEC Oper': 'rs'},...}
-        """
-        fec_verification_conf = {}
-        for port, port_conf_dict in conf.items():
-            expected_speed = port_conf_dict['expected_speed']
-            expected_type = port_conf_dict['expected_type']
-            port_split_mode = self.get_port_split_mode(tested_lb_dict, port)
-            expected_fec = self.get_port_expected_fec_mode(expected_speed, expected_type, port_split_mode)
-            fec_verification_conf[port] = {
-                AutonegCommandConstants.FEC_OPER: expected_fec
-            }
-        return fec_verification_conf
-
-    def get_port_expected_fec_mode(self, expected_speed, expected_type, port_split_mode):
-        """
-        Calculate what the expected fec mode should be based on the port current speed/type
-        :param expected_speed: i.e, 200G
-        :param expected_type: i.e, CR4
-        :param port_split_mode: i.e, 1
-        :return: the expected fec mode based on parameters, i.e, rs
-        """
-        expected_fec = None
-        for fec in SonicConst.FEC_MODE_LIST:
-            speed_type_dict = self.fec_modes_speed_support[fec][port_split_mode]
-            type_list = speed_type_dict.get(expected_speed)
-            if type_list:
-                if expected_type in type_list:
-                    expected_fec = fec
-                    break
-        assert expected_fec, f"Didn't find expected fec for speed {expected_speed}, " \
-                             f"type {expected_type}, split mode {port_split_mode}"
-        return expected_fec
-
-    @staticmethod
-    def get_port_split_mode(tested_lb_dict, port):
-        for split_mode, lb_list in tested_lb_dict.items():
-            for lb in lb_list:
-                if port in lb:
-                    return split_mode
+            ports_fec_status = self.cli_objects.dut.interface.parse_interfaces_fec_status()
+            ports_status = self.cli_objects.dut.interface.parse_interfaces_status()
+            for port in conf.keys():
+                iface_oper = ports_status[port][AutonegCommandConstants.OPER]
+                iface_fec_admin = ports_fec_status[port][AutonegCommandConstants.FEC_ADMIN]
+                iface_fec_oper = ports_fec_status[port][AutonegCommandConstants.FEC_OPER]
+                assert iface_oper == "up", f"{port} actual Oper state is {iface_oper}, expected is up"
+                assert iface_fec_admin == SonicConst.FEC_AUTO_MODE, \
+                    f"{port} FEC admin state is {iface_fec_admin}, expected is {SonicConst.FEC_AUTO_MODE}"
+                assert iface_fec_oper in SonicConst.FEC_MODE_LIST, \
+                    f"{port} actual FEC state is {iface_fec_oper}, " \
+                    f"expected fec should be one of: {SonicConst.FEC_MODE_LIST}"
 
     def verify_fec_configuration(self, conf, lldp_checker=True):
         """

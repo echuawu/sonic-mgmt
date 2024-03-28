@@ -1,11 +1,13 @@
 import logging
-from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
-from .openapi_command_builder import OpenApiCommandHelper
-from ngts.nvos_constants.constants_nvos import OpenApiReqType
-from ngts.nvos_constants.constants_nvos import ActionConsts, ActionType
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
+from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
+from ngts.nvos_constants.constants_nvos import ActionType
 from ngts.nvos_constants.constants_nvos import CertificateFiles
+from ngts.nvos_constants.constants_nvos import OpenApiReqType
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from .openapi_command_builder import OpenApiCommandHelper
+
 logger = logging.getLogger()
 
 
@@ -197,6 +199,34 @@ class OpenApiSystemCli(OpenApiBaseCli):
             }
 
         return OpenApiCommandHelper.execute_action(ActionType.GENERATE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_generate_tpm_quote(engine, resource_path, pcrs='', nonce='', algorithm=''):
+        logging.info("Running action: 'generate' on dut using OpenApi")
+        parameters = {'pcrs': pcrs, 'nonce': nonce}
+        if algorithm:
+            parameters['algorithm'] = algorithm
+        params = \
+            {
+                "state": "start",
+                "parameters": parameters
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.GENERATE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
+    def action_upload_tpm_file(engine, resource_path, file_name, remote_url):
+        logging.info("Running action: 'upload' on dut using OpenApi")
+        params = \
+            {
+                "state": "start",
+                "parameters": {
+                    'file-name': file_name,
+                    'remote-url': remote_url
+                }
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.UPLOAD, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
 
     @staticmethod

@@ -17,6 +17,7 @@ class DeviceFactory:
             'MQM9520': MarlinSwitch,
             'MSN3700': AnacondaSwitch,
             'MSN3700 - Anaconda': AnacondaSwitch,
+            'Q3200-RA-Crocodile Sunbird': CrocodileSwitch,
             'QM3400': CrocodileSwitch,
             'QM3400 - Crocodile': CrocodileSwitch,
             'QM3400_simx - Crocodile': CrocodileSimxSwitch,

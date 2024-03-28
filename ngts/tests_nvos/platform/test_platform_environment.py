@@ -2,6 +2,9 @@ import logging
 import time
 import pytest
 import random
+
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.system.System import System
@@ -38,7 +41,7 @@ def test_show_platform_environment(engines, devices, test_api):
 @pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_platform_environment_fan(engines, devices, test_api):
+def test_show_platform_environment_fan(engines, devices, test_api, output_format):
     """
     Show platform environment fan test
     """
@@ -47,19 +50,41 @@ def test_show_platform_environment_fan(engines, devices, test_api):
     with allure.step("Create Platform object"):
         platform = Platform()
 
-    with allure.step("Execute show platform environment fan and make sure all the components exist"):
-        output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
+    with allure.step("Execute 'show platform environment fan' and validate field names and fan list"):
+        raw_output = platform.environment.fan.show(output_format=output_format)
+        field_names = OutputParsingTool.parse_show_output_to_field_names(
+            raw_output, output_format=output_format, field_name_dict=devices.dut.fan_prop_auto).get_returned_value()
+        ValidationTool.validate_set_equal(field_names, devices.dut.platform_environment_fan_values.keys()
+                                          ).verify_result()
+        output = OutputParsingTool.parse_show_output_to_dict(
+            raw_output, output_format=output_format, field_name_dict=devices.dut.fan_prop_auto).get_returned_value()
+        actual_fan_list = output.keys()
+        ValidationTool.validate_set_equal(actual_fan_list, devices.dut.fan_list + devices.dut.psu_fan_list
+                                          ).verify_result()
 
-    with allure.step("Check that all required properties for each fan"):
-        logging.info("Check that all required properties for each fan")
-        for fan, fan_prop in output.items():
-            _verify_fan_prop(fan, fan_prop.keys(), devices)
+    with allure.step("Assert all fans have the same direction"):
+        directions = {fan["direction"] for fan in output.values()}
+        assert len(directions) == 1, f"Not all fans show the same direction: {output}"
 
-    with allure.step("Check output of a specific Fan"):
-        fan_to_check = list(output.keys())[0]
-        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.fan.show(op_param=fan_to_check)).verify_result()
-        _verify_fan_prop(fan_to_check, output.keys(), devices)
+    with allure.step("Checking properties of random fan"):
+        random_fan = random.choice(devices.dut.fan_list)
+        _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+
+    with allure.step("Checking properties of random PSU fan"):
+        random_fan = random.choice(devices.dut.psu_fan_list)
+        _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+
+
+def _test_specific_fan(fan, output_format, expected, output, platform):
+    logger.info(f"Testing properties of {fan}")
+    with allure.step("Checking output of 'show platform environment fan'"):
+        ValidationTool.validate_output_of_show(output[fan], expected).verify_result()
+    with allure.step("Checking output of 'show platform environment fan <fan-id>'"):
+        fan_output = OutputParsingTool.parse_show_output_to_dict(
+            platform.environment.fan.show(fan, output_format=output_format),
+            output_format=output_format).get_returned_value()
+        ValidationTool.validate_output_of_show(fan_output, expected).verify_result()
+        assert int(fan_output["min-speed"]) < int(fan_output["current-speed"]) < int(fan_output["max-speed"])
 
 
 @pytest.mark.platform
@@ -244,24 +269,25 @@ def test_platform_environment_fan_direction_mismatch(engines, devices, test_api)
     """
     TestToolkit.tested_api = test_api
     with allure.step('Validate Fan direction mismatch feature enabled'):
-        verify_fan_direction_mismatch_behaviour(engines, devices, True)
+        _verify_fan_direction_mismatch_behaviour(engines, devices, True)
 
 
-def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
+def _verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
     platform = Platform()
     system = System()
-    state = FansConsts.STATE_OK
-    should_str = 'not be'
-    fan_to_check = ""
-    def_direction = FansConsts.DEF_DIRECTION
     if feature_enable:
         state = FansConsts.STATE_NOT_OK
         should_str = 'be'
+    else:
+        state = FansConsts.STATE_OK
+        should_str = 'not be'
 
     try:
         with allure.step('Select FAN to test'):
-            output = _verify_output(platform, "fan", devices.dut.psu_fan_list + devices.dut.fan_list)
-            fan_to_check = random.choice(list(output.keys()))
+            # Don't choose FAN1/1 or FAN1/2 because NVOS considers fan1_direction as the "ground truth" that other fans
+            # are compared against. This will be changed in the future.
+            choose_from = devices.dut.fan_list[2:]
+            fan_to_check = random.choice(choose_from)
 
         with allure.step('Validate System health status should be {}'.format(FansConsts.STATE_OK)):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
@@ -272,8 +298,7 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
         with allure.step("Validate there should not be any Fan direction Health Issues"):
             output_dict = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
             health_issues = output_dict['issues']
-            assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
-                'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+            assert not health_issues, f'Unexpected Health Issues:\n{health_issues}'
 
         with allure.step("Assign default FAN direction as per this System"):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
@@ -287,7 +312,7 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
                 wrong_direction = FansConsts.FORWARD_DIRECTION
 
         with allure.step("Change direction of {} to wrong dir({}) and verify".format(fan_to_check, wrong_direction)):
-            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, wrong_direction)
+            _set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, wrong_direction)
 
         with allure.step('Validate System health status should be {}'.format(state)):
             output = system.health.show(output_format=OutputFormat.json)
@@ -298,15 +323,14 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
         with allure.step("Validate Issues should {} seen in System Health Report".format(should_str)):
             health_issues = output_dict['issues']
             if feature_enable:
-                assert FansConsts.FAN_DIRECTION_MISMATCH_ERR in output, \
-                    'Expected Issue: {} not found in System health status'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+                assert fan_to_check in health_issues.keys(), \
+                    f'Expected to find issue with {fan_to_check} but issues are:\n{health_issues}'
             else:
-                assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
-                    'Unexpected Issue found in System health status : {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+                assert not health_issues, f'Unexpected Health Issues:\n{health_issues}'
 
     finally:
         with allure.step("Change Fan direction of {} to default({}) and verify".format(fan_to_check, def_direction)):
-            set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, FansConsts.DEF_DIRECTION)
+            _set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, def_direction)
 
         with allure.step('Check System health status'):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
@@ -317,12 +341,10 @@ def verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
         with allure.step("Validate there should not be any Fan direction Health Issues"):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
             health_issues = output['issues']
-            assert FansConsts.FAN_DIRECTION_MISMATCH_ERR not in health_issues, \
-                'Unexpected Issue seen in System health status: {}'.format(FansConsts.FAN_DIRECTION_MISMATCH_ERR)
+            assert not health_issues, f'Unexpected Health Issues:\n{health_issues}'
 
 
-def set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction):
-
+def _set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, direction):
     if "PSU" in fan_to_check:
         fan_name = fan_to_check.replace("/", "_").lower()
     else:
@@ -334,7 +356,7 @@ def set_platform_environment_fan_direction(engines, devices, platform, fan_to_ch
     with allure.step("Check output of a Fan {}".format(fan_name)):
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.fan.show(op_param=fan_to_check)).verify_result()
-        _verify_fan_prop(fan_to_check, output.keys(), devices)
+        ValidationTool.validate_set_equal(output.keys(), devices.dut.platform_environment_fan_values.keys())
 
     with allure.step("Check fan state and direction via CLI"):
         actual_direction = output['direction']
@@ -400,18 +422,12 @@ def _verify_output(platform, comp_name, req_fields):
     return output
 
 
-def _verify_fan_prop(fan, fan_prop, devices):
-    logging.info("fan {}".format(fan))
-    assert not any(comp not in fan_prop for comp in devices.dut.fan_prop), \
-        "Not all required component were found"
-
-
 def _verify_led_prop(led, led_prop):
     logging.info("led {}".format(led))
     assert PlatformConsts.ENV_LED_COLOR_LABEL in led_prop.keys(), \
         PlatformConsts.ENV_LED_COLOR_LABEL + " not found for " + led
     assert led_prop[PlatformConsts.ENV_LED_COLOR_LABEL].lower() in PlatformConsts.ENV_LED_COLOR_OPTIONS, \
-        led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + "is not a legal value"
+        led_prop[PlatformConsts.ENV_LED_COLOR_LABEL] + " is not a legal value"
 
 
 def _verify_led_color(led, led_prop):

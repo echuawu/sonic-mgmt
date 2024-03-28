@@ -1,14 +1,16 @@
 import logging
 import os
 
+import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
 
@@ -16,9 +18,8 @@ logger = logging.getLogger()
 class IbSwitch(BaseSwitch):
 
     def __init__(self, asic_amount):
-        super().__init__()
+        super().__init__(asic_amount)
         self._init_sensors_dict()
-        self.asic_amount = asic_amount
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
         self.default_username = os.environ["NVU_SWITCH_USER"]
@@ -152,7 +153,6 @@ class IbSwitch(BaseSwitch):
         super()._init_constants()
         self.health_monitor_config_file_path = ""
         self.ib_ports_num = 64
-        self.device_list = [f"{IbConsts.DEVICE_ASIC_PREFIX}1", IbConsts.DEVICE_SYSTEM]
         self.primary_asic = f"{IbConsts.DEVICE_ASIC_PREFIX}1"
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
@@ -161,7 +161,6 @@ class IbSwitch(BaseSwitch):
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
-        self.fan_list = ["FAN1/1", "FAN2/1", "PSU1/FAN", "PSU2/FAN"]
 
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
 
@@ -348,7 +347,6 @@ class GorillaSwitch(IbSwitch):
 
     def _init_constants(self):
         IbSwitch._init_constants(self)
-        self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM2
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
@@ -380,11 +378,22 @@ class GorillaSwitch(IbSwitch):
                 "CPLD3": "CPLD000268_REV0500",
             }
         )
+        self.stats_fan_header_num_of_lines = 25
+        self.stats_power_header_num_of_lines = 13
+        self.stats_temperature_header_num_of_lines = 53
+        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
 
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------

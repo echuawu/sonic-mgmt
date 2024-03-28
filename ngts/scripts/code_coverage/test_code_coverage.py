@@ -51,7 +51,7 @@ def test_extract_gcov_coverage(topology_obj, dest, engines):
 
     if is_nvos:
         with allure.step('Check that sources exist on the switch'):
-            cli_obj.general.ls(SharedConsts.NVOS_SOURCES_PATH[0], validate=True)
+            cli_obj.general.ls(NvosConsts.NVOS_SOURCE_PATH, validate=True)
         with allure.step('Extract c coverage for NVOS'):
             extract_c_coverage_for_nvos(dest, engines, engine, cli_obj)
     else:
@@ -85,10 +85,10 @@ def extract_c_coverage_for_nvos(dest, engines, engine, cli_obj):
 
     with allure.step("Get coverage file names"):
         gcov_filename_prefix, lcov_filename_prefix = get_coverage_file_names(sudo_cli_general,
-                                                                             NvosConsts.GCOV_CONTAINERS_NVOS)
+                                                                             NvosConsts.GCOV_CONTAINERS_SOURCES_PATH.keys())
 
-    with allure.step(f'Collect GCOV coverage from docker containers: {NvosConsts.GCOV_CONTAINERS_NVOS}'):
-        for container in NvosConsts.GCOV_CONTAINERS_NVOS:
+    with allure.step(f'Collect GCOV coverage from docker containers: {NvosConsts.GCOV_CONTAINERS_SOURCES_PATH.keys()}'):
+        for container in NvosConsts.GCOV_CONTAINERS_SOURCES_PATH.keys():
             collect_gcov_for_container_nvos(engine, cli_obj, container, gcov_filename_prefix)
 
     with allure.step("install gcov"):
@@ -390,7 +390,7 @@ def collect_gcov_for_container_nvos(engine, cli_obj, container, gcov_filename_pr
 
     with allure.step(f'Create GCOV JSON report for {container} container'):
         container_gcov_json_file = create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, container,
-                                                                    SharedConsts.NVOS_SOURCES_PATH)
+                                                                    NvosConsts.GCOV_CONTAINERS_SOURCES_PATH[container])
         cli_obj.general.copy_from_docker(container, container_gcov_json_file, container_gcov_json_file)
         docker_cli_obj.rm(container_gcov_json_file, flags='-f')
 
@@ -400,10 +400,9 @@ def create_docker_cli_obj(engine, container):
     return GeneralCliCommon(docker_exec_engine)
 
 
-def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, container, source_paths):
+def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, container, source_path):
     container_gcov_json_file = os.path.join(SharedConsts.GCOV_DIR, f'{gcov_filename_prefix}-{container}.json')
-    for source_path in source_paths:
-        docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
+    docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
 
     flags = f'--json-pretty -r {SharedConsts.GCOV_DIR} -o {container_gcov_json_file}'
     additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions ' \

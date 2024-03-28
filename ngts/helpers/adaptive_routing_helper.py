@@ -4,9 +4,9 @@ import re
 
 from retry import retry
 from functools import partial
-from ngts.tests.conftest import get_dut_loopbacks
 from ngts.tests.nightly.adaptive_routing.constants import ArConsts
 from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.tests.conftest import get_dut_loopbacks
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
 
 logger = logging.getLogger()
@@ -14,16 +14,11 @@ logger = logging.getLogger()
 
 class ArHelper:
 
-    def enable_doai_service(self, cli_objects, request=None):
+    def enable_doai_service(self, cli_objects):
         """
         This method is to enable doAI service
         :param cli_objects: cli_objects fixture
-        :param request: pytest builtin
         """
-        if request:
-            logger.info('Add disabling DoAI feature into finalizer')
-            cleanup = partial(self.disable_doai_service, cli_objects)
-            request.addfinalizer(cleanup)
         logger.info('Enable doAI feature')
         cli_objects.dut.general.set_feature_state(AppExtensionInstallationConstants.DOAI, 'enabled')
 
@@ -35,43 +30,36 @@ class ArHelper:
         logger.info('Disable doAI feature')
         cli_objects.dut.general.set_feature_state(AppExtensionInstallationConstants.DOAI, 'disabled')
 
-    def enable_ar_function(self, cli_objects, request=None):
+    def enable_ar_function(self, cli_objects, restart_swss=False, validate=True):
         """
         This method is to enable AR function
+        :param restart_swss: option to restart after enabling AR
         :param cli_objects: cli_objects fixture
-        :param request: pytest builtin
+        :param validate: adds an option to validate command
         """
-        if request:
-            logger.info('Add disabling AR function into finalizer')
-            cleanup = partial(self.disable_ar, cli_objects)
-            request.addfinalizer(cleanup)
         logger.info('Enable AR function')
-        cli_objects.dut.ar.enable_ar_function()
+        cli_objects.dut.ar.enable_ar_function(restart_swss=restart_swss, validate=validate)
 
-    def disable_ar(self, cli_objects):
+    def disable_ar(self, cli_objects, validate=True):
         """
         This method is to disable AR function
         :param cli_objects: cli_objects fixture
+        :param validate: adds an option to validate command
         """
         logger.info('Disable AR function')
-        cli_objects.dut.ar.disable_ar_function()
+        cli_objects.dut.ar.disable_ar_function(validate=validate)
 
-    def enable_ar_port(self, cli_objects, port_list, port_util_percent=None, request=None, restart_swss=False):
+    def enable_ar_port(self, cli_objects, port_list, restart_swss=False, validate=True):
         """
         This method is to enable AR function at DUT port
         :param cli_objects: cli_objects fixture
         :param port_list: list of DUT ports where AR must be enabled
-        :param port_util_percent: port util percent to be configured at port (0-100)
-        :param request: pytest builtin
         :param restart_swss: if True swss service and all dockers will be restarted
+        :param validate: adds an option to validate command
         """
-        if request:
-            logger.info('Add disabling AR function into finalizer')
-            cleanup = partial(self.disable_ar_port, cli_objects, port_list)
-            request.addfinalizer(cleanup)
         logger.info(f'Enable AR on {port_list}')
         for port in port_list:
-            cli_objects.dut.ar.enable_ar_port(port, port_util_percent, restart_swss=restart_swss)
+            cli_objects.dut.ar.enable_ar_port(port, restart_swss=restart_swss, validate=validate)
 
     def config_save_reload(self, cli_objects, topology_obj, reload_force=False):
         """
@@ -89,20 +77,15 @@ class ArHelper:
         :param cli_objects: cli_objects fixture
         :param port_list: list of DUT ports where AR must be disabled
         """
-        logger.info('Disable AR function')
+        logger.info(f'Disable AR on ports: {port_list}')
         for port in port_list:
             cli_objects.dut.ar.disable_ar_port(port)
 
-    def add_dummy_vlan_intf(self, cli_objects, request=None):
+    def add_dummy_vlan_intf(self, cli_objects):
         """
         This method is to add dummy vlan interface
         :param cli_objects: cli_objects fixture
-        :param request: pytest builtin
         """
-        if request:
-            logger.info('Add removing vlan interface into finalizer')
-            cleanup = partial(self.del_dummy_vlan_intf, cli_objects)
-            request.addfinalizer(cleanup)
         logger.info(f'Add vlan interface with vlan {ArConsts.DUMMY_VLAN} ip {ArConsts.DUMMY_VLAN_IP}')
         cli_objects.dut.vlan.add_vlan(ArConsts.DUMMY_VLAN)
         cli_objects.dut.ip.add_ip_to_interface(ArConsts.DUMMY_VLAN_INTF, ArConsts.DUMMY_VLAN_IP)
@@ -116,18 +99,12 @@ class ArHelper:
         cli_objects.dut.ip.del_ip_from_interface(ArConsts.DUMMY_VLAN_INTF, ArConsts.DUMMY_VLAN_IP)
         cli_objects.dut.vlan.del_vlan(ArConsts.DUMMY_VLAN)
 
-    def add_lacp_intf(self, cli_objects, topology_obj, request=None):
+    def add_lacp_intf(self, cli_objects, lb):
         """
         This method is to add LACP interface
         :param cli_objects: cli_objects fixture
         :param topology_obj: topology_obj fixture
-        :param request: pytest builtin
         """
-        lb = get_dut_loopbacks(topology_obj)
-        if request:
-            logger.info('Add removing lag interface into finalizer')
-            cleanup = partial(self.del_lacp_intf, cli_objects, lb[0][0])
-            request.addfinalizer(cleanup)
         logger.info(f'Add lag interface {ArConsts.DUMMY_LAG_INTF} with member port {lb[0][0]}')
         cli_objects.dut.lag.create_lag_interface(ArConsts.DUMMY_LAG_INTF)
         cli_objects.dut.lag.add_port_to_port_channel(lb[0][0], ArConsts.DUMMY_LAG_INTF)
@@ -142,21 +119,12 @@ class ArHelper:
         cli_objects.dut.lag.delete_port_from_port_channel(port, ArConsts.DUMMY_LAG_INTF)
         cli_objects.dut.lag.delete_lag_interface(ArConsts.DUMMY_LAG_INTF)
 
-    def config_ecmp_ports_speed_to_10G(self, cli_objects, interfaces, request=None):
+    def config_ecmp_ports_speed_to_10G(self, cli_objects, interfaces):
         """
         This method is to config ports speed to 10G in ecmp group
         :param cli_objects: cli_objects fixture
         :param interfaces: interfaces fixture
-        :param request: pytest builtin
         """
-        logger.info(f'Get original port speed of {interfaces.dut_hb_1, interfaces.dut_hb_2}')
-        original_intf_speeds = cli_objects.dut.interface.get_interfaces_speed(
-            [interfaces.dut_hb_1, interfaces.dut_hb_2])
-        if request:
-            logger.info('Add disabling AR port into finalizer')
-            cleanup = partial(self.restore_ecmp_ports_speed, cli_objects, original_intf_speeds)
-            request.addfinalizer(cleanup)
-
         logger.info('Config port speed to 10G')
         speed = '10000'
         cli_objects.dut.interface.set_interface_speed(interfaces.dut_hb_1, speed)
@@ -171,16 +139,11 @@ class ArHelper:
         logger.info('Restore port speed')
         cli_objects.dut.interface.set_interfaces_speed(original_intf_speeds)
 
-    def add_dummy_interface_hb(self, cli_objects, request=None):
+    def add_dummy_interface_hb(self, cli_objects):
         """
         This method is to add dummy interface to hb
         :param cli_objects: cli_objects fixture
-        :param request: pytest builtin
         """
-        if request:
-            logger.info('Add removing dummy interface into finalizer')
-            cleanup = partial(self.del_dummy_interface_hb, cli_objects, ArConsts.DUMMY_INTF['name'])
-            request.addfinalizer(cleanup)
         logger.info(f'Configure dummy interface: {ArConsts.DUMMY_INTF["name"]}')
         cli_objects.hb.interface.add_interface(ArConsts.DUMMY_INTF['name'], 'dummy')
         cli_objects.hb.ip.add_ip_to_interface(ArConsts.DUMMY_INTF['name'], ArConsts.DUMMY_INTF['ipv4_addr'],
@@ -287,28 +250,29 @@ class ArHelper:
         :param cmd_output: command output to search in
         :return: tuple of port name, found value
         """
-        return re.findall("(Ethernet\\d+)\\s+(\\d+)", cmd_output)
+        return re.findall("Ethernet\\d+", cmd_output)
 
-    def get_ar_configuration(self, cli_objects, profile_names, get_global_only=False):
+    def get_active_profile(self, show_ar_config_output):
+        active_profile = None
+        try:
+            active_profile = self.search_by_name(ArConsts.AR_ACTIVE_PROFILE, show_ar_config_output)
+        except AttributeError as err:
+            # active profile is the default one
+            active_profile = ArConsts.GOLDEN_PROFILE0
+        finally:
+            return active_profile
+
+    def get_ar_configuration(self, cli_objects):
         """
-        This method is to get AR configured at DUR
+        This method is to get AR configured at DUT
         :param cli_objects: cli_objects fixture
-        :param profile_names: list of profiles available for AR
-        :param get_global_only: if True return only global config section
         :return: dictionary which describes output of "show ar config"
         Return example:
         {
         'Global':
             {'DoAI state': 'enabled', 'AR state': 'enabled', 'AR active profile': 'profile0'},
-        'Profiles':
-            {'profile0':
-                {'mode': 'free', 'busy_threshold': '0', 'free_threshold': '4',
-                'congestion_th_low (Cells)': '200', 'congestion_th_medium (Cells)': '1000',
-                'congestion_th_high (Cells)': '10000', 'from_shaper_enable': 'true', 'from_shaper (* 100 ns)': '10',
-                'to_shaper_enable': 'N/A', 'to_shaper (* 100 ns)': 'N/A', 'ecmp_size': '64', 'elephant_enable': 'false'}
-            },
         'Ports':
-            {'Ethernet128': '70', 'Ethernet252': '70'}
+            ['Ethernet0', 'Ethernet8']
         }
         """
         # Get show ar config output
@@ -318,21 +282,12 @@ class ArHelper:
         global_dict = {
             ArConsts.DOAI_STATE: self.search_by_name(ArConsts.DOAI_STATE, show_ar_config_output),
             ArConsts.AR_STATE: self.search_by_name(ArConsts.AR_STATE, show_ar_config_output),
-            ArConsts.AR_ACTIVE_PROFILE: self.search_by_name(ArConsts.AR_ACTIVE_PROFILE, show_ar_config_output)
+            ArConsts.AR_ACTIVE_PROFILE: self.get_active_profile(show_ar_config_output),
+            ArConsts.LINK_UTIL_STATE: self.search_by_name(ArConsts.LINK_UTIL_STATE, show_ar_config_output)
         }
         ar_result_dict[ArConsts.AR_GLOBAL] = global_dict
-        if not get_global_only:
-            # Get profiles values
-            profiles_dicts = {}
-            for index, profile in enumerate(profile_names):
-                profiles_dicts.setdefault(profile, {})
-                for parameter in ArConsts.AR_PROFILE_KEYS_LIST:
-                    key, value = self.search_by_name(parameter, show_ar_config_output, find_all=True)[index]
-                    profiles_dicts[profile].update({key: value})
-            ar_result_dict[ArConsts.AR_PROFILE_GLOBAL] = profiles_dicts
-            # Get Ports dict values
-            port_util_value = self.get_ports_profile_configuration(show_ar_config_output)
-            ar_result_dict[ArConsts.AR_PORTS_GLOBAL] = dict(port_util_value)
+        port_util_value = self.get_ports_profile_configuration(show_ar_config_output)
+        ar_result_dict[ArConsts.AR_PORTS_GLOBAL] = list(port_util_value)
         return ar_result_dict
 
     def send_and_validate_traffic(self, player, sender, sender_intf, sender_pkt_format, sender_count, sendpfast=False,
@@ -345,7 +300,7 @@ class ArHelper:
         :param sender_pkt_format: packet to send
         :param sender_count: number of packets to send
         sendpfast: use sendpfast method to send traffic
-        mbps: mega bit per second traffic to be send
+        mbps: megabit per second traffic to be send
         loop: number of times packet to be send
         timeout: timeout to be set for sending traffic
         """
@@ -417,9 +372,9 @@ class ArHelper:
         :param cli_objects: cli_objects fixture
         """
         try:
-            self.disable_ar(cli_objects)
+            self.disable_ar(cli_objects, validate=False)
             self.disable_doai_service(cli_objects)
-            warn_output = cli_objects.dut.ar.enable_ar_function()
+            warn_output = cli_objects.dut.ar.enable_ar_function(validate=False)
             assert ArConsts.WARNING_MESSAGE in warn_output, f'Adaptive Routing should print warning when enabling' \
                                                             f'ar function before ' \
                                                             f'{AppExtensionInstallationConstants.DOAI} service'
@@ -434,7 +389,7 @@ class ArHelper:
         This method is used to verify non existing profile can not be added to AR config
         :param cli_objects: cli_objects fixture
         """
-        error_output = cli_objects.dut.ar.config_ar_profile(ArConsts.NON_EXIST_PROFILE)
+        error_output = cli_objects.dut.ar.config_ar_profile(ArConsts.NON_EXIST_PROFILE, validate=False)
         assert ArConsts.NON_EXIST_PROFILE_ERROR_MESSAGE in error_output, \
             f'AR configured with a non exist profile: {ArConsts.NON_EXIST_PROFILE}'
 
@@ -443,7 +398,7 @@ class ArHelper:
         This method is used to verify invalid port can not be added to AR config
         :param cli_objects: cli_objects fixture
         """
-        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.NON_EXIST_PORT)
+        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.NON_EXIST_PORT, validate=False)
         assert ArConsts.NON_EXIST_PORT_ERROR_MESSAGE in error_output, \
             f'AR configured with a non exist port: {ArConsts.NON_EXIST_PORT}'
 
@@ -452,7 +407,7 @@ class ArHelper:
         This method is used to verify invalid vlan interface can not be added to AR config
         :param cli_objects: cli_objects fixture
         """
-        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.DUMMY_VLAN_INTF)
+        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.DUMMY_VLAN_INTF, validate=False)
         assert ArConsts.AR_ON_VLAN_INTF_ERROR_MESSAGE in error_output, \
             f'AR configured with on vlan interface: {ArConsts.DUMMY_VLAN_INTF}'
 
@@ -463,10 +418,10 @@ class ArHelper:
         :param topology_obj: topology_obj fixture
         """
         lb = get_dut_loopbacks(topology_obj)
-        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.DUMMY_LAG_INTF)
+        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.DUMMY_LAG_INTF, validate=False)
         assert ArConsts.AR_ON_LAG_INTF_ERROR_MESSAGE in error_output, \
             f'AR configured with on lag interface: {ArConsts.DUMMY_LAG_INTF}'
-        error_output = cli_objects.dut.ar.enable_ar_port(lb[0][0])
+        error_output = cli_objects.dut.ar.enable_ar_port(lb[0][0], validate=False)
         assert ArConsts.AR_ON_LAG_MEMBER_ERROR_MESSAGE in error_output, f'AR configured with on lag member: {lb[0][0]}'
 
     def verify_config_ar_on_mgmt_port(self, cli_objects):
@@ -474,19 +429,18 @@ class ArHelper:
         This method is used to verify management port can not be added to AR config
         :param cli_objects: cli_objects fixture
         """
-        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.MGMT_PORT)
+        error_output = cli_objects.dut.ar.enable_ar_port(ArConsts.MGMT_PORT, validate=False)
         assert ArConsts.AR_ON_MGMT_PORT_ERROR_MESSAGE in error_output, \
             f'AR configured with on mgmt interface: {ArConsts.MGMT_PORT}'
 
-    def verify_config_ar_invalid_link_utilization(self, cli_objects, interfaces):
+    def verify_config_ar_invalid_global_link_utilization(self, cli_objects):
         """
-        This method is used to verify invalid value if link utilization can not be set to AR interface
+        This method is used to verify invalid value if global link utilization can not be set to AR profile
         :param cli_objects: cli_objects fixture
-        :param interfaces: interfaces fixture
         """
-        error_output = cli_objects.dut.ar.enable_ar_port(interfaces.dut_hb_1, ArConsts.INVALID_LINK_UTIL_PERCENT_VALUE)
+        error_output = cli_objects.dut.ar.enable_ar_link_utilization(ArConsts.INVALID_LINK_UTIL_PERCENT_VALUE, validate=False)
         assert ArConsts.INVALID_LINK_UTIL_PERCENT_MESSAGE in error_output, \
-            f'AR configured with invalid link utilization: {ArConsts.INVALID_LINK_UTIL_PERCENT_VALUE}'
+            f'AR configured with invalid global link utilization: {ArConsts.INVALID_LINK_UTIL_PERCENT_VALUE}'
 
     def copy_packet_aging_file_to_dut(self, engines):
         """
@@ -504,16 +458,11 @@ class ArHelper:
                               dest_file=packet_aging_script_abs_path.split(ArConsts.DIR_DELIMITER)[-1],
                               overwrite_file=True)
 
-    def disable_packet_aging(self, engines, request=None):
+    def disable_packet_aging(self, engines):
         """
         This method is used to disable packet aging in syncd
         :param engines: engines fixture
-        :param request: pytest builtin
         """
-        if request:
-            logger.info('Add enabling packet aging into finalizer')
-            cleanup = partial(self.enable_packet_aging, engines)
-            request.addfinalizer(cleanup)
         self.copy_packet_aging_file_to_dut(engines)
         logger.info('Copy packet aging file to syncd docker')
         engines.dut.run_cmd('docker cp /tmp/packets_aging.py syncd:/')
@@ -544,18 +493,14 @@ class ArHelper:
 
         cli_objects.dut.general.load_configuration('/tmp/' + ArConsts.AR_CUSTOM_PROFILE_FILE_NAME)
 
-    def enable_ar_profile(self, cli_objects, profile_name, restart_swss=False, request=None):
+    def enable_ar_profile(self, cli_objects, profile_name, restart_swss=False):
         """
         This method is used to enable ar profile
         :param cli_objects: engines fixture
         :param profile_name: profile to be enabled
         :param restart_swss: restart_swss flag
-        :param request: python builtin
         """
-        if request:
-            logger.info('Add enabling packet aging into finalizer')
-            cleanup = partial(cli_objects.dut.ar.config_ar_profile, ArConsts.GOLDEN_PROFILE0, restart_swss)
-            request.addfinalizer(cleanup)
+        self.ensure_ar_active(cli_objects)
         cli_objects.dut.ar.config_ar_profile(profile_name, restart_swss=restart_swss)
 
     def get_all_ports(self, topology_obj):
@@ -565,3 +510,67 @@ class ArHelper:
         :return: list op DUT ports
         """
         return topology_obj.players_all_ports["dut"]
+
+    def run_traffic(self, cli_objects, players):
+        cli_objects.dut.watermark.clear_watermarkstat()
+        logger.info('Sending iPerf traffic')
+        IperfChecker(players, ArConsts.IPERF_VALIDATION).run_validation()
+
+    def enable_global_link_utilization(self, cli_objects, threshold=None, restart_swss=False, validate=True):
+        logger.info('enabling global link utilization')
+        if threshold:
+            logger.info(f"Link utilization is set to {threshold}%")
+        cli_objects.dut.ar.enable_ar_link_utilization(threshold=threshold, restart_swss=restart_swss, validate=validate)
+
+    def disable_link_utilization(self, cli_objects, restart_swss=False):
+        logger.info('disabling global link utilization')
+        cli_objects.dut.ar.disable_ar_link_utilization(restart_swss=restart_swss)
+
+    def add_routes_to_host(self, cli_objects):
+        cli_objects.ha.route.add_route(ArConsts.ROUTE_CONFIG['ha'], ArConsts.V4_CONFIG['dut_ha_1'], 24)
+        cli_objects.hb.route.add_route(ArConsts.ROUTE_CONFIG['hb'], ArConsts.ROUTE_CONFIG['hb_gw'], 24)
+
+    def del_routes_from_host(self, cli_objects):
+        cli_objects.ha.route.del_route(ArConsts.ROUTE_CONFIG['ha'], ArConsts.V4_CONFIG['dut_ha_1'], 24)
+        cli_objects.hb.route.del_route(ArConsts.ROUTE_CONFIG['hb'], ArConsts.ROUTE_CONFIG['hb_gw'], 24)
+
+    def ensure_ar_active(self, cli_objects):
+        doai_state = self.get_ar_configuration(cli_objects)[ArConsts.AR_GLOBAL][ArConsts.DOAI_STATE]
+        ar_state = self.get_ar_configuration(cli_objects)[ArConsts.AR_GLOBAL][ArConsts.AR_STATE]
+        if doai_state or ar_state != "enabled":
+            self.enable_doai_service(cli_objects)
+            self.enable_ar_function(cli_objects, restart_swss=True)
+
+    def validate_all_traffic_sent(self, cli_objects, tx_ports, counters_before, packets_num):
+        counters_after = self.get_interfaces_counters(cli_objects, tx_ports, 'TX_OK')
+        count_before = 0
+        count_after = 0
+        for port in tx_ports:
+            count_before += counters_before[port]
+            count_after += counters_after[port]
+        sent_traffic = count_after - count_before
+        if sent_traffic < packets_num:
+            raise AssertionError(f'Not all packets were sent, expected {packets_num} but sent only {sent_traffic}')
+        return counters_after
+
+    def validate_traffic_distribution(self, tx_ports, counters_after, counters_before, allowed_dev=0.1):
+        allowed_loss_per_port = (allowed_dev * ArConsts.PACKET_NUM_MID) // len(tx_ports)
+        for tx_port in tx_ports:
+            sent_traffic = counters_after[tx_port] - counters_before[tx_port]
+            expected_sent = (ArConsts.PACKET_NUM_MID // len(tx_ports)) - allowed_loss_per_port
+            assert expected_sent <= sent_traffic, \
+                (f"Traffic has not been split between ECMP group: {tx_port} Sent {sent_traffic} packets,"
+                 f" when expected sending {expected_sent}")
+
+    def uninstall_doai_flow(self, cli_objects, topology_obj):
+        self.disable_ar(cli_objects)
+        self.disable_doai_service(cli_objects)
+        cli_objects.dut.app_ext.uninstall_app(ArConsts.DOAI_CONTAINER_NAME, is_force=False)
+        self.config_save_reload(cli_objects, topology_obj, reload_force=True)
+
+    def install_doai_flow(self, cli_objects, topology_obj, tx_ports, doai_version):
+        cli_objects.dut.app_ext.install_app(ArConsts.DOAI_CONTAINER_NAME, version=doai_version)
+        self.ensure_ar_active(cli_objects)
+        self.enable_ar_port(cli_objects, tx_ports)
+        self.config_save_reload(cli_objects, topology_obj, reload_force=True)
+        self.verify_bgp_neighbor(cli_objects)

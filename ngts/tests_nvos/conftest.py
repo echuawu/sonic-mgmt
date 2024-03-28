@@ -14,7 +14,7 @@ from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
-from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts
+from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, OutputFormat
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
@@ -133,7 +133,7 @@ def start_sm(engines, traffic_available):
     Starts OpenSM
     """
     if traffic_available:
-        result = OpenSmTool.start_open_sm_on_server(engines)
+        result = OpenSmTool.start_open_sm(engines)
         if not result.result:
             logging.warning("Failed to start openSM")
     else:
@@ -145,7 +145,7 @@ def stop_sm(engines):
     """
     Stops OpenSM
     """
-    result = OpenSmTool.stop_open_sm_on_server(engines)
+    result = OpenSmTool.stop_open_sm(engines)
     if not result.result:
         logging.warning("Failed to stop openSM")
 
@@ -276,15 +276,29 @@ def ib_clear_config(markers=None):
 
 
 def pytest_exception_interact(report):
-    if TestToolkit and hasattr(TestToolkit, 'engines') and TestToolkit.engines and TestToolkit.engines.dut:
-        try:
-            TestToolkit.engines.dut.run_cmd("docker ps")
-            TestToolkit.engines.dut.run_cmd("systemctl --type=service")
-        except BaseException as err:
-            logging.warning(err)
-    if pytest and hasattr(pytest, 'item') and pytest.item:
-        save_results_and_clear_after_test(pytest.item)
-    logging.error(f'---------------- The test failed - an exception occurred: ---------------- \n{report.longreprtext}')
+    with allure.step("Handle exception"):
+        if TestToolkit and hasattr(TestToolkit, 'engines') and TestToolkit.engines and TestToolkit.engines.dut:
+            if isinstance(TestToolkit.devices.dut, EthSwitch):
+                eth_handle_exception()
+            else:
+                ib_handle_exception()
+
+        if pytest and hasattr(pytest, 'item') and pytest.item:
+            save_results_and_clear_after_test(pytest.item)
+        logging.error(f'----------- The test failed - an exception occurred: ----------- \n{report.longreprtext}')
+
+
+def ib_handle_exception():
+    try:
+        logging.info("Handle ib exception")
+        TestToolkit.engines.dut.run_cmd("docker ps")
+        TestToolkit.engines.dut.run_cmd("systemctl --type=service")
+    except BaseException as err:
+        logging.warning(err)
+
+
+def eth_handle_exception():
+    logging.info("Handle eth exception")
 
 
 @pytest.hookimpl(trylast=True)
@@ -463,3 +477,8 @@ def prepare_traffic(engines, setup_name):
     """
     with allure.step('Prepare traffic containers...'):
         TrafficGeneratorTool.bring_up_traffic_containers(engines, setup_name)
+
+
+@pytest.fixture
+def output_format(test_api):
+    return OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json

@@ -31,7 +31,7 @@ def get_breakout_mode_by_speed_conf(breakout_modes_list, port_speed):
                     .format(port_speed, breakout_modes_list))
 
 
-def get_all_split_ports_parents(config_db_json):
+def get_all_split_ports_parents(config_db_json, topology_obj):
     """
     this function will return a list of the ports that have breakout
     configuration configured on them and the split number the port was split(breakout) to.
@@ -48,19 +48,19 @@ def get_all_split_ports_parents(config_db_json):
         for port, port_info in port_info_dict.items():
             port_alias = port_info[ConfigDbJsonConst.ALIAS]
             is_first_split_port = bool(re.match(r'etp\d+a', port_alias))
-            if is_first_split_port:
+            if is_first_split_port and port in topology_obj.ports.values():
                 split_num = get_split_number(config_db_json, port_alias)
                 dut_first_split_port_info.append((port, split_num))
     return dut_first_split_port_info
 
 
-def get_all_unsplit_ports(config_db_json):
+def get_all_unsplit_ports(config_db_json, topology_obj):
     unsplit_ports = []
     port_info_dict = config_db_json.get(ConfigDbJsonConst.PORT, [])
     for port, port_info in port_info_dict.items():
         port_alias = port_info[ConfigDbJsonConst.ALIAS]
         is_unsplit_port = bool(re.match(r'etp\d+$', port_alias))
-        if is_unsplit_port:
+        if is_unsplit_port and port in topology_obj.ports.values():
             unsplit_ports.append(port)
     return unsplit_ports
 

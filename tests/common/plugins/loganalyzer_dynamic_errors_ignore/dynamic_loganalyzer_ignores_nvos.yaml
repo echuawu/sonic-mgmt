@@ -698,7 +698,7 @@
 
 # NVOS
 - Errors_list:
-    - '.* .* ERR nvued:   ERROR: lifecycle.py:\d+ File not found.*'
+    - '.*ERR nvued:.*ERROR: lifecycle.py:\d+ File not found:.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_delete
@@ -727,15 +727,15 @@
 
 # NVOS
 - Errors_list:
-    - '.*ERR nslcd\[\d+\]: .* no available LDAP server found:.*'
-    - '.*WARNING nslcd\[\d+\]:.*no available LDAP server found:.*'
+    - '.*ERR.*nslcd.*no available LDAP server found:.*'
+    - '.*WARNING.*nslcd.*no available LDAP server found:.*'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_auth_port_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_in_password_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_bind_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_base_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_invalid_credentials_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
 
@@ -780,19 +780,6 @@
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
 
 - Errors_list:
-    - '.*ERR nslcd\[\d+\]:.*no available LDAP server found:.*'
-    - '.*WARNING nslcd\[\d+\]:.*no available LDAP server found:.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_secret_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_base_dn_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
-
-- Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://unreachable.*/: Can''t contact LDAP server: Invalid argument.*'
   Conditions:
     - Affected_test_cases:
@@ -809,6 +796,12 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
+
+- Errors_list:
+    - '.*ERR nvued:.*ERROR: lifecycle\.py:164 File not found: /host/tpm/quotes\.json.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tpm_attestation/test_tpm_attestation.py::test_upload_quote_before_generate
 
 - Errors_list:
     - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://.*:.*/: Can''t contact LDAP server: Transport endpoint is not connected.*'

@@ -51,7 +51,7 @@ class TestAutoNeg(TestAutoNegBase):
                         " validate speed/type configuration is as expected.")
 
             self.auto_neg_checker(self.tested_lb_dict, conf, cleanup_list)
-            self.auto_fec_checker(self.tested_lb_dict, conf)
+            self.auto_fec_checker(conf)
             self.configure_port_auto_neg(self.cli_objects.dut,
                                          conf.keys(), conf, cleanup_list, mode='disabled')
 
@@ -62,7 +62,7 @@ class TestAutoNeg(TestAutoNegBase):
             logger.info("Enable auto-negotiation with custom settings and "
                         "validate speed/type configuration is as expected.")
             self.auto_neg_checker(self.tested_lb_dict, conf, cleanup_list, set_cleanup=False)
-            self.auto_fec_checker(self.tested_lb_dict, conf)
+            self.auto_fec_checker(conf)
 
         with allure.step("Randomly reboot/reload"):
             reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, conf.keys(), cleanup_list)
@@ -70,7 +70,7 @@ class TestAutoNeg(TestAutoNegBase):
         with allure.step("Verify configuration persist after reboot/reload"):
             logger.info("validate speed/type configuration is as expected after reload/reboot")
             self.verify_auto_neg_configuration(conf)
-            self.auto_fec_checker(self.tested_lb_dict, conf)
+            self.auto_fec_checker(conf)
 
         with allure.step("Disable auto neg and verify port returns to previous configuration"):
             logger.info("Disable auto negotiation and validate the configuration return to previous setting.")
@@ -102,16 +102,12 @@ class TestAutoNeg(TestAutoNegBase):
         with allure.step("Check default configuration"):
             logger.info("Checking default configuration: {}".format(def_conf))
             self.auto_neg_toggle_peer_checker(def_conf, cleanup_list)
-            self.auto_fec_checker(self.tested_dut_host_lb_dict,
-                                  conf={self.interfaces.dut_ha_1: def_conf[self.interfaces.dut_ha_1]},
-                                  lldp_checker=False)
+            self.auto_fec_checker(conf={self.interfaces.dut_ha_1: def_conf[self.interfaces.dut_ha_1]})
 
         with allure.step("Check custom configuration"):
             logger.info("Checking custom configuration: {}".format(sub_conf))
             self.auto_neg_toggle_peer_checker(sub_conf, cleanup_list)
-            self.auto_fec_checker(self.tested_dut_host_lb_dict,
-                                  conf={self.interfaces.dut_ha_1: sub_conf[self.interfaces.dut_ha_1]},
-                                  lldp_checker=False)
+            self.auto_fec_checker(conf={self.interfaces.dut_ha_1: sub_conf[self.interfaces.dut_ha_1]})
 
     def modify_conf_for_toggle_peer(self, dut_peer_port, sub_conf, def_conf):
         """

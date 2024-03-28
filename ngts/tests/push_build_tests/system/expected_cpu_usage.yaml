@@ -231,6 +231,28 @@ master:
     vxlanmgrd: 2
     sensord: 2
   # SPC3
+  SN4280: # Bobcat
+    total: 10
+    sx_sdk: 5
+    syncd: 2
+    redis-server: 2
+    snmpd: 2
+    zebra: 2
+    bgpd: 2
+    bgpcfgd: 2
+    bgpmon: 2
+    fpmsyncd: 2
+    orchagent: 2
+    ntpd: 2
+    neighsyncd: 2
+    vlanmgrd: 2
+    intfmgrd: 2
+    portmgrd: 2
+    buffermgrd: 2
+    vrfmgrd: 2
+    nbrmgrd: 2
+    vxlanmgrd: 2
+    sensord: 2
   MSN4410: # Ocelot
     total: 10
     sx_sdk: 5

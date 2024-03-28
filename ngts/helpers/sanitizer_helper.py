@@ -145,7 +145,7 @@ def aggregate_asan_and_send_mail(mail_address, sanitizer_dump_path, extract_path
     s = smtplib.SMTP(InfraConst.NVIDIA_MAIL_SERVER)
     try:
         for daemon in asan_files_dict.keys():
-            email_contents = orgenize_email_content('\n\n'.join(asan_files_dict[daemon]),
+            email_contents = organize_email_content('\n\n'.join(asan_files_dict[daemon]),
                                                     f"Sanitizer errors on daemon {daemon}, on setup {setup_name}",
                                                     mail_address)
             logger.info(f"sending mail about daemon {daemon}")
@@ -157,7 +157,7 @@ def aggregate_asan_and_send_mail(mail_address, sanitizer_dump_path, extract_path
                f'All the ASAN files are here:\n' \
                f'{extract_path}\n' \
                f'Tar file:{sanitizer_dump_path}'
-        summary_email_contents = orgenize_email_content(text,
+        summary_email_contents = organize_email_content(text,
                                                         f"Sanitizer report on setup {setup_name}",
                                                         mail_address)
         s.sendmail(SanitizerConst.SENDER_MAIL, summary_email_contents['To'], summary_email_contents.as_string())
@@ -198,7 +198,7 @@ def aggregate_asan_files(sanitizer_dump_path, extract_path):
     return asan_files_dict
 
 
-def orgenize_email_content(content, subject, mail_address):
+def organize_email_content(content, subject, mail_address):
     email_contents = MIMEText(content)
     email_contents['Subject'] = subject
     email_contents['To'] = mail_address

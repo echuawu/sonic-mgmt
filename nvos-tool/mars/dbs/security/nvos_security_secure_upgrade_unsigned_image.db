@@ -38,6 +38,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/security/separated_cases/nvos_security_secure_upgrade_unsigned_image.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/cases/nvos_security_secure_upgrade_unsigned_image.cases </cases>
 	</test>
 </DBDEF>

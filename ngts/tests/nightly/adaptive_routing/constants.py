@@ -1,17 +1,17 @@
 class ArConsts:
     DOAI_CONTAINER_NAME = "doai"
-    PORT_UTIL_PERCENT = 1
+    PORT_UTIL_CUSTOM_PERCENT = 1
     PORT_UTIL_DEFAULT_PERCENT = 70
     FRR_CONFIG_FOLDER = 'frr_config'
     AR_CONFIG_FOLDER = 'ar_profile_config'
     AR_CUSTOM_PROFILE_FILE_NAME = 'custom_profile.json'
-    PACKET_SPEED_5M = 5
-    PACKET_SPEED_15M = 15
-    PACKET_NUM_20 = 20
-    PACKET_NUM_1000 = 1000
-    RECEIVE_NUM_500 = 500
-    PACKET_NUM_10000000 = 10000000
-    LO_THRESHOLD_PROFILE0 = 200
+    PACKET_SPEED_A = 5
+    PACKET_SPEED_B = 15
+    PACKET_NUM_SMALLEST = 20
+    PACKET_NUM_MID = 1000
+    RECEIVE_NUM_SMALL = 500
+    PACKET_NUM_LARGE = 10000000
+    LO_THRESHOLD_PROFILE0 = 400
     HOST_A = 'ha'
     HOST_B = 'hb'
     NON_EXIST_PROFILE = 'non_exist_profile'
@@ -55,6 +55,7 @@ class ArConsts:
     DOAI_STATE = 'DoAI state'
     AR_STATE = 'AR state'
     AR_ACTIVE_PROFILE = 'AR active profile'
+    LINK_UTIL_STATE = 'Link utilization'
     # AR profile keys
     PROF_KEY_NAME = 'name'
     PROF_KEY_MODE = 'm'
@@ -86,7 +87,7 @@ class ArConsts:
     ]
 
     # Golden Profile values
-    GOLDEN_PROFILE0 = 'profile0'
+    GOLDEN_PROFILE0 = 'ar-cfg-profile0'
     GOLDEN_PROFILE0_PARAMETERS = {
         PROF_KEY_NAME: GOLDEN_PROFILE0,
         PROF_KEY_MODE: '0',
@@ -140,4 +141,32 @@ class ArConsts:
         'dut_hb_1': '2000::1', 'hb_dut_1': '2000::3',
         'dut_hb_2': '3000::1', 'hb_dut_2': '3000::3',
         'ipv6_network': '5000::/64'
+    }
+
+    ROUTE_CONFIG = {
+        'ha': '3.3.3.0', 'hb': '1.1.1.0', 'hb_gw': '3.3.3.1'
+    }
+
+    IPERF_VALIDATION = {
+        'server': 'hb',
+        'client': 'ha',
+        'client_args': {
+            'server_address': '3.3.3.3',
+            'duration': '20',
+            'protocol': 'UDP',
+            'bandwidth': '15G',
+            'tos': '104',
+            'length': '65507'
+        },
+        'background': 'start',
+        'expect': [
+            {
+                'parameter': 'loss_packets',
+                'operator': '>=',
+                'type': 'int',
+                'value': '0'
+            }
+        ],
+        'name': 'run'
+
     }

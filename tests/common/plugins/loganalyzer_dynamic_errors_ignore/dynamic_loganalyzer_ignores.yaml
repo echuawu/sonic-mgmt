@@ -104,6 +104,7 @@
       - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
       - tests/push_build_tests/system/test_startup_time_degradation.py
       - tests/nightly/routing/test_routing.py::TestRouting::test_reboot
+      - tests/nightly/adaptive_routing/test_adaptive_routing.py
       # 2 tests below temporary added - they doing "config reload -y"
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server
       - tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_multiple_dhcp_servers
@@ -1408,6 +1409,13 @@
       - 3131583
 
 - Errors_list:
+    - '.*ERR pmon#xcvrd: Failed to read from file \/sys\/module\/sx_core\/asic\d\/module\d+\/control - FileNotFoundError.*'
+    - '.*ERR pmon#xcvrd: exception.*No such file or directory:.*\/sys\/module\/sx_core\/asic\d\/module\d+\/control.*'
+  Conditions:
+    - Redmine:
+      - 3828772
+
+- Errors_list:
     - '.*ERR pmon#thermalctld: Failed to read from file \/var\/run\/hw-management\/thermal\/fan.*'
     - '.*ERR pmon#thermalctld: Failed to read fan direction from \/var\/run\/hw-management\/thermal\/fan.*'
   Conditions:
@@ -1534,6 +1542,14 @@
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+
+- Errors_list:
+    - '.*ERR systemctl.*Job for resolv-config.service canceled.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
+      Redmine:
+      - 3834976
 
 - Errors_list:
     - '.*sonic ERR hostcfgd: sonic-kdump-config --disable - failed: return code.*output:#.*None.*'
@@ -2610,15 +2626,14 @@
         - 3538014
 
 - Errors_list:
-    - '.* ERR syncd#SDK: \[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
-    - '.* ERR syncd#SDK: \[SAI_ACL\.ERR\] mlnx_sai_acl\.c\[\d+\]- mlnx_create_acl_table:  Failed to create flex key - Internal Error.*'
+    - '.* ERR syncd#SDK: \[SAI_ACL\.ERR\].*mlnx_sai_acl\.c\[\d+\]- mlnx_create_acl_table:  Failed to create flex key - Internal Error.*'
     - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_CREATE failed in syncd mode: SAI_STATUS_FAILURE.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_ACL_TABLE_ATTR_.*:.*'
     - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
-    - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table EVERFLOWV6.*'
+    - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table DATA.*'
   Conditions:
     - Redmine:
-        - 3415969
+        - 3841291
 
 - Errors_list:
     - '.*ERR swss#orchagent.*doPortTask: Failed to get port id by alias:Ethernet.*'
@@ -3304,6 +3319,15 @@
       - 3589197
 
 - Errors_list:
+  - '.*ERR kernel:.*SXD_HEALTH_FATAL.*stopping further device monitoring.*'
+  - '.*ERR syncd#SDK.*mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
+  - '.*ERR syncd#SDK.*SX_HEALTH_FATAL: cause_string.*error msg generated from SDK.*'
+  - '.*ERR swss#orchagent.*on_switch_shutdown_request: Syncd stopped.*error msg generated from orchagent.*'
+  Conditions:
+  - Affected_test_cases:
+    - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
+
+- Errors_list:
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
@@ -3601,6 +3625,12 @@
       - tests/nightly/crm/test_crm.py
       Redmine:
       - 3814899
+
+- Errors_list:
+    - '.* ERR kernel:.*i2c i2c-\d+: Invalid block size returned.*'
+  Conditions:
+    - Redmine:
+      - 3827149
 
 # NVOS
 - Errors_list:

@@ -15,13 +15,13 @@ logger = logging.getLogger()
 # -------------------------- Base Device ----------------------------
 class BaseDevice(ABC):
 
-    def __init__(self):
+    def __init__(self, asic_amount=1):
         self.default_password = ""
         self.default_username = ""
         self.prev_default_password = ""
         self.open_api_port = ""
         self.dependent_dockers = []
-        self.asic_amount = 1
+        self.asic_amount = asic_amount
 
         self._init_constants()
         self._init_available_databases()
@@ -61,6 +61,7 @@ class BaseDevice(ABC):
         self.mst_dev_name = ""
         self.constants = None
         self.voltage_sensors = []
+        self.supported_tpm_attestation_algos = []
 
     def _init_fan_list(self):
         self.fan_list = []
@@ -293,9 +294,10 @@ class BaseSwitch(BaseDevice):
                                  "system-mac", "system-uuid"]
         self.platform_list = ["fan", "led", "psu", "temperature", "component", "hardware", "environment"]
         self.platform_environment_list = ["fan", "led", "psu", "temperature"]
-        self.fan_prop = ["max-speed", "min-speed", "current-speed", "state"]
         self.hw_comp_list = self.fan_list + self.psu_list + ["SWITCH"]
         self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
+        self.fan_prop_auto = {"Fan State": "state", "Current Speed (RPM)": "current-speed",
+                              "Fan Direction": "direction"}
 
     def _init_fan_direction_dir(self):
         super()._init_fan_direction_dir()

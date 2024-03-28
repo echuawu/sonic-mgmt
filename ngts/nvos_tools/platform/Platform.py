@@ -6,6 +6,7 @@ from ngts.cli_wrappers.nvue.nvue_platform_clis import NvuePlatformCli
 from ngts.cli_wrappers.openapi.openapi_platform_clis import OpenApiPlatformCli
 from ngts.nvos_constants.constants_nvos import ApiType, ImageConsts, OutputFormat, ActionConsts
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
@@ -83,6 +84,8 @@ class FaeCpldComponent(FaePlatformComponent):
             return super().action_install(filename, device, expect_reboot)
         except requests.exceptions.ConnectionError:
             if expect_reboot:
-                logger.info(f"GET request failed as expected")
+                logger.info(f"GET request failed as expected because of reboot")
+                DutUtilsTool.wait_on_system_reboot(TestToolkit.engines.dut)
+                return ResultObj(True)
             else:
                 raise

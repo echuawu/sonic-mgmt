@@ -38,6 +38,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/security/separated_cases/nvos_security_login_ssh_notification.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/security/cases/nvos_security_login_ssh_notification.cases </cases>
 	</test>
 </DBDEF>

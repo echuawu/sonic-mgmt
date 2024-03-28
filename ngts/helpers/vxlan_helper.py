@@ -457,16 +457,22 @@ def clean_frr_vrf_config(topology, config_list):
 
 def validate_ecmp_traffic(pcap_path_list, ip_check_list, sender_count, receiver_count=-1, proto=IP):
     """
-    Validate traffic captured at ECMP interfaces
+    Validate traffic captured at ECMP interfaces, there should be load balanced over the next_hop interfaces
     """
-    count = 0
-    vxlan_pkts = sniff(offline=pcap_path_list, lfilter=lambda p: VXLAN in p)
-    layer_index = 2 if proto == IP else 1
-    for pkt in vxlan_pkts:
-        if pkt.getlayer(proto, nb=layer_index).src in ip_check_list:
-            count += 1
-    logger.info(f"Total received packet number:{count}")
+    total_count = 0
+    for pcap in pcap_path_list:
+        count = 0
+        vxlan_pkts = sniff(offline=pcap, lfilter=lambda p: VXLAN in p)
+        layer_index = 2 if proto == IP else 1
+        for pkt in vxlan_pkts:
+            if pkt.getlayer(proto, nb=layer_index).src in ip_check_list:
+                count += 1
+        logger.info(f"Matched {count} VXLAN packets in {pcap}")
+        if receiver_count == -1:
+            assert count > 0, f"There must be at least 1 VXLAN packet received in {pcap}"
+        total_count += count
+    logger.info(f"Total received packet number:{total_count}")
     if receiver_count == -1:
-        assert count == len(ip_check_list) * int(sender_count)
+        assert total_count == len(ip_check_list) * int(sender_count)
     else:
-        assert count == receiver_count
+        assert total_count == receiver_count

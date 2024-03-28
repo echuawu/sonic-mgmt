@@ -15,7 +15,15 @@ logger = logging.getLogger()
 class OpenSmTool:
 
     @staticmethod
-    def start_open_sm(engine):
+    def start_open_sm(engines=None):
+        return OpenSmTool.start_open_sm_on_dut(engines)
+
+    @staticmethod
+    def stop_open_sm(engines=None):
+        return OpenSmTool.stop_open_sm_on_dut(engines)
+
+    @staticmethod
+    def start_open_sm_on_dut(engines=None):
         """
         Start open sm if it's not running
         """
@@ -25,8 +33,8 @@ class OpenSmTool:
 
         with allure.step("start OpenSM"):
             ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_ENABLE)
-            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engine=TestToolkit.engines.dut,
-                                                                                 ask_for_confirmation=True)
+            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(
+                engine=engines.dut if engines else TestToolkit.engines.dut, ask_for_confirmation=True)
             if "applied" not in output:
                 return ResultObj(False, "Failed to start openSM")
 
@@ -35,7 +43,7 @@ class OpenSmTool:
             return ResultObj(res, "Failed to start openSM")
 
     @staticmethod
-    def stop_open_sm(engine):
+    def stop_open_sm_on_dut(engines=None):
         """
         Stop open sm if it's running
         """
@@ -45,8 +53,8 @@ class OpenSmTool:
 
         with allure.step("Stop OpenSM"):
             ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_DISABLE)
-            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(engine=TestToolkit.engines.dut,
-                                                                                 ask_for_confirmation=True)
+            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(
+                engine=engines.dut if engines else TestToolkit.engines.dut, ask_for_confirmation=True)
             return ResultObj("applied" in output, "Failed to start openSM")
 
     @staticmethod

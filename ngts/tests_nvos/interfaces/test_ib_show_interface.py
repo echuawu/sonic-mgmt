@@ -2,7 +2,6 @@ import logging
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
 
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
@@ -10,6 +9,8 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.Fae import Fae
 
 logger = logging.getLogger()
 
@@ -17,7 +18,8 @@ logger = logging.getLogger()
 @pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 @pytest.mark.ib
-def test_ib_show_interface_name(engines):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ib_show_interface(engines, devices, test_api):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface <name>
@@ -27,21 +29,33 @@ def test_ib_show_interface_name(engines):
     2. Run 'nv show interface <name>' on selected port
     3. Verify the required fields are presented in the output
     """
+    TestToolkit.tested_api = test_api
+
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             selected_port.ib_interface.show()).get_returned_value()
-
         validate_one_port_show_output(output_dictionary)
+
+    '''with allure.step(f'Check interface primary ASIC for port {selected_port.name}'):
+        fae = Fae(port_name=selected_port.name)
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+            fae.interface.show()).get_returned_value()
+        assert IbInterfaceConsts.PRIMARY_ASIC in output_dictionary.keys(), \
+            f"{IbInterfaceConsts.PRIMARY_ASIC} field not found for port {selected_port.name}"
+        assert int(output_dictionary[IbInterfaceConsts.PRIMARY_ASIC]) in range(0, devices.dut.asic_amount), \
+            f"IbInterfaceConsts.PRIMARY_ASIC should be in range of 0-{devices.dut.asic_amount}, " \
+            f"but for port {selected_port.name} - " \
+            f"{IbInterfaceConsts.PRIMARY_ASIC}={output_dictionary[IbInterfaceConsts.PRIMARY_ASIC]}"'''
 
 
 @pytest.mark.ib_interfaces
-def test_ib_show_interface_all_state_up(engines, start_sm):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface
@@ -51,6 +65,8 @@ def test_ib_show_interface_all_state_up(engines, start_sm):
     2. Select a random port from the output
     3. Verify the required fields are presented in the output
     """
+    TestToolkit.tested_api = test_api
+
     output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
         Port.show_interface()).get_returned_value()
 
@@ -140,7 +156,8 @@ def test_ib_show_interface_all_state_down(engines):
 @pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 @pytest.mark.ib
-def test_ib_show_interface_name_link(engines):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ib_show_interface_name_link(engines, test_api):
     """
     Run show interface command and verify the required fields exist
     Command: nv show interface <name> link
@@ -150,6 +167,8 @@ def test_ib_show_interface_name_link(engines):
     2. Run 'nv show interface <name> link' on selected port
     3. Verify the required fields are presented in the output
     """
+    TestToolkit.tested_api = test_api
+
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
@@ -175,7 +194,8 @@ def test_ib_show_interface_name_link(engines):
 
 
 @pytest.mark.ib_interfaces
-def test_ib_show_interface_name_stats(engines):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_ib_show_interface_name_stats(engines, test_api):
     """
     Run show interface command and verify the required fields exist
     Command: nv show interface <name> link stats
@@ -216,7 +236,7 @@ def test_show_interface_filter(engines):
     8. Run show interface with existing filter but value not exist
     9. Run show interface with a filter that does not exist
     """
-    interface = Interface()
+    interface = Interface(parent_obj=None)
 
     with allure.step('Run show interface without filter'):
         output_dict = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
@@ -323,46 +343,3 @@ def validate_one_port_in_show_all_ports(output_dictionary, port_up=True):
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
     validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], port_up)
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-@pytest.mark.nvos_ci
-@pytest.mark.ib
-def test_ib_show_interface_name_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_name(engines)
-
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-def test_ib_show_interface_all_state_up_openapi(engines, start_sm):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_all_state_up(engines, start_sm)
-
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-@pytest.mark.simx
-@pytest.mark.nvos_chipsim_ci
-def test_ib_show_interface_all_state_down_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_all_state_down(engines)
-
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-@pytest.mark.nvos_ci
-@pytest.mark.ib
-def test_ib_show_interface_name_link_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_name_link(engines)
-
-
-@pytest.mark.openapi
-@pytest.mark.ib_interfaces
-def test_ib_show_interface_name_stats_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_ib_show_interface_name_stats(engines)

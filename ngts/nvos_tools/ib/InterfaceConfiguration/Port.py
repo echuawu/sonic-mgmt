@@ -1,4 +1,4 @@
-from .MgmtInterface import MgmtInterface
+from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -62,7 +62,7 @@ class Port(BaseComponent):
         self.name = name
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
-        self.ib_interface = MgmtInterface(self, name)
+        self.ib_interface = Interface(self, name)
         self.acl = Acl(self)
 
     @staticmethod
