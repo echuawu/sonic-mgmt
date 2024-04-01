@@ -37,7 +37,7 @@ def test_ssh_compression(engines):
 
 
 @pytest.mark.security
-def test_ssh_ciphers(engines):
+def test_ssh_ciphers(engines, devices):
     """
     @summary: verify the change of Ciphers in sshd_config
 
@@ -49,25 +49,29 @@ def test_ssh_ciphers(engines):
     verify_switch_ssh_property(
         engines=engines,
         property_name=SshHardeningConsts.CIPHERS,
-        expected_value=SshHardeningConsts.VALUES[SshHardeningConsts.CIPHERS],
+        expected_value=get_device_ciphers_list(devices),
         value_extraction_function=get_ssh_server_ciphers
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=True,
-        option_to_check=SshHardeningConsts.CIPHERS
+        option_to_check=SshHardeningConsts.CIPHERS,
+        get_option_list_function=get_device_ciphers_list
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=False,
-        option_to_check=SshHardeningConsts.CIPHERS
+        option_to_check=SshHardeningConsts.CIPHERS,
+        get_option_list_function=get_device_ciphers_list
     )
 
 
 @pytest.mark.security
-def test_ssh_macs(engines):
+def test_ssh_macs(engines, devices):
     """
     @summary: verify the change of MACs in sshd_config
 
@@ -79,25 +83,29 @@ def test_ssh_macs(engines):
     verify_switch_ssh_property(
         engines=engines,
         property_name=SshHardeningConsts.MACS,
-        expected_value=SshHardeningConsts.VALUES[SshHardeningConsts.MACS],
+        expected_value=get_device_macs_list(devices),
         value_extraction_function=get_ssh_server_macs
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=True,
-        option_to_check=SshHardeningConsts.MACS
+        option_to_check=SshHardeningConsts.MACS,
+        get_option_list_function=get_device_macs_list
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=False,
-        option_to_check=SshHardeningConsts.MACS
+        option_to_check=SshHardeningConsts.MACS,
+        get_option_list_function=get_device_macs_list
     )
 
 
 @pytest.mark.security
-def test_ssh_kex_algorithms(engines):
+def test_ssh_kex_algorithms(engines, devices):
     """
     @summary: verify the change of KexAlgorithms in sshd_config
 
@@ -109,20 +117,24 @@ def test_ssh_kex_algorithms(engines):
     verify_switch_ssh_property(
         engines=engines,
         property_name=SshHardeningConsts.KEX_ALGOS,
-        expected_value=SshHardeningConsts.VALUES[SshHardeningConsts.KEX_ALGOS],
+        expected_value=get_device_kex_algotithms_list(devices),
         value_extraction_function=get_ssh_server_kex_algorithms
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=True,
-        option_to_check=SshHardeningConsts.KEX_ALGOS
+        option_to_check=SshHardeningConsts.KEX_ALGOS,
+        get_option_list_function=get_device_kex_algotithms_list
     )
 
     verify_ssh_with_option(
         engines=engines,
+        devices=devices,
         good_flow=False,
-        option_to_check=SshHardeningConsts.KEX_ALGOS
+        option_to_check=SshHardeningConsts.KEX_ALGOS,
+        get_option_list_function=get_device_kex_algotithms_list
     )
 
 

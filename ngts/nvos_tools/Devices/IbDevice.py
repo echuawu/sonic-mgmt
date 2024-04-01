@@ -53,6 +53,11 @@ class IbSwitch(BaseSwitch):
         super()._init_system_lists()
         self.user_fields = ['admin', 'monitor']
 
+    def _init_security_lists(self):
+        super()._init_security_lists()
+        self.kex_algorithms = ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
+                               'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256']
+
     def _init_available_databases(self):
         super()._init_available_databases()
         self.available_databases.update(

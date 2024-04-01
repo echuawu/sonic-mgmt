@@ -15,8 +15,6 @@ class SshHardeningConsts:
         COMPRESSION: 'none',
         CIPHERS: ['aes256-ctr', 'aes192-ctr', 'aes128-ctr', 'aes128-gcm@openssh.com', 'aes256-gcm@openssh.com'],
         MACS: ['hmac-sha2-256', 'hmac-sha2-512', 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com'],
-        KEX_ALGOS: ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
-                    'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256'],
         AUTH_KEY_TYPES: ['rsa-sha2-512', 'rsa-sha2-256']  # todo: can generate only these 2
         # AUTH_KEY_TYPES: ['ecdsa-sha2-nistp256-cert-v01@openssh.com',
         # 'ecdsa-sha2-nistp384-cert-v01@openssh.com',

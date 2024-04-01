@@ -14,7 +14,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.conftest import ProxySshEngine
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.tools.test_utils.nvos_config_utils import ib_clear_conf
+from ngts.tools.test_utils.nvos_config_utils import clear_conf
 from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, is_secure_boot_enabled
 
 logger = logging.getLogger()
@@ -131,7 +131,7 @@ class NvosInstallationSteps:
             NvosInstallationSteps.verify_config_after_upgrade(config_file_path, dut_engine)
 
         with allure.step('Clear tested configuration for the tests'):
-            ib_clear_conf(dut_engine)
+            clear_conf(dut_engine)
 
         with allure.step('Clear fetched files for the tests'):
             system = System()

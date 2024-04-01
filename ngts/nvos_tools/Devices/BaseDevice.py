@@ -35,6 +35,7 @@ class BaseDevice(ABC):
         self._init_health_components()
         self._init_platform_lists()
         self._init_system_lists()
+        self._init_security_lists()
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -90,6 +91,9 @@ class BaseDevice(ABC):
 
     def _init_system_lists(self):
         self.user_fields = []
+
+    def _init_security_lists(self):
+        self.kex_algorithms = []
 
     @abstractmethod
     def get_ib_ports_num(self):

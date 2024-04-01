@@ -12,7 +12,7 @@ from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
 import ngts.tools.test_utils.allure_utils as allure
 
 
-def ib_clear_conf(dut_engine, markers=None):
+def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_configurations):
     if markers and 'system_profile_cleanup' in markers:
         clear_system_profile_config()
 
@@ -80,7 +80,7 @@ def ib_clear_conf(dut_engine, markers=None):
                     dut_engine.run_cmd(unset_cli_cmd)
 
                 with allure.step("Set base configurations"):
-                    set_base_configurations(dut_engine=dut_engine, apply=False)
+                    set_base_config_function(dut_engine=dut_engine, apply=False)
 
             with allure.step("Apply configurations"):
                 NvueGeneralCli.apply_config(dut_engine, ask_for_confirmation=True)

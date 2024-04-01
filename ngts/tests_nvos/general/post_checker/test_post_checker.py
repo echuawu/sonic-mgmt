@@ -8,7 +8,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.tools.test_utils.nvos_config_utils import ib_clear_conf
+from ngts.tools.test_utils.nvos_config_utils import clear_conf
 from ngts.tools.test_utils.switch_recovery import check_switch_connectivity
 
 logger = logging.getLogger()
@@ -43,7 +43,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_
 
             if res_obj.result:
                 with allure.step("Clear config"):
-                    ib_clear_conf(engines.dut)
+                    clear_conf(engines.dut)
             else:
                 logging.info("Try to clear the config using serial console")
 
@@ -55,7 +55,7 @@ def test_post_checker(engines, topology_obj, dumps_folder, setup_name, security_
                     generate_techsupport(dumps_folder, system, serial_engine)
 
                 with allure.step("Clear config using serial console"):
-                    ib_clear_conf(serial_engine)
+                    clear_conf(serial_engine)
 
                 with allure.step('Check connection and perform reboot if needed'):
                     logger.info('Check port status, should be up after cleanup')

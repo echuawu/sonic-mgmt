@@ -161,6 +161,7 @@ class LinuxConsts:
     error_exit_code = 1
     linux = 'linux'
     JERUSALEM_TIMEZONE = 'Asia/Jerusalem'
+    ETC_UTC_TIMEZONE = 'Etc/UTC'
 
 
 class TopologyConsts:
