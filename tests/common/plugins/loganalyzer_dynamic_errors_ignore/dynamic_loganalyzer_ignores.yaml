@@ -2622,6 +2622,7 @@
   Conditions:
     - Affected_test_cases:
         - tests/push_build_tests/general/doroce/test_doroce.py
+        - tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::test_feature_with_dpb_on_all_ports
       Redmine:
         - 3538014
 
