@@ -2399,8 +2399,10 @@ platform_tests/sfp/test_show_intf_xcvr.py:
 platform_tests/test_xcvr_info_in_db.py:
   skip:
     reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3836978"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
   skip:

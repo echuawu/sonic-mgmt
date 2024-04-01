@@ -4099,3 +4099,16 @@
     - 3772643
     Platform:
     - sn5400
+
+
+- Errors_list:
+    - '.*ERR pmon#xcvrd: Exception occured at DomInfoUpdateTask thread due to AttributeError\(.*NoneType.* object has no attribute .*VDM_REAL_VALUE.*\).*'
+    - '.*ERR pmon#xcvrd: Traceback \(most recent call last\):.*'
+    - '.*ERR pmon#xcvrd: .*File .*, line .*, in .*.*'
+    - '.*ERR pmon#xcvrd:     .*[self|=].*'
+    - '.*ERR pmon#xcvrd: AttributeError: .*NoneType.* object has no attribute .*VDM_REAL_VALUE.*.*'
+    - '.*ERR pmon#xcvrd: Xcvrd: exception found at child thread DomInfoUpdateTask due to AttributeError\(.*NoneType.* object has no attribute .*VDM_REAL_VALUE.*\).*'
+    - '.*ERR pmon#xcvrd: Exiting main loop as child thread raised exception!.*'
+  Conditions:
+  - Redmine:
+    - 3836978
