@@ -21,6 +21,7 @@ logger = logging.getLogger()
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment(engines, devices, test_api):
     """
@@ -40,6 +41,7 @@ def test_show_platform_environment(engines, devices, test_api):
 @pytest.mark.platform
 @pytest.mark.cumulus
 @pytest.mark.simx
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_fan(engines, devices, test_api, output_format):
     """
@@ -89,6 +91,7 @@ def _test_specific_fan(fan, output_format, expected, output, platform):
 
 @pytest.mark.platform
 @pytest.mark.simx
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_led(engines, devices, test_api):
     """
@@ -116,6 +119,7 @@ def test_show_platform_environment_led(engines, devices, test_api):
 
 @pytest.mark.platform
 @pytest.mark.simx
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_set_platform_environment_led(engines, devices, test_api):
     """
@@ -181,6 +185,7 @@ def test_set_platform_environment_led(engines, devices, test_api):
 @pytest.mark.platform
 @pytest.mark.cumulus
 @pytest.mark.simx
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_psu(engines, devices, test_api):
     """
@@ -208,6 +213,7 @@ def test_show_platform_environment_psu(engines, devices, test_api):
 
 @pytest.mark.platform
 @pytest.mark.simx
+@pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_temperature(engines, devices, test_api):
     """
