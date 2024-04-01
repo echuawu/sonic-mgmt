@@ -733,6 +733,48 @@ tests/nightly/secure/test_secure_boot.py:
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+virtual_smart_switch/test_dpu_ip_assignment.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835047"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3835047"
+
+syslog/test_logrotate.py::test_orchagent_logrotate:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835010"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3835010"
+
+passw_hardening/test_passw_hardening.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+bgp/test_bgp_bbr.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+gnmi/test_gnmi_configdb.py::test_gnmi_configdb_incremental_01:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+gnmi/test_gnmi_configdb.py::test_gnmi_configdb_full_01:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+cacl/test_cacl_application.py::test_cacl_application_nondualtor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3817421 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3817421 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
 dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162 on 202211 branch"
@@ -1880,12 +1922,10 @@ pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[async_storm:
       - "'master_bookworm' in branch"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and msn4700 in platform"
-    conditions_logical_operator: or
+  xfail:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3627680 and 'msn4700' in platform"
-      - "https://redmine.mellanox.com/issues/3632105 and '2700' in platform"
+      - "https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
@@ -1955,13 +1995,6 @@ platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_tar
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649678 and master_bookworm branch"
     conditions:
       - "https://redmine.mellanox.com/issues/3649678"
-      - "'master_bookworm' in branch"
-
-passw_hardening/test_passw_hardening.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649737 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649737"
       - "'master_bookworm' in branch"
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
