@@ -2476,7 +2476,7 @@ platform_tests/daemon/test_syseepromd.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
-bgp/test_bgp_update_timer.py:
+bgp/test_bgp_update_timer.py::test_bgp_update_timer_single_route:
   xfail:
     reason: "Testcase statistically fails due to RM issue: https://redmine.mellanox.com/issues/3790712"
     conditions:
