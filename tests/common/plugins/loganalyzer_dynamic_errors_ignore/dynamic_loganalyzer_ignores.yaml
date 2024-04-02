@@ -2619,6 +2619,7 @@
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command .* address "add" .* broadcast .* dev .* failed with rc \d+'
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command .* address "add" .* dev .* failed with rc \d+'
     - '.* ERR swss#orchagent: :- addOperation: Vxlan tunnel .vtep\d+. is already exists'
+    - '.* ERR swss#orchagent: :- addAclTableType: Table type .* already exists.*'
   Conditions:
     - Affected_test_cases:
         - tests/push_build_tests/general/doroce/test_doroce.py
