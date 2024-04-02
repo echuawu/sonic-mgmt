@@ -260,12 +260,6 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
     conditions:
       - https://redmine.mellanox.com/issues/3795718
 
-tests_nvos/interfaces/test_interface_link_transceiver_diagnostics.py::test_interface_transceiver_diagnostics_basic:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3817558"
-    conditions:
-      - https://redmine.mellanox.com/issues/3817558
-
 tests_nvos/system/test_system_ptp.py:
   skip:
     reason: "Should run only on gorilla system"
@@ -283,4 +277,10 @@ tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
     conditions:
       - https://redmine.mellanox.com/issues/3727441
+
+tests_nvos/checklist/test_bios_update.py::test_bios_upgrade:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3848672"
+    conditions:
+      - https://redmine.mellanox.com/issues/3848672
 ########################## NVOS IGNORE END ##########################
