@@ -36,7 +36,7 @@ class RadiusConstants:
     }
 
     DEFAULT_RADIUS_CONF = {
-        AaaConsts.AUTH_TYPE: AaaConsts.PAP,
+        AaaConsts.AUTH_TYPE: AaaConsts.MSCHAPV2,
         AaaConsts.HOSTNAME: {},
         AaaConsts.PORT: 1812,
         AaaConsts.SECRET: '*',
