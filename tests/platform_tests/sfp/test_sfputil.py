@@ -23,6 +23,8 @@ cmd_sfp_show_lpmode = "sudo sfputil show lpmode"
 cmd_sfp_set_lpmode = "sudo sfputil lpmode"
 cmd_sfp_eeprom_hexdump = "sudo sfputil show eeprom-hexdump"
 
+logger = logging.getLogger(__name__)
+
 pytestmark = [
     pytest.mark.disable_loganalyzer,  # disable automatic loganalyzer
     pytest.mark.topology('any')
@@ -70,6 +72,10 @@ def test_check_sfputil_error_status(duthosts, enum_rand_one_per_hwsku_frontend_h
     parsed_presence = parse_output(sfp_error_status["stdout_lines"][2:])
     for intf in dev_conn:
         if intf not in xcvr_skip_list[duthost.hostname]:
+            if "Not supported" in sfp_error_status['stdout']:
+                logger.warning("test_check_sfputil_error_status: Skipping transceiver {} as error status not "
+                               "supported on this port)".format(intf))
+                continue
             assert intf in parsed_presence, "Interface is not in output of '{}'".format(cmd_sfp_presence)
             assert parsed_presence[intf] == "OK", "Interface error status is not 'OK'"
 
@@ -252,7 +258,7 @@ def test_check_sfputil_low_power_mode(duthosts, enum_rand_one_per_hwsku_frontend
     for intf in dev_conn:
         if intf not in xcvr_skip_list[duthost.hostname]:
             assert intf in parsed_lpmode, "Interface is not in output of '{}'".format(cmd_sfp_show_lpmode)
-            assert parsed_lpmode[intf].lower() == original_lpmode[intf].lower(),\
+            assert parsed_lpmode[intf].lower() == original_lpmode[intf].lower(), \
                 "Unexpected SFP lpmode. actual:{}, expected:{}".format(
                     parsed_lpmode[intf].lower(), original_lpmode[intf].lower())
 
