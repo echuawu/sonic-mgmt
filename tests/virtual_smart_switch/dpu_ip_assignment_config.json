@@ -1,10 +1,4 @@
 {
-    "DEVICE_METADATA": {
-        "localhost": {
-            "switch_type": "switch",
-            "type": "SmartSwitch"
-        }
-    },
     "FEATURE": {
         "dhcp_relay": {
             "auto_restart": "enabled",
