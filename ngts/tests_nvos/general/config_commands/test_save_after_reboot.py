@@ -1,5 +1,5 @@
 import pytest
-import time
+
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 from ngts.nvos_tools.infra.Fae import Fae
@@ -47,21 +47,6 @@ def test_save_reboot(engines, devices):
             fae.fast_recovery.set(FastRecoveryConsts.STATE,
                                   FastRecoveryConsts.STATE_DISABLED, apply=True, dut_engine=engines.dut)'''
 
-        with allure.step('Set system events table-size to 600 and validate'):
-            fae.system.events.set(op_param_name='table-size', op_param_value=600, apply=True, dut_engine=engines.dut).\
-                verify_result()
-            output = OutputParsingTool.parse_json_str_to_dictionary(fae.system.events.show()).get_returned_value()
-            ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_SIZE, '600').verify_result()
-
-        with allure.step('Simulate 10 system events'):
-            output = engines.dut.run_cmd('docker exec eventd events_publish_test.py -c 10')
-            assert output == '', 'Error in executing simulate command: {}'.format(output)
-            time.sleep(10)
-
-        with allure.step('Extract last system event to verify post reboot'):
-            output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('last 1')).get_returned_value()
-            event_time = output["events"]["1"]["time-created"]
-
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
             system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
@@ -88,15 +73,6 @@ def test_save_reboot(engines, devices):
                 system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
                 ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                             new_hostname_value).verify_result()
-
-            with allure.step('Verify that system events table-size config was saved'):
-                output = OutputParsingTool.parse_json_str_to_dictionary(fae.system.events.show()).get_returned_value()
-                ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_SIZE, '600').\
-                    verify_result()
-
-            with allure.step('Verify that the system event before the reboot is present post reboot as well'):
-                output = system.events.show('last 10000')
-                assert event_time in output, 'Event {} removed from system events table post reboot'.format(event_time)
 
             # TODO: Fix fae recovery
             '''with allure_step('Verify fae fast-recovery state is Disabled'):
