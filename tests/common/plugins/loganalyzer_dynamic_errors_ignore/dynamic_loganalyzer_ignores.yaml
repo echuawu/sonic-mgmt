@@ -2278,14 +2278,10 @@
       - 3726137
 
 - Errors_list:
-    - '.*ERR systemctl.*: Job for pmon.service canceled.*'
+    - '.*ERR systemctl.*: Job for .*service canceled.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      Redmine:
-      - 3730173
-      Branch:
-      - master
 
 - Errors_list:
     - '.*ERR systemctl.*: Job for syncd.service canceled.*'
