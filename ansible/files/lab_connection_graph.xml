@@ -214,7 +214,6 @@
       <Device Hostname="r-moose-simx-242" HwSku="ACS-MSN5600" Type="DevSonic"/>
       <Device Hostname="r-moose-simx-246" HwSku="ACS-MSN5600" Type="DevSonic"/>
       <Device Hostname="r-spider-05" HwSku="ACS-MSN2410" Type="DevSonic"/>
-      <Device Hostname="moose-198" HwSku="Mellanox-SN5600-C8" Type="DevSonic"/>
       <Device Hostname="r-moose-01" HwSku="ACS-SN5600" Type="DevSonic"/>
       <Device Hostname="moose-42" HwSku="ACS-SN5600" Type="DevSonic"/>
       <Device Hostname="r-moose-02" HwSku="ACS-SN5600" Type="DevSonic"/>
