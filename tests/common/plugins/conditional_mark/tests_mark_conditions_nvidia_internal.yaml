@@ -24,6 +24,12 @@ tests/nightly/rocev2_acl_counter:
     conditions:
       - "https://redmine.mellanox.com/issues/3820604 and 'simx' in platform "
 
+tests/nightly/crm/test_crm.py::test_crm_acl:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3841291"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3841291"
+
 tests/nightly/cpld/test_cpld.py::test_cpld_version_check:
   skip:
     reason: "Testcase skipped due to RM ticket https://redmine.mellanox.com/issues/3549638 on ComEx setup or https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
