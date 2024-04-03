@@ -32,7 +32,10 @@ def pytest_runtest_makereport(item, call):
                         dut_engine = topology_obj.players['dut']['engine']
                         duration = get_test_duration(item)
                         collect_stored_cmds_then_attach_to_allure_report(topology_obj)
-                        remote_dump_path = dut_cli_object.general.generate_techsupport(duration)
+                        with allure.step('Generate Techsupport of last {} seconds'.format(duration)):
+                            output = dut_engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration),
+                                                        validate=True)
+                        remote_dump_path = output.splitlines()[-1]
 
                     dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
                     copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
