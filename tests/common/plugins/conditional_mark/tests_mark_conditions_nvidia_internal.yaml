@@ -58,6 +58,12 @@ tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::tes
     conditions:
       - "https://redmine.mellanox.com/issues/3649765 and 'master_bookworm' in branch"
 
+tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_direction]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3851470 for simx platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3851470 and 'simx' in platform "
+
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649788"
@@ -2568,9 +2574,9 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
   skip:
-    reason: " Skip simx platform by bug of https://redmine.mellanox.com/issues/3679414"
+    reason: " Skip simx platform by bug of https://redmine.mellanox.com/issues/3836121"
     conditions:
-      - "https://redmine.mellanox.com/issues/3679414 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3836121 and 'sn4280_simx' in platform"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_serial:
   skip:
