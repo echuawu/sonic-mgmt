@@ -403,6 +403,46 @@ class SystemConsts:
     EXTERNAL_API_CONN_WAITING = 'waiting'
     EXTERNAL_API_CONN_WRITING = 'writing'
 
+    ZTP_SERVICE = 'service'
+    ZTP_STATE = 'state'
+    ZTP_STATUS = 'status'
+    ZTP_CONFIG_SAVE = 'config-save'
+    ZTP_OUTPUT_FIELDS = [ZTP_SERVICE, ZTP_STATE, ZTP_STATUS, ZTP_CONFIG_SAVE]
+    ZTP_DEFAULT_SERVICE = 'active-discovery'
+    ZTP_DEFAULT_STATE = 'enabled'
+    ZTP_DEFAULT_STATUS = 'not-started'
+    ZTP_DEFAULT_CONFIG_SAVE = 'disabled'
+    ZTP_DEFAULT_VALUES = [ZTP_DEFAULT_SERVICE, ZTP_DEFAULT_STATE, ZTP_DEFAULT_STATUS, ZTP_DEFAULT_CONFIG_SAVE]
+    ZTP_CONFIG_SAVE_SERVICE = 'inactive'
+    ZTP_CONFIG_SAVE_STATE = 'disabled'
+    ZTP_CONFIG_SAVE_STATUS = 'not-started'
+    ZTP_CONFIG_SAVE = 'disabled'
+    ZTP_STATUS_ENABLED = 'enabled'
+    ZTP_AFTER_CONFIG_SAVE_VALUES = [ZTP_CONFIG_SAVE_SERVICE, ZTP_CONFIG_SAVE_STATE, ZTP_CONFIG_SAVE_STATUS,
+                                    ZTP_CONFIG_SAVE]
+    ZTP_CONFIG_SAVE_VALUES = [ZTP_CONFIG_SAVE_SERVICE, ZTP_CONFIG_SAVE_STATE, ZTP_CONFIG_SAVE_STATUS,
+                              ZTP_STATUS_ENABLED]
+    ZTP_DEFAULT_LOG_FILE = '/var/log/ztp.log'
+    DUMMY_JSON = 'dummy.json'
+    POSITIVE_JSON = 'positive.json'
+    NEGATIVE_PING_JSON = 'negative_ping.json'
+    NEGATIVE_HALT_ON_FAILURE_JSON = 'negative_halt_on_failure.json'
+    NEGATIVE_RESTART_ON_FAILURE_JSON = 'negative_restart_on_failure.json'
+    IMAGE_JSON = 'uninstall.json'
+    STARTUP_FILE_WRONG_IP = 'startup_wrong_ip.json'
+    STARTUP_FILE_CLEAR_CONFIG_FALSE = 'startup_file_clear_config_false.json'
+    STARTUP_FILE_CLEAR_CONFIG_TRUE = 'startup_file_clear_config.json'
+    STARTUP_FILE_SAVE_CONFIG_TRUE = 'startup_file_config_save.json'
+    STARTUP_FILE_INTERACTIVE_COMMANDS = 'startup_file_interactive.json'
+    CONNECTIVITY_IPV4_IPV6 = 'ping_ipv4_ipv6.json'
+    NEGATIVE_CONNECTIVITY = 'negative_connectivity.json'
+    COMPLEX = 'complex.json'
+    ZTP_STATUS_IN_PROGRESS = 'in-progress'
+    ZTP_STATUS_SUCESS = 'success'
+    ZTP_STATUS_FAILED = 'failed'
+    HTTP_SERVER = 'http://nbu-nfs.mellanox.com'
+    VERIFICATION_ZTP_PATH = '/auto/sw_system_project/NVOS_INFRA/ztp/'
+
     PYTHON_PATH = 'PYTHONPATH=/ngts_venv/ /ngts_venv/bin/python'
     CONTAINER_BU_SCRIPT = '/devts/scripts/docker/containers_bringup.py'
     CONTAINER_BU_TEMPLATE = '{python_path} {container_bu_script} --setup_name {setup_name} --metrox2xc_setup'

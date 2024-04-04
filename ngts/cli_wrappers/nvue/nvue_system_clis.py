@@ -107,6 +107,35 @@ class NvueSystemCli(NvueBaseCli):
         return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
 
     @staticmethod
+    def action_run_ztp(engine, device, resource_path, op_param="", expected_boot=False):
+        """
+        Ztp action run
+        """
+        list_items = [f'{key} {value}' for key, value in op_param.items()]
+        op_param = ' '.join(list_items)
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action run {path} force {op_param}".format(path=path, op_param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        if expected_boot:
+            return DutUtilsTool.reload(engine=engine, device=device, command=cmd).verify_result()
+        else:
+            return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_abort_ztp(engine, device, resource_path, op_param=""):
+        """
+        Ztp abort
+        """
+        list_items = [f'{key} {value}' for key, value in op_param.items()]
+        op_param = ' '.join(list_items)
+        path = resource_path.replace('/', ' ')
+        cmd = "nv action abort {path} force {op_param}".format(path=path, op_param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return engine.run_cmd(cmd)
+
+    @staticmethod
     def show_log(engine, log_type='', param='', exit_cmd=''):
         cmd = "nv show system {type}log {param}".format(type=log_type, param=param)
         logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))

@@ -9,6 +9,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
+from ngts.nvos_tools.system.Ztp import Ztp
 from ngts.nvos_tools.system.Stats import Stats
 from ngts.nvos_tools.system.Image import Image
 from ngts.nvos_tools.system.Reboot import Reboot
@@ -47,6 +48,7 @@ class System(BaseComponent):
         self.serial_console = BaseComponent(self, path='/serial-console')
         self.syslog = Syslog(self)
         self.ntp = Ntp(self)
+        self.ztp = Ztp(self)
         self.stats = Stats(self, devices_dut)
         self.techsupport = TechSupport(self)
         self.image = Image(self)
