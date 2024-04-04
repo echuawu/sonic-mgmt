@@ -4124,3 +4124,9 @@
   Conditions:
   - Redmine:
     - 3836978
+
+- Errors_list:
+    - '.*ERR hostcfgd: file size check failed: \/etc\/pam\.d\/login is empty, file corrupted.*'
+  Conditions:
+  - Redmine:
+    - 3853187
