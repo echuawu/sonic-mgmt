@@ -84,7 +84,11 @@ def get_sonic_image(topology):
     :param topology: topology fixture object
     :return: branch name
     """
-    dut_engine = topology.players['dut']['engine']
-    sonic_installer_output = dut_engine.run_cmd("sudo sonic-installer list")
-    image = re.search(r'Current:\s(.*)', sonic_installer_output, re.IGNORECASE).group(1)
+    try:
+        sonic_installer_output = topology.players['dut']['engine'].run_cmd("sudo sonic-installer list")
+        image = re.search(r'Current:\s(.*)', sonic_installer_output, re.IGNORECASE).group(1)
+    except SSHException as err:
+        image = 'Unknown'
+        logger.error(f'Unable to get image. Assuming that the device is not reachable. Setting the image as Unknown. '
+                     f'Got error: {err}')
     return image
