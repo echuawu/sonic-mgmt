@@ -1,23 +1,24 @@
 import logging
 import random
 import time
+
 import pytest
+
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+from infra.tools.general_constants.constants import DefaultTestServerCred
+from ngts.cli_wrappers.nvue.nvue_general_clis import server_ip
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
-from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
-from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator, OpenapiAuthenticator
-from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import \
-    update_active_aaa_server
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsServers
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
-from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_test_utils import configure_ldap, enable_ldap_feature
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tests_nvos.general.security.authentication_restrictions.constants import RestrictionsConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
+from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsServers
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
 
@@ -394,9 +395,13 @@ def test_auth_restrictions_multi_user(test_api, engines):
         la = RestrictionsConsts.LOCKOUT_ATTEMPTS
         lr = RestrictionsConsts.LOCKOUT_REATTEMPT
         enabled = RestrictionsConsts.ENABLED
-        o = OutputParsingTool.parse_json_str_to_dictionary(System().aaa.authentication.restrictions.show()).get_returned_value()
-        logging.info(f'Verify conf:\nfd\tls\tla\tlr\n{0}\t{enabled}\t{3}\t{lockout_reattempt}\t<-- Expected\n{o[fd]}\t{o[ls]}\t{o[la]}\t{o[lr]}\t<-- Actual')
-        assert (str(0) == str(o[fd]) and enabled == str(o[ls]) and str(3) == str(o[la]) and str(lockout_reattempt) == str(o[lr])), f'Error:\nfd\tls\tla\tlr\n{0}\t{enabled}\t{3}\t{lockout_reattempt}\t<-- Expected\n{o[fd]}\t{o[ls]}\t{o[la]}\t{o[lr]}\t<-- Actual'
+        o = OutputParsingTool.parse_json_str_to_dictionary(
+            System().aaa.authentication.restrictions.show()).get_returned_value()
+        logging.info(
+            f'Verify conf:\nfd\tls\tla\tlr\n{0}\t{enabled}\t{3}\t{lockout_reattempt}\t<-- Expected\n{o[fd]}\t{o[ls]}\t{o[la]}\t{o[lr]}\t<-- Actual')
+        assert (str(0) == str(o[fd]) and enabled == str(o[ls]) and str(3) == str(o[la]) and str(
+            lockout_reattempt) == str(o[
+                lr])), f'Error:\nfd\tls\tla\tlr\n{0}\t{enabled}\t{3}\t{lockout_reattempt}\t<-- Expected\n{o[fd]}\t{o[ls]}\t{o[la]}\t{o[lr]}\t<-- Actual'
 
     with allure.step(f'Make user "{test_admin_lower[AaaConsts.USERNAME]}" blocked'):
         logging.info('Create authenticators')
@@ -474,7 +479,6 @@ def test_auth_restrictions_auth_success_clears_user(test_api, engines, test_user
             assert login_succeeded, f'Expect login success: {login_succeeded}'
 
 
-@pytest.mark.bug  # opened bug for openapi 3530587
 @pytest.mark.simx
 @pytest.mark.security
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -501,14 +505,30 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
         }, apply=True)
 
     with allure.step('Verify user is not blocked before'):
-        openapi_attempter = OpenapiAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
-        succeeded, _, output = openapi_attempter.attempt_login_success()
+        ip = engines.dut.ip
+        user = test_user[AaaConsts.USERNAME]
+        password = test_user[AaaConsts.PASSWORD]
+        openapi_request = "curl -k --user {}:{} --request GET 'https://{}/nvue_v1/system/version'"
+        good_request = openapi_request.format(user, password, ip)
+        request_engine = LinuxSshEngine(server_ip, DefaultTestServerCred.DEFAULT_USERNAME,
+                                        DefaultTestServerCred.DEFAULT_PASS)
+        out = request_engine.run_cmd(good_request)
+        assert 'fail' not in out and '</html>' not in out, f'OpenApi request failed:\n{out}'
+        # openapi_attempter = OpenapiAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
+        # succeeded, _, output = openapi_attempter.attempt_login_success()
 
     with allure.step('Make another 2 authentication failures, through openapi requests'):
-        succeeded, _, output = openapi_attempter.attempt_login_failure()
-        assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
-        succeeded, _, output = openapi_attempter.attempt_login_failure()
-        assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
+        bad_request = openapi_request.format(user, 'asd', ip)
+        for _ in range(2):
+            out = request_engine.run_cmd(bad_request)
+            assert RestrictionsConsts.OPENAPI_AUH_ERROR in out, f'Unexpected OpenApi response.\n' \
+                                                                f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
+                                                                f'actual:\n{out}'
+        # openapi_bad_attempter = LinuxSshEngine(engines.dut.ip, 'asd', test_user[AaaConsts.PASSWORD])
+        # succeeded, _, output = openapi_attempter.attempt_login_failure()
+        # assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
+        # succeeded, _, output = openapi_attempter.attempt_login_failure()
+        # assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
 
     with allure.step('Make 2 authentication failures through SSH'):
         ssh_attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -516,8 +536,12 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
         ssh_attempter.attempt_login_failure()
 
     with allure.step('Verify user is blocked'):
-        succeeded, _, output = openapi_attempter.attempt_login_success()
-        assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
+        out = engines.dut.run_cmd(good_request)
+        assert RestrictionsConsts.OPENAPI_AUH_ERROR in out, f'Unexpected OpenApi response.\n' \
+                                                            f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
+                                                            f'actual:\n{out}'
+        # succeeded, _, output = openapi_attempter.attempt_login_success()
+        # assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
 
 
 @pytest.mark.simx

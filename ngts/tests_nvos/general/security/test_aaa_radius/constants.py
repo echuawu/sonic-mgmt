@@ -22,7 +22,7 @@ class RadiusConstants:
     RADIUS_SERVER_USERNAME = 'username'
     RADIUS_SERVER_USER_PASSWORD = 'password'
     AUTHENTICATION_FAILURE_MESSAGE = 'Authentication failure: unable to connect linux'
-    AUTH_TYPES = ['chap', 'pap']
+    AUTH_TYPES = ['chap', 'pap', 'mschapv2']
 
     VALID_VALUES = {
         AaaConsts.HOSTNAME: str,
@@ -36,7 +36,7 @@ class RadiusConstants:
     }
 
     DEFAULT_RADIUS_CONF = {
-        AaaConsts.AUTH_TYPE: AaaConsts.PAP,
+        AaaConsts.AUTH_TYPE: AaaConsts.MSCHAPV2,
         AaaConsts.HOSTNAME: {},
         AaaConsts.PORT: 1812,
         AaaConsts.SECRET: '*',

@@ -1,19 +1,19 @@
-import logging
-import time
-import pytest
-from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
-from ngts.tools.test_utils import allure_utils as allure
 import random
+
+import pytest
+
+from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
+from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     validate_users_authorization_and_role, validate_authentication_fail_with_credentials
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusConstants
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.tests_nvos.general.security.test_ssh_config.constants import SshConfigConsts
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
+from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.security
@@ -300,47 +300,6 @@ def test_radius_configurations_error_flow(engines, clear_all_radius_configuratio
                                                           RadiusConstants.RADIUS_SERVER_USERNAME],
                                                       password=radius_server_user[
                                                           RadiusConstants.RADIUS_SERVER_USER_PASSWORD])
-
-
-# def test_radius_set_show_unset(engines, clear_all_radius_configurations):
-#     """
-#     @summary: in this test case we want to validate radius commands:
-#         1. set
-#         2. show
-#         3. unset
-#     """
-#     configured_radius_servers_hostname = []
-#
-#     with allure.step("Configuring Radius Server"):
-#         logging.info("Configuring Radius Server")
-#         for radius_key, radius_server_info in RadiusConstants.RADIUS_SERVERS_DICTIONARY.items():
-#             configure_radius_server(radius_server_info)
-#             configured_radius_servers_hostname.append(radius_server_info[RadiusConstants.RADIUS_HOSTNAME])
-#
-#     system = System()
-#     with allure.step("Validate Unset command"):
-#         logging.info("Validate Unset command")
-#         for hostname in configured_radius_servers_hostname:
-#             system.aaa.radius.rad_hostname.unset_hostname(hostname, True, True).verify_result(should_succeed=True)
-#         system.aaa.radius.unset().verify_result(should_succeed=True)
-#
-#     with allure.step("Validating the show command output"):
-#         logging.info("Validating the show command output")
-#         output = system.aaa.radius.rad_hostname.show()
-#         for hostname in configured_radius_servers_hostname:
-#             assert hostname not in output, "hostname: {}, appears in the show radius hostname after removing it".format(
-#                 hostname)
-
-
-# def test_radius_set_show_unset_openapi(engines, clear_all_radius_configurations):
-#     """
-#     @summary: in this test case we want to validate radius commands:
-#         1. set
-#         2. show
-#         3. unset
-#     """
-#     TestToolkit.tested_api = ApiType.OPENAPI
-#     test_radius_set_show_unset(engines, clear_all_radius_configurations)
 
 
 def test_radius_all_supported_auth_types(engines, clear_all_radius_configurations):
