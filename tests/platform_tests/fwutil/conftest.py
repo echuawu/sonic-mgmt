@@ -31,11 +31,13 @@ def pytest_addoption(parser):
 def shutdown_bgp(request, duthost):
     if request.config.getoption('shutdown_bgp'):
         duthost.command("sudo config bgp shutdown all")
+        duthost.command("sudo config save -y")
 
     yield
 
     if request.config.getoption('shutdown_bgp'):
         duthost.command("sudo config bgp startup all")
+        duthost.command("sudo config save -y")
 
 
 def check_path_exists(duthost, path):
