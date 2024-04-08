@@ -3645,6 +3645,22 @@
     - Redmine:
       - 3827149
 
+- Errors_list:
+    - '.*ERR kernel:.* RETBleed: WARNING: Spectre v\d+ mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible.*'
+  Conditions:
+    - Redmine:
+      - 3856241
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR hw-management: message repeated \d+ times: \[ chip hwmon object\].*'
+  Conditions:
+    - Redmine:
+      - 3856952
+      Platform:
+        - simx
+
 # NVOS
 - Errors_list:
     - '.*ERR health-statsd#health_history: .*: speed is out of range, speed=.*'
