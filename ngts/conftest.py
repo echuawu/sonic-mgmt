@@ -311,7 +311,7 @@ def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     nvos_setup = False
     for player_key, player_info in topology.players.items():
-        if player_key in PlayersAliases.duts_list:
+        if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.'][
                     'CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 update_nvos_topology(topology, player_info)
@@ -319,6 +319,12 @@ def update_topology_with_cli_class(topology):
             else:
                 player_info['cli'] = SonicCli(topology, dut_alias=player_key)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
+        elif player_key == 'dut-b':
+            player_info['cli'] = SonicCli(topology, dut_alias='dut-b')
+
+        elif player_key == 'left_tg' or player_key == 'right_tg':
+            player_info['cli'] = SonicCli(topology, dut_alias=player_key)
+            player_info.update({'stub_cli': SonicCliStub(topology)})
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})

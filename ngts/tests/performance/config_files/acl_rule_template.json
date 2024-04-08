@@ -1,0 +1,11 @@
+{
+    "ACL_RULE": {
+        "table2|RULE_3": {
+            "ETHER_TYPE":  "2054",
+            "PACKET_ACTION": "DROP",
+            "PRIORITY": "9986"
+        }
+    }
+}
+
+

@@ -288,7 +288,8 @@ def config_ar_profile(cli_objects, engines, topology_obj):
     # Copy AR custom profile to dut
     logger.info('Copy and load AR custom profile')
     ar_profile_config_folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' + ArConsts.AR_CONFIG_FOLDER
-    ar_helper.copy_and_load_profile_config(engines, cli_objects, ar_profile_config_folder_path)
+    ar_helper.copy_and_load_profile_config(engines, cli_objects, ar_profile_config_folder_path,
+                                           ArConsts.AR_CUSTOM_PROFILE_JSON)
     # Enable AR custom profile
     with allure.step(f'Enable {ArConsts.CUSTOM_PROFILE_NAME} profile'):
         ar_helper.enable_ar_profile(cli_objects, ArConsts.CUSTOM_PROFILE_NAME)

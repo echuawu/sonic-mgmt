@@ -1885,6 +1885,12 @@
       Redmine:
       - 3238763
 
+- Errors_list:
+  - '.*ERR swss#swssconfig:.*Failed to open file \/etc\/swss\/config.d\/ipinip.json'
+  Conditions:
+  - Affected_test_cases:
+    - tests/performance/test_ar_performance.py::TestArPerformance::test_ar_perf_reload_reboot
+
 # The below errors should be ignored, because it is caused by FW was busing(err is -16) , and it is an expected behaviour
 - Errors_list:
     - '.*ERR kernel: \[.*\] Fails to get module type, err: -16.*'
