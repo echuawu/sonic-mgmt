@@ -108,7 +108,7 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
 
     with allure.step("Install original image name, should fail"):
         logger.info("Install original image name: {}, should fail".format(fetched_image))
-        system.image.files.file_name[fetched_image].action_file_install("Action failed", "force")
+        system.image.files.file_name[fetched_image].action_file_install("Failed")
 
     with allure.step("Delete original image name, should fail"):
         system.image.files.delete_files([fetched_image], "File not found")
