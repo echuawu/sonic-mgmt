@@ -284,7 +284,6 @@ def collect_dualtor_simulator_log(hypervisor_engine, target_folder):
 def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, is_simx, is_air, sonic_topo):
     dut_cli_object_list = [topology_obj.players['dut']['cli']]
     dut_engine_list = [topology_obj.players['dut']['engine']]
-    hyper_engine = get_hypervisor_engine(topology_obj)
     if topology_obj.players.get('dut-b'):
         dut_cli_object_list.append(topology_obj.players['dut-b']['cli'])
         dut_engine_list.append(topology_obj.players['dut-b']['engine'])
@@ -318,6 +317,7 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, 
         dump_simx_data(topology_obj, dumps_folder)
 
     if is_dualtor_topo(sonic_topo):
+        hyper_engine = get_hypervisor_engine(topology_obj)
         collect_dualtor_simulator_log(hyper_engine, dumps_folder)
 
     logger.info("Script Finished")
