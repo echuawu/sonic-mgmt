@@ -1009,7 +1009,7 @@ platform_tests/test_secure_upgrade.py:
   skip:
     reason: "platform does not support secure upgrade"
     conditions:
-      - "asic_gen in ['spc1', 'spc2', 'spc3']"
+      - "'sn2' in platform or 'sn3' in platform or 'sn4' in platform"
 
 platform_tests/test_service_warm_restart.py:
   skip:
