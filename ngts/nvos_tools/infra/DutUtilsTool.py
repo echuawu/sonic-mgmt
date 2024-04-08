@@ -83,7 +83,7 @@ class DutUtilsTool:
             return ResultObj(result=True, info="Reconnected After Running {}".format(command))
 
     @staticmethod
-    def wait_on_system_reboot(engine):
+    def wait_on_system_reboot(engine, recovery_engine=None):
         """Call this after an operation that should trigger a reboot. Will wait on the switch until it's functional."""
         with allure.step("Waiting for system to reboot and become available"):
             with allure.step("Waiting for switch shutdown after reload command"):
@@ -91,7 +91,7 @@ class DutUtilsTool:
                 engine.disconnect()
             with allure.step("Waiting for switch to be ready"):
                 check_port_status_till_alive(True, engine.ip, engine.ssh_port)
-                DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
+                DutUtilsTool.wait_for_nvos_to_become_functional(recovery_engine or engine).verify_result()
 
     @staticmethod
     def wait_for_nvos_to_become_functional(engine, find_prompt_tries=60, find_prompt_delay=10):

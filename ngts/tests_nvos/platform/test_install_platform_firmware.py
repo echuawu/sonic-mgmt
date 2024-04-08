@@ -99,7 +99,7 @@ def install_image_fw(system, platform, engines, test_name, fw_has_changed):
 
 
 def install_new_user_fw(system, platform, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
-    platform.firmware.asic.files.file_name[new_fw_to_install].action_file_install(op_param='').verify_result(
+    platform.firmware.asic.files.file_name[new_fw_to_install].action_file_install(force=False).verify_result(
         should_succeed=True)
     platform.firmware.asic.set(PlatformConsts.FW_SOURCE, PlatformConsts.FW_SOURCE_CUSTOM, apply=True)
 

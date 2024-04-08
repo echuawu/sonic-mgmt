@@ -213,6 +213,21 @@ class ActionType:
     IMPORT = '@import'
 
 
+class ActionConsts:
+    CLEANUP = "cleanup"
+    INSTALL = "install"
+    UNINSTALL = "uninstall"
+    BOOT_NEXT = "boot-next"
+    GENERATE = "generate"
+    FETCH = "fetch"
+    ENABLE = 'enable'
+    DISABLE = 'disable'
+    DELETE = 'delete'
+    CLEAR = 'clear'
+    UPLOAD = 'upload'
+    RENAME = 'rename'
+
+
 class SystemConsts:
     HOSTNAME = 'hostname'
     STATUS = 'status'
@@ -467,19 +482,6 @@ class DocumentsConsts:
     FILE_NAME_USER_MANUAL = "NVOS_User_Manual.pdf"
     FILE_NAME_OPEN_SOURCE_LICENSES = "Open_Source_Licenses.txt"
     FILE_NAME_RELEASE_NOTES = "NVOS_Release_Notes.pdf"
-
-
-class ActionConsts:
-    CLEANUP = "cleanup"
-    INSTALL = "install"
-    UNINSTALL = "uninstall"
-    BOOT_NEXT = "boot-next"
-    GENERATE = "generate"
-    FETCH = "fetch"
-    ENABLE = 'enable'
-    DISABLE = 'disable'
-    DELETE = 'delete'
-    CLEAR = 'clear'
 
 
 class IpConsts:

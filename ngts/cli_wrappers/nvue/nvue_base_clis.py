@@ -39,7 +39,7 @@ class NvueBaseCli:
 
     @staticmethod
     def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
-               output_format=None, expect_reboot=False):
+               output_format=None, expect_reboot=False, recovery_engine=None):
         """See documentation of BaseComponent.action"""
         command = ' '.join(['nv action', action_type, resource_path.replace('/', ' '), suffix,
                             (param_value or param_name)])
@@ -48,7 +48,8 @@ class NvueBaseCli:
         command = ' '.join(command.split())  # delete double-spaces
         logger.info(f"Running command: {command}")
         if expect_reboot:
-            return DutUtilsTool.reload(engine=engine, device=device, command=command, confirm=True).verify_result()
+            return DutUtilsTool.reload(engine=engine, device=device, command=command, confirm=True,
+                                       recovery_engine=recovery_engine).verify_result()
         else:
             return engine.run_cmd(command)
 
@@ -69,13 +70,3 @@ class NvueBaseCli:
             return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
         else:
             return engine.run_cmd(cmd)
-
-    @staticmethod
-    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param="", recovery_engine=None):
-        resource_path = resource_path.replace('/', ' ')
-        cmd = "nv action {action_type} {resource_path} {param}" \
-            .format(action_type=action_str, resource_path=resource_path, param=op_param)
-        cmd = " ".join(cmd.split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
-        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True,
-                                   recovery_engine=recovery_engine).verify_result()
