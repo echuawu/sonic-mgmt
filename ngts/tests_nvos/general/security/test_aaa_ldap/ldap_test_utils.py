@@ -1,19 +1,18 @@
+import logging
 import random
 import time
-import logging
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts, AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import configure_authentication, \
     validate_services_and_dockers_availability, find_server_admin_user
-from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
     LdapServerInfo
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts, LdapEncryptionModes
@@ -31,7 +30,6 @@ def configure_ldap_common_fields(engines, ldap_obj, apply=False):
             LdapConsts.PORT: ldap_server_info[LdapConsts.PORT],
             LdapConsts.BASE_DN: ldap_server_info[LdapConsts.BASE_DN],
             LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
-            LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
             # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
             LdapConsts.SECRET: ldap_server_info[LdapConsts.SECRET],
             LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],
@@ -195,7 +193,6 @@ def configure_ldap_server(engines, ldap_obj, ldap_server_info, apply=False):
                 LdapConsts.PORT: ldap_server_info[LdapConsts.PORT],
                 LdapConsts.BASE_DN: ldap_server_info[LdapConsts.BASE_DN],
                 LdapConsts.BIND_DN: ldap_server_info[LdapConsts.BIND_DN],
-                LdapConsts.GROUP_ATTR: ldap_server_info[LdapConsts.GROUP_ATTR],
                 # LdapConsts.LOGIN_ATTR: ldap_server_info[LdapConsts.LOGIN_ATTR],  not supported now
                 LdapConsts.SECRET: ldap_server_info[LdapConsts.SECRET],
                 LdapConsts.TIMEOUT_BIND: ldap_server_info[LdapConsts.TIMEOUT_BIND],

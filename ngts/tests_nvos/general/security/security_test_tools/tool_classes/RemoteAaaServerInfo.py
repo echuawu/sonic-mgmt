@@ -2,16 +2,16 @@ import copy
 import logging
 from typing import List
 
-from ngts.nvos_tools.system.Ldap import Ldap
-from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
-from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.system.Hostname import Hostname, HostnameId
+from ngts.nvos_tools.system.Hostname import HostnameId
+from ngts.nvos_tools.system.Ldap import Ldap
+from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
+from ngts.tools.test_utils import allure_utils as allure
 
 
 class RemoteAaaServerInfo:
@@ -96,12 +96,11 @@ class TacacsServerInfo(RemoteAaaServerInfo):
 
 class LdapServerInfo(RemoteAaaServerInfo):
     def __init__(self, hostname, priority, secret, port, users: List[UserInfo],
-                 base_dn, bind_dn, group_attr,
-                 timeout_bind, timeout_search, version, ssl_port=636, ipv4_addr: str = '', docker_name: str = ''):
+                 base_dn, bind_dn, timeout_bind, timeout_search, version,
+                 ssl_port=636, ipv4_addr: str = '', docker_name: str = ''):
         super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.base_dn = base_dn
         self.bind_dn = bind_dn
-        self.group_attr = group_attr
         self.timeout_bind = timeout_bind
         self.timeout_search = timeout_search
         self.version = version
@@ -116,7 +115,6 @@ class LdapServerInfo(RemoteAaaServerInfo):
             LdapConsts.PORT: self.port,
             LdapConsts.BASE_DN: self.base_dn,
             LdapConsts.BIND_DN: self.bind_dn,
-            LdapConsts.GROUP_ATTR: self.group_attr,
             LdapConsts.VERSION: self.version,
             # LdapConsts.HOSTNAME: self.hostname
         }

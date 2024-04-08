@@ -31,7 +31,6 @@ def test_ldap_set_unset_show(test_api, engines):
                 LdapConsts.PORT: random.choice(LdapConsts.VALID_VALUES[LdapConsts.PORT]),
                 LdapConsts.BASE_DN: random_str,
                 LdapConsts.BIND_DN: random_str,
-                LdapConsts.GROUP_ATTR: random_str,
                 LdapConsts.SECRET: random_str,
                 LdapConsts.TIMEOUT_BIND: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT_BIND]),
                 LdapConsts.TIMEOUT: random.choice(LdapConsts.VALID_VALUES[LdapConsts.TIMEOUT]),
