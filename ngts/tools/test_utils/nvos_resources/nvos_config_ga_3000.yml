@@ -59,9 +59,6 @@
           mon:
             password: $y$j9T$CuAnwwjJMXYIBFVuJ7KN51$nPz./46jyFVBzuySd02vaS/DriCgfiC2PrdCKLKH.o2
             role: monitor
-      firmware:
-        asic:
-          auto-update: enabled
       message:
         post-login: yoavpost
         pre-login: yoavpre123
