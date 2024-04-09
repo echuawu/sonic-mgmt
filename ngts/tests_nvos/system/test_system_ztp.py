@@ -210,11 +210,13 @@ def test_ztp_image(engines, devices):
                 _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_IN_PROGRESS)
                 _wait_until_ztp_step_status(system, '01-image', SystemConsts.ZTP_STATUS_IN_PROGRESS)
                 _wait_until_ztp_step_status(system, '01-image', SystemConsts.ZTP_STATUS_SUCESS)
-                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.image.show()).get_returned_value()
+                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
+                    system.image.show()).get_returned_value()
                 assert output_dictionary['current'] == output_dictionary['next'], 'Image not installed'
                 _wait_until_ztp_step_status(system, '02-image', SystemConsts.ZTP_STATUS_IN_PROGRESS)
                 _wait_until_ztp_step_status(system, '02-image', SystemConsts.ZTP_STATUS_SUCESS)
-                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.image.show()).get_returned_value()
+                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
+                    system.image.show()).get_returned_value()
                 assert output_dictionary['current'] != output_dictionary['next'], 'Image not uninstalled'
 
         with allure.step("Run nv abort run system ztp and delete json file"):
@@ -345,36 +347,36 @@ def test_ztp_connectivity_check(engines, devices):
     system = System(None)
 
     try:
-    with allure.step("Run show ztp and verify default values"):
-        system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
+        with allure.step("Run show ztp and verify default values"):
+            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
 
-        with allure.step("Verify default values and fields"):
-            ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                            SystemConsts.ZTP_DEFAULT_VALUES,
-                                                            system_ztp_output).verify_result()
+            with allure.step("Verify default values and fields"):
+                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
+                                                                SystemConsts.ZTP_DEFAULT_VALUES,
+                                                                system_ztp_output).verify_result()
 
-    with allure.step("Download ping ipv4 and ipv6 json file"):
-        _download_ztp_json_config(engines, SystemConsts.CONNECTIVITY_IPV4_IPV6)
+        with allure.step("Download ping ipv4 and ipv6 json file"):
+            _download_ztp_json_config(engines, SystemConsts.CONNECTIVITY_IPV4_IPV6)
 
-        with allure.step("Run nv action run system ztp"):
-            system.ztp.action_run_ztp()
+            with allure.step("Run nv action run system ztp"):
+                system.ztp.action_run_ztp()
 
-            with allure.step("Check ztp status"):
-                _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_step_status(system, '01-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
+                with allure.step("Check ztp status"):
+                    _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_step_status(system, '01-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
 
-    with allure.step("Download negative ip json file"):
-        _download_ztp_json_config(engines, SystemConsts.NEGATIVE_CONNECTIVITY)
+        with allure.step("Download negative ip json file"):
+            _download_ztp_json_config(engines, SystemConsts.NEGATIVE_CONNECTIVITY)
 
-        with allure.step("Run nv action run system ztp"):
-            system.ztp.action_run_ztp()
+            with allure.step("Run nv action run system ztp"):
+                system.ztp.action_run_ztp()
 
-            with allure.step("Check ztp status"):
-                _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_IN_PROGRESS)
-                _wait_until_ztp_step_status(system, '01-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
-                _wait_until_ztp_step_status(system, '02-commands-list', SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_step_status(system, '03-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
-                _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_FAILED)
+                with allure.step("Check ztp status"):
+                    _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_IN_PROGRESS)
+                    _wait_until_ztp_step_status(system, '01-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
+                    _wait_until_ztp_step_status(system, '02-commands-list', SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_step_status(system, '03-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
+                    _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_FAILED)
 
     except Exception as e:
         logger.info("Received Exception during test_ztp_connectivity_check: {}".format(e))
@@ -396,29 +398,29 @@ def test_ztp_json_complex(engines, devices):
     system = System(None)
 
     try:
-    with allure.step("Run show ztp and verify default values"):
-        system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
+        with allure.step("Run show ztp and verify default values"):
+            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
 
-        with allure.step("Verify default values and fields"):
-            ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                            SystemConsts.ZTP_DEFAULT_VALUES,
-                                                            system_ztp_output).verify_result()
+            with allure.step("Verify default values and fields"):
+                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
+                                                                SystemConsts.ZTP_DEFAULT_VALUES,
+                                                                system_ztp_output).verify_result()
 
-    with allure.step("Download complex json file"):
-        _download_ztp_json_config(engines, SystemConsts.COMPLEX)
+        with allure.step("Download complex json file"):
+            _download_ztp_json_config(engines, SystemConsts.COMPLEX)
 
-        with allure.step("Run nv action run system ztp"):
-            system.ztp.action_run_ztp()
+            with allure.step("Run nv action run system ztp"):
+                system.ztp.action_run_ztp()
 
-            with allure.step("Check ztp status"):
-                _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_IN_PROGRESS)
-                _wait_until_ztp_step_status(system, '01-image', SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_step_status(system, '02-image', SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_step_status(system, '03-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_step_status(system, '04-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
-                _wait_until_ztp_step_status(system, '05-startup-file', SystemConsts.ZTP_STATUS_FAILED)
-                _wait_until_ztp_step_status(system, '06-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
-                _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_FAILED)
+                with allure.step("Check ztp status"):
+                    _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_IN_PROGRESS)
+                    _wait_until_ztp_step_status(system, '01-image', SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_step_status(system, '02-image', SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_step_status(system, '03-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_step_status(system, '04-connectivity-check', SystemConsts.ZTP_STATUS_FAILED)
+                    _wait_until_ztp_step_status(system, '05-startup-file', SystemConsts.ZTP_STATUS_FAILED)
+                    _wait_until_ztp_step_status(system, '06-connectivity-check', SystemConsts.ZTP_STATUS_SUCESS)
+                    _wait_until_ztp_status(system, SystemConsts.ZTP_STATUS_FAILED)
 
     except Exception as e:
         logger.info("Received Exception during test_ztp_json_complex: {}".format(e))
@@ -454,7 +456,7 @@ def _wait_until_ztp_step_status(system, ztp_step='', ztp_status=''):
         assert ztp_output['stage'][ztp_step]['status'] == ztp_status, f'ztp status not changed to {ztp_status}'
 
 
-def _validate_interface_description_field(selected_port, description_value, should_be_equal):
+def _validate_interface_description_field(selected_port, description_value):
     with allure.step('Check that interface description field matches the expected value'):
         output_dictionary = selected_port.show_output_dictionary
         if NvosConst.DESCRIPTION in output_dictionary.keys():
