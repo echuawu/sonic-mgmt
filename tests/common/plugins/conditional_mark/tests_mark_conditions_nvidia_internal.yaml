@@ -757,6 +757,12 @@ syslog/test_logrotate.py::test_orchagent_logrotate:
     conditions:
       - "https://redmine.mellanox.com/issues/3835010"
 
+tests/show_techsupport/test_auto_techsupport.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
 passw_hardening/test_passw_hardening.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
