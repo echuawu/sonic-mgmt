@@ -37,7 +37,7 @@ def pytest_runtest_makereport(item, call):
                                                         validate=True)
                         remote_dump_path = output.splitlines()[-1]
 
-                    dest_file = dumps_folder + '/sysdump_' + item.name + '.tar.gz'
+                    dest_file = dumps_folder + '/sysdump_' + item.name.replace('/', '_') + '.tar.gz'
                     copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
                     with allure.step(copy_msg):
                         logger.info(copy_msg)
@@ -52,8 +52,8 @@ def pytest_runtest_makereport(item, call):
                     is_air = item.funcargs.get('is_air')
                     if is_simx and not is_air:
                         with allure.step('Dump SIMX VM logs'):
-                            dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name)
-                    store_dest_file_path(dest_file, item.name)
+                            dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name.replace('/', '_'))
+                    store_dest_file_path(dest_file, item.name.replace('/', '_'))
                 except BaseException as err:
                     error_message = f'Failed to generate/store techsupport dump.\nGot error: {err}'
                     logger.error(error_message)
