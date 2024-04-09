@@ -1,37 +1,46 @@
 #!/usr/bin/env python
+import os
 import pytest
 import logging
 import allure
 import json
+import requests
 
-from ngts.constants.constants import AppExtensionInstallationConstants, P4SamplingConsts
+from ngts.constants.constants import AppExtensionInstallationConstants, P4SamplingConsts, MarsConstants
 from ngts.tests.nightly.app_extension.app_extension_helper import verify_app_container_up_and_repo_status_installed, \
     retry_verify_app_container_up
 from ngts.scripts.install_app_extension.app_extension_info import AppExtensionInfo
+from ngts.scripts.sonic_deploy.community_only_methods import execute_script
 
 
 logger = logging.getLogger()
 
 
-def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path, platform_params):
+def test_install_all_supported_app_extensions(topology_obj, app_extension_dict_path,
+                                              platform_params, sonic_topo, dut_name):
     """
     This function will perform installation of app extensions
     :param topology_obj: topology object fixture
     :param app_extension_dict_path: path to app extension dict
     :param platform_params: platform_params fixture
+    :param sonic_topo: sonic_topo fixture
+    :param dut_name: dut_name fixture
     """
     cli_obj = topology_obj.players['dut']['cli']
-    skip_reason = install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platform_params)
+    skip_reason = install_all_supported_app_extensions(cli_obj, app_extension_dict_path,
+                                                       platform_params, sonic_topo, dut_name)
     if skip_reason:
         pytest.skip(skip_reason)
 
 
-def install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platform_params):
+def install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platform_params, sonic_topo, dut_name):
     """
     This function will perform installation of app extensions
     :param cli_obj: dut cli_obj object
     :param app_extension_dict_path: path to app extension dict
     :param platform_params: platform_params fixture
+    :param sonic_topo: sonic_topo fixture
+    :param dut_name: dut_name fixture
     :return: return the skip reason if the test need to be skipped, else return None
     """
     skip_reason = ""
@@ -39,13 +48,70 @@ def install_all_supported_app_extensions(cli_obj, app_extension_dict_path, platf
         logger.info("app_extension_dict_path is not provided, skip the installing the app extensions")
         skip_reason = 'app_extension_dict_path is not provided'
     elif cli_obj.app_ext.verify_version_support_app_ext():
-        app_ext_installer = AppExtensionInstaller(cli_obj, app_extension_dict_path, platform_params)
-        app_ext_installer.install_supported_app_extensions()
-        cli_obj.general.save_configuration()
+        install_app_extensions(cli_obj, app_extension_dict_path, platform_params, sonic_topo, dut_name)
     else:
         logger.info("The image does not support app extension")
         skip_reason = 'The image does not support app extension'
     return skip_reason
+
+
+def install_app_extensions(cli_obj, app_extension_dict_path, platform_params, sonic_topo, dut_name):
+    if is_additional_apps_argument_is_deb_package(app_extension_dict_path):
+        install_wjh_sonic(dut_name=dut_name, sonic_topo=sonic_topo, additional_apps=app_extension_dict_path)
+    elif is_additional_apps_argument_is_app_ext_dict(app_extension_dict_path):
+        app_ext_installer = AppExtensionInstaller(cli_obj, app_extension_dict_path, platform_params)
+        app_ext_installer.install_supported_app_extensions()
+        cli_obj.general.save_configuration()
+
+
+def is_additional_apps_argument_is_deb_package(additional_apps_argument):
+    is_deb_package = False
+    path = additional_apps_argument
+    try:
+        if os.path.islink(additional_apps_argument):
+            path = os.readlink(additional_apps_argument)
+        if path.endswith('.deb'):
+            is_deb_package = True
+    except OSError:
+        pass
+    return is_deb_package
+
+
+def install_wjh_sonic(dut_name, sonic_topo, additional_apps):
+    """
+    Install WJH
+    :param dut_name: dut name
+    :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
+    :param additional_apps: additional apps
+    :param ansible_path: path to ansible directory
+    """
+    wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTP_SERVER_NBU_NFS, additional_apps)
+    ansible_path = "/root/mars/workspace/sonic-mgmt/ansible"
+    if wjh_deb_url_arg:
+        with allure.step("Install WJH"):
+            install_wjh(ansible_path=ansible_path, dut_name=dut_name,
+                        sonic_topo=sonic_topo, wjh_deb_url=wjh_deb_url_arg)
+
+
+def install_wjh(ansible_path, dut_name, sonic_topo, wjh_deb_url):
+    """
+    Method which doing WJH installation on DUT
+    """
+    logger.info("Starting installation of SONiC what-just-happened")
+    cmd = "ansible-playbook install_wjh.yml -i inventory --limit {SWITCH} " \
+          "-e testbed_name={SWITCH}-{TOPO} -e testbed_type={TOPO} " \
+          "-e wjh_deb_url={PATH} -vvv".format(SWITCH=dut_name, TOPO=sonic_topo, PATH=wjh_deb_url)
+    execute_script(cmd, ansible_path)
+
+
+def is_additional_apps_argument_is_app_ext_dict(additional_apps_argument):
+    is_app_ext_dict = False
+    try:
+        requests.get('{}/{}'.format(MarsConstants.HTTP_SERVER_NBU_NFS, additional_apps_argument)).json()
+        is_app_ext_dict = True
+    except json.decoder.JSONDecodeError:
+        pass
+    return is_app_ext_dict
 
 
 class AppExtensionInstaller:

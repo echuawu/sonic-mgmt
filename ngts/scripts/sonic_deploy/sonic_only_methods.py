@@ -248,28 +248,18 @@ class SonicInstallationSteps:
         return is_deb_package
 
     @staticmethod
-    def install_wjh(ansible_path, dut_name, sonic_topo, wjh_deb_url):
-        """
-        Method which doing WJH installation on DUT
-        """
-        logger.info("Starting installation of SONiC what-just-happened")
-        cmd = "ansible-playbook install_wjh.yml -i inventory --limit {SWITCH} " \
-              "-e testbed_name={SWITCH}-{TOPO} -e testbed_type={TOPO} " \
-              "-e wjh_deb_url={PATH} -vvv".format(SWITCH=dut_name, TOPO=sonic_topo, PATH=wjh_deb_url)
-        execute_script(cmd, ansible_path)
-
-    @staticmethod
-    def install_supported_app_extensions(ansible_path, setup_name, dut_name, app_extension_dict_path):
+    def install_supported_app_extensions(ansible_path, setup_name, dut_name, app_extension_dict_path, sonic_topo):
         app_extension_path_str = ''
         if app_extension_dict_path:
             app_extension_path_str = '--app_extension_dict_path={}'.format(app_extension_dict_path)
-        cmd = "{ngts_pytest} --setup_name={setup_name} --rootdir={sonic_mgmt_dir}/ngts" \
-              " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO --clean-alluredir " \
-              "--alluredir=/tmp/allure-results " \
+        cmd = "{ngts_pytest} --setup_name={setup_name} --dut_name={dut_name} --rootdir={sonic_mgmt_dir}/ngts" \
+              " -c {sonic_mgmt_dir}/ngts/pytest.ini --log-level=INFO" \
+              " --clean-alluredir --alluredir=/tmp/allure-results --sonic-topo={sonic_topo}" \
               " --disable_loganalyzer {app_extension_path_str} " \
               " {sonic_mgmt_dir}/ngts/scripts/install_app_extension/install_app_extensions.py". \
             format(ngts_pytest=MarsConstants.NGTS_PATH_PYTEST, sonic_mgmt_dir=MarsConstants.SONIC_MGMT_DIR,
-                   setup_name=setup_name, app_extension_path_str=app_extension_path_str)
+                   setup_name=setup_name, dut_name=dut_name, sonic_topo=sonic_topo,
+                   app_extension_path_str=app_extension_path_str)
         logger.info("Running CMD: {}".format(cmd))
         execute_script(cmd, ansible_path)
 
@@ -429,14 +419,12 @@ class SonicInstallationSteps:
                                                            reboot=reboot, ansible_path=ansible_path)
 
         for dut in setup_info['duts']:
-            if SonicInstallationSteps.is_additional_apps_argument_is_deb_package(additional_apps):
-                SonicInstallationSteps.install_wjh_sonic(dut_name=dut['dut_name'], sonic_topo=sonic_topo,
-                                                         additional_apps=additional_apps, ansible_path=ansible_path)
-            else:
-                if SonicInstallationSteps.is_additional_apps_argument_is_app_ext_dict(additional_apps):
-                    SonicInstallationSteps.install_app_extension_sonic(dut_name=dut['dut_name'], setup_name=setup_name,
-                                                                       additional_apps=additional_apps,
-                                                                       ansible_path=ansible_path)
+            if additional_apps:
+                SonicInstallationSteps.install_app_extension_sonic(dut_name=dut['dut_name'], setup_name=setup_name,
+                                                                   additional_apps=additional_apps,
+                                                                   ansible_path=ansible_path,
+                                                                   sonic_topo=sonic_topo)
+
         # This check is for swb respin r-anaconda-15, only the SONiC image with hw-management version
         # higher than 7.0020.3100 runs properly on this dut, stop the regression if the image is not suitable
         for dut in setup_info['duts']:
@@ -574,22 +562,7 @@ class SonicInstallationSteps:
             reboot_validation(ansible_path=ansible_path, reboot=reboot, dut_name=dut_name, sonic_topo=sonic_topo)
 
     @staticmethod
-    def install_wjh_sonic(dut_name, sonic_topo, additional_apps, ansible_path):
-        """
-        Install WJH
-        :param dut_name: dut name
-        :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
-        :param additional_apps: additional apps
-        :param ansible_path: path to ansible directory
-        """
-        wjh_deb_url_arg = '{}{}'.format(MarsConstants.HTTP_SERVER_NBU_NFS, additional_apps)
-        if wjh_deb_url_arg:
-            with allure.step("Install WJH"):
-                SonicInstallationSteps.install_wjh(ansible_path=ansible_path, dut_name=dut_name,
-                                                   sonic_topo=sonic_topo, wjh_deb_url=wjh_deb_url_arg)
-
-    @staticmethod
-    def install_app_extension_sonic(dut_name, setup_name, additional_apps, ansible_path):
+    def install_app_extension_sonic(dut_name, setup_name, additional_apps, ansible_path, sonic_topo):
         """
         Install supported app extension
         :param dut_name: dut name
@@ -603,7 +576,8 @@ class SonicInstallationSteps:
                 SonicInstallationSteps.install_supported_app_extensions(ansible_path=ansible_path,
                                                                         setup_name=setup_name,
                                                                         app_extension_dict_path=app_extension_dict_path,
-                                                                        dut_name=dut_name)
+                                                                        dut_name=dut_name,
+                                                                        sonic_topo=sonic_topo)
 
     @staticmethod
     def verify_hw_management_version(engine):

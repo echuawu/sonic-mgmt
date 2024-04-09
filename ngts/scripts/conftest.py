@@ -18,6 +18,7 @@ def pytest_addoption(parser):
                                                             'i.e  --dockers_list=database,swss '
                                                             'will verify database and swss dockers are up',
                      default=",".join(SonicConst.DOCKERS_LIST))
+    parser.addoption('--dut_name', action='store', default=None, help='DUT name, example: r-tigris-06')
 
 
 @pytest.fixture(scope='function')
@@ -48,3 +49,13 @@ def sonic_topo(request):
     :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
     """
     return request.config.getoption('--sonic-topo')
+
+
+@pytest.fixture(scope='session')
+def dut_name(request):
+    """
+    Method for get dut name from pytest arguments
+    :param request: pytest builtin
+    :return: dut name
+    """
+    return request.config.getoption('--dut_name')
