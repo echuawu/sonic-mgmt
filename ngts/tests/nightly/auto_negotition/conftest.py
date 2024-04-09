@@ -355,7 +355,11 @@ def ports_spec_compliance(topology_obj, engines, cable_compliance_info):
     eeprom_info_per_port = parse_show_interfaces_transceiver_eeprom(cable_compliance_info)
     ports_compliance = dict()
     for port_name, port_info in eeprom_info_per_port.items():
-        ports_compliance[port_name] = parse_port_compliance(port_info)
+        # RJ45 cables shouldn't be skipped on all auto-neg cases despite not having eeprom data
+        if port_info['Status'] == CableComplianceConst.UNDETECTED_RJ45_EEPROM_MSG:
+            ports_compliance[port_name] = CableComplianceConst.DEFAULT_CABLE_COMPLIANCE_TUPLE
+        else:
+            ports_compliance[port_name] = parse_port_compliance(port_info)
     return ports_compliance
 
 

@@ -1460,7 +1460,7 @@ class CableComplianceConst:
     SPEC_COMPLIANCE_PREFIX = "Specification compliance"
     SFP_COMPLIANCE = "SFP+CableTechnology"
     UNDETECTED_EEPROM_MSG = "SFP EEPROM Not detected"
-    # Used to simulate cable which supports auto-neg by default like in simx
+    UNDETECTED_RJ45_EEPROM_MSG = "SFP EEPROM is not applicable for RJ45 port"
     SUPPORTED_CABLE_DEFAULT = "Cable Always Supports Auto-Neg"
     DEFAULT_CABLE_COMPLIANCE_TUPLE = (SUPPORTED_CABLE_DEFAULT, SUPPORTED_CABLE_DEFAULT)
     SUPPORTED_SPECIFICATION_COMPLIANCE = {SPEC_COMPLIANCE_PREFIX: ["passive_copper_media_interface"],
