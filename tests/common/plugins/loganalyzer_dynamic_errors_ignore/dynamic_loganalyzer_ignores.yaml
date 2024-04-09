@@ -4137,6 +4137,7 @@
     - '.*ERR pmon#xcvrd: AttributeError: .*NoneType.* object has no attribute .*VDM_REAL_VALUE.*.*'
     - '.*ERR pmon#xcvrd: Xcvrd: exception found at child thread DomInfoUpdateTask due to AttributeError\(.*NoneType.* object has no attribute .*VDM_REAL_VALUE.*\).*'
     - '.*ERR pmon#xcvrd: Exiting main loop as child thread raised exception!.*'
+    - '.* ERR pmon#xcvrd:\s*\^*'
   Conditions:
   - Redmine:
     - 3836978
