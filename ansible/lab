@@ -76,7 +76,7 @@ r-panther-22      ansible_host=10.210.25.198 ansible_hostv6="fe80::e42:a1ff:fe44
 r-ocelot-02      ansible_host=10.210.25.183 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-lionfish-16      ansible_host=10.210.25.148 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3420" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-lionfish-14      ansible_host=10.210.25.146 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3420" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-lionfish-13      ansible_host=10.210.25.145 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3420" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
+r-lionfish-13      ansible_hostv6="fcfc:fcfc:210:24:e42:a1ff:fe60:6400" sonic_version=v2 hwsku="ACS-MSN3420" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-lionfish-07      ansible_host=10.210.25.107 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3420" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-tigon-15      ansible_host=10.210.24.52 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4600C" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-liger-02      ansible_host=10.210.25.88 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000

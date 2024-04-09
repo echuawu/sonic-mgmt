@@ -25,7 +25,7 @@ from retry.api import retry_call
 # Home-brew libs
 from lib import constants
 from lib.utils import parse_topology, get_logger
-
+from ipaddress import IPv6Interface
 logger = get_logger("UpdateDocker")
 
 CONTAINER_IFACE = "eth0"
@@ -128,12 +128,16 @@ def create_mgmt_network(conn):
 
         ip_info = conn.run("ip addr | grep  -A1 ' '{} | grep 'inet'".format(ip_iface)).stdout.strip()
         our_addr = ip_info.split()[1].split('/')[0]
-
         net_info_data = conn.run('ip route | grep -m1 "scope link src {}"'.format(our_addr)).stdout.strip()
         net_info = net_info_data.split()[0]
 
-        cmd = 'docker network create -d macvlan --gateway={} --subnet={} -o parent={} {}'.format(ip_gw, net_info,
-                                                                                                 ip_iface, NETWORK_NAME)
+        ipv6_info = conn.run("ip -6 addr | grep  -A1 ' '{} | grep 'inet6'".format(ip_iface)).stdout.strip()
+        our_addr_v6 = ipv6_info.split()[1]
+        ipv6 = IPv6Interface(our_addr_v6)
+        ipv6_net_info = str(ipv6.network)
+        ipv6_gw = str(ipv6.network.network_address) + "1"
+
+        cmd = 'docker network create -d macvlan --ipv6 --gateway={} --subnet={} --gateway={} --subnet={} -o parent={} {}'.format(ip_gw, net_info, ipv6_gw, ipv6_net_info, ip_iface, NETWORK_NAME)
         conn.run(cmd)
         if not conn.run(GET_NETWORK_CMD, warn=True).stdout.strip():
             raise Exception("Docker mgmt network was not created!")
@@ -271,15 +275,16 @@ def configure_docker_route(conn, container_name):
             if CONTAINER_IFACE in interface_data['ifname']:
                 available_ip = interface_data['addr_info']
                 for ip_data in available_ip:
-                    cmd = 'ip addr del {}/{} dev {}'.format(ip_data['local'], ip_data['prefixlen'], CONTAINER_IFACE)
-                    conn.run('docker exec {CONTAINER_NAME} bash -c "sudo {CMD}"'
-                             .format(CONTAINER_NAME=container_name, CMD=cmd))
+                    if ip_data['family'] == "inet":
+                        cmd = 'ip addr del {}/{} dev {}'.format(ip_data['local'], ip_data['prefixlen'], CONTAINER_IFACE)
+                        conn.run('docker exec {CONTAINER_NAME} bash -c "sudo {CMD}"'
+                                 .format(CONTAINER_NAME=container_name, CMD=cmd))
 
         # Connect default bridge network in container which will be used for access hypervisor IP
         conn.run('docker network connect bridge {CONTAINER_NAME}'.format(CONTAINER_NAME=container_name))
         # Remove default route via "bridge" network(added by default after connect network)
         conn.run('docker exec {CONTAINER_NAME} bash -c "sudo ip route del default"'
-                 .format(CONTAINER_NAME=container_name))
+                 .format(CONTAINER_NAME=container_name), warn=True)
         # Get hypervisor IP in "bridge" network
         parser_line = '{{ .NetworkSettings.Networks.bridge.Gateway }}'
         hyper_local_ip = conn.run("docker inspect -f '{}' {}".format(parser_line, container_name)).stdout.strip()
@@ -392,7 +397,7 @@ def main():
 
 def get_docker_default_tag(docker_name):
     latest = "latest"
-    default_list = {'docker-ngts': '1.2.295'}
+    default_list = {'docker-ngts': '1.2.298'}
     return default_list.get(docker_name, latest)
 
 
