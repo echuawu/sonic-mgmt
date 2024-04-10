@@ -1654,12 +1654,6 @@ platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[r-moose-02-cpu]:
     conditions:
       - "https://redmine.mellanox.com/issues/3413737"
 
-platform_tests/test_reload_config.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639 on dpu"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
-
 system_health/test_system_health.py::test_external_checker:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
@@ -1937,18 +1931,6 @@ platform_tests/test_cpu_memory_usage.py::test_cpu_memory_usage:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3754090"
     conditions:
       - "https://redmine.mellanox.com/issues/3754090 and 'nvda_bf' in platform"
-
-platform_tests/test_reboot.py::test_cold_reboot:
-  skip:
-    reason: "Testcase ignored on master and bluefield branches due to RM issue: https://redmine.mellanox.com/issues/3748639"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and branch in ['master', 'bluefield']"
-
-platform_tests/test_reboot.py::test_continuous_reboot:
-  skip:
-    reason: "Testcase ignored on master and bluefield branches due to RM issue: https://redmine.mellanox.com/issues/3748639"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and branch in ['master', 'bluefield']"
 
 dash/test_relaxed_match_negative.py::test_relaxed_match_invalid_port:
   skip:
@@ -2469,18 +2451,6 @@ platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_kill_and_start_st
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3771095"
     conditions:
       - "https://redmine.mellanox.com/issues/3771095 and 'nvda_bf' in platform"
-
-platform_tests/daemon/test_pcied.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
-
-platform_tests/daemon/test_syseepromd.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3748639"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
 bgp/test_bgp_update_timer.py::test_bgp_update_timer_single_route:
   xfail:
