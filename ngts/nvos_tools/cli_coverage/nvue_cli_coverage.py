@@ -316,7 +316,7 @@ class NVUECliCoverage:
                     cls.swversion = release.replace("-", ".")
                     cls.build_id = nvos_version.replace("nvos-", "")
                 if not cls.system_type:  # only init it once per session
-                    cls.system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show('hardware')).get_returned_value()['product-name']
+                    cls.system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show()).get_returned_value()['product-name']
 
                 with allure.step("Get full_commands list"):
                     result_obj = cls.get_full_command_list(cls.engine, cls.project, cls.swversion)
