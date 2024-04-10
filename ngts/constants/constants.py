@@ -1158,7 +1158,7 @@ class MarsConstants:
     FANOUT_DEVICE_ID = "FANOUT"
     SONIC_MGMT_DIR = '/root/mars/workspace/sonic-mgmt/'
     UPDATED_FW_TAR_PATH = 'tests/platform_tests/fwutil/firmware.json'
-    HTTP_SERVER_NBU_NFS = 'http://nbu-nfs.mellanox.com'
+    HTTP_SERVER_NBU_NFS = 'http://nbu-mtr-nfs.nvidia.com'
 
     DOCKER_SONIC_MGMT_IMAGE_NAME = "docker-sonic-mgmt"
     DOCKER_NGTS_IMAGE_NAME = "docker-ngts"

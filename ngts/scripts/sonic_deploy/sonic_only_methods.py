@@ -466,7 +466,7 @@ class SonicInstallationSteps:
         try:
             # TODO: Temp workaround for overcoming ipv6 ssh issue
             os.system("sudo /bin/sh -c 'echo \"precedence ::ffff:0:0/96 100\" >> /etc/gai.conf'")
-            # when bgp is up, dut can not access the external IP such as nbu-nfs.mellanox.com. So shutdown bgp
+            # when bgp is up, dut can not access the external IP such as nbu-mtr-nfs.nvidia.com. So shutdown bgp
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:
                 with allure.step('Shutdown bgp'):
