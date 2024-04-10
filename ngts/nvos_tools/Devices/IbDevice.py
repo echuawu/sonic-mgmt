@@ -382,10 +382,11 @@ class IbSwitch(BaseSwitch):
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):
-        engine.send_config_set(cmd_list, exit_config_mode=False, cmd_verify=False)
-
+        return engine.send_config_set(cmd_list, exit_config_mode=False, cmd_verify=False)
 
 # -------------------------- Gorilla Switch ----------------------------
+
+
 class GorillaSwitch(IbSwitch):
 
     def __init__(self, asic_amount=1):

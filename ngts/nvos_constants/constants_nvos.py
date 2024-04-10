@@ -253,6 +253,7 @@ class ActionConsts:
     UPLOAD = 'upload'
     RENAME = 'rename'
     RESET = 'reset'
+    RESUME = 'resume'
 
 
 class SystemConsts:
@@ -279,7 +280,6 @@ class SystemConsts:
     DATE_TIME = 'date-time'
     VERSION = 'version'
     SECURITY = 'security'
-    DATE_TIME = 'date-time'
     TECHSUPPORT_FILES_PATH = '/host/dump/'
     TECHSUPPORT_EMPTY_FILES_TO_IGNORE = ['queue.counters_2', 'queue.counters_1.0', 'swapon',
                                          'queue.counters_1', 'queue.counters_2.0']
@@ -1009,13 +1009,27 @@ class HealthConsts:
     HEALTH_FIRST_FILE = "health_history"
     HEALTH_SECOND_FILE = "health_history.1"
     HEALTH_MONITOR_CONFIG_FILE_PATH = "/usr/share/sonic/device/{}/system_health_monitoring_config.json"
+    ISSUE = "issue"
     ISSUES = "issues"
+    ASIC_HEALTH_ISSUE = "ASIC-HEALTH"
     SUMMARY_REGEX_OK = "INFO {} : Summary: {}".format(NvosConst.DATE_TIME_REGEX, OK)
     SUMMARY_REGEX_NOT_OK = "ERROR {} : Summary: {}".format(NvosConst.DATE_TIME_REGEX, NOT_OK)
     ADD_STATUS_TO_SUMMARY_REGEX = NvosConst.DATE_TIME_REGEX + " : Summary:.*"
     HEALTH_ISSUE_REGEX = "ERROR {time_regex} : {component}: (?:is )?{issue}"
     HEALTH_FIX_REGEX = "INFO {time_regex} : Cleared: {component}: (?:is )?{issue}"
     SYSTEM_LOG_HEALTH_REGEX = '.* Health DB change cache.* new data.*\'summary\': \'{}\''
+
+    FATAL = "FATAL"
+    ASIC_HEALTH_ISSUE_FATAL = "Switch ASIC in fatal mode."
+    FATAL_PROMPT = "[System_Fatal_State]"
+    FATAL_FILE = "/etc/system_fatal"
+    FATAL_HEALTH_EVENT_SIMULATION = {
+        4: "echo health_check_trigger  sx_dbg_test_fw_assert {asic} > /proc/mlx_sx/sx_core",
+        5: "echo health_check_trigger  sx_dbg_test_fw_fatal_cause {asic} > /proc/mlx_sx/sx_core",
+        # todo: more events and warnings
+        "warning": "echo health_check_trigger catas {asic} > /proc/mlx_sx/sx_core",
+    }
+    FATAL_EVENT_IDS = (4, 5)
 
 
 class OperationTimeConsts:

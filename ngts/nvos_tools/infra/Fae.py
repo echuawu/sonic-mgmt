@@ -23,7 +23,6 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Health import Health
-from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
@@ -33,7 +32,7 @@ class Fae(BaseComponent):
     def __init__(self, parent_obj=None, port_name='eth0'):
         super().__init__(parent=parent_obj,
                          api={ApiType.NVUE: NvueBaseCli, ApiType.OPENAPI: OpenApiBaseCli}, path='/fae')
-        self.system = System(self)
+        self.system = FaeSystem(self)
         self.firmware = Firmware(self)
         self.ipoibmapping = BaseComponent(self, path='/ipoib-mapping')
         self.health = Health(self)
@@ -136,3 +135,11 @@ class FaeCpldComponent(FaePlatformComponent):
                     return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
             else:
                 raise
+
+
+class FaeSystem(BaseComponent):
+    def __init__(self, parent_obj=None):
+        super().__init__(parent=parent_obj, path='/system')
+        self.events = BaseComponent(self, path='/events')
+        self.fatal = BaseComponent(self, path='/fatal')
+        self.fatal.monitor = BaseComponent(self.fatal, path='/monitor')
