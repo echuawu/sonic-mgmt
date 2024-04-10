@@ -12,6 +12,7 @@ class PytestConst:
     CUSTOM_SKIP_IF_DICT = 'custom_skip_if_dict'
     CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
     CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
+    CUSTOM_TEST_SKIP_IMAGE_TYPE = "dynamic_tests_skip_image_type"
     LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
     GET_DUMP_AT_TEST_FALIURE = "GET_DUMP"
     IS_SANITIZER_IMAGE = 'IS_SANITIZER_IMAGE'
@@ -48,6 +49,7 @@ class SonicConst:
     SONIC_CONFIG_FOLDER = '/etc/sonic/'
     PORT_CONFIG_INI = 'port_config.ini'
     CONFIG_DB_JSON = 'config_db.json'
+    CONFIG_DB_GNMI_JSON = 'config_db_gnmi.json'
     EXTENDED_CONFIG_DB_PATH = "extended_config_db.json"
     CONFIG_DB_JSON_PATH = SONIC_CONFIG_FOLDER + CONFIG_DB_JSON
     PLATFORM_JSON_PATH = "/usr/share/sonic/device/{PLATFORM}/platform.json"
@@ -160,6 +162,7 @@ class LinuxConsts:
     error_exit_code = 1
     linux = 'linux'
     JERUSALEM_TIMEZONE = 'Asia/Jerusalem'
+    ETC_UTC_TIMEZONE = 'Etc/UTC'
 
 
 class TopologyConsts:
@@ -214,6 +217,7 @@ class AutonegCommandConstants:
     FEC_OPER = "FEC Oper"
     FEC_ADMIN = "FEC Admin"
     WIDTH = "Width"
+    CABLE_SPEED = "Supported Cable Speed"
     REGEX_PARSE_EXPRESSION_FOR_MLXLINK = {
         ADMIN: (r"State\s*:\s*(\w*)", "Active", "up", "down", None),
         OPER: (r"Physical state\s*:\s*(.*)", "LinkUp|ENABLE", "up", "down", None),
@@ -221,7 +225,9 @@ class AutonegCommandConstants:
         WIDTH: (r"Width\s*:\s*(\d+)x", None, None, None, None),
         FEC: (r"FEC\s*:\s*(.*)", "No FEC", "none", None, None),
         AUTONEG_MODE: (r"Auto Negotiation\s*:\s*(\w*\s*-*\s*\d*\w_*\d*X*|ON)",
-                       r"FORCE\s+-\s+\d+\w_*\d*X*|ON", "enabled", "disabled", "Force")
+                       r"FORCE\s+-\s+\d+\w_*\d*X*|ON", "enabled", "disabled", "Force"),
+        CABLE_SPEED: (r"Supported Cable Speed (?:\(Ext.\))?\s+:\s+0x[0-9a-z]+\s+\(([\w.,]+)\)",
+                      None, None, None, None)
     }
 
 
@@ -238,6 +244,7 @@ class PlatformTypesConstants:
     FILTERED_PLATFORM_ANACONDA_C = "MSN3700C"
     FILTERED_PLATFORM_LIONFISH = "MSN3420"
     FILTERED_PLATFORM_TIGRIS = "MSN3800"
+    FILTERED_PLATFORM_BOBCAT = "SN4280"
     FILTERED_PLATFORM_LIGER = "MSN4600"
     FILTERED_PLATFORM_LEOPARD = "MSN4700"
     FILTERED_PLATFORM_TIGON = "MSN4600C"
@@ -309,6 +316,11 @@ class InterfacesTypeConstants:
     }
     INTERFACE_TYPE_SUPPORTED_SPEEDS_SPC3 = {
         PlatformTypesConstants.FILTERED_PLATFORM_OCELOT: {
+            SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
+            SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
+            SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G', '400G']}
+        },
+        PlatformTypesConstants.FILTERED_PLATFORM_BOBCAT: {
             SonicConst.PORT_LANE_NUM_1: {'CR': ['1G', '10G', '25G', '50G']},
             SonicConst.PORT_LANE_NUM_2: {'CR2': ['50G', '100G']},
             SonicConst.PORT_LANE_NUM_4: {'CR4': ['40G', '100G', '200G', '400G']}
@@ -524,6 +536,53 @@ class FecConstants:
 
     FEC_MODES_SPC3_SPEED_SUPPORT = {
         PlatformTypesConstants.FILTERED_PLATFORM_LEOPARD: {
+            SonicConst.FEC_FC_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
+            },
+            SonicConst.FEC_RS_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2'],
+                                              '200G': ['CR4'],
+                                              '400G': ['CR8']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2'],
+                                              '200G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR'],
+                                              '100G': ['CR2']
+                                              },
+            },
+            SonicConst.FEC_NONE_MODE: {
+                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
+                                              },
+                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                                              '25G': ['CR'],
+                                              '50G': ['CR2']
+                                              }
+            }
+        },
+        PlatformTypesConstants.FILTERED_PLATFORM_BOBCAT: {
             SonicConst.FEC_FC_MODE: {
                 SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
                                               '50G': ['CR2']
@@ -1394,6 +1453,27 @@ class GnmiConsts:
     REDIS_CMD_DB_NAME = "redis_cmd_db_num"
     REDIS_CMD_TABLE_NAME = "redis_cmd_table"
     REDIS_CMD_PARAM = "redis_cmd_param"
+
+
+class CableComplianceConst:
+    EXTENDED_SPEC_COMPLIANCE_PREFIX = "Extended Specification Compliance"
+    SPEC_COMPLIANCE_PREFIX = "Specification compliance"
+    SFP_COMPLIANCE = "SFP+CableTechnology"
+    UNDETECTED_EEPROM_MSG = "SFP EEPROM Not detected"
+    # Used to simulate cable which supports auto-neg by default like in simx
+    SUPPORTED_CABLE_DEFAULT = "Cable Always Supports Auto-Neg"
+    DEFAULT_CABLE_COMPLIANCE_TUPLE = (SUPPORTED_CABLE_DEFAULT, SUPPORTED_CABLE_DEFAULT)
+    SUPPORTED_SPECIFICATION_COMPLIANCE = {SPEC_COMPLIANCE_PREFIX: ["passive_copper_media_interface"],
+                                          SFP_COMPLIANCE: ["Passive Cable"],
+                                          # This following regex will match the pattern iff it
+                                          # contains a iGBASE-?R and for each iGBASE-?R, ?=C
+                                          EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"^(?=.*\d+GBASE-CR)(?!\d+GBASE-[^C]R).*$"],
+                                          SUPPORTED_CABLE_DEFAULT: [".*"]  # which match anything
+                                          }
+    UNSUPPORTED_SPECIFICATION_COMPLIANCE = {
+        SPEC_COMPLIANCE_PREFIX: ["active_cable_media_interface", "sm_media_interface",
+                                 "nm_850_media_interface"],
+        EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC"]}
 
 
 SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42']

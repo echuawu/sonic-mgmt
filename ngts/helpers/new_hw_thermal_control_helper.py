@@ -390,7 +390,7 @@ def collect_sensors_info(cli_objects, dut):
     SENSOR_DATA["fan_drwr_capacity"] = fan_drwr_capacity
     SENSOR_DATA["fan_drwr_num"] = sensors_counter['fan_drwr']
     SENSOR_DATA["system_fan_dir"] = get_system_fan_dir(dut)
-    return get_tested_sensor_list(sensors_counter, dut)
+    return get_tested_sensor_list(sensors_counter, dut, cli_object_dut)
 
 
 def update_thermal_sensors_counter(sensors_counter, reg_sensor_file_name, sensor_name, thermal_file_list):
@@ -431,7 +431,7 @@ def get_system_fan_dir(dut):
     return sys_fan_dir
 
 
-def get_tested_sensor_list(sensors_counter, dut):
+def get_tested_sensor_list(sensors_counter, dut, cli_object_dut):
     sensor_temperature_test_list = []
     for sensor in SENSOR_TEMPERATURE_TEST_LIST:
         if sensor in sensors_counter and sensors_counter[sensor] > 0:
@@ -442,6 +442,10 @@ def get_tested_sensor_list(sensors_counter, dut):
             SENSOR_DATA["module"]["index supporting sensor"] = module_index_supporting_sensor_list
         else:
             sensor_temperature_test_list.remove("module")
+
+    not_support_asic_platform_list = ["x86_64-nvidia_sn4280_simx-r0"]
+    if cli_object_dut.chassis.get_platform() in not_support_asic_platform_list:
+        sensor_temperature_test_list.remove("asic")
 
     if not sensor_temperature_test_list:
         raise Exception("No sensor is available for testing ")

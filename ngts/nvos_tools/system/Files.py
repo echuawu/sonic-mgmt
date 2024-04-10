@@ -5,6 +5,7 @@ from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.DefaultDict import DefaultDict
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -48,35 +49,39 @@ class File(BaseComponent):
         super().__init__(parent=parent, path=f'/{filename}' if filename else '')
         self.file_name = filename
 
-    def show_file(self, exit_cmd='', dut_engine=None):
+    def show_file(self, exit_cmd='', dut_engine=None) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
         with allure.step(f'Execute show for file and exit cmd {exit_cmd}'):
             return SendCommandTool.execute_command(self._cli_wrapper.show_file, engine, self.file_name,
                                                    exit_cmd).get_returned_value()
 
-    def action_upload(self, upload_path, expected_str="", dut_engine=None, should_succeed=True):
+    def action_upload(self, upload_path, expected_str="", dut_engine=None, should_succeed=True) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
+        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Upload file {resource_path} to '{upload_path}'"):
-            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action_files, expected_str,
-                                                                engine, 'upload', resource_path,
+            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action, expected_str,
+                                                                engine, device, 'upload', resource_path,
                                                                 upload_path).get_returned_value(should_succeed)
 
-    def action_delete(self, expected_str="", dut_engine=None, should_succeed=True):
+    def action_delete(self, expected_str="", dut_engine=None, should_succeed=True) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
+        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Delete file: {resource_path}"):
-            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action_files, expected_str, engine,
-                                                                'delete',
+            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action, expected_str,
+                                                                engine, device, 'delete',
                                                                 resource_path).get_returned_value(should_succeed)
 
-    def action_rename(self, new_name, expected_str="", rewrite_file_name=True, dut_engine=None, should_succeed=True):
+    def action_rename(self, new_name, expected_str="", rewrite_file_name=True, dut_engine=None, should_succeed=True
+                      ) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
+        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Rename file: {resource_path} to: {new_name}"):
-            result = SendCommandTool.execute_command_expected_str(self._cli_wrapper.action_files, expected_str, engine,
-                                                                  'rename', resource_path,
-                                                                  new_name).get_returned_value(should_succeed)
+            result = SendCommandTool.execute_command_expected_str(self._cli_wrapper.action, expected_str, engine,
+                                                                  device, 'rename', resource_path, new_name
+                                                                  ).get_returned_value(should_succeed)
             if result and rewrite_file_name:
                 parent: Files = self.parent_obj
                 if self.file_name in parent.file_name:
@@ -86,16 +91,16 @@ class File(BaseComponent):
                 self._resource_path = f'/{new_name}'
             return result
 
-    def action_file_install(self, expected_str="", op_param="force", dut_engine=None):
+    def action_file_install(self, expected_str="", op_param="force", dut_engine=None) -> ResultObj:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
+        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Install file: {resource_path}"):
-            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action_files,
-                                                                expected_str, engine, 'install',
-                                                                resource_path, op_param)
+            return SendCommandTool.execute_command_expected_str(self._cli_wrapper.action, expected_str,
+                                                                engine, device, 'install', resource_path, op_param)
 
     def action_file_install_with_reboot(self, expected_str="", op_param="force", engine=None, device=None,
-                                        recovery_engine=None):
+                                        recovery_engine=None) -> ResultObj:
         engine = engine if engine else TestToolkit.engines.dut
         device = device if device else TestToolkit.devices.dut
         resource_path = self.get_resource_path()

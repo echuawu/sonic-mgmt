@@ -405,8 +405,11 @@ class SonicInstallationSteps:
                     general_cli_obj.save_configuration()
 
             # TODO: Remove this WA when RM 3796847 resolved
-            cli = setup_info['duts'][0]['cli_obj']
-            cli.remove_snmp_ipv6_addr()
+            if is_redmine_issue_active([3796847]):
+                for dut in setup_info['duts']:
+                    cli = dut['cli_obj']
+                    cli.remove_minigraph_ipv6_mgmt_interface()
+                    cli.remove_snmp_ipv6_addr()
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                 ansible_path=ansible_path)

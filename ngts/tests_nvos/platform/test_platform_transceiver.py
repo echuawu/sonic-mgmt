@@ -19,6 +19,9 @@ MODULE_STATUS_DICT = {"Inserted": {"N/A", "Power budget exceeded", "Long range f
                                    "PCIE system power slot exceeded"},
                       "Removed": {"N/A"}}
 
+# todo: fix these tests, then add them to nvos-tool/mars/cases/platform/nvos_platform.cases
+# todo: also cumulus_platform.cases ?
+
 
 @pytest.mark.platform
 @pytest.mark.ib
@@ -118,9 +121,9 @@ def test_transceiver_status_with_reboot(engines, devices, test_api):
 
 def _verify_transceiver_status(platform, transceiver_id='sw1', expected_module_status='Inserted',
                                expected_error_status='N/A'):
-    with allure.step("Check module-status and module-error-status exists in nv show platform hardware transceiver"):
+    with allure.step("Check module-status and module-error-status exists in nv show platform transceiver"):
         transceiver_output = OutputParsingTool.parse_json_str_to_dictionary(
-            platform.hardware.transceiver.show(transceiver_id)).get_returned_value()
+            platform.transceiver.show(transceiver_id)).get_returned_value()
         fields_to_check = [PlatformConsts.TRANSCEIVER_STATUS, PlatformConsts.TRANSCEIVER_ERROR_STATUS]
         Tools.ValidationTool.verify_field_exist_in_json_output(transceiver_output, fields_to_check). \
             verify_result()

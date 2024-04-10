@@ -40,6 +40,25 @@ def config_reload_after_tests(duthosts, rand_one_dut_hostname):
     config_reload(duthost)
 
 
+@pytest.fixture()
+def config_reload_on_failure(request, duthosts, rand_one_dut_hostname):
+    """Fixture to perform reload on test failure, used when the test case could affect the cases that come after it.
+
+    Args:
+    duthosts: duthosts fixture.
+    rand_one_dut_hostname: rand_one_dut_hostname fixture
+    request: pytest builtin
+
+    Returns:
+        None.
+    """
+    duthost = duthosts[rand_one_dut_hostname]
+    yield
+    if request.node.rep_call.failed:
+        logger.info(f"Preforming config_reload after failure of {request.node.name}\n")
+        config_reload(duthost)
+
+
 @pytest.fixture(autouse=True, scope='module')
 def disable_and_enable_autorestart(duthosts, rand_one_dut_hostname):
     """Changes the autorestart of containers from `enabled` to `disabled` before testing.
@@ -546,7 +565,8 @@ def ensure_all_critical_processes_running(duthost, containers_in_namespaces):
                     ensure_process_is_running(duthost, container_name_in_namespace, program_name)
 
 
-def test_monitoring_critical_processes(duthosts, rand_one_dut_hostname, tbinfo, skip_vendor_specific_container):
+def test_monitoring_critical_processes(duthosts, rand_one_dut_hostname, tbinfo, skip_vendor_specific_container,
+                                       config_reload_on_failure):
     """Tests the feature of monitoring critical processes by Monit and Supervisord.
 
     This function will check whether names of critical processes will appear
@@ -557,6 +577,8 @@ def test_monitoring_critical_processes(duthosts, rand_one_dut_hostname, tbinfo, 
         duthosts: list of DUTs.
         rand_one_dut_hostname: hostname of DUT.
         tbinfo: Testbed information.
+        skip_vendor_specific_container: skip_vendor_specific_container fixture
+        config_reload_on_failure: config_reload_on_failure fixture
 
     Returns:
         None.

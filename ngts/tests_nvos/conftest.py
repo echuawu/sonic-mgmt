@@ -26,8 +26,8 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.tools.test_utils.nvos_config_utils import ib_clear_conf
-from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround
+from ngts.tools.test_utils.nvos_config_utils import clear_conf
+from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround, set_base_configurations, set_base_configurations_cl
 
 logger = logging.getLogger()
 
@@ -253,21 +253,16 @@ def clear_security_config(item):
 def clear_config(markers=None):
     with allure.step("Clear config"):
         if isinstance(TestToolkit.devices.dut, EthSwitch):
-            eth_clear_config()
+            clear_switch_config(markers, set_base_config_function=set_base_configurations_cl)
         else:
-            ib_clear_config(markers)
+            clear_switch_config(markers, set_base_config_function=set_base_configurations)
 
 
-def eth_clear_config():
-    logging.info("Ethernet clear config")
-    pass
-
-
-def ib_clear_config(markers=None):
-    logging.info("Nvos clear config")
+def clear_switch_config(markers=None, set_base_config_function=None):
+    logging.info("Clear config")
     try:
         TestToolkit.update_apis(ApiType.NVUE)
-        ib_clear_conf(TestToolkit.engines.dut, markers)
+        clear_conf(TestToolkit.engines.dut, markers, set_base_config_function)
     except Exception as err:
         logging.warning("Failed to clear config:" + str(err))
     finally:

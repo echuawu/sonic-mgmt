@@ -295,7 +295,7 @@ def verify_the_setup_is_functional(system, engines, had_sm_before_test=True):
 
     if had_sm_before_test:
         with allure.step("Start OpenSM"):
-            OpenSmTool.start_open_sm(engines).verify_result(had_sm_before_test)
+            OpenSmTool.start_open_sm(engines).verify_result()
 
     with allure.step("Run show commands"):
         system.message.show()

@@ -16,6 +16,7 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AaaCo
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tools.test_utils.switch_recovery import generate_strong_password
+from ngts.nvos_tools.Devices.EthDevice import EthSwitch  # temporary, needed until nv unification RM 3735390.
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,10 @@ def show_sys_version(engines):
     """
     with allure.step('Before test case: show system info'):
         system = System()
-        attachment = '\n'.join([system.show(), system.version.show(), NvueGeneralCli.show_config(engines.dut)])
+        if isinstance(TestToolkit.devices.dut, EthSwitch):     # temporary, needed until nv unification RM 3735390.
+            attachment = '\n'.join([system.show(), engines.dut.run_cmd('cat /etc/image-release'), NvueGeneralCli.show_config(engines.dut)])
+        else:
+            attachment = '\n'.join([system.show(), system.version.show(), NvueGeneralCli.show_config(engines.dut)])
         allure.orig_allure.attach(attachment, 'system_version_and_conf', allure.orig_allure.attachment_type.TEXT)
 
 

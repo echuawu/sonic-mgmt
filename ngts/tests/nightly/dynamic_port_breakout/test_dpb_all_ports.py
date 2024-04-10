@@ -14,6 +14,8 @@ from ngts.helpers.reboot_reload_helper import generate_report
 
 logger = logging.getLogger()
 
+FEATURE_TEST = ['ngts/tests/push_build_tests/general/doroce/test_doroce.py::test_doroce']
+
 
 class TestDPBOnAllPorts:
 
@@ -54,10 +56,11 @@ class TestDPBOnAllPorts:
                 logger.info(f'Verify interfaces are in up state after breakout is removed')
                 retry_call(self.cli_object.interface.check_ports_status,
                            fargs=[ports_list],
-                           tries=6, delay=10)
+                           tries=8, delay=10)
         except Exception as e:
             raise e
 
+    @pytest.mark.parametrize("feature_test", FEATURE_TEST)
     @allure.title('Test other feature with Dynamic Port Breakout on all ports')
     def test_feature_with_dpb_on_all_ports(self, feature_test, setup_name):
         if not feature_test:
@@ -71,7 +74,7 @@ class TestDPBOnAllPorts:
               f" --rootdir={MarsConstants.SONIC_MGMT_DIR}/ngts" \
               f" -c {MarsConstants.SONIC_MGMT_DIR}/ngts/pytest.ini --log-level=INFO" \
               f" --clean-alluredir --alluredir=/tmp/allure-results" \
-              f" {MarsConstants.SONIC_MGMT_DIR}{feature_test}"
+              f" {MarsConstants.SONIC_MGMT_DIR}{feature_test} --dynamic_update_skip_reason"
         logger.info("  ##########  Running feature test by cmd  ##########  :\n{}".format(cmd))
         std_out, std_err, rc = run_process_on_host(cmd, timeout=1800)
         generate_report(std_out, std_err)

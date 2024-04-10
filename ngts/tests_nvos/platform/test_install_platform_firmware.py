@@ -3,11 +3,12 @@ import logging
 import pytest
 
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_constants.constants_nvos import NvosConst, PlatformConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -15,19 +16,20 @@ logger = logging.getLogger()
 
 
 @pytest.mark.checklist
-@pytest.mark.system
-def test_install_system_firmware(engines, test_name):
+@pytest.mark.platform
+def test_install_platform_firmware(engines, test_name):
     """
-    Install system firmware test
+    Install platform firmware test
 
     Test flow:
-    1. Install system firmware
+    1. Install platform firmware
     2. Make sure the installed firmware exist in 'installed-firmware'
     3. Reboot the system
     4. Verify the firmware is updated successfully
     5. Install the original firmware
     """
     system = System()
+    platform = Platform()
     fae = Fae()
     fw_has_changed = False
     fw_file_name = "fw-QTM2-rel-31_2012_3008-EVB.mfa"
@@ -53,34 +55,33 @@ def test_install_system_firmware(engines, test_name):
             with allure.step("fetch firmware file to switch"):
                 player_engine = engines['sonic_mgmt']
                 scp_path = 'scp://{}:{}@{}'.format(player_engine.username, player_engine.password, player_engine.ip)
-                system.firmware.action_fetch(scp_path + fw_file)
-                firmware_file = system.firmware.asic.files.file_name[fw_file_name]
-                # firmware_file.action_file_install(op_param="")
+                platform.firmware.asic.action_fetch(fw_file, base_url=scp_path).verify_result()
 
+            with allure.step("Install firmware and verify"):
                 res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,
-                                                                install_new_user_fw, system, new_fw_to_install, fae,
+                                                                install_new_user_fw, system, platform, new_fw_to_install, fae,
                                                                 new_fw_name, actual_firmware, engines, test_name)
                 assert OperationTime.verify_operation_time(duration, 'install user FW'), \
                     'Install user FW took more time than threshold value'
 
-        with allure.step('Verify the firmware installed successfully'):
-            verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, new_fw_name)
-            validate_all_asics_have_same_info()
-            fw_has_changed = True
+            with allure.step('Verify the firmware installed successfully'):
+                verify_firmware_with_platform_and_fae_cmd(platform, fae, new_fw_name, new_fw_name)
+                validate_all_asics_have_same_info()
+                fw_has_changed = True
 
     finally:
         with allure.step("cleanup steps"):
             OperationTime.save_duration('install default fw', 'include reboot', test_name, install_image_fw,
-                                        system, engines, test_name, fw_has_changed)
+                                        system, platform, engines, test_name, fw_has_changed)
 
         with allure.step('Verify the firmware installed successfully'):
-            verify_firmware_with_system_and_fae_cmd(system, fae, actual_firmware, actual_firmware)
+            verify_firmware_with_platform_and_fae_cmd(platform, fae, actual_firmware, actual_firmware)
             validate_all_asics_have_same_info()
 
 
-def install_image_fw(system, engines, test_name, fw_has_changed):
+def install_image_fw(system, platform, engines, test_name, fw_has_changed):
     with allure.step("Install original system firmware file"):
-        system.firmware.asic.set("default", "image", apply=True)
+        platform.firmware.asic.set(PlatformConsts.FW_SOURCE, PlatformConsts.FW_SOURCE_DEFAULT, apply=True)
         NvueGeneralCli.save_config(engines.dut)
 
     with allure.step('Rebooting the dut after image installation'):
@@ -97,12 +98,13 @@ def install_image_fw(system, engines, test_name, fw_has_changed):
         return res
 
 
-def install_new_user_fw(system, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
-    system.firmware.asic.action_install_fw("{}".format(new_fw_to_install))
-    system.firmware.asic.set("default", "user", apply=True)
+def install_new_user_fw(system, platform, new_fw_to_install, fae, new_fw_name, actual_firmware, engines, test_name):
+    platform.firmware.asic.files.file_name[new_fw_to_install].action_file_install(op_param='').verify_result(
+        should_succeed=True)
+    platform.firmware.asic.set(PlatformConsts.FW_SOURCE, PlatformConsts.FW_SOURCE_CUSTOM, apply=True)
 
     with allure.step("Verify installed file can be found in show output"):
-        verify_firmware_with_system_and_fae_cmd(system, fae, new_fw_name, actual_firmware)
+        verify_firmware_with_platform_and_fae_cmd(platform, fae, new_fw_name, actual_firmware)
         validate_all_asics_have_same_info()
         NvueGeneralCli.save_config(engines.dut)
 
@@ -141,9 +143,8 @@ def validate_all_asics_have_same_info():
                 assert asic_info == output_dictionary[asic], "ASICs are different"
 
 
-def verify_firmware_with_system_and_fae_cmd(system, fae, installed_fw, actual_fw):
-    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(system.firmware.asic.show()).get_returned_value()
-    verify_field_value_in_output_for_each_asic(output_dictionary, "installed-firmware", installed_fw)
+def verify_firmware_with_platform_and_fae_cmd(platform, fae, installed_fw, actual_fw):
+    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.asic.show()).get_returned_value()
     verify_field_value_in_output_for_each_asic(output_dictionary, "actual-firmware", actual_fw)
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
         fae.firmware.asic.show()).get_returned_value()

@@ -14,14 +14,13 @@ from perscache import Cache
 
 cache = Cache()
 
-
 logger = logging.getLogger()
 
 
 class DynamicLaConsts:
     CUSTOM_TEST_SKIP_PLATFORM_TYPE = 'dynamic_tests_skip_platform_type'
     CUSTOM_TEST_SKIP_BRANCH_NAME = 'dynamic_tests_skip_branch_name'
-
+    CUSTOM_TEST_SKIP_IMAGE_TYPE = "dynamic_tests_skip_image_type"
     LA_DYNAMIC_IGNORES_LIST = 'LA_DYNAMIC_IGNORES_LIST'
     ERRORS_LIST = 'Errors_list'
     REDMINE = 'Redmine'
@@ -30,6 +29,7 @@ class DynamicLaConsts:
     CONDITIONS = 'Conditions'
     BRANCH = 'Branch'
     GITHUB = 'GitHub'
+    IMAGE_TYPE = 'Image_type'
 
 
 def pytest_collection(session):
@@ -145,6 +145,7 @@ def get_checkers_result(condition_dict_entry, item, operand='or'):
     available_checkers = {DynamicLaConsts.AFFECTED_TEST_CASES: AffectedTestCaseDynamicErrorsIgnore,
                           DynamicLaConsts.PLATFORM: PlatformDynamicErrorsIgnore,
                           DynamicLaConsts.BRANCH: BranchDynamicErrorsIgnore,
+                          DynamicLaConsts.IMAGE_TYPE: ImageTypeDynamicErrorsIgnore,
                           DynamicLaConsts.REDMINE: RedmineDynamicErrorsIgnore,
                           DynamicLaConsts.GITHUB: GitHubDynamicErrorsIgnore}
 
@@ -152,7 +153,8 @@ def get_checkers_result(condition_dict_entry, item, operand='or'):
 
     # Run the less time-consuming checkers first
     checkers_ordered_by_prio_list = [DynamicLaConsts.AFFECTED_TEST_CASES, DynamicLaConsts.PLATFORM,
-                                     DynamicLaConsts.BRANCH, DynamicLaConsts.REDMINE, DynamicLaConsts.GITHUB]
+                                     DynamicLaConsts.IMAGE_TYPE, DynamicLaConsts.BRANCH, DynamicLaConsts.REDMINE,
+                                     DynamicLaConsts.GITHUB]
 
     for checker in checkers_ordered_by_prio_list:
         if checker in condition_dict_entry:
@@ -307,7 +309,8 @@ class PlatformDynamicErrorsIgnore(LaDynamicErrorsIgnore):
         if not platform_type:
             logger.debug('Getting platform from DUT')
             try:
-                show_platform_summary_raw_output = run_cmd_on_dut(self.pytest_item_obj, 'show platform summary').decode()
+                show_platform_summary_raw_output = run_cmd_on_dut(self.pytest_item_obj,
+                                                                  'show platform summary').decode()
                 platform_type = self.get_platform_from_platform_summary(show_platform_summary_raw_output)
                 self.pytest_item_obj.session.config.cache.set(DynamicLaConsts.CUSTOM_TEST_SKIP_PLATFORM_TYPE,
                                                               platform_type)
@@ -349,7 +352,6 @@ class RedmineDynamicErrorsIgnore(LaDynamicErrorsIgnore):
 
     def is_checker_match(self):
         is_errors_ignore_required = True
-
         if self.conditions_dict.get(self.validation_name):
             is_errors_ignore_required = False
             rm_issues_list = self.conditions_dict[self.validation_name]
@@ -428,3 +430,54 @@ class GitHubDynamicErrorsIgnore(LaDynamicErrorsIgnore):
                     break
 
         return is_errors_ignore_required
+
+
+class ImageTypeDynamicErrorsIgnore(LaDynamicErrorsIgnore):
+    def __init__(self, conditions_dict, pytest_item_obj):
+        super(ImageTypeDynamicErrorsIgnore, self).__init__(conditions_dict, pytest_item_obj)
+        self.validation_name = DynamicLaConsts.IMAGE_TYPE
+        self.current_image = self.get_image()
+
+    def is_checker_match(self):
+        is_errors_ignore_required = True
+
+        if self.conditions_dict.get(self.validation_name):
+            is_errors_ignore_required = False
+            image_type_list = self.conditions_dict[self.validation_name]
+            for image_type in image_type_list:
+                if str(image_type).lower() in self.current_image.lower():  # .lower to make it case-insensitive
+                    is_errors_ignore_required = True
+                    break
+        return is_errors_ignore_required
+
+    def get_image(self):
+        """
+        Get current image using ansible and store it in pytest.session.config.cache
+        :return: image - string with current image type
+        """
+        image = self.pytest_item_obj.session.config.cache.get(DynamicLaConsts.CUSTOM_TEST_SKIP_IMAGE_TYPE, None)
+        if not image:
+            logger.debug('Getting image from DUT')
+            try:
+                sonic_installer_list_raw_output = run_cmd_on_dut(self.pytest_item_obj,
+                                                                 'sudo sonic-installer list').decode()
+                image = self.get_image_from_sonic_installer_list(sonic_installer_list_raw_output)
+                self.pytest_item_obj.session.config.cache.set(DynamicLaConsts.CUSTOM_TEST_SKIP_IMAGE_TYPE,
+                                                              image)
+            except Exception as err:
+                logger.error('Unable to get image type. Custom skip by image impossible. Error: {}'.format(err))
+        else:
+            logger.debug('Getting image from pytest cache')
+
+        logger.debug('Current image type is: {}'.format(image))
+        return image
+
+    @staticmethod
+    def get_image_from_sonic_installer_list(sonic_installer_output):
+        """
+        Get image from 'sudo sonic-installer list' output
+        :param sonic_installer_output: 'sudo sonic-installer list' command output
+        :return: string with image, example: 'SONiC-OS-202311_RC.15-271579723_Internal'
+        """
+        image = re.search(r'Current:\s(.*)', sonic_installer_output, re.IGNORECASE).group(1)
+        return image

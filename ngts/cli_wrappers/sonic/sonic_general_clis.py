@@ -904,27 +904,35 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.CONFIG_DB_JSON} {SonicConst.CONFIG_DB_JSON_PATH}')
 
+    def remove_minigraph_ipv6_mgmt_interface(self):
+        logger.info("Remove IPv6 mgmt interface from minigraph.xml")
+        V6HostIP_line_number = self.engine.run_cmd("awk '/V6HostIP/ {print NR}' /etc/sonic/minigraph.xml")
+        if V6HostIP_line_number.isdecimal():
+            V6HostIP_line_number = int(V6HostIP_line_number)
+            start_line_number = V6HostIP_line_number - 1
+            end_line_number = V6HostIP_line_number + 6
+            self.engine.run_cmd(f"sudo sed -i '{start_line_number},{end_line_number}d' /etc/sonic/minigraph.xml")
+
     def remove_snmp_ipv6_addr(self):
-        if is_redmine_issue_active([3796847]):
-            logger.info("Update SNMP config started")
-            config_db = self.cli_obj.general.get_config_db()
-            if 'SNMP_AGENT_ADDRESS_CONFIG' in config_db.keys():
-                logger.info("SNMP_AGENT_ADDRESS_CONFIG in config_db.keys")
-                snmp_config = config_db['SNMP_AGENT_ADDRESS_CONFIG']
-                ipv6_add_to_remove = re.search(r"(\w{4}::.+)", ",".join(snmp_config.keys())).group(1)
-                if ipv6_add_to_remove:
-                    snmp_config.pop(ipv6_add_to_remove)
-                    config_db['SNMP_AGENT_ADDRESS_CONFIG'] = snmp_config
-                    with open('/tmp/config_db.json', 'w') as f:
-                        json.dump(config_db, f, indent=4)
-                    os.chmod('/tmp/config_db.json', 0o777)
-                    self.engine.copy_file(source_file='/tmp/config_db.json',
-                                          dest_file="config_db.json", file_system='/tmp/',
-                                          overwrite_file=True, verify_file=False)
-                    self.engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
-                    self.reload_configuration(force=True)
-                    self.verify_dockers_are_up()
-                    logger.info("Update SNMP config finished")
+        logger.info("Update SNMP config started")
+        config_db = self.cli_obj.general.get_config_db()
+        if 'SNMP_AGENT_ADDRESS_CONFIG' in config_db.keys():
+            logger.info("SNMP_AGENT_ADDRESS_CONFIG in config_db.keys")
+            snmp_config = config_db['SNMP_AGENT_ADDRESS_CONFIG']
+            ipv6_add_to_remove = re.search(r"(\w{4}::.+)", ",".join(snmp_config.keys())).group(1)
+            if ipv6_add_to_remove:
+                snmp_config.pop(ipv6_add_to_remove)
+                config_db['SNMP_AGENT_ADDRESS_CONFIG'] = snmp_config
+                with open('/tmp/config_db.json', 'w') as f:
+                    json.dump(config_db, f, indent=4)
+                os.chmod('/tmp/config_db.json', 0o777)
+                self.engine.copy_file(source_file='/tmp/config_db.json',
+                                      dest_file="config_db.json", file_system='/tmp/',
+                                      overwrite_file=True, verify_file=False)
+                self.engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
+                self.reload_configuration(force=True)
+                self.verify_dockers_are_up()
+                logger.info("Update SNMP config finished")
 
     def update_sai_xml_file(self, platform, hwsku, global_flag=False, local_flags=False):
         switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
@@ -980,8 +988,13 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         tree.write(filepath, encoding="utf-8")
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku):
+        branch = get_sonic_branch(topology_obj)
         config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
-        base_config_db_json = self.get_config_db_json_obj(setup_name)
+        if branch in ['202205', '202211', '202305']:
+            base_config_db_json_file_name = SonicConst.CONFIG_DB_JSON
+        else:
+            base_config_db_json_file_name = SonicConst.CONFIG_DB_GNMI_JSON
+        base_config_db_json = self.get_config_db_json_obj(setup_name, base_config_db_json_file_name)
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
         self.update_config_db_metadata_router(setup_name, config_db_file_name)
         self.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
@@ -995,6 +1008,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         # TODO: WA for the PR: https://github.com/sonic-net/sonic-buildimage/pull/16116,
         #  after the PR merged, it can be removed
         self.update_database_version(setup_name, config_db_file_name)
+        if branch not in ['202205', '202211', '202305']:
+            self.remove_syslog_telemetry_entry(setup_name, config_db_file_name)
         return config_db_file_name
 
     def update_config_db_features(self, setup_name, hwsku, config_db_json_file_name):
@@ -1074,6 +1089,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_1_0_6"
         else:
             config_db_json['VERSIONS']['DATABASE']["VERSION"] = "version_2_0_0"
+        return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
+
+    def remove_syslog_telemetry_entry(self, setup_name, config_db_json_file_name):
+        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        syslog_config_key = "SYSLOG_CONFIG_FEATURE"
+        if syslog_config_key in config_db_json:
+            if "telemetry" in config_db_json[syslog_config_key]:
+                config_db_json[syslog_config_key].pop("telemetry")
         return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_metadata_mgmt_ip(self, setup_name, ip, file_name=SonicConst.CONFIG_DB_JSON):

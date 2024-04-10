@@ -142,12 +142,22 @@ def reboot_reload_random(topology_obj, dut_engine, cli_object, ports, cleanup_li
 
 
 @pytest.fixture()
-def skip_if_active_optical_cable(cable_compliance_info):
+def skip_if_active_optical_cable(mlxcables_info):
     """
-    Fixture that skips test execution in case setup has Active Optical Cable
+    Fixture that skips test execution in case setup has Optical Module
     """
-    if re.search(r"Active\s+Optical\s+Cable", cable_compliance_info, re.IGNORECASE):
-        pytest.skip("This test is not supported because setup has Active Optical Cable")
+    if re.search(r"Optical\s+Module", mlxcables_info, re.IGNORECASE):
+        pytest.skip("This test is not supported because setup has Optical Module")
+
+
+@pytest.fixture(scope='session')
+def mlxcables_info(engines):
+    """
+    Fixture that init cables and retrieve mlxcables command output
+    """
+    engines.dut.run_cmd('sudo mst cable add')
+    cables_info = engines.dut.run_cmd('sudo mlxcables -q')
+    return cables_info
 
 
 @pytest.fixture()

@@ -257,6 +257,15 @@ def get_dut_loopbacks(topology_obj, split=False):
                     dut_loopback_aliases_list))
 
 
+def get_dut_host_loopbacks(interfaces):
+    """
+    :param interfaces: interfaces fixture object
+    :return: a list of loopbacks between dut ports and their matching host ports
+    """
+    return [(interfaces.dut_ha_1, interfaces.ha_dut_1), (interfaces.dut_ha_2, interfaces.ha_dut_2),
+            (interfaces.dut_hb_1, interfaces.hb_dut_1), (interfaces.dut_hb_2, interfaces.hb_dut_2)]
+
+
 @pytest.fixture(scope='session')
 @pytest.mark.usefixtures("hosts_ports")
 def split_mode_supported_speeds(topology_obj, engines, cli_objects, interfaces, hosts_ports, platform):

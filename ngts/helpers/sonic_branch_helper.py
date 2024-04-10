@@ -1,7 +1,9 @@
 import logging
+import re
 
 from paramiko.ssh_exception import SSHException
 from ngts.constants.constants import NvosCliTypes
+
 logger = logging.getLogger()
 
 
@@ -74,3 +76,19 @@ def is_sanitizer_image(topology):
         logger.info("The sonic image has sanitizer")
         is_sanitizer = True
     return is_sanitizer
+
+
+def get_sonic_image(topology):
+    """
+    The function fetches the SONiC image of the dut
+    :param topology: topology fixture object
+    :return: branch name
+    """
+    try:
+        sonic_installer_output = topology.players['dut']['engine'].run_cmd("sudo sonic-installer list")
+        image = re.search(r'Current:\s(.*)', sonic_installer_output, re.IGNORECASE).group(1)
+    except SSHException as err:
+        image = 'Unknown'
+        logger.error(f'Unable to get image. Assuming that the device is not reachable. Setting the image as Unknown. '
+                     f'Got error: {err}')
+    return image

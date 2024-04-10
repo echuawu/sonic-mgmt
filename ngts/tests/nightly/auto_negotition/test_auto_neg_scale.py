@@ -3,19 +3,21 @@ import pytest
 
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
-from ngts.tests.conftest import get_dut_loopbacks
+from ngts.tests.conftest import get_dut_loopbacks, get_dut_host_loopbacks
 from ngts.tests.nightly.auto_negotition.conftest import update_split_2_if_possible, \
-    update_split_4_if_possible, update_split_8_if_possible
+    update_split_4_if_possible, update_split_8_if_possible, ports_spec_compliance, \
+    is_auto_neg_supported_lb, is_auto_neg_supported_port
 
 logger = logging.getLogger()
 
 
 @pytest.fixture()
-def tested_lb_all_dict(topology_obj, engines, interfaces, split_mode_supported_speeds):
+def tested_lb_all_dict(topology_obj, engines, interfaces, split_mode_supported_speeds, ports_spec_compliance):
     """
     This function return a dictionary with all the switch ports for each split mode.
     :param topology_obj: topology fixture object
     :param interfaces: a dictionary with dut <-> hosts interfaces
+    :param ports_spec_compliance: ports_spec_compliance fixture
     :return: a dictionary with all the switch ports for each split mode., i.e,
 
     {1: [('Ethernet4', 'Ethernet8'), ('Ethernet36', 'Ethernet40'), ('Ethernet48', 'Ethernet44'),
@@ -33,11 +35,11 @@ def tested_lb_all_dict(topology_obj, engines, interfaces, split_mode_supported_s
         update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
         update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
     for lb in get_dut_loopbacks(topology_obj):
-        tested_lb_dict[1].append(lb)
-    tested_lb_dict[1].append((interfaces.dut_ha_1, interfaces.ha_dut_1))
-    tested_lb_dict[1].append((interfaces.dut_ha_2, interfaces.ha_dut_2))
-    tested_lb_dict[1].append((interfaces.dut_hb_1, interfaces.hb_dut_1))
-    tested_lb_dict[1].append((interfaces.dut_hb_2, interfaces.hb_dut_2))
+        if is_auto_neg_supported_lb(lb, ports_spec_compliance):
+            tested_lb_dict[1].append(lb)
+    for lb in get_dut_host_loopbacks(interfaces):
+        if is_auto_neg_supported_port(lb[0], ports_spec_compliance):
+            tested_lb_dict[1].append(lb)
     return tested_lb_dict
 
 

@@ -322,7 +322,7 @@ def validate_wjh_table(engines, cmd, table_type, interface, dst_ip, src_ip, prot
                                    src_ip, proto, drop_reason, dst_mac, src_mac)
 
     if not result['result']:
-        pytest.fail("Could not find drop in WJH {} table.\n The table is: \n{}".format(table_type, table))
+        raise Exception(f"Could not find drop in WJH {table_type} table.\nThe table is:\n{table}")
 
 
 def validate_wjh_acl_buffer_table(engines, cmd, table_types, interface, dst_ip, src_ip, proto, drop_reason_message,
@@ -358,7 +358,7 @@ def validate_wjh_acl_buffer_table(engines, cmd, table_types, interface, dst_ip, 
     result = check_if_entry_exists(parsed_tables[0], interface, dst_ip,
                                    src_ip, proto, drop_reason_message, dst_mac, src_mac)
     if not result['result']:
-        pytest.fail("Could not find drop in WJH {} table".format(table_type[0]))
+        raise Exception(f"Could not find drop in WJH {table_types[0]} table.\n The table is: \n {parsed_tables[0]}")
 
     # If the call is from test_buffer, drop reason will be one of these, else, it will be None and this clause will
     # be skipped
@@ -443,9 +443,8 @@ def check_buffer_info_table(table, entry, drop_reason, table_type, is_dynamic_bu
                     latency_watermark != "N/A" and
                     ((latency_exceed_substring in latency_watermark) or int(latency_watermark) > 0)):
                 return
-
-    pytest.fail("Buffer info table is wrong, tc_id = {}, tc_usage = {}, latency = {}, tc_watermark = {}, "
-                "latency_watermark = {}".format(tc_id, tc_usage, latency, tc_watermark, latency_watermark))
+    raise Exception(f"Buffer info table is wrong, tc_id = {tc_id}, tc_usage = {tc_usage}, latency = {latency}, "
+                    f"tc_watermark = {tc_watermark}, latency_watermark = {latency_watermark}")
 
 
 def do_raw_test(engines, cli_object, channel, channel_type, interface, dst_ip, src_ip, proto, drop_reason, dst_mac,
@@ -578,42 +577,46 @@ def test_buffer(drop_reason, engines, topology_obj, players, interfaces, wjh_buf
     }
     ping_validation = {'sender': 'hb', 'args': {'count': 3, 'dst': '40.0.0.2'}}
     ping_checker = PingChecker(players, ping_validation)
-    retry_call(ping_checker.run_validation, fargs=[], tries=5, delay=5, logger=logger)
 
-    with allure.step('Sending iPerf traffic'):
-        logger.info('Sending iPerf traffic')
-        IperfChecker(players, validation).run_validation()
+    try:
+        retry_call(ping_checker.run_validation, fargs=[], tries=5, delay=5, logger=logger)
 
-    ha_ip = '40.0.0.2'
-    hb_ip = '40.0.0.3'
-    drop_reason_message = drop_reason_dict[drop_reason]
-    cli_object = topology_obj.players['dut']['cli']
-    with allure.step('Validating WJH raw table output'):
-        do_acl_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
-                               channel_types=['raw', 'raw_acl_buffer_info'], interface=interfaces.dut_hb_2,
-                               dst_ip=ha_ip,
-                               src_ip=hb_ip, proto='udp', drop_reason_message=drop_reason_message,
-                               dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
-                               command='show what-just-happened poll buffer',
-                               drop_reason=drop_reason, table_separator=utils.BUFFER_TABLE_SEPARATOR)
+        with allure.step('Sending iPerf traffic'):
+            logger.info('Sending iPerf traffic')
+            IperfChecker(players, validation).run_validation()
 
-    with allure.step('Sending iPerf traffic'):
-        logger.info('Sending iPerf traffic')
-        IperfChecker(players, validation).run_validation()
+        ha_ip = '40.0.0.2'
+        hb_ip = '40.0.0.3'
+        drop_reason_message = drop_reason_dict[drop_reason]
+        cli_object = topology_obj.players['dut']['cli']
+        with allure.step('Validating WJH raw table output'):
+            do_acl_buffer_raw_test(engines=engines, cli_object=cli_object, channel='buffer',
+                                   channel_types=['raw', 'raw_acl_buffer_info'], interface=interfaces.dut_hb_2,
+                                   dst_ip=ha_ip,
+                                   src_ip=hb_ip, proto='udp', drop_reason_message=drop_reason_message,
+                                   dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
+                                   command='show what-just-happened poll buffer',
+                                   drop_reason=drop_reason, table_separator=utils.BUFFER_TABLE_SEPARATOR)
 
-    with allure.step('Validating WJH aggregated table output'):
-        # The ip protocol cannot be parsed when the packet is fragmented.
-        # It will be displayed as "ip" in the table.
-        # As Extend WJH linux channel support with current buffer capabilities via WJH lib feature
-        # It will be displayed as "udp" in the pull buffer aggregate table in master and 202311 branch
-        agg_proto = 'ip' if sonic_branch in ['202211', '202305'] else 'udp'
-        do_acl_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
-                               channel_types=['agg', 'agg_acl_buffer_info'], interface=interfaces.dut_hb_2,
-                               dst_ip=ha_ip,
-                               src_ip=hb_ip, proto=agg_proto, drop_reason_message=drop_reason_message,
-                               dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
-                               command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason,
-                               table_separator=utils.BUFFER_TABLE_SEPARATOR)
+        with allure.step('Sending iPerf traffic'):
+            logger.info('Sending iPerf traffic')
+            IperfChecker(players, validation).run_validation()
+
+        with allure.step('Validating WJH aggregated table output'):
+            # The ip protocol cannot be parsed when the packet is fragmented.
+            # It will be displayed as "ip" in the table.
+            # As Extend WJH linux channel support with current buffer capabilities via WJH lib feature
+            # It will be displayed as "udp" in the pull buffer aggregate table in master and 202311 branch
+            agg_proto = 'ip' if sonic_branch in ['202211', '202305'] else 'udp'
+            do_acl_buffer_agg_test(engines=engines, cli_object=cli_object, channel='buffer',
+                                   channel_types=['agg', 'agg_acl_buffer_info'], interface=interfaces.dut_hb_2,
+                                   dst_ip=ha_ip,
+                                   src_ip=hb_ip, proto=agg_proto, drop_reason_message=drop_reason_message,
+                                   dst_mac=ha_dut_2_mac, src_mac=hb_dut_2_mac,
+                                   command='show what-just-happened poll buffer --aggregate', drop_reason=drop_reason,
+                                   table_separator=utils.BUFFER_TABLE_SEPARATOR)
+    except Exception as e:
+        pytest.fail(f"Could not finish the test due to exception: \n{e}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -633,6 +636,8 @@ def test_l1_raw_drop(engines, cli_objects):
             do_raw_test(engines=engines, cli_object=cli_objects.dut, channel='layer-1', channel_type='raw',
                         interface=port, dst_ip=na, src_ip=na, proto=na, drop_reason=drop_reason_message,
                         dst_mac=na, src_mac=na, command='show what-just-happened poll layer-1')
+    except Exception as e:
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
     finally:
         cli_objects.dut.interface.enable_interface(port)
 
@@ -663,7 +668,8 @@ def test_l1_agg_drop(engines, cli_objects):
         with allure.step('Validating WJH L1 Aggregated table output with up port'):
             table = get_parsed_table(engines.dut, 'show what-just-happened poll layer-1 --aggregate', 'agg')
             verify_l1_agg_drop_exists(table, port, 'Up', drop_reason_message)
-
+    except Exception as e:
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
     finally:
         with allure.step('Starting up {} interface'.format(port)):
             cli_objects.dut.interface.enable_interface(port)
@@ -723,7 +729,7 @@ def test_l2_src_mac_equals_dst_mac(engines, cli_objects, topology_obj, interface
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -768,7 +774,7 @@ def test_l3_dst_ip_is_loopback(engines, cli_objects, topology_obj, interfaces):
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -812,7 +818,7 @@ def test_l2_src_mac_is_multicast(engines, cli_objects, topology_obj, interfaces)
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -856,7 +862,7 @@ def test_l3_ipv6_dst_multicast_scope_ffx0(engines, cli_objects, topology_obj, in
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -900,7 +906,7 @@ def test_l3_ipv6_dst_multicast_scope_ffx1(engines, cli_objects, topology_obj, in
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -944,7 +950,7 @@ def test_l3_multicast_mac_mismatch(engines, cli_objects, topology_obj, interface
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -988,7 +994,7 @@ def test_l3_ipv4_limited_broadcast_src_ip(engines, cli_objects, topology_obj, in
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -1032,7 +1038,7 @@ def test_l3_ipv4_dst_local_network(engines, cli_objects, topology_obj, interface
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -1076,7 +1082,7 @@ def test_l2_dst_mac_is_reserved(engines, cli_objects, topology_obj, interfaces):
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -1122,7 +1128,7 @@ def test_l3_non_ip_packet(engines, cli_objects, topology_obj, interfaces):
                         command='show what-just-happened poll forwarding --aggregate')
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")
 
 
 @pytest.mark.wjh
@@ -1168,4 +1174,4 @@ def test_acl_ingress_router(engines, cli_objects, topology_obj, interfaces):
                                    table_separator=utils.ACL_TABLE_SEPARATOR)
 
     except Exception as e:
-        pytest.fail("Could not finish the test.\nAborting!.")
+        pytest.fail(f"Could not finish the test due to exception: \n{str(e)}.\nAborting!.")

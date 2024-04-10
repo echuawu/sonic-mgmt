@@ -128,6 +128,15 @@ def get_ssh_server_ciphers(server_engine: ProxySshEngine):
     return server_ciphers.split(',')
 
 
+def get_device_ciphers_list(devices):
+    """
+    @summary: Get device ciphers list
+    @param devices: devices
+    @return: ciphers list
+    """
+    return SshHardeningConsts.VALUES[SshHardeningConsts.CIPHERS]
+
+
 def get_ssh_server_macs(server_engine: ProxySshEngine):
     """
     @summary: Get the SSH MACs of the given SSH server
@@ -143,6 +152,15 @@ def get_ssh_server_macs(server_engine: ProxySshEngine):
     return server_ciphers.split(',')
 
 
+def get_device_macs_list(devices):
+    """
+    @summary: Get device macs list
+    @param devices: devices
+    @return: macs list
+    """
+    return SshHardeningConsts.VALUES[SshHardeningConsts.MACS]
+
+
 def get_ssh_server_kex_algorithms(server_engine: ProxySshEngine):
     """
     @summary: Get the SSH KEX-algorithms of the given SSH server
@@ -156,6 +174,15 @@ def get_ssh_server_kex_algorithms(server_engine: ProxySshEngine):
     )
     logging.info(f'Server KEX-algorithms: {server_ciphers}')
     return server_ciphers.split(',')
+
+
+def get_device_kex_algotithms_list(devices):
+    """
+    @summary: Get device SSH KEX-algorithms list
+    @param devices: devices
+    @return: SSH KEX-algorithms list
+    """
+    return devices.dut.kex_algorithms
 
 
 def verify_switch_ssh_property(engines, property_name, expected_value, value_extraction_function):
@@ -177,14 +204,14 @@ def verify_switch_ssh_property(engines, property_name, expected_value, value_ext
                                             f'Actual: {value}'
 
 
-def verify_ssh_with_option(engines, good_flow: bool, option_to_check: str):
+def verify_ssh_with_option(engines, devices, good_flow: bool, option_to_check: str, get_option_list_function):
     assert option_to_check in SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST, \
         f'Received option to check: {option_to_check}\nExpected: {SshHardeningConsts.OPTIONS_FOR_FUNCTIONAL_TEST}'
     with allure.step(f'{"Good" if good_flow else "Bad"} flow: ssh with {"" if good_flow else "in"}valid '
                      f'{option_to_check}'):
-        optional_values = SshHardeningConsts.VALUES[option_to_check] if good_flow else \
+        optional_values = get_option_list_function(devices) if good_flow else \
             list(
-                set(SshHardeningConsts.DEFAULTS[option_to_check]) - set(SshHardeningConsts.VALUES[option_to_check]))
+                set(SshHardeningConsts.DEFAULTS[option_to_check]) - set(get_option_list_function(devices)))
         logging.debug(f'Optional values: {optional_values}')
         for value in optional_values:
             logging.debug(f'Chosen value: {value}')

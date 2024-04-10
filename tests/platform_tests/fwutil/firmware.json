@@ -172,7 +172,7 @@
 
 			}
 		},
-		"MSN2700-A1": {
+		"MSN2700A1": {
 			"component":{
 				"BIOS": [
 					{
@@ -184,9 +184,9 @@
 				],
 				"ONIE": [
 					{
-						"firmware": "http://nbu-nfs.mellanox.com/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0010/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"firmware": "http://nbu-nfs.mellanox.com//auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0011/9600/onie-updater-x86_64-mlnx_x86-r0",
 						"force_reboot": true,
-						"version": "2022.08-5.3.0010-9600",
+						"version": "2023.11-5.3.0011-9600",
 						"reboot": ["cold"]
 					}
 				],

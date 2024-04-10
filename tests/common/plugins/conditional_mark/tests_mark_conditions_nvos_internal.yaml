@@ -43,12 +43,6 @@ tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connec
 #      - https://redmine.mellanox.com/issues/3557998
 #      - https://redmine.mellanox.com/issues/3519743
 
-tests_nvos/general/security/authentication_restrictions/test_authentication_restrictions.py::test_auth_restrictions_ssh_and_openapi_counting:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3530587"
-    conditions:
-      - https://redmine.mellanox.com/issues/3530587
-
 tests_nvos/general/security/password_hardening/test_password_hardening_nvos.py::test_password_hardening_apply_new_password_and_expiration_settings_together:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3408710"
@@ -165,10 +159,10 @@ tests_nvos/system/ntp/test_system_ntp.py::test_ntp_system_authentication:
 
 tests_nvos/ib/test_show_ib.py::test_show_ib_device:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3831424"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3825753"
     conditions:
       - "'marlin' in testbed"
-      - https://redmine.mellanox.com/issues/3831424
+      - https://redmine.mellanox.com/issues/3825753
 
 tests_nvos/system/test_techsupport_commands.py::test_techsupport_size:
   skip:
@@ -194,17 +188,11 @@ tests_nvos/ib/test_set_unset_sm_state.py::test_set_unset_sm_state_many_times:
       - "'marlin' in testbed"
       - https://redmine.mellanox.com/issues/3649754
 
-tests_nvos/interfaces/test_ib0_interface_dhcp.py::test_interface_ib0_dhcp_set_hostname:
+tests_nvos/interfaces/split_fnm_port/test_split_fnm_port.py::test_interface_fnm_port_split:
   skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3659084"
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3854671"
     conditions:
-      - https://redmine.mellanox.com/issues/3659084
-
-tests_nvos/interfaces/test_ib0_interface_dhcp.py::test_interface_ib0_dhcp_set_hostname_openapi:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3659084"
-    conditions:
-      - https://redmine.mellanox.com/issues/3659084
+      - https://redmine.mellanox.com/issues/3854671
 
 tests_nvos/ib/test_ibdiagnet.py:
   skip:
@@ -266,12 +254,6 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
     conditions:
       - https://redmine.mellanox.com/issues/3795718
 
-tests_nvos/interfaces/test_interface_link_transceiver_diagnostics.py::test_interface_transceiver_diagnostics_basic:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3817558"
-    conditions:
-      - https://redmine.mellanox.com/issues/3817558
-
 tests_nvos/system/test_system_ptp.py:
   skip:
     reason: "Should run only on gorilla system"
@@ -289,4 +271,10 @@ tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
     conditions:
       - https://redmine.mellanox.com/issues/3727441
+
+tests_nvos/checklist/test_bios_update.py::test_bios_upgrade:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3848672"
+    conditions:
+      - https://redmine.mellanox.com/issues/3848672
 ########################## NVOS IGNORE END ##########################

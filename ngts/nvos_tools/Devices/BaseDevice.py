@@ -7,6 +7,9 @@ from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
 from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
+from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
@@ -35,6 +38,7 @@ class BaseDevice(ABC):
         self._init_health_components()
         self._init_platform_lists()
         self._init_system_lists()
+        self._init_security_lists()
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -83,13 +87,12 @@ class BaseDevice(ABC):
 
     def _init_platform_lists(self):
         self.platform_hw_list = []
-        self.platform_list = []
-        self.platform_environment_list = []
-        self.hw_comp_list = []
-        self.hw_comp_prop = []
 
     def _init_system_lists(self):
         self.user_fields = []
+
+    def _init_security_lists(self):
+        self.kex_algorithms = []
 
     @abstractmethod
     def get_ib_ports_num(self):
@@ -230,7 +233,8 @@ class BaseSwitch(BaseDevice):
                        SystemConsts.STATUS],
             'message': [SystemConsts.PRE_LOGIN_MESSAGE, SystemConsts.POST_LOGIN_MESSAGE],
             'reboot': [SystemConsts.REBOOT_REASON],
-            'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_IMAGE, SystemConsts.VERSION_KERNEL]
+            'version': [SystemConsts.VERSION_BUILD_DATE, SystemConsts.VERSION_IMAGE, SystemConsts.VERSION_KERNEL,
+                        SystemConsts.VERSION_ONIE]
         }
         dump_files = ['APPL_DB.json', 'ASIC_DB.json', 'boot.conf', 'bridge.fdb', 'bridge.vlan', 'CONFIG_DB.json',
                       'COUNTERS_DB_1.json', 'COUNTERS_DB_2.json', 'COUNTERS_DB.json', 'date.counter_1',
@@ -246,8 +250,8 @@ class BaseSwitch(BaseDevice):
                       'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
         sdk_dump_files = ["fw_trace_attr.json", "fw_trace_attr.json.gz", "fw_trace_string_db.json",
                           "fw_trace_string_db.json.gz"]
-        firmware = [PlatformConsts.FW_BIOS, PlatformConsts.FW_ONIE, PlatformConsts.FW_SSD, PlatformConsts.FW_CPLD + '1',
-                    PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
+        firmware = [PlatformConsts.FW_ASIC, PlatformConsts.FW_BIOS, PlatformConsts.FW_SSD,
+                    PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
         self.constants = BaseSwitch.Constants(system_dic, dump_files, sdk_dump_files, firmware)
         self.current_bios_version_name = ""
         self.current_bios_version_path = ""
@@ -292,12 +296,19 @@ class BaseSwitch(BaseDevice):
         self.platform_hw_list = ["asic-count", "cpu", "cpu-load-averages", "disk-size", "hw-revision", "manufacturer",
                                  "memory", "model", "onie-version", "part-number", "product-name", "serial-number",
                                  "system-mac", "system-uuid"]
-        self.platform_list = ["fan", "led", "psu", "temperature", "component", "hardware", "environment"]
-        self.platform_environment_list = ["fan", "led", "psu", "temperature"]
-        self.hw_comp_list = self.fan_list + self.psu_list + ["SWITCH"]
-        self.hw_comp_prop = ["hardware-version", "model", "serial", "state", "type"]
         self.fan_prop_auto = {"Fan State": "state", "Current Speed (RPM)": "current-speed",
                               "Fan Direction": "direction"}
+        self.platform_inventory_items = self.fan_list + self.psu_list + [PlatformConsts.HW_COMP_SWITCH]
+        self.platform_inventory_fields = ["hardware-version", "model", "serial", "state", "type"]
+        self.platform_inventory_fan_values = {
+            "hardware-version": NvosConst.NOT_AVAILABLE, "model": NvosConst.NOT_AVAILABLE,
+            "serial": NvosConst.NOT_AVAILABLE, "state": FansConsts.STATE_OK, "type": PlatformConsts.ENV_FAN}
+        self.platform_inventory_psu_values = {
+            "hardware-version": None, "model": None,
+            "serial": None, "state": FansConsts.STATE_OK, "type": PlatformConsts.ENV_PSU}
+        self.platform_inventory_switch_values = {
+            "hardware-version": "", "model": "",  # update these in subclasses
+            "serial": None, "state": FansConsts.STATE_OK, "type": PlatformConsts.HW_COMP_SWITCH.lower()}
 
     def _init_fan_direction_dir(self):
         super()._init_fan_direction_dir()

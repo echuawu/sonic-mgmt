@@ -7,6 +7,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.general
+@pytest.mark.skynet
 def test_basic_traffic(players, interfaces, start_sm):
     """
     Basic traffic test

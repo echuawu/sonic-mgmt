@@ -51,7 +51,7 @@ class TestAutoNegNegative(TestAutoNegBase):
 
             verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_speeds(self, cleanup_list, skip_if_active_optical_cable):
+    def test_negative_config_advertised_speeds(self, cleanup_list):
         """
         Test command config interface advertised-speeds <interface_name> <speed_list>.
         Verify the command return error if given invalid interface name or speed list.
@@ -143,7 +143,7 @@ class TestAutoNegNegative(TestAutoNegBase):
                                                                       random.choice(types_supported_on_dut))
         verify_show_cmd(output, [(INVALID_PORT_ERR_REGEX, True)])
 
-    def test_negative_config_advertised_types(self, cleanup_list, skip_if_active_optical_cable):
+    def test_negative_config_advertised_types(self, cleanup_list):
         """
         Test command config interface advertised-types <interface_name> <interface_type_list>.
         Verify the command return error if given invalid interface name.
@@ -182,7 +182,7 @@ class TestAutoNegNegative(TestAutoNegBase):
         return conf
 
     def test_negative_advertised_speed_type_mismatch(self, expected_auto_neg_loganalyzer_exceptions,
-                                                     cleanup_list, skip_if_active_optical_cable):
+                                                     cleanup_list):
         """
         Verify error in log when configuring mismatch type and speed, like 'CR4' and '10G',
         Verify port state is up when speed and type doesn't match,

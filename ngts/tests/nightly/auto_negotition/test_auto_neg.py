@@ -14,7 +14,7 @@ logger = logging.getLogger()
 class TestAutoNeg(TestAutoNegBase):
 
     @pytest.mark.reboot_reload
-    def test_auto_neg_conf(self, cleanup_list, skip_if_active_optical_cable, skip_if_rj45_cable):
+    def test_auto_neg_conf(self, cleanup_list, skip_if_rj45_cable):
         """
         check 1#:
         This test case will set on loopbacks with/without splits,
@@ -80,7 +80,7 @@ class TestAutoNeg(TestAutoNegBase):
                 conf_backup[port]['expected_mlxlink_autoneg'] = "Force"
             self.verify_auto_neg_configuration(conf_backup)
 
-    def test_auto_neg_toggle_peer_port(self, cleanup_list, skip_if_active_optical_cable):
+    def test_auto_neg_toggle_peer_port(self, cleanup_list):
         """
         configuring default/costume auto neg on the dut port connected to host
         while toggling a port connected to the host

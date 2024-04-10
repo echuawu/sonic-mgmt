@@ -1,15 +1,16 @@
 import logging
-from typing import Tuple
-import pytest
 import os.path
+from typing import Tuple
 
+import pytest
+
+from ngts.nvos_constants.constants_nvos import ApiType, PlatformConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_constants.constants_nvos import ApiType, ImageConsts, PlatformConsts
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 
 logger = logging.getLogger()
 
@@ -119,4 +120,4 @@ def _get_ssd_model_and_firmware(platform: Platform) -> Tuple[str, str]:
     """Run `nv show platform firmware`, parse it and return (SSD-model, firmware-version)"""
     output = OutputParsingTool.parse_json_str_to_dictionary(
         platform.firmware.show()).get_returned_value()[PlatformConsts.FW_SSD]
-    return output[PlatformConsts.FW_PART_NUMBER], output[ImageConsts.ACTUAL_FIRMWARE]
+    return output[PlatformConsts.FW_PART_NUMBER], output[PlatformConsts.FW_ACTUAL]

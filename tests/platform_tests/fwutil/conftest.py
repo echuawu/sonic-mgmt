@@ -31,11 +31,13 @@ def pytest_addoption(parser):
 def shutdown_bgp(request, duthost):
     if request.config.getoption('shutdown_bgp'):
         duthost.command("sudo config bgp shutdown all")
+        duthost.command("sudo config save -y")
 
     yield
 
     if request.config.getoption('shutdown_bgp'):
         duthost.command("sudo config bgp startup all")
+        duthost.command("sudo config save -y")
 
 
 def check_path_exists(duthost, path):
@@ -82,7 +84,7 @@ def extract_fw_data(fw_pkg_path):
 @pytest.fixture(scope='function')
 def random_component(duthost, fw_pkg):
     chass = list(show_firmware(duthost)["chassis"].keys())[0]
-    components = list(fw_pkg["chassis"].get(chass, {}).get("component", []).keys())
+    components = list(fw_pkg["chassis"].get(chass, {}).get("component", {}).keys())
     cpld_components = [com for com in components if "CPLD" in com]
     # if in the host section, the CPLD defined is different, then need to use the one defined for this host.
     # For example: if the CPLD2 is defined for the SN3700c, and CPLD1 defined for the r-anaconda-15, then when run
@@ -91,7 +93,7 @@ def random_component(duthost, fw_pkg):
         host_components = list(fw_pkg["host"].get(duthost.hostname, {}).get("component", []).keys())
         cpld_host_components = [com for com in host_components if "CPLD" in com]
         if cpld_host_components:
-            components = list(set(components)^set(cpld_components)|set(host_components))
+            components = list(set(components) ^ set(cpld_components) | set(host_components))
         else:
             components = list(set(components) | set(host_components))
 

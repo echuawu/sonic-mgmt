@@ -1,4 +1,5 @@
 import logging
+
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 
@@ -38,12 +39,43 @@ class NvueBaseCli:
 
     @staticmethod
     def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
-               output_format=OutputFormat.json, expect_reboot=False):
+               output_format=None, expect_reboot=False):
         """See documentation of BaseComponent.action"""
         command = ' '.join(['nv action', action_type, resource_path.replace('/', ' '), suffix,
-                            (param_value or param_name), '--output', output_format])
+                            (param_value or param_name)])
+        if output_format:
+            command += f" --output {output_format}"
+        command = ' '.join(command.split())  # delete double-spaces
         logger.info(f"Running command: {command}")
         if expect_reboot:
             return DutUtilsTool.reload(engine=engine, device=device, command=command, confirm=True).verify_result()
         else:
             return engine.run_cmd(command)
+
+    @staticmethod
+    def action_install(engine, device, fae_command=False, args='', expect_reboot=False, force=False):
+        """
+        Method to runs nv action install <fae> platform <args> <force>
+        :param engine: the engine to use
+        :param device: Noga device info
+        :param fae_command: if True, will add fae argument to the command
+        :param args: arguments to the example above
+        :param expect_reboot: if True, will expect the machine to reload as result of the command, and reconnect engines
+        :param force: if True, will add "force" argument to the command
+        """
+        cmd = "nv action install {fae} platform {args} {force}".format(fae="fae" if fae_command else '', args=args, force="force" if force else '')
+        logging.info("Running '{cmd}' on dut using NVUE".format(cmd=cmd))
+        if expect_reboot:
+            return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True).verify_result()
+        else:
+            return engine.run_cmd(cmd)
+
+    @staticmethod
+    def action_install_image_with_reboot(engine, device, action_str, resource_path, op_param="", recovery_engine=None):
+        resource_path = resource_path.replace('/', ' ')
+        cmd = "nv action {action_type} {resource_path} {param}" \
+            .format(action_type=action_str, resource_path=resource_path, param=op_param)
+        cmd = " ".join(cmd.split())
+        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+        return DutUtilsTool.reload(engine=engine, device=device, command=cmd, confirm=True,
+                                   recovery_engine=recovery_engine).verify_result()

@@ -7,6 +7,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -138,19 +139,10 @@ def test_set_inactivity_timeout(engines, devices, topology_obj):
 
         connection = None
         try:
-            logger.info("Serial engine")
-            att = topology_obj.players['dut_serial']['attributes'].noga_query_data['attributes']
-            extended_rcon_command = att['Specific']['serial_conn_cmd'].split(' ')
-            extended_rcon_command.insert(1, DefaultConnectionValues.BASIC_SSH_CONNECTION_OPTIONS)
-            extended_rcon_command = ' '.join(extended_rcon_command)
-            serial_engine = PexpectSerialEngine(ip=att['Specific']['ip'],
-                                                username=att['Topology Conn.']['CONN_USER'],
-                                                password=att['Topology Conn.']['CONN_PASSWORD'],
-                                                rcon_command=extended_rcon_command,
-                                                timeout=30)
-            serial_engine.create_serial_engine()
-
-            logger.info("Ssh engine")
+            logger.info("Create serial engine")
+            serial_engine = ConnectionTool.create_serial_connection(topology_obj=topology_obj, devices=devices,
+                                                                    force_new_login=True)
+            logger.info("Create ssh engine")
             connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.DEFAULT_USER,
                                                  port=22)
             respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])

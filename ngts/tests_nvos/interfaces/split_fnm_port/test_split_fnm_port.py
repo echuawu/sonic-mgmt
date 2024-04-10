@@ -8,6 +8,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.tools.test_utils.allure_utils import step as allure_step
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.system.System import System
+from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 
 logger = logging.getLogger()
 
@@ -48,6 +49,9 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
                                                             values_to_verify,
                                                             system_profile_output).verify_result()
             logging.info("All expected values were found")
+
+    with allure.step("Start OpenSm"):
+        OpenSmTool.start_open_sm(engines).verify_result()
 
     with allure_step("Check traffic port up"):
         split_ports = MultiPlanarTool._get_split_ports(devices.dut.fnm_port_list[0])

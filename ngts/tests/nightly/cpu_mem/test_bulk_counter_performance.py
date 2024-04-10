@@ -15,6 +15,15 @@ MONIT_RESULT = namedtuple('MonitResult', ['processes', 'memory'])
 MILLISECOND_TO_SECOND = 1000
 
 
+AMPLIFY_FACTORY_FOR_SIMX_MEMORY_THR = {
+    "x86_64-mlnx_msn2700_simx-r0": 1,
+    "x86_64-mlnx_msn3700_simx-r0": 1.2,
+    "x86_64-nvidia_sn4280_simx-r0": 1.25,
+    "x86_64-mlnx_msn4700_simx-r0": 1.25,
+    "x86_64-nvidia_sn5600_simx-r0": 1.25,
+}
+
+
 @pytest.fixture(params=[CounterpollConstants.WATERMARK])
 def counterpoll_type(request):
     """
@@ -45,7 +54,7 @@ def restore_counter_poll(engines, cli_objects):
 
 
 @pytest.fixture(scope='module')
-def setup_thresholds(topology_obj):
+def setup_thresholds(topology_obj, is_simx, platform_params):
     """
     Pytest fixture used to return memory and cpu threshold value and high cpu consume processes list
     :param topology: topology fixture object
@@ -53,6 +62,11 @@ def setup_thresholds(topology_obj):
     """
     cpu_threshold = CounterpollConstants.CPU_THRESHOLD_FOR_ORDINARY_PROCESS
     memory_threshold = CounterpollConstants.MEMORY_THRESHOLD
+    if is_simx:
+        # For simx platform we need to increase the memory threshold,
+        # because the performance of simx is lower than the physical platform.
+        # The initial value of amplify_factor_for_simx_memory_thr is got based on the test results
+        memory_threshold = memory_threshold * AMPLIFY_FACTORY_FOR_SIMX_MEMORY_THR[platform_params.platform]
     high_cpu_consume_procs = {}
     is_asan = is_sanitizer_image(topology_obj)
     if is_asan:

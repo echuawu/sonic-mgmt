@@ -568,8 +568,8 @@ everflow/test_everflow_per_interface.py::test_everflow_per_interface[ipv6-m0_vla
 everflow/test_everflow_testbed.py::EverflowIPv4Tests::test_everflow_dscp_with_policer:
   skip:
     reason: "Test not supported on Mellanox platforms"
-  conditions:
-    - "asic_type in ['mellanox']"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror:
   skip:
@@ -1009,7 +1009,7 @@ platform_tests/test_secure_upgrade.py:
   skip:
     reason: "platform does not support secure upgrade"
     conditions:
-      - "asic_gen in ['spc1', 'spc2', 'spc3']"
+      - "'sn2' in platform or 'sn3' in platform or 'sn4' in platform"
 
 platform_tests/test_service_warm_restart.py:
   skip:
@@ -1085,8 +1085,8 @@ qos/test_buffer.py:
 qos/test_buffer.py::test_buffer_model_test:
   skip:
     reason: "Running only on mellanox devices and covered by unit testing"
-  conditions:
-    - "asic_type in ['mellanox']"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 qos/test_buffer_traditional.py:
   skip:

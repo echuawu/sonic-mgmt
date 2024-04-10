@@ -305,6 +305,12 @@
     - Branch:
       - 202111
 
+- Errors_list:
+  - '.* ERR memory_threshold_check: Free memory (\d+(\.\d+)?) is less then free memory threshold (\d+(\.\d+)?).*'
+  Conditions:
+  - Image_type:
+    - ASAN
+
 # Below ignores from temp_log_analyzer_ignores.txt in LAG folder
 - Errors_list:
     - '.* ERR kernel: \[.*\] mlxsw_minimal 2-0048: Could not acquire lock'
@@ -2278,14 +2284,10 @@
       - 3726137
 
 - Errors_list:
-    - '.*ERR systemctl.*: Job for pmon.service canceled.*'
+    - '.*ERR systemctl.*: Job for .*service canceled.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
-      Redmine:
-      - 3730173
-      Branch:
-      - master
 
 - Errors_list:
     - '.*ERR systemctl.*: Job for syncd.service canceled.*'
@@ -2619,9 +2621,11 @@
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command .* address "add" .* broadcast .* dev .* failed with rc \d+'
     - '.* ERR swss#intfmgrd: :- setIntfIp: Command .* address "add" .* dev .* failed with rc \d+'
     - '.* ERR swss#orchagent: :- addOperation: Vxlan tunnel .vtep\d+. is already exists'
+    - '.* ERR swss#orchagent: :- addAclTableType: Table type .* already exists.*'
   Conditions:
     - Affected_test_cases:
         - tests/push_build_tests/general/doroce/test_doroce.py
+        - tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::test_feature_with_dpb_on_all_ports
       Redmine:
         - 3538014
 
@@ -2631,9 +2635,20 @@
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_ACL_TABLE_ATTR_.*:.*'
     - '.* ERR swss#orchagent: :- create: create status: SAI_STATUS_FAILURE.*'
     - '.* ERR swss#orchagent: :- addAclTable: Failed to create ACL table DATA.*'
+    - '.* ERR syncd#SDK:.*\[ACL\.ERR\] Failed calculating key blocks - too many keys selected.*'
   Conditions:
     - Redmine:
         - 3841291
+
+- Errors_list:
+    - '.*sonic kernel:.* platform regulatory.0: Direct firmware load for regulatory.db failed with error -2.*'
+    - '.*ERR systemctl.*: Job for interfaces-config.service canceled.*'
+    - '.*ERR kernel: .*platform regulatory.0: firmware: failed to load regulatory.db.*'
+    - '.*ERR kernel:.* firmware_class: See https:\/\/wiki\.debian\.org\/Firmware for information about missing firmware.*'
+    - '.*WARNING kernel:.*platform regulatory.0: Direct firmware load for regulatory.db failed with error.*'
+  Conditions:
+    - Redmine:
+        - 3851202
 
 - Errors_list:
     - '.*ERR swss#orchagent.*doPortTask: Failed to get port id by alias:Ethernet.*'
@@ -2986,7 +3001,7 @@
         - tests_nvos/system/test_system_reboot.py
         - tests_nvos/general/config_commands/test_save_after_reboot.py::test_save_reboot
         - tests_nvos/ib/test_ibdiagnet.py::test_ibdiagnet_run
-        - tests_nvos/system/test_install_system_firmware.py::test_install_system_firmware
+        - tests_nvos/platform/test_install_platform_firmware.py::test_install_platform_firmware
 
 # NVOS : Error - Bug 3494774 related
 - Errors_list:
@@ -3560,11 +3575,9 @@
       - 3685068
 
 - Errors_list:
-    - '.*ERR \(udev-worker\)\[\d+\]: could not read from ''\/sys\/module\/pcc_cpufreq\/initstate'': No such device.*'
+    - '.*ERR \(udev-worker\)\[\d+\]: could not read from .*\/sys\/module\/pcc_cpufreq\/initstate.*: No such device.*'
   Conditions:
-    - Affected_test_cases:
-      - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py::test_check_errors_in_log_during_deploy_sonic_image
-      Redmine:
+    - Redmine:
       - 3693907
 
 - Errors_list:
@@ -3631,6 +3644,22 @@
   Conditions:
     - Redmine:
       - 3827149
+
+- Errors_list:
+    - '.*ERR kernel:.* RETBleed: WARNING: Spectre v\d+ mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible.*'
+  Conditions:
+    - Redmine:
+      - 3856241
+      Platform:
+        - simx
+
+- Errors_list:
+    - '.*ERR hw-management: message repeated \d+ times: \[ chip hwmon object\].*'
+  Conditions:
+    - Redmine:
+      - 3856952
+      Platform:
+        - simx
 
 # NVOS
 - Errors_list:
@@ -4098,3 +4127,22 @@
     - 3772643
     Platform:
     - sn5400
+
+
+- Errors_list:
+    - '.*ERR pmon#xcvrd: Exception occured at DomInfoUpdateTask thread due to AttributeError\(.*NoneType.* object has no attribute .*VDM_REAL_VALUE.*\).*'
+    - '.*ERR pmon#xcvrd: Traceback \(most recent call last\):.*'
+    - '.*ERR pmon#xcvrd: .*File .*, line .*, in .*.*'
+    - '.*ERR pmon#xcvrd:     .*[self|=].*'
+    - '.*ERR pmon#xcvrd: AttributeError: .*NoneType.* object has no attribute .*VDM_REAL_VALUE.*.*'
+    - '.*ERR pmon#xcvrd: Xcvrd: exception found at child thread DomInfoUpdateTask due to AttributeError\(.*NoneType.* object has no attribute .*VDM_REAL_VALUE.*\).*'
+    - '.*ERR pmon#xcvrd: Exiting main loop as child thread raised exception!.*'
+  Conditions:
+  - Redmine:
+    - 3836978
+
+- Errors_list:
+    - '.*ERR hostcfgd: file size check failed: \/etc\/pam\.d\/login is empty, file corrupted.*'
+  Conditions:
+  - Redmine:
+    - 3853187

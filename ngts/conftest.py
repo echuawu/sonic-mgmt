@@ -27,7 +27,8 @@ from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConst
     BugHandlerConst, InfraConst, PlayersAliases
 from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
-from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology
+from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology, \
+    get_sonic_image
 from ngts.tools.allure_report.allure_report_attacher import add_fixture_end_tag, add_fixture_name, \
     clean_stored_cmds_with_fixture_scope, update_fixture_scope_list, enable_record_cmds
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
@@ -48,6 +49,7 @@ def pytest_sessionstart(session):
     session.config.cache.set(PytestConst.CUSTOM_SKIP_IF_DICT, None)
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, None)
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, None)
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_IMAGE_TYPE, None)
 
 
 def pytest_collection(session):
@@ -58,15 +60,17 @@ def pytest_collection(session):
 
     platform = json.loads(devinfo).get('platform')
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_PLATFORM_TYPE, platform)
-
     if is_deploy_run():
         # Required for prevent SSH attempts into DUT at the beginning of deploy image test(in case when device in ONIE)
         branch = 'master'
+        image = ''
         session.config.cache.set(PytestConst.IS_SANITIZER_IMAGE, False)
     else:
         branch = get_sonic_branch(topology)
+        image = get_sonic_image(topology)
 
     session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_BRANCH_NAME, branch)
+    session.config.cache.set(PytestConst.CUSTOM_TEST_SKIP_IMAGE_TYPE, image)
 
 
 pytest_plugins = ('ngts.tools.sysdumps',
@@ -258,7 +262,7 @@ def topology_obj(setup_name, request):
     enable_record_cmds(topology)
     topology.players['dut']['is_nvos'] = \
         topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.'][
-        'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
+            'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
 
     if topology.players['dut']['is_nvos']:
         update_default_password(topology.players['dut'], request)
@@ -489,8 +493,9 @@ def platform_params(show_platform_summary, setup_name, topology_obj):
     """
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
-    platform_data.filtered_platform = re.search(r"(msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|mqm\d{4}|mbf.*c|900.*a)",
-                                                show_platform_summary['platform'], re.IGNORECASE).group(1)
+    platform_data.filtered_platform = re.search(
+        r"(msn\d{4}a\w?|msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|mqm\d{4}|mbf.*c|900.*a)",
+        show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name
     platform_data.asic_type = show_platform_summary["asic_type"]
@@ -641,7 +646,8 @@ def log_analyzer_bug_handler(setup_name, test_name, topology_obj, request, disab
             if log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
                 error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \
                             f"should be opened, but we are in no_action mode\n"
-                for i, bug_title in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].values(), start=1):
+                for i, bug_title in enumerate(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE].values(),
+                                              start=1):
                     error_msg += f"{i}) {bug_title}\n"
             else:
                 error_msg = f"{len(log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE])} new Log Analyzer bugs " \

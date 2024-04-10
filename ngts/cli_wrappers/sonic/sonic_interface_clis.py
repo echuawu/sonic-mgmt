@@ -558,9 +558,10 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 actual_val = actual_val.group(1)
             else:
                 raise AssertionError("Couldn't get value match with regex expression {}".format(regex_exp))
-            parsed_info[key] = actual_val
             if key == AutonegCommandConstants.FEC:
                 parsed_info[key] = self.parse_fec_mode(actual_val)
+            elif key == AutonegCommandConstants.CABLE_SPEED:
+                parsed_info[key] = actual_val.split(',')
             elif expected_val is not None and re.search(expected_val, actual_val):
                 if additional_val is not None and re.search(additional_val, actual_val, re.IGNORECASE):
                     parsed_info[key] = additional_val
@@ -568,6 +569,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
                     parsed_info[key] = parsed_val
             elif default_val is not None:
                 parsed_info[key] = default_val
+            else:
+                parsed_info[key] = actual_val
         return parsed_info
 
     @staticmethod

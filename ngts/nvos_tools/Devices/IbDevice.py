@@ -53,6 +53,11 @@ class IbSwitch(BaseSwitch):
         super()._init_system_lists()
         self.user_fields = ['admin', 'monitor']
 
+    def _init_security_lists(self):
+        super()._init_security_lists()
+        self.kex_algorithms = ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
+                               'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256']
+
     def _init_available_databases(self):
         super()._init_available_databases()
         self.available_databases.update(
@@ -161,7 +166,6 @@ class IbSwitch(BaseSwitch):
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
-
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
 
         self.category_default_disabled_dict = {
@@ -388,12 +392,18 @@ class GorillaSwitch(IbSwitch):
         self.fan_list += ["FAN7/1", "FAN7/2"]
         self.fan_led_list.append('FAN7')
 
+    def _init_temperature(self):
+        super()._init_temperature()
+        self.temperature_sensors += ["CPU-Core-2-Temp", "CPU-Core-3-Temp", "PCH-Temp", "PSU-2-Temp"]
+
     def _init_platform_lists(self):
         super()._init_platform_lists()
         self.platform_environment_fan_values = {
-            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="MQM9700.*")})
 
 
 # -------------------------- Gorilla BF3 Switch ----------------------------
@@ -574,6 +584,7 @@ class MarlinSwitch(IbSwitch):
         self.primary_ipoib_interface = IbConsts.IPOIB_INT1
         self.secondary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = True
+        del self.show_platform_output['manufacturer']
 
     def _init_available_databases(self):
         super()._init_available_databases()

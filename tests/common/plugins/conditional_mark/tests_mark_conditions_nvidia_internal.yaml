@@ -24,6 +24,12 @@ tests/nightly/rocev2_acl_counter:
     conditions:
       - "https://redmine.mellanox.com/issues/3820604 and 'simx' in platform "
 
+tests/nightly/crm/test_crm.py::test_crm_acl:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3841291"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3841291"
+
 tests/nightly/cpld/test_cpld.py::test_cpld_version_check:
   skip:
     reason: "Testcase skipped due to RM ticket https://redmine.mellanox.com/issues/3549638 on ComEx setup or https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
@@ -51,6 +57,12 @@ tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::tes
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649765"
     conditions:
       - "https://redmine.mellanox.com/issues/3649765 and 'master_bookworm' in branch"
+
+tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_direction]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3851470 for simx platform"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3851470 and 'simx' in platform "
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
   skip:
@@ -396,9 +408,9 @@ tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_evp
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3634590 and branch 202305"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3832426"
     conditions:
-      - "https://redmine.mellanox.com/issues/3634590 and '202305' in release"
+    - "https://redmine.mellanox.com/issues/3832426"
 
 tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
   skip:
@@ -733,6 +745,48 @@ tests/nightly/secure/test_secure_boot.py:
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+virtual_smart_switch/test_dpu_ip_assignment.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835047"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3835047"
+
+syslog/test_logrotate.py::test_orchagent_logrotate:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835010"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3835010"
+
+passw_hardening/test_passw_hardening.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+bgp/test_bgp_bbr.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+gnmi/test_gnmi_configdb.py::test_gnmi_configdb_incremental_01:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+gnmi/test_gnmi_configdb.py::test_gnmi_configdb_full_01:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+cacl/test_cacl_application.py::test_cacl_application_nondualtor:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3817421 and SmartSwitch testbeds"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3817421 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
 dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572162 on 202211 branch"
@@ -803,6 +857,18 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
     conditions:
       - "https://redmine.mellanox.com/issues/3500047 and '202211' in release and 'sn3800' in platform"
 
+telemetry/test_events.py::test_events:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3842291"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3842291"
+
+snmp/test_snmp_queue.py::test_snmp_queue:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3840674"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3840674 and '5600' in platform"
+
 platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3225815"
@@ -826,17 +892,26 @@ platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
 
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance"
+    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance or due to RM 3811231"
     conditions_logical_operator: or
     conditions:
       - "'arm64-nvda_bf-mbf2h536c' in platform"
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_psustatus:
   skip:
-    reason: "Testcase ignored due to platform nvda_bf"
+    reason: "Testcase ignored due to platform nvda_bf or due to RM issue: https://redmine.mellanox.com/issues/3852184 on leopard"
+    conditions_logical_operator: or
     conditions:
       - "'nvda_bf' in platform"
+      - "https://redmine.mellanox.com/issues/3852184 and 'sn4700' in platform"
+
+platform_tests/cli/test_show_platform.py::test_show_platform_psustatus_json:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3852184 on leopard"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3852184 and 'sn4700' in platform"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
   skip:
@@ -994,6 +1069,72 @@ platform_tests/api/test_psu.py::TestPsuApi::test_temperature:
     conditions_logical_operator: or
     conditions:
       - "'2010' in platform or '2100' in platform"
+
+platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/api/test_sfp.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sfp_eeprom.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sfp_presence.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_check_sysfs.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/mellanox/test_hw_management_service_status.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_sfpshow.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_sfputil.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/sfp/test_show_intf_xcvr.py:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+
+platform_tests/test_platform_info.py::test_thermal_control_fan_status:
+  skip:
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
 platform_tests/fw_utility/test_fwutil.py:
   skip:
@@ -1880,12 +2021,10 @@ pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[async_storm:
       - "'master_bookworm' in branch"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and msn4700 in platform"
-    conditions_logical_operator: or
+  xfail:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
     conditions:
-      - "https://redmine.mellanox.com/issues/3627680 and 'msn4700' in platform"
-      - "https://redmine.mellanox.com/issues/3632105 and '2700' in platform"
+      - "https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
   skip:
@@ -1955,13 +2094,6 @@ platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_tar
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649678 and master_bookworm branch"
     conditions:
       - "https://redmine.mellanox.com/issues/3649678"
-      - "'master_bookworm' in branch"
-
-passw_hardening/test_passw_hardening.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649737 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649737"
       - "'master_bookworm' in branch"
 
 qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
@@ -2344,7 +2476,7 @@ platform_tests/daemon/test_syseepromd.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3748639 and 'nvda_bf' in platform"
 
-bgp/test_bgp_update_timer.py:
+bgp/test_bgp_update_timer.py::test_bgp_update_timer_single_route:
   xfail:
     reason: "Testcase statistically fails due to RM issue: https://redmine.mellanox.com/issues/3790712"
     conditions:
@@ -2399,8 +2531,10 @@ platform_tests/sfp/test_show_intf_xcvr.py:
 platform_tests/test_xcvr_info_in_db.py:
   skip:
     reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3836978"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
   skip:
@@ -2440,9 +2574,9 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_thermals:
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_name:
   skip:
-    reason: " Skip simx platform by bug of https://redmine.mellanox.com/issues/3679414"
+    reason: " Skip simx platform by bug of https://redmine.mellanox.com/issues/3836121"
     conditions:
-      - "https://redmine.mellanox.com/issues/3679414 and 'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3836121 and 'sn4280_simx' in platform"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_serial:
   skip:

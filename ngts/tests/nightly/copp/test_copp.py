@@ -143,7 +143,7 @@ class CoppBase:
         self.trap_name = None
         self.is_trap_counters_supported = None
         self.short_interval = 1001
-        self.long_interval = 20000
+        self.long_interval = 30000
         self.interval_type = None
         self.init_trap_names = None
         self.removed_trap_ids = None
