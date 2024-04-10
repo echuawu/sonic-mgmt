@@ -884,7 +884,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
 
-        self.engine.reload(['sudo reboot'])
+        if is_redmine_issue_active([3858467]) and platform == 'x86_64-mlnx_msn4700-r0':
+            self.engine.reload(['sudo config reload -f -y'])
+        else:
+            self.engine.reload(['sudo reboot'])
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
