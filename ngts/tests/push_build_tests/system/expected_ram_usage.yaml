@@ -343,7 +343,7 @@ master:
     sensord: 10
   # SPC4
   SN5400: # Hippo
-    total: 4500
+    total: 5000
     sx_sdk: 1100
     syncd: 300
     redis-server: 70
@@ -365,7 +365,7 @@ master:
     vxlanmgrd: 5
     sensord: 10
   SN5600: # Moose/Albatross
-    total: 4200
+    total: 4500
     sx_sdk: 1500
     syncd: 350
     redis-server: 70
