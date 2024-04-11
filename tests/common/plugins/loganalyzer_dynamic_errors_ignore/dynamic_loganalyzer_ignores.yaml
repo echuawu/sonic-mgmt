@@ -2441,6 +2441,14 @@
       - 3359469
 
 - Errors_list:
+    - '.* ERR kernel: \[ \d+.\d+\] EMAD validation failed: ethtype=0x\d+, reg_id=0x\d+ \(expected: 0x\d+\), reg_tlv_type=\d+, reg_tlv_len=\d+ \(min=\d+, max=\d+\)'
+  Conditions:
+    - Affected_test_cases:
+      - tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports
+      Redmine:
+      - 3863005
+
+- Errors_list:
     - ".* ERR swss#rsyslogd: module name 'omprog' is unknown.*"
     - '.* ERR swss#rsyslogd: error during parsing file \/etc\/rsyslog.d\/swss_events.conf.*'
     - ".* ERR dhcp_relay#rsyslogd: module name 'omprog' is unknown.*"
