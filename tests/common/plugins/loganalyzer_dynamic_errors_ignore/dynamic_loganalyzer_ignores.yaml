@@ -1205,6 +1205,7 @@
 
 - Errors_list:
     - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
+    - ".* ERR bgp#rsyslogd: imfile: poll_tree cannot stat file '\/var\/log\/supervisor\/supervisord.log' - ignored: No such file or directory.*"
   Conditions:
     - Redmine:
       - 3186637
