@@ -474,6 +474,13 @@ class BlackMambaSwitch(IbSwitch):
         self.temperature_sensors += ["ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
         self.temperature_sensors.remove("PSU-1-Temp")
 
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+
 
 # -------------------------- Crocodile Switch ----------------------------
 class CrocodileSwitch(IbSwitch):
