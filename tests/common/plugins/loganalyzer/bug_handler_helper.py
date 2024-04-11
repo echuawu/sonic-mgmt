@@ -109,7 +109,7 @@ def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
 
     tar_file_path = dumps_folder + '/'
 
-    duthost.fetch(src=tar_file_path_on_switch, dest=tar_file_path)
+    duthost.fetch(src=tar_file_path_on_switch, dest=tar_file_path, flat=True)
     return os.path.join(dumps_folder, tar_file_name)
 
 
