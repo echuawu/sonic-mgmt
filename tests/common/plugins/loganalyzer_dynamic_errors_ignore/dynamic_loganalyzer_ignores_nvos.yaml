@@ -1472,3 +1472,9 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
+
+- Errors_list:
+    - '.*IPTables\-Dropped\-.*'
+  Conditions:
+    - Redmine:
+        - 3811292
