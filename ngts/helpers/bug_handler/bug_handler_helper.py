@@ -166,7 +166,7 @@ def remove_error_prefix_from_sanitizer_file(contents):
 
 
 def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path,
-                        bug_handler_action={}):
+                        bug_handler_no_action=False, bug_handler_action={}):
     """
     call bug handler on sanitizer or log analyzer file and return results as dictionary
     :param conf_path: i.e, /tmp/sonic_bug_handler.conf
@@ -184,9 +184,6 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     'action': 'update',
     'bug_id': '1122554'}
     """
-    bug_handler_create_action = bug_handler_action.get("create", False)
-    bug_handler_update_action = bug_handler_action.get("update", False)
-    bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
     bug_handler_file_result = run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user,
                                                    bug_handler_path, bug_handler_no_action, bug_handler_action)
 

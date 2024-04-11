@@ -6,6 +6,7 @@ from infra.tools.redmine.redmine_api import REDMINE_ISSUES_URL
 import time
 from paramiko.ssh_exception import SSHException
 import pathlib
+from retry.api import retry
 
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from ngts.constants.constants import BugHandlerConst, InfraConst
@@ -50,7 +51,15 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             session_tmp_folder = create_session_tmp_folder(session_id)
             redmine_project = BugHandlerConst.CLI_TYPE_REDMINE_PROJECT[cli_type]
             conf_path = BugHandlerConst.BUG_HANDLER_CONF_FILE[redmine_project]
-            tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
+
+            bug_handler_create_action = bug_handler_action.get("create", False)
+            bug_handler_update_action = bug_handler_action.get("update", False)
+            bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
+
+            if bug_handler_no_action:
+                tar_file_path = None
+            else:
+                tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
 
             for log_errors_file_path in log_errors_dir_path.iterdir():
                 with log_errors_file_path.open("r") as log_errors_file:
@@ -71,7 +80,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
                                                                   tar_file_path, yaml_file_path,
                                                                   BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
                                                                   BugHandlerConst.BUG_HANDLER_SCRIPT,
-                                                                  bug_handler_action))
+                                                                  bug_handler_no_action, bug_handler_action))
                             bug_handler_dumps_results.append(error_dict)
 
             clear_files(session_id)
@@ -87,10 +96,9 @@ def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
     :return: file path
     """
     if cli_type == "Sonic":
-        tar_file_path_on_switch = duthost.shell('sudo generate_dump -s \"-{} seconds\"'.format(0))["stdout_lines"][-1]
+        tar_file_path_on_switch = _generate_sonic_techsupport(duthost)
     elif cli_type == "NVUE":
-        dump_file = duthost.shell('nv action generate system tech-support')["stdout_lines"][-2].split(' ')[-1]
-        tar_file_path_on_switch = SystemConsts.TECHSUPPORT_FILES_PATH + dump_file
+        tar_file_path_on_switch = _generate_nvue_techsupport(duthost)
     else:
         raise Exception(f"No such cli_type: {cli_type}")
 
@@ -103,6 +111,16 @@ def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
 
     duthost.fetch(src=tar_file_path_on_switch, dest=tar_file_path)
     return os.path.join(dumps_folder, tar_file_name)
+
+
+@retry(Exception, tries=5, delay=20)
+def _generate_sonic_techsupport(duthost):
+    return duthost.shell('sudo generate_dump -s \"-{} seconds\"'.format(0))["stdout_lines"][-1]
+
+
+def _generate_nvue_techsupport(duthost):
+    dump_file = duthost.shell('nv action generate system tech-support')["stdout_lines"][-2].split(' ')[-1]
+    return SystemConsts.TECHSUPPORT_FILES_PATH + dump_file
 
 
 def create_result_dir(testbed, session_id, suffix_path_name):
