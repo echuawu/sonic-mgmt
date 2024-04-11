@@ -34,6 +34,7 @@ from ngts.cli_wrappers.sonic.sonic_fwutil_clis import SonicFwutilCli
 from ngts.cli_util.stub_engine import StubEngine
 from dotted_dict import DottedDict
 from ngts.cli_wrappers.sonic.sonic_hw_mgmt_cli import SonicHwMgmtCli
+from ngts.cli_wrappers.sonic.sonic_wcmp_clis import SonicWcmpCli
 logger = logging.getLogger()
 
 
@@ -76,6 +77,7 @@ class SonicCli:
         self._sflow = None
         self._ar = None
         self._hw_mgmt = None
+        self._wcmp = None
 
     @property
     def ip(self):
@@ -281,6 +283,12 @@ class SonicCli:
         if self._ar is None:
             self._ar = SonicAdaptiveRoutingCli(engine=self.engine)
         return self._ar
+
+    @property
+    def wcmp(self):
+        if self._wcmp is None:
+            self._wcmp = SonicWcmpCli(engine=self.engine)
+        return self._wcmp
 
 
 class SonicCliStub(SonicCli):
