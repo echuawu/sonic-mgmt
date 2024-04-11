@@ -1476,4 +1476,4 @@ class CableComplianceConst:
         EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC"]}
 
 
-SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42']
+SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42', 'r-bobcat-01']
