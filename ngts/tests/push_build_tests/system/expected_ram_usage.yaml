@@ -157,7 +157,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -179,7 +179,7 @@ master:
     ntpd: 7
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -201,7 +201,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -223,7 +223,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -246,7 +246,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -268,7 +268,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -290,7 +290,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -312,7 +312,7 @@ master:
     ntpd: 5
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -334,7 +334,7 @@ master:
     ntpd: 7
     neighsyncd: 5
     vlanmgrd: 5
-    intfmgrd: 5
+    intfmgrd: 7
     portmgrd: 5
     buffermgrd: 5
     vrfmgrd: 5
@@ -355,17 +355,17 @@ master:
     fpmsyncd: 5
     orchagent: 50
     ntpd: 5
-    neighsyncd: 5
+    neighsyncd: 7
     vlanmgrd: 5
     intfmgrd: 5
     portmgrd: 5
-    buffermgrd: 5
+    buffermgrd: 7
     vrfmgrd: 5
     nbrmgrd: 5
     vxlanmgrd: 5
     sensord: 10
   SN5600: # Moose/Albatross
-    total: 4500
+    total: 5000
     sx_sdk: 1500
     syncd: 350
     redis-server: 70
@@ -377,11 +377,11 @@ master:
     fpmsyncd: 5
     orchagent: 50
     ntpd: 7
-    neighsyncd: 5
+    neighsyncd: 7
     vlanmgrd: 5
     intfmgrd: 5
     portmgrd: 5
-    buffermgrd: 5
+    buffermgrd: 7
     vrfmgrd: 5
     nbrmgrd: 5
     vxlanmgrd: 5
