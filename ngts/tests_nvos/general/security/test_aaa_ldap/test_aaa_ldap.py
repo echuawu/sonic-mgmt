@@ -7,7 +7,7 @@ from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhCon
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import \
     check_ldap_user_groups_with_id, \
-    check_ldap_user_with_getent_passwd
+    check_ldap_user_with_getent_passwd, verify_user_auth
 from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapDefaults, LdapFilterFields, \
     LdapGroupAttributes, LdapPasswdAttributes
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServers, LdapServersP3
@@ -106,9 +106,10 @@ def test_ldap_set_invalid_param(test_api, engines):
 @pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
-def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
+def test_ldap_auth(test_flow, test_api, addressing_type, engines, topology_obj, local_adminuser, request):
     """
     @summary: Basic test to verify authentication and authorization through LDAP, using all possible auth mediums:
         SSH, OpenApi, rcon, scp.
@@ -121,7 +122,7 @@ def test_ldap_auth(test_api, addressing_type, engines, topology_obj, local_admin
             - verify auth with local user - expect fail
     """
     ldap = System().aaa.ldap
-    generic_aaa_test_auth(test_api=test_api, addressing_type=addressing_type, engines=engines,
+    generic_aaa_test_auth(test_flow=test_flow, test_api=test_api, addressing_type=addressing_type, engines=engines,
                           topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
                           remote_aaa_type=RemoteAaaType.LDAP,
                           remote_aaa_obj=ldap,
@@ -212,8 +213,9 @@ def test_ldap_unique_priority(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_ldap_priority(test_api, engines, topology_obj, request):
+def test_ldap_priority(test_flow, test_api, engines, topology_obj, request):
     """
     @summary: Verify that auth is done via the top prioritized server
 
@@ -226,14 +228,15 @@ def test_ldap_priority(test_api, engines, topology_obj, request):
     server1 = LdapServers.PHYSICAL_SERVER.copy()
     server2 = random.choice(list(LdapServers.DOCKER_SERVERS.values())).copy()
 
-    generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.LDAP,
+    generic_aaa_test_priority(test_flow, test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.LDAP,
                               remote_aaa_obj=System().aaa.ldap, server1=server1, server2=server2)
 
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
+def test_ldap_server_unreachable(test_flow, test_api, engines, topology_obj, local_adminuser, request):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
         (next server or authentication method – local)
@@ -252,7 +255,7 @@ def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuse
     """
     server1 = LdapServers.PHYSICAL_SERVER.copy()
     server2 = LdapServers.DOCKER_SERVER_DN.copy()
-    generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request,
+    generic_aaa_test_server_unreachable(test_flow, test_api, engines, topology_obj, request,
                                         local_adminuser=local_adminuser,
                                         remote_aaa_type=RemoteAaaType.LDAP,
                                         remote_aaa_obj=System().aaa.ldap,
@@ -261,8 +264,9 @@ def test_ldap_server_unreachable(test_api, engines, topology_obj, local_adminuse
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
+def test_ldap_auth_error(test_flow, test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
 
@@ -282,7 +286,7 @@ def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserI
     """
     server1 = LdapServers.PHYSICAL_SERVER.copy()
     server2 = LdapServers.DOCKER_SERVER_DN.copy()
-    generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
+    generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
                                 remote_aaa_type=RemoteAaaType.LDAP,
                                 remote_aaa_obj=System().aaa.ldap,
                                 server1=server1, server2=server2)
@@ -293,11 +297,13 @@ def test_ldap_auth_error(test_api, engines, topology_obj, local_adminuser: UserI
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates, alias_ldap_server_dn, request,
+def test_cert_verify(test_flow, test_api, engines, devices, backup_and_restore_certificates, alias_ldap_server_dn, request,
                      topology_obj):
     item = request.node
     TestToolkit.tested_api = test_api
+    skip_auth_mediums = []
 
     with allure.step('Upload server certificate to tmp location on the switch'):
         scp_file(engines.dut, LdapConsts.DOCKER_LDAP_SERVER_CERT_PATH, LdapConsts.SERVER_CERT_FILE_IN_SWITCH)
@@ -313,10 +319,7 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
         ldap_obj.ssl.set(LdapConsts.SSL_CERT_VERIFY, LdapConsts.ENABLED).verify_result()
 
     with allure.step('Enable and set ldap as main authentication method'):
-        configure_resource(engines, aaa.authentication, conf={
-            AuthConsts.ORDER: f'{AuthConsts.LDAP},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: LdapConsts.ENABLED
-        })
+        ldap_obj.enable(failthrough=True)
 
     for encryption_mode in LdapEncryptionModes.ALL_MODES:
         with allure.step(f'Verify with encryption mode: {encryption_mode}'):
@@ -331,7 +334,8 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
 
             if encryption_mode != LdapEncryptionModes.NONE:
                 with allure.step(f'Verify auth with LDAP user when there is no CA cert in the switch- expect fail'):
-                    verify_user_auth(engines, topology_obj, user_to_validate, expect_login_success=False)
+                    verify_auth(test_flow, engines, topology_obj, bad_flow_users=[user_to_validate],
+                                verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
                 with allure.step('Add the server certificate to the switch'):
                     add_ldap_server_certificate_to_switch(engine)
@@ -340,7 +344,8 @@ def test_cert_verify(test_api, engines, devices, backup_and_restore_certificates
                                                                     find_prompt_delay=5)
 
             with allure.step(f'Verify auth with LDAP user when there is CA cert in the switch - expect success'):
-                verify_user_auth(engines, topology_obj, user_to_validate, verify_authorization=False)
+                verify_auth(test_flow, engines, topology_obj, good_flow_users=[user_to_validate],
+                            verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
             with allure.step('Restore certificates file'):
                 engine = engines.dut if not item.active_remote_admin_engine else item.active_remote_admin_engine
