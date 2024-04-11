@@ -61,8 +61,7 @@ def test_install_platform_firmware(engines, test_name):
                 res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,
                                                                 install_new_user_fw, system, platform, new_fw_to_install, fae,
                                                                 new_fw_name, actual_firmware, engines, test_name)
-                assert OperationTime.verify_operation_time(duration, 'install user FW'), \
-                    'Install user FW took more time than threshold value'
+                OperationTime.verify_operation_time(duration, 'install user FW').verify_result()
 
             with allure.step('Verify the firmware installed successfully'):
                 verify_firmware_with_platform_and_fae_cmd(platform, fae, new_fw_name, new_fw_name)
@@ -90,8 +89,7 @@ def install_image_fw(system, platform, engines, test_name, fw_has_changed):
             res_obj, duration = OperationTime.save_duration('reboot with default FW installation', '', test_name,
                                                             system.reboot.action_reboot)
             res = res_obj
-            assert OperationTime.verify_operation_time(duration, 'reboot with default FW installation'), \
-                'Reboot with default FW installation took more time than threshold value'
+            OperationTime.verify_operation_time(duration, 'reboot with default FW installation').verify_result()
         else:
             res = system.reboot.action_reboot()
 
@@ -112,8 +110,7 @@ def install_new_user_fw(system, platform, new_fw_to_install, fae, new_fw_name, a
         logging.info("Rebooting dut")
         res, duration = OperationTime.save_duration('reboot with new user FW', '',
                                                     test_name, system.reboot.action_reboot)
-        assert OperationTime.verify_operation_time(duration, 'reboot with new user FW'), \
-            'Reboot with new user FW took more time than threshold value'
+        OperationTime.verify_operation_time(duration, 'reboot with new user FW').verify_result()
 
     return res
 

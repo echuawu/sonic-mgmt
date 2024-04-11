@@ -37,6 +37,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
     current_time = get_current_time(engines)
     system = System()
     had_sm_before_test = False
+    username = ''
     try:
         with allure.step('pre factory reset steps'):
             apply_and_save_port, current_time, just_apply_port, last_status_line, machine_type, not_apply_port, \
@@ -323,5 +324,4 @@ def execute_reset_factory(engines, system, flag, current_time):
     res_obj, duration = OperationTime.save_duration('reset factory', flag, pytest.test_name,
                                                     system.factory_default.action_reset, param=flag)
     res_obj.verify_result()
-    assert OperationTime.verify_operation_time(duration, 'reset factory'), \
-        'Reset factory took more time than threshold value'
+    OperationTime.verify_operation_time(duration, 'reset factory').verify_result()

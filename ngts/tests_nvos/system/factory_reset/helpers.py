@@ -254,7 +254,7 @@ def verify_cleanup_done(engine, current_time, system, username, param=''):
         if param != KEEP_BASIC:
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 engine.run_cmd("nv show system aaa user -o json")).get_returned_value()
-            if username in output.keys():
+            if username and username in output.keys():
                 errors += "\nCreated user was not deleted"
 
     with allure.step("Check running dockers"):

@@ -3,7 +3,7 @@ import random
 import time
 from typing import Dict, List, Callable, Any
 
-from ngts.nvos_constants.constants_nvos import ApiType, ConfState
+from ngts.nvos_constants.constants_nvos import ApiType, ConfState, TestFlowType
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -13,13 +13,12 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
-from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthMedium
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
     detach_config
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth, verify_user_auth
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import verify_users_auth
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RemoteAaaServerInfo, \
     update_active_aaa_server
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
@@ -128,6 +127,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
                                                             output_dict=cur_hostname_conf).verify_result()
 
     with allure.step('Unset configuration'):
+        time.sleep(0.5)
         main_resource_obj.unset(apply=True).verify_result()
 
     with allure.step('Verify default configuration with show command'):
@@ -187,23 +187,35 @@ def generic_aaa_test_set_invalid_param(test_api,
                 check_invalid_set_to_resource(resource, field)
 
 
-def auth_testing(engines, topology_obj, local_adminuser: UserInfo, remote_aaa_type: str, server: RemoteAaaServerInfo,
-                 skip_auth_mediums: List[str] = None):
-    with allure.step(f'Sleep for {RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH} seconds'):
-        time.sleep(RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH)
-    with allure.step(f'Verify auth with {remote_aaa_type} user - expect success'):
-        remote_admin = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
-        remote_monitor = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
-        verify_users_auth(engines, topology_obj, [remote_admin, remote_monitor], skip_auth_mediums=skip_auth_mediums)
-    with allure.step(f'Verify auth with non {remote_aaa_type} user - expect fail'):
-        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False,
-                         skip_auth_mediums=skip_auth_mediums)
+def validate_params(test_flow: str = '', test_api: str = '', addressing_type: str = '', remote_aaa_type: str = '',
+                    auth_mediums: List[str] = None):
+    if test_flow:
+        assert test_flow in TestFlowType.ALL_TYPES, f'{test_flow} is not one of {TestFlowType.ALL_TYPES}'
+    if test_api:
+        assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+    if addressing_type:
+        assert addressing_type in AddressingType.ALL_TYPES, f'{addressing_type} is not one of {AddressingType.ALL_TYPES}'
+    if remote_aaa_type:
+        assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    if auth_mediums:
+        for medium in auth_mediums:
+            assert medium in AuthMedium.ALL_MEDIUMS, f'{medium} is not one of {AuthMedium.ALL_MEDIUMS}'
 
 
-def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology_obj, local_adminuser: UserInfo,
-                          request,
-                          remote_aaa_type: str,
-                          remote_aaa_obj: RemoteAaaResource,
+def verify_auth(test_flow, engines, topology_obj,
+                good_flow_users: List[UserInfo] = None, bad_flow_users: List[UserInfo] = None,
+                verify_authorization: bool = True, skip_auth_mediums: List[str] = None):
+    validate_params(test_flow=test_flow, auth_mediums=skip_auth_mediums)
+    if test_flow == TestFlowType.GOOD_FLOW and good_flow_users:
+        verify_users_auth(engines, topology_obj, good_flow_users, [True] * len(good_flow_users), verify_authorization,
+                          skip_auth_mediums)
+    elif test_flow == TestFlowType.BAD_FLOW and bad_flow_users:
+        verify_users_auth(engines, topology_obj, bad_flow_users, [False] * len(bad_flow_users), verify_authorization,
+                          skip_auth_mediums)
+
+
+def generic_aaa_test_auth(test_flow: str, test_api: str, addressing_type: str, engines, topology_obj,
+                          local_adminuser: UserInfo, request, remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
                           server_by_addr_type: Dict[str, RemoteAaaServerInfo],
                           test_param: List[str] = None,
                           test_param_update_func: Callable[
@@ -219,6 +231,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
         3. verify only remote user can authenticate
             - verify auth with remote user - expect success
             - verify auth with local user - expect fail
+    @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param addressing_type: whether to check connectivity with ipv4/ipv6/domain-name addressing
     @param engines: engines object
@@ -232,9 +245,8 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
     @param test_param_update_func: function to update the test configuration for each test param
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
-    assert addressing_type in AddressingType.ALL_TYPES, f'{addressing_type} is not one of {AddressingType.ALL_TYPES}'
+    validate_params(test_flow=test_flow, test_api=test_api, addressing_type=addressing_type,
+                    remote_aaa_type=remote_aaa_type, auth_mediums=skip_auth_mediums)
 
     TestToolkit.tested_api = test_api
     item = request.node
@@ -245,10 +257,7 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
         server.configure(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        configure_resource(engines, resource_obj=System().aaa.authentication, conf={
-            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
+        remote_aaa_obj.enable(apply=True, verify_res=False)
         update_active_aaa_server(item, server)
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item)
@@ -261,15 +270,24 @@ def generic_aaa_test_auth(test_api: str, addressing_type: str, engines, topology
                 if remote_aaa_type == RemoteAaaType.LDAP:
                     wait_for_ldap_nvued_restart_workaround(item)
             with allure.step('Test auth'):
-                auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
+                remote_admin = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
+                remote_monitor = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
+                verify_auth(test_flow, engines, topology_obj,
+                            good_flow_users=[remote_admin, remote_monitor], bad_flow_users=[local_adminuser],
+                            skip_auth_mediums=skip_auth_mediums)
     else:
-        auth_testing(engines, topology_obj, local_adminuser, remote_aaa_type, server, skip_auth_mediums)
+        remote_admin = [user for user in server.users if user.role == AaaConsts.ADMIN][0]
+        remote_monitor = [user for user in server.users if user.role == AaaConsts.MONITOR][0]
+        verify_auth(test_flow, engines, topology_obj,
+                    good_flow_users=[remote_admin, remote_monitor], bad_flow_users=[local_adminuser],
+                    skip_auth_mediums=skip_auth_mediums)
 
 
 def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remote_aaa_type: str,
                                            remote_aaa_obj: RemoteAaaResource,
                                            bad_param_name: str,
-                                           bad_configured_server: RemoteAaaServerInfo):
+                                           bad_configured_server: RemoteAaaServerInfo,
+                                           skip_auth_mediums: List[str] = None):
     """
     @summary: Verify that when configuring remote AAA server with wrong required value, it is unreachable,
         and remote user can't authenticate
@@ -285,8 +303,9 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
     @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param bad_param_name: name of the field to assign the bad value to
     @param bad_configured_server: object containing the remote server info
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
+    validate_params(remote_aaa_type=remote_aaa_type, auth_mediums=skip_auth_mediums)
 
     TestToolkit.tested_api = test_api
 
@@ -299,7 +318,9 @@ def generic_aaa_test_bad_configured_server(test_api, engines, topology_obj, remo
                                f'{remote_aaa_type},{AuthConsts.LOCAL}', apply=True).verify_result()
 
     with allure.step(f'Verify auth with {remote_aaa_type} user. Expect fail'):
-        verify_user_auth(engines, topology_obj, random.choice(bad_configured_server.users), expect_login_success=False)
+        verify_auth(TestFlowType.BAD_FLOW, engines, topology_obj,
+                    bad_flow_users=[random.choice(bad_configured_server.users)], verify_authorization=False,
+                    skip_auth_mediums=skip_auth_mediums)
 
 
 def generic_aaa_test_unique_priority(test_api, remote_aaa_obj: RemoteAaaResource):
@@ -312,7 +333,7 @@ def generic_aaa_test_unique_priority(test_api, remote_aaa_obj: RemoteAaaResource
     @param test_api: run commands with NVUE / OpenApi
     @param remote_aaa_obj: BaseComponent object representing the feature resource
     """
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+    validate_params(test_api=test_api)
 
     TestToolkit.tested_api = test_api
 
@@ -329,7 +350,7 @@ def generic_aaa_test_unique_priority(test_api, remote_aaa_obj: RemoteAaaResource
                                                             apply=True).verify_result(False)
 
 
-def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type: str,
+def generic_aaa_test_priority(test_flow, test_api, engines, topology_obj, request, remote_aaa_type: str,
                               remote_aaa_obj: RemoteAaaResource,
                               server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
                               skip_auth_mediums: List[str] = None):
@@ -343,6 +364,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
         4. repeat steps 2-3 until reach priority 8 (max)
 
         NOTE: in order to make this test meaningful, user should provide 2 servers info, with distinct users credentials
+    @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param engines: engines object
     @param topology_obj: topology object
@@ -353,8 +375,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
     @param server2: another server info (with different users credentials)
     @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+    validate_params(test_flow=test_flow, test_api=test_api, remote_aaa_type=remote_aaa_type, auth_mediums=skip_auth_mediums)
 
     TestToolkit.tested_api = test_api
     item = request.node
@@ -366,10 +387,7 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
         server2.configure(engines, set_explicit_priority=True)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
-            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
+        remote_aaa_obj.enable(apply=True, verify_res=False)
         top_server = server2
         lower_server = server1
         update_active_aaa_server(item, top_server)
@@ -381,13 +399,9 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
             time.sleep(RemoteAaaConsts.WAIT_TIME_BEFORE_AUTH)
 
         with allure.step(f'Verify auth is done via top prioritized server: {top_server.hostname}'):
-            with allure.step(f'Verify auth via top server: {top_server.hostname} - expect success'):
-                verify_user_auth(engines, topology_obj, top_server.users[0], expect_login_success=True,
-                                 verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
-
-            with allure.step(f'Verify auth via lower server: {lower_server.hostname} - expect fail'):
-                verify_user_auth(engines, topology_obj, lower_server.users[0], expect_login_success=False,
-                                 skip_auth_mediums=skip_auth_mediums)
+            verify_auth(test_flow, engines, topology_obj,
+                        good_flow_users=[top_server.users[0]], bad_flow_users=[lower_server.users[0]],
+                        verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
         if top_server.priority == ValidValues.PRIORITY[-1]:
             break
@@ -404,9 +418,10 @@ def generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_a
                 wait_for_ldap_nvued_restart_workaround(item)
 
 
-def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+def generic_aaa_test_server_unreachable(test_flow: str, test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                         remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
-                                        server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
+                                        server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
+                                        skip_auth_mediums: List[str] = None):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
         (next server or next authentication method – local)
@@ -422,6 +437,7 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         8.	Verify auth – success only with local user
         9.	Bring back the first server
         10. Verify auth – success only with top server user
+    @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param engines: engines object
     @param topology_obj: topology object
@@ -431,9 +447,9 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
     @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
-    assert remote_aaa_type in RemoteAaaType.ALL_TYPES, f'{remote_aaa_type} is not one of {RemoteAaaType.ALL_TYPES}'
-    assert test_api in ApiType.ALL_TYPES, f'{test_api} is not one of {ApiType.ALL_TYPES}'
+    validate_params(test_api=test_api, remote_aaa_type=remote_aaa_type)
 
     TestToolkit.tested_api = test_api
     item = request.node
@@ -447,15 +463,12 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
         server1.make_unreachable(engines)
 
     with allure.step(f'Enable {remote_aaa_type}'):
-        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
-            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True)
+        remote_aaa_obj.enable(apply=True)
 
     with allure.step('Verify auth - success only with local user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[random.choice(server1.users), local_adminuser],
-                          expect_login_success=[False, True], verify_authorization=False)
+        verify_auth(test_flow, engines, topology_obj,
+                    good_flow_users=[local_adminuser], bad_flow_users=[random.choice(server1.users)],
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
     with allure.step('Configure secondary prioritized reachable server'):
         server2.configure(engines, set_explicit_priority=True, apply=True)
@@ -464,9 +477,9 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
             wait_for_ldap_nvued_restart_workaround(item)
 
     with allure.step('Verify auth – success only with 2nd server user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[local_adminuser, random.choice(server2.users)],
-                          expect_login_success=[False, True], verify_authorization=False)
+        verify_auth(test_flow, engines, topology_obj,
+                    good_flow_users=[random.choice(server2.users)], bad_flow_users=[local_adminuser],
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
     with allure.step('Make the 2nd server also unreachable'):
         server2.make_unreachable(engines, apply=True, dut_engine=item.active_remote_admin_engine)
@@ -475,9 +488,9 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
     with allure.step('Verify auth - success only with local user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[random.choice(server2.users), local_adminuser],
-                          expect_login_success=[False, True], verify_authorization=False)
+        verify_auth(test_flow, engines, topology_obj,
+                    good_flow_users=[local_adminuser], bad_flow_users=[random.choice(server2.users)],
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
     with allure.step('Bring back the first server'):
         server1.make_reachable(engines, apply=True)
@@ -486,14 +499,15 @@ def generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request
             wait_for_ldap_nvued_restart_workaround(item)
 
     with allure.step('Verify auth – success only with top server user'):
-        verify_users_auth(engines, topology_obj,
-                          users=[local_adminuser, server2.users[0], server1.users[0]],
-                          expect_login_success=[False, False, True], verify_authorization=False)
+        verify_auth(test_flow, engines, topology_obj,
+                    good_flow_users=[server1.users[0]], bad_flow_users=[local_adminuser, server2.users[0]],
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
 
-def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser: UserInfo,
+def generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, request, local_adminuser: UserInfo,
                                 remote_aaa_type: str, remote_aaa_obj: RemoteAaaResource,
-                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo):
+                                server1: RemoteAaaServerInfo, server2: RemoteAaaServerInfo,
+                                skip_auth_mediums: List[str] = None):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
 
@@ -510,6 +524,7 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         6.	Verify auth with 2nd server credentials – expect success
         7.  Verify auth with local user credentials - expect success
         8.  Verify auth with credentials from none of servers/local - expect fail
+    @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param engines: engines object
     @param topology_obj: topology object
@@ -519,7 +534,11 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
     @param remote_aaa_obj: BaseComponent object representing the feature resource
     @param server1: object containing remote server info
     @param server2: another server info (with different users credentials)
+    @param skip_auth_mediums: auth mediums to skip from the test (optional)
     """
+    validate_params(test_flow=test_flow, test_api=test_api, remote_aaa_type=remote_aaa_type,
+                    auth_mediums=skip_auth_mediums)
+
     TestToolkit.tested_api = test_api
     item = request.node
 
@@ -532,19 +551,14 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         server2.configure(engines, set_explicit_priority=True)
 
     with allure.step(f'Enable {remote_aaa_type} and disable failthrough'):
-        configure_resource(engines, resource_obj=remote_aaa_obj.parent_obj.authentication, conf={
-            AuthConsts.ORDER: f'{remote_aaa_type},{AuthConsts.LOCAL}',
-            AuthConsts.FAILTHROUGH: AaaConsts.DISABLED
-        }, apply=True, verify_apply=False)
+        remote_aaa_obj.enable(apply=True, verify_res=False)
         update_active_aaa_server(item, server1)
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item)
 
-    with allure.step('Verify auth with 2nd server credentials – expect fail'):
-        verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=False)
-
-    with allure.step('Verify auth with local user credentials - expect fail'):
-        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=False)
+    with allure.step('Verify auth fail with users not from top server'):
+        verify_auth(test_flow, engines, topology_obj, bad_flow_users=[server2.users[0], local_adminuser],
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)
 
     with allure.step('Enable failthrough'):
         aaa: Aaa = remote_aaa_obj.parent_obj
@@ -554,15 +568,10 @@ def generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_
         if remote_aaa_type == RemoteAaaType.LDAP:
             wait_for_ldap_nvued_restart_workaround(item, engine_to_use=engines.dut)
 
+    good_flow_users = [local_adminuser]
     if remote_aaa_type != RemoteAaaType.LDAP:  # with LDAP + failthrough on - only move to next method, and not server
-        with allure.step('Verify auth with 2nd server credentials – expect success'):
-            verify_user_auth(engines, topology_obj, server2.users[0], expect_login_success=True,
-                             verify_authorization=False)
+        good_flow_users.append(server2.users[0])
 
-    with allure.step('Verify auth with local user credentials - expect success'):
-        verify_user_auth(engines, topology_obj, local_adminuser, expect_login_success=True, verify_authorization=False)
-
-    with allure.step('Verify auth with credentials from none of servers/local - expect fail'):
-        dummy_user = local_adminuser.copy()
-        dummy_user.username = f'dummy_{dummy_user.username}'
-        verify_user_auth(engines, topology_obj, dummy_user, expect_login_success=False)
+    with allure.step('Verify auth success with users not from top server'):
+        verify_auth(test_flow, engines, topology_obj, good_flow_users=good_flow_users,
+                    verify_authorization=False, skip_auth_mediums=skip_auth_mediums)

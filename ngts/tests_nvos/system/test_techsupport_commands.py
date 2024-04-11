@@ -1,12 +1,14 @@
-import pytest
 import datetime
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_constants.constants_nvos import SystemConsts
+
+import pytest
+
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import SystemConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.system
@@ -31,11 +33,9 @@ def test_techsupport_show(engines, test_name):
         output_dictionary_before_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
             system.techsupport.show()).get_returned_value().values())
         folder, duration = system.techsupport.action_generate(test_name=test_name)
-        assert OperationTime.verify_operation_time(duration, operation), \
-            '{op} took more time than threshold value'.format(op=operation)
+        OperationTime.verify_operation_time(duration, operation).verify_result()
         folder, duration = system.techsupport.action_generate()
-        assert OperationTime.verify_operation_time(duration, operation), \
-            '{op} took more time than threshold value'.format(op=operation)
+        OperationTime.verify_operation_time(duration, operation).verify_result()
         output_dictionary_after_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
             system.techsupport.show()).get_returned_value().values())
         validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions, 2)
@@ -78,8 +78,7 @@ def test_techsupport_since(engines, test_name):
         output_dictionary = list(Tools.OutputParsingTool.parse_show_files_to_dict(
             system.techsupport.show()).get_returned_value().values())
         validate_techsupport_since(output_dictionary, tech_support_folder)
-        assert OperationTime.verify_operation_time(duration, operation), \
-            '{op} took more time than threshold value'.format(op=operation)
+        OperationTime.verify_operation_time(duration, operation).verify_result()
 
 
 @pytest.mark.system
@@ -218,8 +217,7 @@ def test_techsupport_multiple_times(engines, test_name):
         for i in range(0, 4):
             with allure.step("Generate Tech-Support for the {} time".format(i)):
                 folder, duration = system.techsupport.action_generate(test_name=test_name)
-                assert OperationTime.verify_operation_time(duration, operation), \
-                    '{op} took more time than threshold value'.format(op=operation)
+                OperationTime.verify_operation_time(duration, operation).verify_result()
 
 
 @pytest.mark.system

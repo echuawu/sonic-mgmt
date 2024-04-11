@@ -169,6 +169,12 @@ class ApiType:
     ALL_TYPES = [NVUE, OPENAPI]
 
 
+class TestFlowType:
+    GOOD_FLOW = 'GoodFlow'
+    BAD_FLOW = 'BadFlow'
+    ALL_TYPES = [GOOD_FLOW, BAD_FLOW]
+
+
 class OutputFormat:
     auto = 'auto'
     json = 'json'

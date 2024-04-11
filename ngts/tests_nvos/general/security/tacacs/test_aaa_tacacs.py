@@ -76,9 +76,10 @@ def test_tacacs_set_invalid_param(test_api, engines):
 @pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
 @pytest.mark.parametrize('addressing_type', AddressingType.ALL_TYPES)
-def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adminuser, request):
+def test_tacacs_auth(test_flow, test_api, addressing_type, engines, topology_obj, local_adminuser, request):
     """
     @summary: Basic test to verify authentication and authorization through tacacs, using all possible auth mediums:
         SSH, OpenApi, rcon, scp.
@@ -91,7 +92,7 @@ def test_tacacs_auth(test_api, addressing_type, engines, topology_obj, local_adm
             - verify auth with local user - expect fail
     """
     tacacs = System().aaa.tacacs
-    generic_aaa_test_auth(test_api=test_api, addressing_type=addressing_type, engines=engines,
+    generic_aaa_test_auth(test_flow=test_flow, test_api=test_api, addressing_type=addressing_type, engines=engines,
                           topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
                           remote_aaa_type=RemoteAaaType.TACACS,
                           remote_aaa_obj=tacacs,
@@ -160,8 +161,9 @@ def test_tacacs_unique_priority(test_api, engines, topology_obj):
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_tacacs_priority(test_api, engines, topology_obj, request):
+def test_tacacs_priority(test_flow, test_api, engines, topology_obj, request):
     """
     @summary: Verify that auth is done via the top prioritized server
 
@@ -172,14 +174,15 @@ def test_tacacs_priority(test_api, engines, topology_obj, request):
         4. repeat steps 2-3 until reach priority 8 (max)
     """
     server1, server2 = get_two_different_tacacs_servers()
-    generic_aaa_test_priority(test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.TACACS,
+    generic_aaa_test_priority(test_flow, test_api, engines, topology_obj, request, remote_aaa_type=RemoteAaaType.TACACS,
                               remote_aaa_obj=System().aaa.tacacs, server1=server1, server2=server2)
 
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminuser, request):
+def test_tacacs_server_unreachable(test_flow, test_api, engines, topology_obj, local_adminuser, request):
     """
     @summary: Verify that when a server is unreachable, auth is done via next in line
         (next server or authentication method – local)
@@ -197,7 +200,7 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
         10. Verify auth – success only with top server user
     """
     server1, server2 = get_two_different_tacacs_servers()
-    generic_aaa_test_server_unreachable(test_api, engines, topology_obj, request,
+    generic_aaa_test_server_unreachable(test_flow, test_api, engines, topology_obj, request,
                                         local_adminuser=local_adminuser,
                                         remote_aaa_type=RemoteAaaType.TACACS,
                                         remote_aaa_obj=System().aaa.tacacs,
@@ -206,8 +209,9 @@ def test_tacacs_server_unreachable(test_api, engines, topology_obj, local_adminu
 
 @pytest.mark.security
 @pytest.mark.simx_security
+@pytest.mark.parametrize('test_flow', TestFlowType.ALL_TYPES)
 @pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
-def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: UserInfo, request):
+def test_tacacs_auth_error(test_flow, test_api, engines, topology_obj, local_adminuser: UserInfo, request):
     """
     @summary: Verify the behavior in case of auth error (username not found or bad credentials).
 
@@ -226,7 +230,7 @@ def test_tacacs_auth_error(test_api, engines, topology_obj, local_adminuser: Use
         8.  Verify auth with credentials from none of servers/local - expect fail
     """
     server1, server2 = get_two_different_tacacs_servers()
-    generic_aaa_test_auth_error(test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
+    generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
                                 remote_aaa_type=RemoteAaaType.TACACS,
                                 remote_aaa_obj=System().aaa.tacacs,
                                 server1=server1, server2=server2)
@@ -374,7 +378,7 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
 @pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
     """
     @summary: Verify timeout functionality
@@ -398,11 +402,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
         with allure.step('Set unreachable tacacs server with some timeout'):
             rand_timeout = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
                                           TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
-            rand_timeout = 19
             logging.info(f'Chosen timeout: {rand_timeout}')
-            # configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            #     AaaConsts.RETRANSMIT: 0
-            # })
             configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
                 AaaConsts.TIMEOUT: rand_timeout,
                 AaaConsts.SECRET: "xyz",
