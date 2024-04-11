@@ -89,8 +89,8 @@ def pytest_addoption(parser):
     parser.addoption("--post_validation", help="Specify whether do post installation validation",
                      default=False, action="store")
     logger.info('Parsing deploy_dpu')
-    parser.addoption("--deploy_dpu", type=bool, help="Specify whether to deploy dpu for smart switch setup.",
-                     action="store", default=False)
+    parser.addoption("--deploy_dpu", help="Specify whether to deploy dpu for smart switch setup.",
+                     action="store", default="no")
 
 
 @pytest.fixture(scope="module")
@@ -311,4 +311,4 @@ def deploy_dpu(request):
     :return: deploy_dpu
     """
     deploy_dpu = request.config.getoption('--deploy_dpu')
-    return deploy_dpu
+    return deploy_dpu == "yes"
