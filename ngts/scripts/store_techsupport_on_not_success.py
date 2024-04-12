@@ -316,7 +316,7 @@ def test_store_techsupport_on_not_success(topology_obj, duration, dumps_folder, 
     if is_simx and not is_air:
         dump_simx_data(topology_obj, dumps_folder)
 
-    if is_dualtor_topo(sonic_topo):
+    if sonic_topo and is_dualtor_topo(sonic_topo):
         hyper_engine = get_hypervisor_engine(topology_obj)
         collect_dualtor_simulator_log(hyper_engine, dumps_folder)
 
