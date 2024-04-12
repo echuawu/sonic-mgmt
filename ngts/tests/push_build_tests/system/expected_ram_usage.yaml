@@ -233,7 +233,7 @@ master:
   # SPC3
   SN4280: # Bobcat
     total: 4750
-    sx_sdk: 1200
+    sx_sdk: 1500
     syncd: 300
     redis-server: 70
     snmpd: 20
@@ -243,7 +243,7 @@ master:
     bgpmon: 20
     fpmsyncd: 5
     orchagent: 55
-    ntpd: 5
+    ntpd: 7
     neighsyncd: 5
     vlanmgrd: 5
     intfmgrd: 7
