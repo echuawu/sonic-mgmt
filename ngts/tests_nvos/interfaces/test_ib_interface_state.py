@@ -1,11 +1,13 @@
 import logging
-from ngts.tools.test_utils import allure_utils as allure
+
 import pytest
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -60,8 +62,7 @@ def toggle_port_state(selected_port, port_state, test_name=''):
                                                         selected_port.ib_interface.wait_for_port_state, port_state,
                                                         sleep_time=0.2)
         res_obj.verify_result()
-        assert OperationTime.verify_operation_time(duration, 'port goes {}'.format(port_state)), \
-            'Port state goes {} took more time than threshold value'.format(port_state)
+        OperationTime.verify_operation_time(duration, 'port goes {}'.format(port_state)).verify_result()
 
 
 @pytest.mark.ib_interfaces

@@ -1,11 +1,12 @@
 import pytest
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.mark.system
@@ -19,7 +20,7 @@ def test_reboot_command(engines, devices, test_name):
 
     with allure.step('Run nv action reboot system'):
         result_obj, duration = OperationTime.save_duration('reboot', '', test_name, system.reboot.action_reboot)
-        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
+        OperationTime.verify_operation_time(duration, 'reboot').verify_result()
 
     with allure.step("Check system reboot output"):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()
@@ -47,7 +48,7 @@ def test_reboot_command_immediate(engines, devices, test_name):
     with allure.step('Run nv action reboot system mode immediate'):
         result_obj, duration = OperationTime.save_duration('reboot', 'immediate', test_name,
                                                            system.reboot.action_reboot, params='immediate')
-        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
+        OperationTime.verify_operation_time(duration, 'reboot').verify_result()
 
 
 @pytest.mark.system
@@ -62,7 +63,7 @@ def test_reboot_command_force(engines, devices, test_name, test_api):
     with allure.step('Run nv action reboot system mode force'):
         result_obj, duration = OperationTime.save_duration('reboot', 'force', test_name,
                                                            system.reboot.action_reboot, params='force')
-        assert OperationTime.verify_operation_time(duration, 'reboot'), 'Reboot took more time than threshold value'
+        OperationTime.verify_operation_time(duration, 'reboot').verify_result()
 
 
 @pytest.mark.system

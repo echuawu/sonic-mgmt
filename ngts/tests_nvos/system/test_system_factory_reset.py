@@ -323,5 +323,4 @@ def execute_reset_factory(engines, system, flag, current_time):
     res_obj, duration = OperationTime.save_duration('reset factory', flag, pytest.test_name,
                                                     system.factory_default.action_reset, param=flag)
     res_obj.verify_result()
-    assert OperationTime.verify_operation_time(duration, 'reset factory'), \
-        'Reset factory took more time than threshold value'
+    OperationTime.verify_operation_time(duration, 'reset factory').verify_result()

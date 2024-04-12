@@ -1,15 +1,17 @@
 import logging
+import time
+
 import pytest
-from ngts.nvos_tools.system.System import System
+
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_constants.constants_nvos import SystemConsts
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 
-import time
 logger = logging.getLogger()
 
 
@@ -59,8 +61,7 @@ def test_system(test_api, engines, devices, topology_obj, test_name):
                                                         apply=True, ask_for_confirmation=True)
         res_obj.verify_result()
         time.sleep(3)
-        assert OperationTime.verify_operation_time(duration, 'set hostname'), \
-            'Set hostname took more time than threshold value'
+        OperationTime.verify_operation_time(duration, 'set hostname').verify_result()
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_value_in_output(system_output, SystemConsts.HOSTNAME,
                                                     new_hostname_value).verify_result()

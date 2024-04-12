@@ -1,8 +1,10 @@
 import logging
 import time
-import pytest
-from ngts.nvos_constants.constants_nvos import OperationTimeConsts
 
+import pytest
+
+from ngts.nvos_constants.constants_nvos import OperationTimeConsts
+from ngts.nvos_tools.infra.ResultObj import ResultObj, IssueType
 
 logger = logging.getLogger()
 
@@ -50,11 +52,11 @@ class OperationTime:
             duration_time_dict[OperationTimeConsts.TEST_NAME_COL] = test_name
 
     @staticmethod
-    def verify_operation_time(duration, operation=''):
-        ret_val = True
+    def verify_operation_time(duration, operation='') -> ResultObj:
+        ret_val = ResultObj(True)
         threshold = OperationTimeConsts.THRESHOLDS.get(operation)
         if threshold is not None and threshold < duration:
-            logger.error("{op} took more time than threshold of {thresh} seconds".format(op=operation,
-                                                                                         thresh=threshold))
-            ret_val = False
+            err_msg = f"{operation} took more time than threshold of {threshold} seconds"
+            logger.error(err_msg)
+            ret_val = ResultObj(False, err_msg, issue_type=IssueType.PossibleBug)
         return ret_val
