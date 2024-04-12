@@ -30,14 +30,6 @@ tests/nightly/crm/test_crm.py::test_crm_acl:
     conditions:
       - "https://redmine.mellanox.com/issues/3841291"
 
-tests/nightly/cpld/test_cpld.py::test_cpld_version_check:
-  skip:
-    reason: "Testcase skipped due to RM ticket https://redmine.mellanox.com/issues/3549638 on ComEx setup or https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3549638 and 'r-panther-36' in testbed "
-      - "https://redmine.mellanox.com/issues/3625947 and 'sn5600' in platform "
-
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
@@ -52,25 +44,11 @@ tests/nightly/runtime/test_runtime.py:
       - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3649746"
 
-tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_temperature_sweep:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649765"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649765 and 'master_bookworm' in branch"
-
 tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_direction]:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3851470 for simx platform"
     conditions:
       - "https://redmine.mellanox.com/issues/3851470 and 'simx' in platform "
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3649788"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649788 and 'master_bookworm' in branch"
-      - "https://redmine.mellanox.com/issues/3680070"
 
 tests/nightly/auto_negotition:
   skip:
@@ -78,24 +56,14 @@ tests/nightly/auto_negotition:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform or '3800' in platform"
-      - "https://redmine.mellanox.com/issues/3496887 and '5600' in platform"
-      - "https://redmine.mellanox.com/issues/3587862 and 'r-panther-13' in testbed"
 
 tests/nightly/dynamic_port_breakout:
   skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
+    reason: "Test is not supported on simx and 3800"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/2885961 and 'simx' in platform"
-      - "'202012' in release or '202106' in release"
-      - "https://redmine.mellanox.com/issues/2980513 and '4410' in platform"
       - "'3800' in platform"
-
-tests/nightly/dynamic_port_breakout/test_dpb_introp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3379037"
-    conditions:
-      - https://redmine.mellanox.com/issues/3379037
 
 tests/nightly/copp/test_copp.py::test_copp_policer[LLDP_Reboot]:
   skip:
@@ -109,54 +77,17 @@ tests/nightly/copp/test_copp.py::test_copp_policer[LLDP]:
     conditions:
       - "https://redmine.mellanox.com/issues/2682609 and 'simx' in platform"
 
-tests/nightly/copp/test_copp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3580021 on SIMX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3580021 and 'simx' in platform"
-
 tests/nightly/sflow/test_sflow.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3824269"
-    conditions_logical_operator: or
+    reason: "Test is not supported on simx"
     conditions:
       - "https://redmine.mellanox.com/issues/2271111 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3824269"
-
-tests/push_build_tests/general/qos/test_qos_reload.py::test_qos_reload_ports:
-  skip:
-    reason: "Testcase ignored, CLI command 'qos reload --ports' will not be merged to 202012/202111 branches"
-    conditions_logical_operator: or
-    conditions:
-      - "'202012' in release or '202111' in release"
-      - "'202211' in release and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3631291"
-
-tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ssd_endurance:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630496 on r-alligator-04 testbed"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3630496 and 'r-alligator-04' in testbed"
-
-tests/push_build_tests/general/wjh/test_wjh.py::test_l3_dst_ip_is_loopback:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3434591 on SIMX platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3434591 and 'simx' in platform and ('202211' in release or 'master' in release)"
-      - "https://redmine.mellanox.com/issues/3432797 and 'simx' in platform and '202205' in release"
 
 tests/push_build_tests/L3/sflow/test_sflow.py:
   skip:
     reason: "sflow still isn't supported on Simx "
     conditions:
       - "https://redmine.mellanox.com/issues/2271111 and 'simx' in platform"
-
-tests/push_build_tests/L3/crm/test_crm.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3030870 on SIMX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3030870 and 'simx' in platform"
 
 tests/push_build_tests/L2/lldp/test_lldp.py:
   skip:
@@ -176,57 +107,6 @@ tests/push_build_tests/L3/acl/test_acl.py::test_acl_traffic_not_match:
     conditions:
       - "https://redmine.mellanox.com/issues/2939326 and 'simx' in platform"
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_basic_dhcp6_relay:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_remove_dhcp_server:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_message:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_relay_reply_message:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcpv6_relay_client_request_with_empty_payload:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3730454 for 202311"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3730454 and '202311' in release and 'simx' in platform"
-
-tests/nightly/app_extension/:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3547445"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3547445 and 'r-anaconda-51' in testbed"
-
-tests/push_build_tests/:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3547445"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3547445 and 'r-anaconda-51' in testbed"
-
-
-tests/push_build_tests/general/wjh/test_wjh.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3008967 on SIMX platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3008967 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3238763 and '202205' in release"
-
 tests/push_build_tests/general/wjh/test_wjh.py::test_l3_non_ip_packet:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3770476 on SIMX platform"
@@ -242,10 +122,8 @@ tests/push_build_tests/L2/vxlan/test_vxlan.py:
 tests/push_build_tests/L2/vlan/test_vlan.py::TestVLAN::test_vlan_on_split_port:
   skip:
     reason: "Testcase ignored due to 2201 platform"
-    conditions_logical_operator: or
     conditions:
       - "'2201' in platform"
-      - "'simx' in platform and '5600' in platform and https://redmine.mellanox.com/issues/3517623"
 
 tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhcp_relay_release_message:
   skip:
@@ -259,43 +137,11 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3599997 and simx platform"
-    conditions:
-      - "'simx' in platform and '202305' in release and https://redmine.mellanox.com/issues/3599997"
-
-tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3440734 on spc1 and simx that run ASAN image"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3440734 and 'ASAN' in build_version and ('spc1' in asic_gen or 'simx' in platform)"
-
-tests/nightly/dhcp_relay/test_dhcp_relay.py::test_dhcp6_relay_few_dhcp_servers:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3333915 and branch 202211"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3333915 and '202211' in release"
-
-tests/push_build_tests/system/test_reboot_reload.py::test_push_gate_reboot_policer[warm-reboot]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2637874"
-    conditions:
-      - https://redmine.mellanox.com/issues/2637874
-
-tests/push_build_tests/L2/vlan/test_vlan.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3265995 on SIMX"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3265995 and 'simx' in platform and '202205' in release"
-
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "Testcase ignored by bug 3431845 on r-leopard-56 or SIMX platform "
-    conditions_logical_operator: or
+    reason: "Testcase ignored on SIMX platform "
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3431845 and 'r-leopard-56' in testbed"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
@@ -305,26 +151,18 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored by bug 3592124 or simx in platform"
+    reason: "Testcase ignored by simx in platform"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3592124 and '202211' in release"
-
-tests/nightly/fec:
-  skip:
-    reason: "Testcase ignored due to branch 202012"
-    conditions:
-      - "'202012' in release"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   skip:
-    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3442487 and platform SPC2/3 or simx. The leaks reported by ASAN during test are not real leaks, test should not run on ASAN image."
+    reason: "Testcase ignored due to platform SPC2/3 or simx. The leaks reported by ASAN during test are not real leaks, test should not run on ASAN image."
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
       - "'ASAN' in build_version"
-      - "https://redmine.mellanox.com/issues/3629837"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump[PLL_LOCK_EVENT]:
   skip:
@@ -332,41 +170,17 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
     conditions:
       - "'sn2' in platform or 'sn3' in platform"
 
-tests/push_build_tests/L3/sflow/test_sflow.py::test_basic_sflow_function:
-  skip:
-    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3440608 on setups with upgrade test"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3440608 and ('r-leopard-56' in testbed or 'r-lionfish-07' in testbed or 'r-spider-05' in testbed)"
-
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   skip:
-    reason: "Testcase ignored due to platform SIMX or https://redmine.mellanox.com/issues/3419484 and 'sn5' in platform"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to platform SIMX"
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3419484 and 'sn5' in platform"
-
-tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_health_event_sdk_dump:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3585683"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3585683 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3629837"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
-    reason: "Testcase ignored - for simx check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml. For other platforms, ignored due to RM issue 3780802"
-    conditions_logical_operator: or
+    reason: "Testcase is not supported on simx"
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3780802"
-
-tests/push_build_tests/general/wjh/test_wjh.py::test_buffer[buffer_latency]:
-  skip:
-    reason: "Testcase ignored due to https://redmine.mellanox.com/issues/3693928"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3693928"
 
 tests/push_build_tests/general/doroce/test_doroce.py:
   skip:
@@ -379,11 +193,9 @@ tests/push_build_tests/general/doroce/test_doroce.py:
 
 tests/nightly/rj45/test_rj45.py:
   skip:
-    reason: "Testcase ignored - check ignore condition in tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
-    conditions_logical_operator: or
+    reason: "Testcase is only for alligator"
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia_sn4' in platform or 'x86_64-nvidia_sn5' in platform"
-      - https://redmine.mellanox.com/issues/3193857
 
 tests/nightly/p4/examples_application/p4_gtp_parser/test_gtp_parser.py:
   skip:
@@ -395,42 +207,11 @@ tests/nightly/p4/sampling_example/test_entry_advance.py:
   skip:
     reason: "Test not supported. Skip until all config_db.json file will be updated with breakout_cfg section"
 
-tests/nightly/evpn_vxlan:
-  skip:
-    reason: "Test is supported since release 202211"
-    conditions_logical_operator: or
-    conditions:
-      - "release in ['201911, 202012, 202205']"
-      - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
-
-tests/push_build_tests/L3/evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_evpn_vxlan_basic:
-  skip:
-    reason: "Test will be supported since release 202211"
-    conditions_logical_operator: or
-    conditions:
-      - "release in ['201911', '202012', '202205']"
-      - "https://redmine.mellanox.com/issues/3628849"
-      - "https://redmine.mellanox.com/issues/3267288 and 'simx' in platform"
-
 tests/nightly/cpu_mem/test_bulk_counter_performance.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3832426"
     conditions:
     - "https://redmine.mellanox.com/issues/3832426"
-
-tests/nightly/cpu_mem/test_bulk_counter_performance.py::test_cpu_memory_usage_desired_process:
-  skip:
-    reason: "Bulk Counter is not supported at 202012 202106 202111 and 202205 release"
-    conditions_logical_operator: or
-    conditions:
-      - "'202012' in release or '202111' in release or '202106' in release or '202205' in release"
-      - "https://redmine.mellanox.com/issues/3266856 and ('202211' in release or 'master' in release)"
-
-tests/nightly/auto_negotition/test_auto_neg.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3723113 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3723113 and ('master' in release) and ('msn4600' in platform or 'sn2' in platform)"
 
 tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_integration:
   skip:
@@ -438,121 +219,11 @@ tests/nightly/app_extension/test_app_extension_basic.py::test_app_techsupport_in
     conditions:
       - "https://redmine.mellanox.com/issues/3272016 and 'simx' in platform"
 
-tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_version:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
-tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_manifest:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
-tests/nightly/app_extension/test_app_extension_basic.py::test_show_package_changelog:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
-tests/nightly/app_extension/test_app_extension_install_uninstall.py::test_app_install_with_abnormal_package:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
-tests/nightly/app_extension/test_app_extension_install_uninstall.py::test_app_install_with_force_skip_dependency_check:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
-tests/nightly/app_extension/test_app_extension_upgrade.py::test_app_upgrade_with_abnormal_package:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632208 and branch master"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632208 and 'master' in release"
-
 tests/nightly/app_extension:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3245030 on Air setups"
     conditions:
       - "https://redmine.mellanox.com/issues/3245030 and 'air' in testbed"
-
-tests/push_build_tests/L2/lldp/test_lldp.py::test_show_lldp_table_output:
-  skip:
-    reason: "Ignore on SP4 SIMX"
-    conditions_logical_operator: and
-    conditions:
-      - "https://redmine.mellanox.com/issues/3517615 and '5600' in platform"
-      - "'simx' in platform"
-
-tests/push_build_tests/L2/lldp/test_lldp.py::test_show_lldp_neighbors_output:
-  skip:
-    reason: "Ignore on SP4 SIMX"
-    conditions_logical_operator: and
-    conditions:
-      - "https://redmine.mellanox.com/issues/3517615 and '5600' in platform"
-      - "'simx' in platform"
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_route:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
-      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
-
-tests/push_build_tests/L3/crm/test_crm.py::test_crm_nexthop_group_and_member:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
-      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
-
-tests/push_build_tests/L3/dhcp_relay/test_dhcp6_relay.py::TestDHCP6Relay::test_dhcp6_relay_client_renew_request_from_global_ip:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
-      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
-
-tests/push_build_tests/L3/static_route/test_static_route.py::test_basic_static_route:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3174809 and branch master or https://redmine.mellanox.com/issues/3195120 and 'SN2700' in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3174809 and ('202211' in release or 'master' in release)"
-      - "https://redmine.mellanox.com/issues/3195120 and 'sn2700' in platform"
-
-tests/nightly/auto_negotition/test_auto_neg_negative.py::TestAutoNegNegative::test_negative_advertised_speed_type_mismatch:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3593724"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3593724"
-
-tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
-    conditions:
-      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
-
-tests/nightly/lag/test_lag.py::test_port_cannot_be_added_to_lag:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 or RM issue: https://redmine.mellanox.com/issues/3416102 and failed on only r-moose-01"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
-      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
-
-tests/nightly/lag/test_lag.py::test_lag_min_links:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3188281 and failed on only r-leopard-56 "
-    conditions:
-      - "https://redmine.mellanox.com/issues/3188281 and 'r-leopard-56' in testbed"
 
 tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvpnVxlan::test_overlay_ecmp:
   skip:
@@ -566,97 +237,11 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvp
     conditions:
       - "'r-bulldog-02' in testbed"
 
-tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_mac_move_handling:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3487097"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3487097 and 'simx' in platform"
-
-tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_L2_BUM:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3318217 at SIMX"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3318217 and 'simx' in platform"
-
-tests/nightly/evpn_vxlan/test_evpn_vxlan/test_evpn_vxlan.py::TestEvpnVxlan::test_cli_cmds_check:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3446176"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3446176"
-
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVrf::test_ecmp_calculator_interface_vrf[outer_dip-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceVlanVrf::test_ecmp_calculator_vlan_vrf[outer_sport-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestLag::test_ecmp_calculator_lag[inner_dip-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag[inner_sip-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag[inner_next_header-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestSubInterfaceLag::test_ecmp_calculator_sub_interface_lag[inner_sip-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestSubInterface::test_ecmp_calculator_sub_interface[inner_sip-outer_inner]:
-  skip:
-    reason: "Testcase not supported on SimX platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3332234 and 'simx' in platform"
-
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py:
-  skip:
-    reason: "Testcase failed on some specific platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3333124 and 'sn4600c' in platform"
-      - "https://redmine.mellanox.com/issues/3332330 and 'sn4600' in platform"
-      - "https://redmine.mellanox.com/issues/3332330 and 'sn2201' in platform"
-
-tests/nightly/dynamic_port_breakout/:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3536951 on SPC4"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3536951 and 'sn5' in platform"
-
-tests/nightly/lag/test_lag.py::test_lag_members_scale:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3519693 on SPC4 and MSN4410"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3519693 and 'sn5' in platform"
-      - "https://redmine.mellanox.com/issues/3519693 and 'msn4410' in platform"
-
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3518706 on MSN4410 Platform and https://redmine.mellanox.com/issues/3723113 on master"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3518706 on MSN4410"
     conditions:
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
-      - "https://redmine.mellanox.com/issues/3723113 and ('master' in release) and ('msn4600' in platform or 'sn2' in platform)"
 
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
   skip:
@@ -664,71 +249,17 @@ tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
     conditions:
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
 
-tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestVlanLag::test_ecmp_calculator_vlan_lag_without_fdb:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416551"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3416551 and '5600' in platform"
-
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_dpb_configuration_interop:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421305"
     conditions:
       - https://redmine.mellanox.com/issues/3421305
 
-tests/nightly/evpn_vxlan/underlay_ecmp/test_evpn_vxlan_underlay_ecmp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3481969 on x86_64-mlnx_msn2700_simx-r0 platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3481969 and 'x86_64-mlnx_msn2700_simx-r0' in platform"
-
-
 tests/nightly/dynamic_port_breakout/test_dpb_introp.py::TestDPBInterop::test_remove_dpb_configuration_interop:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421305"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3529394"
     conditions:
       - https://redmine.mellanox.com/issues/3529394
-
-
-tests/nightly/dynamic_port_breakout/test_dpb_all_ports.py::TestDPBOnAllPorts::test_dpb_on_all_ports:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3536951"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3536951 and '5600' in platform"
-      - "https://redmine.mellanox.com/issues/3543861 and 'msn4410' in platform and release in ['201911, 202012, 202205, 202211']"
-
-
-tests/nightly/lag/test_lag.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3538586"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3538586"
-
-tests/nightly/cpld/test_cpld.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3613529 and Mellanox-SN4700-O28 hwsku"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3613529 and 'Mellanox-SN4700-O28' in hwsku"
-
-tests/push_build_tests:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3661571 and simx spc4 CI setup"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3661571"
-      - "'r-moose-simx-18' in testbed or 'r-moose-simx-22' in testbed or 'r-moose-simx-26' in testbed or 'r-moose-simx-30' in testbed"
-
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3656833"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3656833"
-
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3656833"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3656833"
 
 tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ssd_endurance:
   skip:
@@ -805,25 +336,11 @@ dualtor_io/test_link_failure.py::test_active_link_down_upstream[active-standby]:
     conditions:
       - "https://redmine.mellanox.com/issues/3572162 and '202211' in release"
 
-platform_tests/api/test_sfp.py::TestSfpApi::test_lpmode:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630488"
-    conditions:
-      - https://redmine.mellanox.com/issues/3630488
-
-copp/test_copp.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3130627"
-    conditions:
-      - https://redmine.mellanox.com/issues/3130627
-
 arp/test_wr_arp.py::TestWrArp::testWrArp:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 on sn5600 platform or https://redmine.mellanox.com/issues/3629375"
-    conditions_logical_operator: or
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3431638 on sn5600 platform"
     conditions:
       - "https://redmine.mellanox.com/issues/3431638 and 'sn5600' in platform"
-      - "https://redmine.mellanox.com/issues/3629375"
 
 autorestart/test_container_autorestart.py::test_containers_autorestart[r-tigris-26-None-teamd]:
   skip:
@@ -831,43 +348,12 @@ autorestart/test_container_autorestart.py::test_containers_autorestart[r-tigris-
     conditions:
       - "https://redmine.mellanox.com/issues/3587377"
 
-snmp/test_snmp_memory.py::test_snmp_memory:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3213192"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3213192 and '202205' in release"
-
-vxlan/test_vxlan_decap.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419436 and branch 202211 and 't0-64' in topo_name"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419436 and '202211' in release and 't0-64' in topo_name"
-
-vlan/test_vlan.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 'msn4600c' in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 'msn4600c' in platform"
-
-vlan/test_autostate_disabled.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419725 and branch 202211 and 't0-64' in topo_name"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419725 and '202211' in release and 't0-64' in topo_name"
-
 qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3097795 and branch 202111, or RM 3486128 and branch 202211 and sn5600 in platform"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
-
-qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3500047 and branch 202211 and sn3800 in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3500047 and '202211' in release and 'sn3800' in platform"
 
 telemetry/test_events.py::test_events:
   skip:
@@ -887,27 +373,11 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot_from_other_vendor:
     conditions:
       - https://redmine.mellanox.com/issues/3225815
 
-qos/test_buffer.py:
-  skip:
-    reason: "Test skipped because MSN SKU not support those tests or by RM issue 3191031 for sn2201 "
-    conditions_logical_operator: or
-    conditions:
-      - "'msn2700' in platform"
-      - "https://redmine.mellanox.com/issues/3191031 and 'sn2201' in platform"
-      - "https://redmine.mellanox.com/issues/3214827 and '202205' in release"
-
-platform_tests/mellanox/test_thermal_control.py::test_dynamic_minimum_table:
-  skip:
-    reason: "Test skipped by RM issue 3269464 for sn2201 "
-    conditions:
-      - "https://redmine.mellanox.com/issues/3269464 and 'sn2201' in platform"
-
 platform_tests/test_cpu_memory_usage.py:
   skip:
-    reason: "Testcase ignored due to platform BF2 or skip it on simx due to test related to performance or due to RM 3811231"
+    reason: "Testcase ignored due to simx or RM 3811231"
     conditions_logical_operator: or
     conditions:
-      - "'arm64-nvda_bf-mbf2h536c' in platform"
       - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
@@ -925,46 +395,12 @@ platform_tests/cli/test_show_platform.py::test_show_platform_psustatus_json:
     conditions:
       - "https://redmine.mellanox.com/issues/3852184 and 'sn4700' in platform"
 
-platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3362109 and platform nvda_bf"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3362109 and 'nvda_bf' in platform"
-
-platform_tests/test_memory_exhaustion.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3316914"
-    conditions:
-      - https://redmine.mellanox.com/issues/3316914
-
-show_techsupport/test_auto_techsupport.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3579376 and platform ptf-any, or https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3579376 and 'ptf' in topo_name"
-      - "https://redmine.mellanox.com/issues/3595079 and 'nvda_bf' in platform"
-
-show_techsupport/test_auto_techsupport.py::TestAutoTechSupport:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3632223 and master branch and upgrade test setup"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3632223 and 'master' in release and ('r-leopard-56' in testbed or 'r-lionfish-07' in testbed or 'r-panther-13' in testbed)"
-
 process_monitoring/test_critical_process_monitoring.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3464488 and platform nvda_bf"
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3464488 and 'nvda_bf' in platform"
-      - "https://redmine.mellanox.com/issues/3610875 and 'Mellanox-SN4700-O28' in hwsku"
-
-monit/test_monit_status.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3249005 and platform nvda_bf"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3249005 and 'nvda_bf' in platform"
 
 platform_tests/test_auto_negotiation.py:
   skip:
@@ -973,20 +409,6 @@ platform_tests/test_auto_negotiation.py:
     conditions:
       - "'3800' in platform"
       - "'r-tigon-11' in testbed"
-
-everflow/test_everflow_testbed.py::TestEverflowV4EgressAclEgressMirror::test_everflow_dscp_with_policer:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2739322 and platform msn3/msn4"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/2739322 and ('msn3' in platform or 'msn4' in platform)"
-      - "https://redmine.mellanox.com/issues/3401097 and 'msn2' in platform"
-
-everflow/test_everflow_testbed.py::TestEverflowV4IngressAclIngressMirror::test_everflow_dscp_with_policer:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/2739322 and platform msn3/msn4"
-    conditions:
-      - "https://redmine.mellanox.com/issues/2739322 and ('msn3' in platform or 'msn4' in platform)"
 
 everflow/test_everflow_testbed.py:
   skip:
@@ -1011,13 +433,6 @@ drop_packets/test_wjh.py::test_loopback_filter:
     reason: "Testcase ignored due to platform x86_64-mlnx_msn/x86_64-nvidia"
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
-
-
-drop_packets/test_wjh.py::test_wjh_starts_after_config_reload:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3195120"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3195120 and '202205' in release"
 
 platform_tests/fwutil/test_fwutil.py:
   skip:
@@ -1090,21 +505,27 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_sfps:
 
 platform_tests/api/test_sfp.py:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231;QSFP eeprom emulation is not supported currently."
+    conditions_logical_operator: or
     conditions:
     - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+    - "'simx' in platform"
 
 platform_tests/mellanox/test_check_sfp_eeprom.py:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231;QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    conditions_logical_operator: or
     conditions:
     - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+    - "'simx' in platform"
 
 platform_tests/mellanox/test_check_sfp_presence.py:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231;QSFP eeprom emulation is not supported currently."
+    conditions_logical_operator: or
     conditions:
     - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+    - "'simx' in platform"
 
 platform_tests/mellanox/test_check_sysfs.py:
   skip:
@@ -1120,27 +541,27 @@ platform_tests/mellanox/test_hw_management_service_status.py:
 
 platform_tests/sfp/test_sfpshow.py:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231;QSFP eeprom emulation is not supported currently."
+    conditions_logical_operator: or
     conditions:
     - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
-
-platform_tests/sfp/test_sfputil.py:
-  skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
-    conditions:
-    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+    - "'simx' in platform"
 
 platform_tests/sfp/test_show_intf_xcvr.py:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231;QSFP eeprom emulation is not supported currently."
+    conditions_logical_operator: or
     conditions:
     - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+    - "'simx' in platform"
 
 platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
   skip:
-    reason: "Testcase ignored on r-alligator-04 due to RM issue: https://redmine.mellanox.com/issues/3811231"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3570140"
+    conditions_logical_operator: or
     conditions:
-    - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
+      - "https://redmine.mellanox.com/issues/3570140 and'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3811231 and 'r-alligator-04' in testbed"
 
 platform_tests/test_platform_info.py::test_thermal_control_fan_status:
   skip:
@@ -1174,424 +595,6 @@ ecmp/inner_hashing:
       - "'msn2' in platform"
       - "'202106' in release"
 
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_a[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route1_ecmp_group_b[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_ecmp_create::test_vxlan_configure_route2_ecmp_group_b[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_remove_ecmp_route2[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_remove_route2[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_shared_different_nh[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_shared_nh[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_NHG_Modify::test_vxlan_route2_single_nh[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_modify_route_different_endpoint[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_remove_all_route[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-vxlan/test_vxlan_ecmp.py::Test_VxLAN_route_tests::test_vxlan_single_endpoint[v6_in:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3191351"
-    conditions:
-      - https://redmine.mellanox.com/issues/3191351
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_balancing_sub_ports:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3117697;  Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420740 and branch 202211"
-    conditions_logical_operator: or
-    conditions:
-      - https://redmine.mellanox.com/issues/3117697
-      - "https://redmine.mellanox.com/issues/3420740 and '202211' in release"
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_packet_routed_with_valid_vlan:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3421654 and 202211 branch and msn3800 platform; Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419711 and branch 202211"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419711 and '202211' in release"
-      - "https://redmine.mellanox.com/issues/3421654 and '202211' in release and 'msn3800' in platform"
-
-sub_port_interfaces/test_sub_port_interfaces.py::TestSubPorts::test_tunneling_between_sub_ports:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3576473"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3576473"
-
-generic_config_updater/test_incremental_qos.py::test_incremental_qos_config_updates:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3681925"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3681925 and 'mtvr-moose-03' in testbed"
-
-generic_config_updater/test_eth_interface.py::test_eth_interface_admin_change[down]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3099709"
-    conditions:
-      - https://redmine.mellanox.com/issues/3099709
-
-generic_config_updater/test_portchannel_interface.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3067876"
-    conditions:
-      - https://redmine.mellanox.com/issues/3067876
-
-generic_config_updater/test_monitor_config.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3177465"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3177465 and '202205' in release and ('3800' in platform or '4600' in platform)"
-
-generic_config_updater/test_pfcwd_interval.py::test_pfcwd_interval_config_updates:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3636165 at moose setup with branch 202305"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3636165 and '202305' in release and 'sn5600' in platform"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_egress_unmatched_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_sport_range_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_tcp_flags_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_sport_range_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_ingress_unmatched_blocked[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_tcp_flags_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_range_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_ip_proto_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_udp_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_icmp_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_dest_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_icmp_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_ip_proto_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_dport_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_sport_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_rules_priority_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_l4_sport_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_rules_priority_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_dest_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_icmp_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestBasicAcl::test_udp_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_dport_range_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_egress_unmatched_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_sport_range_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_tcp_flags_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_sport_range_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_ingress_unmatched_blocked[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_tcp_flags_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_dport_range_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_ip_proto_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_dport_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_dest_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_ip_proto_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_dport_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_sport_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_rules_priority_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_l4_sport_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_rules_priority_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_dest_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_icmp_source_ip_match_forwarded[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
-acl/test_acl.py::TestIncrementalAcl::test_udp_source_ip_match_dropped[ipv6:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3132225 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3132225 and '202205' in release"
-
 platform_tests/test_sensors.py::test_sensors:
   skip:
     reason: "Testcase ignored due to RM issue 3556737 on simx platform or due to RM issue 3796902 on affected setups"
@@ -1600,103 +603,18 @@ platform_tests/test_sensors.py::test_sensors:
       - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
       - "https://redmine.mellanox.com/issues/3796902 and ('r-tigon-17' in testbed or 'r-anaconda-15' in testbed)"
 
-bfd/test_bfd.py::test_bfd_basic:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3171891 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3171891 and '202205' in release"
-
-platform_tests/sfp/test_sfputil.py::test_check_sfputil_low_power_mode:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3630488"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3630488"
-
-platform_tests/sfp/test_sfputil.py::test_check_sfputil_eeprom:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3172507 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3172507 and '202205' in release"
-
-platform_tests/sfp/test_sfputil.py::test_check_sfputil_error_status:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3600093 and branch 202305"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3600093 and '202305' in release"
-
 qos/test_qos_sai_dual_tor.py:
   skip:
     reason: "test_qos_sai_dual_tor tests only support on Mellanox-SN4600C-C64 and Mellanox-SN2700-D48C8"
     conditions:
       - "hwsku not in ['Mellanox-SN4600C-C64', 'Mellanox-SN2700-D48C8', 'Mellanox-SN4700-O8V48']"
 
-platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3134580 and all leopard/ocelot setups who have QSFP-DD tranceivers"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3134580 and ('x86_64-mlnx_msn4700' in platform or 'x86_64-mlnx_msn4410' in platform)"
-
-ipfwd/test_dip_sip.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3186035 and branch 202205"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3186035 and '202205' in release"
-
-pc/test_lag_2.py::test_lag:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3195312 and topology t0-56-po2vlan"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3195312 and 't0-56-po2vlan' in topo_name"
-
-platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_option_dom:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3331528"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3331528"
-
-platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[r-moose-02-cpu]:
-  skip:
-    reason: "The cpu reboot cause has been removed from new hw-mgmt used on 5600, temporarily skip this case on 5600. We expect the new hw-mgmt to be used on all platforms, by that time, should close the ticket and update the test."
-    conditions:
-      - "https://redmine.mellanox.com/issues/3413737"
-
-system_health/test_system_health.py::test_external_checker:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335093"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3335093"
-
-memory_checker/test_memory_checker.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3339191 and branch master or 202211"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3339191 and ('202211' in release or 'master' in release)"
-
-iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3335820"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3335820"
-
-ipfwd/test_nhop_group.py::test_nhop_group_member_order_capability:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3610840 and Mellanox-SN4700-O28 hwsku"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3610840 and 'Mellanox-SN4700-O28' in hwsku"
-
 platform_tests/test_platform_info.py::test_turn_on_off_psu_and_check_psustatus:
   skip:
-    reason: "Simx doesn't support PSU; skipped due to https://redmine.mellanox.com/issues/3694625 on SPC2"
+    reason: "Simx doesn't support PSU"
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3694625 and 'sn3' in platform"
-
-platform_tests/api/test_chassis.py::TestChassisApi::test_get_watchdog:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3273006"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3273006"
 
 platform_tests/api/test_watchdog.py:
   skip:
@@ -1711,174 +629,17 @@ platform_tests/test_reload_config.py::test_reload_configuration:
     conditions:
       - "'simx' in platform"
 
-platform_tests/test_reload_config.py::test_reload_configuration_checks:
-  skip:
-    reason: "Test ignored due to RM issue: https://redmine.mellanox.com/issues/3495644"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3495644 and '202211' in release"
-
-snmp/test_snmp_phy_entity.py::test_turn_off_psu_and_check_psu_info:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3355826"
-    conditions:
-      - https://redmine.mellanox.com/issues/3355826
-
-ip/test_ip_packet.py::TestIPPacket::test_forward_ip_packet_with_0xffff_chksum_drop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3373836"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3373836"
-
-qos.test_buffer#test_change_speed_cable[10000-1500-15m]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416102"
-    conditions:
-      - "'x86_64-nvidia_sn5600-r0' in platform"
-      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
-
-qos.test_buffer#test_change_speed_cable[10000-1500-40m]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416102"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3416102 and 'sn5' in platform"
-
-platform_tests/mellanox/test_reboot_cause.py::test_reboot_cause[cpu]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3413737"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3413737 and 'sn5' in platform"
-
-show_techsupport/test_techsupport.py::test_techsupport:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-crm/test_crm.py::test_acl_entry:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-crm/test_crm.py::test_acl_counter:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
 system_health/test_system_health.py::test_device_checker:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3808455"
     conditions:
       - "https://redmine.mellanox.com/issues/3808455"
 
-drop_packets/test_wjh.py::test_acl_drop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-drop_packets/test_wjh.py::test_acl_egress_drop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-acl/null_route/test_null_route_helper.py::test_null_route_helper:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3415969"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3415969"
-
-bgp/test_bgp_slb.py::test_bgp_slb_neighbor_persistence_across_advanced_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3416343"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3416343"
-
-platform_tests/link_flap/test_link_flap.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
-
-platform_tests/test_port_toggle.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
-
-platform_tests/link_flap/test_cont_link_flap.py::TestContLinkFlap::test_cont_link_flap:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
-
-dhcp_relay/test_dhcp_relay.py::test_dhcp_relay_after_link_flap:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
-
-dhcp_relay/test_dhcp_relay.py::test_dhcp_relay_start_with_uplinks_down:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
-
-arp/test_neighbor_mac_noptf.py::TestNeighborMacNoPtf::testNeighborMacNoPtf:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3418928"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3418928"
-
-bfd/test_bfd.py::test_bfd_multihop:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3572851"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3572851"
-
 qos/test_lossless_bum_traffic_drop.py:
   skip:
     reason: "Test does not support dualtor topology."
     conditions:
       - "'dualtor' in topo_name"
-
-lldp/test_lldp.py::test_lldp_neighbor:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419460"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419460"
-
-platform_tests.test_reboot.py::test_warm_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3429331 and '5600' in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3429331 and '5600' in platform"
-
-bgp/test_bgp_speaker.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420524"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3420524"
-
-bgp/test_bgp_suppress_fib.py:
-  skip:
-    reason: "BGP suppress fib pending function not support in 202311 branch as it severely reduced the route process performance, skip it on 202311 was a high level decision"
-    conditions:
-      - "'202211' in release or '202311' in release"
-
-bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3624586"
-    conditions:
-      - https://redmine.mellanox.com/issues/3624586
-
-iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_port_flap:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3417479"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3417479"
 
 iface_loopback_action/test_iface_loopback_action_wjh.py:
   skip:
@@ -1888,67 +649,11 @@ iface_loopback_action/test_iface_loopback_action_wjh.py:
       - "'dualtor' in topo_name"
       - "https://redmine.mellanox.com/issues/3813764"
 
-route/test_route_flow_counter.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3420524"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3420524"
-
-dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_after_link_flap:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419398"
-
-dhcp_relay/test_dhcpv6_relay.py::test_dhcp_relay_start_with_uplinks_down:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3419398"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3419398"
-
-pc/test_po_update.py::test_po_update_io_no_loss:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3423765"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3423765"
-
-platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
-  skip:
-    reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
-    conditions_logical_operator: or
-    conditions:
-      - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3611462 and 'sn5600' in platform"
-
-platform_tests/mellanox/test_psu_power_threshold.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3501914 on SPC4"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3501914 and 'sn5' in platform"
-
-platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3505442 on SPC4"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3505442 and 'sn5' in platform"
-
 platform_tests/test_cpu_memory_usage.py::test_cpu_memory_usage:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3754090"
     conditions:
       - "https://redmine.mellanox.com/issues/3754090 and 'nvda_bf' in platform"
-
-dash/test_relaxed_match_negative.py::test_relaxed_match_invalid_port:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3753419"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3753419"
-
-dash/crm/test_dash_crm.py:
-  skip:
-    reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3676635"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3676635 and 'nvda_bf' in platform"
 
 dash/crm/test_dash_crm.py::TestDashCRM::test_dash_routing:
   skip:
@@ -1980,140 +685,17 @@ dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
     conditions:
       - "https://redmine.mellanox.com/issues/3424756 and 'nvda_bf' in platform"
 
-qos/test_qos_sai.py::TestQosSai::testQosSaiLossyQueue:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3486128 and branch 202211 and sn5600 in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3486128 and '202211' in release and 'sn5600' in platform"
-
-show_techsupport/test_techsupport.py::test_techsupport_commands:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3653407 and 'master_bookworm' in branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3653407"
-      - "'master_bookworm' in branch"
-
-generic_config_updater/test_ntp.py::test_ntp_server_tc1_suite:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647537 and 'master_bookworm' in branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3647537"
-      - "'master_bookworm' in branch"
-
-pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[no_storm:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3652942 and 'master_bookworm' in branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3652942"
-      - "'master_bookworm' in branch"
-
-pfcwd/test_pfcwd_warm_reboot.py::TestPfcwdWb::test_pfcwd_wb[async_storm:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3652942 and 'master_bookworm' in branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3652942"
-      - "'master_bookworm' in branch"
-
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   xfail:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
     conditions:
       - "https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
 
-platform_tests/test_advanced_reboot.py::test_warm_reboot_sad:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
-
-platform_tests/test_cont_warm_reboot.py::test_continuous_reboot:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3627680 and branch 202305 and msn4700 in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3627680 and '202305' in release and 'msn4700' in platform"
-
-dualtor/test_orchagent_active_tor_downstream.py::test_downstream_ecmp_nexthops:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3615215"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3615215"
-
-platform_tests/test_service_warm_restart.py:
-  skip:
-    reason: "Testcase ignored due to sonic-mgmt issue: https://github.com/sonic-net/sonic-mgmt/issues/10362"
-    conditions:
-      - "https://github.com/sonic-net/sonic-mgmt/issues/10362"
-
-platform_tests/sfp/test_sfpshow.py::test_check_sfpshow_eeprom:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076"
-    conditions:
-    - "https://redmine.mellanox.com/issues/3788076"
-
-platform_tests/sfp/test_show_intf_xcvr.py::test_check_sfpshow_eeprom:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788076"
-    conditions:
-    - "https://redmine.mellanox.com/issues/3788076"
-
 dash/test_dash_vnet.py::test_outbound_vnet_direct:
   skip:
     reason: "Testcase ignored due to platform nvda_bf and RM issue: https://redmine.mellanox.com/issues/3634592"
     conditions:
       - "https://redmine.mellanox.com/issues/3634592 and 'nvda_bf' in platform"
-
-ssh/test_ssh_default_password.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649677"
-      - "'master_bookworm' in branch"
-
-ssh/test_ssh_limit.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649677"
-      - "'master_bookworm' in branch"
-
-tacacs/test_authorization.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649677 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649677"
-      - "'master_bookworm' in branch"
-
-platform_tests/api/test_fan_drawer_fans.py::TestFanDrawerFans::test_get_fans_target_speed:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3649678 and master_bookworm branch"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3649678"
-      - "'master_bookworm' in branch"
-
-qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3651153 on some setups"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3651153 and ('r-leopard-01' in testbed or 'r-leopard-58' in testbed or 'r-moose-01' in testbed or 'r-tigon-11' in testbed)"
-      - "https://redmine.mellanox.com/issues/3653973 and '2700' in platform"
-
-system_health/test_system_health.py::test_system_health_config:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3655238"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3655238"
-
-dns/test_dns_resolv_conf.py:
-  skip:
-    reason: "Testcase ignored due to needed update: https://git-nbu-sw.nvidia.com/r/c/switchx/sonic/sonic-mgmt/+/262210"
-    conditions:
-      - "https://git-nbu-sw.nvidia.com/r/c/switchx/sonic/sonic-mgmt/+/262210"
-
-vxlan/arp/test_arpall.py::test_arp_garp_no_update:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3666580"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3666580"
 
 hash/test_generic_hash.py::test_lag_hash[IN_PORT:
   skip:
@@ -2127,46 +709,6 @@ hash/test_generic_hash.py::test_lag_hash[SRC_MAC:
     conditions:
       - "https://redmine.mellanox.com/issues/3261661"
 
-hash/test_generic_hash.py::test_lag_hash[IP_PROTOCOL:
-  skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_lag_hash[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_lag_hash[INNER_SRC_IP-ipv6-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv4-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv4-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv6-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_lag_hash[INNER_DST_IP-ipv6-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
 hash/test_generic_hash.py::test_ecmp_and_lag_hash[IN_PORT:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
@@ -2179,97 +721,11 @@ hash/test_generic_hash.py::test_ecmp_and_lag_hash[SRC_MAC:
     conditions:
       - "https://redmine.mellanox.com/issues/3261661"
 
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[IP_PROTOCOL:
-  skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_SRC_IP-ipv6-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv4-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv4-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv6-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[INNER_DST_IP-ipv6-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
 hash/test_generic_hash.py::test_nexthop_flap[IN_PORT:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
     conditions:
       - "https://redmine.mellanox.com/issues/3332532"
-
-hash/test_generic_hash.py::test_nexthop_flap[SRC_MAC:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
-
-hash/test_generic_hash.py::test_nexthop_flap[IP_PROTOCOL:
-  skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_SRC_IP-ipv6-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv4-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv4-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv6-ipv4-vxlan]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
-
-hash/test_generic_hash.py::test_nexthop_flap[INNER_DST_IP-ipv6-ipv4-nvgre]:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
 
 hash/test_generic_hash.py::test_lag_member_flap[IN_PORT:
   skip:
@@ -2474,39 +930,21 @@ platform_tests/test_secure_upgrade.py:
 
 
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE START ############################
-platform_tests/sfp/test_sfpshow.py:
-  skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
-    conditions:
-      - "'simx' in platform"
-
-platform_tests/mellanox/test_check_sfp_eeprom.py:
-  skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
-    conditions:
-      - "'simx' in platform"
-
 platform_tests/mellanox/test_check_sfp_using_ethtool.py:
   skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    reason: "QSFP eeprom emulation is not supported currently."
     conditions:
       - "'simx' in platform"
 
 platform_tests/mellanox/test_check_sfp_plug_in_out_sim.py:
   skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    reason: "QSFP eeprom emulation is not supported currently."
     conditions:
       - "'simx' in platform"
 
 platform_tests/sfp/test_sfputil.py:
   skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
-    conditions:
-      - "'simx' in platform"
-
-platform_tests/sfp/test_show_intf_xcvr.py:
-  skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
+    reason: "QSFP eeprom emulation is not supported currently."
     conditions:
       - "'simx' in platform"
 
@@ -2527,12 +965,6 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_system_eeprom_info:
   skip:
     reason: "When deploying image, Simx will generate dynamic MAC"
-    conditions:
-      - "'simx' in platform"
-
-platform_tests/mellanox/test_check_sfp_presence.py:
-  skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
     conditions:
       - "'simx' in platform"
 
@@ -2572,23 +1004,11 @@ platform_tests/api/test_chassis.py::TestChassisApi::test_get_model:
     conditions:
       - "https://redmine.mellanox.com/issues/3679414 and 'simx' in platform"
 
-platform_tests/cli/test_show_platform.py::test_show_platform_summary:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3614759 and release 202305 and 'SN2700' in platform"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3614759 and 'sn2700' in platform and '202305' in release"
-
 platform_tests/test_memory_exhaustion.py::TestMemoryExhaustion::test_memory_exhaustion:
   skip:
     reason: "Simx doesn't support PDU"
     conditions:
       - "'simx' in platform"
-
-dns/static_dns/test_static_dns.py::TestStaticMgmtPortIP::test_dynamic_dns_not_working_when_static_ip_configured:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3611766"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3611766"
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   skip:
@@ -2602,12 +1022,6 @@ platform_tests/mellanox/test_check_sysfs.py::test_check_hw_mgmt_sysfs:
     conditions_logical_operator: or
     conditions:
       - "'sn4280_simx' in platform"
-
-platform_tests/api/test_sfp.py:
-  skip:
-    reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
-    conditions:
-      - "'simx' in platform"
 
 platform_tests/test_power_off_reboot.py:
   skip:
@@ -2628,15 +1042,6 @@ platform_tests/mellanox/test_reboot_cause.py:
     - "'sn4280_simx' in platform"
 
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
-
-platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3678432"
-    conditions_logical_operator: or
-    conditions:
-      - "https://redmine.mellanox.com/issues/3678432 and 'inde' in branch"
-      - "https://redmine.mellanox.com/issues/3715747 and 'master' in branch"
-      - "https://redmine.mellanox.com/issues/3570140 and'simx' in platform"
 
 ########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE START ############################
 
