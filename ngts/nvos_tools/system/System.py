@@ -2,7 +2,7 @@ import logging
 import time
 from retry import retry
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
+from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -70,12 +70,14 @@ class System(BaseComponent):
         return device.constants.system[resource]
 
     def validate_health_status(self, expected_status):
-        with allure.step("Validate health status with \"nv show system\" cmd"):
-            logger.info("Validate health status with \"nv show system\" cmd")
-            system_output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
-            assert expected_status == system_output[SystemConsts.HEALTH_STATUS], \
-                "Unexpected health status. \n Expected: {}, but got :{}".\
-                format(expected_status, system_output[SystemConsts.HEALTH_STATUS])
+        with allure.step("Validate health status with \"nv show system health\" cmd"):
+            logger.info("Validate health status with \"nv show system health\" cmd")
+            health_output = OutputParsingTool.parse_json_str_to_dictionary(self.health.show()).get_returned_value()
+            health_issues = health_output_dict[HealthConsts.ISSUES]
+            health_issues_str = '\n'.join(f'{k}: {v}' for k, v in health_issues.items())
+            assert expected_status == health_output[HealthConsts.STATUS], \
+                "Unexpected health status.\nExpected: {}, but got :{}, with the following health issues:\n{}".\
+                format(expected_status, health_output[HealthConsts.STATUS], health_issues_str)
 
     @retry(Exception, tries=3, delay=2)
     def wait_until_health_status_change_to(self, expected_status):

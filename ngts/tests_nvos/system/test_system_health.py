@@ -39,6 +39,7 @@ def test_reboot_test():
     """
 
     system = System()
+
     system.validate_health_status(OK)
     last_status_line = system.health.history.search_line(HealthConsts.SUMMARY_REGEX_OK)[-1]
 
@@ -69,8 +70,8 @@ def test_show_system_health(devices):
     """
     Validate all the show system health commands
         Test flow:
-            1. validate nv show system cmd
-            2. validate nv show system health cmd
+            1. validate nv show system health cmd
+            2. validate nv show system cmd
             3. validate nv show fae health cmd
             4. validate nv show system health history cmd
             5. validate nv show system health history files cmd
@@ -79,17 +80,18 @@ def test_show_system_health(devices):
 
     system = System()
 
+    with allure.step("Validate \"nv show system health\" cmd"):
+        logger.info("Validate \"nv show system health\" cmd")
+        health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+        ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED], health_output.keys()).verify_result()
+        system.validate_health_status(HealthConsts.OK)
+        verify_health_status_and_led(system, HealthConsts.OK)
+
     with allure.step("Validate health status with \"nv show system\" cmd"):
         logger.info("Validate health status with \"nv show system\" cmd")
         system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
         ValidationTool.verify_field_exist_in_json_output(system_output, [SystemConsts.HEALTH_STATUS]).verify_result()
         verify_expected_health_status(system_output, SystemConsts.HEALTH_STATUS, OK)
-
-    with allure.step("Validate \"nv show system health\" cmd"):
-        logger.info("Validate \"nv show system health\" cmd")
-        health_output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
-        ValidationTool.validate_all_values_exists_in_list([HealthConsts.STATUS, HealthConsts.STATUS_LED], health_output.keys()).verify_result()
-        verify_health_status_and_led(system, HealthConsts.OK)
 
     with allure.step("Validate \"nv show fae health\" cmd"):
         logger.info("Validate \"nv show fae health\" cmd")
@@ -418,7 +420,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
                                                    db_config="FEATURE|{}".format(docker_to_stop),
                                                    param=NvosConst.DOCKER_AUTO_RESTART,
                                                    value=NvosConst.DOCKER_STATUS_ENABLED)
-                    #DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
+                    # DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
                 assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)
@@ -433,6 +435,7 @@ def validate_docker_is_up(engine, docker):
 def verify_health_status_and_led(system, expected_status, output=None):
     if not output:
         output = OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).get_returned_value()
+    system.validate_health_status(expected_status)
     verify_expected_health_status(output, HealthConsts.STATUS, expected_status)
     expected_led = HealthConsts.LED_OK_STATUS if expected_status == HealthConsts.OK else HealthConsts.LED_NOT_OK_STATUS
     verify_expected_health_status(output, HealthConsts.STATUS_LED, expected_led)
