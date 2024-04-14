@@ -22,7 +22,7 @@
           "node": "SONIC_MGMT_LITE",
           "parameters": {
             "GIT_REPOSITORY": "ssh://git-nbu-sw.nvidia.com:12024/switchx/sonic/sonic-mgmt",
-            "BRANCH_NAME": "debug_jenkins_msft_job",
+            "BRANCH_NAME": "develop",
             "CLONE_PATH": "sonic-mgmt",
             "SUBMODULES": "false"
           },
