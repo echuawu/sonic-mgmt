@@ -8,6 +8,7 @@ from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
+from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
@@ -106,7 +107,10 @@ class NvosInstallationSteps:
                                                  topology_obj, target_version_path: str):
         with allure.step('Strings preparation'):
             ngts_path = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
-            config_filename = 'nvos_config_ga_3000.yml'
+            if type(dut_device) in [BlackMambaSwitch, CrocodileSwitch]:
+                config_filename = 'nvos_config_xdr.yml'
+            else:
+                config_filename = 'nvos_config_ga_3000.yml'
             config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
             logger.info(f'NGTS_PATH: {ngts_path}')
             logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
@@ -138,10 +142,11 @@ class NvosInstallationSteps:
 
         with allure.step('Clear fetched files for the tests'):
             system = System()
-            with allure.step('Delete config files'):
-                system.config.files.delete_files([config_filename], engine=dut_engine)
-            with allure.step('Delete fetched image file'):
-                system.image.files.delete_files([bin_filename], engine=dut_engine)
+            if type(dut_device) not in [BlackMambaSwitch, CrocodileSwitch]:
+                with allure.step('Delete config files'):
+                    system.config.files.delete_files([config_filename], engine=dut_engine)
+                with allure.step('Delete fetched image file'):
+                    system.image.files.delete_files([bin_filename], engine=dut_engine)
             with allure.step('Uninstall older version'):
                 system.image.action_uninstall(engine=dut_engine)
 

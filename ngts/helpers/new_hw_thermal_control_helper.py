@@ -443,9 +443,10 @@ def get_tested_sensor_list(sensors_counter, dut, cli_object_dut):
         else:
             sensor_temperature_test_list.remove("module")
 
-    not_support_asic_platform_list = ["x86_64-nvidia_sn4280_simx-r0"]
-    if cli_object_dut.chassis.get_platform() in not_support_asic_platform_list:
-        sensor_temperature_test_list.remove("asic")
+    if hasattr(cli_object_dut.chassis, 'get_platform'):
+        not_support_asic_platform_list = ["x86_64-nvidia_sn4280_simx-r0"]
+        if cli_object_dut.chassis.get_platform() in not_support_asic_platform_list:
+            sensor_temperature_test_list.remove("asic")
 
     if not sensor_temperature_test_list:
         raise Exception("No sensor is available for testing ")
