@@ -108,7 +108,7 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
 
     with allure.step("Install original image name, should fail"):
         logger.info("Install original image name: {}, should fail".format(fetched_image))
-        system.image.files.file_name[fetched_image].action_file_install("Failed")
+        system.image.files.file_name[fetched_image].action_file_install("Failed").verify_result()
 
     with allure.step("Delete original image name, should fail"):
         system.image.files.delete_files([fetched_image], "File not found")
@@ -253,7 +253,7 @@ def test_system_image_bad_flow(engines, release_name, test_api, original_version
 
     with allure.step("Install bad flows"):
         with allure.step("Install image file that does not exist"):
-            file_rand_name.action_file_install("Image does not exist")
+            file_rand_name.action_file_install("Image does not exist").verify_result()
 
     with allure.step("Boot-next bad flows"):
         if not original_images[ImageConsts.PARTITION2_IMG]:

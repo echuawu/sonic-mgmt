@@ -38,9 +38,14 @@ class NvueBaseCli:
         return engine.run_cmd(cmd)
 
     @staticmethod
-    def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
+    def action(engine, device=None, action_type='', resource_path='', suffix="", param_name="", param_value="",
                output_format=None, expect_reboot=False, recovery_engine=None):
         """See documentation of BaseComponent.action"""
+        if not action_type:
+            raise ValueError("action_type must be non-empty")
+        if not resource_path:
+            raise ValueError("resource_path must be non-empty")
+
         command = ' '.join(['nv action', action_type, resource_path.replace('/', ' '), suffix,
                             (param_value or param_name)])
         if output_format:

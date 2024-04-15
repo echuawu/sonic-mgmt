@@ -42,9 +42,14 @@ class OpenApiBaseCli:
         return '@' + action
 
     @staticmethod
-    def action(engine, device, action_type: str, resource_path: str, suffix="", param_name="", param_value="",
+    def action(engine, device=None, action_type='', resource_path='', suffix="", param_name="", param_value="",
                output_format=None, expect_reboot=False, recovery_engine=None):
         """See documentation of BaseComponent.action"""
+        if not action_type:
+            raise ValueError("action_type must be non-empty")
+        if not resource_path:
+            raise ValueError("resource_path must be non-empty")
+
         url = OpenApiBaseCli._resource_path_to_rest_path(resource_path, suffix)
         data = {'state': 'start'}
         if param_name:
