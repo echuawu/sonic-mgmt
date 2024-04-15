@@ -88,4 +88,5 @@ def test_non_secure_boot_upgrade_failure(non_secure_image_path, keep_same_versio
 
     with allure.step("Attempting installing non secure image"):
         logger.info("Attempting installing non secure image")
-        system.image.files.file_name[non_secure_image_name].action_file_install("Failed to verify image signature")
+        system.image.files.file_name[non_secure_image_name].action_file_install("Failed to verify image signature"
+                                                                                ).verify_result()

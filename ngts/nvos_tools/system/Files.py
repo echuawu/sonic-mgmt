@@ -57,32 +57,29 @@ class File(BaseComponent):
 
     def action_upload(self, upload_path, expected_str="", dut_engine=None, should_succeed=True) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
-        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Upload file {resource_path} to '{upload_path}'"):
             return SendCommandTool.execute_command_expected_str(
                 self._cli_wrapper.action, expected_str,
-                engine, device, action_type='upload', resource_path=resource_path,
+                engine, action_type='upload', resource_path=resource_path,
                 param_name='remote-url', param_value=upload_path).get_returned_value(should_succeed)
 
     def action_delete(self, expected_str="", dut_engine=None, should_succeed=True) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
-        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Delete file: {resource_path}"):
             return SendCommandTool.execute_command_expected_str(
                 self._cli_wrapper.action, expected_str,
-                engine, device, action_type='delete', resource_path=resource_path).get_returned_value(should_succeed)
+                engine, action_type='delete', resource_path=resource_path).get_returned_value(should_succeed)
 
     def action_rename(self, new_name, expected_str="", rewrite_file_name=True, dut_engine=None, should_succeed=True
                       ) -> bool:
         engine = dut_engine if dut_engine else TestToolkit.engines.dut
-        device = TestToolkit.devices.dut
         resource_path = self.get_resource_path()
         with allure.step(f"Rename file: {resource_path} to: {new_name}"):
             result = SendCommandTool.execute_command_expected_str(
                 self._cli_wrapper.action, expected_str,
-                engine, device, action_type='rename', resource_path=resource_path,
+                engine, action_type='rename', resource_path=resource_path,
                 param_name='new-name', param_value=new_name).get_returned_value(should_succeed)
             if result and rewrite_file_name:
                 parent: Files = self.parent_obj
@@ -109,7 +106,7 @@ class File(BaseComponent):
             return SendCommandTool.execute_command_expected_str(
                 self._cli_wrapper.action, expected_str,
                 engine, device, action_type='install', resource_path=resource_path, param_name='force' if force else '',
-                expect_reboot=with_reboot, recovery_engine=recovery_engine).get_returned_value()
+                expect_reboot=with_reboot, recovery_engine=recovery_engine)
 
     def rename_and_verify(self, new_name, expected_str="", dut_engine=None):
         original_name = self.file_name
