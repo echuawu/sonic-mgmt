@@ -1011,7 +1011,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         branch = get_sonic_branch(topology_obj, self.cli_obj.dut_alias)
         config_file_prefix = self.get_config_file_prefix(setup_name)
         config_db_file_name = f"{self.get_image_sonic_version()}_{config_file_prefix}config_db.json"
-        if branch in ['202205', '202211', '202305', '202311']:
+        if branch in ['202205', '202211', '202305']:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_JSON
         else:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_GNMI_JSON
