@@ -39,9 +39,9 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds, ports_spec_complia
     """
     tested_lb_dict = {1: []
                       }
-    update_split_2_if_possible(topology_obj, tested_lb_dict)
-    update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
-    update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
+    update_split_2_if_possible(topology_obj, tested_lb_dict, ports_spec_compliance)
+    update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance)
+    update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance)
     split_mode = 1
     dut_lbs = list(filter(lambda lb: is_auto_neg_supported_lb(lb, ports_spec_compliance),
                           get_dut_loopbacks(topology_obj)))
@@ -66,11 +66,12 @@ def ports_lanes_dict(interfaces_status_dict, interfaces, cli_objects):
     return ports_lanes_dict
 
 
-def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict):
+def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance):
     """
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :param ports_spec_compliance: ports_spec_compliance fixture
     :return: Update loopback with split 4 configuration only in cases were there are mutual speeds available,
     for example, parsing of platform.json file for panther will not return speeds option for port with split 4,
     because this breakout mode is not supported on panther
@@ -78,27 +79,30 @@ def update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested
     if topology_obj.ports.get('dut-lb-splt4-p1-1') and topology_obj.ports.get('dut-lb-splt4-p2-1'):
         split_4_lb = (topology_obj.ports['dut-lb-splt4-p1-1'], topology_obj.ports['dut-lb-splt4-p2-1'])
         mutual_speeds = get_lb_mutual_speed(split_4_lb, 4, split_mode_supported_speeds)
-        if mutual_speeds:
+        if mutual_speeds and is_auto_neg_supported_lb(split_4_lb, ports_spec_compliance):
             tested_lb_dict.update({4: [split_4_lb]})
 
 
-def update_split_2_if_possible(topology_obj, tested_lb_dict):
+def update_split_2_if_possible(topology_obj, tested_lb_dict, ports_spec_compliance):
     """
     :param topology_obj: topology object fixture
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :param ports_spec_compliance: ports_spec_compliance fixture
     :return: Update loopback with split 2 configuration only in cases were there is such a loopback in setup
     (some simx setups don't have split ports as part of the configuration)
     """
     if topology_obj.ports.get('dut-lb-splt2-p1-1') and topology_obj.ports.get('dut-lb-splt2-p2-1'):
         split_2_lb = (topology_obj.ports['dut-lb-splt2-p1-1'], topology_obj.ports['dut-lb-splt2-p2-1'])
-        tested_lb_dict.update({2: [split_2_lb]})
+        if is_auto_neg_supported_lb(split_2_lb, ports_spec_compliance):
+            tested_lb_dict.update({2: [split_2_lb]})
 
 
-def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict):
+def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance):
     """
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: a dictionary with available speed options for each split mode on all setup ports
     :param tested_lb_dict: a dictionary of loopback list for each split mode on the dut
+    :param ports_spec_compliance: ports_spec_compliance fixture
     :return: Update loopback with split 8 configuration only in cases were there are mutual speeds available,
     for example, parsing of platform.json file for panther will not return speeds option for port with split 8,
     because this breakout mode is not supported on panther
@@ -106,7 +110,7 @@ def update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested
     if topology_obj.ports.get('dut-lb-splt8-p1-1') and topology_obj.ports.get('dut-lb-splt8-p2-1'):
         split_8_lb = (topology_obj.ports['dut-lb-splt8-p1-1'], topology_obj.ports['dut-lb-splt8-p2-1'])
         mutual_speeds = get_lb_mutual_speed(split_8_lb, 8, split_mode_supported_speeds)
-        if mutual_speeds:
+        if mutual_speeds and is_auto_neg_supported_lb(split_8_lb, ports_spec_compliance):
             tested_lb_dict.update({8: [split_8_lb]})
 
 

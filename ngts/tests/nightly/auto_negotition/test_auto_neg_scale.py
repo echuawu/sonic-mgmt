@@ -31,9 +31,9 @@ def tested_lb_all_dict(topology_obj, engines, interfaces, split_mode_supported_s
         1: []
     }
     if 'simx' not in engines.dut.run_cmd("hostname"):
-        update_split_2_if_possible(topology_obj, tested_lb_dict)
-        update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
-        update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict)
+        update_split_2_if_possible(topology_obj, tested_lb_dict, ports_spec_compliance)
+        update_split_4_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance)
+        update_split_8_if_possible(topology_obj, split_mode_supported_speeds, tested_lb_dict, ports_spec_compliance)
     for lb in get_dut_loopbacks(topology_obj):
         if is_auto_neg_supported_lb(lb, ports_spec_compliance):
             tested_lb_dict[1].append(lb)
