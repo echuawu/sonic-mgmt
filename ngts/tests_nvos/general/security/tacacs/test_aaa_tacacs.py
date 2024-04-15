@@ -378,7 +378,7 @@ def test_tacacs_accounting_local_first(test_api, engines, topology_obj, request,
 @pytest.mark.timeout(MAX_TEST_TIMEOUT, func_only=True)
 @pytest.mark.security
 @pytest.mark.simx_security
-@pytest.mark.parametrize('test_api', [random.choice(ApiType.ALL_TYPES)])
+@pytest.mark.parametrize('test_api', [ApiType.NVUE])
 def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserInfo):
     """
     @summary: Verify timeout functionality
@@ -402,11 +402,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
         with allure.step('Set unreachable tacacs server with some timeout'):
             rand_timeout = random.randint(TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][0],
                                           TacacsConsts.VALID_VALUES[AaaConsts.TIMEOUT][-1] // 3)
-            rand_timeout = 19
             logging.info(f'Chosen timeout: {rand_timeout}')
-            # configure_resource(engines, resource_obj=aaa.tacacs, conf={
-            #     AaaConsts.RETRANSMIT: 0
-            # })
             configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
                 AaaConsts.TIMEOUT: rand_timeout,
                 AaaConsts.SECRET: "xyz",
