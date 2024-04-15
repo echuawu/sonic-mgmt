@@ -70,14 +70,15 @@ class System(BaseComponent):
         return device.constants.system[resource]
 
     def validate_health_status(self, expected_status):
-        with allure.step("Validate health status with \"nv show system health\" cmd"):
-            logger.info("Validate health status with \"nv show system health\" cmd")
-            health_output = OutputParsingTool.parse_json_str_to_dictionary(self.health.show()).get_returned_value()
-            health_issues = health_output_dict[HealthConsts.ISSUES]
-            health_issues_str = '\n'.join(f'{k}: {v}' for k, v in health_issues.items())
-            assert expected_status == health_output[HealthConsts.STATUS], \
-                "Unexpected health status.\nExpected: {}, but got :{}, with the following health issues:\n{}".\
-                format(expected_status, health_output[HealthConsts.STATUS], health_issues_str)
+        with allure.step("Validate health status with \"nv show system\" cmd"):
+            logger.info("Validate health status with \"nv show system\" cmd")
+            system_output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
+            if expected_status != system_output[SystemConsts.HEALTH_STATUS]:
+                health_output = OutputParsingTool.parse_json_str_to_dictionary(self.health.show()).get_returned_value()
+                health_issues_str = '\n'.join(f'{k}: {v}' for k, v in health_output[HealthConsts.ISSUES].items())
+                assert False, "Unexpected health status.\nExpected: {}, but got :{}," \
+                    " with the following health issues:\n{}".\
+                    format(expected_status, health_output[HealthConsts.STATUS], health_issues_str)
 
     @retry(Exception, tries=3, delay=2)
     def wait_until_health_status_change_to(self, expected_status):
