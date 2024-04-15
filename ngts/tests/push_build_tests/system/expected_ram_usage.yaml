@@ -137,7 +137,7 @@ master:
     intfmgrd: 5
     portmgrd: 5
     buffermgrd: 5
-    vrfmgrd: 5
+    vrfmgrd: 7
     nbrmgrd: 5
     vxlanmgrd: 5
     sensord: 10
@@ -321,8 +321,8 @@ master:
     sensord: 10
   MSN4700: # Leopard
     total: 4750
-    sx_sdk: 1300
-    syncd: 300
+    sx_sdk: 1500
+    syncd: 350
     redis-server: 70
     snmpd: 20
     zebra: 85
