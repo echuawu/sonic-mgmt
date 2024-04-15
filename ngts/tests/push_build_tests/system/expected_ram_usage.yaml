@@ -19,17 +19,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 45
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN2010: # Boxer
     total: 4250
@@ -41,17 +41,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 45
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN2100: # Bulldog
     total: 3750
@@ -63,17 +63,17 @@ master:
     bgpd: 65
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN2410: # Spider
     total: 3750
@@ -85,17 +85,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   SN2700: # Panther
     total: 5000
@@ -107,20 +107,20 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
     ntpd: 7
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
     portmgrd: 7
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN2700: # Simx Panther
-    total: 3750
+    total: 5000
     sx_sdk: 1200
     syncd: 400
     redis-server: 70
@@ -129,17 +129,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
     ntpd: 7
-    neighsyncd: 5
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
-    buffermgrd: 5
+    neighsyncd: 7
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
+    buffermgrd: 7
     vrfmgrd: 7
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   # SPC2
   MSN3420: # Lionfish
@@ -152,17 +152,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN3700: # Anaconda
     total: 5000
@@ -174,17 +174,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
     ntpd: 7
-    neighsyncd: 5
-    vlanmgrd: 5
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN3700C: # Anaconda C
     total: 4750
@@ -196,17 +196,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN3800: # Tigris
     total: 4500
@@ -218,17 +218,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   # SPC3
   SN4280: # Bobcat
@@ -241,17 +241,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
     ntpd: 7
-    neighsyncd: 5
-    vlanmgrd: 5
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN4410: # Ocelot
     total: 5050
@@ -263,17 +263,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 65
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN4600: # Liger
     total: 4750
@@ -285,17 +285,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN4600C: # Tigon
     total: 4750
@@ -307,17 +307,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
-    ntpd: 5
-    neighsyncd: 5
-    vlanmgrd: 5
+    ntpd: 7
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   MSN4700: # Leopard
     total: 4750
@@ -329,17 +329,17 @@ master:
     bgpd: 75
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 55
     ntpd: 7
-    neighsyncd: 5
-    vlanmgrd: 5
+    neighsyncd: 7
+    vlanmgrd: 7
     intfmgrd: 7
-    portmgrd: 5
-    buffermgrd: 5
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    portmgrd: 7
+    buffermgrd: 7
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   # SPC4
   SN5400: # Hippo
@@ -352,17 +352,17 @@ master:
     bgpd: 50
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
+    fpmsyncd: 7
     orchagent: 50
-    ntpd: 5
+    ntpd: 7
     neighsyncd: 7
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
     buffermgrd: 7
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
   SN5600: # Moose/Albatross
     total: 5000
@@ -374,15 +374,15 @@ master:
     bgpd: 50
     bgpcfgd: 30
     bgpmon: 20
-    fpmsyncd: 5
-    orchagent: 50
+    fpmsyncd: 7
+    orchagent: 60
     ntpd: 7
     neighsyncd: 7
-    vlanmgrd: 5
-    intfmgrd: 5
-    portmgrd: 5
+    vlanmgrd: 7
+    intfmgrd: 7
+    portmgrd: 7
     buffermgrd: 7
-    vrfmgrd: 5
-    nbrmgrd: 5
-    vxlanmgrd: 5
+    vrfmgrd: 7
+    nbrmgrd: 7
+    vxlanmgrd: 7
     sensord: 10
