@@ -27,20 +27,14 @@ def test_show_ztp_command(engines, devices, serial_engine):
     """
     system = System(None)
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Run nv show system log command and check ztp logs inside"):
-            show_output = system.log.show_log(exit_cmd='q')
+            show_output = system.log.show_log(param="| grep ztp")
             ValidationTool.verify_expected_output(show_output, 'ztp').verify_result()
 
-        with allure.step("Run nv show system log command and check ztp logs inside"):
-            serial_engine.serial_engine.expect("ztp", timeout=30)
+        # with allure.step("Run nv show system log command and check ztp logs inside"):
+        #     serial_engine.serial_engine.expect("ztp", timeout=30) #TBD we need to implement parallel serial checker
 
         with allure.step("Check ztp log file exist"):
             wc_output = engines.dut.run_cmd(f'wc -c {SystemConsts.ZTP_DEFAULT_LOG_FILE}')
@@ -49,13 +43,8 @@ def test_show_ztp_command(engines, devices, serial_engine):
         with allure.step("Save configuration"):
             NvueGeneralCli.save_config(engines.dut)
 
-        with allure.step("Run show ztp after save and verify values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_AFTER_CONFIG_SAVE_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(
+            system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_AFTER_CONFIG_SAVE_VALUES)
 
         with allure.step("Run nv set system ztp config-save enabled"):
             system.ztp.set('config-save', 'enabled').verify_result(True)
@@ -77,19 +66,15 @@ def test_show_ztp_command(engines, devices, serial_engine):
         with allure.step("Run nv action run system ztp"):
             system.ztp.action_run_ztp()
 
-        with allure.step("Run show ztp after unset and verify values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
-            with allure.step("Verify default values and fields after unset"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
     except Exception as e:
         logger.info("Received Exception during test_show_ztp_command: {}".format(e))
         raise e
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 @pytest.mark.ztp
@@ -107,13 +92,7 @@ def test_ztp_json(engines, devices):
     system = System(None)
 
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Download dummy json file"):
             _download_ztp_json_config(engines, SystemConsts.DUMMY_JSON)
@@ -177,6 +156,7 @@ def test_ztp_json(engines, devices):
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 @pytest.mark.ztp
@@ -192,13 +172,7 @@ def test_ztp_image(engines, devices):
     system = System(None)
 
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Download image json file"):
             _download_ztp_json_config(engines, SystemConsts.IMAGE_JSON)
@@ -229,6 +203,7 @@ def test_ztp_image(engines, devices):
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 @pytest.mark.ztp
@@ -251,13 +226,7 @@ def test_ztp_startup_file_commands_list(engines, devices):
     TestToolkit.update_tested_ports([selected_port])
 
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Download json file with wrong ip"):
             _download_ztp_json_config(engines, SystemConsts.STARTUP_FILE_WRONG_IP)
@@ -333,6 +302,7 @@ def test_ztp_startup_file_commands_list(engines, devices):
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 @pytest.mark.ztp
@@ -347,13 +317,7 @@ def test_ztp_connectivity_check(engines, devices):
     system = System(None)
 
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Download ping ipv4 and ipv6 json file"):
             _download_ztp_json_config(engines, SystemConsts.CONNECTIVITY_IPV4_IPV6)
@@ -384,6 +348,7 @@ def test_ztp_connectivity_check(engines, devices):
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 @pytest.mark.ztp
@@ -398,13 +363,7 @@ def test_ztp_json_complex(engines, devices):
     system = System(None)
 
     try:
-        with allure.step("Run show ztp and verify default values"):
-            system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
-
-            with allure.step("Verify default values and fields"):
-                ValidationTool.validate_fields_values_in_output(SystemConsts.ZTP_OUTPUT_FIELDS,
-                                                                SystemConsts.ZTP_DEFAULT_VALUES,
-                                                                system_ztp_output).verify_result()
+        _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Download complex json file"):
             _download_ztp_json_config(engines, SystemConsts.COMPLEX)
@@ -428,6 +387,7 @@ def test_ztp_json_complex(engines, devices):
     finally:
         system.ztp.action_abort_ztp()
         engines.dut.run_cmd('sudo rm -f /host/ztp/ztp_data_local.json')
+        system.ztp.action_run_ztp()
 
 
 def _download_ztp_json_config(engines, json=''):
@@ -462,3 +422,13 @@ def _validate_interface_description_field(selected_port, description_value):
         if NvosConst.DESCRIPTION in output_dictionary.keys():
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary, NvosConst.DESCRIPTION,
                                                               description_value).verify_result()
+
+
+@retry(Exception, tries=5, delay=2)
+def _wait_until_ztp_values_fields_changed(system, ztp_output_fields, ztp_output_values):
+    with allure.step("Run show ztp and verify default values"):
+        system_ztp_output = OutputParsingTool.parse_json_str_to_dictionary(system.ztp.show()).get_returned_value()
+
+    with allure.step("Verify default values and fields"):
+        ValidationTool.validate_fields_values_in_output(ztp_output_fields, ztp_output_values,
+                                                        system_ztp_output).verify_result()
