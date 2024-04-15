@@ -273,14 +273,11 @@ class OpenApiRequest:
     def _send_get_req_and_wait_till_completed(request_data, rev, expected_regex=''):
         with allure.step("Send GET request"):
             logging.info("Send GET request")
-            action_success = False
-            info = ""
-            timeout = 360
             req_url = OpenApiRequest._get_endpoint_url(request_data) + "/action/" + rev
             auth = OpenApiRequest._get_http_auth(request_data)
 
-            while timeout > 0:
-                r = requests.get(url=req_url, verify=False, auth=auth)
+            while True:
+                r = requests.get(url=req_url, verify=False, auth=auth, timeout=30)
                 OpenApiRequest.print_request(r.request)
                 OpenApiRequest.print_response(r, OpenApiReqType.GET)
                 response = json.loads(r.content)
@@ -293,9 +290,8 @@ class OpenApiRequest:
                 elif response['state'] == 'action_error' and response['issue'] != '':
                     return json.loads(r.content.decode('utf-8'))['issue'][0]['message']
                 elif response['state'] and response['state'] != "running" and response['state'] != "start":
-                    info = response["status"] + " - issue: " + response["issue"]
-                time.sleep(10)
-            assert action_success, info
+                    raise Exception(response["status"] + " - issue: " + response["issue"])
+                time.sleep(2)
 
 
 class OpenApiCommandHelper:
