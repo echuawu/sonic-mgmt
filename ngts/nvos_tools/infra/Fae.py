@@ -1,8 +1,10 @@
 import logging
+import time
 from typing import List
 
 import requests
 
+from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.cli_wrappers.nvue.nvue_platform_clis import NvuePlatformCli
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -110,10 +112,15 @@ class FaeCpldComponent(FaePlatformComponent):
         # when running action-install on the REFRESH image the system immediately reboots and connection is lost.
         try:
             return super().action_install(filename, device, expect_reboot)
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
             if expect_reboot:
-                logger.info(f"GET request failed as expected")
-                DutUtilsTool.wait_on_system_reboot(TestToolkit.engines.dut)
-                return ResultObj(True)
+                logger.info(f"GET request failed as expected because of switch reboot")
+                with allure.step("Waiting for reboot to finish"):
+                    logger.info(f"Waiting 30 seconds to make sure reboot has started")
+                    time.sleep(30)
+                    engine = TestToolkit.engines.dut
+                    engine.disconnect()
+                    check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+                    return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
             else:
                 raise
