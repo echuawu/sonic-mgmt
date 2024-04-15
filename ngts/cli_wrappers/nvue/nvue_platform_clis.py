@@ -25,4 +25,4 @@ class NvuePlatformCli(NvueBaseCli):
         :param bios_image_path: the path to the BIOS firmware image
         :param resource_path: unused
         """
-        return NvuePlatformCli.action_install(engine=engine, device=device, fae_command=True, args='firmware bios {}'.format(bios_image_path), expect_reboot=True, force=True)
+        return NvuePlatformCli.action_install(engine=engine, device=device, fae_command=True, args='firmware bios files {}'.format(bios_image_path), expect_reboot=True, force=True)

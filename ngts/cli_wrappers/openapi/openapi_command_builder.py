@@ -4,6 +4,7 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 import json
 import time
 import allure
+import re
 import requests
 from requests.auth import HTTPBasicAuth
 from retry import retry
@@ -247,7 +248,7 @@ class OpenApiRequest:
                 return res.info
 
     @staticmethod
-    def send_action_request(request_data, resource_path):
+    def send_action_request(request_data, resource_path, expected_regex=''):
         with allure.step("Send POST request"):
             logging.info("Send POST request")
             req_url = '{url}{resource_path}'.format(url=OpenApiRequest._get_endpoint_url(request_data),
@@ -266,10 +267,10 @@ class OpenApiRequest:
                 assert isinstance(r, dict) and r.get('status') != 200 and 'title' in r and 'detail' in r, \
                     f"In case of bad request expect status!=200 and some error message, but response is: {r}"
                 return f"{r['title']}: {r['detail']}"
-            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, response)
+            return OpenApiRequest._send_get_req_and_wait_till_completed(request_data, response, expected_regex)
 
     @staticmethod
-    def _send_get_req_and_wait_till_completed(request_data, rev):
+    def _send_get_req_and_wait_till_completed(request_data, rev, expected_regex=''):
         with allure.step("Send GET request"):
             logging.info("Send GET request")
             action_success = False
@@ -283,6 +284,8 @@ class OpenApiRequest:
                 OpenApiRequest.print_request(r.request)
                 OpenApiRequest.print_response(r, OpenApiReqType.GET)
                 response = json.loads(r.content)
+                if expected_regex and re.search(expected_regex, response['status']):
+                    return json.loads(r.content.decode('utf-8'))['status']
                 if "Performing reboot" in response['status']:
                     return json.loads(r.content.decode('utf-8'))['status']
                 if response['state'] == "action_success":
@@ -313,6 +316,6 @@ class OpenApiCommandHelper:
         return OpenApiCommandHelper.req_method[req_type](request_data, op_param_name)
 
     @staticmethod
-    def execute_action(action_type, user_name, password, dut_ip, resource_path, params):
+    def execute_action(action_type, user_name, password, dut_ip, resource_path, params, expected_regex=''):
         request_data = RequestData(user_name, password, dut_ip, resource_path.strip(), action_type, params)
-        return OpenApiCommandHelper.req_method[OpenApiReqType.ACTION](request_data, resource_path)
+        return OpenApiCommandHelper.req_method[OpenApiReqType.ACTION](request_data, resource_path, expected_regex)

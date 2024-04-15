@@ -75,6 +75,7 @@ class FaeFirmware(BaseComponent):
     def __init__(self, parent_obj=None):
         super().__init__(parent=parent_obj, path='/firmware')
         self.cpld = FaeCpldComponent(self, 'cpld')
+        self.bios = FaeBiosComponent(self, 'bios')
         self.ssd = FaePlatformComponent(self, 'ssd')
 
     def install_bios_firmware(self, bios_image_path, device):
@@ -82,6 +83,11 @@ class FaeFirmware(BaseComponent):
             return SendCommandTool.execute_command(
                 self.api_obj[TestToolkit.tested_api].action_install_fae_bios_firmware,
                 TestToolkit.engines.dut, bios_image_path, self.get_resource_path(), device)
+
+
+class FaeBiosComponent(BaseComponent):
+    def __init__(self, parent_obj=None, component_name=None):
+        super().__init__(parent=parent_obj, path=f"/{component_name}")
 
 
 class FaePlatformComponent(BaseComponent):

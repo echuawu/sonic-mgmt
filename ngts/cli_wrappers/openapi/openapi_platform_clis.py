@@ -36,7 +36,7 @@ class OpenApiPlatformCli(OpenApiBaseCli):
         :param resource_path: path (example : /fae/platform/firmware/)
         :param device: Noga device info
         """
-        resource_path = resource_path + '/bios/' + bios_image_path.replace('/', '%2F')
+        resource_path = resource_path + '/bios/files/' + bios_image_path.replace('/', '%2F')
 
         action_type = ActionType.INSTALL
         params = \
@@ -46,7 +46,7 @@ class OpenApiPlatformCli(OpenApiBaseCli):
             }
         logging.info("Running action: '{action_type}' on dut using OpenApi".format(action_type=action_type))
         result = OpenApiCommandHelper.execute_action(action_type, engine.engine.username, engine.engine.password,
-                                                     engine.ip, resource_path, params)
+                                                     engine.ip, resource_path, params, expected_regex="Installing firmware")
 
         logger.info("Waiting for switch shutdown after reload command")
         check_port_status_till_alive(False, engine.ip, engine.ssh_port)
