@@ -127,6 +127,7 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
                                                             output_dict=cur_hostname_conf).verify_result()
 
     with allure.step('Unset configuration'):
+        time.sleep(0.5)
         main_resource_obj.unset(apply=True).verify_result()
 
     with allure.step('Verify default configuration with show command'):
