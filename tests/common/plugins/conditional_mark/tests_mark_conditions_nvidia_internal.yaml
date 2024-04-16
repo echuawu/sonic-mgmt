@@ -282,6 +282,12 @@ tests/nightly/secure/test_secure_boot.py:
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
+  skip:
+    reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
+    conditions:
+      - "'simx' in platform"
+
 virtual_smart_switch/test_dpu_ip_assignment.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835047"
