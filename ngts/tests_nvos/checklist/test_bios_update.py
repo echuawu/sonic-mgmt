@@ -8,10 +8,17 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.platform.Platform import Platform
+from ngts.scripts.bios_config import configure_bios
 from ngts.tests_nvos.conftest import ProxySshEngine
 
 
 logger = logging.getLogger()
+
+
+@pytest.fixture(scope='module', autouse=True)
+def restore_bios(topology_obj):
+    yield
+    configure_bios(topology_obj)
 
 
 @pytest.mark.bios
@@ -20,7 +27,7 @@ def test_bios_upgrade(engines: ProxySshEngine, devices, test_api):
     """
     Test flow:
         1. fetch current and previous BIOS versions
-        2. install the previous BIOS version using nv action install fae platform firmware BIOS <abs-path-to-file>
+        2. install the previous BIOS version using nv action install fae platform firmware bios files <abs-path-to-file>
         3. wait for machine to boot up
         4. validate BIOS version was changed in nv show platform firmware
         5. install the current latest BIOS version (the one the machine begun the test with)
@@ -34,10 +41,10 @@ def test_bios_upgrade(engines: ProxySshEngine, devices, test_api):
         fae = Fae()
     try:
         with allure.step('Fetch previous Bios image from: {}'.format(devices.dut.previous_bios_version_path)):
-            scp_file(engines.dut, devices.dut.previous_bios_version_path, '/tmp/')
+            fae.platform.firmware.bios.action_fetch(devices.dut.previous_bios_version_path).verify_result()
 
         with allure.step('installing Bios image {}'.format(devices.dut.previous_bios_version_name)):
-            fae.platform.firmware.install_bios_firmware(bios_image_path="/tmp/0ACQF.cab", device=devices.dut)
+            fae.platform.firmware.install_bios_firmware(bios_image_path="0ACQF.cab", device=devices.dut)
 
         with allure.step('making sure BIOS is now on version {}'.format(devices.dut.previous_bios_version_name)):
             fw_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).verify_result()
@@ -54,10 +61,10 @@ def test_bios_upgrade(engines: ProxySshEngine, devices, test_api):
         TestToolkit.tested_api = ApiType.OPENAPI
         with allure.step(
                 'restoring original Bios version as cleanup from {}'.format(devices.dut.current_bios_version_path)):
-            scp_file(engines.dut, devices.dut.current_bios_version_path, '/tmp/')
+            fae.platform.firmware.bios.action_fetch(devices.dut.current_bios_version_path).verify_result()
 
         with allure.step('installing Bios image {}'.format(devices.dut.current_bios_version_name)):
-            fae.platform.firmware.install_bios_firmware(bios_image_path="/tmp/0ACQF.cab", device=devices.dut)
+            fae.platform.firmware.install_bios_firmware(bios_image_path="0ACQF.cab", device=devices.dut)
 
         with allure.step('making sure BIOS is now on version {}'.format(devices.dut.current_bios_version_name)):
             fw_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.show()).verify_result()

@@ -3,6 +3,7 @@ import logging
 
 from ngts.constants.constants import PlayersAliases
 from ngts.nvos_constants.constants_nvos import BiosConsts
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.BiosTool import BiosTool
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -33,10 +34,13 @@ def configure_bios(topology_obj):
                     'ip address', '')
                 dut_engine = topology_obj.players[host]['engine']
                 bios_obj = BiosTool()
-                with allure.step('Entering BIOS on: {}'.format(dut_ip)):
-                    bios_obj.enter_bios(topology_obj)
+                # dummy class init just to be able to access non-static inner methods
+                nvue_cli_obj = NvueGeneralCli(engine=None, device=None)
 
-                serial_engine = TestToolkit.GeneralApi[TestToolkit.tested_api].enter_serial_connection_context(topology_obj)
+                with allure.step('Entering BIOS on: {}'.format(dut_ip)):
+                    bios_obj.enter_bios(topology_obj, nvue_cli_obj)
+
+                serial_engine = nvue_cli_obj.enter_serial_connection_context(topology_obj)
                 with allure.step('Configuring empty BIOS password'):
                     bios_obj.go_to_bios_page(serial_engine, "Main", "Security", BiosConsts.BIOS_MENU_PAGES)
                     bios_obj.bios_find_and_select(serial_engine, "Administrator Password")

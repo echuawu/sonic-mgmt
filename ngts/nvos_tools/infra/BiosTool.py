@@ -10,16 +10,17 @@ logger = logging.getLogger()
 
 class BiosTool:
 
-    def enter_bios(self, topology_obj):
+    def enter_bios(self, topology_obj, nvue_cli_obj):
         '''
         @summary: this method will remote reboot the given switch and enter the BIOS menu
         @param topology_obj: topology object
+        @param topology_obj: NvueGeneralCli object
         '''
 
         logger.info("Initializing serial connection to device")
-        serial_engine = TestToolkit.GeneralApi[TestToolkit.tested_api].enter_serial_connection_context(topology_obj)
+        serial_engine = nvue_cli_obj.enter_serial_connection_context(topology_obj)
         logger.info('Executing remote reboot')
-        TestToolkit.GeneralApi[TestToolkit.tested_api].remote_reboot(None, topology_obj)
+        nvue_cli_obj.remote_reboot(topology_obj)
         logger.info("Waiting for enter BIOS prompt")
         serial_engine.run_cmd('', [BiosConsts.BIOS_START_REGEX], timeout=240, send_without_enter=True)
 
