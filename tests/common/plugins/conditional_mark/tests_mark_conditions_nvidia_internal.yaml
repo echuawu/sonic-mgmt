@@ -290,9 +290,9 @@ virtual_smart_switch/test_dpu_ip_assignment.py:
 
 syslog/test_logrotate.py::test_orchagent_logrotate:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835010"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3867329"
     conditions:
-      - "https://redmine.mellanox.com/issues/3835010"
+      - "https://redmine.mellanox.com/issues/3867329"
 
 tests/show_techsupport/test_auto_techsupport.py:
   skip:
