@@ -25,7 +25,7 @@ logger = logging.getLogger()
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Deploy and upgrade image')
-def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dpu, target_version, serve_files,
+def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version, base_version_dpu, target_version, serve_files,
                             sonic_topo, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
                             fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
@@ -53,6 +53,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dp
 
         :param topology_obj: topology object fixture.
         :param is_simx: is_simx fixture, True in case when setup is SIMX
+        :param is_performance: is_performance fixture, True in case when setup is performance
         :param base_version: base_version fixture
         :param target_version: target_version fixture
         :param serve_files: serve_files fixture
@@ -103,20 +104,28 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dp
         setup_info['duts'] = switch_or_standalone_dpu_duts
 
         pre_install_threads = {}
-        pre_installation_steps(
-            sonic_topo, base_version, target_version, setup_info, port_number, is_simx, pre_install_threads)
+        pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+                               is_simx, pre_install_threads)
         install_threads = []
+        install_dpu_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
         player_dut = topology_obj.players['dut']
         for dut in switch_or_standalone_dpu_duts:
+            if not is_dut_supports_image(base_version_url, dut['dut_name']):
+                continue
             with allure.step('Install image on dut: {}'.format(dut['dut_name'])):
                 # Disconnect ssh connection, prevent "Socket is closed" in case when pre step took more than 15 min
                 topology_obj.players[dut['dut_alias']]['engine'].disconnect()
-                deploy_image(topology_obj=topology_obj, setup_name=setup_name, image_url=base_version_url,
-                             platform_params=platform_params, deploy_type=deploy_type,
-                             apply_base_config=apply_base_config,
-                             reboot_after_install=reboot_after_install, is_shutdown_bgp=is_shutdown_bgp,
-                             fw_pkg_path=fw_pkg_path, cli_type=dut['cli_obj'], target_image_url=target_version_url)
+                platform_params_copy = copy.deepcopy(platform_params)
+                install_threads.append((dut['dut_name'],
+                                        executor.submit(deploy_image, topology_obj=topology_obj, setup_name=setup_name,
+                                                        image_url=base_version_url, platform_params=platform_params_copy,
+                                                        deploy_type=deploy_type, apply_base_config=apply_base_config,
+                                                        reboot_after_install=reboot_after_install,
+                                                        is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path=fw_pkg_path,
+                                                        cli_type=dut['cli_obj'], target_image_url=target_version_url)))
+        wait_until_deploy_background_process(install_threads, timeout=1500)
+
         for dut in smart_switch_dpu_duts:
             with allure.step('Install image on DPU: {}'.format(dut['dut_name'])):
                 # Disconnect ssh connection, prevent "Socket is closed" in case when pre step took more than 15 min
@@ -133,29 +142,22 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dp
                     topology_obj_dpu.players['hyper'] = topology_obj.players['dut']
                 platform_params_dpu['hwsku'] = get_platform_info(topology_obj_dpu)['hwsku']
                 logger.info(f"Starting to install image on DPU {dut['dut_name']}")
-                install_threads.append((dut['dut_name'],
-                                        executor.submit(
+                install_dpu_threads.append((dut['dut_name'],
+                                            executor.submit(
                                             deploy_image, topology_obj=topology_obj_dpu, setup_name=setup_name,
                                             image_url=base_version_dpu, platform_params=platform_params,
                                             deploy_type='bfb', apply_base_config=False,
                                             reboot_after_install=reboot_after_install,
                                             is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path='',
                                             cli_type=dut['cli_obj'], target_image_url='')))
-        for dpu_name, task in install_threads:
-            with allure.step(f'Wait until {dpu_name} installation background process done'):
-                try:
-                    task.result(timeout=1200)
-                    logger.info(f"Image is successfully installed on {dpu_name}")
-                except TimeoutError:
-                    logger.error(f"The installation on {dpu_name} failed to complete in 1200s.")
-
+        wait_until_deploy_background_process(install_dpu_threads, timeout=1200)
         logger.info("Wait until pre-installation background process done")
         try:
             wait_until_background_procs_done(pre_install_threads)
         except AssertionError:
             # Give it another try if the background processes in the pre-installation steps fail
-            pre_installation_steps(
-                sonic_topo, base_version, target_version, setup_info, port_number, is_simx, pre_install_threads)
+            pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+                                   is_simx, pre_install_threads)
             wait_until_background_procs_done(pre_install_threads)
         logger.info("Pre-installation background processes are done")
 
@@ -165,8 +167,8 @@ def test_deploy_and_upgrade(topology_obj, is_simx, base_version, base_version_dp
                                 target_version=target_version, is_shutdown_bgp=True,
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
-                                setup_info=setup_info, workspace_path=workspace_path, base_version=base_version,
-                                deploy_dpu=deploy_dpu, verify_secure_boot=verify_secure_boot)
+                                setup_info=setup_info, workspace_path=workspace_path, is_performance=is_performance,
+                                base_version=base_version, deploy_dpu=deploy_dpu, verify_secure_boot=verify_secure_boot)
 
         # Remove .pytest_cache folder after deploy - otherwise  - cached info from old image will be used in skip tests
         cache_full_path = os.path.join(os.path.dirname(__file__), '../../.pytest_cache')
@@ -183,6 +185,9 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     :param base_version: base_version fixture
     :param target_version: target version argument
     :param setup_info: dictionary with setup info
+    :param port_number: number of DUT ports
+    :param is_simx: is_simx fixture, True in case when setup is SIMX
+    :param threads_dict: dict, contain threads which will run in background
     """
     cli_type = setup_info['duts'][0]['cli_obj']
     if isinstance(cli_type, CumulusGeneralCli):
@@ -197,7 +202,8 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_dpu,
                             setup_name, platform_params, apply_base_config, target_version,
                             is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                            additional_apps, setup_info, workspace_path, base_version='', verify_secure_boot=True):
+                            additional_apps, setup_info, workspace_path, is_performance, base_version='',
+                            verify_secure_boot=True):
     """
     Post-installation steps
     :param topology_obj: topology object
@@ -215,6 +221,9 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     :param additional_apps: additional_apps fixture
     :param setup_info: dictionary with setup info
     :param workspace_path: workspace_path fixture
+    :param is_performance: is_performance fixture, True in case when setup is performance
+    :param base_version: base_version fixture
+    :param verify_secure_boot: verify_secure_boot flag
     """
     dut_cli_obj = setup_info['duts'][0]['cli_obj']
     if isinstance(dut_cli_obj, CumulusGeneralCli):
@@ -223,14 +232,14 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
         NvosInstallationSteps.post_installation_steps(topology_obj, workspace_path, setup_info, base_version,
                                                       target_version, verify_secure_boot)
     else:
-        SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot,
-                                                       setup_name, platform_params,
-                                                       apply_base_config, target_version,
+        SonicInstallationSteps.post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, setup_name,
+                                                       platform_params, apply_base_config, target_version,
                                                        is_shutdown_bgp, reboot_after_install, deploy_only_target,
-                                                       fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu)
+                                                       fw_pkg_path, reboot, additional_apps, setup_info, is_performance,
+                                                       deploy_dpu)
 
 
-def get_cli_obj(topology_obj, cli_type, switch_type, engine, host):
+def get_cli_obj(topology_obj, cli_type, switch_type, engine, host, dut_alias):
     if cli_type == NvosConst.NVUE_CLI:
         device_name = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].\
             get('switch_type', '')
@@ -240,9 +249,27 @@ def get_cli_obj(topology_obj, cli_type, switch_type, engine, host):
         else:
             cli_obj = NvueGeneralCli(engine, device)
     else:
-        cli_obj = SonicCli(topology_obj, dut_alias=host).general
+        cli_obj = SonicCli(topology_obj, dut_alias=dut_alias).general
 
     return cli_obj
+
+
+def is_dut_supports_image(base_version_url, dut_name):
+    image_supports = True
+    # device mtvr-moose-01 is production and supports only prod versions of ONIE and SONiC
+    if dut_name == 'mtvr-moose-01' and "prod" not in base_version_url:
+        image_supports = False
+    return image_supports
+
+
+def wait_until_deploy_background_process(install_threads, timeout=1200):
+    for dut_name, task in install_threads:
+        with allure.step(f'Wait until {dut_name} installation background process done'):
+            try:
+                task.result(timeout=timeout)
+                logger.info(f"Image is successfully installed on {dut_name}")
+            except TimeoutError:
+                logger.error(f"The installation on {dut_name} failed to complete in {timeout}s.")
 
 
 def get_info_from_topology(topology_obj, workspace_path, include_smartswitch_dpu=True):
@@ -265,7 +292,7 @@ def get_info_from_topology(topology_obj, workspace_path, include_smartswitch_dpu
                 switch_type = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', '')
                 dut_ip = topology_obj.players[host]['attributes'].noga_query_data['attributes']['Specific'].get('ip address', '')
                 engine = topology_obj.players[host]['engine']
-                cli_obj = get_cli_obj(topology_obj, cli_type, switch_type, engine, host)
+                cli_obj = get_cli_obj(topology_obj, cli_type, switch_type, engine, host, dut_alias)
                 dut_info = {'dut_name': dut_name, 'cli_type': cli_type, 'engine': engine, 'cli_obj': cli_obj,
                             'dut_alias': dut_alias, 'switch_type': switch_type, 'dut_ip': dut_ip}
                 if 'dut-dpu' in dut_alias and not include_smartswitch_dpu:

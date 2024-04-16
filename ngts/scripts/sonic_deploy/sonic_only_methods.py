@@ -279,10 +279,10 @@ class SonicInstallationSteps:
         return is_app_ext_dict
 
     @staticmethod
-    def post_installation_steps(topology_obj, sonic_topo,
-                                recover_by_reboot, setup_name, platform_params,
+    def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
-                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info, deploy_dpu=False):
+                                deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info,
+                                is_performance, deploy_dpu=False):
         """
         Post-installation steps
         :param topology_obj: topology object
@@ -299,6 +299,7 @@ class SonicInstallationSteps:
         :param reboot: reboot fixture
         :param additional_apps: additional_apps fixture
         :param setup_info: dictionary with setup info
+        :param is_performance: True in case when setup is performance
         """
         ansible_path = setup_info['ansible_path']
 
@@ -435,7 +436,7 @@ class SonicInstallationSteps:
             # Disconnect ssh connection, prevent "Socket is closed" in case when previous steps did reboot
             topology_obj.players[dut['dut_alias']]['engine'].disconnect()
 
-        if not is_community(sonic_topo):
+        if not is_community(sonic_topo) and not is_performance:
             # deploy the xmlrpc, the traffic may loss right after the xml rpc server is started
             topology_obj.players['ha']['engine'].start_xml_rcp_server()
             topology_obj.players['hb']['engine'].start_xml_rcp_server()
@@ -470,7 +471,7 @@ class SonicInstallationSteps:
             # for sonic only (is_shutdown_bgp is False for NVOS)
             if is_shutdown_bgp:
                 with allure.step('Shutdown bgp'):
-                    dut_engine = topology_obj.players['dut']['engine']
+                    dut_engine = cli.engine
                     dut_engine.run_cmd('sudo config bgp shutdown all', validate=True)
                     logger.info("Wait all bgp sessions are down")
                     retry_call(SonicInstallationSteps.check_bgp_is_shutdown,
@@ -491,7 +492,7 @@ class SonicInstallationSteps:
 
             if 'r-leopard-72' in setup_name and is_redmine_issue_active(3646924):
                 with allure.step('Change CABLE_LENGTH/AZURE for r-leopard-72 as it has ports 2-3 with optic cables'):
-                    dut_engine = topology_obj.players['dut']['engine']
+                    dut_engine = cli.engine
                     sonic_buffers_config_file_path = '/usr/share/sonic/templates/buffers_config.j2'
                     dut_engine.run_cmd(f"sudo sed -i \"s/'spinerouter_leafrouter' : '300m'/'spinerouter_leafrouter' : "
                                        f"'40m'/g\" {sonic_buffers_config_file_path}")

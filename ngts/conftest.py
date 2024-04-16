@@ -544,6 +544,14 @@ def is_simx(platform_params, is_air):
     return is_simx_setup
 
 
+@pytest.fixture(scope="session")
+def is_performance(platform_params):
+    is_perf_setup = False
+    if re.search('performance', platform_params.setup_name):
+        is_perf_setup = True
+    return is_perf_setup
+
+
 @pytest.fixture(scope='session')
 def is_air(platform_params):
     is_air_setup = False

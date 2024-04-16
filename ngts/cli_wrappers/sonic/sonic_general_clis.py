@@ -16,7 +16,7 @@ from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
 from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
-from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, \
+from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, PerformanceSetupConstants, \
     AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, PlatformTypesConstants
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
@@ -36,7 +36,6 @@ from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tools.infra import update_platform_info_files
 from ngts.helpers.secure_boot_helper import SecureBootHelper
-from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
@@ -298,6 +297,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                     dockers_list = SonicConst.DOCKERS_LIST_BF
                 elif config_db['DEVICE_METADATA']['localhost']['type'] == 'ToRRouter':
                     dockers_list = SonicConst.DOCKERS_LIST_TOR
+                # in performance setup the docker dhcp_relay is disabled on TG switches to exclude multicast
+                if self.cli_obj.dut_alias in ['left_tg', 'right_tg']:
+                    if 'dhcp_relay' in dockers_list:
+                        dockers_list.remove('dhcp_relay')
             except json.JSONDecodeError:
                 logger.warning('Can not get device type from config_db.json. Unable to parse config_db.json file')
             except KeyError:
@@ -400,7 +403,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Init telemetry keys"):
             self.init_telemetry_keys()
 
-        self.update_platform_params(platform_params)
+        self.update_platform_params(platform_params, setup_name)
 
         if apply_base_config:
             with allure.step("Apply basic config"):
@@ -823,15 +826,20 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                            logger=logger)
                 self.save_configuration()
 
-    def update_platform_params(self, platform_params):
+    def update_platform_params(self, platform_params, setup_name):
         if hasattr(self, 'cli_obj'):  # SONiC only
-            current_platform_summry = self.cli_obj.chassis.parse_platform_summary()
-            if platform_params["hwsku"] != current_platform_summry["HwSKU"] \
-                    or platform_params["platform"] != current_platform_summry["Platform"]:
-                platform_params["hwsku"] = current_platform_summry["HwSKU"]
-                platform_params["platform"] = current_platform_summry["Platform"]
+            current_platform_summary = self.cli_obj.chassis.parse_platform_summary()
+            if platform_params["hwsku"] != current_platform_summary["HwSKU"] \
+                    or platform_params["platform"] != current_platform_summary["Platform"] \
+                    or self.is_performance_setup(setup_name):
+                if self.is_performance_setup(setup_name):
+                    # for performance setup the HwSKU not updated after install image
+                    platform_params["hwsku"] = PerformanceSetupConstants.HWSKU
+                else:
+                    platform_params["hwsku"] = current_platform_summary["HwSKU"]
+                platform_params["platform"] = current_platform_summary["Platform"]
                 hostname = self.cli_obj.chassis.get_hostname()
-                update_platform_info_files(hostname, current_platform_summry, update_inventory=True)
+                update_platform_info_files(hostname, current_platform_summary, update_inventory=True)
 
     def apply_basic_config(self, topology_obj, setup_name, platform_params, reload_before_qos=False,
                            disable_ztp=False, configure_dns=True):
@@ -877,12 +885,12 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         shared_path = '{}{}'.format(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name)
 
         if setup_name.startswith('air'):
-            self.prepare_nvidia_air_basic_config_db_json(topology_obj, setup_name, hwsku)
+            self.prepare_nvidia_air_basic_config_db_json(topology_obj, setup_name, hwsku, platform)
         else:
             # No need to modify port_config.ini for NvidiaAir setups - because ports split not supported yet
             self.upload_port_config_ini(platform, hwsku, shared_path)
 
-        self.upload_config_db_file(topology_obj, setup_name, hwsku, shared_path)
+        self.upload_config_db_file(topology_obj, setup_name, hwsku, platform, shared_path)
 
         if is_redmine_issue_active([3858467]) and platform == 'x86_64-mlnx_msn4700-r0':
             self.engine.reload(['sudo config reload -f -y'])
@@ -891,15 +899,22 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
-        source_file = os.path.join(shared_path, SonicConst.PORT_CONFIG_INI)
+        config_file_prefix = self.get_config_file_prefix(shared_path)
+        source_file = os.path.join(shared_path, config_file_prefix + SonicConst.PORT_CONFIG_INI)
         logger.info(f'Copy file {source_file} to /tmp directory on a switch')
         self.engine.copy_file(source_file=source_file,
                               dest_file=SonicConst.PORT_CONFIG_INI, file_system='/tmp/',
                               overwrite_file=True, verify_file=False)
         self.engine.run_cmd(f'sudo mv /tmp/{SonicConst.PORT_CONFIG_INI} {switch_config_ini_path}')
 
-    def upload_config_db_file(self, topology_obj, setup_name, hwsku, shared_path):
-        config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku)
+    def get_config_file_prefix(self, str_with_setup_name):
+        prefix = ''
+        if self.is_performance_setup(str_with_setup_name):
+            prefix = self.hostname() + '_'
+        return prefix
+
+    def upload_config_db_file(self, topology_obj, setup_name, hwsku, platform, shared_path):
+        config_db_file = self.get_updated_config_db(topology_obj, setup_name, hwsku, platform)
         source_file = os.path.join(shared_path, config_db_file)
         logger.info(f'Copy file {source_file} to /tmp directory on a switch')
         self.engine.copy_file(source_file=source_file,
@@ -990,24 +1005,26 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         # ET.indent(tree, space="\t", level=0)
         tree.write(filepath, encoding="utf-8")
 
-    def get_updated_config_db(self, topology_obj, setup_name, hwsku):
+    def get_updated_config_db(self, topology_obj, setup_name, hwsku, platform):
         branch = get_sonic_branch(topology_obj)
-        config_db_file_name = "{}_config_db.json".format(self.get_image_sonic_version())
+        config_file_prefix = self.get_config_file_prefix(setup_name)
+        config_db_file_name = f"{self.get_image_sonic_version()}_{config_file_prefix}config_db.json"
         if branch in ['202205', '202211', '202305', '202311']:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_JSON
         else:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_GNMI_JSON
+        base_config_db_json_file_name = config_file_prefix + base_config_db_json_file_name
         base_config_db_json = self.get_config_db_json_obj(setup_name, base_config_db_json_file_name)
         self.create_extended_config_db_file(setup_name, base_config_db_json, file_name=config_db_file_name)
         self.update_config_db_metadata_router(setup_name, config_db_file_name)
         self.update_config_db_metadata_mgmt_port(setup_name, config_db_file_name)
         self.update_config_db_metadata_hwsku(setup_name, hwsku, config_db_file_name)
-        self.update_config_db_features(setup_name, hwsku, config_db_file_name)
+        self.update_config_db_features(setup_name, hwsku, platform, config_db_file_name)
         self.update_config_db_feature_config(setup_name, "database", "auto_restart", "always_enabled",
                                              config_db_file_name)
         default_mtu = "9100"
         self.update_config_db_port_mtu_config(setup_name, default_mtu, config_db_file_name)
-        self.update_config_db_breakout_cfg(topology_obj, setup_name, hwsku, config_db_file_name)
+        self.update_config_db_breakout_cfg(topology_obj, setup_name, hwsku, platform, config_db_file_name)
         # TODO: WA for the PR: https://github.com/sonic-net/sonic-buildimage/pull/16116,
         #  after the PR merged, it can be removed
         self.update_database_version(setup_name, config_db_file_name)
@@ -1015,8 +1032,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             self.remove_syslog_telemetry_entry(setup_name, config_db_file_name)
         return config_db_file_name
 
-    def update_config_db_features(self, setup_name, hwsku, config_db_json_file_name):
-        init_config_db_json = self.get_init_config_db_json_obj(hwsku)
+    def update_config_db_features(self, setup_name, hwsku, platform, config_db_json_file_name):
+        init_config_db_json = self.get_init_config_db_json_obj(hwsku, platform, setup_name)
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
         image_supported_features = init_config_db_json[ConfigDbJsonConst.FEATURE]
         current_features = config_db_json[ConfigDbJsonConst.FEATURE]
@@ -1142,8 +1159,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 return False
         return True
 
-    def update_config_db_breakout_cfg(self, topology_obj, setup_name, hwsku, config_db_json_file_name):
-        init_config_db_json = self.get_init_config_db_json_obj(hwsku)
+    def update_config_db_breakout_cfg(self, topology_obj, setup_name, hwsku, platform, config_db_json_file_name):
+        init_config_db_json = self.get_init_config_db_json_obj(hwsku, platform, setup_name)
         config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name)
         if init_config_db_json.get("BREAKOUT_CFG") and not self.is_bluefield(hwsku):
             config_db_json = self.update_breakout_cfg(topology_obj, init_config_db_json, config_db_json, hwsku)
@@ -1157,16 +1174,28 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         return False
 
     @staticmethod
+    def is_performance_setup(str_with_setup_name):
+        return 'performance' in str_with_setup_name
+
+    def is_default_hwsku(self, hwsku, setup_name):
+        is_default_hwsku = True
+        if self.is_performance_setup(setup_name) and hwsku == PerformanceSetupConstants.HWSKU:
+            is_default_hwsku = False
+        return is_default_hwsku
+
+    @staticmethod
     def get_config_db_json_obj(setup_name, config_db_json_file_name=SonicConst.CONFIG_DB_JSON):
         config_db_path = str(os.path.join(InfraConst.MARS_TOPO_FOLDER_PATH, setup_name, config_db_json_file_name))
         with open(config_db_path) as config_db_json_file:
             config_db_json = json.load(config_db_json_file)
         return config_db_json
 
-    def get_init_config_db_json_obj(self, hwsku):
-        init_config_db = \
-            self.engine.run_cmd("sonic-cfggen -k {} -H -j /etc/sonic/init_cfg.json --print-data".format(hwsku),
-                                print_output=False)
+    def get_init_config_db_json_obj(self, hwsku, platform, setup_name):
+        cmd = f"sonic-cfggen -k {hwsku} -H -j /etc/sonic/init_cfg.json --print-data"
+        if not self.is_default_hwsku(hwsku, setup_name):
+            switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}/{SonicConst.PORT_CONFIG_INI}'
+            cmd = f"sonic-cfggen -k {hwsku} -H -j /etc/sonic/init_cfg.json -p {switch_config_ini_path} --print-data"
+        init_config_db = self.engine.run_cmd(cmd, print_output=False)
         init_config_db_json = json.loads(init_config_db)
         return init_config_db_json
 
@@ -1489,8 +1518,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def restart_service(self, service_name):
         self.engine.run_cmd(f'sudo service {service_name} restart')
 
-    def prepare_nvidia_air_basic_config_db_json(self, topology_obj, setup_name, hwsku):
-        config_db_dict = self.get_init_config_db_json_obj(hwsku)
+    def prepare_nvidia_air_basic_config_db_json(self, topology_obj, setup_name, hwsku, platform):
+        config_db_dict = self.get_init_config_db_json_obj(hwsku, platform, setup_name)
         dut_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
         config_db_dict['DEVICE_METADATA']['localhost']['hostname'] = dut_name
         for interface in config_db_dict['PORT']:

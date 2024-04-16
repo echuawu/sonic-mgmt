@@ -1200,7 +1200,7 @@ class MarsConstants:
 class PlayersAliases:
     Aliases_list = ['sl']
     SL = 'sl'
-    duts_list = ['dut', 'dut-b', 'dut-dpu-1', 'dut-dpu-2', 'dut-dpu-3', 'dut-dpu-4']
+    duts_list = ['dut', 'dut-b', 'dut-dpu-1', 'dut-dpu-2', 'dut-dpu-3', 'dut-dpu-4', 'left_tg', 'right_tg']
 
 
 class NvosCliTypes:
@@ -1227,6 +1227,10 @@ class BluefieldConstants:
                              "Nvidia-9009d3b600SVAA-C1",
                              "Nvidia-9009d3b600SVAA-C2"]
     BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
+
+
+class PerformanceSetupConstants:
+    HWSKU = 'Mellanox-SN5600-O128'
 
 
 class SonicDeployConstants:
