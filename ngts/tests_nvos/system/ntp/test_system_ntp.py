@@ -114,6 +114,12 @@ def test_configure_ntp_server(test_api):
             assert diff_time < 300, "ntp diff time: {diff_time} seconds, is higher than expected time of 300 seconds".\
                 format(diff_time=diff_time)
 
+        with allure.step("Create authentication key"):
+            logging.info("Create authentication key")
+            system.ntp.keys.set_resource(NtpConsts.KEY_1).verify_result()
+            system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
+                op_param_name=NtpConsts.VALUE, op_param_value=NtpConsts.KEY_VALUE, apply=True).verify_result()
+
         with allure.step("Update existing ntp server with none default values"):
             logging.info("Update existing ntp server with none default values")
             system.ntp.servers.resources_dict[server_name].set(
@@ -967,6 +973,12 @@ def test_ntp_log(engines):
             system.ntp.set(op_param_name=NtpConsts.STATE, op_param_value=NtpConsts.State.ENABLED.value,
                            apply=True).verify_result()
             time.sleep(NtpConsts.SYNCHRONIZATION_MAX_TIME)
+
+        with allure.step("Create authentication key"):
+            logging.info("Create authentication key")
+            system.ntp.keys.set_resource(NtpConsts.KEY_1).verify_result()
+            system.ntp.keys.resources_dict[NtpConsts.KEY_1].set(
+                op_param_name=NtpConsts.VALUE, op_param_value=NtpConsts.KEY_VALUE, apply=True).verify_result()
 
         with allure.step("Update server configuration"):
             logging.info("Update server configuration")
