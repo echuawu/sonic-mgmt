@@ -23,4 +23,7 @@
     <test>
         <cases> sonic-mgmt/sonic-tool/mars/cases/common/log_analyzer_after_sonic_deploy.cases </cases>
     </test>
+    <test>
+        <cases> sonic-mgmt/sonic-tool/mars/cases/common/secure_boot_checker.cases </cases>
+    </test>
 </DBDEF>
