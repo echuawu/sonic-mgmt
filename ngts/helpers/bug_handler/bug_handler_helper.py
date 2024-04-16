@@ -198,7 +198,7 @@ def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, u
                          bug_handler_no_action=False, bug_handler_action={}):
     bug_handler_no_action = '--no_action' if bug_handler_no_action else ''
     bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
-        f"--user {user} --branch {branch} --debug_level 2 --parsed_data {yaml_parsed_file} {bug_handler_no_action}"
+        f"--user {user} --branch {branch} --debug_level 2 --parsed_data '{yaml_parsed_file}' {bug_handler_no_action}"
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     logger.info(bug_handler_output)
