@@ -274,7 +274,7 @@ def test_acl_loopback(engines, test_api):
     with allure.step("Validate ACL counters"):
         rule_packets_1_before = get_rule_packets(mgmt_port, acl_id_1)
         rule_packets_1_after = get_rule_packets(mgmt_port, acl_id_1)
-        assert rule_packets_1_after[rule_id] > rule_packets_1_before[rule_id], \
+        assert int(rule_packets_1_after[rule_id]) > int(rule_packets_1_before[rule_id]), \
             f'we expect to see increase in acl {acl_id_1} rule id {rule_id} counter - cause the first acl should be applied'
 
 
@@ -360,7 +360,7 @@ def test_show_acl_commands(engines, test_api):
             statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show()
             rule_statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show(rule_id_1)
             inbound_output = mgmt_port.interface.acl.acl_id[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
-            assert acl_output[acl_id][AclConsts.RULE].keys() == interface_acls_output[acl_id][AclConsts.STATISTICS].keys()
+            assert acl_id_output[AclConsts.RULE].keys() == interface_acls_output[acl_id][AclConsts.STATISTICS].keys()
             assert rule_output.keys() == interface_acl_output[AclConsts.STATISTICS].keys()
             assert rule_output.keys() == statistics_output.keys()
             assert statistics_output[rule_id_1].keys() == rule_statistics_output.keys()
@@ -886,14 +886,14 @@ def test_adding_new_rule(engines):
     """
     mgmt_port = MgmtPort()
     default_chosen_acl = 'ACL_MGMT_INBOUND_CP_DEFAULT'
-    default_chosen_rule = '55'
+    default_chosen_rule = '130'
     new_acl = 'AA_TEST_ADD_NEW_RULE'
     new_rule = '1'
     acl_type = 'ipv4'
 
     with allure.step("Sanity check - send packet and validate default rule counters"):
         rule_packets_1_before = get_rule_packets(mgmt_port, default_chosen_acl, default_chosen_rule)
-        packet = f"IP(dst=\"{engines.dut.ip}\") / UDP()"
+        packet = f"IP(dst=\"{engines.dut.ip}\") / UDP(dport=161)"
         scapy_send_packet(engines.sonic_mgmt, packet)
         rule_packets_1_after = get_rule_packets(mgmt_port, default_chosen_acl, default_chosen_rule)
         assert rule_packets_1_after[default_chosen_rule] > rule_packets_1_before[default_chosen_rule], \
@@ -967,8 +967,8 @@ def test_override_default_rule(engines):
     mgmt_port = MgmtPort()
     src_ip = "10.77.133.200"    # random unrelated ip
     default_chosen_acl = 'ACL_MGMT_INBOUND_CP_DEFAULT'
-    default_rule_to_add_field = '2'   # add source ip that not related to us
-    default_rule_to_override_field = '55'  # change the flag to syn
+    default_rule_to_add_field = '20'   # add source ip that not related to us
+    default_rule_to_override_field = '130'  # change the dest port
     acl_obj = Acl().acl_id[default_chosen_acl]
 
     with allure.step("Unset existing field - should fail"):
@@ -1007,10 +1007,10 @@ def test_override_default_rule(engines):
                     f'the rule should not catch this packet because we override it with src ip that not exist in this setup'
 
         with allure.step("override default rules - change existing field"):
-            config_rule(engines.dut, acl_obj, default_rule_to_override_field, {AclConsts.TCP_DEST_PORT: '52'})
+            config_rule(engines.dut, acl_obj, default_rule_to_override_field, {AclConsts.UDP_DEST_PORT: '52'})
             with allure.step("validate with show command"):
                 rule_output = acl_obj.rule.parse_show(default_rule_to_override_field)
-                assert '52' in rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.TCP_DEST_PORT].keys()
+                assert '52' in rule_output[AclConsts.MATCH][AclConsts.IP]['udp']['dest-port'].keys()
 
             with allure.step("Validate ACL counters"):
                 rule_packets_1_before = get_rule_packets(mgmt_port, default_chosen_acl, default_rule_to_override_field)
@@ -1067,6 +1067,8 @@ def config_acl_with_rule_attached_to_interface(engine, acl_id, acl_type, rule_id
             acl_obj.set(AclConsts.TYPE, acl_type).verify_result()
             config_rule(engine, acl_obj, rule_id, rule_configuration_dict)
             attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane)
+            logger.info("sleep 2 sec after rule attachment")
+            time.sleep(2)
         return acl_obj
 
 
@@ -1086,6 +1088,7 @@ def validate_counters_after_traffic(engine, rule_direction, mgmt_port, acl_id, r
             scapy_send_packet(engine, packet)
         elif ping_dest:
             engine.run_cmd('ping {} -c {}'.format(ping_dest, 2))
+        time.sleep(2)
         rule_packets_after = get_rule_packets(mgmt_port, acl_id, rule_id, rule_direction=rule_direction)
         assert int(rule_packets_after[rule_id]) > int(rule_packets_before[rule_id]), \
             "expect to see difference in the counters after the ping"
