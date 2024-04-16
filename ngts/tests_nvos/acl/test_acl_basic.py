@@ -1121,7 +1121,7 @@ def match_ip_port_test(engines, mgmt_port, acl_type, acl_id, port_list, dest_add
         rule_configuration_dict = {AclConsts.ACTION: AclConsts.PERMIT, AclConsts.IP_PROTOCOL: 'tcp', port_direction: port}
         acl_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id, acl_type, rule_id,
                                                              rule_configuration_dict, mgmt_port, AclConsts.INBOUND,
-                                                             AclConsts.CONTROL_PLANE, acl_obj=acl_obj)
+                                                             control_plane="", acl_obj=acl_obj)
         if port == 'ANY':
             port = 1234
         port = port if isinstance(port, int) else f"\"{port}\""
