@@ -3,7 +3,7 @@ import os
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts, SystemConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -459,6 +459,13 @@ class BlackMambaSwitch(IbSwitch):
                                 "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
                                 "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
 
+        self.stats_fan_header_num_of_lines = 37
+        self.stats_power_header_num_of_lines = 25
+        self.stats_temperature_header_num_of_lines = 103
+
+        # Temporary remove until operational code integrated with master branch
+        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
+
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
@@ -495,6 +502,12 @@ class CrocodileSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
+        self.stats_fan_header_num_of_lines = 23
+        self.stats_power_header_num_of_lines = 17
+        self.stats_temperature_header_num_of_lines = 61
+
+        # Temporary remove until operational code integrated with master branch
+        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
 
     def _init_fan_list(self):
         super()._init_fan_list()
