@@ -14,6 +14,7 @@ from ngts.nvos_constants.constants_nvos import SystemConsts
 
 from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folder, clear_files, bug_handler_wrapper, \
     create_log_analyzer_yaml_file, group_log_errors_by_timestamp, summarize_la_bug_handler
+from ngts.scripts.allure_reporter import predict_allure_report_link
 
 logger = logging.getLogger()
 
@@ -115,7 +116,7 @@ def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
 
 @retry(Exception, tries=5, delay=20)
 def _generate_sonic_techsupport(duthost):
-    return duthost.shell('sudo generate_dump -s \"-{} seconds\"'.format(0))["stdout_lines"][-1]
+    return duthost.shell('sudo generate_dump -s \"-{} hours\"'.format(2))["stdout_lines"][-1]
 
 
 def _generate_nvue_techsupport(duthost):
@@ -151,10 +152,16 @@ def log_analyzer_bug_handler(duthost, request):
 
     if run_log_analyzer_bug_handler:
         log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
-        current_time = str(time.time()).replace('.', '')
-        request.session.config.option.allure_server_project_id = current_time
-        allure_report_url = \
-            f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
+
+        if "allure_server_project_id" in request.config.option:
+            allure_project = request.config.getoption('--allure_server_project_id')
+            allure_report_url = predict_allure_report_link(InfraConst.ALLURE_SERVER_URL, allure_project)
+        else:
+            current_time = str(time.time()).replace('.', '')
+            request.session.config.option.allure_server_project_id = current_time
+            allure_report_url = \
+                f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
+
         logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
         # for community test case, it has --testbed, for canonical test cases, it has --setup_name
         if "setup_name" in request.config.option:

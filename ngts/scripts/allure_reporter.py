@@ -130,6 +130,7 @@ def predict_allure_report_link(allure_server_url, allure_project):
     THe function is to construct allure report link base on the current allure report index.
      The new allure report index is equal to the current index + 1
     """
+    allure_report_url = None
     try:
         response = requests.get('{}/projects/{}'.format(allure_server_url, allure_project),
                                 verify=SSL_VERIFICATION, timeout=HTTP_TIMEOUT).json()
@@ -145,6 +146,7 @@ def predict_allure_report_link(allure_server_url, allure_project):
                     "\n To avoid missing allure report link"
                     "\n We construct the allure report link base current report index before generating allure report"
                     "\n Predict Allure report URL:{} \n\n\n".format(allure_report_url))
+    return allure_report_url
 
 
 def cleanup_report(allure_server_url, allure_project):
