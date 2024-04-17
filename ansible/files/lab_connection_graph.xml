@@ -38,7 +38,7 @@
       <Device Hostname="r-r740-05-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-r740-05-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
       <Device Hostname="r-r740-07-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
-      <Device Hostname="r-r740-07-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA" Type="DevSonic"/>
+      <Device Hostname="r-r740-07-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA-C1" Type="DevSonic"/>
       <Device Hostname="r-r740-08-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
       <Device Hostname="r-r740-08-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA-C1" Type="DevSonic"/>
       <Device Hostname="r-r740-09-bf2-sonic-01" HwSku="Nvidia-MBF2H536C" Type="DevSonic"/>
@@ -2121,8 +2121,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-14" EndPort="enp135s0f0" StartDevice="r-leopard-80" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/1" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/2" StartDevice="r-r740-07-bf2-sonic-01" StartPort="Ethernet4"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/3" StartDevice="r-r740-07-bf3-sonic-01" StartPort="Ethernet0"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/4" StartDevice="r-r740-07-bf3-sonic-01" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-anaconda-86" EndPort="ethernet 1/3" StartDevice="r-r740-07-bf3-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/6" StartDevice="r-r740-05-bf2-sonic-01" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/7" StartDevice="r-r740-05-bf2-sonic-01" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-anaconda-86" EndPort="ethernet 1/8" StartDevice="r-r740-05-bf3-sonic-01" StartPort="Ethernet0"/>

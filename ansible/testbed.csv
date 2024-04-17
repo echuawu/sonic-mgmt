@@ -285,6 +285,7 @@ r-r740-07-bf2-sonic-01-dpu,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20
 r-r740-07-bf2-sonic-01-ptf-any,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 
 r-r740-07-bf3-sonic-01-dpu,vm-t1-02,dpu,docker-ptf-mlnx,ptf-bf3-740-07-01,10.215.20.187/16,,server_55,VM2003,r-r740-07-bf3-sonic-01,Mellanox MTR testbed
+r-r740-07-bf3-sonic-01-dpu-1,vm-t1-02,dpu-1,docker-ptf-mlnx,ptf-bf3-740-07-01,10.215.20.187/16,,server_55,VM2003,r-r740-07-bf3-sonic-01,Mellanox MTR testbed
 r-r740-07-bf3-sonic-01-ptf-any,vm-t1-02,dpu,docker-ptf-mlnx,ptf-bf3-740-07-01,10.215.20.187/16,,server_55,VM2003,r-r740-07-bf3-sonic-01,Mellanox MTR testbed
 
 r-r740-05-bf3-sonic-01-dpu,vm-t1-02,dpu,docker-ptf-mlnx,ptf-bf3-740-05-01,10.215.11.47/16,,server_56,VM2103,r-r740-05-bf3-sonic-01,Mellanox MTR testbed
