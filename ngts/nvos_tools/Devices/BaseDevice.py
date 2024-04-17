@@ -211,6 +211,7 @@ class BaseSwitch(BaseDevice):
 
     Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware'])
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
+    SsdImageConsts = namedtuple('SsdImageConsts', ('file', 'current_version', 'alternate_version'))
 
     def _init_available_databases(self):
         super()._init_available_databases()
