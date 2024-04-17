@@ -113,7 +113,31 @@ class TacacsServers:
         AaaConsts.DN: VM_SERVER_DN
     }
 
-    DOCKER_SERVER_IPV4 = TacacsServerInfo(
+
+class TacacsDockerServer0:
+    USERS = [
+        UserInfo(
+            username='tac0adm',
+            password='tac0adm',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='tac0mon',
+            password='tac0mon',
+            role=AaaConsts.MONITOR
+        ),
+    ]
+    USERS_PAP = [UserInfo(user.username, user.password + '_pap', user.role) for user in USERS]
+    USERS_CHAP = [UserInfo(user.username, user.password + '_chap', user.role) for user in USERS]
+    USERS_LOGIN = [UserInfo(user.username, user.password + '_login', user.role) for user in USERS]
+
+    USERS_BY_AUTH_TYPE = {
+        AaaConsts.PAP: USERS_PAP,
+        AaaConsts.CHAP: USERS_CHAP,
+        AaaConsts.LOGIN: USERS_LOGIN
+    }
+
+    SERVER_IPV4 = TacacsServerInfo(
         hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
         priority=1,
         secret='secret',
@@ -121,20 +145,19 @@ class TacacsServers:
         timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
-        users=VM_SERVER_USERS_PAP,
+        users=USERS_PAP,
         ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
         docker_name='tacacs_container'
     )
-    DOCKER_SERVER_IPV4.port = 50
-    DOCKER_SERVER_IPV6 = DOCKER_SERVER_IPV4.copy()
-    DOCKER_SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
-    DOCKER_SERVER_DN = VM_SERVER_DN.copy()
-    DOCKER_SERVER_DN.port = 50
+    SERVER_IPV6 = SERVER_IPV4.copy()
+    SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
+    SERVER_DN = SERVER_IPV4.copy()
+    SERVER_DN.hostname = AaaConsts.VM_AAA_SERVER_DN
 
-    DOCKER_SERVERS: Dict[str, TacacsServerInfo] = {
-        AaaConsts.IPV4: DOCKER_SERVER_IPV4,
-        AaaConsts.IPV6: DOCKER_SERVER_IPV6,
-        AaaConsts.DN: DOCKER_SERVER_DN
+    SERVER_BY_ADDRESSING_TYPE = {
+        AddressingType.IPV4: SERVER_IPV4,
+        AddressingType.IPV6: SERVER_IPV6,
+        AddressingType.DN: SERVER_DN
     }
 
 

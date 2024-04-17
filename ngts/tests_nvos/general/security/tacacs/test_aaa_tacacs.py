@@ -8,8 +8,8 @@ from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_tes
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer1, TacacsDockerServer2, \
-    TacacsServers
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer0, TacacsDockerServer1, \
+    TacacsDockerServer2, TacacsServers
 from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type, \
     get_two_different_tacacs_servers
 from ngts.tools.test_utils import allure_utils as allure
@@ -96,7 +96,7 @@ def test_tacacs_auth(test_flow, test_api, addressing_type, engines, topology_obj
                           topology_obj=topology_obj, local_adminuser=local_adminuser, request=request,
                           remote_aaa_type=RemoteAaaType.TACACS,
                           remote_aaa_obj=tacacs,
-                          server_by_addr_type=TacacsServers.DOCKER_SERVERS,
+                          server_by_addr_type=TacacsDockerServer0.SERVER_BY_ADDRESSING_TYPE,
                           test_param=AuthType.ALL_TYPES,
                           test_param_update_func=update_tacacs_server_auth_type)
 
