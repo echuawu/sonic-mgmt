@@ -15,7 +15,7 @@ list_with_status_codes = [{'1024': {'status': 'Cable is unplugged'}}, {'1': {'st
 
 
 @pytest.mark.ib
-def test_interface_transceiver_diagnostics_basic(engines):
+def test_interface_transceiver_diagnostics_basic(engines, devices):
     """
     The test will check default field and values for transceiver diagnostic.
 
@@ -65,14 +65,11 @@ def test_interface_transceiver_diagnostics_basic(engines):
             .verify_result()
 
     with allure.step('Run diagnostics for not exist port/eth0/ib0/lo, wrong channel name'):
+        for port in devices.dut.network_ports:
+            output_dictionary = platform.transceiver.show(op_param=port, should_succeed=False)
+            assert 'The requested item does not exist.' in output_dictionary, f"Negative command {port} port accepted"
         output_dictionary = platform.transceiver.show(op_param='aa', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command aa port accepted"
-        output_dictionary = platform.transceiver.show(op_param='eth0', should_succeed=False)
-        assert 'The requested item does not exist.' in output_dictionary, "Negative command eth0 port accepted"
-        output_dictionary = platform.transceiver.show(op_param='ib0', should_succeed=False)
-        assert 'The requested item does not exist.' in output_dictionary, "Negative command ib0 port accepted"
-        output_dictionary = platform.transceiver.show(op_param='lo', should_succeed=False)
-        assert 'The requested item does not exist.' in output_dictionary, "Negative command lo port accepted"
         output_dictionary = platform.transceiver.show(op_param='sw16 channel aa', should_succeed=False)
         assert 'The requested item does not exist.' in output_dictionary, "Negative command accepted"
 
@@ -87,7 +84,7 @@ def test_interface_transceiver_diagnostics_basic(engines):
 
 
 @pytest.mark.ib
-def test_interface_link_diagnostics_basic(engines):
+def test_interface_link_diagnostics_basic(engines, devices):
     """
     The test will check default field and values for link diagnostic.
 
@@ -99,8 +96,10 @@ def test_interface_link_diagnostics_basic(engines):
     5. Run link diagnostics for not exist port/eth0/ib0/lo
     """
     selected_down_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
+                                                                      requested_ports_type=devices.dut.switch_type,
                                                                       num_of_ports_to_select=0).get_returned_value()
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                    requested_ports_type=devices.dut.switch_type,
                                                                     num_of_ports_to_select=0).get_returned_value()
     all_switch_ports = selected_up_ports + selected_down_ports
     count_of_all_ports = len(all_switch_ports)
@@ -115,7 +114,7 @@ def test_interface_link_diagnostics_basic(engines):
         with allure.step('Validate code to message'):
             for port in all_switch_ports:
                 diagnostics_per_port = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                    port.ib_interface.link.diagnostics.show()).get_returned_value()
+                    port.interface.link.diagnostics.show()).get_returned_value()
                 output_dictionary = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
                     any_port.show_interface(port_names='--view link-diagnostics')).get_returned_value()
                 status_dict = output_dictionary[port.name]['link']['diagnostics']
@@ -128,14 +127,14 @@ def test_interface_link_diagnostics_basic(engines):
 
     with allure.step('Run nv show interface for port in up state'):
         up_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            any_port.ib_interface.link.diagnostics.show()).get_returned_value()
+            any_port.interface.link.diagnostics.show()).get_returned_value()
         assert up_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_WITHOUT_ISSUE_PORT, "Status code isn't 0"
 
     with allure.step('Run nv show interface for unplugged port'):
         for port in selected_down_ports:
             if port.name == 'sw32p1':
                 unplugged_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-                    port.ib_interface.link.diagnostics.show()).get_returned_value()
+                    port.interface.link.diagnostics.show()).get_returned_value()
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \
                     "Status code isn't 1024"
 
@@ -156,7 +155,7 @@ def test_interface_link_diagnostics_basic(engines):
 
 
 @pytest.mark.ib
-def test_interface_link_diagnostics_functional(engines, start_sm):
+def test_interface_link_diagnostics_functional(engines, start_sm, devices):
     """
     The test will check functionality of link diagnostics in different scenarios.
 
@@ -168,6 +167,7 @@ def test_interface_link_diagnostics_functional(engines, start_sm):
     5. Rewrite transceiver opcode for port to 0, check output, system should return correct code and status
     """
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                    requested_ports_type=devices.dut.switch_type,
                                                                     num_of_ports_to_select=0).get_returned_value()
     ports_connected = []
     with allure.step('Get ports connected to each others'):
@@ -177,24 +177,24 @@ def test_interface_link_diagnostics_functional(engines, start_sm):
 
     with allure.step('Check default code and status, should be the same'):
         first_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[0].ib_interface.link.diagnostics.show()).get_returned_value()
+            ports_connected[0].interface.link.diagnostics.show()).get_returned_value()
         second_port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
-            ports_connected[-1].ib_interface.link.diagnostics.show()).get_returned_value()
+            ports_connected[-1].interface.link.diagnostics.show()).get_returned_value()
         assert first_port_status == second_port_status, "Status code isn't 1"
 
     with allure.step('Shutdown first port and check code and status on both'):
-        ports_connected[0].ib_interface.link.state.set(NvosConsts.LINK_STATE_DOWN, apply=True,
-                                                       ask_for_confirmation=True).verify_result()
+        ports_connected[0].interface.link.state.set(NvosConsts.LINK_STATE_DOWN, apply=True,
+                                                    ask_for_confirmation=True).verify_result()
 
         _wait_until_status_changed(ports_connected[0], IbInterfaceConsts.LINK_DIAGNOSTICS_CLOSED_BY_COMMAND_PORT)
         _wait_until_status_changed(ports_connected[1], IbInterfaceConsts.LINK_DIAGNOSTICS_SIGNAL_NOT_DETECTED)
-        ports_connected[0].ib_interface.link.state.set(NvosConsts.LINK_STATE_UP, apply=True,
-                                                       ask_for_confirmation=True).verify_result()
+        ports_connected[0].interface.link.state.set(NvosConsts.LINK_STATE_UP, apply=True,
+                                                    ask_for_confirmation=True).verify_result()
 
 
 @retry(Exception, tries=15, delay=1)
 def _wait_until_status_changed(port, status):
-    port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(port.ib_interface.
+    port_status = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(port.interface.
                                                                                               link.diagnostics.show()).\
         get_returned_value()
     assert port_status == status, "Status code isn't {}".format(status)

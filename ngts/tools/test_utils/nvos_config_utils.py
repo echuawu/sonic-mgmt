@@ -88,7 +88,7 @@ def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_confi
             if should_wait_for_nvued_after_apply:
                 DutUtilsTool.wait_for_nvos_to_become_functional(dut_engine).verify_result()
             if active_port:
-                active_port.ib_interface.wait_for_port_state(state='up', dut_engine=dut_engine).verify_result()
+                active_port.interface.wait_for_port_state(state='up', dut_engine=dut_engine).verify_result()
 
 
 def clear_system_profile_config(dut_engine=None):

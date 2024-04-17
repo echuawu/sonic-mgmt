@@ -10,7 +10,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.HostMethods import HostMethods
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, DatabaseConst
-from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import InterfaceConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
@@ -241,7 +241,7 @@ def test_system_snmp_functional(engines, topology_obj):
             mgmt_port.interface.show()).get_returned_value()
 
         Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                          field_name=IbInterfaceConsts.DESCRIPTION,
+                                                          field_name=InterfaceConsts.DESCRIPTION,
                                                           expected_value='nvosdescription')
 
         with allure.step("Snmpwalk after autorefresh"):

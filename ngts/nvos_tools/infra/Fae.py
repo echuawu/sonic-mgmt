@@ -76,6 +76,7 @@ class FaeFirmware(BaseComponent):
 
     def __init__(self, parent_obj=None):
         super().__init__(parent=parent_obj, path='/firmware')
+        # TODO - IF THE FPGA/BMC COMMAND HAS THE SAME HIERARCHY, WE MIGHT NEED TO ADD THE ADJUSTMENT HERE.
         self.cpld = FaeCpldComponent(self, 'cpld')
         self.bios = FaeBiosComponent(self, 'bios')
         self.ssd = FaePlatformComponent(self, 'ssd')

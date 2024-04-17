@@ -65,7 +65,7 @@ class Interface(BaseComponent):
 
             if logical_state:
                 while OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                        self.port_obj.ib_interface.link.show(dut_engine=dut_engine)). \
+                        self.port_obj.interface.link.show(dut_engine=dut_engine)). \
                         get_returned_value()[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE] != logical_state and timer > 0:
                     time.sleep(sleep_time)
                     timer -= sleep_time

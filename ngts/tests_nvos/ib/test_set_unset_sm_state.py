@@ -59,8 +59,8 @@ def test_show_ib_sm_default_values(engines):
         OpenSmTool.start_open_sm_on_dut(engines).verify_result()
 
     with allure.step('verify all ports back to active'):
-        active_ports[0].ib_interface.wait_for_port_state(state=NvosConst.PORT_STATUS_UP,
-                                                         logical_state="Active").verify_result()
+        active_ports[0].interface.wait_for_port_state(state=NvosConst.PORT_STATUS_UP,
+                                                      logical_state="Active").verify_result()
 
 
 @pytest.mark.ib
@@ -97,6 +97,6 @@ def set_all_ports_state(ports, state):
     port = None
     for port in ports:
         TestToolkit.update_tested_ports([port])
-        port.ib_interface.link.state.set(state, apply=True).verify_result()
+        port.interface.link.state.set(state, apply=True).verify_result()
     if port:
-        port.ib_interface.wait_for_port_state(state=state).verify_result()
+        port.interface.wait_for_port_state(state=state).verify_result()

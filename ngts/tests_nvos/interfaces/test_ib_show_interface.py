@@ -38,7 +38,7 @@ def test_ib_show_interface(engines, devices, test_api):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-            selected_port.ib_interface.show()).get_returned_value()
+            selected_port.interface.show()).get_returned_value()
         validate_one_port_show_output(output_dictionary)
 
     '''with allure.step(f'Check interface primary ASIC for port {selected_port.name}'):
@@ -83,7 +83,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-        selected_port.ib_interface.show()).get_returned_value()
+        selected_port.interface.show()).get_returned_value()
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -91,35 +91,35 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
     try:
         with allure.step('Set the state of selected port to "down"'):
-            selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
-                                                      ask_for_confirmation=True).verify_result()
-            selected_port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_DOWN).verify_result()
+            selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                                   ask_for_confirmation=True).verify_result()
+            selected_port.interface.wait_for_port_state(state=NvosConsts.LINK_STATE_DOWN).verify_result()
 
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-                selected_port.ib_interface.show()).get_returned_value()
+                selected_port.interface.show()).get_returned_value()
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
                 validate_one_port_in_show_all_ports(output_dictionary, False)
 
             with allure.step('Set the state of selected port to "up"'):
-                selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
-                                                          ask_for_confirmation=True).verify_result()
-                selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
-                                                               logical_state='Active').verify_result()
+                selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
+                                                       ask_for_confirmation=True).verify_result()
+                selected_port.interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
+                                                            logical_state='Active').verify_result()
 
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-                selected_port.ib_interface.show()).get_returned_value()
+                selected_port.interface.show()).get_returned_value()
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
                 validate_one_port_in_show_all_ports(output_dictionary, True)
     finally:
         with allure.step('Set the state of selected port to "up"'):
-            selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
-                                                      ask_for_confirmation=True).verify_result()
-            selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
-                                                           logical_state='Active').verify_result()
+            selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
+                                                   ask_for_confirmation=True).verify_result()
+            selected_port.interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
+                                                        logical_state='Active').verify_result()
 
 
 @pytest.mark.ib_interfaces
@@ -146,7 +146,7 @@ def test_ib_show_interface_all_state_down(engines):
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
-        selected_port.ib_interface.show()).get_returned_value()
+        selected_port.interface.show()).get_returned_value()
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
@@ -176,17 +176,17 @@ def test_ib_show_interface_name_link(engines, test_api):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-            selected_port.ib_interface.link.show()).get_returned_value()
+            selected_port.interface.link.show()).get_returned_value()
 
         validate_link_fields(output_dictionary)
 
     with allure.step("Verify output of link state"):
         with allure.step("Verify json output"):
             json_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                selected_port.ib_interface.link.state.show()).get_returned_value()
+                selected_port.interface.link.state.show()).get_returned_value()
             assert "up" in json_output.keys() or "down" in json_output.keys(), "up/down state was not found"
         '''with allure.step("Verify string output"):
-            str_output = selected_port.ib_interface.link.state.show_interface_link_state(
+            str_output = selected_port.interface.link.state.show_interface_link_state(
                 output_format=OutputFormat.auto)
             req_fields = ["operational", "applied", "description"]
             Tools.ValidationTool.verify_sub_strings_in_str_output(str_output, req_fields).verify_result()
@@ -212,7 +212,7 @@ def test_ib_show_interface_name_stats(engines, test_api):
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-            selected_port.ib_interface.link.stats.show()).get_returned_value()
+            selected_port.interface.link.stats.show()).get_returned_value()
 
         validate_stats_fields(output_dictionary)
 

@@ -60,7 +60,7 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False, 
                                                             user_name, password).get_returned_value()
 
     with allure.step("Clear counters for the default user"):
-        temp_selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut, fae_param).\
+        temp_selected_ports[0].interface.action_clear_counter_for_all_interfaces(engines.dut, fae_param).\
             verify_result()
 
         with allure.step('Send traffic through selected port'):
@@ -83,7 +83,7 @@ def _clear_counters_test_flow(engines, players, interfaces, all_counters=False, 
 
     with allure.step("Clear counters for the a new user '{}'".format(user_name)):
         if all_counters:
-            selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(ssh_connection, fae_param).\
+            selected_ports[0].interface.action_clear_counter_for_all_interfaces(ssh_connection, fae_param).\
                 verify_result()
         else:
             clear_counters_for_user(ssh_connection, user_name, engines.dut.username, engines.dut,
@@ -113,7 +113,7 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
                             inactive_ssh_engine, selected_port, fae_param=""):
     with allure.step('Clear counter for selected port "{}" for user {}'.format(selected_port.name,
                                                                                active_ssh_engine.username)):
-        selected_port.ib_interface.link.stats.clear_stats(dut_engine=active_ssh_engine, fae_param=fae_param).\
+        selected_port.interface.link.stats.clear_stats(dut_engine=active_ssh_engine, fae_param=fae_param).\
             verify_result()
         with allure.step('Check selected port counters for user ' + active_user_name):
             if not check_port_counters(selected_port, True, active_ssh_engine).result:
@@ -129,7 +129,7 @@ def clear_counters_for_user(active_ssh_engine, active_user_name, inactive_user_n
 def check_port_counters(selected_port, should_be_zero, ssh_engine):
     logging.info("--- Counters for user: {}".format(ssh_engine.username))
     link_stats_dict = OutputParsingTool.parse_json_str_to_dictionary(
-        selected_port.ib_interface.link.stats.show(dut_engine=ssh_engine)).get_returned_value()
+        selected_port.interface.link.stats.show(dut_engine=ssh_engine)).get_returned_value()
     counters = link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_BYTES]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_DROPS]
     counters += link_stats_dict[IbInterfaceConsts.LINK_STATS_IN_ERRORS]

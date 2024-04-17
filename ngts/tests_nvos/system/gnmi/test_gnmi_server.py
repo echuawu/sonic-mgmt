@@ -158,7 +158,7 @@ def test_updates_on_gnmi_stream_mode(engines, devices):
 
         with allure_step('Set port description'):
             port_description = Tools.RandomizationTool.get_random_string(7)
-            selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+            selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
             selected_port.update_output_dictionary()
             verify_description_value(selected_port.show_output_dictionary, port_description)
 
@@ -262,7 +262,7 @@ def test_gnmi_performance(engines, devices):
         validate_memory_and_cpu_utilization()
 
     with allure_step(f"change port description"):
-        selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+        selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
         selected_port.update_output_dictionary()
         verify_description_value(selected_port.show_output_dictionary, port_description)
         logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")
@@ -421,7 +421,7 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
 
 def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, mode=''):
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
-    selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+    selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
     verify_description_value(selected_port.show_output_dictionary, port_description)
 

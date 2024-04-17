@@ -270,7 +270,7 @@ def test_ztp_startup_file_commands_list(engines, devices):
                     _wait_until_ztp_step_status(system, '01-startup-file', SystemConsts.ZTP_STATUS_FAILED)
 
         with allure.step('Run show command on selected port and verify that description field is set'):
-            selected_port.ib_interface.set(NvosConst.DESCRIPTION, abcd_description, apply=True).verify_result()
+            selected_port.interface.set(NvosConst.DESCRIPTION, abcd_description, apply=True).verify_result()
             selected_port.update_output_dictionary()
             _validate_interface_description_field(selected_port, abcd_description, True)
 

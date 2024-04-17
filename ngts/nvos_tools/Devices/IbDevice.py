@@ -167,6 +167,7 @@ class IbSwitch(BaseSwitch):
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
+        self.switch_type = "ib"
 
         self.category_default_disabled_dict = {
             StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -223,7 +224,7 @@ class IbSwitch(BaseSwitch):
         self.child_aggregated_port = 'sw10p1s1'
         self.aggregated_port_planarized_ports = 4
         self.fnm_plane_port_list = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
-        self.non_ib_port_list = ['eth0', 'ib0', 'lo']  # total 3 ports
+        self.network_ports = ['eth0', 'ib0', 'lo']  # total 3 ports
         self.non_aggregated_port_list = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
                                          'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2', 'sw17p1', 'sw17p2',
                                          'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2', 'sw21p1', 'sw21p2',
@@ -234,32 +235,10 @@ class IbSwitch(BaseSwitch):
                                          'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 55 ports
         self.all_plane_port_list = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']
         self.all_port_list = self.non_aggregated_port_list + self.aggregated_port_list + self.fnm_external_port_list
-        self.all_port_list += self.fnm_external_port_list + self.non_ib_port_list
-        self.nvl5_ports_list = ['access1p1', 'access1p10', 'access1p11', 'access1p12', 'access1p13', 'access1p14',
-                                'access1p15',
-                                'access1p16', 'access1p17', 'access1p18', 'access1p19', 'access1p2', 'access1p20',
-                                'access1p21',
-                                'access1p22', 'access1p23', 'access1p24', 'access1p25', 'access1p26', 'access1p27',
-                                'access1p28',
-                                'access1p29', 'access1p3', 'access1p30', 'access1p31', 'access1p32', 'access1p33',
-                                'access1p34',
-                                'access1p35', 'access1p36', 'access1p37', 'access1p38', 'access1p39', 'access1p4',
-                                'access1p40',
-                                'access1p41', 'access1p42', 'access1p43', 'access1p44', 'access1p45', 'access1p46',
-                                'access1p47',
-                                'access1p48', 'access1p49', 'access1p5', 'access1p50', 'access1p51', 'access1p52',
-                                'access1p53',
-                                'access1p54', 'access1p55', 'access1p56', 'access1p57', 'access1p58', 'access1p59',
-                                'access1p6',
-                                'access1p60', 'access1p61', 'access1p62', 'access1p63', 'access1p7', 'access1p8',
-                                'access1p9']
-        self.all_nvl5_ports_list = [self.nvl5_ports_list + self.non_ib_port_list]
-        self.nvl5_fnm_port = ['fnm1pl1']
+        self.all_port_list += self.fnm_external_port_list + self.network_ports
         self.fnm_link_speed = '400G'
-        self.all_fae_nvl5_ports_list = [self.nvl5_ports_list + self.non_ib_port_list + self.nvl5_fnm_port]
-        self.nvl5_port = ['access1p48']
-        self.nvl5_port_speed = '400G'
-        self.nvl5_port_type = 'nvl'
+        # TODO, ADD MORE PORTS, WE WANT IT TO BE MORE REALISTIC. MAYBE WE CAN USE THE FULL LIST OF ALL PORTS FOR NVL5
+        self.fnm_port_type = 'fnm'
         self.all_fae_port_list = self.all_port_list + self.all_plane_port_list + self.fnm_plane_port_list
         self.asic0 = 'asic0'
         self.asic1 = 'asic1'
@@ -526,6 +505,7 @@ class NvLinkSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.switch_type = "nvl"
 
 
 # -------------------------- Juliet Switch ----------------------------
@@ -551,6 +531,74 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+            "x86_64-mlnx_mqm9700-r0")
+        self.show_platform_output.update({
+            "product-name": "MQM9700",
+            "asic-model": self.asic_type,
+        })
+
+        # TODO - Check if it needs to be changed.
+        # self.current_bios_version_name = "0ACQF_06.01.003"
+        # self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+        # self.previous_bios_version_name = "0ACQF_06.01.002"
+        # self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
+        # self.current_cpld_version = BaseSwitch.CpldImageConsts(
+        #     burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
+        #     refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
+        #     version_names={
+        #         "CPLD1": "CPLD000232_REV0700",
+        #         "CPLD2": "CPLD000324_REV0300",
+        #         "CPLD3": "CPLD000268_REV0700",
+        #     }
+        # )
+        # self.previous_cpld_version = BaseSwitch.CpldImageConsts(
+        #     burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_BURN_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600_IPN.vme",
+        #     refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_REFRESH_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600.vme",
+        #     version_names={
+        #         "CPLD1": "CPLD000232_REV0600",
+        #         "CPLD2": "CPLD000324_REV0100",
+        #         "CPLD3": "CPLD000268_REV0500",
+        #     }
+        # )
+        # self.stats_fan_header_num_of_lines = 25
+        # self.stats_power_header_num_of_lines = 13
+        # self.stats_temperature_header_num_of_lines = 53
+        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
+        self.nvl5_access_ports_list = ['access1p1', 'access1p2', 'access1p3', 'access1p4', 'access1p5', 'access1p6',
+                                       'access1p7', 'access1p8',
+                                       'access1p9', 'access1p10', 'access1p11', 'access1p12', 'access1p13', 'access1p14',
+                                       'access1p15', 'access1p16', 'access1p17', 'access1p18', 'access1p19', 'access1p20',
+                                       'access1p21', 'access1p22', 'access1p23', 'access1p24', 'access1p25', 'access1p26',
+                                       'access1p27', 'access1p28', 'access1p29', 'access1p30', 'access1p31', 'access1p32',
+                                       'access1p33', 'access1p34', 'access1p35', 'access1p36']
+
+        self.nvl5_trunk_ports_list = ['sw1p1s1', 'sw1p1s2', 'sw1p2s1', 'sw1p2s2',
+                                      'sw2p1s1', 'sw2p1s2', 'sw2p2s1', 'sw2p2s2',
+                                      'sw3p1s1', 'sw3p1s2', 'sw3p2s1', 'sw3p2s2',
+                                      'sw4p1s1', 'sw4p1s2', 'sw4p2s1', 'sw4p2s2',
+                                      'sw5p1s1', 'sw5p1s2', 'sw5p2s1', 'sw5p2s2',
+                                      'sw6p1s1', 'sw6p1s2', 'sw6p2s1', 'sw6p2s2',
+                                      'sw7p1s1', 'sw7p1s2', 'sw7p2s1', 'sw7p2s2',
+                                      'sw8p1s1', 'sw8p1s2', 'sw8p2s1', 'sw8p2s2',
+                                      'sw9p1s1', 'sw9p1s2', 'sw9p2s1', 'sw9p2s2',
+                                      'sw10p1s1', 'sw10p1s2', 'sw10p2s1', 'sw10p2s2',
+                                      'sw11p1s1', 'sw11p1s2', 'sw11p2s1', 'sw11p2s2',
+                                      'sw12p1s1', 'sw12p1s2', 'sw12p2s1', 'sw12p2s2',
+                                      'sw13p1s1', 'sw13p1s2', 'sw13p2s1', 'sw13p2s2',
+                                      'sw14p1s1', 'sw14p1s2', 'sw14p2s1', 'sw14p2s2',
+                                      'sw15p1s1', 'sw15p1s2', 'sw15p2s1', 'sw15p2s2',
+                                      'sw16p1s1', 'sw16p1s2', 'sw16p2s1', 'sw16p2s2',
+                                      'sw17p1s1', 'sw17p1s2', 'sw17p2s1', 'sw17p2s2',
+                                      'sw18p1s1', 'sw18p1s2', 'sw18p2s1', 'sw18p2s2'
+                                      ]
+        self.network_ports = ['eth0', 'eth1', 'lo']
+        self.all_nvl5_ports_list = self.nvl5_access_ports_list + self.nvl5_trunk_ports_list + self.network_ports
+        self.nvl5_fnm_ports = ['fnma1p1', 'fnma1p2', 'fnma2p1', 'fnma2p2']
+        self.all_fae_nvl5_ports_list = self.all_nvl5_ports_list + self.nvl5_fnm_ports
+        self.nvl5_port = ['access1p48']
+        self.nvl5_port_speed = '400G'
+        self.nvl5_port_type = 'nvl'
         # will be updated
 
 

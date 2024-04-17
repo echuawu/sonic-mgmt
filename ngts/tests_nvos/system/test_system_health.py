@@ -404,7 +404,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         with allure.step("stop {} docker".format(docker_to_stop)):
             output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
             assert docker_to_stop in output, "Failed to stop docker"
-        health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
+        health_issue_dict = {docker_to_stop: f"Container '{docker_to_stop}' is not running"}
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
     finally:
@@ -418,7 +418,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
                                                    db_config="FEATURE|{}".format(docker_to_stop),
                                                    param=NvosConst.DOCKER_AUTO_RESTART,
                                                    value=NvosConst.DOCKER_STATUS_ENABLED)
-                    #DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
+                    # DatabaseTool.redis_cli_hset(engines.dut, 4, "FEATURE|{}".format(docker_to_stop), NvosConst.DOCKER_AUTO_RESTART, NvosConst.DOCKER_STATUS_ENABLED)
                 assert docker_to_stop in output, "Failed to start docker"
             validate_docker_is_up(engines.dut, docker_to_stop)
             time.sleep(10)

@@ -58,8 +58,8 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
 
     with allure_step("Split splitter port"):
         fnm_port = split_ports[0]
-        fnm_port.ib_interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
-                                       apply=True, ask_for_confirmation=True).verify_result()
+        fnm_port.interface.link.set(op_param_name='breakout', op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
+                                    apply=True, ask_for_confirmation=True).verify_result()
 
     with allure_step("Validate split port going to up"):
         fnm_child_port = MgmtPort(name=devices.dut.fnm_external_child_port)
@@ -70,15 +70,15 @@ def test_interface_fnm_port_split(engines, devices, test_api, players, interface
 
         with allure_step("Check counters before split, should be not 0"):
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-                fnm_port.ib_interface.link.stats.show()).get_returned_value()
+                fnm_port.interface.link.stats.show()).get_returned_value()
             assert (output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] ==
                     output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]) != 0
 
     with allure_step("Clear counters and validate"):
-        fnm_port.ib_interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
+        fnm_port.interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
 
         with allure_step("Check counters after clear counters, should be 0"):
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-                fnm_port.ib_interface.link.stats.show()).get_returned_value()
+                fnm_port.interface.link.stats.show()).get_returned_value()
             assert output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] \
                 == output_dictionary[IbInterfaceConsts.LINK_STATS_OUT_PKTS]
