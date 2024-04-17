@@ -264,8 +264,8 @@ class BaseSwitch(BaseDevice):
             "manufacturer": "Nvidia",
             "product-name": "",     # These fields need to be updated in subclasses.
             "cpu": None,            # `None` means we expect any string not in ['', 'N/A'].
-            "memory": ExpectedString.number_and_string('kB', range_min=7000000),  # Expects "x kB" where x > 7000000
-            "disk-size": ExpectedString.number_and_string('G', range_min=14.0),
+            "memory": ExpectedString.number_and_string('GB', range_min=6),  # Expects "x GB" where x > 6
+            "disk-size": ExpectedString.number_and_string('GB', range_min=14.0),
             "port-layout": None,
             "part-number": None,
             "serial-number": None,
