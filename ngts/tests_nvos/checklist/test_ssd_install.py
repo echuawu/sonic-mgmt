@@ -50,16 +50,19 @@ def test_ssd_install(engines, devices):
 
     TestToolkit.tested_api = ApiType.NVUE
     with allure.step(f"With {TestToolkit.tested_api}"):
-        with allure.step("Get SSD version"):
+        with allure.step("Get SSD model and verify we have an image for it"):
             ssd_model, initial_version = _get_ssd_model_and_firmware(platform)
+            if ssd_model not in devices.dut.ssd_image_per_ssd_model:  # test error, not assertion failure
+                raise Exception(f"Can't run test because there is no firmware image for SSD model {ssd_model}.")
+            ssd_image_properties = devices.dut.ssd_image_per_ssd_model[ssd_model]
+            if ssd_image_properties.current_version != initial_version:
+                raise Exception(f"Can't run test because there's no image file for restoring to the currently-"
+                                f"installed version. Current version is {initial_version} and the image files has"
+                                f"version {ssd_image_properties.current_version}.")
 
         with allure.step("Asserting the image files don't exist yet"):
-            try:
-                expected_version, image_path = devices.dut.ssd_image[ssd_model]
-            except KeyError:
-                logger.error(f"Can't run test because there is no firmware image for this SSD model. "
-                             f"Verification team need to obtain an image and update BaseDevice.ssd_image.")
-                raise
+            expected_version = ssd_image_properties.alternate_version
+            image_path = ssd_image_properties.file
             image_filename = os.path.basename(image_path)
             initial_files = fae.platform.firmware.ssd.show_files_as_list()
             assert image_filename not in initial_files, \
@@ -74,7 +77,8 @@ def test_ssd_install(engines, devices):
                 f"The `fetch` command was expected to only add the file {image_filename}, but the old file list is:\n"
                 f"{initial_files}\n and the new file list is: {file_list}")
 
-        with allure.step("Installing firmware and rebooting"):
+    try:
+        with allure.step(f"Installing firmware and rebooting (with {TestToolkit.tested_api})"):
             result, _ = OperationTime.save_duration(
                 "nv action install fae platform firmware ssd files",
                 f"(version {expected_version} from file {image_filename})", test_ssd_install.__name__,
@@ -82,38 +86,39 @@ def test_ssd_install(engines, devices):
                 image_filename, devices.dut, expect_reboot=True)
             result.verify_result()
 
-    TestToolkit.tested_api = ApiType.OPENAPI
-    with allure.step(f"With {TestToolkit.tested_api}"):
-        with allure.step("Asserting install was successful"):
-            _, current_version = _get_ssd_model_and_firmware(platform)
-            assert current_version == expected_version, (
-                f"Expected SSD FW version {expected_version} but actual version is {current_version}. "
-                f"Initial version before action-install was {initial_version}")
+    finally:
+        TestToolkit.tested_api = ApiType.OPENAPI
+        with allure.step(f"With {TestToolkit.tested_api}"):
+            with allure.step("Asserting install was successful"):
+                _, current_version = _get_ssd_model_and_firmware(platform)
+                assert current_version == expected_version, (
+                    f"Expected SSD FW version {expected_version} but actual version is {current_version}. "
+                    f"Initial version before action-install was {initial_version}")
 
-        with allure.step("Re-installing original firmware"):
-            result, _ = OperationTime.save_duration(
-                "nv action install fae platform firmware ssd files",
-                f"(version {initial_version} from file {image_filename})", test_ssd_install.__name__,
-                fae.platform.firmware.ssd.action_install,
-                image_filename, devices.dut, expect_reboot=True)
-            result.verify_result()
+            with allure.step("Re-installing original firmware"):
+                result, _ = OperationTime.save_duration(
+                    "nv action install fae platform firmware ssd files",
+                    f"(version {initial_version} from file {image_filename})", test_ssd_install.__name__,
+                    fae.platform.firmware.ssd.action_install,
+                    image_filename, devices.dut, expect_reboot=True)
+                result.verify_result()
 
-    TestToolkit.tested_api = ApiType.NVUE
-    with allure.step(f"With {TestToolkit.tested_api} again"):
-        with allure.step("Asserting install was successful"):
-            _, current_version = _get_ssd_model_and_firmware(platform)
-            assert current_version == initial_version, (
-                f"Expected SSD FW version to be the initial version {initial_version} but actual version is "
-                f"{current_version}")
+        TestToolkit.tested_api = ApiType.NVUE
+        with allure.step(f"With {TestToolkit.tested_api} again"):
+            with allure.step("Asserting install was successful"):
+                _, current_version = _get_ssd_model_and_firmware(platform)
+                assert current_version == initial_version, (
+                    f"Expected SSD FW version to be the initial version {initial_version} but actual version is "
+                    f"{current_version}")
 
-        with allure.step("Deleting image file"):
-            fae.platform.firmware.ssd.action_delete(image_filename).verify_result()
+            with allure.step("Deleting image file"):
+                fae.platform.firmware.ssd.action_delete(image_filename).verify_result()
 
-        with allure.step("Asserting delete was successful"):
-            final_file_list = fae.platform.firmware.ssd.show_files_as_list()
-            assert set(initial_files) == set(final_file_list), (
-                f"File list is expected to be the same at the start and end of the test, but the initial file list is:\n"
-                f"{initial_files}\nAnd at the end of the test the list is:\n{final_file_list}")
+            with allure.step("Asserting delete was successful"):
+                final_file_list = fae.platform.firmware.ssd.show_files_as_list()
+                assert set(initial_files) == set(final_file_list), (
+                    f"File list is expected to be the same at the start and end of the test, but the initial file list "
+                    f"is:\n {initial_files}\nAnd at the end of the test the list is:\n{final_file_list}")
 
 
 def _get_ssd_model_and_firmware(platform: Platform) -> Tuple[str, str]:

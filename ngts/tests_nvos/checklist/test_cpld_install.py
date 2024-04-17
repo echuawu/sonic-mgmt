@@ -44,7 +44,7 @@ def test_cpld_upgrade(engines, devices):
             _firmware_install_test(devices, fae, platform, devices.dut.previous_cpld_version)
     finally:
         TestToolkit.tested_api = ApiType.OPENAPI
-        with allure.step(f"Fetch, install and assert original CPLD version (through {TestToolkit.tested_api})"):
+        with allure.step(f"Cleanup: Fetch, install and assert original CPLD version (through {TestToolkit.tested_api})"):
             # Workaround is necessary because of firmware bug prior to version CPLD000268_REV0700 which causes the
             # installation of CPLD3 to fail (`nv show platform firmware CPLD3` returns CPLD000000_REV0000). Once both
             # versions (previous_cpld_version and current_cpld_version) are newer than this, you can remove the
