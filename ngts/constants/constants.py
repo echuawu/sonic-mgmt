@@ -1436,6 +1436,20 @@ class BugHandlerConst:
     BUG_HANDLER_SKIP_BRNACH = ['202305']
 
 
+class SerialLoggerConst:
+    LOG_DIR = os.path.join(os.path.sep, ".autodirect", "sw_regression", "system", "NVOS", "MARS", "results",
+                           "{setup_name}", "{session_id}", "serial_logs")
+    # CLEAN_DIRS_SCRIPT = os.sep.join([os.environ['REGRESSION_BASE_DIR'],
+    #                                  'sx_fit_regression',
+    #                                  'libs',
+    #                                  'scripts',
+    #                                  'clean_unmodified_dirs_and_files'])
+    UNMODIFIED_FILES_DAYS_TH = 14
+    ALL_PERM = 0o777
+    DATETIME_FORMAT = "%b %d %H:%M:%S"
+    START_SERIAL_LOGGING = "Start Session Logging"
+
+
 class DebugKernelConsts:
     KMEMLEAK_PATH = '/sys/kernel/debug/kmemleak'
     KMEMLEAK = 'kmemleak'
