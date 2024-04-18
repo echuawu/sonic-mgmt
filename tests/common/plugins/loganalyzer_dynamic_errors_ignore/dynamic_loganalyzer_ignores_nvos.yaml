@@ -1403,16 +1403,31 @@
 
 # NVOS ldap bad flow
 - Errors_list:
-    - '.*WARNING nslcd\[\d+\]: \[\w+\] <authc="\w+"> no available LDAP server found, sleeping \d+ seconds.*'
-    - '.*WARNING nslcd\[\d+\]: \[\w+\] <authc="\w+"> failed to bind to LDAP server .* Invalid argument.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* no available LDAP server found, sleeping \d+ seconds.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* failed to bind to LDAP server .* Invalid argument.*'
     - '.*WARNING systemd\[1\]: nvued\.service: Failed with result .*'
-    - '.*ERR nslcd\[\d+\]: \[\w+\] <authc="\w+"> no available LDAP server found: Server is unavailable: Resource temporarily unavailable.*'
-    - '.*ERR nslcd\[\d+\]: \[\w+\] <passwd="\w+"> no available LDAP server found: Server is unavailable: Resource temporarily unavailable.*'
-    - '.*ERR nslcd\[\d+\]: \[\w+\] <authc="\w+"> no available LDAP server found: Can.t contact LDAP server: Invalid argument.*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\] .* no available LDAP server found: Server is unavailable: Resource temporarily unavailable.*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\] .* no available LDAP server found: Can.t contact LDAP server: Invalid argument.*'
   Conditions:
     - Affected_test_cases:
         - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable[OpenApi-BadFlow]
         - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable[NVUE-BadFlow]
+
+# NVOS ldap bad flow
+- Errors_list:
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* failed to bind to LDAP server.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* no available LDAP server found.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* ldap_start_tls_s() failed (.*): Connect error: (unknown error code).*'
+    - '.*WARNING systemd\[1\]: nvued\.service: Failed with result .*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\] .* no available LDAP server found.*'
+  Conditions:
+    - Affected_test_cases:
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv4-OpenApi-BadFlow]
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv6-OpenApi-BadFlow]
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[dn-OpenApi-BadFlow]
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv4-NVUE-BadFlow]
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv6-NVUE-BadFlow]
+        - ngts/tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[dn-NVUE-BadFlow]
 
 # NVOS
 - Errors_list:
