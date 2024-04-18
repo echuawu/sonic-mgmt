@@ -1,6 +1,6 @@
 import copy
 import logging
-from typing import List
+from typing import List, Dict
 
 from ngts.nvos_tools.system.Ldap import Ldap
 from ngts.nvos_tools.system.System import System
@@ -15,7 +15,8 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo 
 
 
 class RemoteAaaServerInfo:
-    def __init__(self, hostname, priority, secret, port, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
+    def __init__(self, hostname, priority, secret, port, users: List[UserInfo], ipv4_addr: str = '',
+                 docker_name: str = ''):
         self.hostname = hostname
         self.priority = priority
         self.secret = secret
@@ -68,11 +69,13 @@ def update_active_aaa_server(item, server: RemoteAaaServerInfo):
 
 
 class TacacsServerInfo(RemoteAaaServerInfo):
-    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
+    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '',
+                 docker_name: str = '', users_per_auth_type: Dict[str, List[UserInfo]] = None):
         super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.timeout = timeout
         # self.retransmit = retransmit
         self.auth_type = auth_type
+        self.users_per_auth_type = users_per_auth_type
 
     def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
         conf_to_set = {
@@ -92,6 +95,14 @@ class TacacsServerInfo(RemoteAaaServerInfo):
     def make_reachable(self, engines, apply=False, dut_engine=None):
         System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port, apply=apply,
                                                                     dut_engine=dut_engine)
+
+    def update_auth_type(self, auth_type: str, item, dut_engine=None):
+        engine = dut_engine or (
+            item.active_remote_admin_engine if hasattr(item, 'active_remote_admin_engine') else None)
+        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.AUTH_TYPE, auth_type, apply=True,
+                                                                    dut_engine=engine)
+        logging.info(f'Update server users to use {auth_type} passwords')
+        self.users = self.users_per_auth_type[auth_type]
 
 
 class LdapServerInfo(RemoteAaaServerInfo):
