@@ -403,6 +403,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step("Init telemetry keys"):
             self.init_telemetry_keys()
 
+        self.engine.disconnect()
+
         self.update_platform_params(platform_params, setup_name)
 
         if apply_base_config:
@@ -1006,7 +1008,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         tree.write(filepath, encoding="utf-8")
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku, platform):
-        branch = get_sonic_branch(topology_obj)
+        branch = get_sonic_branch(topology_obj, self.cli_obj.dut_alias)
         config_file_prefix = self.get_config_file_prefix(setup_name)
         config_db_file_name = f"{self.get_image_sonic_version()}_{config_file_prefix}config_db.json"
         if branch in ['202205', '202211', '202305', '202311']:
