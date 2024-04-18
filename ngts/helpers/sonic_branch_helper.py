@@ -85,6 +85,10 @@ def get_sonic_image(topology):
     :param topology: topology fixture object
     :return: branch name
     """
+    if topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] \
+            in NvosCliTypes.NvueCliTypes:
+        return "Unknown"
+
     try:
         sonic_installer_output = topology.players['dut']['engine'].run_cmd("sudo sonic-installer list")
         image = re.search(r'Current:\s(.*)', sonic_installer_output, re.IGNORECASE).group(1)
