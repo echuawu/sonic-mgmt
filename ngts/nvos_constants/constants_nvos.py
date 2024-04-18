@@ -943,7 +943,7 @@ class OperationTimeConsts:
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
     THRESHOLDS = {'reboot': 180,
-                  'reset factory': 240,
+                  'reset factory': 250,
                   'install user FW': 450,
                   'install default fw': 360,
                   'port goes up': 30,
