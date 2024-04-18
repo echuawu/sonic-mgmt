@@ -9,7 +9,7 @@ from ngts.tests_nvos.general.security.security_test_tools.resource_utils import 
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tests_nvos.general.security.tacacs.constants import TacacsConsts, TacacsDockerServer0, TacacsDockerServer1, \
-    TacacsDockerServer2, TacacsServers
+    TacacsDockerServer2, TacacsPhysicalServer
 from ngts.tests_nvos.general.security.tacacs.tacacs_test_utils import update_tacacs_server_auth_type, \
     get_two_different_tacacs_servers
 from ngts.tools.test_utils import allure_utils as allure
@@ -115,7 +115,7 @@ def test_tacacs_bad_secret(test_api, engines, topology_obj):
         4. set bad secret
         5. verify auth - expect fail
     """
-    tacacs_server = TacacsServers.PHYSICAL_SERVER.copy()
+    tacacs_server = TacacsPhysicalServer.SERVER_IPV4.copy()
     tacacs_server.secret = RandomizationTool.get_random_string(6)
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
                                            remote_aaa_type=RemoteAaaType.TACACS,
@@ -135,7 +135,7 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
         2. set bad port
         3. verify auth - expect fail
     """
-    tacacs_server = TacacsServers.PHYSICAL_SERVER.copy()
+    tacacs_server = TacacsPhysicalServer.SERVER_IPV4.copy()
     tacacs_server.port = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PORT],
                                                                [tacacs_server.port]).get_returned_value()
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,

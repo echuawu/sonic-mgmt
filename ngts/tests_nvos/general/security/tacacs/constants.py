@@ -48,8 +48,27 @@ class TacacsConsts:
     }
 
 
-class TacacsServers:
-    PHYSICAL_SERVER = TacacsServerInfo(
+class TacacsPhysicalServer:
+    USERS = [
+        UserInfo(
+            username='adminuser',
+            password='adminadmin',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='monitoruser',
+            password='testing',
+            role=AaaConsts.MONITOR
+        )
+    ]
+
+    USERS_BY_AUTH_TYPE = {
+        AaaConsts.PAP: USERS,
+        AaaConsts.CHAP: USERS,
+        AaaConsts.LOGIN: USERS
+    }
+
+    SERVER_IPV4 = TacacsServerInfo(
         hostname=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR,
         priority=1,
         secret='testing-tacacs',
@@ -57,21 +76,23 @@ class TacacsServers:
         timeout=5,
         # retransmit=0,
         auth_type=AaaConsts.PAP,
-        users=[  # todo: verify users on this server
-            UserInfo(
-                username='adminuser',
-                password='adminadmin',
-                role=AaaConsts.ADMIN
-            ),
-            UserInfo(
-                username='monitoruser',
-                password='testing',
-                role=AaaConsts.MONITOR
-            )
-        ],
-        ipv4_addr=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR
+        users=USERS,
+        ipv4_addr=AaaConsts.PHYSICAL_AAA_SERVER_IPV4_ADDR,
+        users_per_auth_type=USERS_BY_AUTH_TYPE,
     )
+    SERVER_IPV6 = SERVER_IPV4.copy()
+    SERVER_IPV6.hostname = AaaConsts.PHYSICAL_AAA_SERVER_IPV6_ADDR
+    SERVER_DN = SERVER_IPV4.copy()
+    SERVER_DN.hostname = AaaConsts.PHYSICAL_AAA_SERVER_DN
 
+    SERVER_BY_ADDRESSING_TYPE = {
+        AddressingType.IPV4: SERVER_IPV4,
+        AddressingType.IPV6: SERVER_IPV6,
+        AddressingType.DN: SERVER_DN
+    }
+
+
+class TacacsVmServer:
     VM_SERVER_USERS = [
         UserInfo(
             username='adminuser',
@@ -102,7 +123,8 @@ class TacacsServers:
         # retransmit=0,
         auth_type=AaaConsts.PAP,
         users=VM_SERVER_USERS_PAP,
-        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        users_per_auth_type=VM_SERVER_USERS_BY_AUTH_TYPE
     )
 
     VM_SERVER_DN = VM_SERVER_IPV4.copy()
@@ -147,7 +169,8 @@ class TacacsDockerServer0:
         auth_type=AaaConsts.PAP,
         users=USERS_PAP,
         ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
-        docker_name='tacacs_container'
+        docker_name='tacacs_container',
+        users_per_auth_type=USERS_BY_AUTH_TYPE,
     )
     SERVER_IPV6 = SERVER_IPV4.copy()
     SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
@@ -204,7 +227,8 @@ class TacacsDockerServer1:
         auth_type=AaaConsts.PAP,
         users=USERS_PAP,
         ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
-        docker_name='nvos_tacacs'
+        docker_name='nvos_tacacs',
+        users_per_auth_type=USERS_BY_AUTH_TYPE
     )
     SERVER_IPV6 = SERVER_IPV4.copy()
     SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
@@ -261,7 +285,8 @@ class TacacsDockerServer2:
         auth_type=AaaConsts.PAP,
         users=USERS_PAP,
         ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
-        docker_name='nvos_tacacs2'
+        docker_name='nvos_tacacs2',
+        users_per_auth_type=USERS_BY_AUTH_TYPE
     )
     SERVER_IPV6 = SERVER_IPV4.copy()
     SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR

@@ -17,7 +17,7 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AaaCo
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsServers, TacacsDockerServer0
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsDockerServer0, TacacsPhysicalServer
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
@@ -562,7 +562,7 @@ def test_auth_restrictions_remote_counting(test_api, engines, request, devices, 
     TestToolkit.tested_api = test_api
 
     with allure.step('Configure remote auth with more than <lockout-attempts> servers'):
-        servers_info = [TacacsServers.PHYSICAL_SERVER.copy(), TacacsDockerServer0.SERVER_IPV4.copy(),
+        servers_info = [TacacsPhysicalServer.SERVER_IPV4.copy(), TacacsDockerServer0.SERVER_IPV4.copy(),
                         TacacsDockerServer0.SERVER_DN.copy()]
         prio = 3
         for server in servers_info:

@@ -47,6 +47,8 @@ class AaaConsts:
     LOGIN = 'login'
 
     PHYSICAL_AAA_SERVER_IPV4_ADDR = '10.7.34.20'
+    PHYSICAL_AAA_SERVER_IPV6_ADDR = 'fdfd:fdfd:7:34:46a8:42ff:fe27:8ab4'
+    PHYSICAL_AAA_SERVER_DN = 'fit-def-20'
     VM_AAA_SERVER_IPV4_ADDR = '10.237.0.86'
     VM_AAA_SERVER_IPV6_ADDR = 'fdfd:fdfd:10:237:250:56ff:fe1b:56'
     VM_AAA_SERVER_DN = 'fit-l-vrt-60-086'
