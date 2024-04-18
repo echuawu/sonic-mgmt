@@ -1,7 +1,7 @@
 import pytest
 
 from tests.common.utilities import skip_release
-from tests.platform_tests.sfp.im.helpers import im_supported
+from tests.platform_tests.sfp.im.helpers import im_supported, im_ms_sku, MS_HWSKUS
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -21,3 +21,13 @@ def check_platform_support(duthost):
     """
     if not im_supported(duthost):
         pytest.skip(f"Independent module feature supported only from spectrum 3 and above")
+
+
+@pytest.fixture(autouse=True, scope="module")
+def check_ms_sku(duthost):
+    """
+    @summary: This fixture is for skip test if case run not in specific platform
+    @param: duthost: duthost fixture
+    """
+    if not im_ms_sku(duthost):
+        pytest.skip(f"Independent module feature supported only at Microsoft SKU {MS_HWSKUS}")

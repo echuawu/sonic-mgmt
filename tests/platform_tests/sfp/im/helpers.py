@@ -80,6 +80,8 @@ BER_KEY_MAP = {
     BER_RAW_PHYSICAL_BER
 }
 
+MS_HWSKUS = ['Mellanox-SN4700-O8C48', 'Mellanox-SN4700-O8V48', 'ACS-SN5600', 'ACS-MSN4700']
+
 
 def enable_cmis_mgr_in_pmon_file(duthost):
     """
@@ -323,3 +325,12 @@ def im_supported(duthost):
     @return: list of IM ports supported
     """
     return True if not is_spc1(duthost) and not is_spc2(duthost) else False
+
+
+def im_ms_sku(duthost):
+    """
+    @summary: This method checking if HWSKU is Microsoft
+    @param: duthost: duthost fixture
+    @return: list of IM ports supported
+    """
+    return duthost.facts['hwsku'] in MS_HWSKUS
