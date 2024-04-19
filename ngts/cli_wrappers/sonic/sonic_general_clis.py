@@ -1032,7 +1032,19 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.update_database_version(setup_name, config_db_file_name)
         if branch not in ['202205', '202211', '202305']:
             self.remove_syslog_telemetry_entry(setup_name, config_db_file_name)
+        self.update_config_db_simx_setup_metadata_mac(setup_name, config_db_file_name)
+
         return config_db_file_name
+
+    def update_config_db_simx_setup_metadata_mac(self, setup_name, config_db_json_file_name):
+        expected_base_mac_file_path = f'/tmp/simx_base_mac_{self.engine.ip}'
+        if not os.path.exists(expected_base_mac_file_path):
+            return
+        logger.info("Remove the mac address from config db for simx setup")
+        config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+        config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST].pop(ConfigDbJsonConst.MAC, None)
+
+        self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_features(self, setup_name, hwsku, platform, config_db_json_file_name):
         init_config_db_json = self.get_init_config_db_json_obj(hwsku, platform, setup_name)
