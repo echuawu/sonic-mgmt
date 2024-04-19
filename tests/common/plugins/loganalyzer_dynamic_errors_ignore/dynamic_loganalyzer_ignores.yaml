@@ -3343,15 +3343,6 @@
       - 3589197
 
 - Errors_list:
-  - '.*ERR kernel:.*SXD_HEALTH_FATAL.*stopping further device monitoring.*'
-  - '.*ERR syncd#SDK.*mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
-  - '.*ERR syncd#SDK.*SX_HEALTH_FATAL: cause_string.*error msg generated from SDK.*'
-  - '.*ERR swss#orchagent.*on_switch_shutdown_request: Syncd stopped.*error msg generated from orchagent.*'
-  Conditions:
-  - Affected_test_cases:
-    - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
-
-- Errors_list:
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
