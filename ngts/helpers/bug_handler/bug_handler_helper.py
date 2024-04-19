@@ -346,6 +346,8 @@ def error_to_regex(error_string):
     # -- Escapes out of all the meta characters --#
     error_string = re.escape(error_string)
     error_string = error_string.replace("\\", "\\\\")
+    # -- Replaces [123.1234], [ 123.1234], [   123.1234] to one regex
+    error_string = re.sub(r"\\\\\[(\\\\\s)*\d+\\\\\.\d+\\\\\]", r"\\\\[\\\\s*\\\\d+\\\\.\\\\d+\\\\]", error_string)
     # -- Replaces a white space with the white space regular expression
     error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)
     # -- Replaces date time with regular expressions
