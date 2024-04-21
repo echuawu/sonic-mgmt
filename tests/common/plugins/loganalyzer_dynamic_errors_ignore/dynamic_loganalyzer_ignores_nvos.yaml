@@ -774,18 +774,6 @@
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_timeout
 
 - Errors_list:
-    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
-
-- Errors_list:
-    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://unreachable.*/: Can''t contact LDAP server: Invalid argument.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable
-
-- Errors_list:
     - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
   Conditions:
     - Affected_test_cases:
@@ -1358,6 +1346,7 @@
     - '.*ERR ker process: PAM-tacplus: auth failed: 2.*'
     - '.*ERR ker message repeated \d times: \[ process: PAM-tacplus: auth failed: 2\].*'
     - '.*WARNING service_checker: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
   Conditions:
     - Affected_test_cases:
         - ngts/tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[ipv4-NVUE-BadFlow]
@@ -1417,7 +1406,7 @@
 - Errors_list:
     - '.*WARNING nslcd\[\d+\]: \[\w+\] .* failed to bind to LDAP server.*'
     - '.*WARNING nslcd\[\d+\]: \[\w+\] .* no available LDAP server found.*'
-    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* ldap_start_tls_s() failed (.*): Connect error: (unknown error code).*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\] .* ldap_start_tls_s\(\) failed \(.*\): Connect error: \(unknown error code\).*'
     - '.*WARNING systemd\[1\]: nvued\.service: Failed with result .*'
     - '.*ERR nslcd\[\d+\]: \[\w+\] .* no available LDAP server found.*'
   Conditions:
