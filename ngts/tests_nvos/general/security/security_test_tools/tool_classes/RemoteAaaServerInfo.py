@@ -89,7 +89,7 @@ class TacacsServerInfo(RemoteAaaServerInfo):
         self._configure(engines, hostname_resource_obj, conf_to_set, set_explicit_priority, apply, dut_engine)
 
     def make_unreachable(self, engines, apply=False, dut_engine=None):
-        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port + 6, apply=apply,
+        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, AaaConsts.TACACS_BAD_PORT, apply=apply,
                                                                     dut_engine=dut_engine)
 
     def make_reachable(self, engines, apply=False, dut_engine=None):

@@ -136,8 +136,7 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
         3. verify auth - expect fail
     """
     tacacs_server = TacacsPhysicalServer.SERVER_IPV4.copy()
-    tacacs_server.port = RandomizationTool.select_random_value(TacacsConsts.VALID_VALUES[AaaConsts.PORT],
-                                                               [tacacs_server.port]).get_returned_value()
+    tacacs_server.port = AaaConsts.TACACS_BAD_PORT
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
                                            remote_aaa_type=RemoteAaaType.TACACS,
                                            remote_aaa_obj=System().aaa.tacacs,
@@ -227,7 +226,6 @@ def test_tacacs_auth_error(test_flow, test_api, engines, topology_obj, local_adm
         5.	Set failthrough on
         6.	Verify auth with 2nd server credentials – expect success
         7.  Verify auth with local user credentials - expect success
-        8.  Verify auth with credentials from none of servers/local - expect fail
     """
     server1, server2 = get_two_different_tacacs_servers()
     generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, request, local_adminuser=local_adminuser,
@@ -406,7 +404,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
             configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
                 AaaConsts.TIMEOUT: rand_timeout,
                 AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: 555
+                AaaConsts.PORT: AaaConsts.TACACS_BAD_PORT
             })
 
         with allure.step('Set tacacs in authentication order and failthrough off'):
@@ -432,7 +430,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
                 AaaConsts.PRIORITY: 2,
                 AaaConsts.TIMEOUT: rand_timeout2,
                 AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: 555
+                AaaConsts.PORT: AaaConsts.TACACS_BAD_PORT
             }, apply=True, verify_apply=False)
 
         with allure.step('Make authentication attempt and measure time'):

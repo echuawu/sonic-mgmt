@@ -523,7 +523,6 @@ def generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, requ
         5.	Set failthrough on
         6.	Verify auth with 2nd server credentials – expect success
         7.  Verify auth with local user credentials - expect success
-        8.  Verify auth with credentials from none of servers/local - expect fail
     @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param engines: engines object
