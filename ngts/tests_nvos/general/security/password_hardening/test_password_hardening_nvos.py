@@ -12,6 +12,7 @@ from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhCon
 from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTools
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -63,6 +64,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
         PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -90,6 +92,7 @@ def test_password_hardening_show_system_security(engines, system):
                                                         output_dict=output).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -152,6 +155,7 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
         user_obj.set(PwhConsts.PW, '"' + strong_pw + '"', apply=True).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -212,6 +216,7 @@ def test_password_hardening_set_unset(engines, system):
             PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, PwhConsts.DEFAULTS[setting])
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -292,6 +297,7 @@ def test_password_hardening_set_invalid_input(engines, system):
             PwhTools.verify_error(res_obj=res_obj, error_should_contain=PwhConsts.ERR_EXP_WARN_LEQ_EXP)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -369,6 +375,7 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
             prev_conf = conf  # step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -420,6 +427,7 @@ def test_password_hardening_history_functionality(engines, system, testing_users
                                       should_succeed=True)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -477,6 +485,7 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
                     day_num += step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -537,6 +546,7 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
                     day_num += step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -618,6 +628,7 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
         res_obj.verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -663,6 +674,7 @@ def test_password_hardening_history_increase(engines, system, testing_users):
             PwhTools.set_pw_expect_pwh_error(user_obj, pw_i, [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security

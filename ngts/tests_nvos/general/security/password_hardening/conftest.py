@@ -27,7 +27,7 @@ def system():
 
 
 @pytest.fixture(scope='function')
-def testing_users(engines, system):
+def testing_users(engines, devices, system):
     """
     Fixture that sets new users especially for test (and cleans them afterwards).
     There are 2 test users: 'test_admin' and 'test_monitor'.
@@ -39,7 +39,7 @@ def testing_users(engines, system):
         }
     """
     with allure.step("Before test: set local test users"):
-        users_info = AaaConsts.LOCAL_ONLY_TEST_USERS
+        users_info = devices.dut.local_test_users
         set_local_users(engines, users_info, apply=True)
 
         users = {

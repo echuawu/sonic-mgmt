@@ -39,6 +39,7 @@ class BaseDevice(ABC):
         self._init_platform_lists()
         self._init_system_lists()
         self._init_security_lists()
+        self._init_password_hardening_lists()
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -93,6 +94,9 @@ class BaseDevice(ABC):
 
     def _init_security_lists(self):
         self.kex_algorithms = []
+
+    def _init_password_hardening_lists(self):
+        self.local_test_users = []
 
     @abstractmethod
     def get_ib_ports_num(self):

@@ -4,6 +4,7 @@ import os
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 
 logger = logging.getLogger()
 
@@ -75,6 +76,17 @@ class EthSwitch(BaseSwitch):
                                'kex-strict-s-v00@openssh.com', 'ecdh-sha2-nistp256',
                                'curve25519-sha256', 'ecdh-sha2-nistp384', 'diffie-hellman-group14-sha256',
                                'sntrup761x25519-sha512@openssh.com', 'diffie-hellman-group16-sha512']
+
+    def _init_password_hardening_lists(self):
+        super()._init_password_hardening_lists()
+        self.aaa_admin_role = 'nvue-admin'
+        self.aaa_monitor_role = 'nvue-monitor'
+        self.local_test_users = [{AaaConsts.USERNAME: AaaConsts.LOCALADMIN,
+                                  AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
+                                  AaaConsts.ROLE: self.aaa_admin_role},
+                                 {AaaConsts.USERNAME: AaaConsts.LOCALMONITOR,
+                                  AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
+                                  AaaConsts.ROLE: self.aaa_monitor_role}]
 
     def _init_available_databases(self):
         super()._init_available_databases()

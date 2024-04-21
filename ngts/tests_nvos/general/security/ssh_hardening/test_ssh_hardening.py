@@ -4,6 +4,7 @@ from ngts.nvos_tools.infra.PexpectTool import PexpectTool
 from ssh_hardening_test_utils import *
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_protocol(engines):
     """
@@ -20,6 +21,7 @@ def test_ssh_protocol(engines):
     )
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_compression(engines):
     """
@@ -36,6 +38,7 @@ def test_ssh_compression(engines):
     )
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_ciphers(engines, devices):
     """
@@ -70,6 +73,7 @@ def test_ssh_ciphers(engines, devices):
     )
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_macs(engines, devices):
     """
@@ -104,6 +108,7 @@ def test_ssh_macs(engines, devices):
     )
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_kex_algorithms(engines, devices):
     """
@@ -138,6 +143,7 @@ def test_ssh_kex_algorithms(engines, devices):
     )
 
 
+@pytest.mark.cumulus
 @pytest.mark.security
 def test_ssh_auth_public_key_types(engines, upload_test_auth_keys_to_ssh_server):
     """

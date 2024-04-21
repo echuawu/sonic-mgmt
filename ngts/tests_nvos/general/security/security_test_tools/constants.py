@@ -13,19 +13,6 @@ class AaaConsts:
     LOCALMONITOR = 'localmonitor'
     STRONG_PASSWORD = 'Your_password1'
 
-    LOCAL_ONLY_TEST_USERS = [
-        {
-            USERNAME: LOCALADMIN,
-            PASSWORD: STRONG_PASSWORD,
-            ROLE: ADMIN
-        },
-        {
-            USERNAME: LOCALMONITOR,
-            PASSWORD: STRONG_PASSWORD,
-            ROLE: MONITOR
-        }
-    ]
-
     HOSTNAME = 'hostname'
     TIMEOUT = 'timeout'
     AUTH_TYPE = 'auth-type'
