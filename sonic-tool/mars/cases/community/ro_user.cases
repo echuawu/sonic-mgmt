@@ -42,7 +42,7 @@
             </condition>
         </ignore>
         <info> RO DISK Case </info>
-        <name> ro_user </name>
+        <name> ro_disk </name>
         <tout> 2000 </tout>
         <cmd>
             <params>
