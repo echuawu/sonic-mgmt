@@ -130,6 +130,8 @@ class AdvancedReboot:
         self.bgpV4V6TimeDiff = self.request.config.getoption("--bgp_v4_v6_time_diff")
         self.new_docker_image = self.request.config.getoption("--new_docker_image")
         self.neighborType = self.request.config.getoption("--neighbor_type")
+        if 'sonic' in self.neighborType:
+            self.neighborType = 'sonic'
 
         # Set default reboot limit if it is not given
         if self.rebootLimit is None:
