@@ -99,7 +99,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         for dut in setup_info['duts']:
             if 'dut-dpu' not in dut['dut_alias']:
                 switch_or_standalone_dpu_duts.append(dut)
-            elif deploy_dpu and base_version_dpu:
+            elif base_version_dpu:
                 smart_switch_dpu_duts.append(dut)
         # Remove the smart switch DPUs from the setup_info for we do not want to run the pre and post steps on them
         setup_info['duts'] = switch_or_standalone_dpu_duts
