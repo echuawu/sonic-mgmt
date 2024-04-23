@@ -146,6 +146,9 @@ def log_analyzer_bug_handler(duthost, request):
     if not request:
         logger.warning("Skip the loganalyzer bug handler, To run the it, 'request' is needed when create LogAnalyzer")
         return
+    if request.node.rep_call.failed:
+        logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
+        return
     test_name = request.node.name
     bug_handler_actions = get_bug_handler_actions(request)
     run_log_analyzer_bug_handler = is_log_analyzer_bug_handler_enabled(bug_handler_actions)
