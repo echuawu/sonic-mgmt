@@ -292,7 +292,7 @@ mtvr-leopard-02     ansible_host=10.245.20.50 os=mellanox
 arc-switch1035      ansible_host=10.210.25.46 os=mellanox
 mts-sonic-fanout    ansible_host=10.9.74.64 os=mellanox
 arc-switch1039      ansible_host=10.210.25.47 os=mellanox
-r-tigon-14          ansible_host=10.210.25.188 os=mellanox
+r-tigon-14          ansible_host=10.210.25.188 os=sonic
 c-panther-02        ansible_host=10.75.67.34 os=mellanox
 arc-switchmtbc02    ansible_host=10.75.67.41 os=mellanox
 r-tigris-17         ansible_host=10.210.25.57 os=mellanox
@@ -303,7 +303,7 @@ r-tigon-19          ansible_host=10.210.24.182 os=mellanox
 r-tigon-22          ansible_host=10.210.24.194 os=mellanox
 r-tigris-27         ansible_host=10.210.24.174 os=mellanox
 r-liger-05          ansible_host=10.210.24.104 os=mellanox
-r-leopard-20        ansible_host=10.210.25.114 os=mellanox
+r-leopard-20        ansible_host=10.210.25.114 os=sonic
 mtbc-sonic-02-2700  ansible_host=10.75.67.45 os=mellanox
 mtbc-3700c-02       ansible_host=10.75.67.51 os=mellanox
 r-anaconda-86       ansible_host=10.210.24.190 os=mellanox
