@@ -372,11 +372,10 @@ def group_log_errors_by_timestamp(log_errors):
     error_line_list = [line for line in log_errors.splitlines() if line.strip()]
     error_groups = []   # list of optional bugs, each element here is a list with log errors.
     current_group = []  # single bug log errors
-    time_pattern = r'(\w+\s+\d+\s+\d{2}:\d{2}:\d{2})'
-    prev_timestamp = datetime.strptime(re.findall(time_pattern, error_line_list[0])[0], "%b %d %H:%M:%S")
+    prev_timestamp = get_timestamp_from_log_line(error_line_list[0])
 
     for line in error_line_list:
-        timestamp = datetime.strptime(re.findall(time_pattern, line)[0], "%b %d %H:%M:%S")
+        timestamp = get_timestamp_from_log_line(line)
 
         if (timestamp - prev_timestamp) > timedelta(seconds=5):
             # close the group and create new one
@@ -389,6 +388,18 @@ def group_log_errors_by_timestamp(log_errors):
     if current_group:
         error_groups.append(current_group)
     return error_groups
+
+
+def get_timestamp_from_log_line(line: str) -> datetime:
+    time_format = "%b %d %H:%M:%S"
+    length = 15
+    try:
+        result = datetime.strptime('2020 ' + line[:length], "%Y " + time_format)  # use 2020 to avoid bug on February 29
+    except ValueError:
+        time_format = "%Y-%m-%dT%H:%M:%S"
+        length = 19
+        result = datetime.strptime(line[:length], time_format)
+    return result
 
 
 def summarize_la_bug_handler(la_bug_handler_result):
