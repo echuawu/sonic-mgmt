@@ -556,6 +556,8 @@ class PlatformConsts:
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
     FW_SSD = "SSD"
+    FW_FPGA = "FPGA"
+    FW_BMC = "BMC"
     FW_FIELD_NAME_DICT = {"Actual FW": "actual-firmware"}
     FW_ACTUAL = "actual-firmware"
     FW_PART_NUMBER = 'part-number'

@@ -503,40 +503,59 @@ class NvLinkSwitch(IbSwitch):
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
-        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
-            "x86_64-mlnx_mqm9700-r0")
+        # self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+        #     "x86_64-mlnx_mqm9700-r0")
         self.switch_type = "nvl"
 
 
 # -------------------------- Juliet Switch ----------------------------
 class JulietSwitch(NvLinkSwitch):
 
-    def __init__(self):
-        super().__init__(asic_amount=1)
+    def __init__(self, asic_amount):
+        super().__init__(asic_amount=asic_amount)
 
     def _init_constants(self):
         super()._init_constants()
-
-    def _init_fan_list(self):
-        super()._init_fan_list()
-        self.fan_list += ["FAN7/1", "FAN7/2"]
-        self.fan_led_list.append('FAN7')
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
 class JulietScaleoutSwitch(JulietSwitch):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(asic_amount=2)
 
     def _init_constants(self):
         super()._init_constants()
-        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
-            "x86_64-mlnx_mqm9700-r0")
-        self.show_platform_output.update({
-            "product-name": "MQM9700",
-            "asic-model": self.asic_type,
-        })
+        firmware = [PlatformConsts.FW_ASIC, PlatformConsts.FW_BIOS, PlatformConsts.FW_SSD,
+                    PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3',
+                    PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC]
+        self.constants.firmware = firmware
+
+        self.voltage_sensors = [
+            "PMIC-1-12V-VDD-ASIC1-In-1",
+            "PMIC-1-ASIC1-VDD-Out-1",
+            "PMIC-2-12V-HVDD-DVDD-ASIC1-In-1",
+            "PMIC-2-ASIC1-DVDD-PL0-Out-2",
+            "PMIC-2-ASIC1-HVDD-PL0-Out-1",
+            "PMIC-3-12V-HVDD-DVDD-ASIC1-In-1",
+            "PMIC-3-ASIC1-DVDD-PL1-Out-2",
+            "PMIC-3-ASIC1-HVDD-PL1-Out-1",
+            "PMIC-4-12V-VDD-ASIC2-In-1",
+            "PMIC-4-ASIC2-VDD-Out-1",
+            "PMIC-5-12V-HVDD-DVDD-ASIC2-In-1",
+            "PMIC-5-ASIC2-DVDD-PL0-Out-2",
+            "PMIC-5-ASIC2-HVDD-PL0-Out-1",
+            "PMIC-6-12V-HVDD-DVDD-ASIC2-In-1",
+            "PMIC-6-ASIC2-DVDD-PL1-Out-2",
+            "PMIC-6-ASIC2-HVDD-PL1-Out-1"
+        ]
+        # TBD
+        # self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+        #     "x86_64-mlnx_mqm9700-r0")
+        # self.show_platform_output.update({
+        #     "product-name": "MQM9700",
+        #     "asic-model": self.asic_type,
+        # })
 
         # TODO - Check if it needs to be changed.
         # self.current_bios_version_name = "0ACQF_06.01.003"
@@ -600,6 +619,16 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.nvl5_port_speed = '400G'
         self.nvl5_port_type = 'nvl'
         # will be updated
+
+    def _init_temperature(self):
+        super()._init_temperature()
+        self.temperature_sensors = ["ASIC", "Ambient-Port-Side-Temp",
+                                    "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp",
+                                    "swb_asic1", "swb_asic2", "SODIMM-1-Temp"]
+
+    def _init_fan_list(self):
+        super()._init_fan_list()
+        self.fan_led_list = []
 
 
 # -------------------------- Caiman Switch ----------------------------
