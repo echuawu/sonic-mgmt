@@ -11,17 +11,16 @@
         <Case>
             <tags> Build </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 7200 </tout>
+            <tout> 0 </tout>
         </Case>
     </global>
 
     <case>
         <info> Test Show Platform CLI Case </info>
         <name> show_platform </name>
-        <tout> 480 </tout>
         <cmd>
              <params>
-                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"test_show_platform_summary or test_show_platform_temperature\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/cli/test_show_platform.py </static_args>
+                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"test_show_platform_summary or test_show_platform_temperature\" --clean-alluredir --alluredir=/tmp/allure-results --timeout 480 --session-timeout 480 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/cli/test_show_platform.py </static_args>
              </params>
         </cmd>
     </case>
@@ -29,10 +28,9 @@
     <case>
         <info> Test SFP Show </info>
         <name> sfp_show </name>
-        <tout> 3600 </tout>
         <cmd>
              <params>
-                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfpshow.py </static_args>
+                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 3600 --session-timeout 3600 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfpshow.py </static_args>
              </params>
         </cmd>
     </case>
@@ -40,10 +38,9 @@
     <case>
         <info> Test SFP Show Transceivers </info>
         <name> sfp_show_transceivers </name>
-        <tout> 3600 </tout>
         <cmd>
              <params>
-                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_show_intf_xcvr.py </static_args>
+                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 3600 --session-timeout 3600 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_show_intf_xcvr.py </static_args>
              </params>
         </cmd>
     </case>
@@ -51,10 +48,9 @@
     <case>
         <info> Test SFP Util </info>
         <name> sfp_util </name>
-        <tout> 3600 </tout>
         <cmd>
              <params>
-                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"not test_check_sfputil_reset and not test_check_sfputil_low_power_mode\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfputil.py </static_args>
+                 <static_args> --setup-name [[conf:extra_info.setup_name]] --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug  --show-capture=no -ra --showlocals -k=\"not test_check_sfputil_reset and not test_check_sfputil_low_power_mode\" --clean-alluredir --alluredir=/tmp/allure-results --timeout 3600 --session-timeout 3600 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts platform_tests/sfp/test_sfputil.py </static_args>
              </params>
         </cmd>
     </case>

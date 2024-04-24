@@ -10,7 +10,7 @@
     <Case>
       <tags> pytest_runner </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 2400 </tout>
+      <tout> 0 </tout>
       <tags>ALL</tags>
     </Case>
   </global>
@@ -19,7 +19,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/install_app_extension/remove_app_extension.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --remove_app_extension=[[conf:extra_info.remove_app_extension:'']] --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/install_app_extension/remove_app_extension.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --remove_app_extension=[[conf:extra_info.remove_app_extension:'']] --alluredir=/tmp/allure-results --showlocals --timeout 2400 --session-timeout 2400\'"</static_args>
       </params>
     </cmd>
   </case>
