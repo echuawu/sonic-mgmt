@@ -1,5 +1,6 @@
 import logging
 import os
+from collections import namedtuple
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
@@ -510,12 +511,15 @@ class NvLinkSwitch(IbSwitch):
 
 # -------------------------- Juliet Switch ----------------------------
 class JulietSwitch(NvLinkSwitch):
+    FaeImagesTestConsts = namedtuple('FaeImagesTestConsts', ('current_image_version', 'alternate_image_version'))
 
     def __init__(self, asic_amount):
         super().__init__(asic_amount=asic_amount)
 
     def _init_constants(self):
         super()._init_constants()
+        self.bmc_image_info = self.FaeImagesTestConsts(current_image_version='bmc_1.pkg', alternate_image_version='bmc_2.pkg')
+        self.fpga_image_info = self.FaeImagesTestConsts(current_image_version='fpga_1.pkg', alternate_version='fpga_2.pkg')
 
 
 # -------------------------- JulietScaleout Switch ----------------------------

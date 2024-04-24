@@ -80,6 +80,8 @@ class FaeFirmware(BaseComponent):
         self.cpld = FaeCpldComponent(self, 'cpld')
         self.bios = FaeBiosComponent(self, 'bios')
         self.ssd = FaePlatformComponent(self, 'ssd')
+        self.bmc = FaePlatformComponent(self, 'bmc')
+        self.fpga = FaePlatformComponent(self, 'fpga')
 
     def install_bios_firmware(self, bios_image_path, device):
         with allure.step("installing bios firmware from {action_type}".format(action_type=bios_image_path)):
