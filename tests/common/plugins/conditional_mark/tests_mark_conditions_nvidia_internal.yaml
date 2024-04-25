@@ -621,11 +621,12 @@ ecmp/inner_hashing:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3556737 on simx platform or due to RM issue 3796902 on affected setups"
+    reason: "Testcase ignored due to RM issue 3556737 on simx platform, due to RM issue 3816778 on r-anaconda-15 or due to RM issue 3859826 on sn4600"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3796902 and ('r-tigon-17' in testbed or 'r-anaconda-15' in testbed)"
+    - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
+    - "https://redmine.mellanox.com/issues/3816778 and 'r-anaconda-15' in testbed"
+    - "https://redmine.mellanox.com/issues/3859826 and 'sn4600' in platform"
 
 qos/test_qos_sai_dual_tor.py:
   skip:

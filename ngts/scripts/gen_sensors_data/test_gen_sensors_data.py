@@ -46,14 +46,15 @@ def parse_sensors_data(sensors_data):
     sensors_dict["alarms_fan_list"] = sensors_alarms_fan_list
 
     # parse alarms power
-    reg_alarm_power = r"^(curr[\d+]_alarm|curr[\d+]_crit_alarm|curr[\d+]_max_alarm|in[\d+]_crit_alarm|in[" \
-                      r"\d+]_max_alarm|in[\d+]_min_alarm|in[\d+]_lcrit_alarm|power[\d+]_alarm|power[" \
-                      r"\d+]_crit_alarm|power[\d+]_max_alarm)$"
+    reg_alarm_power = r"^(curr[\d+]_alarm|curr[\d+]_crit_alarm|curr[\d+]_max_alarm|curr[\d+]_lcrit_alarm|" \
+                      r"in[\d+]_crit_alarm|in[\d+]_max_alarm|in[\d+]_alarm|in[\d+]_min_alarm|in[\d+]_lcrit_alarm|" \
+                      r"power[\d+]_alarm|power[\d+]_crit_alarm|power[\d+]_max_alarm|power[\d+]_cap_alarm)$"
     sensors_alarms_power_list = collect_alarms_key(sensors_data, reg_alarm_power)
     sensors_dict["alarms_power_list"] = sensors_alarms_power_list
 
     # parse alarms temp
-    reg_alarms_temp = r"^(temp[\d+]_crit_alarm|temp[\d+]_max_alarm|temp[\d+]_fault|temp[\d+]_min_alarm)$"
+    reg_alarms_temp = r"^(temp[\d+]_crit_alarm|temp[\d+]_max_alarm|temp[\d+]_fault|temp[\d+]_min_alarm" \
+                      r"|temp[\d+]_lcrit_alarm)$"
     sensors_alarms_temp_list = collect_alarms_key(sensors_data, reg_alarms_temp)
     sensors_dict["alarms_temp_list"] = sensors_alarms_temp_list
 
