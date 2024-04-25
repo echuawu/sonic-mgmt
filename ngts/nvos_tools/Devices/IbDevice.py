@@ -588,13 +588,19 @@ class JulietScaleoutSwitch(JulietSwitch):
         # self.stats_power_header_num_of_lines = 13
         # self.stats_temperature_header_num_of_lines = 53
         self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
-        self.nvl5_access_ports_list = ['access1p1', 'access1p2', 'access1p3', 'access1p4', 'access1p5', 'access1p6',
-                                       'access1p7', 'access1p8',
-                                       'access1p9', 'access1p10', 'access1p11', 'access1p12', 'access1p13', 'access1p14',
-                                       'access1p15', 'access1p16', 'access1p17', 'access1p18', 'access1p19', 'access1p20',
-                                       'access1p21', 'access1p22', 'access1p23', 'access1p24', 'access1p25', 'access1p26',
-                                       'access1p27', 'access1p28', 'access1p29', 'access1p30', 'access1p31', 'access1p32',
-                                       'access1p33', 'access1p34', 'access1p35', 'access1p36']
+        # Port 1-36 is from asic1/ Port 37-72 is from asic2
+        self.nvl5_access_ports_list = ['acp1', 'acp2', 'acp3', 'acp4', 'acp5', 'acp6',
+                                       'acp7', 'acp8', 'acp9', 'acp10', 'acp11', 'acp12', 'acp13', 'acp14',
+                                       'acp15', 'acp16', 'acp17', 'acp18', 'acp19', 'acp20',
+                                       'acp21', 'acp22', 'acp23', 'acp24', 'acp25', 'acp26',
+                                       'acp27', 'acp28', 'acp29', 'acp30', 'acp31', 'acp32',
+                                       'acp33', 'acp34', 'acp35', 'acp36', 'acp37', 'acp38', 'acp39', 'acp40',
+                                       'acp41', 'acp42', 'acp43', 'acp44', 'acp45', 'acp46',
+                                       'acp47', 'acp48', 'acp49', 'acp50', 'acp51', 'acp52',
+                                       'acp53', 'acp54', 'acp55', 'acp56', 'acp57', 'acp58',
+                                       'acp59', 'acp60', 'acp61', 'acp62', 'acp63', 'acp64',
+                                       'acp65', 'acp66', 'acp67', 'acp68', 'acp69', 'acp70',
+                                       'acp71', 'acp72']
 
         self.nvl5_trunk_ports_list = ['sw1p1s1', 'sw1p1s2', 'sw1p2s1', 'sw1p2s2',
                                       'sw2p1s1', 'sw2p1s2', 'sw2p2s1', 'sw2p2s2',
@@ -617,7 +623,7 @@ class JulietScaleoutSwitch(JulietSwitch):
                                       ]
         self.network_ports = ['eth0', 'eth1', 'lo']
         self.all_nvl5_ports_list = self.nvl5_access_ports_list + self.nvl5_trunk_ports_list + self.network_ports
-        self.nvl5_fnm_ports = ['fnma1p1', 'fnma1p2', 'fnma2p1', 'fnma2p2']
+        self.nvl5_fnm_ports = ['fnm1', 'fnm2', 'fnma0p1', 'fnma1p1']
         self.all_fae_nvl5_ports_list = self.all_nvl5_ports_list + self.nvl5_fnm_ports
         self.nvl5_port = ['access1p48']
         self.nvl5_port_speed = '400G'
