@@ -288,6 +288,18 @@ dash/test_dash_disable_enable_eni.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3827395"
 
+tacacs/test_accounting.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876512"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3876512"
+
+tacacs/test_authorization.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876512"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3876512"
+
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
@@ -296,9 +308,9 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
 
 virtual_smart_switch/test_dpu_ip_assignment.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835047"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3858205"
     conditions:
-      - "https://redmine.mellanox.com/issues/3835047"
+      - "https://redmine.mellanox.com/issues/3858205"
 
 syslog/test_logrotate.py::test_orchagent_logrotate:
   skip:
