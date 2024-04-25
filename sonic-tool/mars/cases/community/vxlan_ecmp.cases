@@ -9,13 +9,14 @@
         <Case>
             <tags> Overlay ECMP for T1 Test </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 0 </tout>
+            <tout> 9000 </tout>
         </Case>
     </global>
 
     <case>
         <info> Overlay ECMP for T1: daily cases </info>
         <name> test_vxlan_ecmp </name>
+        <tout> 7200 </tout>
         <ignore>
             <!-- daily case  -->
             <condition>
@@ -26,7 +27,7 @@
         </ignore>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 7200 --session-timeout 7200 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
              </params>
         </cmd>
     </case>
@@ -43,9 +44,10 @@
 
         <info> Overlay ECMP for T1 weekend cases: Test_VxLAN_ecmp_random_hash </info>
         <name> Test_VxLAN_ecmp_random_hash </name>
+        <tout> 7200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 7200 --session-timeout 7200 --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_ecmp_random_hash\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_ecmp_random_hash\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
              </params>
         </cmd>
     </case>
@@ -65,7 +67,7 @@
         <tout> 7200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 7200 --session-timeout 7200 --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_underlay_ecmp\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_underlay_ecmp\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
              </params>
         </cmd>
     </case>
@@ -82,9 +84,10 @@
 
         <info> Overlay ECMP for T1 weekend cases: Test_VxLAN_entropy </info>
         <name> Test_VxLAN_entropy </name>
+        <tout> 7200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 7200 --session-timeout 7200 --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_entropy\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --include_long_tests=True -k \"Test_VxLAN_entropy\"\'" --test-scripts vxlan/test_vxlan_ecmp.py </static_args>
              </params>
         </cmd>
     </case>
@@ -92,9 +95,10 @@
     <case>
         <info> Vxlan ECMP Switchover test cases </info>
         <name> test_vxlan_ecmp_switchover </name>
+        <tout> 7200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 7200 --session-timeout 7200 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_ecmp_switchover.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vxlan_ecmp_switchover.py </static_args>
              </params>
         </cmd>
     </case>

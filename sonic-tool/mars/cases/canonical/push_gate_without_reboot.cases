@@ -10,7 +10,7 @@
     <Case>
       <tags> push_gate </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 0 </tout>
+      <tout> 14400 </tout>
       <tags>ALL</tags>
     </Case>
   </global>
@@ -19,7 +19,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/push_build_tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO -k \"not test_push_gate_reboot_policer\" --clean-alluredir --alluredir=/tmp/allure-results --showlocals --timeout 600 --session-timeout 7200 --disable_loganalyzer --base_version=[[conf:extra_info.base_version]] --target_version=[[conf:extra_info.target_version]] --wjh_deb_url=[[conf:extra_info.wjh_deb_url:'']] --app_extension_dict_path=[[conf:extra_info.app_extension_dict_path:'']]\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/push_build_tests/ --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO -k \"not test_push_gate_reboot_policer\" --clean-alluredir --alluredir=/tmp/allure-results --showlocals --disable_loganalyzer --base_version=[[conf:extra_info.base_version]] --target_version=[[conf:extra_info.target_version]] --wjh_deb_url=[[conf:extra_info.wjh_deb_url:'']] --app_extension_dict_path=[[conf:extra_info.app_extension_dict_path:'']]\'"</static_args>
       </params>
     </cmd>
   </case>
@@ -28,7 +28,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --timeout 300 --session-timeout 300 --test_name=push_gate_with_upgrade\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/check_and_store_sanitizer_dump.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals --test_name=push_gate_with_upgrade\'"</static_args>
       </params>
     </cmd>
   </case>

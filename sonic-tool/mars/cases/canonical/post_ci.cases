@@ -9,7 +9,7 @@
     </Test>
     <Case>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 0 </tout>
+      <tout> 300 </tout>
     </Case>
   </global>
 
@@ -18,7 +18,7 @@
     <info> </info>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_type [[conf:extra_info.test_type]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/test_boot_into_onie.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --showlocals --timeout 300 --session-timeout 300\'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_type [[conf:extra_info.test_type]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/test_boot_into_onie.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --showlocals\'"</static_args>
       </params>
     </cmd>
   </case>

@@ -9,7 +9,7 @@
         <Case>
             <tags> DYNAMIC_BUFFER_CALC </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 0 </tout>
+            <tout> 3600 </tout>
         </Case>
     </global>
 
@@ -24,9 +24,10 @@
         </ignore>
         <info> Dynamic-Buffer-Calc Case </info>
         <name> dynamic-buffer-calculation </name>
+        <tout> 5400 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo  [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -k=\"not test_exceeding_headroom and not test_port_admin_down and not test_shared_headroom_pool_configure\" --clean-alluredir --alluredir=/tmp/allure-results --timeout 5400 --session-timeout 5400 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts qos/test_buffer.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo  [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -k=\"not test_exceeding_headroom and not test_port_admin_down and not test_shared_headroom_pool_configure\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts qos/test_buffer.py </static_args>
              </params>
         </cmd>
     </case>
@@ -42,9 +43,10 @@
         </ignore>
         <info> Dynamic-Buffer-Calc Case </info>
         <name> dynamic-buffer-calculation weekend</name>
+        <tout> 5400 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo  [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -k=\"test_exceeding_headroom or test_port_admin_down or test_shared_headroom_pool_configure\" --clean-alluredir --alluredir=/tmp/allure-results --timeout 5400 --session-timeout 5400 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts qos/test_buffer.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo  [[conf:extra_info.topology]]  --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals -k=\"test_exceeding_headroom or test_port_admin_down or test_shared_headroom_pool_configure\" --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts qos/test_buffer.py </static_args>
              </params>
         </cmd>
     </case>

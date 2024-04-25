@@ -9,7 +9,7 @@
         <Case>
             <tags> PFC_ASYM </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 0 </tout>
+            <tout> 3600 </tout>
         </Case>
     </global>
 
@@ -24,9 +24,10 @@
         </ignore>
         <info> PFC_ASYM Case </info>
         <name> pfc_asym </name>
+        <tout> 4200 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo t0 --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --server_ports_num=10 --clean-alluredir --alluredir=/tmp/allure-results --timeout 4200 --session-timeout 4200 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfc_asym/test_pfc_asym.py
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo t0 --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --server_ports_num=10 --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts pfc_asym/test_pfc_asym.py
                  </static_args>
              </params>
         </cmd>

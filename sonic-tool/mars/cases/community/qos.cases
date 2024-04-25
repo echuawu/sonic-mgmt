@@ -33,7 +33,7 @@
         <Case>
             <tags> QOS </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 0 </tout>
+            <tout> 5000 </tout>
         </Case>
     </global>
 
@@ -67,9 +67,10 @@
         </ignore>
         <info> QOS Case </info>
         <name> qos </name>
+        <tout> 5000 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 5000 --session-timeout 5000 --allure_server_addr=\"10.215.11.120\" --port_target_speed=\"50000\" --qos_swap_syncd=False\'" --test-scripts qos/test_qos_sai.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\" --port_target_speed=\"50000\" --qos_swap_syncd=False\'" --test-scripts qos/test_qos_sai.py </static_args>
              </params>
         </cmd>
     </case>
