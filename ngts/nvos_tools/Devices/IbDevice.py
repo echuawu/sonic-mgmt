@@ -550,10 +550,10 @@ class JulietScaleoutSwitch(JulietSwitch):
             "PMIC-6-ASIC2-HVDD-PL1-Out-1"
         ]
         # TBD
-        # self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
-        #     "x86_64-mlnx_mqm9700-r0")
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+            "x86_64-nvidia_n5110_ld-r0")
         # self.show_platform_output.update({
-        #     "product-name": "MQM9700",
+        #     "product-name": "N5110_LD",
         #     "asic-model": self.asic_type,
         # })
 
