@@ -27,6 +27,9 @@ def test_show_ztp_command(engines, devices, serial_engine):
     """
     system = System(None)
     try:
+        with allure.step("Run nv action run system ztp"):
+            system.ztp.action_run_ztp()
+
         _wait_until_ztp_values_fields_changed(system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_DEFAULT_VALUES)
 
         with allure.step("Run nv show system log command and check ztp logs inside"):
@@ -416,12 +419,12 @@ def _wait_until_ztp_step_status(system, ztp_step='', ztp_status=''):
         assert ztp_output['stage'][ztp_step]['status'] == ztp_status, f'ztp status not changed to {ztp_status}'
 
 
-def _validate_interface_description_field(selected_port, description_value):
+def _validate_interface_description_field(selected_port, description_value, should_be_equal=True):
     with allure.step('Check that interface description field matches the expected value'):
         output_dictionary = selected_port.show_output_dictionary
         if NvosConst.DESCRIPTION in output_dictionary.keys():
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary, NvosConst.DESCRIPTION,
-                                                              description_value).verify_result()
+                                                              description_value).verify_result(should_be_equal)
 
 
 @retry(Exception, tries=5, delay=2)
