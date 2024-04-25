@@ -195,7 +195,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         except Exception as e:
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
 
-        pytest_bin_name = "python3 -m pytest"
+        pytest_bin_name = "/var/AzDevOps/env-python3/bin/python3 -m pytest"
         random_seed = int(time.time())
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
