@@ -282,7 +282,7 @@ tests/nightly/secure/test_secure_boot.py:
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
-tests/dash/test_dash_disable_enable_eni.py:
+dash/test_dash_disable_enable_eni.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3827395"
     conditions:
