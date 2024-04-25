@@ -567,6 +567,7 @@ class PlatformConsts:
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
+    ENV_CPU = "CPU"
     ENV_FAN = "fan"
     ENV_LED = "led"
     ENV_UID = "UID"
@@ -586,10 +587,16 @@ class PlatformConsts:
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
+    ENV_TEMP_CURR_PROP = "current"
+    ENV_TEMP_STATE_PROP = "state"
+    ENV_TEMP_STATE_OK = 'ok'
     HW_COMP_SWITCH = "SWITCH"
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
     SW_FIELD_NAMES = ('description', 'package', 'version')
+    ENV_TEMP_TOLERANCE = 20  # [%]
+    ENV_TEMP_MIN = 15  # [Celsius]
+    ENV_TEMP_MAX = 90  # [Celsius]
 
 
 class FansConsts:
