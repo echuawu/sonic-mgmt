@@ -1,21 +1,24 @@
-import pytest
-import time
 import string
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_constants.constants_nvos import ImageConsts
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.tools.test_utils import allure_utils as allure
-from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
-from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
-from ngts.nvos_constants.constants_nvos import SystemConsts
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.nvos_tools.actions.Actions import Action
+import time
 
+import pytest
+
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.redmine.redmine_api import *
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ImageConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
+from ngts.nvos_tools.actions.Actions import Action
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.conftest import create_ssh_login_engine
+from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import check_partitions_capacity
 
 logger = logging.getLogger()
@@ -115,7 +118,13 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
 
     try:
         with allure.step("Install new image name"):
-            fetched_image_file.action_file_install_with_reboot().verify_result()
+            orig_engine: LinuxSshEngine = TestToolkit.engines.dut
+            device: BaseDevice = TestToolkit.devices.dut
+            new_engine = LinuxSshEngine(orig_engine.ip, orig_engine.username, device.get_default_password_by_release_name(release_name))
+            fetched_image_file.action_file_install_with_reboot(recovery_engine=new_engine).verify_result()
+
+        with allure.step('replace dut engine'):
+            TestToolkit.engines.dut = new_engine    # if install succeeded, need to replace dut engine
 
         with allure.step("Verify installed image"):
             logger.info("Verify installed image, we should see the origin name and not the new name,"
@@ -125,7 +134,8 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
                                                                           fetched_image, partition_id_for_new_image)
             system.image.verify_show_images_output(expected_show_images_output)
     finally:
-        cleanup_test(system, original_images, original_image_partition, [new_name])
+        # cleanup - boot back with orig image, uninstall new image, and restore to orig engine
+        cleanup_test(system, original_images, original_image_partition, [new_name], orig_engine=orig_engine)
 
 
 @pytest.mark.checklist
@@ -559,13 +569,16 @@ def get_next_partition_id(partition_id):
     return ImageConsts.PARTITION2_IMG if partition_id == ImageConsts.PARTITION1_IMG else ImageConsts.PARTITION1_IMG
 
 
-def cleanup_test(system, original_images, original_image_partition, fetched_image_files):
+def cleanup_test(system, original_images, original_image_partition, fetched_image_files, orig_engine=None):
     with allure.step("Cleanup step"):
         with allure.step("Set the original image to be booted next and verify"):
             system.image.boot_next_and_verify(original_image_partition)
 
         with allure.step("Reboot the system"):
-            system.reboot.action_reboot()
+            system.reboot.action_reboot(recovery_engine=orig_engine)
+
+        with allure.step('restore original dut engine'):
+            TestToolkit.engines.dut = orig_engine or TestToolkit.engines.dut
 
         with allure.step("Uninstall unused images and verify"):
             system.image.action_uninstall(params='force')

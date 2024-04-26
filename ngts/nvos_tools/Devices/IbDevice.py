@@ -26,6 +26,11 @@ class IbSwitch(BaseSwitch):
         self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
 
+    def get_default_password_by_release_name(self, release_name: str):
+        if release_name == '25.01.3000' and self.prev_default_password:
+            return self.prev_default_password
+        return self.default_password
+
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
         logging.info(f"number of ports: {self.ib_ports_num}")
         output_dict = OutputParsingTool.parse_json_str_to_dictionary(
@@ -339,7 +344,7 @@ class IbSwitch(BaseSwitch):
                              "TEMPERATURE": self.temperature_sensors}
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
-        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
+        # DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):

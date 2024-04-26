@@ -3,13 +3,9 @@ import time
 from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
 
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
-from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
@@ -97,6 +93,9 @@ class BaseDevice(ABC):
     @abstractmethod
     def get_ib_ports_num(self):
         pass
+
+    def get_default_password_by_release_name(self, release_name: str):
+        return self.default_password
 
     def verify_databases(self, dut_engine):
         """

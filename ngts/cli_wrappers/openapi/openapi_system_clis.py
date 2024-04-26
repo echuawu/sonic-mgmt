@@ -161,7 +161,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, "/system/log", params)
 
     @staticmethod
-    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True):
+    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True, recovery_engine=None):
         logging.info("Running action: rotate system log on dut using OpenApi")
         parameters_dict = {}
         if "force" in op_param:
@@ -186,7 +186,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
         if should_wait_till_system_ready:
-            device.wait_for_os_to_become_functional(engine).verify_result()
+            device.wait_for_os_to_become_functional(recovery_engine or engine).verify_result()
         return result
 
     @staticmethod
