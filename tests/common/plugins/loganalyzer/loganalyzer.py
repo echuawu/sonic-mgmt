@@ -9,7 +9,7 @@ from . import system_msg_handler
 
 from .system_msg_handler import AnsibleLogAnalyzer as ansible_loganalyzer
 from os.path import join, split
-from .bug_handler_helper import log_analyzer_bug_handler
+from .bug_handler_helper import log_analyzer_bug_handler, skip_loganalyzer_bug_handler
 
 ANSIBLE_LOGANALYZER_MODULE = system_msg_handler.__file__.replace(r".pyc", ".py")
 COMMON_MATCH = join(split(__file__)[0], "loganalyzer_common_match.txt")
@@ -410,11 +410,14 @@ class LogAnalyzer:
         if fail:
             self._verify_log(analyzer_summary)
         else:
-            self._post_err_msg_handler()
+            self._post_err_msg_handler(analyzer_summary)
             return analyzer_summary
 
-    def _post_err_msg_handler(self):
-        log_analyzer_bug_handler(self.ansible_host, self.request)
+    def _post_err_msg_handler(self, analyzer_summary):
+        if skip_loganalyzer_bug_handler(self.ansible_host, self.request):
+            self._verify_log(analyzer_summary)
+        else:
+            log_analyzer_bug_handler(self.ansible_host, self.request)
 
     def save_extracted_log(self, dest):
         """

@@ -139,77 +139,91 @@ def create_result_dir(testbed, session_id, suffix_path_name):
     return folder_path
 
 
+def skip_loganalyzer_bug_handler(duthost, request):
+    """
+    return True if the bug handler will be skipped.
+    """
+    if not request:
+        logger.warning("Skip the loganalyzer bug handler, To run the it, 'request' is needed when create LogAnalyzer")
+        return True
+    if "rep_setup" in request.node.__dict__ and request.node.rep_setup.failed:
+        logger.warning("Skip the loganalyzer bug handler: the test failed in the fixture setup, "
+                       "no need to run the bug handler")
+        return True
+    if "rep_call" in request.node.__dict__ and request.node.rep_call.failed:
+        logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
+        return True
+    log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
+    if log_analyzer_handler_info['branch'] in BugHandlerConst.BUG_HANDLER_SKIP_BRNACH:
+        logger.warning(f"Skip the loganalyzer bug handler for branch: {log_analyzer_handler_info['branch']}")
+        return True
+
+    bug_handler_actions = get_bug_handler_actions(request)
+    if not is_log_analyzer_bug_handler_enabled(bug_handler_actions):
+        logger.warning("Skip the loganalyzer bug handler since it is not enabled")
+        return True
+
+    return False
+
+
 def log_analyzer_bug_handler(duthost, request):
     """
     If the run_log_analyzer_bug_handler is True, run this function to handle the err msg detected in the loganalyzer
     """
-    if not request:
-        logger.warning("Skip the loganalyzer bug handler, To run the it, 'request' is needed when create LogAnalyzer")
-        return
-    if "rep_setup" in request.node.__dict__ and request.node.rep_setup.failed:
-        logger.warning("Skip the loganalyzer bug handler: the test failed in the fixture setup, "
-                       "no need to run the bug handler")
-        return
-    if "rep_call" in request.node.__dict__ and request.node.rep_call.failed:
-        logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
-        return
     test_name = request.node.name
+    log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
     bug_handler_actions = get_bug_handler_actions(request)
-    run_log_analyzer_bug_handler = is_log_analyzer_bug_handler_enabled(bug_handler_actions)
 
-    if run_log_analyzer_bug_handler:
-        log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
+    if "allure_server_project_id" in request.config.option:
+        allure_project = request.config.getoption('--allure_server_project_id')
+        allure_report_url = predict_allure_report_link(InfraConst.ALLURE_SERVER_URL, allure_project)
+    else:
+        current_time = str(time.time()).replace('.', '')
+        request.session.config.option.allure_server_project_id = current_time
+        allure_report_url = \
+            f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
 
-        if "allure_server_project_id" in request.config.option:
-            allure_project = request.config.getoption('--allure_server_project_id')
-            allure_report_url = predict_allure_report_link(InfraConst.ALLURE_SERVER_URL, allure_project)
-        else:
-            current_time = str(time.time()).replace('.', '')
-            request.session.config.option.allure_server_project_id = current_time
-            allure_report_url = \
-                f"{InfraConst.ALLURE_SERVER_URL}/allure-docker-service/projects/{current_time}/reports/1/index.html"
+    logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
+    # for community test case, it has --testbed, for canonical test cases, it has --setup_name
+    if "setup_name" in request.config.option:
+        setup_name = request.config.getoption('--setup_name')
+    else:
+        setup_name = request.config.getoption('--testbed')
 
-        logger.info("--------------- Start Log Analyzer Bug Handler ---------------")
-        # for community test case, it has --testbed, for canonical test cases, it has --setup_name
-        if "setup_name" in request.config.option:
-            setup_name = request.config.getoption('--setup_name')
-        else:
-            setup_name = request.config.getoption('--testbed')
+    system_type = duthost.facts['hwsku']
 
-        system_type = duthost.facts['hwsku']
+    bug_handler_dict = {'test_description': request.node.function.__doc__,
+                        'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
+                        'system_type': system_type,
+                        'detected_in_version': log_analyzer_handler_info['version'],
+                        'setup_name': setup_name,
+                        'report_url': allure_report_url}
+    log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
+                                                  log_analyzer_handler_info['branch'], test_name, duthost,
+                                                  bug_handler_dict, setup_name, bug_handler_actions)
+    logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
+    error_msg = ''
+    if log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
+        error_msg += f"There are err msg detected under the {BugHandlerConst.NO_ACTION_MODE} mode:\n"
+        for err_with_no_action in log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
+            bug_id = err_with_no_action[BugHandlerConst.BUG_HANDLER_BUG_ID]
+            err_logs = err_with_no_action[BugHandlerConst.LA_ERROR]
+            if bug_id:
+                error_msg += f"Relative bug is #{bug_id} detected for the err logs: {err_logs} \n"
+            else:
+                error_msg += f"No relative bug detected for the err logs: {err_logs} \n"
 
-        bug_handler_dict = {'test_description': request.node.function.__doc__,
-                            'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
-                            'system_type': system_type,
-                            'detected_in_version': log_analyzer_handler_info['version'],
-                            'setup_name': setup_name,
-                            'report_url': allure_report_url}
-        log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
-                                                      log_analyzer_handler_info['branch'], test_name, duthost,
-                                                      bug_handler_dict, setup_name, bug_handler_actions)
-        logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
-        error_msg = ''
-        if log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
-            error_msg += f"There are err msg detected under the {BugHandlerConst.NO_ACTION_MODE} mode:\n"
-            for err_with_no_action in log_analyzer_res[BugHandlerConst.NO_ACTION_MODE]:
-                bug_id = err_with_no_action[BugHandlerConst.BUG_HANDLER_BUG_ID]
-                err_logs = err_with_no_action[BugHandlerConst.LA_ERROR]
-                if bug_id:
-                    error_msg += f"Relative bug is #{bug_id} detected for the err logs: {err_logs} \n"
-                else:
-                    error_msg += f"No relative bug detected for the err logs: {err_logs} \n"
+    if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
+        created_bug_items = log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]
+        error_msg += f"There are {len(created_bug_items)} new Log Analyzer bugs Created: \n"
+        for i, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):
+            error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
 
-        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
-            created_bug_items = log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]
-            error_msg += f"There are {len(created_bug_items)} new Log Analyzer bugs Created: \n"
-            for i, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):
-                error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
-
-        if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
-            error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
-                                    f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
-        if error_msg:
-            raise Exception(error_msg)
+    if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
+        error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
+                                f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
+    if error_msg:
+        raise Exception(error_msg)
 
 
 def is_log_analyzer_bug_handler_enabled(bug_handler_actions):
