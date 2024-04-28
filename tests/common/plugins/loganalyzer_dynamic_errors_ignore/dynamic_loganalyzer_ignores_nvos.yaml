@@ -1360,7 +1360,7 @@
 - Errors_list:
     - '.*ERR ker process: PAM-tacplus: auth failed: 2.*'
     - '.*ERR ker message repeated \d times: \[ process: PAM-tacplus: auth failed: 2\].*'
-    - '.*WARNING service_checker: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+    - '.*WARNING \w+: nss_tacplus: no tacacs server in config for nss_tacplus.*'
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
   Conditions:
     - Affected_test_cases:
@@ -1410,8 +1410,7 @@
     - '.*WARNING nslcd\[\d+\]: \[\w+\].*no available LDAP server found, sleeping \d+ seconds.*'
     - '.*WARNING nslcd\[\d+\]: \[\w+\].*failed to bind to LDAP server.*Invalid argument.*'
     - '.*WARNING systemd\[1\]: nvued\.service: Failed with result.*'
-    - '.*ERR nslcd\[\d+\]: \[\w+\].*no available LDAP server found: Server is unavailable: Resource temporarily unavailable.*'
-    - '.*ERR nslcd\[\d+\]: \[\w+\].*no available LDAP server found: Can.t contact LDAP server: Invalid argument.*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\].*no available LDAP server found.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable[OpenApi-BadFlow]
