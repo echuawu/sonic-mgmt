@@ -40,57 +40,37 @@ def initialize_cached_variables(session):
     session.config.cache.set(DynamicLaConsts.LA_DYNAMIC_IGNORES_LIST, None)
 
 
-def pytest_runtest_call(item):
-    """
-    Pytest hook which run for each test case and extend loganalyzer ignore list by errors which should be ignored for
-    specific test case
-    :param item: pytest build-in
-    """
-    loganalyzer = item.funcargs['loganalyzer']
-
-    if loganalyzer:
-        extended_ignore_list = []
-
-        dynamic_la_ignore_list = get_ignore_list()
-        for ignore_block in dynamic_la_ignore_list:
-
-            errors_regexp_to_be_ignored_list = ignore_block.get(DynamicLaConsts.ERRORS_LIST)
-            if not errors_regexp_to_be_ignored_list:
-                raise Exception('Errors list not provided for dynamic LA errors ignore. Check YAML file.')
-            conditions_dict = ignore_block.get(DynamicLaConsts.CONDITIONS)
-            if not conditions_dict:
-                raise Exception('LA dynamic errors ignore condition not provided in ignore block: {}.'
-                                'Check YAML file and fix it'.format(ignore_block))
-
-            for condition_dict_entry in conditions_dict:
-                operand = 'and' if is_nested_dict(condition_dict_entry) else 'or'
-                is_error_ignore_required = get_checkers_result(condition_dict_entry, item, operand=operand)
-                if is_error_ignore_required:
-                    extended_ignore_list.extend(errors_regexp_to_be_ignored_list)
-                    # Found match on the first condition block, no need to check others
-                    break
-
-        if extended_ignore_list:
-            logger.info('New dynamic errors ignore will be added: {}'.format(extended_ignore_list))
-            extend_la_ignore_regex(loganalyzer, extended_ignore_list)
-        else:
-            logger.info('No dynamic errors ignore will be added')
+def pytest_runtest_setup(item):
+    extended_ignore_list = get_extended_ignore_list(item)
+    item.session.config.cache.set("extended_ignore_list", extended_ignore_list)
 
 
-def extend_la_ignore_regex(loganalyzer, extended_ignore_list):
-    """
-    Extend LogAnalyzerd ignore regex list
-    :param loganalyzer: loganalyzer obj
-    :param extended_ignore_list: list of ignores which should be added
-    """
-    if isinstance(loganalyzer, dict):
-        # Community LA
-        for host in loganalyzer:
-            loganalyzer[host].ignore_regex.extend(extended_ignore_list)
-    else:
-        # Canonical LA
-        loganalyzer.ignore_regex.extend(extended_ignore_list)
+def pytest_runtest_teardown(item):
+    item.session.config.cache.set("extended_ignore_list", [])
 
+
+def get_extended_ignore_list(item):
+    extended_ignore_list = []
+
+    dynamic_la_ignore_list = get_ignore_list()
+    for ignore_block in dynamic_la_ignore_list:
+
+        errors_regexp_to_be_ignored_list = ignore_block.get(DynamicLaConsts.ERRORS_LIST)
+        if not errors_regexp_to_be_ignored_list:
+            raise Exception('Errors list not provided for dynamic LA errors ignore. Check YAML file.')
+        conditions_dict = ignore_block.get(DynamicLaConsts.CONDITIONS)
+        if not conditions_dict:
+            raise Exception('LA dynamic errors ignore condition not provided in ignore block: {}.'
+                            'Check YAML file and fix it'.format(ignore_block))
+
+        for condition_dict_entry in conditions_dict:
+            operand = 'and' if is_nested_dict(condition_dict_entry) else 'or'
+            is_error_ignore_required = get_checkers_result(condition_dict_entry, item, operand=operand)
+            if is_error_ignore_required:
+                extended_ignore_list.extend(errors_regexp_to_be_ignored_list)
+                # Found match on the first condition block, no need to check others
+                break
+    return extended_ignore_list
 
 @cache(ttl=dt.timedelta(hours=36))
 def get_ignore_list():

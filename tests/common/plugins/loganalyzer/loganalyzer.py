@@ -220,6 +220,11 @@ class LogAnalyzer:
         self.expect_regex = self.ansible_loganalyzer.create_msg_regex([COMMON_EXPECT])[1]
         logging.debug('Loaded common config.')
 
+        if self.request:
+            extended_ignore_list = self.request.session.config.cache.get("extended_ignore_list", [])
+            self.ignore_regex.extend(extended_ignore_list)
+            logging.debug('Loaded extend ignore config.')
+
     def parse_regexp_file(self, src):
         """
         @summary: Get regular expressions defined in src file.
