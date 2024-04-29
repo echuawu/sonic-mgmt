@@ -80,10 +80,12 @@ class SonicSecureBootConsts(SecureBootConsts):
                               "CI_sonic_SPC4_1": "CPLD000330_REV0500"}
 
     SWITCH_RECOVER_TIMEOUT = 300
-    CPLD_BRUNING_RECOVER_TIMEOUT = 1200
+    CPLD_BURNING_RECOVER_TIMEOUT = 1200
     ONIE_TIMEOUT = 120
-    PROD_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/OPN/prod_corrupted_bin.mfa'
-    DEV_CORRUPT_MFA_FILE = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/IPN/dev_corrupted_bin.mfa'
+    PROD_CORRUPT_MFA_PATH = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/OPN/'
+    DEV_CORRUPT_MFA_PATH = '/auto/sw_regression/system/SONIC/MARS/security/secure_boot/corrupt_mfa/IPN/'
+    PROD_CORRUPT_MFA_FILE = 'prod_corrupted_bin'
+    DEV_CORRUPT_MFA_FILE = 'dev_corrupted_bin'
     MFA_FILE_PATH = "/etc/mlnx"
     DEV_CORRUPT_MFA_ERR_MSG = "Rejected authentication"
     PROD_CORRUPT_MFA_ERR_MSG = "Bad parameter"

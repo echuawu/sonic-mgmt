@@ -41,7 +41,7 @@ def backup_original_mfa(engines, mfa_file_name):
         engines.dut.run_cmd(f"sudo mv {backup_mfa_file} {original_mfa_file}")
 
 
-def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type):
+def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type, platform_params):
     """
     This test is to verify Err msg will be returned from the command and Err msg will be logged to the syslog file
     when using the fw upgrade command /usr/bin/mlnx-fw-upgrade.sh to upgrade a corrupt mfa file.
@@ -50,15 +50,20 @@ def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type)
     :param loganalyzer: loganalyzer fixture
     """
     engine = engines.dut
+    platform = platform_params.filtered_platform
+
     if dut_secure_type == "prod":
-        currupt_mfa_err_msg = SonicSecureBootConsts.PROD_CORRUPT_MFA_ERR_MSG
-        corrupt_mfa_file = SonicSecureBootConsts.PROD_CORRUPT_MFA_FILE
+        corrupt_mfa_err_msg = SonicSecureBootConsts.PROD_CORRUPT_MFA_ERR_MSG
+        corrupt_mfa_file = (SonicSecureBootConsts.PROD_CORRUPT_MFA_PATH + SonicSecureBootConsts.PROD_CORRUPT_MFA_FILE +
+                            '_' + platform + '.mfa')
     else:
-        corrupt_mfa_file = SonicSecureBootConsts.DEV_CORRUPT_MFA_FILE
-        currupt_mfa_err_msg = SonicSecureBootConsts.DEV_CORRUPT_MFA_ERR_MSG
+        corrupt_mfa_file = (SonicSecureBootConsts.DEV_CORRUPT_MFA_PATH + SonicSecureBootConsts.DEV_CORRUPT_MFA_FILE +
+                            '_' + platform + '.mfa')
+        corrupt_mfa_err_msg = SonicSecureBootConsts.DEV_CORRUPT_MFA_ERR_MSG
+    logger.info(f"The corrupt mfa file is {corrupt_mfa_file}")
 
     for dut in loganalyzer:
-        loganalyzer[dut].expect_regex.extend([currupt_mfa_err_msg])
+        loganalyzer[dut].expect_regex.extend([corrupt_mfa_err_msg])
 
     with allure.step("Copy the corrupt mfa file to the switch"):
         engine.copy_file(source_file=corrupt_mfa_file, dest_file=mfa_file_name, file_system="/tmp",
@@ -67,5 +72,5 @@ def test_secure_corrupt_fw(engines, mfa_file_name, loganalyzer, dut_secure_type)
 
     fw_upgrade_cmd = "sudo /usr/bin/mlnx-fw-upgrade.sh"
     output = engine.run_cmd(fw_upgrade_cmd)
-    assert currupt_mfa_err_msg in output, \
-        f"The expected err msg: '{currupt_mfa_err_msg}' not shown in the output"
+    assert corrupt_mfa_err_msg in output, \
+        f"The expected err msg: '{corrupt_mfa_err_msg}' not shown in the output"

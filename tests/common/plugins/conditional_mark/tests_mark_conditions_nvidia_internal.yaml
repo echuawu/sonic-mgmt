@@ -1254,12 +1254,6 @@ process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat
     conditions:
       - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
 
-tests/nightly/secure/test_secure_corrupt_fw/test_secure_corrupt_fw.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788777"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3788777 and ('sn5400' in platform)"
-
 tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3803598"

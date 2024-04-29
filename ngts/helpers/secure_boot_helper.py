@@ -550,7 +550,7 @@ class SonicSecureBootHelper(SecureBootHelper):
             serial_engine.run_cmd(
                 f'sudo fwutil install chassis component {cpld} fw {url} -y',
                 SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[cpld],
-                SonicSecureBootConsts.CPLD_BRUNING_RECOVER_TIMEOUT)
+                SonicSecureBootConsts.CPLD_BURNING_RECOVER_TIMEOUT)
         with allure.step("Power cycle after CPLD installation"):
             self.cli_objects.dut.general.remote_reboot(topology_obj)
         with allure.step("Check the CPLD version is restored to the latest one"):
