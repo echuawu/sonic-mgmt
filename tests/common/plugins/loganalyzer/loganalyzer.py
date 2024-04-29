@@ -223,7 +223,7 @@ class LogAnalyzer:
         if self.request:
             extended_ignore_list = self.request.session.config.cache.get("extended_ignore_list", [])
             self.ignore_regex.extend(extended_ignore_list)
-            logging.debug('Loaded extend ignore config.')
+            logging.info(f"Loaded extend ignore config: {extended_ignore_list}")
 
     def parse_regexp_file(self, src):
         """
