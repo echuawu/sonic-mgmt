@@ -1,11 +1,13 @@
 import pytest
 
 from ngts.nvos_constants.constants_nvos import SystemConsts, IpConsts
+from ngts.nvos_tools.infra.IpTool import IpTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import *
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
 
@@ -51,6 +53,7 @@ def test_mgmt_show_interface_link(engines):
             mgmt_port.interface.link.show()).get_returned_value()
 
         validate_link_fields(output_dictionary)
+        verify_mac_address(IpTool.get_mac_address(engines.dut, mgmt_port.name), output_dictionary)
 
 
 @pytest.mark.ib
@@ -101,7 +104,7 @@ def check_dhcp(mgmt_port, ipv4=True):
     if ipv4:
         with allure.step('Run show command on dhcp-client (ipv4) of eth0 mgmt port'):
             output_json = mgmt_port.interface.ip.dhcp_client.show()
-    else:   # ipv6
+    else:  # ipv6
         with allure.step('Run show command on dhcp-client (ipv6) of eth0 mgmt port'):
             output_json = mgmt_port.interface.ip.dhcp_client6.show()
 
@@ -133,8 +136,8 @@ def test_show_interface_ip_dhcp(engines):
     """
     mgmt_port = MgmtPort('eth0')
 
-    check_dhcp(mgmt_port=mgmt_port, ipv4=True)      # test ipv4
-    check_dhcp(mgmt_port=mgmt_port, ipv4=False)     # same test on ipv6
+    check_dhcp(mgmt_port=mgmt_port, ipv4=True)  # test ipv4
+    check_dhcp(mgmt_port=mgmt_port, ipv4=False)  # same test on ipv6
 
 
 def validate_interface_fields(output_dictionary):
@@ -183,6 +186,14 @@ def validate_ip_fields(output_dictionary):
                           IpConsts.ARP_TIMEOUT,
                           IpConsts.AUTOCONF]
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+
+def verify_mac_address(expected_mac: str,
+                       output_dictionary: dict):
+    with allure.step('Verity that MAC address from nv show interface eth0 link matches expected value'):
+
+        mac_address = output_dictionary[IbInterfaceConsts.LINK_MAC]
+        assert mac_address == expected_mac, f"MAC address mismatch. Expected: {expected_mac}, Actual: {mac_address}"
 
 
 # ------------ Open API tests -----------------
