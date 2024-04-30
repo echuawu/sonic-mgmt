@@ -2,7 +2,7 @@ import logging
 import os
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
+from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts, SystemConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
@@ -162,6 +162,7 @@ class IbSwitch(BaseSwitch):
     def _init_constants(self):
         super()._init_constants()
         self.health_monitor_config_file_path = ""
+        self.platform_file_path = ""
         self.ib_ports_num = 64
         self.primary_asic = f"{IbConsts.DEVICE_ASIC_PREFIX}1"
         self.primary_swid = f"{IbConsts.SWID}0"
@@ -363,7 +364,7 @@ class GorillaSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM2
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
-
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
         self.show_platform_output.update({
             "product-name": "MQM9700",
             "asic-model": self.asic_type,
@@ -446,6 +447,7 @@ class BlackMambaSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_qm8790-r0")
 
         self.voltage_sensors = ["PMIC-1+12V_VDD_ASIC1+Vol+In+1", "PMIC-1+ASIC1_VDD+Vol+Out+1",
                                 "PMIC-2+12V_HVDD_DVDD_ASIC1+Vol+In+1", "PMIC-2+ASIC1_DVDD_PL0+Vol+Out+2",
@@ -510,6 +512,7 @@ class CrocodileSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-nvidia_qm3400-r0")
         self.stats_fan_header_num_of_lines = 23
         self.stats_power_header_num_of_lines = 17
         self.stats_temperature_header_num_of_lines = 61
@@ -554,6 +557,7 @@ class NvLinkSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
 
 # -------------------------- Juliet Switch ----------------------------
@@ -594,6 +598,7 @@ class CaimanSwitch(NvLinkSwitch):
         self.core_count = 4
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
 
 # -------------------------- Marlin Switch ----------------------------
