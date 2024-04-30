@@ -44,7 +44,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
         bug_handler_dumps_results = []
         hostname = duthost.hostname
         log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
-        if log_errors_dir_path.exists():
+        try:
             session_id = os.environ.get(InfraConst.ENV_SESSION_ID)
             if not session_id:
                 timestamp = time.strftime("%Y-%m-%d-%H:%M:%S", time.gmtime())
@@ -56,7 +56,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             bug_handler_create_action = bug_handler_action.get("create", False)
             bug_handler_update_action = bug_handler_action.get("update", False)
             bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
-
+            logger.info(f"Run bug handler in no action mode: {bug_handler_no_action}")
             if bug_handler_no_action:
                 tar_file_path = None
             else:
@@ -65,6 +65,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             for log_errors_file_path in log_errors_dir_path.iterdir():
                 with log_errors_file_path.open("r") as log_errors_file:
                     data = json.load(log_errors_file)
+                logger.info(f"Handling the err msg: {data}")
                 error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
                 log_errors_file_path.unlink()
 
@@ -83,7 +84,10 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
                                                                   BugHandlerConst.BUG_HANDLER_SCRIPT,
                                                                   bug_handler_no_action, bug_handler_action))
                             bug_handler_dumps_results.append(error_dict)
-
+        except Exception as err:
+            logger.error("Bug handler failed")
+            raise err
+        finally:
             clear_files(session_id)
         return summarize_la_bug_handler(bug_handler_dumps_results)
 
@@ -153,6 +157,13 @@ def skip_loganalyzer_bug_handler(duthost, request):
     if "rep_call" in request.node.__dict__ and request.node.rep_call.failed:
         logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
         return True
+
+    hostname = duthost.hostname
+    log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
+    if not (log_errors_dir_path.exists() and len(list(log_errors_dir_path.iterdir())) > 0):
+        logger.warning(f"Skip the loganalyzer bug handler: No err msg detected")
+        return True
+
     log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
     if log_analyzer_handler_info['branch'] in BugHandlerConst.BUG_HANDLER_SKIP_BRNACH:
         logger.warning(f"Skip the loganalyzer bug handler for branch: {log_analyzer_handler_info['branch']}")
