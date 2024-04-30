@@ -83,12 +83,6 @@ def run_step(name) {
             set_bat_skip(name, SONIC_CANONICAL_BAT)
         }
 
-        //If no change in DPU related files, skip BF3 BAT
-        if (env.CHANGED_COMPONENTS && (!env.CHANGED_COMPONENTS.contains("SONIC_COMMUNITY_BF3_BAT"))){
-            print "'SONIC Community BF3' BAT is skipped"
-            set_bat_skip(name, ["BF3"])
-        }
-
         //If only yaml changed, only run SONIC SIMX SPC BAT
         if (env.CHANGED_COMPONENTS && env.CHANGED_COMPONENTS.contains("COMMON_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("SONIC_BAT_ONLY")
                 && !env.CHANGED_COMPONENTS.contains("NVOS_BAT_ONLY") && !env.CHANGED_COMPONENTS.contains("NoMatch")){
