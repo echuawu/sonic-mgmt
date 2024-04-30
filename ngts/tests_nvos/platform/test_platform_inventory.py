@@ -32,7 +32,7 @@ def test_show_platform_inventory(engines, devices, test_api):
         output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
         output = OutputParsingTool.parse_show_output_to_dict(
             platform.inventory.show(output_format=output_format),
-            output_format=output_format, field_name_dict={'Hw version': 'hardware-version'}).get_returned_value()
+            output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
 
     with allure.step("Checking all inventory items exist"):
         ValidationTool.validate_set_equal(output.keys(), devices.dut.platform_inventory_items).verify_result()
@@ -88,7 +88,7 @@ def test_show_platform_inventory_fan(engines, devices, test_api):
         output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
         output = OutputParsingTool.parse_show_output_to_dict(
             platform.inventory.show(random_fan, output_format=output_format),
-            output_format=output_format, field_name_dict={'Hw version': 'hardware-version'}).get_returned_value()
+            output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
 
     with allure.step("Asserting values"):
         _test_show_platform_inventory_fan(output, devices.dut)
@@ -110,7 +110,7 @@ def test_show_platform_inventory_psu(engines, devices, test_api):
         output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
         output = OutputParsingTool.parse_show_output_to_dict(
             platform.inventory.show(random_psu, output_format=output_format),
-            output_format=output_format, field_name_dict={'Hw version': 'hardware-version'}).get_returned_value()
+            output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
 
     with allure.step("Asserting values"):
         _test_show_platform_inventory_psu(output, devices.dut)
@@ -130,7 +130,7 @@ def test_show_platform_inventory_switch(engines, devices, test_api):
         output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
         output = OutputParsingTool.parse_show_output_to_dict(
             platform.inventory.show(PlatformConsts.HW_COMP_SWITCH, output_format=output_format),
-            output_format=output_format, field_name_dict={'Hw version': 'hardware-version'}).get_returned_value()
+            output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
 
     with allure.step("Asserting values"):
         _test_show_platform_inventory_switch(output, devices.dut)
