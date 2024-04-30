@@ -278,6 +278,14 @@ tests/nightly/secure/test_secure_boot.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3824755"
     conditions:
       - "https://redmine.mellanox.com/issues/3824755"
+
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3879251"
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn2700-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn3700-r0' in platform"
 ########################## NGTS IGNORE END ##########################
 
 
