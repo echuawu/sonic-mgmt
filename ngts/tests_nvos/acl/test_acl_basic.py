@@ -240,6 +240,7 @@ def test_acl_ipv6(engines, test_api):
     with allure.step("Change the rule- use ipv6 prefix"):
         config_rule(engines.dut, acl_id_1_obj, rule_id,
                     {AclConsts.ACTION: AclConsts.DENY, AclConsts.SOURCE_IP: ipv6_prefix_or_netmask})
+        time.sleep(2)
         rule_packets_1_before = get_rule_packets(mgmt_port, acl_id_1)
         ping_packet = IPv6(dst=switch_ipv6_addr, src=ipv6_addr) / ICMPv6EchoRequest()
         send(ping_packet)
@@ -867,6 +868,7 @@ def test_acl_recent_list(engines, test_api):
 
     with allure.step("unset the second rule and validate packets received since it should delete the ip from the list"):
         acl_obj.rule.rule_id[update_rule_id].unset(apply=True)
+        time.sleep(2)
         amount_of_packet = hit_count
         output = engines.sonic_mgmt.run_cmd_set(['ping {} -c {} -i 0.1'.format(dest_addr, amount_of_packet), "\x03"])
         rule_packets_after3 = get_rule_packets(mgmt_port, acl_id)
@@ -1036,10 +1038,10 @@ def get_rule_packets(mgmt_port, acl_id, rule_id=None, rule_direction=AclConsts.I
     output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
     res = {}
     if rule_id:
-        res[rule_id] = output[AclConsts.STATISTICS][rule_id][rule_direction]["packet"]
+        res[rule_id] = int(output[AclConsts.STATISTICS][rule_id][rule_direction]["packet"])
     else:
         for rule_id, rule_obj in output[AclConsts.STATISTICS].items():
-            res[rule_id] = rule_obj[rule_direction]["packet"]
+            res[rule_id] = int(rule_obj[rule_direction]["packet"])
     return res
 
 
