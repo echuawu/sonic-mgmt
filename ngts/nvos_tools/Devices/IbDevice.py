@@ -369,10 +369,10 @@ class GorillaSwitch(IbSwitch):
             "product-name": "MQM9700",
             "asic-model": self.asic_type,
         })
-        self.current_bios_version_name = "0ACQF_06.01.003"
-        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
-        self.previous_bios_version_name = "0ACQF_06.01.002"
-        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
+        self.current_bios_version_name = "0ACQF_06.01.005"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.003"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
         self.current_cpld_version = BaseSwitch.CpldImageConsts(
             burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
             refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
