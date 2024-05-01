@@ -1106,6 +1106,7 @@ def dest_ip_test(engines, mgmt_port, acl_type, acl_id, dest_ip_list, ping_dest):
         acl_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id, acl_type, rule_id,
                                                              rule_configuration_dict, mgmt_port, AclConsts.OUTBOUND,
                                                              AclConsts.CONTROL_PLANE, acl_obj=acl_obj)
+        time.sleep(2)
         validate_counters_after_traffic(engines.dut, AclConsts.OUTBOUND, mgmt_port, acl_id, rule_id, ping_dest=ping_dest)
         rule_id = str(int(rule_id) - 1)
 
