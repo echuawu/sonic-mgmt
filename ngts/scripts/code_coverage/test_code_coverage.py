@@ -405,8 +405,8 @@ def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, conta
     docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
 
     flags = f'--json-pretty -r {SharedConsts.GCOV_DIR} -o {container_gcov_json_file}'
-    additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions ' \
-                       '--gcov-ignore-parse-errors --gcov-ignore-errors=source_not_found'
+    additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions '
+
     for path in NvosConsts.NVOS_EXCLUDE_PATHS:
         additional_flags += f' --exclude-directories {path}'
 

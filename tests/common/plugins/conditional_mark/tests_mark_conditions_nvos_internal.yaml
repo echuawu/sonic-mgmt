@@ -277,4 +277,8 @@ tests_nvos/checklist/test_bios_update.py::test_bios_upgrade:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3848672"
     conditions:
       - https://redmine.mellanox.com/issues/3848672
+
+tests_nvos/system/test_system_image.py::test_install_multiple_images:
+  skip:
+    reason: "Need to fix the test - currently installs the same image twice"
 ########################## NVOS IGNORE END ##########################
