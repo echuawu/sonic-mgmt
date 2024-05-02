@@ -3,6 +3,7 @@ import allure
 
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts  # noqa F401
 from .util import parse_sfp_eeprom_infos, check_sfp_eeprom_info, is_support_dom, get_pci_cr0_path, get_pciconf0_path
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 pytestmark = [
     pytest.mark.asic('mellanox', 'nvidia-bluefield'),
@@ -14,7 +15,7 @@ SHOW_EEPOMR_CMDS = ["show interface transceiver eeprom -d",
 
 
 @pytest.fixture(scope="module", autouse=True)
-def sfp_test_intfs_to_dom_map(duthosts, rand_one_dut_hostname, conn_graph_facts, xcvr_skip_list):  # noqa F811
+def sfp_test_intfs_to_dom_map(duthosts, rand_one_dut_hostname, conn_graph_facts, xcvr_skip_list, get_sw_control_ports):  # noqa F811
     '''
     This fixture is to get map sfp test intfs to dom
     '''
@@ -27,6 +28,10 @@ def sfp_test_intfs_to_dom_map(duthosts, rand_one_dut_hostname, conn_graph_facts,
 
     sfp_test_intf_list = list(
         conn_graph_facts["device_conn"][duthost.hostname].keys())
+
+    if get_sw_control_ports and is_redmine_issue_active([3669629]):
+        # Exclude get_sw_control_ports from sfp_test_intf_list
+        sfp_test_intf_list = [port for port in sfp_test_intf_list if port not in get_sw_control_ports]
 
     intf_with_dom_dict = {}
 
@@ -54,10 +59,11 @@ def sfp_test_intfs_to_dom_map(duthosts, rand_one_dut_hostname, conn_graph_facts,
 
 
 @pytest.mark.parametrize("show_eeprom_cmd", SHOW_EEPOMR_CMDS)
-def test_check_sfp_eeprom_with_option_dom(duthosts, rand_one_dut_hostname, show_eeprom_cmd, sfp_test_intfs_to_dom_map):
+def test_check_sfp_eeprom_with_option_dom(duthosts, rand_one_dut_hostname, show_eeprom_cmd, sfp_test_intfs_to_dom_map,
+                                          get_sw_control_ports):
     """This test case is to check result of  transceiver eeprom with option -d is correct or not for every interface .
     It will do below checks for every available interface
-        1. Check if all expected keys exist in the the result
+        1. Check if all expected keys exist in the result
         2. When cable support dom, check the corresponding keys related to monitor exist,
            and the the corresponding value has correct format
     """

@@ -26,12 +26,12 @@ class TestIndependentModuleFunctional:
     @pytest.fixture(autouse=True)
     def setup(self, duthosts, enum_rand_one_per_hwsku_frontend_hostname, enum_frontend_asic_index, conn_graph_facts):
         self.duthost = duthosts[enum_rand_one_per_hwsku_frontend_hostname]
+        # Check IM enabled in sai.profile. If not - whole test suite will be skipped
+        if not check_im_sai_attribute_value(self.duthost):
+            pytest.skip("SW control feature is not enabled in sai.profile")
         self.enum_frontend_asic_index = enum_frontend_asic_index
         self.conn_graph_facts = conn_graph_facts
         self.im_port_list = get_ports_supporting_im(self.duthost, self.conn_graph_facts)
-
-        # Check IM enabled in sai.profile. If not - whole test suite will be skipped
-        check_im_sai_attribute_value(self.duthost)
 
     def test_im_check_show_interfaces_transceiver_eeprom(self):
         """

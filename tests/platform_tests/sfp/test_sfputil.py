@@ -22,6 +22,8 @@ cmd_sfp_reset = "sudo sfputil reset"
 cmd_sfp_show_lpmode = "sudo sfputil show lpmode"
 cmd_sfp_set_lpmode = "sudo sfputil lpmode"
 cmd_sfp_eeprom_hexdump = "sudo sfputil show eeprom-hexdump"
+cmd_int_shutdown = "sudo config interface shutdown {IFACE_NAME}"
+cmd_int_startup = "sudo config interface startup {IFACE_NAME}"
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +121,7 @@ def test_check_sfputil_eeprom_hexdump(duthosts, enum_rand_one_per_hwsku_frontend
 
 def test_check_sfputil_reset(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
                              enum_frontend_asic_index, conn_graph_facts,
-                             tbinfo, xcvr_skip_list, shutdown_ebgp, stop_xcvrd):    # noqa F811
+                             tbinfo, xcvr_skip_list, shutdown_ebgp, stop_xcvrd, get_sw_control_ports):    # noqa F811
     """
     @summary: Check SFP presence using 'sfputil show presence'
     """
@@ -128,43 +130,53 @@ def test_check_sfputil_reset(duthosts, enum_rand_one_per_hwsku_frontend_hostname
     ans_host = duthost
     portmap, dev_conn = get_dev_conn(duthost, conn_graph_facts, enum_frontend_asic_index)
     tested_physical_ports = set()
-    for intf in dev_conn:
-        if intf not in xcvr_skip_list[duthost.hostname]:
-            phy_intf = portmap[intf][0]
-            if phy_intf in tested_physical_ports:
-                logging.info(
-                    "skip tested SFPs {} to avoid repeating operating physical interface {}".format(intf, phy_intf))
-                continue
-            tested_physical_ports.add(phy_intf)
-            logging.info("resetting {} physical interface {}".format(intf, phy_intf))
-            reset_result = duthost.command("{} {}".format(cmd_sfp_reset, intf))
-            assert reset_result["rc"] == 0, "'{} {}' failed".format(cmd_sfp_reset, intf)
-            time.sleep(5)
-    sleep_time = 60
-    if duthost.shell("show interfaces transceiver eeprom | grep 400ZR", module_ignore_errors=True)['rc'] == 0:
-        sleep_time = 90
+    try:
+        for intf in dev_conn:
+            if intf not in xcvr_skip_list[duthost.hostname]:
+                phy_intf = portmap[intf][0]
+                if phy_intf in tested_physical_ports:
+                    logging.info(
+                        "skip tested SFPs {} to avoid repeating operating physical interface {}".format(intf, phy_intf))
+                    continue
+                tested_physical_ports.add(phy_intf)
+                logging.info("resetting {} physical interface {}".format(intf, phy_intf))
+                if get_sw_control_ports and intf in get_sw_control_ports:
+                    # Do interface shutdown
+                    duthost.command(cmd_int_shutdown.format(IFACE_NAME=intf))
+                reset_result = duthost.command("{} {}".format(cmd_sfp_reset, intf))
+                assert reset_result["rc"] == 0, "'{} {}' failed".format(cmd_sfp_reset, intf)
+                time.sleep(5)
+                if get_sw_control_ports and intf in get_sw_control_ports:
+                    # Do interface startup
+                    duthost.command(cmd_int_startup.format(IFACE_NAME=intf))
+        sleep_time = 60
+        if duthost.shell("show interfaces transceiver eeprom | grep 400ZR", module_ignore_errors=True)['rc'] == 0:
+            sleep_time = 90
+        logging.info("Wait some time for SFP to fully recover after reset")
+        time.sleep(sleep_time)
+        logging.info("Check sfp presence again after reset")
+        sfp_presence = duthost.command(cmd_sfp_presence)
+        parsed_presence = parse_output(sfp_presence["stdout_lines"][2:])
+        for intf in dev_conn:
+            if intf not in xcvr_skip_list[duthost.hostname]:
+                assert intf in parsed_presence, "Interface is not in output of '{}'".format(cmd_sfp_presence)
+                assert parsed_presence[intf] == "Present", "Interface presence is not 'Present'"
 
-    logging.info("Wait some time for SFP to fully recover after reset")
-    time.sleep(sleep_time)
-
-    logging.info("Check sfp presence again after reset")
-    sfp_presence = duthost.command(cmd_sfp_presence)
-    parsed_presence = parse_output(sfp_presence["stdout_lines"][2:])
-    for intf in dev_conn:
-        if intf not in xcvr_skip_list[duthost.hostname]:
-            assert intf in parsed_presence, "Interface is not in output of '{}'".format(cmd_sfp_presence)
-            assert parsed_presence[intf] == "Present", "Interface presence is not 'Present'"
-
-    logging.info("Check interface status")
-    mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
-    intf_facts = duthost.interface_facts(up_ports=mg_facts["minigraph_ports"])["ansible_facts"]
-    assert len(intf_facts["ansible_interface_link_down_ports"]) == 0, \
-        "Some interfaces are down: {}".format(intf_facts["ansible_interface_link_down_ports"])
+        logging.info("Check interface status")
+        mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
+        intf_facts = duthost.interface_facts(up_ports=mg_facts["minigraph_ports"])["ansible_facts"]
+        assert len(intf_facts["ansible_interface_link_down_ports"]) == 0, \
+            "Some interfaces are down: {}".format(intf_facts["ansible_interface_link_down_ports"])
+    finally:
+        if get_sw_control_ports:
+            for intf in get_sw_control_ports:
+                # Do interface startup
+                duthost.command(cmd_int_startup.format(IFACE_NAME=intf))
 
 
 def test_check_sfputil_low_power_mode(duthosts, enum_rand_one_per_hwsku_frontend_hostname,
                                       enum_frontend_asic_index, conn_graph_facts,
-                                      tbinfo, xcvr_skip_list, shutdown_ebgp):   # noqa F811
+                                      tbinfo, xcvr_skip_list, shutdown_ebgp, skip_if_sw_control_feature_enabled):   # noqa F811
     """
     @summary: Check SFP low power mode
 

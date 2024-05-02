@@ -139,9 +139,11 @@ def check_im_sai_attribute_value(duthost):
     dut_platfrom = duthost.facts['platform']
     sai_profile_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom, dut_hwsku, SAI_PROFILE_FILE_NAME)
     cmd = duthost.shell('cat {}'.format(sai_profile_path))
-    im_enabled_in_sai = re.search(f"{IM_SAI_ATTRIBUTE_NAME}=(\\d?)", cmd['stdout']).group(1)
-    if im_enabled_in_sai != "1":
-        pytest.skip(f"Skip TC as {IM_SAI_ATTRIBUTE_NAME} not enabled in {SAI_PROFILE_FILE_NAME} file")
+    if IM_SAI_ATTRIBUTE_NAME in cmd['stdout']:
+        im_enabled_in_sai = re.search(f"{IM_SAI_ATTRIBUTE_NAME}=(\\d?)", cmd['stdout']).group(1)
+        if im_enabled_in_sai == '1':
+            return True
+    return False
 
 
 def disable_autoneg_at_ports(duthost, interfaces):
