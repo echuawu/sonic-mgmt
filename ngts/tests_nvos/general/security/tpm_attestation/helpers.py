@@ -80,7 +80,7 @@ def factory_reset_tpm_check(engines=None):
         is_tpm_ready = tpm_tool.is_tpm_attestation_ready()
     if is_tpm_ready:
         with allure.step('pre factory reset - generate tpm quote'):
-            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
+            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
     else:
         logging.info('not performing TPM checks')
     yield
