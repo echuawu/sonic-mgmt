@@ -582,6 +582,12 @@ drop_packets/test_wjh.py::test_loopback_filter:
     conditions:
       - "'x86_64-mlnx_msn' in platform or 'x86_64-nvidia' in platform"
 
+drop_packets/test_wjh.py::test_dst_ip_link_local:
+  skip:
+    reason: "Some mlx platforms does not drop DIP link local packets"
+    conditions:
+      - "'Mellanox' in hwsku"
+
 platform_tests/fwutil/test_fwutil.py:
   skip:
     reason: "Testcase ignored due to branch 202106"
