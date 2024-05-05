@@ -290,7 +290,6 @@ def validate_interface_fields(output_dictionary):
 
 def validate_link_fields(output_dictionary, port_up=True):
     with allure.step('Check that all expected fields under link field exist in the output'):
-        logging.info('Check that all expected fields under link field exist in the output')
         field_to_check = [IbInterfaceConsts.LINK_STATE,
                           IbInterfaceConsts.LINK_IB_SUBNET,
                           IbInterfaceConsts.LINK_SUPPORTED_LANES,
@@ -306,6 +305,8 @@ def validate_link_fields(output_dictionary, port_up=True):
                           IbInterfaceConsts.LINK_SPEED,
                           IbInterfaceConsts.LINK_IB_SPEED,
                           IbInterfaceConsts.LINK_OPERATIONAL_VLS]
+        if port_up:  # this field is shown if the port is up, or if it was up and then manually set to down
+            field_to_check.append(IbInterfaceConsts.LINK_ROUND_TRIP_LATENCY)
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary,
                                                                field_to_check, port_up).verify_result()
         # Will be changed

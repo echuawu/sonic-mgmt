@@ -18,12 +18,10 @@ class Ip(BaseComponent):
 
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/ip')
-        self.source_port = SourcePort(self)
-        self.dest_port = DestPort(self)
         self.ecn = Ecn(self)
         self.udp = UDP(self)
         self.tcp = TCP(self)
-        self.state = BaseComponent(self, path='/state')
+        self.state = BaseComponent(self, path='/connection-state')
         self.recent_list = RecentList(self)
         self.hashlimit = Hashlimit(self)
 
@@ -93,20 +91,24 @@ class UDP(BaseComponent):
 
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/udp')
+        self.source_port = SourcePort(self)
+        self.dest_port = DestPort(self)
 
 
 class TCP(BaseComponent):
 
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/tcp')
+        self.source_port = SourcePort(self)
+        self.dest_port = DestPort(self)
         self.flags = BaseComponent(parent=self, path='/flags')
         self.mask = BaseComponent(self, path='/mask')
 
-    def set_tcpmss(self, tcpmss):
-        return self.set(AclConsts.TCPMSS, tcpmss)
+    def set_mss(self, mss):
+        return self.set(AclConsts.MSS, mss)
 
-    def set_all_tcpmss_except(self, tcpmss):
-        return self.set(AclConsts.ALL_TCPMSS_EXCEPT, tcpmss)
+    def set_all_mss_except(self, mss):
+        return self.set(AclConsts.ALL_MSS_EXCEPT, mss)
 
 
 class Ecn(BaseComponent):
@@ -133,6 +135,9 @@ class RecentList(BaseComponent):
     def set_hit_count(self, hit_count):
         return self.set('hit-count', hit_count)
 
+    def set_action(self, action):
+        return self.set(AclConsts.ACTION, action)
+
 
 class Hashlimit(BaseComponent):
 
@@ -143,7 +148,7 @@ class Hashlimit(BaseComponent):
         return self.set('name', name)
 
     def set_rate_limit(self, rate_limit):
-        return self.set('rate', rate_limit)
+        return self.set('rate-above', rate_limit)
 
     def set_burst(self, burst):
         return self.set('burst', burst)

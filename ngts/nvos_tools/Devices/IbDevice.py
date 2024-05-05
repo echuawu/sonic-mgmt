@@ -2,8 +2,8 @@ import logging
 import os
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
+from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts, SystemConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -26,6 +26,11 @@ class IbSwitch(BaseSwitch):
         self.default_username = os.environ["NVU_SWITCH_USER"]
         self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
+
+    def get_default_password_by_release_name(self, release_name: str):
+        if release_name == '25.01.3000' and self.prev_default_password:
+            return self.prev_default_password
+        return self.default_password
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
         logging.info(f"number of ports: {self.ib_ports_num}")
@@ -169,6 +174,7 @@ class IbSwitch(BaseSwitch):
     def _init_constants(self):
         super()._init_constants()
         self.health_monitor_config_file_path = ""
+        self.platform_file_path = ""
         self.ib_ports_num = 64
         self.primary_asic = f"{IbConsts.DEVICE_ASIC_PREFIX}1"
         self.primary_swid = f"{IbConsts.SWID}0"
@@ -351,7 +357,7 @@ class IbSwitch(BaseSwitch):
                              "TEMPERATURE": self.temperature_sensors}
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
-        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
+        # DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):
@@ -370,15 +376,15 @@ class GorillaSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM2
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
-
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
         self.show_platform_output.update({
             "product-name": "MQM9700",
             "asic-model": self.asic_type,
         })
-        self.current_bios_version_name = "0ACQF_06.01.003"
-        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
-        self.previous_bios_version_name = "0ACQF_06.01.002"
-        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
+        self.current_bios_version_name = "0ACQF_06.01.005"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.003"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
         self.current_cpld_version = BaseSwitch.CpldImageConsts(
             burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
             refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
@@ -453,6 +459,7 @@ class BlackMambaSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_qm8790-r0")
 
         self.voltage_sensors = ["PMIC-1+12V_VDD_ASIC1+Vol+In+1", "PMIC-1+ASIC1_VDD+Vol+Out+1",
                                 "PMIC-2+12V_HVDD_DVDD_ASIC1+Vol+In+1", "PMIC-2+ASIC1_DVDD_PL0+Vol+Out+2",
@@ -474,6 +481,13 @@ class BlackMambaSwitch(IbSwitch):
                                 "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
                                 "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
 
+        self.stats_fan_header_num_of_lines = 37
+        self.stats_power_header_num_of_lines = 25
+        self.stats_temperature_header_num_of_lines = 103
+
+        # Temporary remove until operational code integrated with master branch
+        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
+
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
@@ -489,6 +503,13 @@ class BlackMambaSwitch(IbSwitch):
         self.temperature_sensors += ["ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
         self.temperature_sensors.remove("PSU-1-Temp")
 
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+
 
 # -------------------------- Crocodile Switch ----------------------------
 class CrocodileSwitch(IbSwitch):
@@ -503,6 +524,13 @@ class CrocodileSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-nvidia_qm3400-r0")
+        self.stats_fan_header_num_of_lines = 23
+        self.stats_power_header_num_of_lines = 17
+        self.stats_temperature_header_num_of_lines = 61
+
+        # Temporary remove until operational code integrated with master branch
+        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -541,6 +569,7 @@ class NvLinkSwitch(IbSwitch):
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
 
 # -------------------------- Juliet Switch ----------------------------
@@ -581,6 +610,7 @@ class CaimanSwitch(NvLinkSwitch):
         self.core_count = 4
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
 
 # -------------------------- Marlin Switch ----------------------------

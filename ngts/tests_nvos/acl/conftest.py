@@ -15,4 +15,4 @@ def acl_cleanup(engines):
     yield
     with allure.step("ACL cleanup"):
         Acl().unset()
-        MgmtPort('').interface.unset(apply=True)
+        MgmtPort('').interface.unset(apply=True, ask_for_confirmation=True)

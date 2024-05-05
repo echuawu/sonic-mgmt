@@ -3,13 +3,9 @@ import time
 from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
 
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
-from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
-from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
@@ -101,6 +97,9 @@ class BaseDevice(ABC):
     @abstractmethod
     def get_ib_ports_num(self):
         pass
+
+    def get_default_password_by_release_name(self, release_name: str):
+        return self.default_password
 
     def verify_databases(self, dut_engine):
         """
@@ -269,8 +268,8 @@ class BaseSwitch(BaseDevice):
             "manufacturer": "Nvidia",
             "product-name": "",     # These fields need to be updated in subclasses.
             "cpu": None,            # `None` means we expect any string not in ['', 'N/A'].
-            "memory": ExpectedString.number_and_string('kB', range_min=7000000),  # Expects "x kB" where x > 7000000
-            "disk-size": ExpectedString.number_and_string('G', range_min=14.0),
+            "memory": ExpectedString.number_and_string('GB', range_min=6),  # Expects "x GB" where x > 6
+            "disk-size": ExpectedString.number_and_string('GB', range_min=14.0),
             "port-layout": None,
             "part-number": None,
             "serial-number": None,

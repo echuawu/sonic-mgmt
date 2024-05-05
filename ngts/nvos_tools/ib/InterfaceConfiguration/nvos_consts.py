@@ -66,6 +66,7 @@ class IbInterfaceConsts:
     LINK_STATS_OUT_WAIT = "out-wait"
     LINK_BREAKOUT_NDR = "2x-ndr"
     LINK_BREAKOUT_HDR = "2x-hdr"
+    LINK_ROUND_TRIP_LATENCY = "round-trip-latency"
     PRIMARY_ASIC = "primary-asic"
     IP_VRF = "vrf"
     IP_ADDRESS = "address"

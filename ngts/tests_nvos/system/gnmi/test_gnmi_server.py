@@ -1,24 +1,23 @@
 import logging
-import pytest
-import re
-import time
-import subprocess
 import os
+import re
 import signal
+import subprocess
+import time
 
+import pytest
 from retry import retry
-from ngts.nvos_tools.system.System import System
-from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_constants.constants_nvos import ApiType
-from ngts.tools.test_utils.allure_utils import step as allure_step
-from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts
-from ngts.nvos_tools.infra.Tools import Tools
-from ngts.constants.constants import GnmiConsts
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from ngts.constants.constants import GnmiConsts
+from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.Tools import Tools
+from ngts.nvos_tools.system.System import System
+from ngts.tools.test_utils.allure_utils import step as allure_step
 
 logger = logging.getLogger()
 
@@ -115,7 +114,8 @@ def test_simulate_gnmi_server_failure(test_api, engines):
 
     try:
         with allure_step('Simulate gnmi server failure'):
-            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "disabled")
+            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server",
+                                                 "auto_restart", "disabled")
             engines.dut.run_cmd("docker stop gnmi-server")
             validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
                                gnmi_is_running=GnmiConsts.GNMI_IS_NOT_RUNNING)
@@ -127,7 +127,8 @@ def test_simulate_gnmi_server_failure(test_api, engines):
                         f"after the gnmi-server failure")
     finally:
         with allure_step('re-enable gnmi server'):
-            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server", "auto_restart", "enabled")
+            Tools.DatabaseTool.sonic_db_cli_hset(engines.dut, '', DatabaseConst.CONFIG_DB_NAME, "FEATURE|gnmi-server",
+                                                 "auto_restart", "enabled")
             engines.dut.run_cmd("docker start gnmi-server")
             gnmi_server_obj.disable_gnmi_server()
             gnmi_server_obj.enable_gnmi_server()
@@ -256,7 +257,9 @@ def test_gnmi_performance(engines, devices):
 
     with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
         for engine_id in range(num_engines):
-            threads.append(run_gnmi_client_in_the_background(engines.dut.ip, f"interfaces/interface[name={selected_port.name}]/state/description", devices.dut))
+            threads.append(run_gnmi_client_in_the_background(engines.dut.ip,
+                                                             f"interfaces/interface[name={selected_port.name}]/state/description",
+                                                             devices.dut))
 
     with allure_step("validate memory and CPU utilization"):
         validate_memory_and_cpu_utilization()
@@ -299,6 +302,15 @@ def test_gnmi_mapping_table(engines, devices):
         validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list)
 
 
+@pytest.mark.system
+@pytest.mark.gnmi
+def test_gnmi_platform_general_components(engines, devices):
+    with allure_step("Create gnmi disk info mapping"):
+        gnmi_list = create_platform_general_commands_list()
+    with allure_step("Validate disk and ram fields"):
+        validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, allowed_range_in_bytes=20)
+
+
 # ------------ test functions -----------------
 def validate_memory_and_cpu_utilization():
     system = System()
@@ -319,7 +331,8 @@ def run_gnmi_client_in_the_background(target_ip, xpath, device):
               f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
               f"-u {device.default_username} -p {device.default_password} --format flat"
     # Use the subprocess.Popen function to run the command in the background
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               preexec_fn=os.setsid)
     return process
 
 
@@ -389,7 +402,8 @@ def validate_gnmi_disabled_and_not_running(gnmi_server_obj, engines):
                        gnmi_is_running=GnmiConsts.GNMI_IS_NOT_RUNNING)
 
 
-def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_port=GnmiConsts.GNMI_DEFAULT_PORT, mode=''):
+def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_port=GnmiConsts.GNMI_DEFAULT_PORT,
+                                     mode=''):
     with allure_step("run gnmi-client and parse output"):
         sonic_mgmt_engine = engines.sonic_mgmt
         prefix_and_path = xpath.rsplit("/", 1)
@@ -399,7 +413,10 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
               f"-p {devices.dut.default_password} {mode_flag} --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         if "poll" == mode:
-            gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'], patterns_list=["select target to poll:", "select subscription to poll:", "failed selecting target to poll:"])
+            gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'],
+                                                               patterns_list=["select target to poll:",
+                                                                              "select subscription to poll:",
+                                                                              "failed selecting target to poll:"])
             gnmi_client_output = re.findall(f"{re.escape(xpath)}:\\s+\\w+", gnmi_client_output)[0]
         elif "once" == mode:
             gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
@@ -448,7 +465,8 @@ def validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue):
         assert GnmiConsts.GNMI_DOCKER not in list(health_issues.keys()), error_msg
 
 
-def create_gnmi_and_redis_cmd_dict(redis_cmd_db_num, redis_cmd_table, redis_cmd_key, xpath_gnmi_cmd, comparison_dict=None):
+def create_gnmi_and_redis_cmd_dict(redis_cmd_db_num, redis_cmd_table, redis_cmd_key, xpath_gnmi_cmd,
+                                   comparison_dict=None):
     gnmi_cmd_dict = {GnmiConsts.REDIS_CMD_DB_NAME: DatabaseConst.REDIS_DB_NUM_TO_NAME[redis_cmd_db_num],
                      GnmiConsts.REDIS_CMD_TABLE_NAME: redis_cmd_table,
                      GnmiConsts.REDIS_CMD_PARAM: redis_cmd_key,
@@ -484,6 +502,22 @@ def create_interface_state_commands_list(port_name, infiniband_name):
                  create_gnmi_and_redis_cmd_dict(4, f"IB_PORT|{infiniband_name}", "admin_status",
                                                 state_xpath.format(port_name=port_name, field="enabled"),
                                                 comparison_dict={"up": "true", "down": "false"})]
+    return gnmi_list
+
+
+def create_platform_general_commands_list():
+    usage_name = "USAGE"
+    state_xpath = "components/platform-general/{field}"
+    gnmi_list = [
+        create_gnmi_and_redis_cmd_dict(6, f"DISK_INFO|{usage_name}", "disk_total_size",
+                                       state_xpath.format(field="disk-total-size")),
+        create_gnmi_and_redis_cmd_dict(6, f"DISK_INFO|{usage_name}", "disk_usage",
+                                       state_xpath.format(field="disk-used")),
+        create_gnmi_and_redis_cmd_dict(6, f"RAM_INFO|{usage_name}", "memory_total_size",
+                                       state_xpath.format(field="memory-total-size")),
+        create_gnmi_and_redis_cmd_dict(6, f"RAM_INFO|{usage_name}", "memory_usage",
+                                       state_xpath.format(field="memory-used")),
+    ]
     return gnmi_list
 
 
@@ -544,11 +578,15 @@ def create_gnmi_infiniband_list(port_name, port_oid, infiniband_name):
                                                                  "5": "1X_4X",
                                                                  "6": "2X_4X",
                                                                  "7": "1X_2X_4X"}),
-                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "mtu_max", state_xpath.format(port_name=port_name, field="max-supported-MTUs")),
-                 create_gnmi_and_redis_cmd_dict(2, f"COUNTERS:{port_oid}", "SAI_PORT_STAT_INFINIBAND_MTU_OPER", state_xpath.format(port_name=port_name, field="mtu")),
-                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "ib_subnet", state_xpath.format(port_name=port_name, field="ib-Subnet"),
+                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "mtu_max",
+                                                state_xpath.format(port_name=port_name, field="max-supported-MTUs")),
+                 create_gnmi_and_redis_cmd_dict(2, f"COUNTERS:{port_oid}", "SAI_PORT_STAT_INFINIBAND_MTU_OPER",
+                                                state_xpath.format(port_name=port_name, field="mtu")),
+                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "ib_subnet",
+                                                state_xpath.format(port_name=port_name, field="ib-Subnet"),
                                                 comparison_dict={"0": "infiniband-default", "1": "infiniband-1"}),
-                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "vl_admin", state_xpath.format(port_name=port_name, field="vl-capabilities"),
+                 create_gnmi_and_redis_cmd_dict(6, f"IB_PORT_TABLE|{infiniband_name}", "vl_admin",
+                                                state_xpath.format(port_name=port_name, field="vl-capabilities"),
                                                 comparison_dict={"1": "VL0",
                                                                  "2": "VL0-VL1",
                                                                  "3": "VL0-VL2",
@@ -561,7 +599,8 @@ def create_gnmi_infiniband_list(port_name, port_oid, infiniband_name):
     return gnmi_list
 
 
-def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list):
+@retry(AssertionError, tries=3, delay=10)
+def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, allowed_range_in_bytes=None):
     sonic_mgmt_engine = engines.sonic_mgmt
     for command in gnmi_list:
         prefix_and_path = command[GnmiConsts.XPATH_KEY].rsplit("/", 1)
@@ -575,12 +614,16 @@ def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list):
                                                             db_name=command[GnmiConsts.REDIS_CMD_DB_NAME],
                                                             db_config=f"\"{command[GnmiConsts.REDIS_CMD_TABLE_NAME]}\"",
                                                             param=command[GnmiConsts.REDIS_CMD_PARAM])
-        # redis_output = engines.dut.run_cmd(command[GnmiConsts.REDIS_CMD_KEY]).replace("\"", "")
         if ',' in redis_output:
             redis_output = str(sorted(redis_output.split(',')))
             gnmi_client_output = str(sorted(gnmi_client_output.split(',')))
         if command[GnmiConsts.COMPARISON_KEY]:
             assert gnmi_client_output.lower() == command[GnmiConsts.COMPARISON_KEY][redis_output].lower()
+        elif allowed_range_in_bytes is not None:
+            result = abs(int(gnmi_client_output) - int(redis_output))
+            assert 0 <= result <= allowed_range_in_bytes, (
+                f"gNMI output: {gnmi_client_output} is not within {allowed_range_in_bytes} to "
+                f"redis output:{redis_output} for field: {prefix_and_path[1]}")
         else:
             assert gnmi_client_output.lower() == redis_output.lower()
 

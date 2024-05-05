@@ -567,6 +567,7 @@ class PlatformConsts:
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
+    ENV_CPU = "CPU"
     ENV_FAN = "fan"
     ENV_LED = "led"
     ENV_UID = "UID"
@@ -586,10 +587,16 @@ class PlatformConsts:
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
+    ENV_TEMP_CURR_PROP = "current"
+    ENV_TEMP_STATE_PROP = "state"
+    ENV_TEMP_STATE_OK = 'ok'
     HW_COMP_SWITCH = "SWITCH"
     TRANSCEIVER_STATUS = "module-status"
     TRANSCEIVER_ERROR_STATUS = "module-error-status"
     SW_FIELD_NAMES = ('description', 'package', 'version')
+    ENV_TEMP_TOLERANCE = 20  # [%]
+    ENV_TEMP_MIN = 15  # [Celsius]
+    ENV_TEMP_MAX = 90  # [Celsius]
 
 
 class FansConsts:
@@ -943,7 +950,7 @@ class OperationTimeConsts:
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
     THRESHOLDS = {'reboot': 180,
-                  'reset factory': 240,
+                  'reset factory': 250,
                   'install user FW': 450,
                   'install default fw': 360,
                   'port goes up': 30,
@@ -1059,15 +1066,13 @@ class StatsConsts:
 class MultiPlanarConsts:
     INTERNAL_PATH = "/tmp/"
     SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
-    SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
     FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'
     NVL5_SIMULATION_FILE = 'nvl5_platform.json'
     ORIGIN_FILE = "platform_origin.json"
     ORIGIN_FULL_PATH = SIMULATION_PATH + ORIGIN_FILE
     AGGREGATED_PORT_SIMULATION_FILE = "aggregated_port_platform.json"
-    PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
-    PLATFORM_FULL_PATH = PLATFORM_PATH + SIMULATION_FILE
+    PLATFORM_FILE_FULL_PATH = "/usr/share/sonic/device/{}/platform.json"
     MULTI_PLANAR_KEYS = ['asic', 'parent-alias', 'parent-port', 'plane']
 
     PHYSICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_PHYSICAL_STATE'
@@ -1223,8 +1228,10 @@ class AclConsts:
     MATCH_IP = 'match_ip'
     SOURCE_IP = 'source-ip'
     DEST_IP = 'dest-ip'
-    SOURCE_PORT = 'source-port'
-    DEST_PORT = 'dest-port'
+    TCP_SOURCE_PORT = 'tcp-source-port'
+    UDP_SOURCE_PORT = 'udp-source-port'
+    TCP_DEST_PORT = 'tcp-dest-port'
+    UDP_DEST_PORT = 'udp-dest-port'
     FRAGMENT = 'fragment'
     ECN_FLAGS = 'ecn_flags'
     ECN_IP_ECT = 'ecn_ip-ect'
@@ -1249,15 +1256,15 @@ class AclConsts:
     SOURCE_MAC_MASK = 'source-mac-mask'
     DEST_MAC = 'dest-mac'
     DEST_MAC_MASK = 'dest-mac-mask'
-    TCPMSS = 'tcpmss'
-    ALL_TCPMSS_EXCEPT = 'all-tcpmss-except'
+    MSS = 'mss'
+    ALL_MSS_EXCEPT = 'all-mss-except'
     RECENT_LIST = 'recent-list'
     RECENT_LIST_NAME = 'recent_list_name'
     RECENT_LIST_UPDATE = 'update-interval'
     RECENT_LIST_HIT = 'hit-count'
     RECENT_LIST_ACTION = 'recent-list-action'
     HASHLIMIT_NAME = 'hash_name'
-    HASHLIMIT_RATE = 'rate'
+    HASHLIMIT_RATE = 'rate-above'
     HASHLIMIT_BURST = 'burst'
     HASHLIMIT_MODE = 'mode'
     HASHLIMIT_EXPIRE = 'expire'

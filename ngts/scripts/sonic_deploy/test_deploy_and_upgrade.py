@@ -19,6 +19,7 @@ from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.tools.infra import get_platform_info
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
 
 logger = logging.getLogger()
 
@@ -368,9 +369,10 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
 
     if isinstance(cli_type, NvueGeneralCli):
         base_image_url = image_url
-        # if base version specified, installing version with prev default password - adjust engine
-        if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
-            cli_type.engine.password = cli_type.device.prev_default_password
+        if type(cli_type.device) not in [BlackMambaSwitch, CrocodileSwitch]:
+            # if base version specified, installing version with prev default password - adjust engine
+            if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
+                cli_type.engine.password = cli_type.device.prev_default_password
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, base_image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:

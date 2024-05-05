@@ -727,8 +727,8 @@
 
 # NVOS
 - Errors_list:
-    - '.*ERR.*nslcd.*no available LDAP server found:.*'
-    - '.*WARNING.*nslcd.*no available LDAP server found:.*'
+    - '.*ERR.*nslcd.*no available LDAP server found.*'
+    - '.*WARNING.*nslcd.*no available LDAP server found.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_port_error_flow
@@ -738,6 +738,7 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_credentials_error_flow
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_connection
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable
 
 # NVOS AAA authentication restrictions
 - Errors_list:
@@ -756,7 +757,6 @@
 
 - Errors_list:
     - '.*WARNING service_checker: nss_tacplus: TACACS\+ server .* read failed with protocol error \(incorrect shared secret\?\) user.*'
-    - '.*ERR .*: tac_authen_read: inconsistent reply body, incorrect key\?.*'
     - '.*ERR service_checker: tac_author_read: arguments supplied in packet seem to exceed its size.*'
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect. user: .*'
     - '.*ERR docker-untar: tac_author_read: arguments supplied in packet seem to exceed its size.*'
@@ -764,26 +764,32 @@
     - Affected_test_cases:
       - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
 
+# NVOS - TACACS - invalid secret - expected errors
 - Errors_list:
-    - '.*ERR .*: tac_connect_single: connection failed with .*:.*: Transport endpoint is not connected.*'
-    - '.*ERR service_checker: tac_connect_single: connection failed with.*Transport endpoint is not connected.*'
+    - '.*ERR ker process: tac_authen_read: inconsistent reply body, incorrect key\?.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_secret
+      - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_timeout
+
+- Errors_list:
     - '.*ERR service_checker: nss_tacplus: failed to connect TACACS\+ server.*Transport endpoint is not connected.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
         - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_timeout
 
+# NVOS - TACACS - invalid port - expected errors
 - Errors_list:
-    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
+    - '.*ERR ker process: tac_connect_single: connection failed with .*:123: Transport endpoint is not connected.*'
+    - '.*ERR service_checker: tac_connect_single: connection failed with .*:123: Transport endpoint is not connected.*'
+    - '.*ERR service_checker: nss_tacplus: failed to connect TACACS\+ server .*:123, ret.*: Transport endpoint is not connected'
   Conditions:
     - Affected_test_cases:
-        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error
-
-- Errors_list:
-    - '.*WARNING nslcd\[.*\]:.*failed to bind to LDAP server ldap://unreachable.*/: Can''t contact LDAP server: Invalid argument.*'
-  Conditions:
-    - Affected_test_cases:
-        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_bad_port
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_server_unreachable
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_timeout
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_accounting_unreachable_top_server
 
 - Errors_list:
     - '.* ERR nslcd\[\d+\]\: \[.*\].*ldap_result\(\) failed: Invalid DN.*'
@@ -798,7 +804,7 @@
         - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_bad_bind_dn_error_flow
 
 - Errors_list:
-    - '.*ERR nvued:.*ERROR: lifecycle\.py:164 File not found: /host/tpm/quotes\.json.*'
+    - '.*ERR nvued:.*ERROR: lifecycle\.py:.* File not found: /host/tpm/quotes\.json.*'
   Conditions:
     - Affected_test_cases:
         - tests_nvos/general/security/tpm_attestation/test_tpm_attestation.py::test_upload_quote_before_generate
@@ -1353,6 +1359,82 @@
         - tests_nvos/system/test_system_health.py::test_simulate_health_problem_with_hw_simulator
         - tests_nvos/system/test_system_health.py::test_simulate_fan_speed_fault
 
+# NVOS tacacs bad flow
+- Errors_list:
+    - '.*ERR ker process: PAM-tacplus: auth failed: 2.*'
+    - '.*ERR ker message repeated \d times: \[ process: PAM-tacplus: auth failed: 2\].*'
+    - '.*WARNING \w+: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+    - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[ipv4-NVUE-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[ipv4-OpenApi-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[ipv6-NVUE-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[ipv6-OpenApi-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[dn-NVUE-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth[dn-OpenApi-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error[NVUE-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_auth_error[OpenApi-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_priority[OpenApi-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_priority[NVUE-BadFlow]
+
+# NVOS tacacs bad flow
+- Errors_list:
+    - '.*ERR ker process: PAM-tacplus: auth failed: 2.*'
+    - '.*ERR ker message repeated \d times: \[ process: PAM-tacplus: auth failed: 2\].*'
+    - '.*ERR ker process: tac_connect_single: connection failed with \d+\.\d+\.\d+\.\d+\:\d+: Transport endpoint is not connected.*'
+    - '.*ERR service_checker: tac_connect_single: connection failed with \d+\.\d+\.\d+\.\d+\:\d+: Transport endpoint is not connected.*'
+    - '.*ERR service_checker: nss_tacplus: failed to connect TACACS\+ server \d+\.\d+\.\d+\.\d+:\d+, ret=-9: Transport endpoint is not connected.*'
+    - '.*WARNING service_checker: nss_tacplus: no tacacs server in config for nss_tacplus.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_server_unreachable[NVUE-BadFlow]
+        - tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_server_unreachable[OpenApi-BadFlow]
+
+# NVOS ldap bad flow
+- Errors_list:
+    - '.*WARNING systemd\[1\]: nvued\.service: Failed with result.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*Invalid credentials.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[ipv4-NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[ipv6-NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[dn-NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[ipv4-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[ipv6-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth[dn-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth_error[NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_auth_error[OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_priority[NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_priority[OpenApi-BadFlow]
+
+# NVOS ldap bad flow
+- Errors_list:
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*no available LDAP server found, sleeping \d+ seconds.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*failed to bind to LDAP server.*Invalid argument.*'
+    - '.*WARNING systemd\[1\]: nvued\.service: Failed with result.*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\].*no available LDAP server found.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable[OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_ldap_server_unreachable[NVUE-BadFlow]
+
+# NVOS ldap bad flow
+- Errors_list:
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*failed to bind to LDAP server.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*no available LDAP server found.*'
+    - '.*WARNING nslcd\[\d+\]: \[\w+\].*ldap_start_tls_s\(\) failed \(.*\): Connect error: \(unknown error code\).*'
+    - '.*WARNING systemd\[1\]: nvued\.service: Failed with result.*'
+    - '.*ERR nslcd\[\d+\]: \[\w+\].*no available LDAP server found.*'
+  Conditions:
+    - Affected_test_cases:
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv4-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv6-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[dn-OpenApi-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv4-NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[ipv6-NVUE-BadFlow]
+        - tests_nvos/general/security/test_aaa_ldap/test_aaa_ldap.py::test_cert_verify[dn-NVUE-BadFlow]
+
 # NVOS
 - Errors_list:
     - '.*FW SOS EVENT LOG START.*'
@@ -1472,3 +1554,9 @@
   Conditions:
     - Affected_test_cases:
         - tests_nvos/system/test_system_snmp.py::test_system_snmp_negative
+
+- Errors_list:
+    - '.*IPTables\-Dropped\-.*'
+  Conditions:
+    - Redmine:
+        - 3811292

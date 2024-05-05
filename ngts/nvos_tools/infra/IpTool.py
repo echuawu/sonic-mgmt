@@ -160,3 +160,9 @@ class IpTool:
             if len(ips_dict) == IpConsts.NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE:
                 break
         return ips_dict
+
+    @staticmethod
+    def get_mac_address(host_obj, interface: str) -> str:
+        command = "cat /sys/class/net/{}/address".format(interface)
+        mac_address = host_obj.run_cmd(command)
+        return mac_address
