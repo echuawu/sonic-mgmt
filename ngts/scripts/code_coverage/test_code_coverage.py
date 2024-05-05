@@ -424,6 +424,7 @@ def create_lcov_report_for_container(docker_cli_obj, lcov_filename_prefix, conta
 
 def nvos_pre_step(engine):
     try:
+        engine.run_cmd('sudo chmod 777 /var/lib/python/coverage/raw.*')
         with allure.step("Start SNMP"):
             DutUtilsTool.start_snmp_server(engine=engine, state=NvosConst.ENABLED, readonly_community='qwerty12',
                                            listening_address='all')
