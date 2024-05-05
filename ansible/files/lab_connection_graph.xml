@@ -1,6 +1,8 @@
 <LabConnectionGraph>
   <PhysicalNetworkGraphDeclaration>
     <Devices>
+      <Device Hostname="juliet-54" HwSku="ACS-N5110_LD" Type="DevSonic"/>
+      <Device Hostname="juliet-56" HwSku="ACS-N5110_LD" Type="DevSonic"/>
       <Device Hostname="bm-bu-bsp" HwSku="ACS-QM3000" Type="DevSonic"/>
       <Device Hostname="bm-bu-core" HwSku="ACS-QM3000" Type="DevSonic"/>
       <Device Hostname="croc-80" HwSku="ACS-QM3400" Type="DevSonic"/>

@@ -1,3 +1,5 @@
+import sys
+
 import logging
 import os
 from collections import namedtuple
@@ -530,10 +532,7 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_constants(self):
         super()._init_constants()
-        firmware = [PlatformConsts.FW_ASIC, PlatformConsts.FW_BIOS, PlatformConsts.FW_SSD,
-                    PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3',
-                    PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC]
-        self.constants.firmware = firmware
+        self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
 
         self.voltage_sensors = [
             "PMIC-1-12V-VDD-ASIC1-In-1",
@@ -556,10 +555,10 @@ class JulietScaleoutSwitch(JulietSwitch):
         # TBD
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-nvidia_n5110_ld-r0")
-        # self.show_platform_output.update({
-        #     "product-name": "N5110_LD",
-        #     "asic-model": self.asic_type,
-        # })
+        self.show_platform_output.update({
+            "product-name": "N5110_LD",
+            "asic-model": self.asic_type,
+        })
 
         # TODO - Check if it needs to be changed.
         # self.current_bios_version_name = "0ACQF_06.01.003"
