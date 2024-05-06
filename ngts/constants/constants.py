@@ -1406,7 +1406,7 @@ class BugHandlerConst:
     BUG_HANDLER_CONF_FILE = {"SONiC-Design": os.path.join(NGTS_PATH, "helpers/bug_handler/sonic_bug_handler.conf"),
                              "'NVOS - Design'": "nvos_design.cfg"}
     BUG_HANDLER_PYTHON_PATH = "/mswg/projects/swvt/MARS/scripts/python37_wrapper.sh"
-    BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/RELEASES/1_1/bin/handle_bug.py"
+    BUG_HANDLER_SCRIPT = "/auto/sw_tools/Internal/BugHandling/RELEASES/1_1_1/bin/handle_bug.py"
     BUG_HANDLER_SANITIZER_USER = "asan"
     BUG_HANDLER_LOG_ANALYZER_USER = "log_analyzer"
     SANITIZER_PARSED_DUMPS_FOLDER = "/tmp/parsed_sanitizer_dumps/"
