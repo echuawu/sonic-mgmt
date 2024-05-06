@@ -1113,7 +1113,7 @@ platform_tests/test_xcvr_info_in_db.py:
     conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3836978"
+      - "https://redmine.mellanox.com/issues/3889131 and 'nvda_bf' in platform"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
   skip:
