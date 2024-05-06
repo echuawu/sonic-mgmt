@@ -10,16 +10,19 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.fixture(autouse=True)
-def tpm_debug_prints(engines):
+def tpm_debug_prints(engines, check_tpm_ready_for_testing):
     debug_cmds = [
         'sudo tpm2 getcap properties-variable | grep TPM2_PT_LOCKOUT_COUNTER:',
         "sudo tpm2_getcap properties-fixed | awk '/TPM2_PT_TOTAL_COMMANDS/,/raw:/ {print}'"
     ]
-    attachment = '\n'.join([f'$ {cmd}\n{engines.dut.run_cmd(cmd)}\n' for cmd in debug_cmds])
-    allure.orig_allure.attach(attachment, 'tpm_debug_prints_before_case', allure.orig_allure.attachment_type.TEXT)
+
+    with allure.step('debug prints before test case'):
+        attachment = '\n'.join([f'$ {cmd}\n{engines.dut.run_cmd(cmd)}\n' for cmd in debug_cmds])
+        allure.orig_allure.attach(attachment, 'tpm_debug_prints_before_case', allure.orig_allure.attachment_type.TEXT)
     yield
-    attachment = '\n'.join([f'$ {cmd}\n{engines.dut.run_cmd(cmd)}\n' for cmd in debug_cmds])
-    allure.orig_allure.attach(attachment, 'tpm_debug_prints_after_case', allure.orig_allure.attachment_type.TEXT)
+    with allure.step('debug prints after test case'):
+        attachment = '\n'.join([f'$ {cmd}\n{engines.dut.run_cmd(cmd)}\n' for cmd in debug_cmds])
+        allure.orig_allure.attach(attachment, 'tpm_debug_prints_after_case', allure.orig_allure.attachment_type.TEXT)
 
 
 @pytest.fixture(scope='session', autouse=True)
