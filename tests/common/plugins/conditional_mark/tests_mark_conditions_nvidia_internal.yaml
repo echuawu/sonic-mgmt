@@ -290,11 +290,23 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
-dash/test_dash_disable_enable_eni.py:
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file[BIOS:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3827395"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
     conditions:
-      - "https://redmine.mellanox.com/issues/3827395"
+      - "https://redmine.mellanox.com/issues/3863086"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url[BIOS:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3863086"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current[BIOS:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3863086"
 
 tacacs/test_accounting.py:
   skip:
