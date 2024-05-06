@@ -9,7 +9,7 @@ import pathlib
 from retry.api import retry
 
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
-from ngts.constants.constants import BugHandlerConst, InfraConst
+from ngts.constants.constants import BugHandlerConst, InfraConst, NvosCliTypes
 from ngts.nvos_constants.constants_nvos import SystemConsts
 
 from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folder, clear_files, bug_handler_wrapper, \
@@ -338,21 +338,17 @@ def get_sonic_branch(duthost, cli_type):
     Get the SONiC branch based on release field from /etc/sonic/sonic_version.yml
     :return: branch name
     """
-    try:
-        release_output = duthost.shell("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release")['stdout_lines']
-        branch = release_output[0]
-    except SSHException as err:
-        branch = 'Unknown'
-        logger.error(f'Unable to get branch. Assuming that the device is not reachable. Setting the branch as Unknown. '
-                     f'Got error: {err}')
+    if cli_type in NvosCliTypes.NvueCliTypes:
+        branch = "master"
+    else:
+        try:
+            release_output = duthost.shell("sonic-cfggen -y /etc/sonic/sonic_version.yml -v release")['stdout_lines']
+            branch = release_output[0]
+        except SSHException as err:
+            branch = 'Unknown'
+            logger.error(f'Unable to get branch. Assuming that the device is not reachable. Setting the branch as Unknown. '
+                         f'Got error: {err}')
     # master branch always has release "none"
-    except Exception as nvueerr:
-        if cli_type == 'NVUE':
-            branch = "master"
-            logger.warning(f'unable to run sonic cmd on dut. Assuming that sonic image is not installed on this device '
-                           f'Got error: {nvueerr}')
-        else:
-            raise nvueerr
     if branch == "none":
         branch = "master"
     return branch.strip()
