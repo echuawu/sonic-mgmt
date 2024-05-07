@@ -33,6 +33,7 @@ def apply_ip_assignment_config(duthost):
         config_facts = duthost.get_running_config_facts()
         if not config_facts.get('VLAN'):
             with allure.step('Apply virtual smart switch configuration'):
+                duthost.shell('sudo config qos clear')
                 duthost.copy(src='virtual_smart_switch/dpu_ip_assignment_config.json',
                              dest='/tmp/dpu_ip_assignment_config.json')
                 duthost.shell('sudo sonic-cfggen -j /tmp/dpu_ip_assignment_config.json --write-to-db')
@@ -61,8 +62,15 @@ def test_dpu_ip_assignment(duthost):
                 if not re.search(port, output):
                     return False
             return True
-        pytest_assert(wait_until(60, 5, 0, check_dhcp_lease), f"There is no lease for all internal ports, "
-                                                              f"please check the test log.")
+        if "4700" in hwsku:
+            lease_check_timeout = 600
+            lease_check_interval = 30
+        else:
+            lease_check_timeout = 20
+            lease_check_interval = 5
+        pytest_assert(wait_until(lease_check_timeout, lease_check_interval, 0, check_dhcp_lease),
+                      "There is no lease for all internal ports, "
+                      "please check the test log.")
     for address in IP_ADDRESS_LIST.get(hwsku, IP_ADDRESS_LIST["ACS-SN4280"]):
         with allure.step(f"Ping the dpu IP address {address}"):
             duthost.shell(f"ping -c 5 {address}")
