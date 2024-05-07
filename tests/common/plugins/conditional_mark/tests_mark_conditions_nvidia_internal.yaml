@@ -965,6 +965,54 @@ hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-INNER_L4_SRC_PORT:
     conditions:
     - "https://redmine.mellanox.com/issues/3710956"
 
+hash/test_generic_hash.py::test_nexthop_flap[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_reboot[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_reboot[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_flap[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_flap[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
 hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-INNER_L4_DST_PORT:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
