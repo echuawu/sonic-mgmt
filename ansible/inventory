@@ -723,6 +723,7 @@ r-leopard-72-ptf-any   ansible_host=10.210.24.196 sonic_version=v2 sonic_hwsku=M
 # MTR community testbed r-moose-01_setup topologies
 r-moose-01  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-t0  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
+r-moose-01-t0-64  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-t1  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-t1-lag  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
 r-moose-01-ptf32  ansible_host=10.210.24.105 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7002 10.208.0.80" ptf_host=ptf-r-moose-01 ptf_portmap="roles/test/files/mlnx/r-moose-01_interface_to_front_map.ini" pdu_host=pdu-10-208-2-47
@@ -748,6 +749,7 @@ mtvr-moose-03-ptf-any  ansible_host=10.245.20.41 sonic_version=v2  sonic_hwsku=A
 # MTVR community testbed mtvr-moose-04_setup topologies
 mtvr-moose-04  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t0  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
+mtvr-moose-04-t0-64  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t1  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-t1-lag  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
 mtvr-moose-04-ptf32  ansible_host=10.245.20.42 sonic_version=v2  sonic_hwsku=ACS-SN5600 iface_speed=200000 serial_console="ssh -l rcon:7012 10.245.2.8" ptf_host=ptf-mtvr-moose-04 ptf_portmap="roles/test/files/mlnx/mtvr-moose-04_interface_to_front_map.ini" pdu_host=pdu-10-245-2-49
@@ -1504,6 +1506,7 @@ r-spider-05
 
 r-moose-01
 r-moose-01-t0
+r-moose-01-t0-64
 r-moose-01-t1
 r-moose-01-t1-lag
 r-moose-01-ptf32
@@ -1525,6 +1528,7 @@ mtvr-moose-03-ptf-any
 
 mtvr-moose-04
 mtvr-moose-04-t0
+mtvr-moose-04-t0-64
 mtvr-moose-04-t1
 mtvr-moose-04-t1-lag
 mtvr-moose-04-ptf32
