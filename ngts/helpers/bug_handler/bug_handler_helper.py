@@ -202,7 +202,7 @@ def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, u
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     logger.info(bug_handler_output)
-    bug_handler_file_result = json.loads(bug_handler_output)
+    bug_handler_file_result = json.loads(bug_handler_output.partition(b'\n')[2])
 
     status = bug_handler_file_result["status"]
     action = bug_handler_file_result["action"]
