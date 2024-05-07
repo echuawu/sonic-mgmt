@@ -298,7 +298,7 @@ c-panther-02        ansible_host=10.75.67.34 os=mellanox
 arc-switchmtbc02    ansible_host=10.75.67.41 os=mellanox
 r-tigris-17         ansible_host=10.210.25.57 os=mellanox
 r-tigon-30         ansible_host=10.210.24.81 os=mellanox
-r-liger-12          ansible_host=10.210.24.76 os=mellanox
+r-liger-12          ansible_host=10.210.24.76 os=sonic
 r-tigris-28         ansible_host=10.210.24.175 os=mellanox
 r-tigon-19          ansible_host=10.210.24.182 os=mellanox
 r-tigon-22          ansible_host=10.210.24.194 os=mellanox
