@@ -25,6 +25,24 @@ def tpm_debug_prints(engines, check_tpm_ready_for_testing):
         allure.orig_allure.attach(attachment, 'tpm_debug_prints_after_case', allure.orig_allure.attachment_type.TEXT)
 
 
+@pytest.fixture(autouse=True)
+def verify_tpm_lockout_counter_is_zero(engines, check_tpm_ready_for_testing):
+    tpm_tool = TpmTool(engines.dut)
+    with allure.step('verify that tpm lockout counter is zeroed'):
+        is_counter_cleared, counter_val = tpm_tool.is_tpm_lockout_counter_cleared()
+        if not is_counter_cleared:
+            with allure.step(f'TPM lockout counter is not zeroed - {counter_val}'):
+                tpm_tool.clear_tpm_lockout_counter()
+                pytest.fail(f'TPM lockout counter is not zeroed - {counter_val}')
+    yield
+    with allure.step('verify that tpm lockout counter is zeroed'):
+        is_counter_cleared, counter_val = tpm_tool.is_tpm_lockout_counter_cleared()
+        if not is_counter_cleared:
+            with allure.step(f'TPM lockout counter is not zeroed - {counter_val}'):
+                tpm_tool.clear_tpm_lockout_counter()
+                pytest.fail(f'TPM lockout counter is not zeroed - {counter_val}')
+
+
 @pytest.fixture(scope='session', autouse=True)
 def check_tpm_ready_for_testing(engines):
     if not TpmTool(engines.dut).is_tpm_attestation_ready():
