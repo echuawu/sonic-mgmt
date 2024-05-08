@@ -1320,9 +1320,11 @@ cacl/test_cacl_application.py/test_cacl_application_nondualtor:
 
 process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785024"
+    reason: "Testcase ignored due to RM issue 3879572 or to RM issue 3785024 on sn5400"
+    conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
+    - "https://redmine.mellanox.com/issues/3879572"
+    - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
 
 tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py:
   skip:
