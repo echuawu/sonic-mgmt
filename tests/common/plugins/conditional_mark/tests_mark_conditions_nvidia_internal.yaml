@@ -172,9 +172,10 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   skip:
-    reason: "Testcase ignored due to platform SIMX"
+    reason: "Testcase ignored due to platform SIMX or due to RM issue 3894921"
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3894921"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
