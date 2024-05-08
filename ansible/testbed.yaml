@@ -1106,7 +1106,7 @@
   ptf: ptf-mtvr-moose-04
   ptf_ip: 10.245.20.62/16
   ptf_ipv6:
-  server: server_65:q
+  server: server_65
   vm_base: VM3001
   dut:
     - mtvr-moose-04

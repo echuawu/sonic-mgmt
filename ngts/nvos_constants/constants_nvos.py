@@ -476,6 +476,10 @@ class SystemConsts:
     EVENTS_TABLE_SIZE_DEFAULT = 1000
     EVENTS_TABLE_SIZE_MAX = 10000
 
+    AUTO_SAVE_ENABLE = 'enable'
+    AUTO_SAVE_ENABLE_OFF = 'off'
+    AUTO_SAVE_ENABLE_ON = 'on'
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000

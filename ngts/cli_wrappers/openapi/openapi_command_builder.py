@@ -219,6 +219,8 @@ class OpenApiRequest:
             with allure.step("Add data to patch request"):
                 OpenApiRequest.payload = {request_data.param_name: request_data.param_value} \
                     if request_data.param_value == 'null' else request_data.param_value
+                if request_data.param_value == 'save':
+                    OpenApiRequest.payload = {request_data.param_name: request_data.param_value}
                 url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path
 
             res, err = OpenApiRequest.update_nvue_changeset(request_data)

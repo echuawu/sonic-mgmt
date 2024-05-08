@@ -1,6 +1,7 @@
 import pytest
 import time
 
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.tools.test_utils import allure_utils as allure
 import logging
 from ngts.nvos_tools.infra.Fae import Fae
@@ -8,7 +9,7 @@ from ngts.nvos_tools.system.System import System
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
-from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, ApiType
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -119,3 +120,43 @@ def test_save_reboot(engines, devices):
                 TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
                 with allure.step('Run nv action reboot system'):
                     system.reboot.action_reboot()
+
+
+@pytest.mark.cumulus
+@pytest.mark.simx
+@pytest.mark.general
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_general_auto_save(engines, devices, test_api):
+
+    system = System()
+    eth0_port = MgmtPort('eth0')
+    new_eth0_description = 'TestingAutoSave'
+
+    try:
+        with allure.step('verify nv show system config auto-save enable is off'):
+            output = OutputParsingTool.parse_json_str_to_dictionary(system.config.auto_save.show()).verify_result()
+            assert SystemConsts.AUTO_SAVE_ENABLE_OFF == output[SystemConsts.AUTO_SAVE_ENABLE], "auto-save should be off"
+
+        with allure.step('run nv set system config auto-save enable on'):
+            system.config.auto_save.set(op_param_name=SystemConsts.AUTO_SAVE_ENABLE,
+                                        op_param_value=SystemConsts.AUTO_SAVE_ENABLE_ON).verify_result()
+
+        with allure.step('set eth0 description to be {description} - with apply'.format(description=new_eth0_description)):
+            eth0_port.interface.set(NvosConst.DESCRIPTION, new_eth0_description, apply=True).verify_result()
+
+        assert new_eth0_description in TestToolkit.GeneralApi[test_api].show_config(engine=engines.dut, revision='startup'), \
+            "Expected to have new description field after set command, but we do not have it."
+
+    finally:
+
+        with allure.step("Unset description and verify"):
+            eth0_port.interface.unset(op_param='description').verify_result()
+
+        with allure.step('run nv set system config auto-save enable off'):
+            system.config.auto_save.unset(op_param=SystemConsts.AUTO_SAVE_ENABLE, apply=True).verify_result()
+
+        with allure.step('verify nv show system config auto-save enable is off'):
+            output = OutputParsingTool.parse_json_str_to_dictionary(system.config.auto_save.show()).verify_result()
+            assert SystemConsts.AUTO_SAVE_ENABLE_OFF == output[SystemConsts.AUTO_SAVE_ENABLE], "auto-save should be off"
+
+            TestToolkit.GeneralApi[test_api].save_config(engine=engines.dut)

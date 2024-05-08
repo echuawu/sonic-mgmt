@@ -1,3 +1,5 @@
+import json
+
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.tools.test_utils import allure_utils as allure
@@ -175,9 +177,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def show_config(engine, output_type='json'):
+    def show_config(engine, revision='applied', output_type='json'):
         logging.info("Running 'nv config show' on dut")
-        output = engine.run_cmd('nv config show --output {output_type}'.format(output_type=output_type))
+        output = engine.run_cmd('nv config show --rev {revision} --output {output_type}'.format(output_type=output_type,
+                                                                                                revision=revision))
         return output
 
     @staticmethod
