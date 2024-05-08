@@ -25,8 +25,12 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_tools.system.System import System
+from ngts.scripts.code_coverage.code_coverage_consts import NvosConsts
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_config_utils import clear_conf
+from ngts.nvos_tools.infra.DiskTool import DiskTool
+from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.scripts.code_coverage.test_code_coverage import extract_python_coverage_for_nvos
 from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround, set_base_configurations, set_base_configurations_cl
 
 logger = logging.getLogger()
@@ -315,6 +319,28 @@ def save_results_and_clear_after_test(item):
         if hasattr(item, 'active_remote_aaa_server') and item.active_remote_aaa_server:
             clear_security_config(item)
         clear_config(markers)
+
+
+@pytest.fixture(scope='function', autouse=True)
+def teardown_collect_code_coverage(topology_obj, engines):
+    yield
+    if pytest.is_code_coverage:
+        collect_coverage = False
+
+        with allure.step("Check coverage folder capacity"):
+            cli_obj = topology_obj.players['dut']['cli']
+            try:
+                capacity_percentage = DiskTool.get_path_available_capacity_percentage(engines.dut,
+                                                                                      NvosConst.COVERAGE_PATH)
+                logging.info(f"Coverage folder capacity: {capacity_percentage}%")
+                collect_coverage = int(capacity_percentage) >= NvosConst.MAX_COVERAGE_PATH_CAPACITY_PERCENTAGE
+            except BaseException:
+                collect_coverage = True
+                cli_obj.general.coverage_combine()
+
+        if collect_coverage:
+            with allure.step(f"Collect python coverage (folder capacity {capacity_percentage}%"):
+                extract_python_coverage_for_nvos(dest=NvosConsts.DEST_PATH, engines=engines, cli_obj=cli_obj)
 
 
 @pytest.fixture(scope='function', autouse=True)

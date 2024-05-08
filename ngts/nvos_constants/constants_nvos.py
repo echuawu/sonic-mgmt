@@ -144,6 +144,9 @@ class NvosConst:
     INSTALL_CUMULUS_SUCCESS_PATTERN = '.* login:'
     NVOS_INSTALL_TIMEOUT = 6 * 60  # 6 minutes
 
+    COVERAGE_PATH = "/var/lib/python/coverage"
+    MAX_COVERAGE_PATH_CAPACITY_PERCENTAGE = 90
+
 
 class CertificateFiles:
     BUNDLE_FILE = 'bundle_uri'

@@ -12,8 +12,7 @@ class SharedConsts:
 
 
 class NvosConsts:
-    NVOS_EXCLUDE_PATHS = ['/sonic/src/nvos-sairedis/meta', '/sonic/src/nvos-sairedis/SAI',
-                          '/sonic/src/nvos-sairedis/saidump']
+    NVOS_EXCLUDE_PATHS = ['/sonic/src/nvos-sairedis/meta', '/sonic/src/nvos-sairedis/SAI']
     NVOS_SOURCE_FILES = ['sonic/src/nvos-swss/cfgmgr/portmgr', 'sonic/src/nvos-swss/orchagent/response_publisher',
                          'sonic/src/nvos-swss/lib/subintf', 'sonic/src/nvos-swss/cfgmgr/portmgrd',
                          'sonic/src/nvos-swss/cfgmgr/intfmgrd', 'sonic/src/nvos-swss/orchagent/request_parser',
@@ -92,6 +91,7 @@ class NvosConsts:
     NVOS_SOURCE_PATH = '/src'
     GCOV_CONTAINERS_SOURCES_PATH = {'swss-ibv00': '/src/sonic_swss_src_cov.tar.gz',
                                     'syncd-ibv00': '/src/sonic_syncd_src_cov.tar.gz'}
+    DEST_PATH = "/.autodirect/sw_regression/system/NVOS/MARS/results/coverage_report/"
 
 
 class SonicConsts:

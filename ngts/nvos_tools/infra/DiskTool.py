@@ -50,3 +50,7 @@ class DiskTool:
             output = self.engine.run_cmd(cmd)
             available_disk_storages = output.split('\n')
             return available_disk_storages
+
+    @staticmethod
+    def get_path_available_capacity_percentage(engine, path):
+        return engine.run_cmd(f"df -h {path}" + " | awk 'NR==2 {sub(/%/,\"\",$5); print $5}'")

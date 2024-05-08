@@ -439,6 +439,7 @@ def is_code_coverage_run(topology_obj, should_skip_checking_fixture):
 
     try:
         pytest.is_code_coverage = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
+        logger.info(f'Code coverage image: {pytest.is_code_coverage}')
     except SSHException as err:
         logger.warning(f'Unable to check if its code coverage run. Assuming that the device is not reachable. '
                        f'Setting the is_code_coverage_run as False, '
@@ -495,7 +496,7 @@ def platform_params(show_platform_summary, setup_name, topology_obj):
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
     platform_data.filtered_platform = re.search(
-        r"(msn\d{4}a\w?|msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|mqm\d{4}|mbf.*c|900.*a)",
+        r"(msn\d{4}a\w?|msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|q\d{4}|mqm\d{4}|mbf.*c|900.*a)",
         show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name

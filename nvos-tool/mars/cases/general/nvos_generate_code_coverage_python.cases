@@ -3,7 +3,7 @@
   <global>
     <Test>
       <group> NVOS </group>
-      <name> Generate code coverage </name>
+      <name> Generate Python code coverage </name>
       <info> </info>
       <owner> Yana Port </owner>
     </Test>
@@ -16,7 +16,7 @@
   </global>
 
   <case>
-    <name> Generate code coverage </name>
+    <name> Generate Python code coverage </name>
     <info> </info>
     <tout> 1200 </tout>
     <cmd>
