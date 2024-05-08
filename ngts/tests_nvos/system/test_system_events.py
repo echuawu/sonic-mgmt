@@ -42,23 +42,23 @@ def test_show_system_events(test_api, engines, devices):
 
     with allure.step('Run show system events command & validate there are 50(default) no of events in the output'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show()).get_returned_value()
-        no_of_events = len(output['events'])
+        no_of_events = len(output['last'])
         assert no_of_events is 50, 'No of events in show output is {} instead of {}'.format(no_of_events, 50)
 
     with allure.step('Run show system events last command & validate there are 20(default) events in the output'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('last')).get_returned_value()
-        no_of_events = len(output['events'])
+        no_of_events = len(output)
         assert no_of_events is 20, 'No of events in show output is {} instead of {}'.format(no_of_events, 20)
 
     with allure.step('Run show system events last 25 command, validate there are 25 events in the output'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('last 25')).get_returned_value()
-        no_of_events = len(output['events'])
+        no_of_events = len(output)
         assert no_of_events is 25, 'No of events in show output is {} instead of {}'.format(no_of_events, 25)
 
     with allure.step('Run show system events recent 5 command, validate there are events in the output'):
         # show events last <param> displays events in the last <param> minutes
         output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('recent')).get_returned_value()
-        no_of_events = len(output['events'])
+        no_of_events = len(output)
         assert no_of_events > 0, 'There are no events found'
 
 
@@ -122,7 +122,7 @@ def test_system_events_maximum(test_api, engines, devices):
             # Trying to display more than 10000 to verify that the size of display is limited to 10000 which is max
             output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('last 10100')).\
                 get_returned_value()
-            no_of_events = len(output['events'])
+            no_of_events = len(output)
             assert no_of_events == 10000, 'No of events in show output is {} instead of {}'.format(no_of_events, 10000)
 
     finally:
@@ -197,9 +197,10 @@ def test_set_fae_system_events_table_size(test_api, engines, devices):
             ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_SIZE, 600).verify_result()
 
         with allure.step('Run show system events command & validate table-occupancy should be 600'):
+            # One space is left empty for any upcoming critical event, hence we will see 599 events if max is 600
             output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_OCCUPANCY,
-                                                        600).verify_result()
+                                                        599).verify_result()
 
         with allure.step('Set system events table-size to 1100'):
             fae.system.events.set(op_param_name='table-size', op_param_value=1100,
@@ -218,9 +219,10 @@ def test_set_fae_system_events_table_size(test_api, engines, devices):
             time.sleep(10)
 
         with allure.step('Run show system events command & validate table-occupancy should be 1100'):
+            # One space is left empty for any upcoming critical event, hence we will see 599 events if max is 600
             output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_OCCUPANCY,
-                                                        1100).verify_result()
+                                                        1099).verify_result()
 
         with allure.step('Unset system events table-size'):
             fae.system.events.unset(apply=True, dut_engine=engines.dut).verify_result()
@@ -231,9 +233,10 @@ def test_set_fae_system_events_table_size(test_api, engines, devices):
                                                         SystemConsts.EVENTS_TABLE_SIZE_DEFAULT).verify_result()
 
         with allure.step('Run show system events command & validate table-occupancy should be default(1000)'):
+            # One space is left empty for any upcoming critical event, hence we will see 599 events if max is 600
             output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show()).get_returned_value()
             ValidationTool.verify_field_value_in_output(output, SystemConsts.EVENTS_TABLE_OCCUPANCY,
-                                                        1000).verify_result()
+                                                        999).verify_result()
 
     finally:
         with allure.step('Clear system events'):
@@ -251,5 +254,5 @@ def clear_system_events(system, engines):
 
     with allure.step('Validate events are cleared'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show()).get_returned_value()
-        no_of_events = len(output['events'])
+        no_of_events = len(output['last'])
         assert no_of_events is 0, 'System events are not cleared, is {} instead of {}'.format(no_of_events, 0)
