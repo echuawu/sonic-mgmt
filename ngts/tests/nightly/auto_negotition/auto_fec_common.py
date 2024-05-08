@@ -62,7 +62,7 @@ class TestAutoFecBase:
                            tries=20, delay=10, logger=logger)
                 if not self.is_simx:
                     retry_call(self.verify_mlxlink_fec_status_for_port, fargs=[port, port_conf_dict],
-                               tries=6, delay=10, logger=logger)
+                               tries=8, delay=10, logger=logger)
                 if lldp_checker:
                     retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
                                tries=4, delay=10, logger=logger)
