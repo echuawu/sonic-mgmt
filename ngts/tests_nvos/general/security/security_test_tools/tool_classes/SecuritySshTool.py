@@ -1,9 +1,9 @@
-import time
-
 import logging
+import time
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_tools.infra.PexpectTool import PexpectTool
+from ngts.tests_nvos.general.security.constants import SSN_OPTIONS
 
 
 class SecuritySshTool:
@@ -57,7 +57,7 @@ class SecuritySshTool:
         @param server_engine: engine describing the ssh server and user
         """
         logging.info(f'Upload SSH key\nKey: {key_path}\nServer: {server_engine.ip}\nUser: {server_engine.username}')
-        ssh_copy_cmd = f'ssh-copy-id -o StrictHostKeyChecking=no -i {key_path} {server_engine.username}@{server_engine.ip}'
+        ssh_copy_cmd = f'ssh-copy-id {SSN_OPTIONS} -i {key_path} {server_engine.username}@{server_engine.ip}'
         pexpect = PexpectTool(spawn_cmd=ssh_copy_cmd, default_expect_err_msg='ssh-copy-id failed')
         try:
             pexpect.expect(expect_msg='password:')

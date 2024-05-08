@@ -96,13 +96,17 @@ class TacacsServerInfo(RemoteAaaServerInfo):
         System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port, apply=apply,
                                                                     dut_engine=dut_engine)
 
-    def update_auth_type(self, auth_type: str, item, dut_engine=None):
-        engine = dut_engine or (
-            item.active_remote_admin_engine if hasattr(item, 'active_remote_admin_engine') else None)
-        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.AUTH_TYPE, auth_type, apply=True,
-                                                                    dut_engine=engine)
-        logging.info(f'Update server users to use {auth_type} passwords')
+    def update_auth_type(self, auth_type: str, item, dut_engine=None, set_on_dut: bool = True):
+        logging.info(f'Update server info of "{self.hostname} - {self.port}" users to use {auth_type} passwords')
+        self.auth_type = auth_type
         self.users = self.users_per_auth_type[auth_type]
+
+        if set_on_dut:
+            assert item, f"argument 'item' was not provided"
+            engine = dut_engine or (
+                item.active_remote_admin_engine if hasattr(item, 'active_remote_admin_engine') else None)
+            System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.AUTH_TYPE, auth_type, apply=True,
+                                                                        dut_engine=engine)
 
 
 class LdapServerInfo(RemoteAaaServerInfo):

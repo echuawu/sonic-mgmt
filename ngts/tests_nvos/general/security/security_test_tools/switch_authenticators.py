@@ -1,8 +1,10 @@
 import logging
-import pexpect
 import time
 
+import pexpect
+
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.tests_nvos.general.security.constants import SSN_OPTIONS
 
 MAX_TIMEOUT = 360
 PEXPECT_DELAY = 2
@@ -106,7 +108,7 @@ class Authenticator:
 class SshAuthenticator(Authenticator):
     def __init__(self, username, password, ip, port=22):
         super().__init__(username, password, ip, port)
-        self.ssn_command = f'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout={MAX_TIMEOUT} {self.username}@{self.ip}'
+        self.ssn_command = f'ssh {SSN_OPTIONS} -o ConnectTimeout={MAX_TIMEOUT} {self.username}@{self.ip}'
         self.ssh_session_already_started = False
         self.start_session()
 

@@ -1,6 +1,7 @@
 import pytest
 
 from ngts.nvos_tools.infra.PexpectTool import PexpectTool
+from ngts.tests_nvos.general.security.constants import SSN_OPTIONS
 from ssh_hardening_test_utils import *
 
 
@@ -155,15 +156,15 @@ def test_ssh_auth_public_key_types(engines, upload_test_auth_keys_to_ssh_server)
     """
     with allure.step('Good flow: ssh the switch with valid auth key. Expect success'):
         pexpect = PexpectTool(
-            spawn_cmd=f'ssh -o StrictHostKeyChecking=no '
+            spawn_cmd=f'ssh {SSN_OPTIONS} '
                       f'-i {SshHardeningConsts.VALID_AUTH_KEY_PATH} {engines.dut.username}@{engines.dut.ip}')
         pexpect.expect(f'{engines.dut.username}@.*~', error_message='Expected login success, but failed')
         pexpect.expect('.*')
         pexpect.sendline('logout')
 
-    with allure.step('Bad flow: ssh the switch with valid auth key. Expect fail (enter password prompt)'):
+    with allure.step('Bad flow: ssh the switch with invalid auth key. Expect fail (enter password prompt)'):
         pexpect = PexpectTool(
-            spawn_cmd=f'ssh -o StrictHostKeyChecking=no '
+            spawn_cmd=f'ssh {SSN_OPTIONS} '
                       f'-i {SshHardeningConsts.INVALID_AUTH_KEY_PATH} {engines.dut.username}@{engines.dut.ip}')
         pexpect.expect('password:',
                        error_message='Login unexpectedly succeeded. Expected login fail (enter password prompt)')
