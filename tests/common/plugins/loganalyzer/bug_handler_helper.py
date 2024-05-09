@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 from pathlib import Path
@@ -181,7 +182,7 @@ def log_analyzer_bug_handler(duthost, request):
     """
     If the run_log_analyzer_bug_handler is True, run this function to handle the err msg detected in the loganalyzer
     """
-    test_name = request.node.name
+    test_name = re.sub(r'[\\/\'"<>|]', '_', request.node.name)
     log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
     bug_handler_actions = get_bug_handler_actions(request)
 
