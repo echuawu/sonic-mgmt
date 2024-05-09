@@ -145,9 +145,11 @@ tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
-    reason: "Testcase ignored due to platform 2201"
+    reason: "Testcase ignored due to platform 2201 or RM issue: https://redmine.mellanox.com/issues/3864087"
+    conditions_logical_operator: or
     conditions:
       - "'2201' in platform"
+      - "https://redmine.mellanox.com/issues/3864087"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
@@ -1350,5 +1352,17 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_o
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3796871"
     conditions:
       - "https://redmine.mellanox.com/issues/3796871 and ('sn5400' in platform)"
+
+platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3892182"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3892182 and ('sn5400' in platform)"
+
+platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3892182"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3892182 and ('sn5400' in platform)"
 
 ########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE END ############################
