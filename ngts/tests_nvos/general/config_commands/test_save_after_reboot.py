@@ -61,7 +61,7 @@ def test_save_reboot(engines, devices):
 
         with allure.step('Extract last system event to verify post reboot'):
             output = OutputParsingTool.parse_json_str_to_dictionary(system.events.show('last 1')).get_returned_value()
-            event_time = output["events"]["1"]["time-created"]
+            event_time = output[str(list(output.keys())[0])]["time-created"]
 
         with allure.step('set hostname to be {hostname} - with apply'.format(hostname=new_hostname_value)):
             system.set(SystemConsts.HOSTNAME, new_hostname_value, apply=True, ask_for_confirmation=True)
