@@ -514,7 +514,7 @@ def install_image_and_verify(orig_engine, image_name, partition_id, original_ima
     with allure.step("Installing image {}".format(image_name)):
         device: BaseDevice = TestToolkit.devices.dut
         new_engine = LinuxSshEngine(orig_engine.ip, orig_engine.username,
-                                    device.get_default_password_by_release_name(release_name))
+                                    device.get_default_password_by_version(release_name))
         OperationTime.save_duration('image install', '', test_name,
                                     system.image.files.file_name[image_name].action_file_install_with_reboot,
                                     "", True, None, None, new_engine)

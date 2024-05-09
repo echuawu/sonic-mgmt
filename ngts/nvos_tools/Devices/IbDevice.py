@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
@@ -27,9 +28,19 @@ class IbSwitch(BaseSwitch):
         self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
 
-    def get_default_password_by_release_name(self, release_name: str):
-        if release_name == '25.01.3000' and self.prev_default_password:
-            return self.prev_default_password
+    def get_default_password_by_version(self, version: str):
+        pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
+        match = re.search(pattern, version)
+        if self.prev_default_password and match and match.group(0):
+            version_num = match.group(1)
+            # bin_num = match.group(2)
+            logging.info(f'detected version: {version_num}')
+            if version_num.startswith('25.01.') and int(version_num.split('.')[-1]) <= 3000:
+                logging.info('using prev default password')
+                return self.prev_default_password
+        # if release_name == '25.01.3000' and self.prev_default_password:
+        #     return self.prev_default_password
+        logging.info('using regular default password')
         return self.default_password
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):

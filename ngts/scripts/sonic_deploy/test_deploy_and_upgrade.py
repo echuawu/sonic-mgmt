@@ -1,25 +1,26 @@
-import allure
-import logging
-import time
-import os
-import pytest
-import shutil
-import copy
 import concurrent.futures
+import copy
+import logging
+import os
+import shutil
+import time
 
-from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
-from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
-from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
-from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
-from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+import allure
+import pytest
+
 from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayersAliases
-from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
-from ngts.tools.infra import get_platform_info
+from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
+from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
+from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
+from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
+from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
+from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
 
@@ -372,7 +373,7 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
         if type(cli_type.device) not in [BlackMambaSwitch, CrocodileSwitch]:
             # if base version specified, installing version with prev default password - adjust engine
             if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
-                cli_type.engine.password = cli_type.device.prev_default_password
+                cli_type.engine.password = cli_type.device.get_default_password_by_version(base_image_url)
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, base_image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:

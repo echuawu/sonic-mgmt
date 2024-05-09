@@ -110,7 +110,7 @@ class NvosInstallationSteps:
             if type(dut_device) in [BlackMambaSwitch, CrocodileSwitch]:
                 config_filename = 'nvos_config_xdr.yml'
             else:
-                config_filename = 'nvos_config_ga_3000.yml'
+                config_filename = 'nvos_config_ga_3000.yml'  # TODO: should add config file for 4000
             config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
             logger.info(f'NGTS_PATH: {ngts_path}')
             logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
@@ -132,7 +132,7 @@ class NvosInstallationSteps:
 
         with allure.step('Wait until switch is up'):
             dut_engine.disconnect()  # force engines.dut to reconnect
-            dut_engine.password = dut_device.default_password  # after upgrade flow switch has new default password
+            dut_engine.password = dut_device.get_default_password_by_version(target_version_path)  # after upgrade flow switch has new default password
 
         with allure.step('Verify configuration after upgrade'):
             NvosInstallationSteps.verify_config_after_upgrade(config_file_path, dut_engine)
@@ -142,11 +142,12 @@ class NvosInstallationSteps:
 
         with allure.step('Clear fetched files for the tests'):
             system = System()
+            dut_engine.disconnect()  # force engines.dut to reconnect
             if type(dut_device) not in [BlackMambaSwitch, CrocodileSwitch]:
-                with allure.step('Delete config files'):
-                    system.config.files.delete_files([config_filename], engine=dut_engine)
                 with allure.step('Delete fetched image file'):
                     system.image.files.delete_files([bin_filename], engine=dut_engine)
+                with allure.step('Delete config files'):
+                    system.config.files.delete_files([config_filename], engine=dut_engine)
             with allure.step('Uninstall older version'):
                 system.image.action_uninstall(engine=dut_engine)
 

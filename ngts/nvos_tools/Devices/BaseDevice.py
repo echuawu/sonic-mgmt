@@ -98,7 +98,7 @@ class BaseDevice(ABC):
     def get_ib_ports_num(self):
         pass
 
-    def get_default_password_by_release_name(self, release_name: str):
+    def get_default_password_by_version(self, version: str):
         return self.default_password
 
     def verify_databases(self, dut_engine):
