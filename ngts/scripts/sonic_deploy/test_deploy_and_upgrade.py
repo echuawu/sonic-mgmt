@@ -1,24 +1,31 @@
-import allure
+import concurrent.futures
+import copy
 import logging
 import time
 import os
 import pytest
 import shutil
-import copy
-import concurrent.futures
+import time
 
-from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
-from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
-from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
-from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
+import allure
+import pytest
+
+from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayersAliases
+from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.tools.infra import get_platform_info
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
+from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
+from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
+from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
+from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
+from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
+from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
 
@@ -26,7 +33,7 @@ logger = logging.getLogger()
 @pytest.mark.disable_loganalyzer
 @allure.title('Deploy and upgrade image')
 def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version, base_version_dpu, target_version, serve_files,
-                            sonic_topo, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
+                            sonic_topo, neighbor_type, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
                             fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
                             verify_secure_boot):
@@ -58,6 +65,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         :param target_version: target_version fixture
         :param serve_files: serve_files fixture
         :param sonic_topo: sonic_topo fixture
+        :param neighbor_type: neighbor_type fixture
         :param deploy_only_target: deploy_only_target fixture (True/False)
         :param port_number: port_number fixture
         :param setup_name: setup_name fixture
@@ -98,14 +106,15 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         for dut in setup_info['duts']:
             if 'dut-dpu' not in dut['dut_alias']:
                 switch_or_standalone_dpu_duts.append(dut)
-            elif deploy_dpu and base_version_dpu:
+            elif base_version_dpu:
                 smart_switch_dpu_duts.append(dut)
         # Remove the smart switch DPUs from the setup_info for we do not want to run the pre and post steps on them
         setup_info['duts'] = switch_or_standalone_dpu_duts
 
         pre_install_threads = {}
-        pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
-                               is_simx, pre_install_threads)
+        pre_installation_steps(
+            sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
+            pre_install_threads)
         install_threads = []
         install_dpu_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -156,7 +165,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
             wait_until_background_procs_done(pre_install_threads)
         except AssertionError:
             # Give it another try if the background processes in the pre-installation steps fail
-            pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+            pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
                                    is_simx, pre_install_threads)
             wait_until_background_procs_done(pre_install_threads)
         logger.info("Pre-installation background processes are done")
@@ -178,10 +187,12 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         raise AssertionError(err)
 
 
-def pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
+def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
+                           threads_dict):
     """
     Pre-installation steps
     :param sonic_topo: sonic_topo fixture
+    :param neighbor_type: neighbor_type fixture
     :param base_version: base_version fixture
     :param target_version: target version argument
     :param setup_info: dictionary with setup info
@@ -195,7 +206,7 @@ def pre_installation_steps(sonic_topo, base_version, target_version, setup_info,
     elif isinstance(cli_type, NvueGeneralCli):
         NvosInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
     else:
-        SonicInstallationSteps.pre_installation_steps(sonic_topo, base_version, target_version, setup_info, port_number,
+        SonicInstallationSteps.pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
                                                       is_simx, threads_dict)
 
 
@@ -364,9 +375,10 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
 
     if isinstance(cli_type, NvueGeneralCli):
         base_image_url = image_url
-        # if base version specified, installing version with prev default password - adjust engine
-        if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
-            cli_type.engine.password = cli_type.device.prev_default_password
+        if type(cli_type.device) not in [BlackMambaSwitch, CrocodileSwitch]:
+            # if base version specified, installing version with prev default password - adjust engine
+            if base_image_url and not isinstance(cli_type, CumulusGeneralCli):
+                cli_type.engine.password = cli_type.device.get_default_password_by_version(base_image_url)
         NvosInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, base_image_url, deploy_type,
                                            apply_base_config, reboot_after_install, fw_pkg_path, target_image_url)
     else:

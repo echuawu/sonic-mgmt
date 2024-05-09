@@ -8,8 +8,8 @@ from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 
 logger = logging.getLogger()
@@ -39,6 +39,7 @@ class BaseDevice(ABC):
         self._init_platform_lists()
         self._init_system_lists()
         self._init_security_lists()
+        self._init_password_hardening_lists()
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -94,9 +95,15 @@ class BaseDevice(ABC):
     def _init_security_lists(self):
         self.kex_algorithms = []
 
+    def _init_password_hardening_lists(self):
+        self.local_test_users = []
+
     @abstractmethod
     def get_ib_ports_num(self):
         pass
+
+    def get_default_password_by_version(self, version: str):
+        return self.default_password
 
     def verify_databases(self, dut_engine):
         """
@@ -211,6 +218,7 @@ class BaseSwitch(BaseDevice):
 
     Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware'])
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
+    SsdImageConsts = namedtuple('SsdImageConsts', ('file', 'current_version', 'alternate_version'))
 
     def _init_available_databases(self):
         super()._init_available_databases()
@@ -264,8 +272,8 @@ class BaseSwitch(BaseDevice):
             "manufacturer": "Nvidia",
             "product-name": "",     # These fields need to be updated in subclasses.
             "cpu": None,            # `None` means we expect any string not in ['', 'N/A'].
-            "memory": ExpectedString.number_and_string('kB', range_min=7000000),  # Expects "x kB" where x > 7000000
-            "disk-size": ExpectedString.number_and_string('G', range_min=14.0),
+            "memory": ExpectedString.number_and_string('GB', range_min=6),  # Expects "x GB" where x > 6
+            "disk-size": ExpectedString.number_and_string('GB', range_min=14.0),
             "port-layout": None,
             "part-number": None,
             "serial-number": None,
