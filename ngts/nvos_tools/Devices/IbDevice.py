@@ -305,6 +305,7 @@ class IbSwitch(BaseSwitch):
         self.ssd_image = {
             'StorFly VSFBM4XC016G-MLX2': ('0202-002', '/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg'),
         }
+        self.bios_version_name = "0ACQF.cab"
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
@@ -561,17 +562,18 @@ class JulietScaleoutSwitch(JulietSwitch):
         })
 
         # TODO - Check if it needs to be changed.
-        # self.current_bios_version_name = "0ACQF_06.01.003"
-        # self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
-        # self.previous_bios_version_name = "0ACQF_06.01.002"
-        # self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
+        self.current_bios_version_name = "0ACTV_0.00.007"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
+        self.previous_bios_version_name = "0ACTV_0.00.007"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
+        self.bios_version_name = '0ACTV000_07.rom'
         # self.current_cpld_version = BaseSwitch.CpldImageConsts(
         #     burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
         #     refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
         #     version_names={
-        #         "CPLD1": "CPLD000232_REV0700",
-        #         "CPLD2": "CPLD000324_REV0300",
-        #         "CPLD3": "CPLD000268_REV0700",
+        #         "CPLD1": "CPLD000232_REV0006",
+        #         "CPLD2": "CPLD000383_REV0004",
+        #         "CPLD3": "CPLD000000_REV0000",
         #     }
         # )
         # self.previous_cpld_version = BaseSwitch.CpldImageConsts(
@@ -638,6 +640,11 @@ class JulietScaleoutSwitch(JulietSwitch):
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_led_list = []
+
+    def _init_psu_list(self):
+        super()._init_psu_list()
+        self.psu_list = []
+        self.psu_fan_list = []
 
 
 # -------------------------- Caiman Switch ----------------------------

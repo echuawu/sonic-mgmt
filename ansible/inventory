@@ -2179,6 +2179,15 @@ r-r740-09-bf2-sonic-01-dpu
 r-r740-09-bf2-sonic-01-ptf-any
 
 # NVOS topologies
+juliet-68-ptf-any
+juliet-68
+
+juliet-54-ptf-any
+juliet-54
+
+juliet-56-ptf-any
+juliet-56
+
 gorilla-11-ptf-any
 gorilla-11
 
