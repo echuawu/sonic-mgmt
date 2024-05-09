@@ -594,8 +594,8 @@ class PlatformConsts:
     ENV_TEMP_STATE_PROP = "state"
     ENV_TEMP_STATE_OK = 'ok'
     HW_COMP_SWITCH = "SWITCH"
-    TRANSCEIVER_STATUS = "module-status"
-    TRANSCEIVER_ERROR_STATUS = "module-error-status"
+    TRANSCEIVER_STATUS = "status"
+    TRANSCEIVER_ERROR_STATUS = "error-status"
     SW_FIELD_NAMES = ('description', 'package', 'version')
     ENV_TEMP_TOLERANCE = 20  # [%]
     ENV_TEMP_MIN = 15  # [Celsius]
