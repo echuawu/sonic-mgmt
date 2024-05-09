@@ -51,8 +51,7 @@ def test_fpga_install(engines, devices):
     """
     with allure.step('Check is Juliet Device'):
         if not isinstance(devices.dut, JulietSwitch):
-            logger.info("It's not a Juliet Switch. Ignoring the test")
-            return
+            pytest.skip("It's not a Juliet Switch. Skipping the test")
     with allure.step('Create System objects'):
         platform: Platform = Platform()
         fae: Fae = Fae()
@@ -68,7 +67,7 @@ def test_fpga_install(engines, devices):
             f"version {fpga_file_version}."
 
         with allure.step("Asserting the image files don't exist yet"):
-            expected_version = fpga_file_version.alternate_version
+            expected_version = fpga_file_version.alternate_image_version
             image_path = fpga_file_version.file
             image_filename = os.path.basename(image_path)
             initial_files = fae.platform.firmware.fpga.show_files_as_list()
