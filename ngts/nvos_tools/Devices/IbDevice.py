@@ -61,22 +61,20 @@ class IbSwitch(BaseSwitch):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'sdr': '10G', 'ndr': '400G'}
 
     def _init_fan_list(self):
-        super()._init_fan_list()
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
-        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
+
+    def _init_led_list(self):
+        self.led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
     def _init_system_lists(self):
-        super()._init_system_lists()
         self.user_fields = ['admin', 'monitor']
 
     def _init_security_lists(self):
-        super()._init_security_lists()
         self.kex_algorithms = ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
                                'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256']
 
     def _init_password_hardening_lists(self):
-        super()._init_password_hardening_lists()
         self.aaa_admin_role = 'admin'
         self.aaa_monitor_role = 'monitor'
         self.local_test_users = [{AaaConsts.USERNAME: AaaConsts.LOCALADMIN,
@@ -422,7 +420,10 @@ class GorillaSwitch(IbSwitch):
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
-        self.fan_led_list.append('FAN7')
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.append('FAN7')
 
     def _init_temperature(self):
         super()._init_temperature()
@@ -502,7 +503,10 @@ class BlackMambaSwitch(IbSwitch):
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
-        self.fan_led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
 
     def _init_psu_list(self):
         super()._init_psu_list()
@@ -547,7 +551,10 @@ class CrocodileSwitch(IbSwitch):
         super()._init_fan_list()
         self.fan_list.remove("FAN6/1")
         self.fan_list.remove("FAN6/2")
-        self.fan_led_list.remove('FAN6')
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.remove('FAN6')
 
     def _init_psu_list(self):
         super()._init_psu_list()
@@ -595,7 +602,10 @@ class JulietSwitch(NvLinkSwitch):
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
-        self.fan_led_list.append('FAN7')
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.append('FAN7')
 
 
 # -------------------------- JulietScaleout Switch ----------------------------

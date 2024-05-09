@@ -5,7 +5,7 @@ import random
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.Tools import Tools
-from ngts.nvos_constants.constants_nvos import DatabaseConst
+from ngts.nvos_constants.constants_nvos import DatabaseConst, PlatformConsts
 
 logger = logging.getLogger()
 
@@ -24,11 +24,9 @@ def test_show_platform_environment_voltage(engines):
     with allure.step("Execute show platform environment and make sure all the components exist"):
         voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.voltage.show()).verify_result()
-        sensors = Tools.DatabaseTool.sonic_db_cli_get_keys(engine=engines.dut, asic="",
-                                                           db_name=DatabaseConst.STATE_DB_NAME,
-                                                           grep_str="VOLTAGE").splitlines()
-        # sensors_count = engines.dut.run_cmd('redis-cli -n 6 keys \'*\' | grep VOLTAGE').splitlines()
-        assert len(sensors) == len(voltage_output.keys())
+        sensors = Tools.FilesTool.get_subfiles_list(folder_path=PlatformConsts.VOLTAGE_FILES_PATH)
+        assert len(sensors) == len(voltage_output.keys()), "test failed - expected sensors count = {expected}, show command output = {output} \n expected sensors list: {expected_list}".format(
+            expected=len(sensors), output=len(voltage_output.keys()), expected_list=sensors)
 
     with allure.step("pick random sensor to check the out put of the two show commands"):
         random_sensor = random.choice(list(voltage_output.keys()))

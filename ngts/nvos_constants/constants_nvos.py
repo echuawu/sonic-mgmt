@@ -592,7 +592,6 @@ class PlatformConsts:
     ENV_LED_TURN_ON = "on"
     ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
-    ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     ENV_TEMP_CURR_PROP = "current"
     ENV_TEMP_STATE_PROP = "state"
@@ -604,6 +603,7 @@ class PlatformConsts:
     ENV_TEMP_TOLERANCE = 20  # [%]
     ENV_TEMP_MIN = 15  # [Celsius]
     ENV_TEMP_MAX = 90  # [Celsius]
+    VOLTAGE_FILES_PATH = '/var/run/hw-management/ui/voltage'
 
 
 class FansConsts:

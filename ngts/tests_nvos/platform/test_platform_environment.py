@@ -44,7 +44,7 @@ def test_show_platform_environment(engines, devices, test_api, output_format):
         output = OutputParsingTool.parse_show_output_to_dict(raw_output, output_format).get_returned_value()
         ValidationTool.validate_set_equal(output.keys(),
                                           devices.dut.psu_fan_list + devices.dut.fan_list + devices.dut.psu_list +
-                                          devices.dut.temperature_sensors + devices.dut.fan_led_list +
+                                          devices.dut.temperature_sensors + devices.dut.led_list +
                                           devices.dut.voltage_sensors).verify_result()
 
 
@@ -113,7 +113,7 @@ def test_show_platform_environment_led(engines, devices, test_api):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_led_list)
+        output = _verify_output(platform, "led", devices.dut.led_list)
 
     with allure.step("Check that all required properties for each led"):
         logging.info("Check that all required properties for each led")
@@ -147,7 +147,7 @@ def test_set_platform_environment_led(engines, devices, test_api):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_led_list + PlatformConsts.ENV_LED_COMP)
+        output = _verify_output(platform, "led", devices.dut.led_list)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")

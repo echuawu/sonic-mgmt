@@ -28,6 +28,7 @@ class BaseDevice(ABC):
         self._init_dependent_services()
         self._init_dockers()
         self._init_fan_list()
+        self._init_led_list()
         self._init_psu_list()
         self._init_fan_direction_dir()
         self._init_temperature()
@@ -66,7 +67,9 @@ class BaseDevice(ABC):
 
     def _init_fan_list(self):
         self.fan_list = []
-        self.fan_led_list = []
+
+    def _init_led_list(self):
+        self.led_list = []
 
     def _init_psu_list(self):
         self.psu_list = []
