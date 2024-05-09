@@ -226,10 +226,12 @@ class Parse_Lab_Graph():
                         devtype = dev.attrib['Type']
                         protocol = dev.attrib['Protocol']
                         mgmt_ip = dev.attrib['ManagementIp']
+                        mgmt_gw = dev.attrib.get('ManagementGw')
                         deviceinfo[hostname]['HwSku'] = hwsku
                         deviceinfo[hostname]['Type'] = devtype
                         deviceinfo[hostname]['Protocol'] = protocol
                         deviceinfo[hostname]['ManagementIp'] = mgmt_ip
+                        deviceinfo[hostname]['ManagementGw'] = mgmt_gw
                         self.consolelinks[hostname] = {}
             console_link_root = console_root.find('ConsoleLinksInfo')
             if console_link_root:

@@ -280,9 +280,9 @@ arc-switch1005      ansible_host=10.210.24.23 os=mellanox
 r-panther-08        ansible_host=10.210.25.122 os=mellanox
 r-panther-43        ansible_host=10.210.25.55 os=mellanox
 r-panther-41        ansible_host=10.210.25.35 os=mellanox
-r-leopard-59        ansible_host=10.210.25.3 os=mellanox
-r-leopard-71        ansible_host=10.210.24.133 os=mellanox
-r-leopard-73        ansible_host=10.210.24.210 os=mellanox
+r-leopard-59        ansible_host=10.210.25.3 os=sonic
+r-leopard-71        ansible_host=10.210.24.133 os=sonic
+r-leopard-73        ansible_host=10.210.24.210 os=sonic
 r-leopard-80        ansible_host=10.210.24.166 os=mellanox
 r-leopard-82        ansible_host=10.210.26.108 os=mellanox
 r-panther-07        ansible_host=10.210.24.177 os=mellanox

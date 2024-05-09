@@ -48,7 +48,7 @@
       <Device Hostname="r-r740-09-bf3-sonic-01" HwSku="Nvidia-9009d3b600CVAA-C1" Type="DevSonic"/>
       <Device Hostname="r-tigris-27" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
-      <Device Hostname="r-leopard-59" HwSku="MLNX-OS" Type="FanoutLeaf"/>
+      <Device Hostname="r-leopard-59" HwSku="Mellanox-SN4700-O8C48" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1007" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1035" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch1039" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -70,8 +70,8 @@
       <Device Hostname="mtvr-leopard-02" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-80" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-82" HwSku="MLNX-OS" Type="FanoutLeaf"/>
-      <Device Hostname="r-leopard-71" HwSku="MLNX-OS" Type="FanoutLeaf"/>
-      <Device Hostname="r-leopard-73" HwSku="MLNX-OS" Type="FanoutLeaf"/>
+      <Device Hostname="r-leopard-71" HwSku="Mellanox-SN4700-O8V48" Type="FanoutLeaf"/>
+      <Device Hostname="r-leopard-73" HwSku="Mellanox-SN4700-O8V48" Type="FanoutLeaf"/>
       <Device Hostname="r-leopard-20" HwSku="Mellanox-SN4700-O8C48" Type="FanoutLeaf"/>
       <Device Hostname="mts-sonic-fanout" HwSku="MLNX-OS" Type="FanoutLeaf"/>
       <Device Hostname="arc-switch232-005" HwSku="MLNX-OS" Type="FanoutLeaf"/>
@@ -466,62 +466,62 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-20" EndPort="Ethernet244" StartDevice="r-leopard-01" StartPort="Ethernet244"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-20" EndPort="Ethernet248" StartDevice="r-leopard-01" StartPort="Ethernet248"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-20" EndPort="Ethernet252" StartDevice="r-leopard-01" StartPort="Ethernet252"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/1/1" StartDevice="r-leopard-58" StartPort="Ethernet0"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/1/2" StartDevice="r-leopard-58" StartPort="Ethernet4"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/2/1" StartDevice="r-leopard-58" StartPort="Ethernet8"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/2/2" StartDevice="r-leopard-58" StartPort="Ethernet12"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/3/1" StartDevice="r-leopard-58" StartPort="Ethernet16"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/3/2" StartDevice="r-leopard-58" StartPort="Ethernet20"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/4/1" StartDevice="r-leopard-58" StartPort="Ethernet24"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/4/2" StartDevice="r-leopard-58" StartPort="Ethernet28"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/5/1" StartDevice="r-leopard-58" StartPort="Ethernet32"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/5/2" StartDevice="r-leopard-58" StartPort="Ethernet36"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/6/1" StartDevice="r-leopard-58" StartPort="Ethernet40"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/6/2" StartDevice="r-leopard-58" StartPort="Ethernet44"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/7/1" StartDevice="r-leopard-58" StartPort="Ethernet48"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/7/2" StartDevice="r-leopard-58" StartPort="Ethernet52"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/8/1" StartDevice="r-leopard-58" StartPort="Ethernet56"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/8/2" StartDevice="r-leopard-58" StartPort="Ethernet60"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/9/1" StartDevice="r-leopard-58" StartPort="Ethernet64"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/9/2" StartDevice="r-leopard-58" StartPort="Ethernet68"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/10/1" StartDevice="r-leopard-58" StartPort="Ethernet72"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/10/2" StartDevice="r-leopard-58" StartPort="Ethernet76"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/11/1" StartDevice="r-leopard-58" StartPort="Ethernet80"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/11/2" StartDevice="r-leopard-58" StartPort="Ethernet84"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/12/1" StartDevice="r-leopard-58" StartPort="Ethernet88"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/12/2" StartDevice="r-leopard-58" StartPort="Ethernet92"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/13" StartDevice="r-leopard-58" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/14" StartDevice="r-leopard-58" StartPort="Ethernet104"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/15" StartDevice="r-leopard-58" StartPort="Ethernet112"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/16" StartDevice="r-leopard-58" StartPort="Ethernet120"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/17" StartDevice="r-leopard-58" StartPort="Ethernet128"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/18" StartDevice="r-leopard-58" StartPort="Ethernet136"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/19" StartDevice="r-leopard-58" StartPort="Ethernet144"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="ethernet 1/20" StartDevice="r-leopard-58" StartPort="Ethernet152"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/21/1" StartDevice="r-leopard-58" StartPort="Ethernet160"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/21/2" StartDevice="r-leopard-58" StartPort="Ethernet164"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/22/1" StartDevice="r-leopard-58" StartPort="Ethernet168"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/22/2" StartDevice="r-leopard-58" StartPort="Ethernet172"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/23/1" StartDevice="r-leopard-58" StartPort="Ethernet176"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/23/2" StartDevice="r-leopard-58" StartPort="Ethernet180"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/24/1" StartDevice="r-leopard-58" StartPort="Ethernet184"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/24/2" StartDevice="r-leopard-58" StartPort="Ethernet188"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/25/1" StartDevice="r-leopard-58" StartPort="Ethernet192"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/25/2" StartDevice="r-leopard-58" StartPort="Ethernet196"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/26/1" StartDevice="r-leopard-58" StartPort="Ethernet200"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/26/2" StartDevice="r-leopard-58" StartPort="Ethernet204"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/27/1" StartDevice="r-leopard-58" StartPort="Ethernet208"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/27/2" StartDevice="r-leopard-58" StartPort="Ethernet212"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/28/1" StartDevice="r-leopard-58" StartPort="Ethernet216"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/28/2" StartDevice="r-leopard-58" StartPort="Ethernet220"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/29/1" StartDevice="r-leopard-58" StartPort="Ethernet224"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/29/2" StartDevice="r-leopard-58" StartPort="Ethernet228"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/30/1" StartDevice="r-leopard-58" StartPort="Ethernet232"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/30/3" StartDevice="r-leopard-58" StartPort="Ethernet236"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/31/1" StartDevice="r-leopard-58" StartPort="Ethernet240"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/31/2" StartDevice="r-leopard-58" StartPort="Ethernet244"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/32/1" StartDevice="r-leopard-58" StartPort="Ethernet248"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="ethernet 1/32/2" StartDevice="r-leopard-58" StartPort="Ethernet252"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet0" StartDevice="r-leopard-58" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet4" StartDevice="r-leopard-58" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet8" StartDevice="r-leopard-58" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet12" StartDevice="r-leopard-58" StartPort="Ethernet12"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet16" StartDevice="r-leopard-58" StartPort="Ethernet16"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet20" StartDevice="r-leopard-58" StartPort="Ethernet20"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet24" StartDevice="r-leopard-58" StartPort="Ethernet24"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet28" StartDevice="r-leopard-58" StartPort="Ethernet28"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet32" StartDevice="r-leopard-58" StartPort="Ethernet32"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet36" StartDevice="r-leopard-58" StartPort="Ethernet36"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet40" StartDevice="r-leopard-58" StartPort="Ethernet40"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet44" StartDevice="r-leopard-58" StartPort="Ethernet44"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet48" StartDevice="r-leopard-58" StartPort="Ethernet48"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet52" StartDevice="r-leopard-58" StartPort="Ethernet52"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet56" StartDevice="r-leopard-58" StartPort="Ethernet56"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet60" StartDevice="r-leopard-58" StartPort="Ethernet60"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet64" StartDevice="r-leopard-58" StartPort="Ethernet64"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet68" StartDevice="r-leopard-58" StartPort="Ethernet68"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet72" StartDevice="r-leopard-58" StartPort="Ethernet72"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet76" StartDevice="r-leopard-58" StartPort="Ethernet76"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet80" StartDevice="r-leopard-58" StartPort="Ethernet80"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet84" StartDevice="r-leopard-58" StartPort="Ethernet84"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet88" StartDevice="r-leopard-58" StartPort="Ethernet88"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet92" StartDevice="r-leopard-58" StartPort="Ethernet92"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet96" StartDevice="r-leopard-58" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet104" StartDevice="r-leopard-58" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet112" StartDevice="r-leopard-58" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet120" StartDevice="r-leopard-58" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet128" StartDevice="r-leopard-58" StartPort="Ethernet128"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet136" StartDevice="r-leopard-58" StartPort="Ethernet136"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet144" StartDevice="r-leopard-58" StartPort="Ethernet144"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet152" StartDevice="r-leopard-58" StartPort="Ethernet152"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet160" StartDevice="r-leopard-58" StartPort="Ethernet160"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet164" StartDevice="r-leopard-58" StartPort="Ethernet164"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet168" StartDevice="r-leopard-58" StartPort="Ethernet168"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet172" StartDevice="r-leopard-58" StartPort="Ethernet172"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet176" StartDevice="r-leopard-58" StartPort="Ethernet176"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet180" StartDevice="r-leopard-58" StartPort="Ethernet180"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet184" StartDevice="r-leopard-58" StartPort="Ethernet184"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet188" StartDevice="r-leopard-58" StartPort="Ethernet188"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet192" StartDevice="r-leopard-58" StartPort="Ethernet192"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet196" StartDevice="r-leopard-58" StartPort="Ethernet196"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet200" StartDevice="r-leopard-58" StartPort="Ethernet200"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet204" StartDevice="r-leopard-58" StartPort="Ethernet204"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet208" StartDevice="r-leopard-58" StartPort="Ethernet208"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet212" StartDevice="r-leopard-58" StartPort="Ethernet212"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet216" StartDevice="r-leopard-58" StartPort="Ethernet216"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet220" StartDevice="r-leopard-58" StartPort="Ethernet220"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet224" StartDevice="r-leopard-58" StartPort="Ethernet224"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet228" StartDevice="r-leopard-58" StartPort="Ethernet228"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet232" StartDevice="r-leopard-58" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet236" StartDevice="r-leopard-58" StartPort="Ethernet236"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet240" StartDevice="r-leopard-58" StartPort="Ethernet240"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet244" StartDevice="r-leopard-58" StartPort="Ethernet244"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet248" StartDevice="r-leopard-58" StartPort="Ethernet248"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet252" StartDevice="r-leopard-58" StartPort="Ethernet252"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mts-sonic-fanout" EndPort="ethernet 1/1" StartDevice="mts-sonic-dut" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mts-sonic-fanout" EndPort="ethernet 1/2" StartDevice="mts-sonic-dut" StartPort="Ethernet4"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="mts-sonic-fanout" EndPort="ethernet 1/3" StartDevice="mts-sonic-dut" StartPort="Ethernet8"/>
@@ -1378,120 +1378,119 @@
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-82" EndPort="ethernet 1/27" StartDevice="r-bobcat-01" StartPort="Ethernet208"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-82" EndPort="ethernet 1/28" StartDevice="r-bobcat-01" StartPort="Ethernet216"/>
 
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/1/1" StartDevice="r-leopard-70" StartPort="Ethernet0"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/1/2" StartDevice="r-leopard-70" StartPort="Ethernet4"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/2/1" StartDevice="r-leopard-70" StartPort="Ethernet8"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/2/2" StartDevice="r-leopard-70" StartPort="Ethernet12"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/3/1" StartDevice="r-leopard-70" StartPort="Ethernet16"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/3/2" StartDevice="r-leopard-70" StartPort="Ethernet20"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/4/1" StartDevice="r-leopard-70" StartPort="Ethernet24"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/4/2" StartDevice="r-leopard-70" StartPort="Ethernet28"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/5/1" StartDevice="r-leopard-70" StartPort="Ethernet32"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/5/2" StartDevice="r-leopard-70" StartPort="Ethernet36"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/6/1" StartDevice="r-leopard-70" StartPort="Ethernet40"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/6/2" StartDevice="r-leopard-70" StartPort="Ethernet44"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/7/1" StartDevice="r-leopard-70" StartPort="Ethernet48"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/7/2" StartDevice="r-leopard-70" StartPort="Ethernet52"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/8/1" StartDevice="r-leopard-70" StartPort="Ethernet56"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/8/2" StartDevice="r-leopard-70" StartPort="Ethernet60"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/9/1" StartDevice="r-leopard-70" StartPort="Ethernet64"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/9/2" StartDevice="r-leopard-70" StartPort="Ethernet68"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/10/1" StartDevice="r-leopard-70" StartPort="Ethernet72"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/10/2" StartDevice="r-leopard-70" StartPort="Ethernet76"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/11/1" StartDevice="r-leopard-70" StartPort="Ethernet80"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/11/2" StartDevice="r-leopard-70" StartPort="Ethernet84"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/12/1" StartDevice="r-leopard-70" StartPort="Ethernet88"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/12/2" StartDevice="r-leopard-70" StartPort="Ethernet92"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/13" StartDevice="r-leopard-70" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/14" StartDevice="r-leopard-70" StartPort="Ethernet104"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/15" StartDevice="r-leopard-70" StartPort="Ethernet112"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/16" StartDevice="r-leopard-70" StartPort="Ethernet120"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/17" StartDevice="r-leopard-70" StartPort="Ethernet128"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/18" StartDevice="r-leopard-70" StartPort="Ethernet136"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/19" StartDevice="r-leopard-70" StartPort="Ethernet144"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="ethernet 1/20" StartDevice="r-leopard-70" StartPort="Ethernet152"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/21/1" StartDevice="r-leopard-70" StartPort="Ethernet160"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/21/2" StartDevice="r-leopard-70" StartPort="Ethernet164"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/22/1" StartDevice="r-leopard-70" StartPort="Ethernet168"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/22/2" StartDevice="r-leopard-70" StartPort="Ethernet172"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/23/1" StartDevice="r-leopard-70" StartPort="Ethernet176"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/23/2" StartDevice="r-leopard-70" StartPort="Ethernet180"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/24/1" StartDevice="r-leopard-70" StartPort="Ethernet184"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/24/2" StartDevice="r-leopard-70" StartPort="Ethernet188"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/25/1" StartDevice="r-leopard-70" StartPort="Ethernet192"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/25/2" StartDevice="r-leopard-70" StartPort="Ethernet196"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/26/1" StartDevice="r-leopard-70" StartPort="Ethernet200"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/26/2" StartDevice="r-leopard-70" StartPort="Ethernet204"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/27/1" StartDevice="r-leopard-70" StartPort="Ethernet208"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/27/2" StartDevice="r-leopard-70" StartPort="Ethernet212"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/28/1" StartDevice="r-leopard-70" StartPort="Ethernet216"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/28/2" StartDevice="r-leopard-70" StartPort="Ethernet220"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/29/1" StartDevice="r-leopard-70" StartPort="Ethernet224"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/29/2" StartDevice="r-leopard-70" StartPort="Ethernet228"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/30/1" StartDevice="r-leopard-70" StartPort="Ethernet232"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/30/2" StartDevice="r-leopard-70" StartPort="Ethernet236"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/31/1" StartDevice="r-leopard-70" StartPort="Ethernet240"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/31/2" StartDevice="r-leopard-70" StartPort="Ethernet244"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/31/3" StartDevice="r-leopard-70" StartPort="Ethernet248"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="ethernet 1/31/4" StartDevice="r-leopard-70" StartPort="Ethernet252"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet0" StartDevice="r-leopard-70" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet4" StartDevice="r-leopard-70" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet8" StartDevice="r-leopard-70" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet12" StartDevice="r-leopard-70" StartPort="Ethernet12"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet16" StartDevice="r-leopard-70" StartPort="Ethernet16"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet20" StartDevice="r-leopard-70" StartPort="Ethernet20"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet24" StartDevice="r-leopard-70" StartPort="Ethernet24"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet28" StartDevice="r-leopard-70" StartPort="Ethernet28"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet32" StartDevice="r-leopard-70" StartPort="Ethernet32"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet36" StartDevice="r-leopard-70" StartPort="Ethernet36"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet40" StartDevice="r-leopard-70" StartPort="Ethernet40"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet44" StartDevice="r-leopard-70" StartPort="Ethernet44"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet48" StartDevice="r-leopard-70" StartPort="Ethernet48"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet52" StartDevice="r-leopard-70" StartPort="Ethernet52"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet56" StartDevice="r-leopard-70" StartPort="Ethernet56"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet60" StartDevice="r-leopard-70" StartPort="Ethernet60"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet64" StartDevice="r-leopard-70" StartPort="Ethernet64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet68" StartDevice="r-leopard-70" StartPort="Ethernet68"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet72" StartDevice="r-leopard-70" StartPort="Ethernet72"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet76" StartDevice="r-leopard-70" StartPort="Ethernet76"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet80" StartDevice="r-leopard-70" StartPort="Ethernet80"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet84" StartDevice="r-leopard-70" StartPort="Ethernet84"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet88" StartDevice="r-leopard-70" StartPort="Ethernet88"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet92" StartDevice="r-leopard-70" StartPort="Ethernet92"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet96" StartDevice="r-leopard-70" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet104" StartDevice="r-leopard-70" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet112" StartDevice="r-leopard-70" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet120" StartDevice="r-leopard-70" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet128" StartDevice="r-leopard-70" StartPort="Ethernet128"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet136" StartDevice="r-leopard-70" StartPort="Ethernet136"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet144" StartDevice="r-leopard-70" StartPort="Ethernet144"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-71" EndPort="Ethernet152" StartDevice="r-leopard-70" StartPort="Ethernet152"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet160" StartDevice="r-leopard-70" StartPort="Ethernet160"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet164" StartDevice="r-leopard-70" StartPort="Ethernet164"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet168" StartDevice="r-leopard-70" StartPort="Ethernet168"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet172" StartDevice="r-leopard-70" StartPort="Ethernet172"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet176" StartDevice="r-leopard-70" StartPort="Ethernet176"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet180" StartDevice="r-leopard-70" StartPort="Ethernet180"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet184" StartDevice="r-leopard-70" StartPort="Ethernet184"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet188" StartDevice="r-leopard-70" StartPort="Ethernet188"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet192" StartDevice="r-leopard-70" StartPort="Ethernet192"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet196" StartDevice="r-leopard-70" StartPort="Ethernet196"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet200" StartDevice="r-leopard-70" StartPort="Ethernet200"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet204" StartDevice="r-leopard-70" StartPort="Ethernet204"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet208" StartDevice="r-leopard-70" StartPort="Ethernet208"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet212" StartDevice="r-leopard-70" StartPort="Ethernet212"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet216" StartDevice="r-leopard-70" StartPort="Ethernet216"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet220" StartDevice="r-leopard-70" StartPort="Ethernet220"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet224" StartDevice="r-leopard-70" StartPort="Ethernet224"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet228" StartDevice="r-leopard-70" StartPort="Ethernet228"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet232" StartDevice="r-leopard-70" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet236" StartDevice="r-leopard-70" StartPort="Ethernet236"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet240" StartDevice="r-leopard-70" StartPort="Ethernet240"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet244" StartDevice="r-leopard-70" StartPort="Ethernet244"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet248" StartDevice="r-leopard-70" StartPort="Ethernet248"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-71" EndPort="Ethernet252" StartDevice="r-leopard-70" StartPort="Ethernet252"/>
 
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/1/1" StartDevice="r-leopard-72" StartPort="Ethernet0"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/1/2" StartDevice="r-leopard-72" StartPort="Ethernet4"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/2/1" StartDevice="r-leopard-72" StartPort="Ethernet8"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/2/2" StartDevice="r-leopard-72" StartPort="Ethernet12"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/3/1" StartDevice="r-leopard-72" StartPort="Ethernet16"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/3/2" StartDevice="r-leopard-72" StartPort="Ethernet20"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/4/1" StartDevice="r-leopard-72" StartPort="Ethernet24"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/4/2" StartDevice="r-leopard-72" StartPort="Ethernet28"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/5/1" StartDevice="r-leopard-72" StartPort="Ethernet32"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/5/2" StartDevice="r-leopard-72" StartPort="Ethernet36"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/6/1" StartDevice="r-leopard-72" StartPort="Ethernet40"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/6/2" StartDevice="r-leopard-72" StartPort="Ethernet44"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/7/1" StartDevice="r-leopard-72" StartPort="Ethernet48"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/7/2" StartDevice="r-leopard-72" StartPort="Ethernet52"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/8/1" StartDevice="r-leopard-72" StartPort="Ethernet56"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/8/2" StartDevice="r-leopard-72" StartPort="Ethernet60"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/9/1" StartDevice="r-leopard-72" StartPort="Ethernet64"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/9/2" StartDevice="r-leopard-72" StartPort="Ethernet68"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/10/1" StartDevice="r-leopard-72" StartPort="Ethernet72"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/10/2" StartDevice="r-leopard-72" StartPort="Ethernet76"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/11/1" StartDevice="r-leopard-72" StartPort="Ethernet80"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/11/2" StartDevice="r-leopard-72" StartPort="Ethernet84"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/12/1" StartDevice="r-leopard-72" StartPort="Ethernet88"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/12/2" StartDevice="r-leopard-72" StartPort="Ethernet92"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/13" StartDevice="r-leopard-72" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/14" StartDevice="r-leopard-72" StartPort="Ethernet104"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/15" StartDevice="r-leopard-72" StartPort="Ethernet112"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/16" StartDevice="r-leopard-72" StartPort="Ethernet120"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/17" StartDevice="r-leopard-72" StartPort="Ethernet128"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/18" StartDevice="r-leopard-72" StartPort="Ethernet136"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/19" StartDevice="r-leopard-72" StartPort="Ethernet144"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="ethernet 1/20" StartDevice="r-leopard-72" StartPort="Ethernet152"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/21/1" StartDevice="r-leopard-72" StartPort="Ethernet160"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/21/2" StartDevice="r-leopard-72" StartPort="Ethernet164"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/22/1" StartDevice="r-leopard-72" StartPort="Ethernet168"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/22/2" StartDevice="r-leopard-72" StartPort="Ethernet172"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/23/1" StartDevice="r-leopard-72" StartPort="Ethernet176"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/23/2" StartDevice="r-leopard-72" StartPort="Ethernet180"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/24/1" StartDevice="r-leopard-72" StartPort="Ethernet184"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/24/2" StartDevice="r-leopard-72" StartPort="Ethernet188"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/25/1" StartDevice="r-leopard-72" StartPort="Ethernet192"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/25/2" StartDevice="r-leopard-72" StartPort="Ethernet196"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/26/1" StartDevice="r-leopard-72" StartPort="Ethernet200"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/26/2" StartDevice="r-leopard-72" StartPort="Ethernet204"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/27/1" StartDevice="r-leopard-72" StartPort="Ethernet208"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/27/2" StartDevice="r-leopard-72" StartPort="Ethernet212"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/28/1" StartDevice="r-leopard-72" StartPort="Ethernet216"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/28/2" StartDevice="r-leopard-72" StartPort="Ethernet220"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/29/1" StartDevice="r-leopard-72" StartPort="Ethernet224"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/29/2" StartDevice="r-leopard-72" StartPort="Ethernet228"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/30/1" StartDevice="r-leopard-72" StartPort="Ethernet232"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/30/2" StartDevice="r-leopard-72" StartPort="Ethernet236"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/31/1" StartDevice="r-leopard-72" StartPort="Ethernet240"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/31/2" StartDevice="r-leopard-72" StartPort="Ethernet244"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/31/3" StartDevice="r-leopard-72" StartPort="Ethernet248"/>
-      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="ethernet 1/31/4" StartDevice="r-leopard-72" StartPort="Ethernet252"/>
-
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet0" StartDevice="r-leopard-72" StartPort="Ethernet0"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet4" StartDevice="r-leopard-72" StartPort="Ethernet4"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet8" StartDevice="r-leopard-72" StartPort="Ethernet8"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet12" StartDevice="r-leopard-72" StartPort="Ethernet12"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet16" StartDevice="r-leopard-72" StartPort="Ethernet16"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet20" StartDevice="r-leopard-72" StartPort="Ethernet20"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet24" StartDevice="r-leopard-72" StartPort="Ethernet24"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet28" StartDevice="r-leopard-72" StartPort="Ethernet28"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet32" StartDevice="r-leopard-72" StartPort="Ethernet32"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet36" StartDevice="r-leopard-72" StartPort="Ethernet36"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet40" StartDevice="r-leopard-72" StartPort="Ethernet40"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet44" StartDevice="r-leopard-72" StartPort="Ethernet44"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet48" StartDevice="r-leopard-72" StartPort="Ethernet48"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet52" StartDevice="r-leopard-72" StartPort="Ethernet52"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet56" StartDevice="r-leopard-72" StartPort="Ethernet56"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet60" StartDevice="r-leopard-72" StartPort="Ethernet60"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet64" StartDevice="r-leopard-72" StartPort="Ethernet64"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet68" StartDevice="r-leopard-72" StartPort="Ethernet68"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet72" StartDevice="r-leopard-72" StartPort="Ethernet72"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet76" StartDevice="r-leopard-72" StartPort="Ethernet76"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet80" StartDevice="r-leopard-72" StartPort="Ethernet80"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet84" StartDevice="r-leopard-72" StartPort="Ethernet84"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet88" StartDevice="r-leopard-72" StartPort="Ethernet88"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet92" StartDevice="r-leopard-72" StartPort="Ethernet92"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet96" StartDevice="r-leopard-72" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet104" StartDevice="r-leopard-72" StartPort="Ethernet104"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet112" StartDevice="r-leopard-72" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet120" StartDevice="r-leopard-72" StartPort="Ethernet120"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet128" StartDevice="r-leopard-72" StartPort="Ethernet128"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet136" StartDevice="r-leopard-72" StartPort="Ethernet136"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet144" StartDevice="r-leopard-72" StartPort="Ethernet144"/>
+      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-73" EndPort="Ethernet152" StartDevice="r-leopard-72" StartPort="Ethernet152"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet160" StartDevice="r-leopard-72" StartPort="Ethernet160"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet164" StartDevice="r-leopard-72" StartPort="Ethernet164"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet168" StartDevice="r-leopard-72" StartPort="Ethernet168"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet172" StartDevice="r-leopard-72" StartPort="Ethernet172"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet176" StartDevice="r-leopard-72" StartPort="Ethernet176"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet180" StartDevice="r-leopard-72" StartPort="Ethernet180"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet184" StartDevice="r-leopard-72" StartPort="Ethernet184"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet188" StartDevice="r-leopard-72" StartPort="Ethernet188"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet192" StartDevice="r-leopard-72" StartPort="Ethernet192"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet196" StartDevice="r-leopard-72" StartPort="Ethernet196"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet200" StartDevice="r-leopard-72" StartPort="Ethernet200"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet204" StartDevice="r-leopard-72" StartPort="Ethernet204"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet208" StartDevice="r-leopard-72" StartPort="Ethernet208"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet212" StartDevice="r-leopard-72" StartPort="Ethernet212"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet216" StartDevice="r-leopard-72" StartPort="Ethernet216"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet220" StartDevice="r-leopard-72" StartPort="Ethernet220"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet224" StartDevice="r-leopard-72" StartPort="Ethernet224"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet228" StartDevice="r-leopard-72" StartPort="Ethernet228"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet232" StartDevice="r-leopard-72" StartPort="Ethernet232"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet236" StartDevice="r-leopard-72" StartPort="Ethernet236"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet240" StartDevice="r-leopard-72" StartPort="Ethernet240"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet244" StartDevice="r-leopard-72" StartPort="Ethernet244"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet248" StartDevice="r-leopard-72" StartPort="Ethernet248"/>
+      <DeviceInterfaceLink BandWidth="200000" EndDevice="r-leopard-73" EndPort="Ethernet252" StartDevice="r-leopard-72" StartPort="Ethernet252"/>
 
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-tigon-14" EndPort="Ethernet0" StartDevice="r-tigon-04" StartPort="Ethernet0"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-tigon-14" EndPort="Ethernet4" StartDevice="r-tigon-04" StartPort="Ethernet4"/>
@@ -2165,13 +2164,13 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-12" EndPort="p5p2" StartDevice="r-panther-41" StartPort="ethernet 1/26/2"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r730-01" EndPort="p6p2" StartDevice="arc-switchmtbc02" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-host26" EndPort="p4p1" StartDevice="arc-switch1005" StartPort="ethernet 1/32"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-sonic-03" EndPort="p4p1" StartDevice="r-leopard-59" StartPort="ethernet 1/30/2"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-sonic-03" EndPort="p4p1" StartDevice="r-leopard-59" StartPort="Ethernet236"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-host121" EndPort="p4p1" StartDevice="arc-switch1035" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-host83" EndPort="p4p1" StartDevice="arc-switch1039" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-sonic-07" EndPort="p5p1" StartDevice="r-liger-05" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="r-r640-15" EndPort="enp59s0f0" StartDevice="r-liger-12" StartPort="Ethernet252"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-16" EndPort="p2p1" StartDevice="r-leopard-71" StartPort="ethernet 1/32"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r-vrt-249" EndPort="p4p1" StartDevice="r-leopard-73" StartPort="ethernet 1/32"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r640-16" EndPort="p2p1" StartDevice="r-leopard-71" StartPort="Ethernet248"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r-vrt-249" EndPort="p4p1" StartDevice="r-leopard-73" StartPort="Ethernet248"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r640-01" EndPort="p1p1" StartDevice="mtvr-liger-01" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r640-02" EndPort="p1p1" StartDevice="mtvr-liger-02" StartPort="ethernet 1/64"/>
       <DeviceInterfaceLink BandWidth="200000" EndDevice="mtvr-r740-01" EndPort="p3p1" StartDevice="mtvr-liger-03" StartPort="ethernet 1/64"/>
@@ -2207,7 +2206,7 @@
       <ManagementIPInterface Name="ManagementIp" Prefix="10.210.24.23/24"/>
     </DevicesL3Info>
     <DevicesL3Info Hostname="r-leopard-59">
-      <ManagementIPInterface Name="ManagementIp" Prefix="10.210.25.3/24"/>
+      <ManagementIPInterface Name="ManagementIp" Prefix="10.210.25.3/22"/>
     </DevicesL3Info>
     <DevicesL3Info Hostname="arc-switch1007">
       <ManagementIPInterface Name="ManagementIp" Prefix="10.210.25.42/24"/>
@@ -2436,63 +2435,63 @@
         <InterfaceVlan mode="Trunk" portname="Ethernet236" vlanids="101-156"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="r-leopard-59">
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/1" vlanids="101"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/2" vlanids="102"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/1" vlanids="103"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/2" vlanids="104"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/1" vlanids="105"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/2" vlanids="106"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/1" vlanids="107"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/2" vlanids="108"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/1" vlanids="109"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/2" vlanids="110"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/1" vlanids="111"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/2" vlanids="112"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/1" vlanids="113"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/2" vlanids="114"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/1" vlanids="115"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/2" vlanids="116"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/1" vlanids="117"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/2" vlanids="118"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/1" vlanids="119"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/2" vlanids="120"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/1" vlanids="121"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/2" vlanids="122"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/1" vlanids="123"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/2" vlanids="124"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/13" vlanids="125"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/14" vlanids="126"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/15" vlanids="127"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/16" vlanids="128"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/17" vlanids="129"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/18" vlanids="130"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/19" vlanids="131"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/20" vlanids="132"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/1" vlanids="133"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/2" vlanids="134"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/1" vlanids="135"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/2" vlanids="136"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/1" vlanids="137"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/2" vlanids="138"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/1" vlanids="139"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/2" vlanids="140"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/1" vlanids="141"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/2" vlanids="142"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/1" vlanids="143"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/2" vlanids="144"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="145"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="146"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="147"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/2" vlanids="148"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/1" vlanids="149"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/2" vlanids="150"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/1" vlanids="151"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/3" vlanids="152"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="153"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="154"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/32/1" vlanids="155"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/32/2" vlanids="156"/>
-        <InterfaceVlan mode="Trunk" portname="ethernet 1/30/2" vlanids="101-156"/>
+        <InterfaceVlan mode="Access" portname="Ethernet0" vlanids="101"/>
+        <InterfaceVlan mode="Access" portname="Ethernet4" vlanids="102"/>
+        <InterfaceVlan mode="Access" portname="Ethernet8" vlanids="103"/>
+        <InterfaceVlan mode="Access" portname="Ethernet12" vlanids="104"/>
+        <InterfaceVlan mode="Access" portname="Ethernet16" vlanids="105"/>
+        <InterfaceVlan mode="Access" portname="Ethernet20" vlanids="106"/>
+        <InterfaceVlan mode="Access" portname="Ethernet24" vlanids="107"/>
+        <InterfaceVlan mode="Access" portname="Ethernet28" vlanids="108"/>
+        <InterfaceVlan mode="Access" portname="Ethernet32" vlanids="109"/>
+        <InterfaceVlan mode="Access" portname="Ethernet36" vlanids="110"/>
+        <InterfaceVlan mode="Access" portname="Ethernet40" vlanids="111"/>
+        <InterfaceVlan mode="Access" portname="Ethernet44" vlanids="112"/>
+        <InterfaceVlan mode="Access" portname="Ethernet48" vlanids="113"/>
+        <InterfaceVlan mode="Access" portname="Ethernet52" vlanids="114"/>
+        <InterfaceVlan mode="Access" portname="Ethernet56" vlanids="115"/>
+        <InterfaceVlan mode="Access" portname="Ethernet60" vlanids="116"/>
+        <InterfaceVlan mode="Access" portname="Ethernet64" vlanids="117"/>
+        <InterfaceVlan mode="Access" portname="Ethernet68" vlanids="118"/>
+        <InterfaceVlan mode="Access" portname="Ethernet72" vlanids="119"/>
+        <InterfaceVlan mode="Access" portname="Ethernet76" vlanids="120"/>
+        <InterfaceVlan mode="Access" portname="Ethernet80" vlanids="121"/>
+        <InterfaceVlan mode="Access" portname="Ethernet84" vlanids="122"/>
+        <InterfaceVlan mode="Access" portname="Ethernet88" vlanids="123"/>
+        <InterfaceVlan mode="Access" portname="Ethernet92" vlanids="124"/>
+        <InterfaceVlan mode="Access" portname="Ethernet96" vlanids="125"/>
+        <InterfaceVlan mode="Access" portname="Ethernet104" vlanids="126"/>
+        <InterfaceVlan mode="Access" portname="Ethernet112" vlanids="127"/>
+        <InterfaceVlan mode="Access" portname="Ethernet120" vlanids="128"/>
+        <InterfaceVlan mode="Access" portname="Ethernet128" vlanids="129"/>
+        <InterfaceVlan mode="Access" portname="Ethernet136" vlanids="130"/>
+        <InterfaceVlan mode="Access" portname="Ethernet144" vlanids="131"/>
+        <InterfaceVlan mode="Access" portname="Ethernet152" vlanids="132"/>
+        <InterfaceVlan mode="Access" portname="Ethernet160" vlanids="133"/>
+        <InterfaceVlan mode="Access" portname="Ethernet164" vlanids="134"/>
+        <InterfaceVlan mode="Access" portname="Ethernet168" vlanids="135"/>
+        <InterfaceVlan mode="Access" portname="Ethernet172" vlanids="136"/>
+        <InterfaceVlan mode="Access" portname="Ethernet176" vlanids="137"/>
+        <InterfaceVlan mode="Access" portname="Ethernet180" vlanids="138"/>
+        <InterfaceVlan mode="Access" portname="Ethernet184" vlanids="139"/>
+        <InterfaceVlan mode="Access" portname="Ethernet188" vlanids="140"/>
+        <InterfaceVlan mode="Access" portname="Ethernet192" vlanids="141"/>
+        <InterfaceVlan mode="Access" portname="Ethernet196" vlanids="142"/>
+        <InterfaceVlan mode="Access" portname="Ethernet200" vlanids="143"/>
+        <InterfaceVlan mode="Access" portname="Ethernet204" vlanids="144"/>
+        <InterfaceVlan mode="Access" portname="Ethernet208" vlanids="145"/>
+        <InterfaceVlan mode="Access" portname="Ethernet212" vlanids="146"/>
+        <InterfaceVlan mode="Access" portname="Ethernet216" vlanids="147"/>
+        <InterfaceVlan mode="Access" portname="Ethernet220" vlanids="148"/>
+        <InterfaceVlan mode="Access" portname="Ethernet224" vlanids="149"/>
+        <InterfaceVlan mode="Access" portname="Ethernet228" vlanids="150"/>
+        <InterfaceVlan mode="Access" portname="Ethernet232" vlanids="151"/>
+        <InterfaceVlan mode="Access" portname="Ethernet236" vlanids="152"/>
+        <InterfaceVlan mode="Access" portname="Ethernet240" vlanids="153"/>
+        <InterfaceVlan mode="Access" portname="Ethernet244" vlanids="154"/>
+        <InterfaceVlan mode="Access" portname="Ethernet248" vlanids="155"/>
+        <InterfaceVlan mode="Access" portname="Ethernet252" vlanids="156"/>
+        <InterfaceVlan mode="Trunk" portname="Ethernet236" vlanids="101-156"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="arc-switch1007">
       <InterfaceVlan mode="Access" portname="ethernet 1/1" vlanids="101"/>
@@ -3602,122 +3601,122 @@
     </DevicesL2Info>
 
     <DevicesL2Info Hostname="r-leopard-71">
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/1" vlanids="301"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/2" vlanids="302"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/1" vlanids="303"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/2" vlanids="304"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/1" vlanids="305"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/2" vlanids="306"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/1" vlanids="307"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/2" vlanids="308"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/1" vlanids="309"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/2" vlanids="310"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/1" vlanids="311"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/2" vlanids="312"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/1" vlanids="313"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/2" vlanids="314"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/1" vlanids="315"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/2" vlanids="316"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/1" vlanids="317"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/2" vlanids="318"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/1" vlanids="319"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/2" vlanids="320"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/1" vlanids="321"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/2" vlanids="322"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/1" vlanids="323"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/2" vlanids="324"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/13" vlanids="325"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/14" vlanids="326"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/15" vlanids="327"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/16" vlanids="328"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/17" vlanids="329"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/18" vlanids="330"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/19" vlanids="331"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/20" vlanids="332"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/1" vlanids="333"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/2" vlanids="334"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/1" vlanids="335"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/2" vlanids="336"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/1" vlanids="337"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/2" vlanids="338"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/1" vlanids="339"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/2" vlanids="340"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/1" vlanids="341"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/2" vlanids="342"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/1" vlanids="343"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/2" vlanids="344"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="345"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="346"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="347"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/2" vlanids="348"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/1" vlanids="349"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/2" vlanids="350"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/1" vlanids="351"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/2" vlanids="352"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="353"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="354"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/3" vlanids="355"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/4" vlanids="356"/>
-        <InterfaceVlan mode="Trunk" portname="ethernet 1/32" vlanids="301-356"/>
+        <InterfaceVlan mode="Access" portname="Ethernet0" vlanids="301"/>
+        <InterfaceVlan mode="Access" portname="Ethernet4" vlanids="302"/>
+        <InterfaceVlan mode="Access" portname="Ethernet8" vlanids="303"/>
+        <InterfaceVlan mode="Access" portname="Ethernet12" vlanids="304"/>
+        <InterfaceVlan mode="Access" portname="Ethernet16" vlanids="305"/>
+        <InterfaceVlan mode="Access" portname="Ethernet20" vlanids="306"/>
+        <InterfaceVlan mode="Access" portname="Ethernet24" vlanids="307"/>
+        <InterfaceVlan mode="Access" portname="Ethernet28" vlanids="308"/>
+        <InterfaceVlan mode="Access" portname="Ethernet32" vlanids="309"/>
+        <InterfaceVlan mode="Access" portname="Ethernet36" vlanids="310"/>
+        <InterfaceVlan mode="Access" portname="Ethernet40" vlanids="311"/>
+        <InterfaceVlan mode="Access" portname="Ethernet44" vlanids="312"/>
+        <InterfaceVlan mode="Access" portname="Ethernet48" vlanids="313"/>
+        <InterfaceVlan mode="Access" portname="Ethernet52" vlanids="314"/>
+        <InterfaceVlan mode="Access" portname="Ethernet56" vlanids="315"/>
+        <InterfaceVlan mode="Access" portname="Ethernet60" vlanids="316"/>
+        <InterfaceVlan mode="Access" portname="Ethernet64" vlanids="317"/>
+        <InterfaceVlan mode="Access" portname="Ethernet68" vlanids="318"/>
+        <InterfaceVlan mode="Access" portname="Ethernet72" vlanids="319"/>
+        <InterfaceVlan mode="Access" portname="Ethernet76" vlanids="320"/>
+        <InterfaceVlan mode="Access" portname="Ethernet80" vlanids="321"/>
+        <InterfaceVlan mode="Access" portname="Ethernet84" vlanids="322"/>
+        <InterfaceVlan mode="Access" portname="Ethernet88" vlanids="323"/>
+        <InterfaceVlan mode="Access" portname="Ethernet92" vlanids="324"/>
+        <InterfaceVlan mode="Access" portname="Ethernet96" vlanids="325"/>
+        <InterfaceVlan mode="Access" portname="Ethernet104" vlanids="326"/>
+        <InterfaceVlan mode="Access" portname="Ethernet112" vlanids="327"/>
+        <InterfaceVlan mode="Access" portname="Ethernet120" vlanids="328"/>
+        <InterfaceVlan mode="Access" portname="Ethernet128" vlanids="329"/>
+        <InterfaceVlan mode="Access" portname="Ethernet136" vlanids="330"/>
+        <InterfaceVlan mode="Access" portname="Ethernet144" vlanids="331"/>
+        <InterfaceVlan mode="Access" portname="Ethernet152" vlanids="332"/>
+        <InterfaceVlan mode="Access" portname="Ethernet160" vlanids="333"/>
+        <InterfaceVlan mode="Access" portname="Ethernet164" vlanids="334"/>
+        <InterfaceVlan mode="Access" portname="Ethernet168" vlanids="335"/>
+        <InterfaceVlan mode="Access" portname="Ethernet172" vlanids="336"/>
+        <InterfaceVlan mode="Access" portname="Ethernet176" vlanids="337"/>
+        <InterfaceVlan mode="Access" portname="Ethernet180" vlanids="338"/>
+        <InterfaceVlan mode="Access" portname="Ethernet184" vlanids="339"/>
+        <InterfaceVlan mode="Access" portname="Ethernet188" vlanids="340"/>
+        <InterfaceVlan mode="Access" portname="Ethernet192" vlanids="341"/>
+        <InterfaceVlan mode="Access" portname="Ethernet196" vlanids="342"/>
+        <InterfaceVlan mode="Access" portname="Ethernet200" vlanids="343"/>
+        <InterfaceVlan mode="Access" portname="Ethernet204" vlanids="344"/>
+        <InterfaceVlan mode="Access" portname="Ethernet208" vlanids="345"/>
+        <InterfaceVlan mode="Access" portname="Ethernet212" vlanids="346"/>
+        <InterfaceVlan mode="Access" portname="Ethernet216" vlanids="347"/>
+        <InterfaceVlan mode="Access" portname="Ethernet220" vlanids="348"/>
+        <InterfaceVlan mode="Access" portname="Ethernet224" vlanids="349"/>
+        <InterfaceVlan mode="Access" portname="Ethernet228" vlanids="350"/>
+        <InterfaceVlan mode="Access" portname="Ethernet232" vlanids="351"/>
+        <InterfaceVlan mode="Access" portname="Ethernet236" vlanids="352"/>
+        <InterfaceVlan mode="Access" portname="Ethernet240" vlanids="353"/>
+        <InterfaceVlan mode="Access" portname="Ethernet244" vlanids="354"/>
+        <InterfaceVlan mode="Access" portname="Ethernet248" vlanids="355"/>
+        <InterfaceVlan mode="Access" portname="Ethernet252" vlanids="356"/>
+        <InterfaceVlan mode="Trunk" portname="Ethernet248" vlanids="301-356"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="r-leopard-73">
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/1" vlanids="401"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/1/2" vlanids="402"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/1" vlanids="403"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/2/2" vlanids="404"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/1" vlanids="405"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/3/2" vlanids="406"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/1" vlanids="407"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/4/2" vlanids="408"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/1" vlanids="409"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/5/2" vlanids="410"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/1" vlanids="411"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/6/2" vlanids="412"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/1" vlanids="413"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/7/2" vlanids="414"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/1" vlanids="415"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/8/2" vlanids="416"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/1" vlanids="417"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/9/2" vlanids="418"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/1" vlanids="419"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/10/2" vlanids="420"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/1" vlanids="421"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/11/2" vlanids="422"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/1" vlanids="423"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/12/2" vlanids="424"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/13" vlanids="425"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/14" vlanids="426"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/15" vlanids="427"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/16" vlanids="428"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/17" vlanids="429"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/18" vlanids="430"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/19" vlanids="431"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/20" vlanids="432"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/1" vlanids="433"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/21/2" vlanids="434"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/1" vlanids="435"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/22/2" vlanids="436"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/1" vlanids="437"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/23/2" vlanids="438"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/1" vlanids="439"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/24/2" vlanids="440"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/1" vlanids="441"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/25/2" vlanids="442"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/1" vlanids="443"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/26/2" vlanids="444"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="445"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="446"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="447"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/28/2" vlanids="448"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/1" vlanids="449"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/29/2" vlanids="450"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/1" vlanids="451"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/30/2" vlanids="452"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/1" vlanids="453"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/2" vlanids="454"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/3" vlanids="455"/>
-        <InterfaceVlan mode="Access" portname="ethernet 1/31/4" vlanids="456"/>
-        <InterfaceVlan mode="Trunk" portname="ethernet 1/32" vlanids="401-456"/>
+        <InterfaceVlan mode="Access" portname="Ethernet0" vlanids="401"/>
+        <InterfaceVlan mode="Access" portname="Ethernet4" vlanids="402"/>
+        <InterfaceVlan mode="Access" portname="Ethernet8" vlanids="403"/>
+        <InterfaceVlan mode="Access" portname="Ethernet12" vlanids="404"/>
+        <InterfaceVlan mode="Access" portname="Ethernet16" vlanids="405"/>
+        <InterfaceVlan mode="Access" portname="Ethernet20" vlanids="406"/>
+        <InterfaceVlan mode="Access" portname="Ethernet24" vlanids="407"/>
+        <InterfaceVlan mode="Access" portname="Ethernet28" vlanids="408"/>
+        <InterfaceVlan mode="Access" portname="Ethernet32" vlanids="409"/>
+        <InterfaceVlan mode="Access" portname="Ethernet36" vlanids="410"/>
+        <InterfaceVlan mode="Access" portname="Ethernet40" vlanids="411"/>
+        <InterfaceVlan mode="Access" portname="Ethernet44" vlanids="412"/>
+        <InterfaceVlan mode="Access" portname="Ethernet48" vlanids="413"/>
+        <InterfaceVlan mode="Access" portname="Ethernet52" vlanids="414"/>
+        <InterfaceVlan mode="Access" portname="Ethernet56" vlanids="415"/>
+        <InterfaceVlan mode="Access" portname="Ethernet60" vlanids="416"/>
+        <InterfaceVlan mode="Access" portname="Ethernet64" vlanids="417"/>
+        <InterfaceVlan mode="Access" portname="Ethernet68" vlanids="418"/>
+        <InterfaceVlan mode="Access" portname="Ethernet72" vlanids="419"/>
+        <InterfaceVlan mode="Access" portname="Ethernet76" vlanids="420"/>
+        <InterfaceVlan mode="Access" portname="Ethernet80" vlanids="421"/>
+        <InterfaceVlan mode="Access" portname="Ethernet84" vlanids="422"/>
+        <InterfaceVlan mode="Access" portname="Ethernet88" vlanids="423"/>
+        <InterfaceVlan mode="Access" portname="Ethernet92" vlanids="424"/>
+        <InterfaceVlan mode="Access" portname="Ethernet96" vlanids="425"/>
+        <InterfaceVlan mode="Access" portname="Ethernet104" vlanids="426"/>
+        <InterfaceVlan mode="Access" portname="Ethernet112" vlanids="427"/>
+        <InterfaceVlan mode="Access" portname="Ethernet120" vlanids="428"/>
+        <InterfaceVlan mode="Access" portname="Ethernet128" vlanids="429"/>
+        <InterfaceVlan mode="Access" portname="Ethernet136" vlanids="430"/>
+        <InterfaceVlan mode="Access" portname="Ethernet144" vlanids="431"/>
+        <InterfaceVlan mode="Access" portname="Ethernet152" vlanids="432"/>
+        <InterfaceVlan mode="Access" portname="Ethernet160" vlanids="433"/>
+        <InterfaceVlan mode="Access" portname="Ethernet164" vlanids="434"/>
+        <InterfaceVlan mode="Access" portname="Ethernet168" vlanids="435"/>
+        <InterfaceVlan mode="Access" portname="Ethernet172" vlanids="436"/>
+        <InterfaceVlan mode="Access" portname="Ethernet176" vlanids="437"/>
+        <InterfaceVlan mode="Access" portname="Ethernet180" vlanids="438"/>
+        <InterfaceVlan mode="Access" portname="Ethernet184" vlanids="439"/>
+        <InterfaceVlan mode="Access" portname="Ethernet188" vlanids="440"/>
+        <InterfaceVlan mode="Access" portname="Ethernet192" vlanids="441"/>
+        <InterfaceVlan mode="Access" portname="Ethernet196" vlanids="442"/>
+        <InterfaceVlan mode="Access" portname="Ethernet200" vlanids="443"/>
+        <InterfaceVlan mode="Access" portname="Ethernet204" vlanids="444"/>
+        <InterfaceVlan mode="Access" portname="Ethernet208" vlanids="445"/>
+        <InterfaceVlan mode="Access" portname="Ethernet212" vlanids="446"/>
+        <InterfaceVlan mode="Access" portname="Ethernet216" vlanids="447"/>
+        <InterfaceVlan mode="Access" portname="Ethernet220" vlanids="448"/>
+        <InterfaceVlan mode="Access" portname="Ethernet224" vlanids="449"/>
+        <InterfaceVlan mode="Access" portname="Ethernet228" vlanids="450"/>
+        <InterfaceVlan mode="Access" portname="Ethernet232" vlanids="451"/>
+        <InterfaceVlan mode="Access" portname="Ethernet236" vlanids="452"/>
+        <InterfaceVlan mode="Access" portname="Ethernet240" vlanids="453"/>
+        <InterfaceVlan mode="Access" portname="Ethernet244" vlanids="454"/>
+        <InterfaceVlan mode="Access" portname="Ethernet248" vlanids="455"/>
+        <InterfaceVlan mode="Access" portname="Ethernet252" vlanids="456"/>
+        <InterfaceVlan mode="Trunk" portname="Ethernet248" vlanids="401-456"/>
     </DevicesL2Info>
     <DevicesL2Info Hostname="r-tigon-14">
         <InterfaceVlan mode="Access" portname="Ethernet0" vlanids="101"/>
@@ -4378,6 +4377,7 @@
   <ConsoleGraphDeclaration>
     <DevicesConsoleInfo>
       <DeviceConsoleInfo Hostname="console-1" HwSku="Cisco" ManagementIp="192.168.10.1" Protocol="ssh" Type="ConsoleServer"/>
+      <DeviceConsoleInfo Hostname="r-leopard-73" HwSku="Mellanox-SN4700-O8V48" ManagementIp='10.210.24.210' Os="sonic" ManagementGw="10.210.24.1" Protocol="" Type="FanoutLeaf"/>
     </DevicesConsoleInfo>
     <ConsoleLinksInfo>
       <ConsoleLinkInfo Console_type="ssh" EndDevice="str-msn2700-01" Proxy="root" StartDevice="console-1" StartPort="10"/>
