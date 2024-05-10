@@ -3322,6 +3322,19 @@
     - r-r740-05-bf3-sonic-01
   comment: Mellanox MTR testbed
 
+- conf-name: r-r740-05-bf3-sonic-01-dpu-1
+  group-name: vm-t1-02
+  topo: dpu-1
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-bf3-740-05-01
+  ptf_ip: 10.215.11.47/16
+  ptf_ipv6:
+  server: server_56
+  vm_base: VM2103
+  dut:
+    - r-r740-05-bf3-sonic-01
+  comment: Mellanox MTR testbed
+
 - conf-name: r-r740-05-bf3-sonic-01-ptf-any
   group-name: vm-t1-02
   topo: dpu
