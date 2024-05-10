@@ -53,7 +53,10 @@ class OpenApiRequest:
 
     @staticmethod
     def print_response(r: requests.Response, req_type):
-        response = json.dumps(r.json(), indent=2) if req_type == OpenApiReqType.PATCH else r.content
+        if getattr(r, 'text', '').startswith('<html>'):
+            response = r.text
+        else:
+            response = json.dumps(r.json(), indent=2) if req_type == OpenApiReqType.PATCH else r.content
         output = f'\n' \
                  f'=======Response=======\n' \
                  f'{OpenApiRequest.format_json_str(response)}\n' \
