@@ -542,8 +542,8 @@
 				],
 				"CPLD2": [
 					{
-						"firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI_Local/FUI_Local.mpfa",
-						"version": "CPLD060352_REV0002",
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI000282/FUI000282.mpfa",
+						"version": "CPLD000352_REV0200",
 						"reboot": ["power off", "cold"]
 					}
 				]
@@ -655,30 +655,7 @@
 			}
 		}
 	},
-	"unsigned":{
-        "SN5400":{
-            "component":{
-                "CPLD2": [
-                    {
-                        "firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI_Local/FUI_Local.mpfa",
-                        "version": "CPLD060352_REV0002",
-                        "reboot": ["power off", "cold"]
-                    }
-                ]
-            }
-        },
-		"SN5600":{
-			"component":{
-				"CPLD2": [
-                    {
-                            "firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI060225/FUI060225.mpfa",
-                            "version": "CPLD060330_REV0400",
-                            "reboot": ["power off","cold"]
-                    }
-				]
-			}
-		}
-	},
+	"unsigned":{},
     "key_mismatched_signed":{
         "SN5400": {
             "component": {
@@ -703,18 +680,6 @@
                     {
                         "firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0011/115200/onie-updater-x86_64-mlnx_x86-r0",
                         "version": "2023.11-5.3.0011-115200",
-                        "type": "prod"
-                    }
-                ],
-                "CPLD2": [
-                    {
-                        "firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI_Local/FUI_Local.mpfa",
-                        "version": "CPLD060352_REV0002",
-                        "type": "dev"
-                    },
-                    {
-                        "firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI_Local/FUI_Local.mpfa",
-                        "version": "CPLD060352_REV0002",
                         "type": "prod"
                     }
                 ]
@@ -745,19 +710,7 @@
                             "version": "0ACQF_05.02.x02",
 							"type": "prod"
                     }
-				],
-                "CPLD2": [
-                    {
-                            "firmware":  "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000227/FUI000227.mpfa",
-                            "version": "CPLD000330_REV0500",
-							"type": "prod"
-                    },
-					{
-                            "firmware":  "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5600/FUI000225/FUI000225.mpfa",
-                            "version": "CPLD000330_REV0500",
-							"type": "dev"
-                    }
-                ]
+				]
             }
         }
     }
