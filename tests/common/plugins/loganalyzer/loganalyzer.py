@@ -415,8 +415,9 @@ class LogAnalyzer:
 
         if fail:
             self._verify_log(analyzer_summary)
-        else:
+        elif store_la_logs:
             self._post_err_msg_handler(analyzer_summary)
+        else:
             return analyzer_summary
 
     def _post_err_msg_handler(self, analyzer_summary):
