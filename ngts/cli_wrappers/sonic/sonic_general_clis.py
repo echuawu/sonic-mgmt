@@ -669,7 +669,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         return dut_is_alive
 
-    def remote_reboot(self, topology_obj):
+    def remote_reboot(self, topology_obj, boot_into_onie=False):
         ip = self.engine.ip
         port = self.engine.ssh_port
         logger.info('Executing remote reboot')
@@ -677,9 +677,44 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             'remote_reboot']
         _, _, rc = run_process_on_host(cmd)
         if rc == InfraConst.RC_SUCCESS:
+            if boot_into_onie:
+                self.boot_into_onie_by_serial_on_remote_reboot(topology_obj)
             check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port)
         else:
             raise Exception('Remote reboot rc is other then 0')
+
+    def boot_into_onie_by_serial_on_remote_reboot(self, topology_obj):
+        serial_engine = SecureBootHelper.get_serial_engine_instance(topology_obj)
+        serial_engine.create_serial_engine(login_to_switch=False)
+        arrow_down_key = "\x1b[B"
+        arrow_up_key = "\x1b[A"
+        enter_key = '\r'
+
+        logger.info("Wait for GNU GRUB  version")
+        output, respond = serial_engine.run_cmd(
+            '', ['GRUB loading.', 'GNU GRUB  version'], timeout=240, send_without_enter=True)
+        logger.info(f"GNU GRUB  version is ready.\n output:{output} \n respond:{respond}")
+
+        logger.info("Select ONIE by pressing arrow down")
+        # press the arrow up several times to ensure the item is selected
+        for i in range(3):
+            logger.info("Sending one arrow down")
+            serial_engine.run_cmd(arrow_down_key, expected_value='.*', send_without_enter=True)
+            time.sleep(0.5)
+        logger.info("Onie option selected")
+
+        logger.info("Pressing Enter to enter ONIE grub menu")
+        serial_engine.run_cmd(enter_key, expected_value='.*', timeout=30, send_without_enter=True)
+
+        logger.info("Select 'ONIE: Install OS' by entering arrow up")
+        # press the arrow up several times to ensure the item is selected
+        for i in range(2):
+            logger.info("Sending one arrow up")
+            serial_engine.run_cmd(arrow_up_key, expected_value='.*', send_without_enter=True)
+            time.sleep(0.5)
+
+        logger.info("Pressing Enter to enter ONIE: Install OS")
+        serial_engine.run_cmd('\r', expected_value='.*', timeout=30, send_without_enter=True)
 
     def prepare_for_installation(self, topology_obj):
         switch_in_onie = False
@@ -689,18 +724,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 switch_in_onie = True
             except Exception as err:
                 logger.warning(f'DUT is not in ONIE. \n Got error: {err}')
-                if self.switch_dut_to_onie_due_to_unmatched_password():
+                # it can cover the following scenarios
+                # 1. user/password doesn't match the default one
+                # 2. ping and ssh switch are ok, but cannot login into it
+                if self.switch_dut_to_onie_by_remote_reboot(topology_obj):
                     switch_in_onie = True
         else:
-            if self.switch_dut_to_onie_by_serial_on_dut_stuck_on_selecting_os_page(topology_obj):
-                switch_in_onie = True
-            if self.switch_dut_from_sonic_to_onie_by_serial_on_dut_is_not_alive(topology_obj):
-                switch_in_onie = True
             if self.switch_dut_to_onie_by_remote_reboot(topology_obj):
                 switch_in_onie = True
-            if self.switch_dut_to_onie_due_to_unmatched_password():
+            elif self.switch_dut_to_onie_by_serial_on_dut_stuck_on_selecting_os_page(topology_obj):
                 switch_in_onie = True
-
+            elif self.switch_dut_from_sonic_to_onie_by_serial_on_dut_is_not_alive(topology_obj):
+                switch_in_onie = True
         return switch_in_onie
 
     def switch_dut_to_onie_due_to_unmatched_password(self):
@@ -720,7 +755,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Do remote reboot because dut is not alive'):
             try:
                 logger.info("Do remote reboot ...")
-                self.remote_reboot(topology_obj)
+                self.remote_reboot(topology_obj, boot_into_onie=True)
             except Exception as err:
                 logger.info(f"remote reboot err:{err}")
 

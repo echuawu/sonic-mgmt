@@ -44,8 +44,8 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                 self.raw_options += " -m yaml"
 
         allure_project = get_allure_project_id(self.setup_name, self.test_script)
+        random_seed = int(time.time())
         if self.sonic_topo:
-            random_seed = int(time.time())
             cmd_template = '/ngts_venv/bin/pytest --setup_name={} --sonic-topo={} --session_id={} --mars_key_id={} {} ' \
                            '--dynamic_update_skip_reason --allure_server_project_id={} {} --random_seed={} ' \
                            '--store_la_logs --ignore_la_failure'
@@ -53,10 +53,18 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
                                       self.raw_options, allure_project, self.test_script, random_seed)
         else:
             cmd_template = '/ngts_venv/bin/pytest --setup_name={} --session_id={} --mars_key_id={} {} ' \
-                           '--dynamic_update_skip_reason --allure_server_project_id={} {} ' \
+                           '--dynamic_update_skip_reason --allure_server_project_id={} {} --random_seed={} ' \
                            '--store_la_logs --ignore_la_failure'
             cmd = cmd_template.format(self.setup_name, self.session_id, self.mars_key_id,
-                                      self.raw_options, allure_project, self.test_script)
+                                      self.raw_options, allure_project, self.test_script, random_seed)
+
+        # when disabling one plugin, we also need to remove the relevant pytest argument
+        if "no:ngts.tools.conditional_mark" in cmd:
+            cmd = cmd.replace("--dynamic_update_skip_reason", "")
+        if "no:ngts.tools.loganalyzer" in cmd:
+            cmd = cmd.replace("--store_la_logs", "")
+        if "no:ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore" in cmd:
+            cmd = cmd.replace("--ignore_la_failure", "")
 
         for epoint in self.EPoints:
             dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
