@@ -4142,3 +4142,10 @@
   Conditions:
   - Redmine:
     - 3853187
+
+# Ignore errors based on analysis of RM issue 3896758
+- Errors_list:
+  - '.*Failed to restart.*?service: Transaction for .*?service/restart is destructive'
+  Conditions:
+  - Affected_test_cases:
+    - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
