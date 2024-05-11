@@ -238,13 +238,6 @@ crm/test_crm.py::test_crm_fdb_entry:
     reason: "Unsupported topology, expected to run only on 'T0*' or 'M0/MX' topology"
     conditions:
       - "'t0' not in topo_name and topo_type not in ['m0', 'mx']"
-
-crm/test_crm.py::test_crm_route:
-  skip:
-    reason: "Skip the test on mellanox  device due to the bug of https://github.com/sonic-net/sonic-mgmt/issues/12725"
-    conditions:
-      - https://github.com/sonic-net/sonic-mgmt/issues/12725
-      - "asic_type in ['mellanox']"
 #######################################
 #####            decap            #####
 #######################################
