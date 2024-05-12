@@ -441,7 +441,7 @@ def test_inbound_outbound_counters(engines, test_api):
         assert rule_packets_2_after[rule_id_match_src_ip] == rule_packets_2_before[rule_id_match_src_ip], \
             f'The outbound counters of acl {acl_id_outbound_match_dest_ip} rule id {rule_id_match_src_ip} should be the same cause the rule is matching' \
             f' packets with specific dest ip but it attached to the inbound control plan and not to the outbound.'
-        assert rule_packets_2_after[rule_id_match_src_ip] == '0'
+        assert rule_packets_2_after[rule_id_match_src_ip] == 0
 
     with allure.step("Unset source-ip rule from inbound acl"):
         acl_obj_inbound_match_dest_ip.rule.rule_id[rule_id_match_src_ip].unset(apply=True)
@@ -450,7 +450,7 @@ def test_inbound_outbound_counters(engines, test_api):
         send(ping_packet)
         rule_packets_2_after = get_rule_packets(mgmt_port, acl_id_outbound_match_dest_ip, rule_id_match_src_ip,
                                                 rule_direction=AclConsts.OUTBOUND)
-        assert rule_packets_2_after[rule_id_match_src_ip] == '0', \
+        assert rule_packets_2_after[rule_id_match_src_ip] == 0, \
             f'we expect to see increase in acl {acl_id_outbound_match_dest_ip} rule id {rule_id_match_src_ip} counter after the ping'
 
 
@@ -534,6 +534,7 @@ def test_acl_match_protocol(engines, test_api):
         acl_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id, 'ipv4', rule_id,
                                                              rule_configuration_dict, mgmt_port, AclConsts.INBOUND,
                                                              AclConsts.CONTROL_PLANE, acl_obj=acl_obj)
+        time.sleep(2)
         validate_counters_after_traffic(engines.sonic_mgmt, AclConsts.INBOUND, mgmt_port, acl_id, rule_id, dest_addr,
                                         packet=packet)
         rule_id = str(int(rule_id) - 1)
