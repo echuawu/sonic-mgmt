@@ -154,8 +154,8 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
         raise err
 
     finally:
-        with allure.step("Verify basic container is up after restoring from health event"):
-            cli_objects.dut.general.verify_dockers_are_up()
+        with allure.step('Reload switch'):
+            cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):
