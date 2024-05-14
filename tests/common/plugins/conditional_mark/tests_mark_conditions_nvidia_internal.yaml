@@ -290,6 +290,27 @@ tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::tes
       - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn2700-r0' in platform"
       - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn3700-r0' in platform"
       - "'simx' in platform"
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
+# The previous case test_fwutil_install_onie_key_check_fail failed due to 3899639 and failed to recover the DUT, so
+# affect this case. Use the same issue to skip this case
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_secure_corrupt_fw:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
 ########################## NGTS IGNORE END ##########################
 
 
@@ -1266,6 +1287,12 @@ platform_tests/mellanox/test_reboot_cause.py:
 
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
+test_pretest.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899619"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3899619"
+
 ########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE START ############################
 
 platform_tests/test_sensors.py:
@@ -1340,18 +1367,6 @@ tests/push_build_tests/system/test_reboot_reload.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3795822"
     conditions:
       - "https://redmine.mellanox.com/issues/3795822 and ('sn5400' in platform)"
-
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3796871"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3796871 and ('sn5400' in platform)"
-
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3796871"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3796871 and ('sn5400' in platform)"
 
 platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
   skip:
