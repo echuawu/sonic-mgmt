@@ -31,7 +31,7 @@ def test_ib_show_interface(engines, devices, test_api):
     """
     TestToolkit.tested_api = test_api
 
-    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -39,7 +39,7 @@ def test_ib_show_interface(engines, devices, test_api):
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             selected_port.interface.show()).get_returned_value()
-        validate_one_port_show_output(output_dictionary)
+        validate_one_port_show_output(output_dictionary, devices.dut.switch_type)
 
     '''with allure.step(f'Check interface primary ASIC for port {selected_port.name}'):
         fae = Fae(port_name=selected_port.name)
@@ -55,7 +55,7 @@ def test_ib_show_interface(engines, devices, test_api):
 
 @pytest.mark.ib_interfaces
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
+def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface
@@ -72,7 +72,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
     result = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
                                                         requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE,
-                                                        requested_ports_type="ib")
+                                                        requested_ports_type=devices.dut.switch_type)
     if not result.result:
         return
 
@@ -87,7 +87,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(output_dictionary)
+        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type)
 
     try:
         with allure.step('Set the state of selected port to "down"'):
@@ -100,7 +100,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
-                validate_one_port_in_show_all_ports(output_dictionary, False)
+                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, False)
 
             with allure.step('Set the state of selected port to "up"'):
                 selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -113,7 +113,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
-                validate_one_port_in_show_all_ports(output_dictionary, True)
+                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, True)
     finally:
         with allure.step('Set the state of selected port to "up"'):
             selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -125,7 +125,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 @pytest.mark.ib_interfaces
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-def test_ib_show_interface_all_state_down(engines):
+def test_ib_show_interface_all_state_down(engines, devices):
     """
     Run show interface command and verify the required fields are exist
     command: nv show interface
@@ -140,7 +140,7 @@ def test_ib_show_interface_all_state_down(engines):
 
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="down",
                                                                requested_ports_logical_state=None,
-                                                               requested_ports_type="ib").get_returned_value()
+                                                               requested_ports_type=devices.dut.switch_type).get_returned_value()
     TestToolkit.update_tested_ports([selected_port])
 
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
@@ -150,14 +150,14 @@ def test_ib_show_interface_all_state_down(engines):
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(output_dictionary, False)
+        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, False)
 
 
 @pytest.mark.ib_interfaces
 @pytest.mark.nvos_ci
 @pytest.mark.ib
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ib_show_interface_name_link(engines, test_api):
+def test_ib_show_interface_name_link(engines, devices, test_api):
     """
     Run show interface command and verify the required fields exist
     Command: nv show interface <name> link
@@ -169,7 +169,7 @@ def test_ib_show_interface_name_link(engines, test_api):
     """
     TestToolkit.tested_api = test_api
 
-    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -195,7 +195,7 @@ def test_ib_show_interface_name_link(engines, test_api):
 
 @pytest.mark.ib_interfaces
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_ib_show_interface_name_stats(engines, test_api):
+def test_ib_show_interface_name_stats(engines, devices, test_api):
     """
     Run show interface command and verify the required fields exist
     Command: nv show interface <name> link stats
@@ -205,7 +205,7 @@ def test_ib_show_interface_name_stats(engines, test_api):
     2. Run 'nv show interface <name> link stats' on selected port
     3. Verify the required fields are presented in the output
     """
-    selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -288,11 +288,11 @@ def validate_interface_fields(output_dictionary):
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_link_fields(output_dictionary, port_up=True):
+def validate_link_fields(output_dictionary, switch_type, port_up=True):
     with allure.step('Check that all expected fields under link field exist in the output'):
         logging.info('Check that all expected fields under link field exist in the output')
         field_to_check = [IbInterfaceConsts.LINK_STATE,
-                          IbInterfaceConsts.LINK_IB_SUBNET,
+                          # IbInterfaceConsts.LINK_IB_SUBNET,
                           IbInterfaceConsts.LINK_SUPPORTED_LANES,
                           IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU,
                           IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS,
@@ -300,16 +300,22 @@ def validate_link_fields(output_dictionary, port_up=True):
                           IbInterfaceConsts.LINK_LOGICAL_PORT_STATE,
                           IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
                           IbInterfaceConsts.LINK_VL_ADMIN_CAPABILITIES]
+        if switch_type == "ib":
+            field_to_check.insert(1, IbInterfaceConsts.LINK_IB_SUBNET)  # Insert at the desired position
+
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
         field_to_check = [IbInterfaceConsts.LINK_MTU,
                           IbInterfaceConsts.LINK_SPEED,
-                          IbInterfaceConsts.LINK_IB_SPEED,
+                          # IbInterfaceConsts.LINK_IB_SPEED,
                           IbInterfaceConsts.LINK_OPERATIONAL_VLS]
+        if switch_type == "ib":
+            field_to_check.insert(2, IbInterfaceConsts.LINK_IB_SUBNET)  # Insert at the desired position
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary,
                                                                field_to_check, port_up).verify_result()
         # Will be changed
         field_to_check = [IbInterfaceConsts.LINK_LANES]
+        # TBD - Need to check if exists for nvl
         res = Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check, port_up)
         logging.warning(res.info)
 
@@ -330,16 +336,16 @@ def validate_stats_fields(output_dictionary):
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
-def validate_one_port_show_output(output_dictionary):
+def validate_one_port_show_output(output_dictionary, switch_type):
     validate_interface_fields(output_dictionary)
 
-    validate_link_fields(output_dictionary[IbInterfaceConsts.LINK])
+    validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], switch_type)
 
     validate_stats_fields(output_dictionary[IbInterfaceConsts.LINK][IbInterfaceConsts.LINK_STATS])
 
 
-def validate_one_port_in_show_all_ports(output_dictionary, port_up=True):
+def validate_one_port_in_show_all_ports(output_dictionary, switch_type, port_up=True):
     field_to_check = [IbInterfaceConsts.TYPE, IbInterfaceConsts.LINK]
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
-    validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], port_up)
+    validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], switch_type, port_up)

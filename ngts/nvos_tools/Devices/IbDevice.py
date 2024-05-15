@@ -533,8 +533,9 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
-
+        self.ssd_image = None
         self.voltage_sensors = [
             "PMIC-1-12V-VDD-ASIC1-In-1",
             "PMIC-1-ASIC1-VDD-Out-1",
@@ -560,31 +561,32 @@ class JulietScaleoutSwitch(JulietSwitch):
             "product-name": "N5110_LD",
             "asic-model": self.asic_type,
         })
-
-        # TODO - Check if it needs to be changed.
         self.current_bios_version_name = "0ACTV_0.00.007"
         self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
         self.previous_bios_version_name = "0ACTV_0.00.007"
         self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
         self.bios_version_name = '0ACTV000_07.rom'
-        # self.current_cpld_version = BaseSwitch.CpldImageConsts(
-        #     burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
-        #     refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
-        #     version_names={
-        #         "CPLD1": "CPLD000232_REV0006",
-        #         "CPLD2": "CPLD000383_REV0004",
-        #         "CPLD3": "CPLD000000_REV0000",
-        #     }
-        # )
-        # self.previous_cpld_version = BaseSwitch.CpldImageConsts(
-        #     burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_BURN_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600_IPN.vme",
-        #     refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_REFRESH_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600.vme",
-        #     version_names={
-        #         "CPLD1": "CPLD000232_REV0600",
-        #         "CPLD2": "CPLD000324_REV0100",
-        #         "CPLD3": "CPLD000268_REV0500",
-        #     }
-        # )
+
+        self.current_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            version_names={
+                "CPLD1": "CPLD000232_REV0700",
+                "CPLD2": "CPLD000324_REV0300",
+                "CPLD3": "CPLD000268_REV0700",
+                "CPLD4": "CPLD000268_REV0700"
+            }
+        )
+        self.previous_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            version_names={
+                "CPLD1": "CPLD000232_REV0600",
+                "CPLD2": "CPLD000324_REV0100",
+                "CPLD3": "CPLD000268_REV0500",
+                "CPLD4": "CPLD000268_REV0500"
+            }
+        )
         # self.stats_fan_header_num_of_lines = 25
         # self.stats_power_header_num_of_lines = 13
         # self.stats_temperature_header_num_of_lines = 53
@@ -642,9 +644,17 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.fan_led_list = []
 
     def _init_psu_list(self):
-        super()._init_psu_list()
         self.psu_list = []
         self.psu_fan_list = []
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        # self.platform_environment_fan_values = {
+        #     "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
+        #     "min-speed": ExpectedString(range_min=2000, range_max=10000),
+        #     "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="N5110_LD.*")})
 
 
 # -------------------------- Caiman Switch ----------------------------
