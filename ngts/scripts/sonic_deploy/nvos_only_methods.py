@@ -175,7 +175,8 @@ class NvosInstallationSteps:
         image_scp_url = f'scp://{scp_host_creds}{target_version_path}'
         system.image.action_fetch(url=image_scp_url, dut_engine=dut_engine)
         # use new default password for recovery after upgrade
-        recovery_engine = LinuxSshEngine(dut_engine.ip, dut_engine.username, dut_device.default_password)
+        recovery_engine = LinuxSshEngine(dut_engine.ip, dut_engine.username,
+                                         dut_device.get_default_password_by_version(target_version_path))
         system.image.files.file_name[bin_filename].action_file_install_with_reboot(engine=dut_engine, device=dut_device,
                                                                                    recovery_engine=recovery_engine)
 
