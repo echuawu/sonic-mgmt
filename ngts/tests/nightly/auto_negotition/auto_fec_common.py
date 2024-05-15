@@ -1,10 +1,10 @@
 import pytest
 import logging
-import allure
 from retry.api import retry_call
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, LinuxConsts
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 from ngts.tests.push_build_tests.L2.lldp.test_lldp import verify_lldp_neighbor_info_for_sonic_port
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 

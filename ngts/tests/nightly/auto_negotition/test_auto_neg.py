@@ -1,5 +1,4 @@
 import logging
-import allure
 import pytest
 from copy import deepcopy
 from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_width, \
@@ -7,6 +6,7 @@ from ngts.tests.nightly.auto_negotition.conftest import get_interface_cable_widt
 from ngts.constants.constants import AutonegCommandConstants
 from ngts.tests.nightly.auto_negotition.auto_neg_common import TestAutoNegBase
 from ngts.tests.nightly.conftest import reboot_reload_random
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 
