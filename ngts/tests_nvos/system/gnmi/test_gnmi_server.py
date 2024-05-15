@@ -25,7 +25,7 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_basic_flow_poll(engines):
+def test_gnmi_basic_flow_poll(engines, devices):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - poll.
@@ -41,12 +41,12 @@ def test_gnmi_basic_flow_poll(engines):
             10. validate gnmi-server is running
             11. validate gnmi-server stream updates
     """
-    gnmi_basic_flow(engines, mode='poll')
+    gnmi_basic_flow(engines, devices.dut.switch_type, mode='poll')
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_basic_flow_once(engines):
+def test_gnmi_basic_flow_once(engines, devices):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - once.
@@ -62,13 +62,13 @@ def test_gnmi_basic_flow_once(engines):
             10. validate gnmi-server is running
             11. validate gnmi-server stream updates
     """
-    gnmi_basic_flow(engines, mode='once')
+    gnmi_basic_flow(engines, devices.dut.switch_type, mode='once')
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_gnmi_basic_flow_stream(test_api, engines):
+def test_gnmi_basic_flow_stream(test_api, engines, devices):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - stream.
@@ -85,13 +85,13 @@ def test_gnmi_basic_flow_stream(test_api, engines):
             11. validate gnmi-server stream updates
     """
     TestToolkit.tested_api = test_api
-    gnmi_basic_flow(engines, mode='')
+    gnmi_basic_flow(engines, devices.dut.switch_type, mode='')
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_simulate_gnmi_server_failure(test_api, engines):
+def test_simulate_gnmi_server_failure(test_api, engines, devices):
     """
     In this test we will simulate a gnmi-server failure,
     by disabling the auto restart and stop the gnmi-server docker,
@@ -111,7 +111,8 @@ def test_simulate_gnmi_server_failure(test_api, engines):
     TestToolkit.tested_api = test_api
     system = System()
     gnmi_server_obj = system.gnmi_server
-    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
+    switch_type = devices.dut.switch_type
+    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip, switch_type)
 
     try:
         with allure_step('Simulate gnmi server failure'):
@@ -133,7 +134,7 @@ def test_simulate_gnmi_server_failure(test_api, engines):
             gnmi_server_obj.enable_gnmi_server()
             logger.info("sleep 90 sec until validate stream updates")
             time.sleep(90)
-            validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
+            validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip, switch_type)
 
 
 @pytest.mark.system
@@ -147,10 +148,11 @@ def test_updates_on_gnmi_stream_mode(engines, devices):
     """
     system = System()
     gnmi_server_obj = system.gnmi_server
-    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
+    switch_type = devices.dut.switch_type
+    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip, switch_type)
 
     with allure_step("Change port description and wait until gnmi-client gets description update"):
-        selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+        selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None, requested_ports_type=switch_type).returned_value
         xpath = f'interfaces/interface[name={selected_port.name}]/state/description'
 
         with allure_step('Run gnmi client command in the background'):
@@ -189,7 +191,8 @@ def test_gnmi_bad_flow(test_api, engines, devices):
     TestToolkit.tested_api = test_api
     system = System()
     gnmi_server_obj = system.gnmi_server
-    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
+    switch_type = devices.dut.switch_type
+    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip, switch_type)
 
     with allure_step("invalid command"):
         gnmi_server_obj.set(GnmiConsts.GNMI_STATE_FIELD, Tools.RandomizationTool.get_random_string(7), "Error")
@@ -225,7 +228,8 @@ def test_simulate_gnmi_client_failure(engines, devices):
     """
     system = System()
     gnmi_server_obj = system.gnmi_server
-    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip)
+    switch_type = devices.dut.switch_type
+    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, engines.dut.ip, switch_type)
 
     with allure_step('Simulate gnmi client failure'):
         with allure_step('Run gnmi client command in the background and sleep 3 sec'):
@@ -252,7 +256,8 @@ def test_gnmi_performance(engines, devices):
     threads = []
     result = []
     port_description = Tools.RandomizationTool.get_random_string(7)
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+    switch_type = devices.dut.switch_type
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None, requested_ports_type=switch_type).returned_value
 
     with allure_step(f"run {num_engines} gnmi_client sessions in the background"):
         for engine_id in range(num_engines):
@@ -284,7 +289,8 @@ def test_gnmi_mapping_table(engines, devices):
     """
     test will validate all the mapping tables between the redis DB data and the gnmic output
     """
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+    switch_type = devices.dut.switch_type
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None, requested_ports_type=switch_type).returned_value
     port_name = selected_port.name
     infiniband_name = get_infiniband_name_from_port_name(engines.dut, port_name)
     port_oid = get_port_oid_from_infiniband_port(engines.dut, infiniband_name)
@@ -323,7 +329,7 @@ def run_gnmi_client_in_the_background(target_ip, xpath, device):
     return process
 
 
-def gnmi_basic_flow(engines, mode='', ipv6=False):
+def gnmi_basic_flow(engines, switch_type, mode='', ipv6=False):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client.
         Test flow:
@@ -341,7 +347,7 @@ def gnmi_basic_flow(engines, mode='', ipv6=False):
     system = System()
     gnmi_server_obj = system.gnmi_server
     target_ip = MgmtPort('eth0').interface.get_ipv6_address() if ipv6 else engines.dut.ip
-    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=mode)
+    validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, switch_type, mode=mode)
 
     with allure_step('Disable gnmi'):
         gnmi_server_obj.disable_gnmi_server()
@@ -350,16 +356,16 @@ def gnmi_basic_flow(engines, mode='', ipv6=False):
 
     with allure_step('Enable gnmi'):
         gnmi_server_obj.enable_gnmi_server()
-        validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=mode)
+        validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, switch_type, mode=mode)
 
 
-def validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=''):
+def validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, switch_type, mode=''):
     with allure_step('Validate gnmi is running and stream updates'):
         validate_gnmi_enabled_and_running(gnmi_server_obj, engines)
         validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
         port_description = Tools.RandomizationTool.get_random_string(7)
         change_port_description_and_validate_gnmi_updates(engines, port_description=port_description,
-                                                          target_ip=target_ip, mode=mode)
+                                                          target_ip=target_ip, switch_type=switch_type, mode=mode)
 
 
 @retry(Exception, tries=6, delay=2)
@@ -419,8 +425,8 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
         return gnmi_updates_dict
 
 
-def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, mode=''):
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, switch_type, mode=''):
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None, requested_ports_type=switch_type).returned_value
     selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
     verify_description_value(selected_port.show_output_dictionary, port_description)
