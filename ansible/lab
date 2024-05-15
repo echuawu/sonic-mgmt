@@ -297,11 +297,11 @@ r-tigon-14          ansible_host=10.210.25.188 os=sonic
 c-panther-02        ansible_host=10.75.67.34 os=mellanox
 arc-switchmtbc02    ansible_host=10.75.67.41 os=mellanox
 r-tigris-17         ansible_host=10.210.25.57 os=mellanox
-r-tigon-30         ansible_host=10.210.24.81 os=mellanox
+r-tigon-30         ansible_host=10.210.24.81 os=sonic
 r-liger-12          ansible_host=10.210.24.76 os=sonic
 r-tigris-28         ansible_host=10.210.24.175 os=mellanox
-r-tigon-19          ansible_host=10.210.24.182 os=mellanox
-r-tigon-22          ansible_host=10.210.24.194 os=mellanox
+r-tigon-19          ansible_host=10.210.24.182 os=sonic
+r-tigon-22          ansible_host=10.210.24.194 os=sonic
 r-tigris-27         ansible_host=10.210.24.174 os=mellanox
 r-liger-05          ansible_host=10.210.24.104 os=mellanox
 r-leopard-20        ansible_host=10.210.25.114 os=sonic
