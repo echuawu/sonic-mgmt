@@ -391,6 +391,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
+        with allure.step('Verify dockers are up'):
+            self.verify_dockers_are_up()
+
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
@@ -859,10 +862,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if reload_before_qos:
             with allure.step("Reload the dut"):
-                self.reload_configuration(force=True)
-
-        with allure.step('Verify dockers are up'):
-            self.verify_dockers_are_up()
+                self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj,
+                                        reload_force=True)
 
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
@@ -895,9 +896,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.upload_config_db_file(topology_obj, setup_name, hwsku, platform, shared_path)
 
         if is_redmine_issue_active([3858467]) and platform == 'x86_64-mlnx_msn4700-r0':
-            self.engine.reload(['sudo config reload -f -y'])
+            self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj, reload_force=True)
         else:
-            self.engine.reload(['sudo reboot'])
+            self.reboot_reload_flow(topology_obj=topology_obj)
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'

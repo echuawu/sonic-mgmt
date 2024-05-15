@@ -33,10 +33,11 @@ class SonicConst:
     FEC_NONE_MODE = 'none'
     FEC_AUTO_MODE = 'auto'
     FEC_MODE_LIST = [FEC_RS_MODE, FEC_FC_MODE, FEC_NONE_MODE]
-    DOCKERS_LIST = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'dhcp_relay']
-    DOCKERS_LIST_BF = ['swss', 'syncd', 'bgp', 'pmon', 'lldp']
+    DOCKERS_LIST = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'dhcp_relay',
+                    'radv', 'eventd', 'database', 'snmp']
+    DOCKERS_LIST_BF = ['swss', 'syncd', 'bgp', 'pmon', 'lldp', 'gnmi', 'eventd', 'database']
     DOCKERS_LIST_TOR = DOCKERS_LIST
-    DOCKERS_LIST_LEAF = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp']
+    DOCKERS_LIST_LEAF = ['swss', 'syncd', 'bgp', 'teamd', 'pmon', 'lldp', 'radv', 'eventd', 'database', 'snmp']
     DAEMONS_DICT = {'swss': [], 'syncd': [], 'bgp': [],
                     'teamd': [], 'pmon': [], 'lldp': [], 'dhcp_relay': []}
     DAEMONS_DICT_BF = {'swss': [],
