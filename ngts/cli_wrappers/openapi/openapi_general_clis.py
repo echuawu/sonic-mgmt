@@ -64,3 +64,23 @@ class OpenApiGeneralCli:
         # return OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, 'DETACH',
         #                                            engine.ip, 'system/config/detach')
         return ""
+
+    @staticmethod
+    def diff_config(engine, revision_1='', revision_2='', output_type='json'):
+        """
+        diff configuration
+        :param engine: ssh engine object
+        :param revision_1: config revision 1
+        :param revision_2: config revision 2
+        :param output_type: json / str
+        """
+        # TODO:
+        logging.info("Execute config diff using OpenApi")
+        resource_path = '/?rev={revision_2}&filled=False&diff={revision_1}'.format(revision_2=revision_2, revision_1=revision_1)
+        res = OpenApiCommandHelper.execute_script(engine.engine.username, engine.engine.password, 'GET', engine.ip,
+                                                  resource_path=resource_path)
+
+        if output_type == 'json':
+            return json.dumps(res)
+        else:
+            return res

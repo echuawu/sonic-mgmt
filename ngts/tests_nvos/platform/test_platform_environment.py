@@ -162,8 +162,8 @@ def test_set_platform_environment_led(engines, devices, test_api):
                 continue
             if TestToolkit.tested_api != "OpenApi":
                 should_succeed = False
-            platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=led) \
-                .verify_result(should_succeed)
+            platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_OFF),
+                                            suffix=led).verify_result(should_succeed)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")
@@ -172,7 +172,8 @@ def test_set_platform_environment_led(engines, devices, test_api):
 
     with allure.step("Change UID state led to on"):
         logging.info("Check UID state led to on")
-        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_TURN_ON, led=PlatformConsts.ENV_UID)
+        platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_ON),
+                                        suffix=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.led.show()).verify_result()
         Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_BLUE, True) \
@@ -180,10 +181,11 @@ def test_set_platform_environment_led(engines, devices, test_api):
 
     with allure.step("Change UID state led to off"):
         logging.info("Change UID state led to off")
-        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=PlatformConsts.ENV_UID)
+        platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_OFF),
+                                        suffix=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.led.show()).verify_result()
-        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_OFF, True) \
+        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_TURN_OFF, True) \
             .verify_result()
 
     with allure.step("Check that all leds are green and UID off after unset"):
@@ -489,8 +491,8 @@ def _verify_led_prop(led, led_prop):
 def _verify_led_color(led, led_prop):
     logging.info("led {}".format(led))
     if led == PlatformConsts.ENV_UID:
-        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_OFF, \
-            PlatformConsts.ENV_LED_COLOR_OFF + " not found for " + led
+        assert led_prop['color'] == PlatformConsts.ENV_LED_TURN_OFF, \
+            PlatformConsts.ENV_LED_TURN_OFF + " not found for " + led
     else:
         assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_GREEN, \
             PlatformConsts.ENV_LED_COLOR_GREEN + " not found for " + led

@@ -20,9 +20,3 @@ class Environment(BaseComponent):
 
     def set(self, op_param_name="", op_param_value={}):
         raise Exception("set is not implemented")
-
-    def action_turn(self, turn_type="", led=""):
-        with allure.step("Turn {type} led {led}".format(type=turn_type, led=led)):
-            logging.info("Turn {type} led {led}".format(type=turn_type, led=led))
-            return SendCommandTool.execute_command(self.api_obj[TestToolkit.tested_api].action_turn,
-                                                   TestToolkit.engines.dut, turn_type, led)

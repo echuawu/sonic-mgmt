@@ -588,9 +588,9 @@ class PlatformConsts:
     ENV_LED_COLOR_BLUE = "blue"
     ENV_LED_COLOR_AMBER = "amber"
     ENV_LED_COLOR_AMBER_BLINK = "amber_blink"
-    ENV_LED_COLOR_OFF = "off"
+    ENV_LED_TURN_OFF = "off"
     ENV_LED_TURN_ON = "on"
-    ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
+    ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_TURN_OFF,
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
     ENV_TEMP_CURR_PROP = "current"
