@@ -361,9 +361,6 @@ def collect_sensors_info(cli_objects, dut):
     sensors_counter['psu'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/hotplug_psus"))
     logger.info(f"PSU :{sensors_counter['psu']}")
 
-    sensors_counter['module'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/module_counter"))
-    logger.info(f"module counter:{sensors_counter['module']}")
-
     sensors_counter['gearbox'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/gearbox_counter"))
     logger.info(f"gearbox counter:{sensors_counter['gearbox']}")
 
