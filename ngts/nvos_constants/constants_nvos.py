@@ -604,6 +604,14 @@ class PlatformConsts:
     ENV_TEMP_MIN = 15  # [Celsius]
     ENV_TEMP_MAX = 90  # [Celsius]
     VOLTAGE_FILES_PATH = '/var/run/hw-management/ui/voltage'
+    PSU_STATE = 'state'
+    PS_REDUNDANCY_POLICY = 'policy'
+    PS_REDUNDANCY_MIN_REQ = 'min-required'
+    PS_REDUNDANCY_NO = 'no-redundancy'
+    PS_REDUNDANCY_PS = 'ps-redundancy'
+    PS_REDUNDANCY_GRID = 'grid-redundancy'
+    PS_REDUNDANCY_POLICY_TYPE = [PS_REDUNDANCY_NO, PS_REDUNDANCY_PS, PS_REDUNDANCY_GRID]
+    PS_REDUNDANCY_POLICY_TYPE_DEF = PS_REDUNDANCY_PS
 
 
 class FansConsts:
