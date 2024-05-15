@@ -293,3 +293,14 @@ def dut_ports_number_dict(topology_obj, engines, cli_objects):
         for port in ports:
             dut_ports_number_dict[port] = get_alias_number(ports_aliases_dict[port])
     return dut_ports_number_dict
+
+
+@pytest.fixture(scope='session')
+def is_sw_control_feature_enabled(cli_objects):
+    return cli_objects.dut.im.is_ms_hwsku() and cli_objects.dut.im.is_im_enabled()
+
+
+@pytest.fixture(scope='session')
+def sw_control_ports(cli_objects, is_sw_control_feature_enabled, dut_ports_number_dict):
+    if is_sw_control_feature_enabled:
+        return cli_objects.dut.im.get_ports_supporting_im(dut_ports_number_dict)

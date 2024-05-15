@@ -10,6 +10,7 @@ from ngts.tests.nightly.conftest import reboot_reload_random, cleanup, save_conf
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, \
     LinuxConsts
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.auto_negotition.auto_fec_common import TestAutoFecBase
@@ -52,12 +53,15 @@ class TestFec(TestAutoFecBase):
         self.dut_ports_basic_mlxlink_configuration = dut_ports_default_mlxlink_configuration
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_loopback_ports(self, cleanup_list, skip_if_active_optical_cable):
+    def test_fec_capabilities_loopback_ports(self, cleanup_list, sw_control_ports):
         with allure.step("Configure and verify FEC with all speed options on dut loopbacks"):
             logger.info("Configure and verify FEC with all speed options on dut loopbacks")
             dut_lb_conf = self.check_all_speeds_with_fec(self.tested_lb_dict, cleanup_list)
 
         tested_ports = list(dut_lb_conf.keys())
+        if sw_control_ports and is_redmine_issue_active([3886748]):
+            tested_ports = [port for port in tested_ports if port not in sw_control_ports]
+
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut,
                              tested_ports, cleanup_list, simx=self.is_simx)
 
@@ -74,7 +78,7 @@ class TestFec(TestAutoFecBase):
             self.verify_fec_configuration(dut_lb_conf)
 
     @pytest.mark.reboot_reload
-    def test_fec_capabilities_hosts_ports(self, cleanup_list, skip_if_active_optical_cable):
+    def test_fec_capabilities_hosts_ports(self, cleanup_list, sw_control_ports):
 
         with allure.step("Configure IP on dut - host connectivities for traffic validation"):
             logger.info("Configure IP on dut - host connectivities for traffic validation")
@@ -85,6 +89,9 @@ class TestFec(TestAutoFecBase):
             dut_host_conf = self.check_all_speeds_with_fec_on_host_ports(ip_conf, cleanup_list)
 
         tested_ports = list(dut_host_conf.keys())
+        if sw_control_ports and is_redmine_issue_active([3886748]):
+            tested_ports = [port for port in tested_ports if port not in sw_control_ports]
+
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut, tested_ports,
                              cleanup_list, simx=self.is_simx)
 
@@ -93,7 +100,7 @@ class TestFec(TestAutoFecBase):
             self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
             if not self.is_simx:
                 logger.info("Verify FEC on host - dut connectivities")
-                self.verify_fec_configuration_on_host(dut_host_conf)
+                self.verify_fec_configuration_on_host(dut_host_conf, tested_ports)
 
         with allure.step("Verify traffic on dut - host connectivities"):
             self.validate_traffic(ip_conf)
@@ -112,9 +119,9 @@ class TestFec(TestAutoFecBase):
             self.verify_fec_configuration(dut_host_conf, lldp_checker=False)
             if not self.is_simx:
                 logger.info("Verify FEC on host - dut connectivities returned to default configuration")
-                self.verify_fec_configuration_on_host(dut_host_conf)
+                self.verify_fec_configuration_on_host(dut_host_conf, tested_ports)
 
-    def test_negative_fec(self, cleanup_list, skip_if_active_optical_cable):
+    def test_negative_fec(self, cleanup_list):
         split_mode = 1
         conf = {}
         dut_host_port = self.interfaces.dut_hb_2
@@ -156,11 +163,16 @@ class TestFec(TestAutoFecBase):
                        fargs=[conf[dut_host_port], self.cli_objects.hb, host_dut_port],
                        tries=6, delay=10, logger=logger)
 
-    def test_fec_bug_2705016(self, cli_objects, cleanup_list, skip_if_active_optical_cable):
+    def test_fec_bug_2705016(self, cli_objects, cleanup_list, sw_control_ports):
         reboot_type = 'warm-reboot'
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)
         ports_for_toggle_flow, ports_for_disable_enable_flow = \
             self.get_ports_for_test_flow(self.tested_lb_dict_for_bug_2705016_flow)
+        if sw_control_ports and is_redmine_issue_active([3886748]):
+            tested_ports = [port for port in tested_ports if port not in sw_control_ports]
+            ports_for_toggle_flow = [port for port in ports_for_toggle_flow if port not in sw_control_ports]
+            ports_for_disable_enable_flow = [port for port in ports_for_disable_enable_flow if port not in
+                                             sw_control_ports]
         logger.info("Ports to be disabled before warm-reboot and then enabled: {}"
                     .format(ports_for_disable_enable_flow))
         logger.info("Ports to be toggled after warm-reboot: {}"
@@ -415,13 +427,16 @@ class TestFec(TestAutoFecBase):
                                                                                 LinuxConsts.FEC_AUTO_MODE)))
             cli_object.interface.configure_interface_fec(interface, fec_option=fec_mode)
 
-    def verify_fec_configuration_on_host(self, conf):
+    def verify_fec_configuration_on_host(self, conf, tested_ports):
         for fec_mode, tested_dut_host_conn_dict in self.tested_dut_to_host_conn.items():
             cli_object = tested_dut_host_conn_dict["cli"]
             interface = tested_dut_host_conn_dict["host_port"]
-            dut_port = tested_dut_host_conn_dict["dut_port"]
-            expected_conf = conf[dut_port]
-            self.verify_fec_configuration_on_host_port(expected_conf, cli_object, interface)
+            if interface not in tested_ports:
+                logger.info(f"Skip SW control port {interface}")
+            else:
+                dut_port = tested_dut_host_conn_dict["dut_port"]
+                expected_conf = conf[dut_port]
+                self.verify_fec_configuration_on_host_port(expected_conf, cli_object, interface)
 
     @retry(Exception, tries=6, delay=10)
     def verify_fec_configuration_on_host_port(self, expected_conf, cli_object, interface):

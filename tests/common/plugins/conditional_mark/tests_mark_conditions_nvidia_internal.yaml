@@ -199,7 +199,7 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
     conditions_logical_operator: or
     conditions:
       - "'2201' in platform"
-      - "https://redmine.mellanox.com/issues/3864087"
+      - "https://redmine.mellanox.com/issues/3864087 and 'mtvr-hippo-01' in testbed"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
