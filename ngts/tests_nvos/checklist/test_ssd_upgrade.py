@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.ssd
-def test_ssd_install(engines, devices):
+def test_ssd_upgrade(engines, devices):
     """
     @summary: test all these commands:
         nv show fae platform firmware ssd files
