@@ -15,6 +15,9 @@ from datetime import datetime, timedelta
 from ngts.constants.constants import BugHandlerConst, InfraConst, PytestConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 
+TIMESTAMP_FORMATS = ["%b %d %H:%M:%S", "%Y %b %d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
+TIMESTAMP_LENGTH = [len(datetime.now().strftime(format)) for format in TIMESTAMP_FORMATS]
+
 logger = logging.getLogger()
 
 
@@ -391,14 +394,19 @@ def group_log_errors_by_timestamp(log_errors):
 
 
 def get_timestamp_from_log_line(line: str) -> datetime:
-    time_format = "%b %d %H:%M:%S"
-    length = 15
-    try:
-        result = datetime.strptime('2020 ' + line[:length], "%Y " + time_format)  # use 2020 to avoid bug on February 29
-    except ValueError:
-        time_format = "%Y-%m-%dT%H:%M:%S"
-        length = 19
-        result = datetime.strptime(line[:length], time_format)
+    result = None
+    for format, length in zip(TIMESTAMP_FORMATS, TIMESTAMP_LENGTH):
+        try:
+            if "%Y" in format:
+                result = datetime.strptime(line[:length], format)
+            else:
+                # If the timestamp doesn't show the year then we need this workaround to make sure it doesn't crash on
+                # February 29 because it's an invalid date. We specify 2020 because it was a leap year.
+                result = datetime.strptime("2020 " + line[:length], "%Y " + format)
+        except ValueError:
+            pass
+    if not result:
+        raise ValueError(f"Failed to parse time stamp of the following log line: {line}")
     return result
 
 
