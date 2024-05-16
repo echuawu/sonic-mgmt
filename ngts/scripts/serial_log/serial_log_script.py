@@ -26,6 +26,7 @@ sys.path.append(os.path.join(sonic_mgmt_path, "sonic-tool", "mars", "scripts"))
 
 from infra.tools.topology_tools import nogaq  # noqa: E402
 from ngts.constants.constants import SerialLoggerConst  # noqa: E402
+from ngts.scripts.serial_log import serial_log_formatter  # noqa: E402
 from lib.utils import get_logger  # noqa: E402
 
 
@@ -155,13 +156,9 @@ def get_serial_logger_command(target_ip: str, hostname: str) -> str:
     ssh_opt = ' -tt -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
     serial_command = serial_command.replace('ssh', 'ssh' + ssh_opt).strip()
 
-    formatters = [r'"s/(\x9B|\x1B\[)[0-9:-?]*[ -/]*[@-~]//"',                 # Remove ASCII escape sequences
-                  r'"s/ {5,}/\n/"',                                           # Replace long spaces by newlines
-                  r'''"s/^/$(date +'%b %d %H:%M:%S') ''' + hostname + ' /"',  # Add timestamp and hostname to each line
-                  ]
-    sed_command = "sed " + ' '.join(["-Ee " + f for f in formatters])
-
-    return " | ".join(["exec", serial_command, sed_command])
+    formatter_command = ' '.join(['sudo', sys.executable, serial_log_formatter.__file__, "-b", hostname])
+    # example: sudo /venv/bin/python serial_log_formatter.py -b 10.7.144.154
+    return " | ".join(["exec", serial_command, formatter_command])
 
 
 def start_serial_log(target_ip, log_file_path, append=False, hostname=''):
@@ -255,6 +252,7 @@ def stop_serial_logging_on_all_switches(setup_name, session_id):
         try:
             with open(log_path, encoding="ISO-8859-1") as log_file:
                 contents = log_file.read()
+                contents = contents.encode('ascii', 'replace').decode('utf-8')  # workaround for logger exception
                 logger.info(f"\n\n===================== SERIAL LOG FOR {switch_ip} =====================\n{contents}" +
                             f"\n===================== END SERIAL LOG FOR {switch_ip} =====================\n\n")
         except Exception as e:
