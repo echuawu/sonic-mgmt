@@ -1294,12 +1294,6 @@ platform_tests/mellanox/test_reboot_cause.py:
 
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
-test_pretest.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899619"
-    conditions:
-    - "https://redmine.mellanox.com/issues/3899619"
-
 ########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE START ############################
 
 platform_tests/test_sensors.py:
