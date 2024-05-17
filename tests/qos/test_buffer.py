@@ -943,10 +943,10 @@ def port_to_test(request, duthost):
         else:
             PORT_TO_TEST = list(testPort)[0]
 
-    number_of_lanes = duthost.count_portlanes(PORT_TO_TEST)
+    NUMBER_OF_LANES = duthost.count_portlanes(PORT_TO_TEST)
 
     logging.info("Port to test {}, number of lanes {}".format(
-        PORT_TO_TEST, number_of_lanes))
+        PORT_TO_TEST, NUMBER_OF_LANES))
 
     return PORT_TO_TEST
 
