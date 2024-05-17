@@ -86,3 +86,24 @@
       shell: "bcmcmd 'fp detach' && bcmcmd 'fp init'"
       become: yes
   when: "'broadcom' in fanout_sonic_version.asic_type"
+
+- block:
+  - name: Remove ipv6 parameter
+    lineinfile:
+      path: /etc/sysctl.conf
+      line: 'net.ipv6.conf.all.disable_ipv6 = 0'
+      state: absent
+    become: yes
+
+  - name: Update IPv6 parameter
+    lineinfile:
+      path: /etc/sysctl.conf
+      line: 'net.ipv6.conf.all.disable_ipv6 = 1'
+      state: present
+    become: yes
+
+  - name: Apply parameter to disable IPv6 function
+    shell: "sysctl -p"
+    become: yes
+
+  when: "'mellanox' in fanout_sonic_version.asic_type"
