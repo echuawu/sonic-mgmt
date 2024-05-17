@@ -21,8 +21,14 @@ logger = logging.getLogger()
 la_skips_relative_path = "../../tests/common/plugins/loganalyzer_dynamic_errors_ignore/dynamic_loganalyzer_ignores.yaml"
 test_skips_relative_path = "../../tests/common/plugins/conditional_mark/tests_mark_conditions_nvidia_internal.yaml"
 REDMINE_ISSUES_URL = 'https://redmine.mellanox.com/issues/'
+STATEMENT_ACTIONS = ['skip', 'xfail']
 
-project_files = {"sonic": {"tests_skips_path": os.path.join(os.getcwd(), test_skips_relative_path), "log_skips_path": os.path.join(os.getcwd(), la_skips_relative_path)}}
+project_files = {
+    "sonic": {
+        "tests_skips_path": os.path.join(os.getcwd(), test_skips_relative_path),
+        "log_skips_path": os.path.join(os.getcwd(), la_skips_relative_path)
+    }
+}
 
 
 def get_issues_from_log_data(log_data, issues_list):
@@ -55,13 +61,17 @@ def get_issues_from_test_data(test_data, issues_list):
     """
     return: list of redmine issues
     """
-    for script, value in test_data.items():
-        if "conditions" in value["skip"].keys():
-            for elem in value["skip"]["conditions"]:
-                ticket = check_for_redmine_link(elem)
-                if ticket is not None:
-                    if int(ticket) not in issues_list:
-                        issues_list.append(int(ticket))
+    for _, statement in test_data.items():
+        conditions = []
+        for action in STATEMENT_ACTIONS:
+            if action in statement:
+                conditions = statement[action].get('conditions', [])
+                break
+        for elem in conditions:
+            ticket = check_for_redmine_link(elem)
+            if ticket is not None:
+                if int(ticket) not in issues_list:
+                    issues_list.append(int(ticket))
 
 
 def get_closed_issues(issues_list):
@@ -93,20 +103,30 @@ def remove_closed_issues_from_test_data(test_data, closed_issues):
     :return: test_data without closed redmine issues
     """
     updated_test_data = copy.deepcopy(test_data)
-    for script, value in test_data.items():
-        parameters = value["skip"]
-        if "conditions" in parameters.keys():
-            for elem in parameters["conditions"]:
-                ticket = check_for_redmine_link(elem)
-                if ticket is not None and str(ticket) in closed_issues:
-                    if parameters.get("conditions_logical_operator") == "or" and len(updated_test_data[script]["skip"]["conditions"]) > 1:
-                        updated_test_data[script]["skip"]["conditions"].remove(elem)
-                        updated_test_data[script]["skip"]["reason"] = "Needs to be updated"
-                    else:
-                        try:
-                            del updated_test_data[script]
-                        except KeyError:
-                            continue
+    for script, statement in test_data.items():
+        conditions = []
+        conditions_logical_operator = None
+        statement_action = None
+        for action in STATEMENT_ACTIONS:
+            if action in statement:
+                conditions = statement[action].get('conditions', [])
+                conditions_logical_operator = statement[action].get('conditions_logical_operator')
+                statement_action = action
+                break
+        if statement_action is None:
+            raise Exception(f'Missing statement action for {script}')
+
+        for elem in conditions:
+            ticket = check_for_redmine_link(elem)
+            if ticket is not None and str(ticket) in closed_issues:
+                if conditions_logical_operator == "or" and len(conditions) > 1:
+                    updated_test_data[script][statement_action]["conditions"].remove(elem)
+                    updated_test_data[script][statement_action]["reason"] = "Needs to be updated"
+                else:
+                    try:
+                        del updated_test_data[script]
+                    except KeyError:
+                        continue
 
     return updated_test_data
 
@@ -196,6 +216,6 @@ if __name__ == '__main__':
         remove_redundant_skips(args.project_key)
         logger.info('Script Finished!')
 
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         sys.exit(LinuxConsts.error_exit_code)
