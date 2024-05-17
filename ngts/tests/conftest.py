@@ -310,3 +310,35 @@ def hosts_ports(engines, cli_objects, interfaces):
     hosts_ports = {engines.ha: (cli_objects.ha, [interfaces.ha_dut_1, interfaces.ha_dut_2]),
                    engines.hb: (cli_objects.hb, [interfaces.hb_dut_1, interfaces.hb_dut_2])}
     return hosts_ports
+
+
+def toggle_rsyslog_configurations(dut_engine, configurations, target, state):
+    """
+    This method enables/disables rsyslog configurations in the host or a container.
+    The approach is to comment/uncomment config lines in /etc/rsyslog.conf.
+    It does nothing if the config is not there originally.
+       :param dut_engine: the dut ssh engine
+       :param configurations: the configurations that to be enabled/disabled
+       :param target: host or container in which the rsyslog config will be changed
+       :param state: enable or disable
+    """
+    if target != "host":
+        cmd_prefix = f"docker exec -i {target}"
+        cmd_restart_rsyslogd = f"{cmd_prefix} supervisorctl restart rsyslogd"
+    else:
+        cmd_prefix = "sudo"
+        cmd_restart_rsyslogd = "sudo systemctl restart rsyslog"
+
+    for config in configurations:
+        if state == "disable":
+            origin_config = "\\" + config
+            target_config = "\\#\\" + config
+        elif state == "enable":
+            origin_config = "\\#\\" + config
+            target_config = "\\" + config
+        cmd_toggle_config = f'{cmd_prefix} sed -e "s/{origin_config}/{target_config}/g"  -i /etc/rsyslog.conf'
+        dut_engine.run_cmd(cmd_toggle_config)
+
+    cmd_show_config = f'{cmd_prefix} cat /etc/rsyslog.conf'
+    dut_engine.run_cmd(cmd_show_config)
+    dut_engine.run_cmd(cmd_restart_rsyslogd)
