@@ -6,8 +6,9 @@ import allure
 import sys
 from pathlib import Path
 
+from ngts.helpers import json_file_helper
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
-from ngts.constants.constants import MarsConstants, SonicDeployConstants
+from ngts.constants.constants import MarsConstants, SonicDeployConstants, SonicConst
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
     reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
     config_y_cable_simulator, add_host_for_y_cable_simulator
@@ -75,7 +76,7 @@ class SonicInstallationSteps:
         # TODO: Remove the "r-leopard-70" != dut_name and "r-leopard-70" != dut_name in the condition after the
         #  hwsku Mellanox-SN4700-O8V48 is merged to upstream
         if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "r-leopard-70" != dut_name and \
-                "r-leopard-72" != dut_name:
+                "r-leopard-72" != dut_name and "mtvr-hippo-03" != dut_name:
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -318,6 +319,27 @@ class SonicInstallationSteps:
         return is_app_ext_dict
 
     @staticmethod
+    def copy_json_to_dut(json_content, filename, dest_path, dut_engine):
+        with open(f'/tmp/{filename}', 'w') as f:
+            json.dump(json_content, f, indent=4)
+        os.chmod(f'/tmp/{filename}', 0o777)
+        dut_engine.copy_file(source_file=f'/tmp/{filename}', dest_file=filename, file_system='/tmp/',
+                             overwrite_file=True, verify_file=False)
+        dut_engine.run_cmd(f'sudo cp /tmp/{filename} {dest_path}')
+
+    @staticmethod
+    def remove_redundant_service_port(dut_platform_path, hwsku, dut_engine, cli_obj):
+        port_to_remove = 'Ethernet513'
+        port_config_path = f'{dut_platform_path}/{hwsku}/port_config.ini'
+        dut_engine.run_cmd(f'grep -v "{port_to_remove}" {port_config_path} > tmp_port_config')
+        dut_engine.run_cmd(f'sudo mv tmp_port_config {port_config_path}')
+
+        platform_json_path = f'{dut_platform_path}/platform.json'
+        platform_json_obj = json_file_helper.get_platform_json(dut_engine, cli_obj)
+        del platform_json_obj['interfaces'][port_to_remove]
+        SonicInstallationSteps.copy_json_to_dut(platform_json_obj, 'platform.json', platform_json_path, dut_engine)
+
+    @staticmethod
     def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
                                 deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info,
@@ -355,6 +377,22 @@ class SonicInstallationSteps:
             sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
             execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
                            f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
+                           f'{sonic_mgmt_hwsku_path}', ansible_path)
+            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
+
+        elif "mtvr-hippo-03" in setup_name:
+            dut_name = setup_info['duts'][0]['dut_name']
+            dut_platform_path = f'/usr/share/sonic/device/{platform_params["platform"]}'
+            sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
+            sonic_user = os.getenv("SONIC_SWITCH_USER")
+            sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
+            dut_engine = topology_obj.players['dut']['engine']
+            SonicInstallationSteps.remove_redundant_service_port(dut_platform_path, platform_params['hwsku'],
+                                                                 dut_engine, cli.cli_obj)
+            dut_engine.run_cmd(f'sudo sonic-cfggen --preset t1 -p -H -k {platform_params["hwsku"]} > '
+                               f'{SonicConst.SONIC_CONFIG_FOLDER}{SonicConst.CONFIG_DB_JSON}')
+            execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
+                           f' -r {sonic_user}@{dut_name}:{dut_platform_path}/{platform_params["hwsku"]} '
                            f'{sonic_mgmt_hwsku_path}', ansible_path)
             generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
 
