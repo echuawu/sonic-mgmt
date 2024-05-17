@@ -148,33 +148,43 @@ def skip_loganalyzer_bug_handler(duthost, request):
     """
     return True if the bug handler will be skipped.
     """
-    if not request:
-        logger.warning("Skip the loganalyzer bug handler, To run the it, 'request' is needed when create LogAnalyzer")
-        return True
-    if "rep_setup" in request.node.__dict__ and request.node.rep_setup.failed:
-        logger.warning("Skip the loganalyzer bug handler: the test failed in the fixture setup, "
-                       "no need to run the bug handler")
-        return True
-    if "rep_call" in request.node.__dict__ and request.node.rep_call.failed:
-        logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
-        return True
-
     hostname = duthost.hostname
     log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
-    if not (log_errors_dir_path.exists() and len(list(log_errors_dir_path.iterdir())) > 0):
-        logger.warning(f"Skip the loganalyzer bug handler: No err msg detected")
-        return True
 
-    log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
-    if log_analyzer_handler_info['branch'] in BugHandlerConst.BUG_HANDLER_SKIP_BRNACH:
-        logger.warning(f"Skip the loganalyzer bug handler for branch: {log_analyzer_handler_info['branch']}")
-        return True
+    def _skip_loganalyzer_bug_handler(duthost, request):
+        if not request:
+            logger.warning("Skip the loganalyzer bug handler, To run the it, "
+                           "'request' is needed when create LogAnalyzer")
+            return True
+        if "rep_setup" in request.node.__dict__ and request.node.rep_setup.failed:
+            logger.warning("Skip the loganalyzer bug handler: the test failed in the fixture setup, "
+                           "no need to run the bug handler")
+            return True
+        if "rep_call" in request.node.__dict__ and request.node.rep_call.failed:
+            logger.warning("Skip the loganalyzer bug handler: the test is failed, no need to run the bug handler")
+            return True
 
-    bug_handler_actions = get_bug_handler_actions(request)
-    if not is_log_analyzer_bug_handler_enabled(bug_handler_actions):
-        logger.warning("Skip the loganalyzer bug handler since it is not enabled")
-        return True
+        if not (log_errors_dir_path.exists() and len(list(log_errors_dir_path.iterdir())) > 0):
+            logger.warning(f"Skip the loganalyzer bug handler: No err msg detected")
+            return True
 
+        log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
+        if log_analyzer_handler_info['branch'] in BugHandlerConst.BUG_HANDLER_SKIP_BRNACH:
+            logger.warning(f"Skip the loganalyzer bug handler for branch: {log_analyzer_handler_info['branch']}")
+            return True
+
+        bug_handler_actions = get_bug_handler_actions(request)
+        if not is_log_analyzer_bug_handler_enabled(bug_handler_actions):
+            logger.warning("Skip the loganalyzer bug handler since it is not enabled")
+            return True
+
+        return False
+
+    if _skip_loganalyzer_bug_handler(duthost, request):
+        if log_errors_dir_path.exists():
+            for log_errors_file in log_errors_dir_path.iterdir():
+                log_errors_file.unlink()
+        return True
     return False
 
 
