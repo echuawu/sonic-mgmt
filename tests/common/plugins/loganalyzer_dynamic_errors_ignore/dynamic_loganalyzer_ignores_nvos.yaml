@@ -1361,7 +1361,7 @@
 
 # NVOS tacacs bad flow
 - Errors_list:
-    - '.*ERR ker process: PAM-tacplus: auth failed: 2.*'
+    - '.*ERR .*: PAM-tacplus: auth failed: 2.*'
     - '.*ERR ker message repeated \d times: \[ process: PAM-tacplus: auth failed: 2\].*'
     - '.*WARNING \w+: nss_tacplus: no tacacs server in config for nss_tacplus.*'
     - '.*ERR sshd\[.*\]: auth fail: Password incorrect\. user: dummy_localadmin.*'
