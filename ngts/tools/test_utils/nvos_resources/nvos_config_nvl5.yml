@@ -1,0 +1,114 @@
+- header:
+    model: n5110                      # Provided model name
+    nvue-api-version: nvue_v1         # Provided NVUE API version
+    rev-id: 1.0                       # Provided revision ID
+    version: 25.02.0402-024           # Provided version
+- set:
+    ib:
+      sm:
+        sm-priority: 15
+        state: enabled
+    interface:
+      eth0:
+        description: PORTI1
+        type: eth
+        acl:
+          ACL_MGMT_INBOUND_CP_DEFAULT:
+            inbound:
+              control-plane: {}
+          ACL_MGMT_INBOUND_CP_DEFAULT_IPV6:
+            inbound:
+              control-plane: {}
+          ACL_MGMT_INBOUND_DEFAULT:
+            inbound: {}
+          ACL_MGMT_INBOUND_DEFAULT_IPV6:
+            inbound: {}
+          ACL_MGMT_OUTBOUND_CP_DEFAULT:
+            outbound:
+              control-plane: {}
+          ACL_MGMT_OUTBOUND_CP_DEFAULT_IPV6:
+            outbound:
+              control-plane: {}
+      ib0:
+        ip:
+          address:
+            2.2.2.11/24: {}
+        type: ipoib
+      lo:
+        acl:
+          ACL_LOOPBACK_INBOUND_CP_DEFAULT:
+            inbound:
+              control-plane: {}
+          ACL_LOOPBACK_INBOUND_CP_DEFAULT_IPV6:
+            inbound:
+              control-plane: {}
+      sw2p1:
+        link:
+          mtu: 1024
+      sw2p1,sw32p1:
+        link:
+          ib-speed: hdr
+      sw2p1,sw32p1,sw3p2:
+        type: ib
+      sw3p2:
+        link:
+          state:
+            down: {}
+    system:
+      aaa:
+        authentication:
+          failthrough: enabled
+          order: radius,local
+        ldap:
+          base-dn: dc=itzgeek,dc=local
+          bind-dn: cn=ldapadm,dc=itzgeek,dc=local
+          hostname:
+            10.237.0.86: {}
+          secret: secret
+        radius:
+          auth-type: chap
+          hostname:
+            10.7.1.131: {}
+            fdfd:fdfd:7:3:250:56ff:febe:7c22:
+              priority: 2
+          secret: testing123
+        tacacs:
+          hostname:
+            10.7.1.130: {}
+            fdfd:fdfd:10:237:250:56ff:fe1b:56:
+              priority: 2
+          secret: testing123
+        user:
+          alon:
+            password: $y$j9T$pUsDr8V55akJ6WgfjVvze.$gperjLnCy0onUXxsu4h5lwy2ZlxryUBWV56eK21lTxD
+          mon:
+            password: $y$j9T$CuAnwwjJMXYIBFVuJ7KN51$nPz./46jyFVBzuySd02vaS/DriCgfiC2PrdCKLKH.o2
+            role: monitor
+      message:
+        post-login: yoavpost
+        pre-login: yoavpre123
+      ntp:
+        server:
+          192.168.1.2:
+            state: enabled
+      security:
+        password-hardening:
+          state: enabled
+      snmp-server:
+        auto-refresh-interval: 5
+        listening-address:
+          all: {}
+        readonly-community:
+          '12345678': {}
+        state: enabled
+        system-contact: jemmyf
+        system-location: MTL1
+      ssh-server:
+        authentication-retries: 55
+        login-timeout: 555
+        max-sessions: 3
+      syslog:
+        server:
+          10.7.49.202:
+            protocol: tcp
+          192.168.1.2: {}
