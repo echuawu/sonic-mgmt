@@ -290,4 +290,10 @@ tests_nvos/ib/test_show_ib.py::test_show_ib_device:
     conditions:
       - "'gorilla' not in testbed"
       - https://redmine.mellanox.com/issues/3854563
+
+tests_nvos/fae/test_sonic_cli.py::test_change_sonic_cli_state:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3910184"
+    conditions:
+      - https://redmine.mellanox.com/issues/3910184
 ########################## NVOS IGNORE END ##########################

@@ -1,6 +1,7 @@
 import logging
 import time
 from retry import retry
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
 from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
@@ -135,8 +136,11 @@ class FactoryDefault(BaseComponent):
             DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
             end_time = time.time()
             duration = end_time - start_time
+
             with allure.step("Reset factory till system is functional takes: {} seconds".format(duration)):
                 logger.info("Reset factory till system is functional takes: {} seconds".format(duration))
+                OperationTime.verify_operation_time(duration, 'reset factory').verify_result()
+
             return res_obj
 
 

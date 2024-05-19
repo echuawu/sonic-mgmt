@@ -17,27 +17,29 @@ class SendCommandTool:
         """
         Check executed command output and return a ResultObj
         """
-        if cmd_output:
+        cmd_output_str = str(cmd_output)
 
-            if expected_str:
-                if expected_str in cmd_output:
-                    return ResultObj(True, "", str(cmd_output))
-                else:
-                    return ResultObj(
-                        False, f"Output was expected to contain:\n{expected_str}\nBut output is:\n{cmd_output}",
-                        str(cmd_output))
+        if expected_str:
+            if expected_str in cmd_output_str:
+                return ResultObj(True, "", cmd_output_str)
+            else:
+                return ResultObj(False, f"Output was expected to contain:\n{expected_str}\n"
+                                 f"But the output is:\n{cmd_output_str}", cmd_output_str)
 
-            if any(err_msg in str(cmd_output) for err_msg in invalid_cmd_str):
-                return ResultObj(False, "Command failed with the following output: \n" + str(cmd_output), None,
+        if cmd_output_str:
+            output_first_lines = "".join(cmd_output_str.split('\n')[:2])
+
+            # Check for any invalid command messages
+            if any(err_msg in output_first_lines for err_msg in invalid_cmd_str):
+                return ResultObj(False, f"Command failed with the following output: \n{cmd_output_str}", None,
                                  IssueType.PossibleBug)
-            if any(timeout_msg in str(cmd_output) for timeout_msg in timeout_cmd_str):
-                return ResultObj(False, "Timeout occurred with the following output: \n" + str(cmd_output), None,
+
+            # Check for any timeout messages
+            if any(timeout_msg in output_first_lines for timeout_msg in timeout_cmd_str):
+                return ResultObj(False, f"Timeout occurred with the following output: \n{cmd_output_str}", None,
                                  IssueType.TestIssue)
 
-        if expected_str == "":
-            return ResultObj(True, returned_value=str(cmd_output))
-        else:
-            return ResultObj(False, "Got empty output but expected: {}".format(expected_str), str(cmd_output))
+        return ResultObj(True, "", cmd_output_str)
 
     @staticmethod
     def execute_command_expected_str(command_to_execute, expected_str, *args, **kwargs) -> ResultObj:

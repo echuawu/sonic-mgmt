@@ -56,7 +56,7 @@ class OperationTime:
         ret_val = ResultObj(True)
         threshold = OperationTimeConsts.THRESHOLDS.get(operation)
         if threshold is not None and threshold < duration:
-            err_msg = f"{operation} took more time than threshold of {threshold} seconds"
+            err_msg = f"{operation} took {duration} seconds - more time than threshold of {threshold} seconds"
             logger.error(err_msg)
             ret_val = ResultObj(False, err_msg, issue_type=IssueType.PossibleBug)
         return ret_val
