@@ -339,7 +339,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 success = False
         assert success, 'Not all expected processes in RUNNING status'
 
-    @retry(Exception, tries=5, delay=30)
+    @retry(Exception, tries=2, delay=30)
     def generate_techsupport(self, duration=60):
         """
         Generate sysdump for a given time frame in seconds
