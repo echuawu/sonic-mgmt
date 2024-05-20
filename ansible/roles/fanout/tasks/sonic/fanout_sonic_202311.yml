@@ -13,7 +13,7 @@
   become: yes
   when: "'mellanox' in fanout_sonic_version.asic_type"
 
-- name: Disable IM function in SAI
+- name: Disable software control module function in SAI
   lineinfile:
     path: /usr/share/sonic/device/{{ fanout_platform }}/{{ fanout_hwsku }}/sai.profile
     line: 'SAI_INDEPENDENT_MODULE_MODE=1'
