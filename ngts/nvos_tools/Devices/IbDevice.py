@@ -584,23 +584,23 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.bios_version_name = '0ACTV000_07.rom'
 
         self.current_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
             version_names={
-                "CPLD1": "CPLD000232_REV0700",
-                "CPLD2": "CPLD000324_REV0300",
-                "CPLD3": "CPLD000268_REV0700",
-                "CPLD4": "CPLD000268_REV0700"
+                "CPLD1": "CPLD061672_REV2425",
+                "CPLD2": "CPLD000383_REV0007",
+                "CPLD3": "CPLD060373_REV0008",
+                "CPLD4": "CPLD060372_REV0001"
             }
         )
         self.previous_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_07_05_24_new_comex_turbo.vme",
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
             version_names={
-                "CPLD1": "CPLD000232_REV0600",
-                "CPLD2": "CPLD000324_REV0100",
-                "CPLD3": "CPLD000268_REV0500",
-                "CPLD4": "CPLD000268_REV0500"
+                "CPLD1": "CPLD061672_REV2425",
+                "CPLD2": "CPLD000383_REV0007",
+                "CPLD3": "CPLD060373_REV0008",
+                "CPLD4": "CPLD060372_REV0001"
             }
         )
         # self.stats_fan_header_num_of_lines = 25
