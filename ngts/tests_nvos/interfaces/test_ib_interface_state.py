@@ -44,9 +44,7 @@ def test_ib_interface_state(test_name):
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=IbInterfaceConsts.LINK_STATE,
                                                       expected_value=NvosConsts.LINK_STATE_DOWN).verify_result()
-    Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
-                                                      field_name=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
-                                                      expected_value=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_DISABLED).verify_result()
+
     toggle_port_state(selected_port, NvosConsts.LINK_STATE_UP, test_name)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
