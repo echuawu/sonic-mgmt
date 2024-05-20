@@ -58,6 +58,18 @@ def is_evpn_support(image_branch):
     return True
 
 
+def apply_dns_servers_resolve_conf(dut_engine):
+    """
+    Set into /etc/resolv.conf Nvidia LAB DNS servers
+    """
+    tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_FIRST}" > {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_THIRD}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "search {SonicConst.NVIDIA_LAB_DNS_SEARCH}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
+
+
 @pytest.fixture(scope='package', autouse=True)
 def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, platform_params, upgrade_params,
                             run_config_only, run_test_only, run_cleanup_only, shared_params,
@@ -113,8 +125,7 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
         if shared_params.app_ext_is_app_ext_supported:
             if is_redmine_issue_active([3883023]):
                 with allure.step('Apply DNS servers configuration'):
-                    cli_objects.dut.ip.apply_dns_servers_into_resolv_conf(
-                        is_air_setup=platform_params.setup_name.startswith('air'))
+                    apply_dns_servers_resolve_conf(engines.dut)
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
     # variable below required for correct interfaces speed cleanup
