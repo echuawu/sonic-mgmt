@@ -54,7 +54,7 @@ def get_psu_dict(dut_engine):
     :return: a dictionary of installed PSUs entries, mapping psu slots (numbers) to the psu models
     """
     psu_data = json.loads(dut_engine.run_cmd('show platform psu --json'))
-    psu_dict = {psu["index"]: psu["model"] for psu in psu_data}
+    psu_dict = {psu["index"]: psu["model"] for psu in psu_data if psu["model"] != "N/A"}
     return psu_dict
 
 

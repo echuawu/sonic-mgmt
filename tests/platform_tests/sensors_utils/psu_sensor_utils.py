@@ -6,6 +6,7 @@ import yaml
 
 PSU_SENSORS_DATA_FILE = "psu_data.yaml"
 PSU_SENSORS_JSON_FILE = "psu_sensors.json"
+MISSING_PSU_STATUS = "NOT PRESENT"
 PSU_NUM_SENSOR_PATTERN = r'PSU-(\d+)(?:\([A-Z]\))?'
 SKIPPED_CHECK_TYPES = ["psu_skips", "sensor_skip_per_version"]
 logger = logging.getLogger()
@@ -117,6 +118,7 @@ class SensorHelper:
         Setup important variables of the class
         """
 
+        self.missing_psus = None
         self.supports_dynamic_psus = False
         self.psu_dict = None
         self.uncovered_psus = None
@@ -156,6 +158,7 @@ class SensorHelper:
         """
         self.psu_dict = dict()
         self.uncovered_psus = set()
+        self.missing_psus = set()
         if self.supports_dynamic_psus:
             psu_data = json.loads(self.duthost.shell('show platform psu --json')['stdout'])
             covered_psus = set(self.psu_sensors_checks.keys())
@@ -163,6 +166,9 @@ class SensorHelper:
                 psu_index, psu_model = psu["index"], psu["model"]
                 if psu_model in covered_psus:
                     self.psu_dict[psu_index] = psu_model
+                elif psu["status"] == MISSING_PSU_STATUS:
+                    self.missing_psus.add(psu_index)
+                    logger.warning(f"Slot {psu_index} is missing a PSU.")
                 else:
                     self.uncovered_psus.add(psu_model)
 
@@ -171,6 +177,12 @@ class SensorHelper:
         Getter function for the field supports_dynamic_psus
         """
         return self.supports_dynamic_psus
+
+    def get_missing_psus(self):
+        """
+        Getter function for the field missing_psus
+        """
+        return self.missing_psus
 
     def get_psu_index_model_dict(self):
         """
