@@ -45,6 +45,7 @@ def test_show_platform_environment_voltage(engines):
         check_voltage_in_range(voltage_output[random_sensor])
 
 
+@pytest.mark.cumulus
 @pytest.mark.platform
 @pytest.mark.skynet
 @pytest.mark.simx

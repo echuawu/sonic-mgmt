@@ -570,6 +570,8 @@ class PlatformConsts:
     FW_SOURCE = "fw-source"
     FW_SOURCE_DEFAULT = "default"
     FW_SOURCE_CUSTOM = "custom"
+    FW_SPECTRUM2 = "1-Spectrum2"
+    FW_SPECTRUM3 = "1-Spectrum3"
     FW_FIELDS = [FW_ACTUAL, FW_PART_NUMBER, FW_AUTO_UPDATE, FW_SOURCE]
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
@@ -622,6 +624,7 @@ class FansConsts:
     FEATURE_DISABLED = 'disabled'
     STATE_OK = 'ok'
     STATE_NOT_OK = 'Not OK'
+    STATE_ABSENT = 'absent'
     FAN_DIRECTION_MISMATCH_ERR = "is not aligned with fan1 direction"
 
 

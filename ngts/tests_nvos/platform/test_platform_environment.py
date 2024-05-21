@@ -19,6 +19,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.skynet
@@ -75,16 +76,30 @@ def test_show_platform_environment_fan(engines, devices, test_api, output_format
                                           ).verify_result()
 
     with allure.step("Assert all fans have the same direction"):
-        directions = {fan["direction"] for fan in output.values()}
+        directions = {fan["direction"] for fan in output.values() if fan["direction"] != "None"}
         assert len(directions) == 1, f"Not all fans show the same direction: {output}"
 
     with allure.step("Checking properties of random fan"):
         random_fan = random.choice(devices.dut.fan_list)
         _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
 
-    with allure.step("Checking properties of random PSU fan"):
-        random_fan = random.choice(devices.dut.psu_fan_list)
-        _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+    with allure.step("Checking properties of PSU fans"):
+        for fan in devices.dut.psu_fan_list:
+            if output.get(fan).get("state") == "absent":
+                _test_absent_fan(fan, output_format, devices.dut.platform_environment_absent_fan_values, output, platform)
+                continue
+        _test_specific_fan(fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+
+
+def _test_absent_fan(fan, output_format, expected, output, platform):
+    logger.info(f"Testing properties of absent fan {fan}")
+    with allure.step("Checking output of 'show platform environment fan'"):
+        ValidationTool.validate_output_of_show(output[fan], expected).verify_result()
+    with allure.step("Checking output of 'show platform environment fan <fan-id>'"):
+        fan_output = OutputParsingTool.parse_show_output_to_dict(
+            platform.environment.fan.show(fan, output_format=output_format),
+            output_format=output_format).get_returned_value()
+        ValidationTool.validate_output_of_show(fan_output, expected).verify_result()
 
 
 def _test_specific_fan(fan, output_format, expected, output, platform):
@@ -100,6 +115,7 @@ def _test_specific_fan(fan, output_format, expected, output, platform):
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -224,6 +240,7 @@ def test_show_platform_environment_psu(engines, devices, test_api):
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -263,6 +280,8 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
     with allure.step("Check that all required properties for each temperature"):
         logging.info("Check that all required properties for each temperature")
         for temp, temp_prop in output.items():
+            if temp_prop.get("state") == 'absent':
+                continue
             _verify_temp_prop(temp, temp_prop)
 
     with allure.step("Check that all sensors in required range"):
