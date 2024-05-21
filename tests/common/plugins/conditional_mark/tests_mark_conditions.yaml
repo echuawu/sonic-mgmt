@@ -156,6 +156,18 @@ bgp/test_bgpmon.py:
     conditions:
       - "'backend' in topo_name or 't2' in topo_name"
 
+bgp/test_passive_peering.py:
+  skip:
+    reason: "Skip test_voq_chassis_app_db_consistency on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
+bgp/test_traffic_shift_sup.py:
+  skip:
+    reason: "Skip test_traffic_shift_sup on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
 bgp/test_traffic_shift.py::test_load_minigraph_with_traffic_shift_away:
   skip:
     reason: "Test is flaky and causing PR test to fail unnecessarily"
@@ -199,6 +211,29 @@ container_hardening/test_container_hardening.py::test_container_privileged:
     reason: "Not supported on 202305 and older releases"
     conditions:
       - "release in ['201811', '201911', '202012', '202205', '202211', '202305']"
+
+#######################################
+#####           console           #####
+#######################################
+console/test_console_driver.py:
+  skip:
+    reason: "Not supported on existing testbed. the switch needs to be attached to a DUT via USB link."
+
+console/test_console_loopback.py:
+  skip:
+    reason: "Not supported on existing testbed. the switch needs to be attached to a DUT via USB link."
+
+console/test_console_reversessh.py:
+  skip:
+    reason: "Not supported on existing testbed. the switch needs to be attached to a DUT via USB link."
+
+console/test_console_udevrule.py:
+  skip:
+    reason: "Not supported on existing testbed. the switch needs to be attached to a DUT via USB link."
+
+console/test_console_availability.py::test_console_availability:
+  skip:
+    reason: "Not supported on existing testbed. the switch needs to be attached to a DUT via USB link."
 
 #######################################
 #####            copp             #####
@@ -862,6 +897,39 @@ ipfwd/test_mtu.py:
       - "topo_type not in ['t1', 't2']"
 
 #######################################
+#######          ixia             #####
+#######################################
+ixia/ixanvl/test_bgp_conformance.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+ixia/pfc/test_pfc_congestion.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+ixia/pfcwd/test_pfcwd_basic.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+ixia/pfcwd/test_pfcwd_burst_storm.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+ixia/pfcwd/test_pfcwd_2sender_2receiver.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
 #######         link_flap         #####
 #######################################
 link_flap/test_cont_link_flap.py:
@@ -885,11 +953,26 @@ macsec/test_interop_protocol.py::TestInteropProtocol::test_bgp:
     conditions:
       - "asic_subtype in ['broadcom-dnx']"
 
+macsec/test_interop_wan_isis.py:
+  skip:
+    reason: "Skip test_interop_wan_isis on unsupported testbed"
+    conditions:
+      - "(wan-pub-isis not in topo_name)"
+
 macsec/test_macsec.py:
   skip:
     reason: "This test can only run on 7280 CR3"
     conditions:
       - "platform not in ['x86_64-arista_7280cr3mk_32d4', 'x86_64-kvm_x86_64-r0']"
+
+#######################################
+#####            mclag            #####
+#######################################
+mclag/test_mclag_l3.py:
+  skip:
+    reason: "Skip test_mclag_l3 on unsupported testbed"
+    conditions:
+      - "(t0-mclag not in topo_name)"
 
 #######################################
 #####            mpls             #####
@@ -918,6 +1001,18 @@ nat:
     conditions:
       - "'nat' not in feature_status"
 
+nat/test_dynamic_nat.py:
+  skip:
+    reason: "nat not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+nat/test_static_nat.py:
+  skip:
+    reason: "nat not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
 #######################################
 #####           ntp               #####
 #######################################
@@ -927,6 +1022,15 @@ ntp/test_ntp.py::test_ntp_long_jump_disabled:
   xfail:
     strict: True
     reason: "Known NTP bug"
+
+#######################################
+#####    override_config_table    #####
+#######################################
+override_config_table/test_override_config_table_masic.py:
+  skip:
+    reason: "multi-chassis not supported"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 #######################################
 #####           pc               #####
@@ -975,6 +1079,18 @@ pfc/test_unknown_mac.py:
     reason: In cisco-8000 platform, a packet with unknown MAC will be flooded, not dropped. This case will not pass in cisco-8000.
     conditions:
       - "asic_type in ['cisco-8000']"
+
+pfc/test_global_pause.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+pfc/test_pfc_pause_lossy.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 #######################################
 #####         pfc_asym            #####
@@ -1054,6 +1170,18 @@ platform_tests/daemon/test_chassisd.py:
     conditions:
       - "release in ['201811', '201911', '202012']"
 
+platform_tests/daemon/test_fancontrol.py:
+  skip:
+    reason: "exists thermalctl daemon."
+    conditions:
+      - "asic_type in ['mellanox']"
+
+platform_tests/daemon/test_ledd.py:
+  skip:
+    reason: "exists thermalctl daemon."
+    conditions:
+      - "asic_type in ['mellanox']"
+
 platform_tests/mellanox/test_check_sfp_using_ethtool.py:
   skip:
     reason: "Deprecated as Mellanox do not use ethtool in release 202305 or higher"
@@ -1073,6 +1201,12 @@ platform_tests/test_advanced_reboot.py::test_fast_reboot:
     conditions:
       - "https://github.com/sonic-net/sonic-buildimage/issues/17792 and 'sn2700' in platform"
 
+platform_tests/test_link_down.py:
+  skip:
+    reason: "Skip test_link_down on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
 platform_tests/test_secure_upgrade.py:
   skip:
     reason: "platform does not support secure upgrade"
@@ -1084,6 +1218,12 @@ platform_tests/test_service_warm_restart.py:
     reason: "Testcase ignored due to sonic-mgmt issue: https://github.com/sonic-net/sonic-mgmt/issues/10362"
     conditions:
       - "https://github.com/sonic-net/sonic-mgmt/issues/10362"
+
+platform_tests/test_thermal_state_db.py:
+  skip:
+    reason: "Skip on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
 
 platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
   skip:
@@ -1115,7 +1255,6 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
     reason: "Test not supported on Mellanox Platforms."
     conditions:
       - "asic_type in ['mellanox']"
-
 
 platform_tests/test_platform_info.py::test_thermal_control_fan_status:
   skip:
@@ -1168,6 +1307,12 @@ qos/test_buffer_traditional.py:
     conditions:
       - "release not in ['201911']"
 
+qos/test_pfc_pause.py:
+  skip:
+    reason: "not supported on NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
 qos/test_pfc_pause.py::test_pfc_pause_lossless:
   # For this test, we use the fanout connected to the DUT to send PFC pause frames.
   # The fanout needs to send PFC frames fast enough so that the queue remains completely paused for the entire duration
@@ -1200,6 +1345,18 @@ qos/test_qos_sai.py::TestQosSai:
     reason: "Unsupported testbed type."
     conditions:
       - "topo_name not in ['t0', 't0-64', 't0-116', 't0-35', 't0-56', 'dualtor-56', 'dualtor-120', 'dualtor', 't0-80', 't0-backend', 't1-lag', 't1-64-lag', 't1-56-lag', 't1-backend', 't2', 't2_2lc_36p-masic', 't2_2lc_min_ports-masic'] and asic_type not in ['mellanox']"
+
+qos/test_qos_sai.py::TestQosSai::SeparatedDscpQueueMapping:
+  skip:
+    reason: "not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+qos/test_qos_sai.py::TestQosSai::SeparatedDscpToPgMapping:
+  skip:
+    reason: "not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 qos/test_qos_sai.py::TestQosSai::testIPIPQosSaiDscpToPgMapping:
   skip:
@@ -1370,6 +1527,56 @@ route/test_static_route.py::test_static_route_ecmp_ipv6:
     conditions: https://github.com/sonic-net/sonic-buildimage/issues/4930
 
 #######################################
+#####        sai_qualify          #####
+#######################################
+sai_qualify/test_community.py:
+  skip:
+    reason: "not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+sai_qualify/test_sai_ptf.py:
+  skip:
+    reason: "not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+sai_qualify/test_sai_ptf_warm_reboot.py:
+  skip:
+    reason: "Skip test_sai_ptf_warm_reboot on unsupported topology"
+    conditions:
+      - "('ptf' not in topo_name)"
+
+sai_qualify/test_sai_t0_warm_reboot.py:
+  skip:
+    reason: "Skip test_sai_t0_warm_reboot on unsupported testbed"
+    conditions:
+      - "('ptf' not in topo_name)"
+
+sai_qualify/test_warm_reboot.py:
+  skip:
+    reason: "not supported on NVIDIA SAI"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
+#####           sflow             #####
+#######################################
+sflow/test_sflow.py::TestAgentId::testAddAgent:
+  # This test case may fail due to a test issue https://github.com/sonic-net/sonic-mgmt/issues/10291.
+  # Temporarily disabling the test case due to the this issue.
+  skip:
+    reason: "Test case may fail due to issue"
+    conditions: https://github.com/sonic-net/sonic-mgmt/issues/10291
+
+sflow/test_sflow.py::TestAgentId::testDelAgent:
+  # This test case may fail due to a test issue https://github.com/sonic-net/sonic-mgmt/issues/10291.
+  # Temporarily disabling the test case due to the this issue.
+  skip:
+    reason: "Test case may fail due to issue"
+    conditions: https://github.com/sonic-net/sonic-mgmt/issues/10291
+
+#######################################
 #####      show_techsupport       #####
 #######################################
 show_techsupport/test_auto_techsupport.py:
@@ -1399,6 +1606,180 @@ show_techsupport/test_techsupport.py::test_techsupport:
       - "release in ['202305']"
       - https://github.com/sonic-net/sonic-mgmt/issues/7520
       - "asic_type not in ['mellanox']"
+
+#######################################
+#####           snappi            #####
+#######################################
+snappi/bgp/test_bgp_convergence_performance.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/bgp/test_bgp_local_link_failover.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/bgp/test_bgp_remote_link_failover.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/bgp/test_bgp_rib_in_capacity.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi//bgp/test_bgp_rib_in_convergence.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/bgp/test_bgp_scalability.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/ecn/test_dequeue_ecn_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/ecn/test_red_accuracy_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/lacp/test_add_remove_link_from_dut.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/lacp/test_add_remove_link_physically.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+lacp/test_lacp_timers_effect.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfc/test_global_pause_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfc/test_pfc_pause_lossless_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfc/test_pfc_pause_lossy_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfc/test_pfc_pause_response_with_snappi.py:
+  skip:
+    reason: "Skip test_pfc_pause_response_with_snappi on unsupported testbed"
+    conditions:
+      - "('tgen' not in topo_name)"
+
+snappi/pfc/test_pfc_pause_unset_bit_enable_vector.py:
+  skip:
+    reason: "Skip test_pfc_pause_unset_bit_enable_vector on unsupported testbed"
+    conditions:
+      - "('tgen' not in topo_name)"
+
+snappi/pfc/test_pfc_pause_zero_mac.py:
+  skip:
+    reason: "Skip test_pfc_pause_zero_mac on unsupported testbed"
+    conditions:
+      - "('tgen' not in topo_name)"
+
+snappi/pfcwd/test_pfcwd_basic_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfcwd/test_pfcwd_burst_storm_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/pfcwd/test_pfcwd_m2o_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/qos/test_ipip_packet_reorder_with_snappi.py:
+  skip:
+    reason: "Skip test_ipip_packet_reorder_with_snappi on unsupported testbed"
+    conditions:
+      - "('tgen' not in topo_name)"
+
+snappi/reboot/test_cold_reboot.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/reboot/test_fast_reboot.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/reboot/test_soft_reboot.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi/reboot/test_warm_reboot.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
+#####        snappi_tests         #####
+#######################################
+snappi_tests/multidut/ecn/test_multidut_dequeue_ecn_with_snappi.py:
+  skip:
+    reason: "ixia traffic generator not supported in NVIDIA"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi_tests/multidut/ecn/test_multidut_red_accuracy_with_snappi.py:
+  skip:
+    reason: "snappi is not supported"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+snappi_tests/multidut/pfc/test_multidut_global_pause_with_snappi.py:
+  skip:
+    reason: "snappi is not supported"
+    conditions:
+      - "asic_type in ['mellanox']"
 
 #######################################
 #####            snmp             #####
@@ -1547,6 +1928,33 @@ telemetry/test_telemetry.py::test_osbuild_version:
       - https://github.com/sonic-net/sonic-mgmt/issues/12021
 
 #######################################
+#####         testbed_setup       #####
+#######################################
+testbed_setup/test_add_property_spytest_junit_xml.py:
+  skip:
+    reason: "spytest is not supported"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
+#####         testbed_setup       #####
+#######################################
+tests/test_vs_chassis_setup.py:
+  skip:
+    reason: "multi-chassis not supported"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
+#####       upgarde_path          #####
+#######################################
+upgrade_path/test_upgrade_path.py:
+  skip:
+    reason: "other reboot test is used instead"
+    conditions:
+      - "asic_type in ['mellanox']"
+
+#######################################
 #####         pktgen              #####
 #######################################
 test_pktgen.py:
@@ -1596,12 +2004,48 @@ voq/test_fabric_reach.py:
     conditions:
       - "('t2' not in topo_name) or (asic_subtype not in ['broadcom-dnx']) or ('arista_7800' not in platform)"
 
+voq/test_voq_chassis_app_db_consistency.py:
+  skip:
+    reason: "Skip test_voq_chassis_app_db_consistency on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+      -
+voq/test_voq_disrupts.py:
+  skip:
+    reason: "Skip test_voq_disrupts on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
 voq/test_voq_fabric_status_all.py:
   skip:
     reason: "Skip test_voq_fabric_status_all on unsupported testbed."
     conditions:
       - "('t2' not in topo_name) or (asic_subtype not in ['broadcom-dnx']) or ('arista_7800' not in platform)"
 
+voq/test_voq_init.py:
+  skip:
+    reason: "Skip test_voq_init on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
+voq/test_voq_intfs.py:
+  skip:
+    reason: "Skip test_voq_intfs on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
+voq/test_voq_ipfwd.py:
+  skip:
+    reason: "Skip test_voq_ipfwd on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+
+voq/test_voq_nbr.py:
+  skip:
+    reason: "Skip test_voq_nbr on unsupported testbed"
+    conditions:
+      - "('t2' not in topo_name)"
+      -
 #######################################
 #####             vrf             #####
 #######################################
@@ -1699,8 +2143,160 @@ vxlan/test_vxlan_ecmp_switchover.py:
       - "(is_multi_asic == True) or (platform not in ['x86_64-8102_64h_o-r0', 'x86_64-8101_32fh_o-r0', 'x86_64-mlnx_msn4600c-r0', 'x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn2700a1-r0', 'x86_64-mlnx_msn4700-r0', 'x86_64-nvidia_sn4280-r0'])"
 
 #######################################
+#####             wan             #####
+#######################################
+wan/isis/test_isis_authentication.py:
+  skip:
+    reason: "Skip test_isis_authentication on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_csnp_interval.py:
+  skip:
+    reason: "Skip test_isis_csnp_interval on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_database.py:
+  skip:
+    reason: "Skip test_isis_database on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_ecmp.py:
+  skip:
+    reason: "Skip test_isis_ecmp on unsupported testbed"
+    conditions:
+      - "('wan-ecmp' not in topo_name)"
+
+wan/isis/test_isis_hello_interval.py:
+  skip:
+    reason: "Skip test_isis_hello_interval on unsupported testbed"
+    conditions:
+      - "('wan-com' not in topo_name)"
+
+wan/isis/test_isis_hello_pad.py:
+  skip:
+    reason: "Skip test_isis_hello_pad on unsupported testbed"
+    conditions:
+      - "('wan-com' not in topo_name)"
+
+wan/isis/test_isis_holdtime.py:
+  skip:
+    reason: "Skip test_isis_holdtime on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_intf_passive.py:
+  skip:
+    reason: "Skip test_isis_intf_passive on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_level_capacity.py:
+  skip:
+    reason: "Skip test_isis_level_capacity on unsupported testbed"
+    conditions:
+      - "('wan-com' not in topo_name)"
+
+wan/isis/test_isis_log_adjacency_change.py:
+  skip:
+    reason: "Skip test_isis_log_adjacency_change on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_lsp_fragment.py:
+  skip:
+    reason: "Skip test_isis_lsp_fragment on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_lsp_gen_interval.py:
+  skip:
+    reason: "Skip test_isis_lsp_gen_interval on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_lsp_lifetime.py:
+  skip:
+    reason: "Skip test_isis_lsp_lifetime on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_lsp_refresh.py:
+  skip:
+    reason: "Skip test_isis_lsp_refresh on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_metric_wide.py:
+  skip:
+    reason: "Skip test_isis_metric_wide on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_neighbor.py:
+  skip:
+    reason: "Skip test_isis_neighbor on unsupported testbed"
+    conditions:
+      - "('wan-com' not in topo_name)"
+
+wan/isis/test_isis_overload_bit.py:
+  skip:
+    reason: "Skip test_isis_overload_bit on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_redistribute.py:
+  skip:
+    reason: "Skip test_isis_redistribute on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_spf_default_interval.py:
+  skip:
+    reason: "Skip test_isis_spf_default_interval on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/test_isis_spf_ietf_interval.py:
+  skip:
+    reason: "Skip test_isis_spf_ietf_interval on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/isis/traffic_test/test_traffic.py:
+  skip:
+    reason: "Skip test_traffic on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/lldp/test_wan_lldp.py:
+  skip:
+    reason: "Skip test_wan_lldp on unsupported testbed"
+    conditions:
+      - "('KVM wan-pub' not in topo_name)"
+#######################################
 #####           wan_lacp          #####
 #######################################
+wan/lacp/test_wan_lacp.py:
+  skip:
+    reason: "Skip test_wan_lacp on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
+wan/lacp/test_wan_lag_member.py:
+  skip:
+    reason: "Skip test_wan_lag_member on unsupported testbed"
+    conditions:
+      - "('KVM wan-pub' not in topo_name)"
+
+wan/lacp/test_wan_lag_min_link.py:
+  skip:
+    reason: "Skip test_wan_lag_min_link on unsupported testbed"
+    conditions:
+      - "('wan-3link-tg' not in topo_name)"
+
 wan/lacp/test_wan_lag_min_link.py::test_lag_min_link:
   skip:
     reason: "Skip test due to there isn't enough port channel or members exists in current topology."
