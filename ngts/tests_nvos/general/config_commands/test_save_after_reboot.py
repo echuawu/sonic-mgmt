@@ -133,13 +133,13 @@ def test_general_auto_save(engines, devices, test_api):
     new_eth0_description = 'TestingAutoSave'
 
     try:
-        with allure.step('verify nv show system config auto-save enable is off'):
+        with allure.step('verify auto-save state is disabled'):
             output = OutputParsingTool.parse_json_str_to_dictionary(system.config.auto_save.show()).verify_result()
-            assert SystemConsts.AUTO_SAVE_ENABLE_OFF == output[SystemConsts.AUTO_SAVE_ENABLE], "auto-save should be off"
+            assert SystemConsts.AUTO_SAVE_STATE_DISABLED == output[SystemConsts.AUTO_SAVE_STATE], "state should be disabled"
 
-        with allure.step('run nv set system config auto-save enable on'):
-            system.config.auto_save.set(op_param_name=SystemConsts.AUTO_SAVE_ENABLE,
-                                        op_param_value=SystemConsts.AUTO_SAVE_ENABLE_ON).verify_result()
+        with allure.step('set auto-save state to enabled'):
+            system.config.auto_save.set(op_param_name=SystemConsts.AUTO_SAVE_STATE,
+                                        op_param_value=SystemConsts.AUTO_SAVE_STATE_ENABLED).verify_result()
 
         with allure.step('set eth0 description to be {description} - with apply'.format(description=new_eth0_description)):
             eth0_port.interface.set(NvosConst.DESCRIPTION, new_eth0_description, apply=True).verify_result()
@@ -152,11 +152,11 @@ def test_general_auto_save(engines, devices, test_api):
         with allure.step("Unset description and verify"):
             eth0_port.interface.unset(op_param='description').verify_result()
 
-        with allure.step('run nv set system config auto-save enable off'):
-            system.config.auto_save.unset(op_param=SystemConsts.AUTO_SAVE_ENABLE, apply=True).verify_result()
+        with allure.step('unset auto-save state'):
+            system.config.auto_save.unset(op_param=SystemConsts.AUTO_SAVE_STATE, apply=True).verify_result()
 
-        with allure.step('verify nv show system config auto-save enable is off'):
+        with allure.step('verify auto-save state is disabled'):
             output = OutputParsingTool.parse_json_str_to_dictionary(system.config.auto_save.show()).verify_result()
-            assert SystemConsts.AUTO_SAVE_ENABLE_OFF == output[SystemConsts.AUTO_SAVE_ENABLE], "auto-save should be off"
+            assert SystemConsts.AUTO_SAVE_STATE_DISABLED == output[SystemConsts.AUTO_SAVE_STATE], "state should be disabled"
 
             TestToolkit.GeneralApi[test_api].save_config(engine=engines.dut)
