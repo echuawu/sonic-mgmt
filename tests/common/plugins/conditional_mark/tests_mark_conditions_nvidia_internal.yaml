@@ -44,6 +44,24 @@ tests/nightly/runtime/test_runtime.py:
       - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3649746"
 
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
+
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_route]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
+
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_po]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
+
 tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_direction]:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3851470 for simx platform"

@@ -37,7 +37,7 @@ def verify_up_deviation(value, expected_value, deviation):
     :return: raise assertion error in case the value not as expected with deviation
     """
     assert float(value) < float(expected_value) * (1 + deviation), \
-        "The value {} is bigger than expected {} with deviation of {}".format(value, expected_value, deviation)
+        "The value {} is bigger than expected {} with deviation of {}%".format(value, expected_value, deviation * 100)
 
 
 def verify_deviation_for_simx(value, deviation):
@@ -47,7 +47,7 @@ def verify_deviation_for_simx(value, deviation):
     :param deviation: allowed deviation in packets
     :return: raise assertion error in case the value not as expected with deviation
     """
-    assert int(value) < deviation,\
+    assert int(value) < deviation, \
         f"Actual pps value {value} is not less than expected pps value 0 + {deviation}"
 
 
