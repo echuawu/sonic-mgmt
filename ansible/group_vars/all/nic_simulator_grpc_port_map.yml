@@ -9,3 +9,5 @@ nic_simulator_grpc_port:
   sonic-dual-tor-leopard-dualtor-aa: 50075
   sonic-dual-tor-dualtor-mixed: 50075
   sonic-dual-tor-tigon-dualtor-mixed: 50075
+  sonic-dual-tor-tigon-01-dualtor-aa: 50075
+  sonic-dual-tor-tigon-01-dualtor-aa-64: 50075

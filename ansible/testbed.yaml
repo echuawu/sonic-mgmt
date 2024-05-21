@@ -98,6 +98,82 @@
     - r-leopard-72
   comment: 4700 Active-Standby Dual-TOR testbed
 
+- conf-name: sonic-dual-tor-tigon-01-dualtor
+  group-name: vm-t1
+  topo: dualtor
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+    - mtvr-tigon-04
+  comment: 4600C Active-Standby Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-tigon-01-dualtor-64
+  group-name: vm-t1
+  topo: dualtor-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+    - mtvr-tigon-04
+  comment: 4600C Active-Standby Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-tigon-01-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.245.36.70/20
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+    - mtvr-tigon-04
+  comment: 4600C Active-Active Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-tigon-01-dualtor-aa-64
+  group-name: vm-t1
+  topo: dualtor-aa-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.245.36.70/20
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+    - mtvr-tigon-04
+  comment: 4600C Active-Active Dual-TOR testbed
+
+- conf-name: sonic-dual-tor-leopard-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-r-leopard-70
+  ptf_ip: 10.215.26.182/16
+  ptf_ipv6:
+  ptf_extra_mgmt_ip:
+  netns_mgmt_ip: 10.215.26.190/16
+  server: server_61
+  vm_base: VM2601
+  dut:
+    - r-leopard-70
+    - r-leopard-72
+  comment: 4700 Active-Active Dual-TOR testbed
+
 - conf-name: mts-sonic-dut-t0
   group-name: vm-t1
   topo: t0
@@ -2334,6 +2410,201 @@
     - r-tigon-20
   comment: Mellanox MTR testbed
 
+- conf-name: mtvr-tigon-02-t0
+  group-name: vm-t1
+  topo: t0
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t0-16
+  group-name: vm-t1
+  topo: t0-16
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t0-52-lag
+  group-name: vm-t1
+  topo: t0-52
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t0-56
+  group-name: vm-t1
+  topo: t0-56
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t0-64
+  group-name: vm-t1
+  topo: t0-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t1
+  group-name: vm-t1
+  topo: t1
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t1-lag
+  group-name: vm-t1
+  topo: t1-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-t1-64-lag
+  group-name: vm-t1
+  topo: t1-64-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-ptf32
+  group-name: vm-t1
+  topo: ptf32
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-ptf64
+  group-name: vm-t1
+  topo: ptf64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-dualtor
+  group-name: vm-t1
+  topo: dualtor
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-dualtor-64
+  group-name: vm-t1
+  topo: dualtor-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-dualtor-aa
+  group-name: vm-t1
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-dualtor-aa-64
+  group-name: vm-t1
+  topo: dualtor-aa-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-02-ptf-any
+  group-name: vm-t1
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-02
+  ptf_ip: 10.245.36.3/20
+  ptf_ipv6:
+  server: server_76
+  vm_base: VM4101
+  dut:
+    - mtvr-tigon-02
+  comment: Mellanox MTVR testbed
+
 - conf-name: r-tigon-21-t0
   group-name: vm-t1
   topo: t0
@@ -2515,6 +2786,202 @@
   dut:
     - r-tigon-21
   comment: Mellanox MTR testbed
+
+- conf-name: mtvr-tigon-04-t0
+  group-name: vm-t2
+  topo: t0
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t0-16
+  group-name: vm-t2
+  topo: t0-16
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t0-52-lag
+  group-name: vm-t2
+  topo: t0-52
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t0-56
+  group-name: vm-t2
+  topo: t0-56
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t0-64
+  group-name: vm-t2
+  topo: t0-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t1
+  group-name: vm-t2
+  topo: t1
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t1-lag
+  group-name: vm-t2
+  topo: t1-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-t1-64-lag
+  group-name: vm-t2
+  topo: t1-64-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-ptf32
+  group-name: vm-t2
+  topo: ptf32
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-ptf64
+  group-name: vm-t2
+  topo: ptf64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-dualtor
+  group-name: vm-t2
+  topo: dualtor
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-dualtor-64
+  group-name: vm-t2
+  topo: dualtor-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-dualtor-aa
+  group-name: vm-t2
+  topo: dualtor-aa
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+- conf-name: mtvr-tigon-04-dualtor-aa-64
+  group-name: vm-t2
+  topo: dualtor-aa-64
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
+
+
+- conf-name: mtvr-tigon-04-ptf-any
+  group-name: vm-t2
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-tigon-04
+  ptf_ip: 10.245.36.37/20
+  ptf_ipv6:
+  server: server_77
+  vm_base: VM4201
+  dut:
+    - mtvr-tigon-04
+  comment: Mellanox MTVR testbed
 
 - conf-name: r-tigris-26-t0
   group-name: vm-t1
