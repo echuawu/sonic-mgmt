@@ -198,7 +198,8 @@ def test_gnmi_bad_flow(test_api, engines, devices):
         gnmi_server_obj.set(GnmiConsts.GNMI_STATE_FIELD, Tools.RandomizationTool.get_random_string(7), "Error")
 
     with allure_step("Subscribe to the gnmi server for data that is not supported"):
-        xpath = 'interfaces/interface[name=sw1p1]/state/counters/in-broadcast-pkts'
+        name = 'sw1p1s1' if switch_type == 'nvl' else 'sw1p1'
+        xpath = f'interfaces/interface[name={name}]/state/counters/in-broadcast-pkts'
         gnmi_stream_updates = run_gnmi_client_and_parse_output(engines, devices, xpath, engines.dut.ip)
         gnmi_stream_updates_value = list(gnmi_stream_updates.values())[0]
         assert gnmi_stream_updates_value == '0', f'{xpath} is unsupported field,' \
