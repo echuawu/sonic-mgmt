@@ -552,6 +552,7 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
         self.ssd_image = None
+        self.category_list = ['temperature', 'cpu', 'disk', 'fan', 'mgmt-interface', 'voltage']
         self.voltage_sensors = [
             "PMIC-1-12V-VDD-ASIC1-In-1",
             "PMIC-1-ASIC1-VDD-Out-1",
