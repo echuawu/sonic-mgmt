@@ -27,7 +27,7 @@ class SendCommandTool:
                                  f"But the output is:\n{cmd_output_str}", cmd_output_str)
 
         if cmd_output_str:
-            output_first_lines = "".join(cmd_output_str.split('\n')[:2])
+            output_first_lines = "".join(cmd_output_str.split('\n')[:4])
 
             # Check for any invalid command messages
             if any(err_msg in output_first_lines for err_msg in invalid_cmd_str):
