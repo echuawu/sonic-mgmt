@@ -11,5 +11,8 @@ class SonicMarsData:
         result: ''
         allure_url: ''
         skip_reason: ''
+        exception: ''
+        exception_regex: ''
+        la_redmine_issues: []
         dump_info: ''
         test_inserted_time: ''

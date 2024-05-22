@@ -30,15 +30,21 @@ class MarsConnectDB(ConnectMSSQL):
         self.disconnect_db()
 
     def insert_session(self):
-        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [setup_name], [mars_key_id] ,[mars_name]," \
-                 r"[mars_result], [allure_url], [skip_reason], [dump_info], [test_inserted_time]) VALUES (" + \
+        insert = r"INSERT INTO [dbo].[mars_respond]([session_id], [setup_name], [mars_key_id], [mars_name], " \
+                 r"[mars_result], [allure_url], [skip_reason], [exception], [exception_regex], [dump_info], " \
+                 r"[test_inserted_time]) OUTPUT inserted.mars_respond_id VALUES (" + \
                  str(self.data.session_id) + ", '" + self.data.setup_name + "', '" + self.data.mars_key_id + "', '" + \
                  self.data.name + "', '" + self.data.result + "', '" + self.data.allure_url + "','" + \
-                 self.data.skip_reason + "','" + str(self.data.dump_info) + "','" + \
-                 str(self.data.test_inserted_time) + "')"
+                 self.data.skip_reason + "','" + self.data.exception + "','" + self.data.exception_regex + "','" + \
+                 str(self.data.dump_info) + "','" + str(self.data.test_inserted_time) + "')"
         logger.info('Inserting: {} to MARS SQL DB'.format(insert))
         try:
-            self.query_insert(insert)
+            la_table_id = self.query_insert_return_la_table_id(insert)
+            for la_issue in self.data.la_redmine_issues:
+                insert_la_issue = r"INSERT INTO [dbo].[log_analyzer_redmine_issues]([mars_respond_id], " \
+                    r"[log_analyzer_redmine_issue]) VALUES (" + str(la_table_id) + ", " + \
+                    str(la_issue) + ")"
+                self.query_insert(insert_la_issue)
         except Exception as e:
             logger.error(e)
 
