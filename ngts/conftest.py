@@ -25,7 +25,7 @@ from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, \
     BugHandlerConst, InfraConst, PlayersAliases
-from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
+from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run, get_chip_type
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology, \
     get_sonic_image
@@ -381,8 +381,8 @@ def dut_mac(engines, cli_objects):
 
 @pytest.fixture(scope='session')
 def chip_type(topology_obj):
-    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-    return chip_type
+    switch_attributes = topology_obj.players['dut']['attributes'].noga_query_data['attributes']
+    return get_chip_type(switch_attributes)
 
 
 @pytest.fixture(scope='session')

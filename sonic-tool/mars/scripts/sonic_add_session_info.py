@@ -28,7 +28,7 @@
 #######################################################################
 import os
 import re
-
+import ast
 #######################################################################
 # Local imports
 #######################################################################
@@ -39,9 +39,7 @@ from mlxlib.common import trace
 
 logger = trace.set_logger()
 
-BF2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'
-BF3_PLATFORM = 'arm64-nvda_bf-9009d3b600cvaa'
-BF_PLATFORMS = [BF2_PLATFORM, BF3_PLATFORM]
+SONIC_SESSION_FACTS_PREFIX = "sonic_session_facts:"
 
 
 class SonicAddSessionInfo(SessionAddInfo):
@@ -63,30 +61,31 @@ class SonicAddSessionInfo(SessionAddInfo):
         """
         SessionAddInfo.__init__(self, conf_obj, extra_info, session_info)
 
-    def _parse_sonic_version(self, output, topology):
-        version = re.compile(r"sonic software version: +([^\s]+)\s", re.IGNORECASE)
-        platform_re = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
-        hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
-        asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
-        platform = platform_re.findall(output)[0] if platform_re.search(output) else ""
-        if platform in BF_PLATFORMS:
-            if platform == BF2_PLATFORM:
-                chip_type = 'BF2'
-            else:
-                chip_type = 'BF3'
+    def _parse_dict_string_from_output(self, output):
+        """
+        The function parses the result from the stdout output of the script
+        ngts/scripts/sonic_add_session_info/test_sonic_add_session_info.py
+        @param output:
+            The output of the script test_sonic_add_session_info.py
+        @return:
+            A tuple (rc, output) - rc is 0 if the parsing was successful and 1 otherwise. The output is a dictionary
+            with the information collected from test_sonic_add_session_info (empty dictionary if failed)
+            i.e. {'version': 'SONiC.bluefield.215-4d25a6679_Internal', 'platform': 'arm64-nvda_bf-9009d3b600cvaa',
+            'hwsku': 'Nvidia-9009d3b600CVAA-C1', 'asic': 'nvidia-bluefield', 'topology': 'dpu-1',
+            'chip_type': 'BF3', 'sonic_branch': 'master'}"
+        """
+        pattern = r'{}(.*)'.format(SONIC_SESSION_FACTS_PREFIX)
+        match = re.search(pattern, output)
+        if match:
+            dict_string = match.group(1).strip()
+            rc = 0
+            output = ast.literal_eval(dict_string)  # For MARS API, the value should return as a dictionary
+            print(f"output={str(output)}")
         else:
-            chip_type = int(str(re.search(r"(\d{4})", platform).group(1))[0]) - 1 if platform else ""
-            chip_type = "SPC{}".format(chip_type) if chip_type else ""
-        res = {
-            "version": version.findall(output)[0] if version.search(output) else "",
-            "platform": platform,
-            "hwsku": hwsku.findall(output)[0] if hwsku.search(output) else "",
-            "asic": asic.findall(output)[0] if asic.search(output) else "",
-            "topology": topology,
-            "chip_type": chip_type
-        }
-
-        return res
+            print("Couldn't get sonic session info")
+            rc = 1
+            output = {}
+        return rc, output
 
     def get_dynamic_info(self):
         """
@@ -96,6 +95,9 @@ class SonicAddSessionInfo(SessionAddInfo):
             2. platform
             3. hwsku
             4. asic
+            5. topology
+            6. chip_type
+            7. branch
 
         @return:
             Tuple with return code and dictionary of additional info to add.
@@ -103,28 +105,30 @@ class SonicAddSessionInfo(SessionAddInfo):
         print("Run SonicAddSessionInfo.get_dynamic_info")
 
         machines_players = self.conf_obj.get_active_players()
-        print("machine_players={0}".format(str(machines_players)))
+        print(f"machine_players={str(machines_players)}")
 
         if isinstance(machines_players, list):
             machine = machines_players[0]
         else:
             machine = machines_players
-        print("machine={0}".format(str(machine)))
-
+        print(f"machine={str(machine)}")
         remote_workspace = '/root/mars/workspace'
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
-        print("remote_workspace={0}".format(str(remote_workspace)))
+        print(f"remote_workspace={remote_workspace}")
 
-        dut_name = self.conf_obj.get_extra_info().get("dut_name")
-        topology = self.conf_obj.get_extra_info().get("topology")
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
-
-        cmd = "ansible -m command -i inventory {DUT_NAME}-{TOPOLOGY} -a 'show version'"
-        cmd = cmd.format(DUT_NAME=dut_name, TOPOLOGY=topology)
-        print("cmd={0}".format(cmd))
-
+        topology = self.conf_obj.get_extra_info().get("topology")
+        setup_name = self.conf_obj.get_extra_info().get("setup_name")
+        ngts_script_path = "ngts/scripts/sonic_add_session_info/test_sonic_add_session_info.py"
+        script_cmd = (f"PYTHONPATH=/devts:{remote_workspace}/{repo_name}/ /ngts_venv/bin/pytest -p "
+                  f"no:ngts.tools.conditional_mark -p no:ngts.tools.loganalyzer -p "
+                  f"no:ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore --setup_name={setup_name} "
+                  f"--sonic-topo={topology} --sonic_session_facts_prefix={SONIC_SESSION_FACTS_PREFIX} --log-level=INFO "
+                  f"--clean-alluredir --alluredir=/tmp/allure-results --showlocals {remote_workspace}/{repo_name}/"
+                  f"{ngts_script_path}")
+        print(f"script_cmd={script_cmd}")
         try:
             conn = RemoteRPC(machine)
             conn.import_module("os")
@@ -133,17 +137,17 @@ class SonicAddSessionInfo(SessionAddInfo):
             conn.modules.os.chdir(os.path.join(remote_workspace, repo_name, "ansible"))
             conn.modules.os.environ["HOME"] = "/root"
 
-            p = conn.modules.execute.run_process(cmd, shell=True)
+            p = conn.modules.execute.run_process(script_cmd, shell=True)
             (rc, output) = conn.modules.execute.wait_process(p)
-            print("rc={0}".format(str(rc)))
-            print("output={0}".format(str(output)))
+            print(f"rc={str(rc)}")
 
             if rc != 0:
                 print("Execute command failed!")
                 return (1, {})
-            res = self._parse_sonic_version(output, topology)
-            return (0, res)
+            rc, output = self._parse_dict_string_from_output(output)
         except Exception as e:
-            logger.error("Failed to execute command: %s" % cmd)
-            logger.error("Exception error: %s" % repr(e))
-            return (1, {})
+            rc = 1
+            output = {}
+            print(f"An error occurred:{str(e)}")
+        finally:
+            return (rc, output)

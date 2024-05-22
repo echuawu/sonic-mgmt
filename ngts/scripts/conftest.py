@@ -20,6 +20,9 @@ def pytest_addoption(parser):
                      default=",".join(SonicConst.DOCKERS_LIST))
     parser.addoption('--neighbor_type', action='store', default="ceos")
     parser.addoption('--dut_name', action='store', default=None, help='DUT name, example: r-tigris-06')
+    parser.addoption('--sonic_session_facts_prefix', action='store', default=None,
+                     help="The prefix used to identify beginning of session facts printed to stdout in "
+                          "test_sonic_add_session_info, i.e. \"sonic_session_facts:\"")
 
 
 @pytest.fixture(scope='function')
@@ -50,6 +53,16 @@ def sonic_topo(request):
     :return: sonic-topo (for example: t0, t1, t1-lag, ptf32)
     """
     return request.config.getoption('--sonic-topo')
+
+
+@pytest.fixture(scope="module")
+def sonic_session_facts_prefix(request):
+    """
+    Method for getting sonic_session_facts_prefix from pytest arguments
+    :param request: pytest builtin
+    :return: sonic_session_facts_prefix, as sent from sonic_add_session_info.py to parse the output from stdout
+    """
+    return request.config.getoption('--sonic_session_facts_prefix')
 
 
 @pytest.fixture(scope="module")
