@@ -118,6 +118,9 @@ ARC-HOST70_2 ansible_host=ARC-HOST70
 [vm_host_73]
 MTVR-R740-05_1 ansible_host=mtvr-r740-05
 
+[vm_host_74]
+R-DL360-01_1 ansible_host=r-dl360-01
+
 [vm_host_75]
 R-DL360-01_2 ansible_host=r-dl360-01
 
@@ -162,6 +165,7 @@ vm_host_70
 vm_host_71
 vm_host_72
 vm_host_73
+vm_host_74
 vm_host_75
 
 [vms_0]
@@ -1338,6 +1342,40 @@ VM3830 ansible_host=10.245.34.152
 VM3831 ansible_host=10.245.34.153
 VM3832 ansible_host=10.245.34.154
 
+[vms_74]
+VM3901 ansible_host=10.215.34.183
+VM3902 ansible_host=10.215.34.184
+VM3903 ansible_host=10.215.34.185
+VM3904 ansible_host=10.215.34.186
+VM3905 ansible_host=10.215.34.187
+VM3906 ansible_host=10.215.34.188
+VM3907 ansible_host=10.215.34.189
+VM3908 ansible_host=10.215.34.190
+VM3909 ansible_host=10.215.34.191
+VM3910 ansible_host=10.215.34.192
+VM3911 ansible_host=10.215.34.193
+VM3912 ansible_host=10.215.34.194
+VM3913 ansible_host=10.215.34.195
+VM3914 ansible_host=10.215.34.196
+VM3915 ansible_host=10.215.34.197
+VM3916 ansible_host=10.215.34.198
+VM3917 ansible_host=10.215.34.199
+VM3918 ansible_host=10.215.34.200
+VM3919 ansible_host=10.215.34.201
+VM3920 ansible_host=10.215.34.202
+VM3921 ansible_host=10.215.34.203
+VM3922 ansible_host=10.215.34.204
+VM3923 ansible_host=10.215.34.205
+VM3924 ansible_host=10.215.34.206
+VM3925 ansible_host=10.215.34.207
+VM3926 ansible_host=10.215.34.208
+VM3927 ansible_host=10.215.34.209
+VM3928 ansible_host=10.215.34.210
+VM3929 ansible_host=10.215.34.211
+VM3930 ansible_host=10.215.34.212
+VM3931 ansible_host=10.215.34.213
+VM3932 ansible_host=10.215.34.214
+
 [vms_75]
 VM4001 ansible_host=10.215.35.1
 VM4002 ansible_host=10.215.35.2
@@ -1413,6 +1451,7 @@ vms_70
 vms_71
 vms_72
 vms_73
+vms_74
 vms_75
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
@@ -1785,6 +1824,17 @@ host_var_file=host_vars/MTVR-R740-05_1.yml
 host_var_file=host_vars/MTVR-R740-05_1.yml
 mgmt_prefixlen=16
 
+[server_74:children]
+vm_host_74
+vms_74
+
+[server_74:vars]
+host_var_file=host_vars/R-DL360-01_1.yml
+
+[vms_74:vars]
+host_var_file=host_vars/R-DL360-01_1.yml
+mgmt_prefixlen=16
+
 [server_75:children]
 vm_host_75
 vms_75
@@ -1837,6 +1887,7 @@ server_70
 server_71
 server_72
 server_73
+server_74
 server_75
 
 [servers:vars]

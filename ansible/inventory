@@ -243,10 +243,6 @@ r-anaconda-simx-49 ansible_host=r-anaconda-simx-49  sonic_version=v2  sonic_hwsk
 r-panther-03-ptf-any ansible_host=r-panther-03  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1             serial_console="ssh -l rcon:7004 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18 base_mac=FC:6A:1C:4E:98:40 serial=MT2339XZ0GKZ model=MSN2700-CS2R2OS syseeprom_info="{'0x28': u'x86_64-mlnx_msn2700a1-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2700-CS2R2OS', '0x23': u'MT2339XZ0GKZ', '0x21': u'MSN2700-A1', '0x26': u'19', '0x24': u'FC:6A:1C:4E:98:40', '0x25': u'09/28/2023 22:32:31', '0xfe': u'0x1B210920', '0x2b': u'Mellanox', '0x2a': u'128'}"
 r-panther-03 ansible_host=r-panther-03  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-A1             serial_console="ssh -l rcon:7004 10.208.0.45" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-18 base_mac=FC:6A:1C:4E:98:40 serial=MT2339XZ0GKZ model=MSN2700-CS2R2OS syseeprom_info="{'0x28': u'x86_64-mlnx_msn2700a1-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2700-CS2R2OS', '0x23': u'MT2339XZ0GKZ', '0x21': u'MSN2700-A1', '0x26': u'19', '0x24': u'FC:6A:1C:4E:98:40', '0x25': u'09/28/2023 22:32:31', '0xfe': u'0x1B210920', '0x2b': u'Mellanox', '0x2a': u'128'}"
 
-# MTR canonical testbed r-panther-23 topologies
-r-panther-23-ptf-any ansible_host=r-panther-23  sonic_version=v2  sonic_hwsku=Mellanox-SN2700             serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-137 base_mac=98:03:9B:F6:00:00 serial=MT1849X08806 model=MSN2700-CS2FOS syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2700-CS2FOS', '0x23': u'MT1849X08806', '0x21': u'MSN2700', '0x26': u'16', '0x24': u'98:03:9B:F6:00:00', '0x25': u'12/10/2018 21:55:47', '0xfe': u'0x099CD768', '0x2b': u'Mellanox', '0x2a': u'128'}"
-r-panther-23 ansible_host=r-panther-23  sonic_version=v2  sonic_hwsku=Mellanox-SN2700             serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-137 base_mac=98:03:9B:F6:00:00 serial=MT1849X08806 model=MSN2700-CS2FOS syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2700-CS2FOS', '0x23': u'MT1849X08806', '0x21': u'MSN2700', '0x26': u'16', '0x24': u'98:03:9B:F6:00:00', '0x25': u'12/10/2018 21:55:47', '0xfe': u'0x099CD768', '0x2b': u'Mellanox', '0x2a': u'128'}"
-
 # MTR canonical testbed r-panther-22 topologies
 r-panther-22-ptf-any ansible_host=r-panther-22  sonic_version=v2  sonic_hwsku=Mellanox-SN2700             serial_console="ssh -l rcon:7037 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-137 base_mac=1C:34:DA:EB:C5:00 serial=MT2028X35377 model=MSN2700-CS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2020.11-5.2.0022-9600', '0x22': u'MSN2700-CS2FO', '0x23': u'MT2028X35377', '0x21': u'MSN2700', '0x26': u'17', '0x24': u'1C:34:DA:EB:C5:00', '0x25': u'07/20/2020 15:51:59', '0xfe': u'0x3673FBC2', '0x2b': u'Mellanox', '0x2a': u'128'}"
 r-panther-22 ansible_host=r-panther-22  sonic_version=v2  sonic_hwsku=Mellanox-SN2700             serial_console="ssh -l rcon:7037 10.208.0.190" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-137 base_mac=1C:34:DA:EB:C5:00 serial=MT2028X35377 model=MSN2700-CS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2020.11-5.2.0022-9600', '0x22': u'MSN2700-CS2FO', '0x23': u'MT2028X35377', '0x21': u'MSN2700', '0x26': u'17', '0x24': u'1C:34:DA:EB:C5:00', '0x25': u'07/20/2020 15:51:59', '0xfe': u'0x3673FBC2', '0x2b': u'Mellanox', '0x2a': u'128'}"
@@ -1006,6 +1002,15 @@ r-panther-45-t1-lag  ansible_host=10.210.24.143  sonic_version=v2  sonic_hwsku=A
 r-panther-45-ptf32   ansible_host=10.210.24.143  sonic_version=v2  sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="ssh -l rcon:7045 10.208.0.43" ptf_host=ptf-r-panther-45 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
 r-panther-45-ptf-any   ansible_host=10.210.24.143  sonic_version=v2  sonic_hwsku=ACS-MSN2700 iface_speed=100000 serial_console="ssh -l rcon:7045 10.208.0.43" ptf_host=ptf-r-panther-45 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
 
+# MTR testbed r-panther-23 topologies
+r-panther-23 ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-t0  ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-t0-56  ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-t1  ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-t1-lag  ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-ptf32   ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+r-panther-23-ptf-any   ansible_host=10.210.25.147  sonic_version=v2  sonic_hwsku=Mellanox-SN2700-D40C8S8 iface_speed=40000 serial_console="ssh -l rcon:7017 10.208.0.190" ptf_host=ptf-r-panther-23 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host=pdu-10-208-0-137
+
 # MTR testbed mtvr-hippo-03 topologies
 mtvr-hippo-03  ansible_host=10.245.20.245 sonic_version=v2  sonic_hwsku=ACS-SN5400 iface_speed=200000 serial_console="ssh -l rcon:7038 10.245.2.4" ptf_host=ptf-mtvr-hippo-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host="pdu-10-245-2-13,pdu-10-245-2-35"
 mtvr-hippo-03-t0  ansible_host=10.245.20.245 sonic_version=v2  sonic_hwsku=ACS-SN5400 iface_speed=200000 serial_console="ssh -l rcon:7038 10.245.2.4" ptf_host=ptf-mtvr-hippo-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" pdu_host="pdu-10-245-2-13,pdu-10-245-2-35"
@@ -1107,6 +1112,7 @@ r-panther-08 ansible_host=r-panther-08 ansible_ssh_user="{{ lookup('env','ONYX_S
 r-panther-43 ansible_host=r-panther-43 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-panther-41 ansible_host=r-panther-41 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-panther-46 ansible_host=r-panther-46 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
+r-panther-44 ansible_host=r-panther-44 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 arc-build-server ansible_host=arc-build-server ansible_user="{{ lookup('env','BUILD_SERVER_USER') }}" ansible_ssh_pass="{{ lookup('env','BUILD_SERVER_PASSWORD') }}"
 arc-switch1005 ansible_host=arc-switch1005 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
 r-panther-07 ansible_host=r-panther-07 ansible_ssh_user="{{ lookup('env','ONYX_SWITCH_USER') }}" ansible_ssh_pass="{{ lookup('env','ONYX_SWITCH_PASSWORD') }}" os=onyx
@@ -1442,6 +1448,15 @@ r-panther-45-t1-lag
 r-panther-45-ptf32
 r-panther-45-ptf-any
 
+# MTR r-panther-23 topologies
+r-panther-23
+r-panther-23-t0
+r-panther-23-t0-56
+r-panther-23-t1
+r-panther-23-t1-lag
+r-panther-23-ptf32
+r-panther-23-ptf-any
+
 # MTR mtvr-hippo-03 topologies
 mtvr-hippo-03
 mtvr-hippo-03-t0
@@ -1742,9 +1757,6 @@ r-anaconda-simx-49
 
 r-panther-03-ptf-any
 r-panther-03
-
-r-panther-23-ptf-any
-r-panther-23
 
 r-panther-22-ptf-any
 r-panther-22
@@ -2163,6 +2175,15 @@ r-panther-45-t1-lag
 r-panther-45-ptf32
 r-panther-45-ptf-any
 
+# MTR r-panther-23 topologies
+r-panther-23
+r-panther-23-t0
+r-panther-23-t0-56
+r-panther-23-t1
+r-panther-23-t1-lag
+r-panther-23-ptf32
+r-panther-23-ptf-any
+
 # MTR mtvr-hippo-03 topologies
 mtvr-hippo-03
 mtvr-hippo-03-t0
@@ -2580,6 +2601,10 @@ ptf-r-panther-40 ansible_host=10.215.30.182 ansible_ssh_user="{{ lookup('env','P
 # r-panther-45 PTF host
 ptf-r-panther-45 ansible_host=10.215.34.249 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.34.249 ansible_host=10.215.34.249 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+
+# r-panther-23 PTF host
+ptf-r-panther-23 ansible_host=10.215.34.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+10.215.34.182 ansible_host=10.215.34.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # mtvr-hippo-03 PTF host
 ptf-mtvr-hippo-03 ansible_host=10.245.34.122 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"

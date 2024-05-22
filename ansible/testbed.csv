@@ -290,6 +290,13 @@ r-panther-45-t1-lag,vm-t2,t1-lag,docker-ptf-mlnx,ptf-r-panther-45,10.215.34.249/
 r-panther-45-ptf32,vm-t2,ptf32,docker-ptf-mlnx,ptf-r-panther-45,10.215.34.249/16,,server_75,VM4001,r-panther-45,Mellanox MTR testbed
 r-panther-45-ptf-any,vm-t2,ptf-any,docker-ptf-mlnx,ptf-r-panther-45,10.215.34.249/16,,server_75,VM4001,r-panther-45,Mellanox MTR testbed
 
+r-panther-23-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+r-panther-23-t0-56,vm-t1,t0-56,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+r-panther-23-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+r-panther-23-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+r-panther-23-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+r-panther-23-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-panther-23,10.215.34.182/16,,server_74,VM3901,r-panther-23,Mellanox MTR testbed
+
 mtvr-hippo-03-t0,vm-t1,t0,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.122/16,,server_73,VM3801,mtvr-hippo-03,Mellanox MTR testbed
 mtvr-hippo-03-t0-64,vm-t1,t0-64,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.122/16,,server_73,VM3801,mtvr-hippo-03,Mellanox MTR testbed
 mtvr-hippo-03-t1,vm-t1,t1,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.122/16,,server_73,VM3801,mtvr-hippo-03,Mellanox MTR testbed
@@ -372,7 +379,6 @@ r-lionfish-16-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server
 r-ocelot-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-ocelot-02,Mellanox MTR testbed
 r-panther-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-03,Mellanox MTR testbed
 r-panther-13-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-13,Mellanox MTR testbed
-r-panther-23-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-panther-23,Mellanox MTR testbed
 r-anaconda-simx-129-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-129,Mellanox MTR testbed
 r-anaconda-simx-134-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-134,Mellanox MTR testbed
 r-anaconda-simx-139-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-anaconda-simx-139,Mellanox MTR testbed
