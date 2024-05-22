@@ -354,6 +354,62 @@
 
 			}
 		},
+		"SN4280": {
+			"component": {
+				"BIOS": [
+					{
+						"force_reboot": true,
+						"firmware": "https://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/0ACTV_00.00.x07_rc5/Release_9600/0ACTV.rom",
+						"version": "0ACTV_0.00.007",
+						"reboot": ["cold"]
+					},
+					{
+						"force_reboot": true,
+						"firmware": "https://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/0ACTV_00.00.x07_rc4/Release_9600/0ACTV.rom",
+						"version": "0ACTV_0.00.007",
+						"reboot": ["cold"]
+					}
+				],
+				"ONIE": [
+					{
+						"firmware": "https://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0012-rc6/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2023.11-5.3.0012-rc6-9600",
+						"reboot": ["cold"]
+					},
+					{
+						"firmware": "https://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_os/onie_release/5.3.0012-rc2/9600/onie-updater-x86_64-mlnx_x86-r0",
+						"force_reboot": true,
+						"version": "2023.11-5.3.0012-rc2-9600",
+						"reboot": ["cold"]
+					}
+				],
+				"CPLD1": [
+					{
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4280/FUI000295/FUI000295.mpfa",
+						"version": "CPLD000370_REV0101",
+						"reboot": ["power off", "cold"]
+					},
+					{
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4280/FUI_BOBCAT_BU/FUIXXX_BOBCAT_COMEX.mpfa",
+						"version": "CPLD000370_REV0010",
+						"reboot": ["power off", "cold"]
+					}
+				],
+				"DPU1_FPGA": [
+					{
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4280/Bobcat_BF3_All_DPUs_major0_minor5.vme",
+						"version": "FPGA000375_REV0005",
+						"reboot": ["power off", "cold"]
+					},
+					{
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN4280/DPU_CHAIN_VERSION_0003_debug_2.vme",
+						"version": "FPGA000375_REV0003",
+						"reboot": ["power off", "cold"]
+					}
+				]
+			}
+		},
 		"MSN4410": {
 			"component":{
 				"BIOS": [
