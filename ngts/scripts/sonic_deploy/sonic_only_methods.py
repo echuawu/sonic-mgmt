@@ -73,10 +73,7 @@ class SonicInstallationSteps:
                                            exec_path=ansible_path)
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
-        # TODO: Remove the "r-leopard-70" != dut_name and "r-leopard-70" != dut_name in the condition after the
-        #  hwsku Mellanox-SN4700-O8V48 is merged to upstream
-        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "r-leopard-70" != dut_name and \
-                "r-leopard-72" != dut_name and "mtvr-hippo-03" != dut_name:
+        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "mtvr-hippo-03" != dut_name:
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -368,19 +365,7 @@ class SonicInstallationSteps:
         cli = SonicInstallationSteps.get_dut_cli(setup_info)
         cli.cli_obj.general.update_platform_params(platform_params, setup_name)
 
-        # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O8V48 is merged to upstream
-        if "r-leopard-70" in setup_name or "r-leopard-72" in setup_name:
-            dut_name = setup_info['duts'][0]['dut_name']
-            dut_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN4700-O8V48'
-            sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
-            sonic_user = os.getenv("SONIC_SWITCH_USER")
-            sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
-            execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
-                           f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
-                           f'{sonic_mgmt_hwsku_path}', ansible_path)
-            generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
-
-        elif "mtvr-hippo-03" in setup_name:
+        if "mtvr-hippo-03" in setup_name:
             dut_name = setup_info['duts'][0]['dut_name']
             dut_platform_path = f'/usr/share/sonic/device/{platform_params["platform"]}'
             sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
