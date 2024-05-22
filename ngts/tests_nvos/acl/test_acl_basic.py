@@ -1071,7 +1071,7 @@ def config_acl_with_rule_attached_to_interface(engine, acl_id, acl_type, rule_id
             config_rule(engine, acl_obj, rule_id, rule_configuration_dict)
             attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane)
             logger.info("sleep 2 sec after rule attachment")
-            time.sleep(2)
+        time.sleep(2)
         return acl_obj
 
 
