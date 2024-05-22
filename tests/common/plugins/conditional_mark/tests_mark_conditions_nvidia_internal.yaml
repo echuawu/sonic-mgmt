@@ -411,8 +411,10 @@ tacacs/test_authorization.py:
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3910268 and 'sn4280' in platform"
 
 virtual_smart_switch/test_dpu_ip_assignment.py:
   skip:
@@ -1372,7 +1374,25 @@ platform_tests/mellanox/test_reboot_cause.py:
   skip:
     reason: "bobcat driver doesn't support reset_from_asic and reset_reload_bios"
     conditions:
-    - "'sn4280_simx' in platform"
+    - "'sn4280' in platform"
+
+memory_checker/test_memory_checker.py:
+  skip:
+    reason: "Skip due to bug of https://redmine.mellanox.com/issues/3914280"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3914280 and 'sn4280' in platform "
+
+platform_tests/api/test_sfp.py::test_get_transceiver_bulk_status:
+  skip:
+    reason: "Skip due to bug of https://redmine.mellanox.com/issues/3914460"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3914460"
+
+platform_tests/mellanox/test_check_sfp_eeprom.py::test_check_sfp_eeprom_with_option_dom[sudo sfputil show eeprom -d]:
+  skip:
+    reason: "Skip due to bug of https://redmine.mellanox.com/issues/3914460"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3914460"
 
 ########################## NVIDIA INTERNAL SIMX EMULATION IGNORE END ############################
 
