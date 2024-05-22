@@ -4,6 +4,7 @@ import logging
 import os
 import re
 from collections import namedtuple
+import time
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
@@ -322,6 +323,9 @@ class IbSwitch(BaseSwitch):
             'StorFly VSFBM4XC016G-MLX2': ('0202-002', '/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg'),
         }
         self.bios_version_name = "0ACQF.cab"
+
+    def sleep_after_system_reboot(self):
+        pass
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
@@ -673,8 +677,13 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": ExpectedString(regex="N5110_LD.*")})
 
+    def sleep_after_system_reboot(self):
+        logger.info("Sleeping for 80 seconds - Reboot takes longer on juliet for now")
+        time.sleep(80)
 
 # -------------------------- Caiman Switch ----------------------------
+
+
 class CaimanSwitch(NvLinkSwitch):
 
     def __init__(self):

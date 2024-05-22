@@ -21,7 +21,7 @@ logger = logging.getLogger()
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
+def test_show_nvl5_interface_commands(engines, devices, test_api):
     """
     validate all show fae interface nvl5 commands.
 
@@ -90,7 +90,7 @@ def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
+def test_nvl5_port_configuration(engines, devices, test_api):
     """
     Validate configuration applied on interface
 
@@ -121,7 +121,7 @@ def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_negative(engines, devices, start_sm, test_api):
+def test_nvl5_negative(engines, devices, test_api):
     """
     Validate negative testing on nvl5 port
 
