@@ -81,7 +81,7 @@ def test_ssd_upgrade(engines, devices):
         with allure.step(f"Installing firmware and rebooting (with {TestToolkit.tested_api})"):
             result, _ = OperationTime.save_duration(
                 "nv action install fae platform firmware ssd files",
-                f"(version {expected_version} from file {image_filename})", test_ssd_install.__name__,
+                f"(version {expected_version} from file {image_filename})", test_ssd_upgrade.__name__,
                 fae.platform.firmware.ssd.action_install,
                 image_filename, devices.dut, expect_reboot=True)
             result.verify_result()
@@ -98,7 +98,7 @@ def test_ssd_upgrade(engines, devices):
             with allure.step("Re-installing original firmware"):
                 result, _ = OperationTime.save_duration(
                     "nv action install fae platform firmware ssd files",
-                    f"(version {initial_version} from file {image_filename})", test_ssd_install.__name__,
+                    f"(version {initial_version} from file {image_filename})", test_ssd_upgrade.__name__,
                     fae.platform.firmware.ssd.action_install,
                     image_filename, devices.dut, expect_reboot=True)
                 result.verify_result()

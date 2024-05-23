@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from ngts.nvos_constants.constants_nvos import NvosConst, DiskConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, DiskConsts, PlatformConsts
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.tools.test_utils import allure_utils as allure
@@ -81,12 +81,14 @@ def test_check_firmware(engines):
     """
     with allure.step("Verify installed firmware is equal to actual firmware"):
         fae = Fae()
-        all_asics = OutputParsingTool.parse_json_str_to_dictionary(fae.firmware.asic.show()).get_returned_value()
+        all_firmware = OutputParsingTool.parse_json_str_to_dictionary(fae.platform.firmware.show()).get_returned_value()
         errors = []
-        for asic, properties in all_asics.items():
-            logger.info(f"Checking {asic}")
+        for item, properties in all_firmware.items():
+            if PlatformConsts.FW_ASIC not in item:
+                continue  # check only the asics, not bios and other firmware
+            logger.info(f"Checking {item}")
             installed_fw = properties['installed-firmware']
             actual_fw = properties['actual-firmware']
             if installed_fw != actual_fw:
-                errors.append(f"{asic} : {installed_fw=}, {actual_fw=}")
+                errors.append(f"{item} : {installed_fw=}, {actual_fw=}")
         assert not errors, f"{len(errors)} ASICs have installed-fw != actual-fw:\n" + '\n'.join(errors)

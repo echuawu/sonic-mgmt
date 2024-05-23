@@ -34,7 +34,6 @@ class Fae(BaseComponent):
         super().__init__(parent=parent_obj,
                          api={ApiType.NVUE: NvueBaseCli, ApiType.OPENAPI: OpenApiBaseCli}, path='/fae')
         self.system = System(self)
-        self.firmware = Firmware(self)
         self.ipoibmapping = BaseComponent(self, path='/ipoib-mapping')
         self.health = Health(self)
         self.port = MgmtPort(port_name, self)
@@ -76,9 +75,11 @@ class FaeFirmware(BaseComponent):
 
     def __init__(self, parent_obj=None):
         super().__init__(parent=parent_obj, path='/firmware')
-        self.cpld = FaeCpldComponent(self, 'cpld')
-        self.bios = FaeBiosComponent(self, 'bios')
-        self.ssd = FaePlatformComponent(self, 'ssd')
+        self.asic1 = FaePlatformComponent(self, 'ASIC1')
+        # multi-asic devices also have asic2 but our tests don't need it currently
+        self.cpld = FaeCpldComponent(self, 'CPLD')
+        self.bios = FaeBiosComponent(self, 'BIOS')
+        self.ssd = FaePlatformComponent(self, 'SSD')
 
     def install_bios_firmware(self, bios_image_path, device):
         with allure.step("installing bios firmware from {action_type}".format(action_type=bios_image_path)):
@@ -95,6 +96,8 @@ class FaeBiosComponent(BaseComponent):
 class FaePlatformComponent(BaseComponent):
     def __init__(self, parent_obj=None, component_name=None):
         super().__init__(parent=parent_obj, path=f"/{component_name}")
+        # todo: restructure this class (and update relevant tests) to use the Files class
+        # todo: self.files = Files(self)
 
     def show_files(self):
         """nv show fae platform firmware (bios|cpld|ssd) files"""

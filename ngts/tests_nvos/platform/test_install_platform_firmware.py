@@ -39,14 +39,11 @@ def test_install_platform_firmware(engines, test_name):
     logging.info("using {} fw file".format(fw_file))
 
     with allure.step("Check actual firmware value"):
-        show_output = fae.firmware.asic.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        assert output_dictionary and len(output_dictionary.keys()) > 0, "asic list is empty"
-
-        first_asic_name = list(output_dictionary.keys())[0]
-        actual_firmware = output_dictionary[first_asic_name]["actual-firmware"]
+        asic_dictionary = get_asic_dict(fae)
+        first_asic_name = list(asic_dictionary.keys())[0]
+        actual_firmware = asic_dictionary[first_asic_name]["actual-firmware"]
         logging.info("Original actual firmware - " + actual_firmware)
-        installed_firmware = output_dictionary[first_asic_name]["installed-firmware"]
+        installed_firmware = asic_dictionary[first_asic_name]["installed-firmware"]
         logging.info("Original actual installed firmware - " + installed_firmware)
         validate_all_asics_have_same_info()
         system.validate_health_status(HealthConsts.OK)
@@ -79,6 +76,13 @@ def test_install_platform_firmware(engines, test_name):
             verify_firmware_with_platform_and_fae_cmd(platform, fae, actual_firmware, actual_firmware)
             validate_all_asics_have_same_info()
             system.validate_health_status(HealthConsts.OK)
+
+
+def get_asic_dict(fae):
+    show_output = OutputParsingTool.parse_json_str_to_dictionary(fae.platform.firmware.show()).get_returned_value()
+    asic_dictionary = {k: v for k, v in show_output.items() if PlatformConsts.FW_ASIC in k}
+    assert asic_dictionary and len(asic_dictionary.keys()) > 0, "asic list is empty"
+    return asic_dictionary
 
 
 def install_image_fw(system, platform, engines, test_name, fw_has_changed):
@@ -131,7 +135,7 @@ def verify_field_value_in_output_for_each_asic(output_dictionary, field, value):
 
 
 def validate_all_asics_have_same_info():
-    show_output = Fae().firmware.asic.show()
+    show_output = get_asic_dict(Fae())
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
     assert output_dictionary and len(output_dictionary.keys()) > 0, "asic list is empty"
 
@@ -146,8 +150,7 @@ def validate_all_asics_have_same_info():
 def verify_firmware_with_platform_and_fae_cmd(platform, fae, installed_fw, actual_fw):
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.asic.show()).get_returned_value()
     verify_field_value_in_output_for_each_asic(output_dictionary, "actual-firmware", actual_fw)
-    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-        fae.firmware.asic.show()).get_returned_value()
-    for asic in output_dictionary:
-        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "installed-firmware", installed_fw)
-        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "actual-firmware", actual_fw)
+    asic_dictionary = get_asic_dict(fae)
+    for asic in asic_dictionary:
+        verify_field_value_in_output_for_each_asic(asic_dictionary[asic], "installed-firmware", installed_fw)
+        verify_field_value_in_output_for_each_asic(asic_dictionary[asic], "actual-firmware", actual_fw)
