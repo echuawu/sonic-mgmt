@@ -308,7 +308,13 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     """
     yaml_file_path = get_log_analyzer_yaml_path(test_name, dump_path)
     # remove date, time and hostname before creating the regex!
-    hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
+
+    if re.findall(hostname, log_errors[0]):
+        hostname_regex = hostname
+    elif re.findall(r"\d sonic ", log_errors[0]):
+        hostname_regex = "sonic"
+    else:
+        hostname_regex = r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
     bug_regex = '.*' + error_to_regex(bug_title) + '.*'
     description = f'| \n{bug_title}\n' + '\n'.join(log_errors)
@@ -329,7 +335,10 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
 
 
 def create_bug_title(hostname_regex, first_line):
-    log_prefix = rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s'
+    time_pattern = r'.*\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+'
+    if not re.findall(time_pattern, first_line):
+        time_pattern = r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+.*'
+    log_prefix = time_pattern + hostname_regex + r'\s'
     bug_title = re.sub(log_prefix, '', first_line)
     bug_title = re.sub(r'message repeated \d+ times: \[ (.*?)\]', r'\1', bug_title)
     if len(bug_title) > BugHandlerConst.BUG_TITLE_LIMIT:
