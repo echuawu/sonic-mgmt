@@ -8,13 +8,15 @@ from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
-from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch, JulietScaleoutSwitch
+from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.conftest import ProxySshEngine
+from ngts.tests_nvos.general.post_upgrade_switch.constants import UPGRADE_STATUS_SUCCESS_MSG, UPGRADE_STATUS_FAIL_MSG, \
+    UPGRADE_STATUS_FILE_PATH
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_config_utils import clear_conf
 from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, is_secure_boot_enabled
@@ -95,7 +97,7 @@ class NvosInstallationSteps:
     def upgrade_with_saved_config_flow(topology_obj, dut_engine, dut_device, base_version='', target_version=''):
         with allure.step('Upgrade to target version with saved configuration'):
             NvosInstallationSteps.upgrade_version_with_saved_configuration(dut_engine, dut_device,
-                                                                           topology_obj, target_version)
+                                                                           topology_obj, target_version, base_version)
         with allure.step('Show system and firmware version after upgrade'):
             system = System()
             platform = Platform()
@@ -104,18 +106,9 @@ class NvosInstallationSteps:
 
     @staticmethod
     def upgrade_version_with_saved_configuration(dut_engine: ProxySshEngine, dut_device: BaseDevice,
-                                                 topology_obj, target_version_path: str):
+                                                 topology_obj, target_version_path: str, base_version: str):
         with allure.step('Strings preparation'):
-            ngts_path = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
-            if type(dut_device) in [BlackMambaSwitch, CrocodileSwitch]:
-                config_filename = 'nvos_config_xdr.yml'
-            elif type(dut_device) in [JulietScaleoutSwitch]:
-                config_filename = 'nvos_config_nvl5.yml'
-            else:
-                config_filename = 'nvos_config_ga_3000.yml'  # TODO: should add config file for 4000
-            config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
-            logger.info(f'NGTS_PATH: {ngts_path}')
-            logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
+            config_file_path, config_filename = dut_device.get_test_config_file_by_version(base_version)
             system = System()
             sonic_mgmt_engine = topology_obj.players['sonic-mgmt']['engine']
             scp_host_creds = f'{sonic_mgmt_engine.username}:{sonic_mgmt_engine.password}@{sonic_mgmt_engine.ip}'
@@ -170,7 +163,13 @@ class NvosInstallationSteps:
             exceptions = {"secret": "*", "password": "*", "readonly-community": None}
             dicts_diff = ValidationTool.get_dictionaries_diff(expected_config, actual_config, exceptions=exceptions)
             logger.info(f'configs diff:\n{dicts_diff}')
-            assert not dicts_diff, f'Configuration after upgrade is not as saved before the upgrade. diff:\n{dicts_diff}'
+            upgrade_status_file_path_dut = UPGRADE_STATUS_FILE_PATH
+            if not dicts_diff:
+                dut_engine.run_cmd(f'echo "{UPGRADE_STATUS_SUCCESS_MSG}" > {upgrade_status_file_path_dut}')
+            else:
+                err = f'{UPGRADE_STATUS_FAIL_MSG}\ndiff:\n{dicts_diff}'
+                logger.info(err)
+                dut_engine.run_cmd(f'echo "{err}" > {upgrade_status_file_path_dut}')
 
     @staticmethod
     def upgrade_to_target_version(bin_filename, dut_engine, dut_device, scp_host_creds, system, target_version_path):

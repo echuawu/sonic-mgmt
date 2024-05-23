@@ -1,10 +1,7 @@
-import sys
-
 import logging
 import os
-import re
-from collections import namedtuple
 import time
+from collections import namedtuple
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
@@ -16,6 +13,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
+from ngts.tools.test_utils.nvos_general_utils import get_version_info
 
 logger = logging.getLogger()
 
@@ -32,17 +30,12 @@ class IbSwitch(BaseSwitch):
         self._init_ib_speeds()
 
     def get_default_password_by_version(self, version: str):
-        pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
-        match = re.search(pattern, version)
-        if self.prev_default_password and match and match.group(0):
-            version_num = match.group(1)
-            # bin_num = match.group(2)
+        version_num, _ = get_version_info(version)
+        if self.prev_default_password and version_num:
             logging.info(f'detected version: {version_num}')
             if version_num.startswith('25.01.') and int(version_num.split('.')[-1]) <= 3000:
                 logging.info('using prev default password')
                 return self.prev_default_password
-        # if release_name == '25.01.3000' and self.prev_default_password:
-        #     return self.prev_default_password
         logging.info('using regular default password')
         return self.default_password
 
@@ -477,8 +470,12 @@ class BlackMambaSwitch(IbSwitch):
         self.temperature_sensors += ["ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
         self.temperature_sensors.remove("PSU-1-Temp")
 
+    def _relevant_config_filename_by_version(self, version: str) -> str:
+        return 'nvos_config_xdr.yml'
 
 # -------------------------- Crocodile Switch ----------------------------
+
+
 class CrocodileSwitch(IbSwitch):
 
     def __init__(self):
@@ -507,6 +504,9 @@ class CrocodileSwitch(IbSwitch):
         super()._init_temperature()
         self.temperature_sensors += ["PSU-3-Temp", "PSU-4-Temp"]
         self.temperature_sensors.remove("ASIC")
+
+    def _relevant_config_filename_by_version(self, version: str) -> str:
+        return 'nvos_config_xdr.yml'
 
 
 # -------------------------- Crocodile Simx Switch ----------------------------
@@ -680,6 +680,10 @@ class JulietScaleoutSwitch(JulietSwitch):
     def sleep_after_system_reboot(self):
         logger.info("Sleeping for 80 seconds - Reboot takes longer on juliet for now")
         time.sleep(80)
+
+    def _relevant_config_filename_by_version(self, version: str) -> str:
+        return 'nvos_config_nvl5.yml'
+
 
 # -------------------------- Caiman Switch ----------------------------
 
