@@ -155,6 +155,12 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
+tests/nightly/adaptive_routing:
+  skip:
+    reason: "Adaptive Routing is not supported on SimX Platform"
+    conditions:
+    - "'simx' in platform"
+
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
     reason: "(SIMX platform) or (RM issue https://redmine.mellanox.com/issues/3900119 on sn5400)"
