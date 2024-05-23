@@ -616,6 +616,12 @@
       - 3565127
 
 - Errors_list:
+    - '.*ERR systemd-networkd-wait-online\[\d+\]: Timeout occurred while waiting for network connectivity.*'
+  Conditions:
+    - Redmine:
+      - 3873181
+
+- Errors_list:
     - '.*ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Could not infer system information from.*'
   Conditions:
     - Affected_test_cases:
