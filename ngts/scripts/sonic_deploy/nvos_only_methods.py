@@ -15,6 +15,8 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.conftest import ProxySshEngine
+from ngts.tests_nvos.general.post_upgrade_switch.constants import UPGRADE_STATUS_SUCCESS_MSG, UPGRADE_STATUS_FAIL_MSG, \
+    UPGRADE_STATUS_FILE_PATH
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_config_utils import clear_conf
 from ngts.tools.test_utils.nvos_general_utils import set_base_configurations, is_secure_boot_enabled
@@ -168,7 +170,13 @@ class NvosInstallationSteps:
             exceptions = {"secret": "*", "password": "*", "readonly-community": None}
             dicts_diff = ValidationTool.get_dictionaries_diff(expected_config, actual_config, exceptions=exceptions)
             logger.info(f'configs diff:\n{dicts_diff}')
-            assert not dicts_diff, f'Configuration after upgrade is not as saved before the upgrade. diff:\n{dicts_diff}'
+            upgrade_status_file_path_dut = UPGRADE_STATUS_FILE_PATH
+            if not dicts_diff:
+                dut_engine.run_cmd(f'echo "{UPGRADE_STATUS_SUCCESS_MSG}" > {upgrade_status_file_path_dut}')
+            else:
+                err = f'{UPGRADE_STATUS_FAIL_MSG}\ndiff:\n{dicts_diff}'
+                logger.info(err)
+                dut_engine.run_cmd(f'echo "{err}" > {upgrade_status_file_path_dut}')
 
     @staticmethod
     def upgrade_to_target_version(bin_filename, dut_engine, dut_device, scp_host_creds, system, target_version_path):
