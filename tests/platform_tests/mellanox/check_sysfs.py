@@ -415,7 +415,7 @@ def generate_sysfs_sfp_config(platform_data):
     return {
         'name': 'sfp_info',
         'start': 1,
-        'count': platform_data['ports']['number'],
+        'count': platform_data['thermals']['module']['number'],
         'type': 'increment',
         'properties': [
             {
