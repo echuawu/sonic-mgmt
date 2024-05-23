@@ -3613,6 +3613,16 @@
       - 3715126
 
 - Errors_list:
+  - '.*ERR syncd#SDK: \[TRACE_CBUFF.ERR\] Received port profile apply done OK event, but port profile \(index \d+\) has already been destroyed.*'
+  - '.*ERR syncd#SDK: \[TRACE_CBUFF.ERR\] Could not send port added events.*'
+  - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed to process port profile apply status job, error: Internal Error.*'
+  Conditions:
+  - Redmine:
+    - 3908922
+    Platform:
+    - simx
+
+- Errors_list:
     - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected PPCNT group.*'
     - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] BULK-CNTR ioctl failed .* error Device or resource busy.*'
     - '.*ERR syncd#SDK: \[BULK_COUNTER.ERR\] BULK-CNTR transaction is in progress.*'
