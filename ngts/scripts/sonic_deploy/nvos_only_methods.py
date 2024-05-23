@@ -97,7 +97,7 @@ class NvosInstallationSteps:
     def upgrade_with_saved_config_flow(topology_obj, dut_engine, dut_device, base_version='', target_version=''):
         with allure.step('Upgrade to target version with saved configuration'):
             NvosInstallationSteps.upgrade_version_with_saved_configuration(dut_engine, dut_device,
-                                                                           topology_obj, target_version)
+                                                                           topology_obj, target_version, base_version)
         with allure.step('Show system and firmware version after upgrade'):
             system = System()
             platform = Platform()
@@ -106,16 +106,9 @@ class NvosInstallationSteps:
 
     @staticmethod
     def upgrade_version_with_saved_configuration(dut_engine: ProxySshEngine, dut_device: BaseDevice,
-                                                 topology_obj, target_version_path: str):
+                                                 topology_obj, target_version_path: str, base_version: str):
         with allure.step('Strings preparation'):
-            ngts_path = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
-            if type(dut_device) in [BlackMambaSwitch, CrocodileSwitch]:
-                config_filename = 'nvos_config_xdr.yml'
-            else:
-                config_filename = 'nvos_config_ga_3000.yml'  # TODO: should add config file for 4000
-            config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
-            logger.info(f'NGTS_PATH: {ngts_path}')
-            logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
+            config_file_path, config_filename = dut_device.get_test_config_file_by_version(base_version)
             system = System()
             sonic_mgmt_engine = topology_obj.players['sonic-mgmt']['engine']
             scp_host_creds = f'{sonic_mgmt_engine.username}:{sonic_mgmt_engine.password}@{sonic_mgmt_engine.ip}'

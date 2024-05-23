@@ -1,12 +1,15 @@
 import logging
+import os
 import time
 from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
+from typing import Tuple
 
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
+from ngts.tools.test_utils.nvos_general_utils import get_version_info
 
 logger = logging.getLogger()
 
@@ -103,6 +106,21 @@ class BaseDevice(ABC):
 
     def get_default_password_by_version(self, version: str):
         return self.default_password
+
+    def get_test_config_file_by_version(self, version: str) -> Tuple[str, str]:
+        ngts_path = os.path.join(os.path.abspath(__file__).split('ngts', 1)[0], 'ngts')
+        config_filename = self._relevant_config_filename_by_version(version)
+        config_file_path = os.path.join(ngts_path, 'tools', 'test_utils', 'nvos_resources', config_filename)
+        logger.info(f'NGTS_PATH: {ngts_path}')
+        logger.info(f'CONF_YML_FILE_PATH: {config_file_path}')
+        return config_file_path, config_filename
+
+    def _relevant_config_filename_by_version(self, version: str) -> str:
+        version_num, _ = get_version_info(version)
+        if version_num:
+            version_num = int(version_num.split('.')[-1])
+            return f'nvos_config_ga_{(version_num // 1000) * 1000}.yml'
+        return 'nvos_config_ga_3000.yml'
 
     def verify_databases(self, dut_engine):
         """

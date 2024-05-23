@@ -1,8 +1,10 @@
 import fnmatch
 import logging
 import os
+import re
 import time
 from contextlib import contextmanager
+from typing import Tuple
 
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
@@ -163,3 +165,20 @@ def wait_for_ldap_nvued_restart_workaround(test_item, engine_to_use=None):
 def is_secure_boot_enabled(engine: ProxySshEngine) -> bool:
     output: str = engine.run_cmd('mokutil --sb-state')
     return output.replace('SecureBoot ', '').strip() == 'enabled'
+
+
+def get_version_info(version: str) -> Tuple[str, str]:
+    """
+    extract version number and build number from a given image url/path or just a version
+    Examples:
+        - /a/b/c/d/25.01.3001.bin -> '25.01.3001', ''
+        - http://abc.com/a/b/c/25.01.3001-123.bin -> '25.01.3001', '123'
+        - 25.01.3001 -> '25.01.3001', ''
+    """
+    pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
+    match = re.search(pattern, version)
+    if match and match.group(0):
+        version_num = match.group(1)
+        bin_num = match.group(2) if match.group(2) else ''
+        return version_num, bin_num
+    return '', ''
