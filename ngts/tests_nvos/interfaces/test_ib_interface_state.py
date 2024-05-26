@@ -23,16 +23,10 @@ def test_ib_interface_state(test_name):
     flow:
     1. Select a random port (state of which is up)
     2. Set selected port state to ‘down’
-    3. Verify the new value is updated in ConfigDB
-    4. Verify the new value is updated in StateDB
-    5. Verify the configuration applied by running “show” command
-    6. Send traffic through selected port -> should fail
-    7. Set selected port state to ‘up’
-    8. Wait until the port is up
-    9. Verify the new value is updated in ConfigDB
-    10. Verify the new value is updated in StateDB
-    11. Verify the configuration applied by running “show” command
-    12. Send traffic through selected port
+    3. Verify the configuration applied by running “show” command
+    4. Set selected port state to ‘up’
+    5. Wait until the port is up
+    6. Verify the configuration applied by running “show” command
     """
     selected_port = Tools.RandomizationTool.select_random_port().get_returned_value()
     TestToolkit.update_tested_ports([selected_port])

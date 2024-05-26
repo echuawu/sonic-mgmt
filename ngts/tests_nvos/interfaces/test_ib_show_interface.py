@@ -97,8 +97,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
 
     try:
         with allure.step('Set the state of selected port to "down"'):
-            selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
-                                                      ask_for_confirmation=True).verify_result()
+            selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True).verify_result()
             selected_port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_DOWN,
                                                            logical_state=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_DOWN).verify_result()
 
@@ -113,8 +112,7 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
                                                                   expected_value=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_DISABLED).verify_result()
 
             with allure.step('Set the state of selected port to "up"'):
-                selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
-                                                          ask_for_confirmation=True).verify_result()
+                selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True).verify_result()
                 selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                                logical_state=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_ACTIVE).verify_result()
 
@@ -125,9 +123,8 @@ def test_ib_show_interface_all_state_up(engines, start_sm, test_api):
                              'value according to the state of the port'):
                 validate_one_port_in_show_all_ports(output_dictionary, True)
     finally:
-        with allure.step('Set the state of selected port to "up"'):
-            selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
-                                                      ask_for_confirmation=True).verify_result()
+        with allure.step('Unset the state of selected port to default ("up")'):
+            selected_port.ib_interface.link.state.unset(apply=True).verify_result()
             selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP,
                                                            logical_state=IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_ACTIVE).verify_result()
 

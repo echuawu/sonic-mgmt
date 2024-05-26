@@ -265,6 +265,8 @@ class SystemConsts:
     SECURITY = 'security'
     DATE_TIME = 'date-time'
     TECHSUPPORT_FILES_PATH = '/host/dump/'
+    TECHSUPPORT_EMPTY_FILES_TO_IGNORE = ['queue.counters_2', 'queue.counters_1.0', 'swapon',
+                                         'queue.counters_1', 'queue.counters_2.0']
     PATH_KEY = 'path'
     LATEST_KEY = 'latest'
 
