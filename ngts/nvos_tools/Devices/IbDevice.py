@@ -470,6 +470,10 @@ class BlackMambaSwitch(IbSwitch):
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
         self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_qm8790-r0")
+        self.show_platform_output.update({
+            "product-name": "QM3000",
+            "asic-model": self.asic_type,
+        })
 
         self.voltage_sensors = ["PMIC-1+12V_VDD_ASIC1+Vol+In+1", "PMIC-1+ASIC1_VDD+Vol+Out+1",
                                 "PMIC-2+12V_HVDD_DVDD_ASIC1+Vol+In+1", "PMIC-2+ASIC1_DVDD_PL0+Vol+Out+2",
@@ -522,6 +526,8 @@ class BlackMambaSwitch(IbSwitch):
             "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="QM3000.*")})
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_xdr.yml'
@@ -541,6 +547,20 @@ class CrocodileSwitch(IbSwitch):
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
         self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-nvidia_qm3400-r0")
+        self.show_platform_output.update({
+            "product-name": "QM3400",
+            "asic-model": self.asic_type,
+        })
+        self.voltage_sensors = ['PMIC-1-12V-VDD-ASIC1-In-1', 'PMIC-1-ASIC1-VDD-Out-1',
+                                'PMIC-2-12V-HVDD-DVDD-ASIC1-In-1', 'PMIC-2-ASIC1-DVDD-PL0-Out-2',
+                                'PMIC-2-ASIC1-HVDD-PL0-Out-1', 'PMIC-3-12V-HVDD-DVDD-ASIC1-In-1',
+                                'PMIC-3-ASIC1-DVDD-PL1-Out-2', 'PMIC-3-ASIC1-HVDD-PL1-Out-1',
+                                'PMIC-4-12V-VDD-ASIC2-In-1', 'PMIC-4-ASIC2-VDD-Out-1',
+                                'PMIC-5-12V-HVDD-DVDD-ASIC2-In-1', 'PMIC-5-ASIC2-DVDD-PL0-Out-2',
+                                'PMIC-5-ASIC2-HVDD-PL0-Out-1', 'PMIC-6-12V-HVDD-DVDD-ASIC2-In-1',
+                                'PMIC-6-ASIC2-DVDD-PL1-Out-2', 'PMIC-6-ASIC2-HVDD-PL1-Out-1', 'PMIC-7-12V-MAIN-In-1',
+                                'PMIC-7-CEX-VDD-Out-1', 'PSU-1-12V-Out', 'PSU-2-12V-Out', 'PSU-3-12V-Out',
+                                'PSU-4-12V-Out']
         self.stats_fan_header_num_of_lines = 23
         self.stats_power_header_num_of_lines = 17
         self.stats_temperature_header_num_of_lines = 61
@@ -569,6 +589,15 @@ class CrocodileSwitch(IbSwitch):
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_xdr.yml'
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="QM3400.*")})
 
 
 # -------------------------- Crocodile Simx Switch ----------------------------

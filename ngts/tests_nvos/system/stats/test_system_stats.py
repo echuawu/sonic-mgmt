@@ -893,7 +893,7 @@ def test_system_stats_big_files(engines, devices, test_api):
                                                       devices.dut.stats_temperature_header_num_of_lines + 100)
 
         with allure.step("Delete uploaded file"):
-            engine.run_cmd(cmd='rm -f {}'.format(file_path))
+            engine.run_cmd(cmd='rm -f /tmp/{}'.format(file_name))
 
     finally:
         set_system_stats_to_default(engine, system)

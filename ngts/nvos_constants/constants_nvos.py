@@ -773,7 +773,7 @@ class NtpConsts:
     SHOW_TIME_DIFF_THRESHOLD = 0.5  # [sec]
     SYNCHRONIZATION_MAX_TIME = 100  # [sec]
     SYNCHRONIZATION_TIME_AFTER_REBOOT = 60  # [sec]
-    CONFIG_TIME = 5  # [sec]
+    CONFIG_TIME = 10  # [sec]
     NUMBER_OF_ITERATION = 5
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
