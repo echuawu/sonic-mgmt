@@ -1,13 +1,16 @@
 import logging
 import pytest
+import re
+import random
 
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
+from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts, NvosConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.system.System import System
-from ngts.nvos_constants.constants_nvos import SystemConsts, ApiType
+from ngts.nvos_constants.constants_nvos import SystemConsts, ApiType, IbConsts
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.tools.test_utils import allure_utils as allure
@@ -43,21 +46,134 @@ def test_clear_all_counters(engines, players, interfaces, start_sm, fae_param=""
     _clear_counters_test_flow(engines, players, interfaces, True, fae_param)
 
 
+@pytest.mark.ib_interfaces
+def test_range_clear_counters_negative(engines, players, interfaces, start_sm, fae_param=""):
+    """
+    verify all these commands fail with the right error message.
+        1. nv action clear interface sw5-7p1-2 counters - out of range
+        2. nv action clear interface sw5-1000p1-2 counters - out of range
+        3. nv action clear interface sw7-5p1-2 counters - reversed range
+        4. nv action clear interface sw5-7p2-1 counters - undefined p2-1
+    """
+    with allure.step("Get a random active port"):
+        selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+
+    out_of_range_p, out_of_range_sw, reversed_range, undefined_range = create_invalid_ranges(selected_ports.name)
+    error_msg1 = 'does not exist'
+    error_msg2 = "is not a 'interface name'. Valid interface types are"
+
+    with allure.step("Create Interface"):
+        interface = Interface(parent_obj=None)
+
+    with allure.step("check out of range {}".format(out_of_range_p)):
+        interface.action_clear_counter_for_interface(interface_name=out_of_range_p)
+        err_msg = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+        assert error_msg1 not in err_msg, "action should fail with this error message: {}".format(error_msg1)
+
+    with allure.step("check out of range {}".format(out_of_range_sw)):
+        interface.action_clear_counter_for_interface(interface_name=out_of_range_sw)
+        err_msg = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+        assert error_msg1 not in err_msg, "action should fail with this error message: {}".format(error_msg1)
+
+    with allure.step("check reversed range"):
+        interface.action_clear_counter_for_interface(interface_name=reversed_range)
+        err_msg = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+        assert error_msg2 not in err_msg, "action should fail with this error message: {}".format(error_msg2)
+
+    with allure.step("check undefined range"):
+        interface.action_clear_counter_for_interface(interface_name=undefined_range)
+        err_msg = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+        assert error_msg2 not in err_msg, "action should fail with this error message: {}".format(error_msg2)
+
+
+@pytest.mark.ib_interfaces
+def test_range_clear_counters_positive(engines, players, interfaces, start_sm, fae_param=""):
+    """
+    verify all these commands fail with the right error message.
+        0. get linked ports
+        1. create new user
+        2. run traffic
+        3. pick random range - pick 4 points out of all interfaces list -
+        4. nv action clear interface <point2>-<point3>p(1-1 or 2-2) link counters
+        5. verify all clear counter files have been created under
+        6. verify show counters command for traffic port != 0
+        7. nv action clear interface <traffic port>-<point1>p1-2, <point 4> link counters
+        8. verify files under user path
+        9. verify show counters command for traffic port == 0
+    """
+    with allure.step("Create Interface"):
+        interface = Interface(parent_obj=None)
+
+    with allure.step("Get a random active port"):
+        selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
+
+    with allure.step("Get all IB ports sorted list"):
+        sorted_list = interface.get_sorted_interfaces_list()
+
+    file_name, user_name, ssh_connection = create_new_user(engines.dut)
+
+    with allure.step('Send traffic through selected port'):
+        Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
+
+    with allure.step("Get 4 random numbers - to define ranges"):
+        randoms = list(random.sample(range(2, len(sorted_list) - 1), 4))
+        random.shuffle(randoms)
+        with allure.step("define ranges"):
+            reg = IbConsts.IB_INTERFACE_NAME_REGEX
+            first_range_last_point = re.match(reg, sorted_list[randoms[0]]).group(2)
+            second_range_first_point = re.match(reg, sorted_list[randoms[1]]).group(1) + re.match(reg, sorted_list[
+                randoms[1]]).group(2)
+            second_range_last_point = re.match(reg, sorted_list[randoms[2]]).group(2)
+            random_port = sorted_list[randoms[3]]
+
+    with allure.step("Run clear counters using range for p1 or p2 only"):
+        with allure.step('Run clear counter command'):
+            p_number = random.randint(1, 2)
+            interface.action_clear_counter_for_interface(engine=ssh_connection,
+                                                         interface_name='{first}-{last}p{p_number}-{p_number}, {random_port}'.format(
+                                                             p_number=p_number, first=second_range_first_point,
+                                                             last=second_range_last_point, random_port=random_port))
+
+        with allure.step('verify that a clear file is added to each port'):
+            all_files = ssh_connection.run_cmd('ls {}'.format(file_name)).split()
+            missing_ports = [port for port in sorted_list[randoms[1]:randoms[2]] if port not in all_files]
+            msg = "\n".join("{} is missing".format(port) for port in missing_ports)
+            assert msg != "", msg
+
+        with allure.step('verify show command output'):
+            with allure.step('Check selected port counters'):
+                for port in selected_ports:
+                    check_port_counters(port, False, ssh_connection).verify_result()
+                for port in selected_ports:
+                    check_port_counters(port, False, engines.dut).verify_result()
+
+    with allure.step("Run clear counters using range and multiple ports and verify results"):
+
+        with allure.step('Run clear counter command'):
+            interface.action_clear_counter_for_interface(engine=ssh_connection,
+                                                         interface_name='{first}-{last}p1-2, {random_port}'.format(
+                                                             first=selected_ports[0].name, last=first_range_last_point,
+                                                             random_port=random_port))
+
+        with allure.step('verify that a clear file is added to each port'):
+            all_files = ssh_connection.run_cmd('ls {}'.format(file_name)).split()
+            missing_ports = [port for port in sorted_list[:randoms[0]] if port not in all_files]
+            msg = "\n".join("{} is missing".format(port) for port in missing_ports)
+            assert msg != "", msg
+
+        with allure.step('verify show command output'):
+            with allure.step('Check selected port counters'):
+                for port in selected_ports:
+                    check_port_counters(port, True, ssh_connection).verify_result()
+                for port in selected_ports:
+                    check_port_counters(port, False, engines.dut).verify_result()
+
+
 def _clear_counters_test_flow(engines, players, interfaces, all_counters=False, fae_param=""):
     with allure.step("Get a random active port"):
         temp_selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
 
-    with allure.step("Create a new user"):
-        system = System(force_api=ApiType.NVUE)
-        user_name, password = system.aaa.user.set_new_user(apply=True)
-        user_id = system.aaa.user.get_lslogins(engine=engines.dut, username=user_name)["UID"]
-        NvueGeneralCli.apply_config(engines.dut)
-        file_name = "/tmp/portstat-{}".format(user_id)
-        logging.info("User created: \nuser_name: {} \npassword: {} \nUID: {}".format(user_name, password, user_id))
-        with allure.step("Crate an ssh connection for user {user_name} (UID {uid})".format(user_name=user_name,
-                                                                                           uid=user_id)):
-            ssh_connection = ConnectionTool.create_ssh_conn(engines.dut.ip,
-                                                            user_name, password).get_returned_value()
+        file_name, user_name, ssh_connection = create_new_user(engines.dut)
 
     with allure.step("Clear counters for the default user"):
         temp_selected_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut, fae_param).\
@@ -155,6 +271,35 @@ def get_port_obj(port_name):
                                              "Make sure the name of the port is accurate and the state of " \
                                              "this port is UP".format(port_name)
     return port_list[0]
+
+
+def create_invalid_ranges(port_name):
+    with allure.step('Create invalid interface ranges'):
+        match = re.match(IbConsts.IB_INTERFACE_NAME_REGEX, port_name)
+        assert match, "Invalid port name {}".format(port_name)
+        prefix = match.group(1)
+        numeric_part = int(match.group(2))
+
+        out_of_range_p = prefix + str(numeric_part) + '-' + str(numeric_part + 2) + match.group(3)[0] + '3-5'
+        out_of_range_sw = prefix + str(numeric_part) + '-' + str(numeric_part + 2000) + match.group(3)[0] + '1-2'
+        reversed_range = prefix + str(numeric_part + 2) + '-' + str(numeric_part) + match.group(3)[0] + '1-2'
+        undefined_range = prefix + str(numeric_part) + '-' + str(numeric_part + 2) + match.group(3)[0] + '2-1'
+
+        return out_of_range_p, out_of_range_sw, reversed_range, undefined_range
+
+
+def create_new_user(engine):
+    with allure.step("Create a new user"):
+        system = System(force_api=ApiType.NVUE)
+        user_name, password = system.aaa.user.set_new_user(apply=True)
+        user_id = system.aaa.user.get_lslogins(engine=engine, username=user_name)["UID"]
+        file_name = "/tmp/portstat-{}".format(user_id)
+        logging.info("User created: \nuser_name: {} \npassword: {} \nUID: {}".format(user_name, password, user_id))
+        with allure.step("Crate an ssh connection for user {user_name} (UID {uid})".format(user_name=user_name,
+                                                                                           uid=user_id)):
+            ssh_connection = ConnectionTool.create_ssh_conn(engine.ip,
+                                                            user_name, password).get_returned_value()
+    return file_name, user_name, ssh_connection
 
 
 # ------------ Open API tests -----------------

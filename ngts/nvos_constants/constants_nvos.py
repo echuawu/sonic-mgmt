@@ -614,6 +614,7 @@ class PlatformConsts:
     PS_REDUNDANCY_GRID = 'grid-redundancy'
     PS_REDUNDANCY_POLICY_TYPE = [PS_REDUNDANCY_NO, PS_REDUNDANCY_PS, PS_REDUNDANCY_GRID]
     PS_REDUNDANCY_POLICY_TYPE_DEF = PS_REDUNDANCY_PS
+    VOLTAGE_FILES_PATTERN = 'PMIC|PSU'
 
 
 class FansConsts:
@@ -668,6 +669,7 @@ class IbConsts:
                                      'ibdiagnet2.net_dump', 'ibdiagnet2.nodes_info', 'ibdiagnet2.pkey', 'ibdiagnet2.pm',
                                      'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey']
     IBDIAGNET_EXPECTED_MESSAGE = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
+    IB_INTERFACE_NAME_REGEX = "([a-zA-Z]+)(\d+)(p\d+)"  # noqa: E402
 
 
 class ImageConsts:

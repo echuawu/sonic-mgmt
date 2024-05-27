@@ -11,12 +11,13 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, IbConsts
 from ngts.nvos_tools.acl.acl import Acl
 from retry import retry
 import allure
 import logging
 import time
+import re
 
 logger = logging.getLogger()
 
@@ -99,9 +100,22 @@ class Interface(BaseComponent):
 
             if not engine:
                 engine = TestToolkit.engines.dut
-            result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].
-                                                         action_clear_counters, engine, self.mgmt_path, fae_param)
+            result_obj = SendCommandTool.execute_command(self.port_obj._cli_wrapper.action_clear_counters, engine, self.mgmt_path, fae_param)
+
             return result_obj
+
+    def action_clear_counter_for_interface(self, engine=None, interface_name="", fae_param=""):
+        with allure.step("Clear counters for interface {}".format(interface_name)):
+            if not engine:
+                engine = TestToolkit.engines.dut
+            result_obj = SendCommandTool.execute_command(self.port_obj._cli_wrapper.clear_stats, engine,
+                                                         self.mgmt_path, interface_name, fae_param)
+            return result_obj
+
+    def get_sorted_interfaces_list(self):
+        with allure.step("get sorted interfaces list"):
+            output_list = list(OutputParsingTool.parse_show_output_to_dict(self.show()).get_returned_value().keys())
+            return sorted(output_list, key=divide_interface_name)[3:]
 
     def get_ipv6_address(self):
         output = OutputParsingTool.parse_show_interface_output_to_dictionary(self.show()).get_returned_value()
@@ -110,3 +124,15 @@ class Interface(BaseComponent):
         for address in addresses:
             if ":" in address and len(address) >= 32:
                 return address.split("/")[0]
+
+
+def divide_interface_name(string):
+    reg = IbConsts.IB_INTERFACE_NAME_REGEX
+    match = re.match(reg, string)
+    if match:
+        prefix = match.group(1)
+        numeric_part = match.group(2)
+        suffix = match.group(3)
+        return prefix, int(numeric_part), suffix
+    else:
+        return "", "", ""

@@ -1,5 +1,5 @@
 import logging
-import os
+import re
 
 logger = logging.getLogger()
 
@@ -7,16 +7,13 @@ logger = logging.getLogger()
 class FilesTool:
 
     @staticmethod
-    def get_subfiles_list(folder_path):
+    def get_subfiles_list(engine, folder_path, subfiles_pattern=""):
         """
-
+        :param subfiles_pattern:
+        :param engine:
         :param folder_path: a full path for a specific folder
         :return: list of all subfiles in the folder
         """
-        assert folder_path, "Invalid path"
-        subfiles = []
-        for root, dirs, files in os.walk(folder_path):
-            for file in files:
-                file_path = os.path.join(root, file)
-                subfiles.append(file_path)
-        return subfiles
+        output = engine.run_cmd('ls {}/*'.format(folder_path))
+        reg = r'\b(?:{})-\d+\+[^\s]+\b'.format(subfiles_pattern)
+        return re.findall(reg, output)
