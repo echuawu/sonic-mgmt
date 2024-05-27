@@ -147,6 +147,10 @@ class NvosConst:
     COVERAGE_PATH = "/var/lib/python/coverage"
     MAX_COVERAGE_PATH_CAPACITY_PERCENTAGE = 90
 
+    NO_CONFIG_DIFF_APPLY_MSG = "config apply executed with no config diff"
+    DECLINED_APPLY_MSG = 'Declined apply after warnings'
+    Y_COMMAND_NOT_FOUND = 'y: command not found'
+
 
 class CertificateFiles:
     BUNDLE_FILE = 'bundle_uri'

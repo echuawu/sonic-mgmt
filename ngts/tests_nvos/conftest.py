@@ -32,6 +32,7 @@ from ngts.nvos_tools.infra.DiskTool import DiskTool
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.scripts.code_coverage.test_code_coverage import extract_python_coverage_for_nvos
 from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround, set_base_configurations, set_base_configurations_cl
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 
 logger = logging.getLogger()
 
@@ -55,6 +56,20 @@ def pytest_addoption(parser):
     parser.addoption("--disable_cli_coverage", action="store_true", default=False, help="Do not run cli coverage")
     parser.addoption("--security_post_checker", action="store_true", default=False, required=False,
                      help="Whether to run security post checker or not")
+    parser.addoption("--check_output", action="store_true", default=False, help="Provide to check ib output")
+    parser.addoption("--substrings_to_check", action="store", default=False, help="Provide which substrings to check")
+
+
+@pytest.fixture(autouse=True)
+def check_ib_output(request):
+    """
+    Method for getting check_ib_output and substrings_to_check from pytest arguments
+    :param request: pytest builtin
+    """
+    if request.config.getoption("--check_output"):
+        NvueBaseCli.check_output_strings = True
+    if request.config.getoption("--substrings_to_check"):
+        NvueBaseCli.sub_strings_to_search = request.config.getoption('--substrings_to_check').split(',')
 
 
 @pytest.fixture(scope='session')

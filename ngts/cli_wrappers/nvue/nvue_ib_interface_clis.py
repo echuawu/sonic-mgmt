@@ -1,6 +1,6 @@
 import logging
 from ngts.nvos_constants.constants_nvos import OutputFormat
-from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli, check_output
 
 logger = logging.getLogger()
 
@@ -11,6 +11,7 @@ class NvueIbInterfaceCli(NvueBaseCli):
         self.cli_name = "interface"
 
     @staticmethod
+    @check_output
     def clear_stats(engine, port_name, fae_param=""):
         """
         Clears the interface counters
@@ -25,6 +26,7 @@ class NvueIbInterfaceCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    @check_output
     def action_clear_counters(engine, resource_path, fae_param=""):
         """
         Clear counters for all interfaces
@@ -36,9 +38,10 @@ class NvueIbInterfaceCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    @check_output
     def show_interface(engine, port_name, interface_hierarchy="", fae_param="", output_format=OutputFormat.json):
         """
-        Displays the configuration ans the status of the interface
+        Displays the configuration and the status of the interface
         :param engine: ssh engine object
         :param port_name: the name of the port/ports
         :param output_format: format of the output: auto(table), json or yaml. OutputFormat object is expected
@@ -54,6 +57,7 @@ class NvueIbInterfaceCli(NvueBaseCli):
         return engine.run_cmd(cmd)
 
     @staticmethod
+    @check_output
     def action_recover(engine, port_name, comp):
         cmd = "nv action recover interface {port_name} {comp}".format(port_name=port_name, comp=comp)
         cmd = " ".join(cmd.split())

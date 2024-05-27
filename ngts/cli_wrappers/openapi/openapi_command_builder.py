@@ -203,7 +203,8 @@ class OpenApiRequest:
     def _check_html_response(r: requests.Response) -> ResultObj:
         if getattr(r, 'text', '').startswith('<html>'):
             response = r.text
-            if any(msg in response for msg in INVALID_RESPONSE):
+            response_first_lines = "".join(response.split('\n')[:4])
+            if any(msg in response_first_lines for msg in INVALID_RESPONSE):
                 return ResultObj(False, "Error: Request failed. Details:\n" + response)
         return ResultObj(True, "")
 

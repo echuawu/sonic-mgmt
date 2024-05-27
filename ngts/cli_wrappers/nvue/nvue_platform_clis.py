@@ -1,6 +1,6 @@
 import logging
 
-from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli, check_output
 
 logger = logging.getLogger()
 
@@ -11,6 +11,7 @@ class NvuePlatformCli(NvueBaseCli):
         self.cli_name = "Platform"
 
     @staticmethod
+    @check_output
     def action_install_fae_bios_firmware(engine, bios_image_path, resource_path='', device=None):
         """
         Method to install BIOS firmware using NVUE
