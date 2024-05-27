@@ -80,7 +80,7 @@ class SonicAddSessionInfo(SessionAddInfo):
             dict_string = match.group(1).strip()
             rc = 0
             output = ast.literal_eval(dict_string)  # For MARS API, the value should return as a dictionary
-            print(f"output={str(output)}")
+            print("output={0}".format(str(output)))
         else:
             print("Couldn't get sonic session info")
             rc = 1
@@ -105,30 +105,33 @@ class SonicAddSessionInfo(SessionAddInfo):
         print("Run SonicAddSessionInfo.get_dynamic_info")
 
         machines_players = self.conf_obj.get_active_players()
-        print(f"machine_players={str(machines_players)}")
+        print("machine_players={0}".format(str(machines_players)))
 
         if isinstance(machines_players, list):
             machine = machines_players[0]
         else:
             machine = machines_players
-        print(f"machine={str(machine)}")
+        print("machine={0}".format(str(machine)))
         remote_workspace = '/root/mars/workspace'
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
-        print(f"remote_workspace={remote_workspace}")
+        print("remote_workspace={0}".format(str(remote_workspace)))
 
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
         topology = self.conf_obj.get_extra_info().get("topology")
         setup_name = self.conf_obj.get_extra_info().get("setup_name")
         ngts_script_path = "ngts/scripts/sonic_add_session_info/test_sonic_add_session_info.py"
-        script_cmd = (f"PYTHONPATH=/devts:{remote_workspace}/{repo_name}/ /ngts_venv/bin/pytest -p "
-                  f"no:ngts.tools.conditional_mark -p no:ngts.tools.loganalyzer -p "
-                  f"no:ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore --setup_name={setup_name} "
-                  f"--sonic-topo={topology} --sonic_session_facts_prefix={SONIC_SESSION_FACTS_PREFIX} --log-level=INFO "
-                  f"--clean-alluredir --alluredir=/tmp/allure-results --showlocals {remote_workspace}/{repo_name}/"
-                  f"{ngts_script_path}")
-        print(f"script_cmd={script_cmd}")
+        script_cmd = ("PYTHONPATH=/devts:{REMOTE_WORKSPACE}/{REPO_NAME}/ /ngts_venv/bin/pytest -p "
+                  "no:ngts.tools.conditional_mark -p no:ngts.tools.loganalyzer -p "
+                  "no:ngts.tools.loganalyzer_dynamic_errors_ignore.la_dynamic_errors_ignore --setup_name={SETUP_NAME} "
+                  "--sonic-topo={TOPOLOGY} --sonic_session_facts_prefix={SONIC_SESSION_FACTS_PREFIX} --log-level=INFO "
+                  "--clean-alluredir --alluredir=/tmp/allure-results --showlocals {REMOTE_WORKSPACE}/{REPO_NAME}/{"
+                  "NGTS_SCRIPT_PATH} ")
+        script_cmd = script_cmd.format(REMOTE_WORKSPACE=remote_workspace, REPO_NAME=repo_name, TOPOLOGY=topology,
+                               SETUP_NAME=setup_name, SONIC_SESSION_FACTS_PREFIX=SONIC_SESSION_FACTS_PREFIX,
+                               NGTS_SCRIPT_PATH=ngts_script_path)
+        print("script_cmd={0}".format(script_cmd))
         try:
             conn = RemoteRPC(machine)
             conn.import_module("os")
@@ -139,7 +142,7 @@ class SonicAddSessionInfo(SessionAddInfo):
 
             p = conn.modules.execute.run_process(script_cmd, shell=True)
             (rc, output) = conn.modules.execute.wait_process(p)
-            print(f"rc={str(rc)}")
+            print("rc={0}".format(str(rc)))
 
             if rc != 0:
                 print("Execute command failed!")
@@ -148,6 +151,6 @@ class SonicAddSessionInfo(SessionAddInfo):
         except Exception as e:
             rc = 1
             output = {}
-            print(f"An error occurred:{str(e)}")
+            print("An error occurred:{0}".format(str(e)))
         finally:
             return (rc, output)
