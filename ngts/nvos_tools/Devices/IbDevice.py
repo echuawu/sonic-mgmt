@@ -527,7 +527,7 @@ class BlackMambaSwitch(IbSwitch):
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
         self.platform_inventory_switch_values.update({"hardware-version": None,
-                                                      "model": ExpectedString(regex="QM3000.*")})
+                                                      "model": None})
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_xdr.yml'
@@ -597,7 +597,7 @@ class CrocodileSwitch(IbSwitch):
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
         self.platform_inventory_switch_values.update({"hardware-version": None,
-                                                      "model": ExpectedString(regex="QM3400.*")})
+                                                      "model": None})
 
 
 # -------------------------- Crocodile Simx Switch ----------------------------

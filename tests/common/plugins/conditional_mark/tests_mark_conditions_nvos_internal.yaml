@@ -332,4 +332,29 @@ tests_nvos/system/test_system_ztp.py::test_ztp_json_complex:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
     conditions:
       - https://redmine.mellanox.com/issues/3919469
+
+tests_nvos/platform/test_platform.py::test_show_platform:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3922673"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3922673
+
+tests_nvos/platform/test_platform_environment.py::test_show_platform_environment:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3922682"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3922682
+
+tests_nvos/platform/test_platform_environment.py::test_show_platform_environment_temperature:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3922682"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3922682
+
 ########################## NVOS IGNORE END ##########################

@@ -1560,3 +1560,11 @@
   Conditions:
     - Redmine:
         - 3811292
+
+# NVOS
+- Errors_list:
+    - '.*ERR health-statsd#health_history: FAN\d\/\d: direction intake is not aligned with fan1 direction exhaust.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[fan_err_direction]
+      - tests_nvos/platform/test_platform_environment.py::test_platform_environment_fan_direction_mismatch
