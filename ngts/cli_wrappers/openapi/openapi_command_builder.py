@@ -172,6 +172,7 @@ class OpenApiRequest:
 
             res = OpenApiRequest._validate_response(r, OpenApiReqType.GET)
             if not res.result:
+                assert '500 Internal Server Error' not in res.info, res.info
                 return res.info
 
             obj = json.loads(r.content)
