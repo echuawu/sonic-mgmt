@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from retry import retry
 
-from ngts.nvos_constants.constants_nvos import OpenApiReqType
+from ngts.nvos_constants.constants_nvos import OpenApiReqType, NvosConst
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
@@ -17,6 +17,8 @@ logger = logging.getLogger()
 ENDPOINT_URL_TEMPLATE = 'https://{ip}:{port_num}/nvue_v1'
 REQ_HEADER = {"Content-Type": "application/json"}
 INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found", "Forbidden", "Internal Server Error"]
+PENDING_RESPONSE = "pending"
+APPLIED_RESPONSE = "applied"
 
 
 class RequestData:
@@ -178,7 +180,7 @@ class OpenApiRequest:
             obj = json.loads(r.content)
 
             if "state" in obj.keys():
-                if obj["state"] == "applied":
+                if obj["state"] == APPLIED_RESPONSE:
                     return ResultObj(True, "Configuration applied successfully")
                 if str(obj["state"]) in INVALID_RESPONSE:
                     logging.info("Apply state: " + str(obj["state"]))
@@ -187,6 +189,13 @@ class OpenApiRequest:
                     except BaseException:
                         msg = ""
                     return ResultObj(False, "Error: Failed to apply configuration. Reason: " + msg)
+                if obj["state"] == PENDING_RESPONSE:
+                    try:
+                        msg = obj["transition"]['issue']['00000']["message"]
+                        if NvosConst.NO_CONFIG_DIFF_APPLY_MSG in str(msg):
+                            return ResultObj(True, NvosConst.NO_CONFIG_DIFF_APPLY_MSG)
+                    except BaseException:
+                        raise Exception("Configuration status in pending")
                 else:
                     raise Exception("Waiting for configuration to be applied")
 
