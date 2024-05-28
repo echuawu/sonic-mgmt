@@ -73,13 +73,13 @@ def pytest_collection_modifyitems(session, config, items):
 
         if expected_ports_num < minimum_ports_number:
             skip = pytest.mark.skip(reason=f'Expected number of ports: {expected_ports_num}, '
-                                           f'but it must be >= {minimum_ports_number}')
+                                    f'but it must be >= {minimum_ports_number}')
             for item in items:
                 item.add_marker(skip)
                 return
         if expected_ports_num > platform_max_ports_num:
             skip = pytest.mark.skip(reason=f'Platform: {platform} expected number of ports: {expected_ports_num}, '
-                                           f'but it must be <= {platform_max_ports_num}')
+                                    f'but it must be <= {platform_max_ports_num}')
             for item in items:
                 item.add_marker(skip)
                 return
@@ -195,7 +195,7 @@ def generate_config_db(config_db, engine, expected_num_of_ports, platform, dut_h
     if platform == PlatformTypesConstants.PLATFORM_HIPPO:
         # Remove service port from list of ports which will be split
         physical_dut_ports.pop('Ethernet512', None)
-        physical_dut_ports.pop('Ethernet513', None)
+        physical_dut_ports.pop('Ethernet520', None)
         port_speed = "100000"
     if platform == PlatformTypesConstants.PLATFORM_LEOPARD:
         port_speed = "100000"

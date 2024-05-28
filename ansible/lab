@@ -112,6 +112,7 @@ r-panther-23      ansible_host=10.210.25.147 ansible_hostv6="fe80::9a03:9bff:fe1
 r-panther-47      ansible_host=10.210.24.37 ansible_hostv6="fe80::bace:f6ff:fea6:1934" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4501
 r-panther-48      ansible_host=10.210.24.87 ansible_hostv6="fe80::268a:7ff:fe53:3b2e" sonic_version=v2 hwsku="Mellanox-SN2700-D40C8S8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4401
 mtvr-hippo-03      ansible_host=10.245.20.245 ansible_hostv6="fe80::5aa2:e1ff:feea:5e86" sonic_version=v2 hwsku="ACS-SN5400" iface_speed=200000 mgmt_subnet_mask_length=22 vm_base=VM3801
+mtvr-hippo-02      ansible_host=10.245.20.246 ansible_hostv6="fe80::5aa2:e1ff:feea:5e76" sonic_version=v2 hwsku="ACS-SN5400" iface_speed=200000 mgmt_subnet_mask_length=22 vm_base=VM4601
 c-panther-01      ansible_host=10.75.71.81 ansible_hostv6="fe80::268a:7ff:fe32:784e" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=24 vm_base=VM0801
 r-panther-01      ansible_host=10.210.25.27 ansible_hostv6="fe80::a288:c2ff:fe86:3e8c" sonic_version=v2 hwsku="Mellanox-SN2700-A1-D48C8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM3301
 arc-switch1025     ansible_host=10.210.25.45 ansible_hostv6="fe80::526b:4bff:fecd:2e74" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0601
@@ -263,6 +264,7 @@ ptf-mtvr-tigon-04   ansible_host=10.245.36.37 ansible_ssh_user=root ansible_ssh_
 ptf-mtvr-moose-02   ansible_host=10.245.20.122 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtvr-moose-03   ansible_host=10.245.20.182 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtvr-moose-04   ansible_host=10.245.20.62 ansible_ssh_usr=root ansible_ssh_pass=root
+ptf-mtvr-hippo-02 ansible_host=10.245.34.182 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtvr-leopard-01   ansible_host=10.245.32.122 ansible_ssh_user=root ansible_ssh_pass=root
 mts-ptf     ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtbc02  ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
@@ -309,6 +311,7 @@ mtvr-liger-02       ansible_host=10.245.20.44 os=mellanox
 mtvr-liger-03       ansible_host=10.245.20.45 os=mellanox
 mtvr-leopard-02     ansible_host=10.245.20.50 os=mellanox
 mtvr-leopard-04     ansible_host=10.245.21.9 os=sonic
+mtvr-leopard-05     ansible_host=10.245.20.247 os=sonic
 mtvr-tigon-01       ansible_host=10.245.20.249 os=sonic
 mtvr-tigon-03       ansible_host=10.245.20.252 os=sonic
 arc-switch1035      ansible_host=10.210.25.46 os=mellanox

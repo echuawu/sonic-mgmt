@@ -411,7 +411,8 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
                 port_alias_to_name_map["etp31b"] = "Ethernet244"
                 port_alias_to_name_map["etp32a"] = "Ethernet248"
                 port_alias_to_name_map["etp32b"] = "Ethernet252"
-            elif hostname in ["r-moose-01", "mtvr-moose-02", "mtvr-moose-03", "mtvr-moose-04", "mtvr-hippo-03"]:
+            elif hostname in ["r-moose-01", "mtvr-moose-02", "mtvr-moose-03", "mtvr-moose-04", "mtvr-hippo-03",
+                              "mtvr-hippo-02"]:
                 for i in range(1, 65):
                     port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
             else:
