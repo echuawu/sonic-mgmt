@@ -1,5 +1,7 @@
-
 class PwhConsts:
+    MAX_VALID_PASSWORD_LEN = 511
+    ERR_MAX_PASSWORD_LEN = 'Password should contain at most 511 characters'
+
     # pwh field names
     STATE = 'state'
     EXPIRATION = 'expiration'

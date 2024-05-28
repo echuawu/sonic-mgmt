@@ -3,19 +3,13 @@ import time
 
 import pytest
 
-from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
-from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
-from ngts.tools.test_utils import allure_utils as allure
-import logging
 from ngts.nvos_constants.constants_nvos import ApiType
-
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
-from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTools
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.tools.test_utils import allure_utils as allure
 
 
 @pytest.fixture(scope='session')
@@ -78,3 +72,13 @@ def init_time(engines, system):
     with allure.step('Enable NTP'):
         system.ntp.set(op_param_name=PwhConsts.STATE, op_param_value=PwhConsts.ENABLED, apply=True).verify_result()
         time.sleep(3)
+
+
+@pytest.fixture()
+def disable_password_hardening():
+    with allure.step('disable password hardening before test'):
+        pwh = System().security.password_hardening
+        pwh.set(PwhConsts.STATE, PwhConsts.DISABLED, apply=True).verify_result()
+    yield
+    with allure.step('reset password hardening after test'):
+        pwh.unset(apply=True).verify_result()
