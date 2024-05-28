@@ -494,7 +494,6 @@ def test_rsyslog_protocol(engines):
 
     try:
         with allure.step("Validate show commands"):
-            logging.info("Validate show commands")
             expected_server_dictionary = create_remote_server_dictionary(remote_server_ip)
             system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output(expected_server_dictionary[remote_server_ip])
 
@@ -504,37 +503,28 @@ def test_rsyslog_protocol(engines):
                                            remote_server_ip, 'tcp')
 
         with allure.step("Disconnect and Reconnect to server"):
-            logging.info("Disconnect and Reconnect to server")
 
             with allure.step("Simulate disconnection to the server"):
-                logging.info("Simulate disconnection to the server")
                 remote_server_engine.run_cmd('sudo pkill rsyslogd')
                 time.sleep(30)
                 random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
                 send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_didnt_received=True)
 
             with allure.step("Reconnect to the server"):
-                logging.info("Reconnect to the server")
-                remote_server_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
-                remote_server_engine.run_cmd('rsyslogd')
+                SonicMgmtContainer.restart_rsyslog(remote_server_engine)
                 time.sleep(30)
                 random_msg = RandomizationTool.get_random_string(30, ascii_letters=string.ascii_letters + string.digits)
                 send_msg_to_server(random_msg, remote_server_ip, remote_server_engine, verify_msg_received=True)
 
             with allure.step("Unset syslog server protocol"):
-                logging.info("Unset syslog server protocol")
                 system.syslog.servers.servers_dict[remote_server_ip].unset_protocol(apply=True)
                 system.syslog.servers.servers_dict[remote_server_ip].verify_show_server_output({SyslogConsts.PROTOCOL: 'udp'})
 
     finally:
         with allure.step("Cleanup syslog configurations"):
-            logging.info("Cleanup syslog configurations")
             system.syslog.unset(apply=True)
-        with allure.step("Reconnect to the server"):
-            logging.info("Reconnect to the server")
-            remote_server_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
-            remote_server_engine.run_cmd('rsyslogd')
-            time.sleep(10)
+        SonicMgmtContainer.restart_rsyslog(remote_server_engine)
+        time.sleep(10)
 
 
 @pytest.mark.system
