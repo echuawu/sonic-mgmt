@@ -589,23 +589,23 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.bios_version_name = '0ACTV000_07.rom'
 
         self.current_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
             version_names={
-                "CPLD1": "CPLD061672_REV2425",
-                "CPLD2": "CPLD000383_REV0007",
-                "CPLD3": "CPLD060373_REV0008",
-                "CPLD4": "CPLD060372_REV0001"
+                "CPLD1": "CPLD000370_REV0010",
+                "CPLD2": "CPLD000371_REV0010",
+                "CPLD3": "CPLD000373_REV0009",
+                "CPLD4": "CPLD000372_REV0002"
             }
         )
         self.previous_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_19_05_24_1.vme",
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
             version_names={
-                "CPLD1": "CPLD061672_REV2425",
-                "CPLD2": "CPLD000383_REV0007",
-                "CPLD3": "CPLD060373_REV0008",
-                "CPLD4": "CPLD060372_REV0001"
+                "CPLD1": "CPLD000370_REV0010",
+                "CPLD2": "CPLD000371_REV0010",
+                "CPLD3": "CPLD000373_REV0009",
+                "CPLD4": "CPLD000372_REV0002"
             }
         )
         # self.stats_fan_header_num_of_lines = 25
@@ -684,6 +684,11 @@ class JulietScaleoutSwitch(JulietSwitch):
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_nvl5.yml'
 
+    def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        logger.info("Sleeping for 300 seconds - Since bios update on juliet enters ONIE Update menu and takes longer")
+        time.sleep(300)
+        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
+        return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
 # -------------------------- Caiman Switch ----------------------------
 
