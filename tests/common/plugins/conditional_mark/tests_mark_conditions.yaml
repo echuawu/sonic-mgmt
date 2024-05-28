@@ -1093,6 +1093,12 @@ platform_tests/test_platform_info.py::test_thermal_control_load_invalid_value_js
     conditions:
       - "asic_type in ['mellanox']"
 
+platform_tests/test_xcvr_info_in_db.py::test_xcvr_info_in_db:
+  xfail:
+    reason: "Expected to fail with flat memory modules due to test issue https://github.com/sonic-net/sonic-mgmt/issues/12981"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/12981
+
 #######################################
 #####           qos               #####
 #######################################
