@@ -426,10 +426,10 @@ class VMTopology(object):
             self.destroy_ovs_bridge(VS_CHASSIS_INBAND_BRIDGE_NAME)
             self.destroy_ovs_bridge(VS_CHASSIS_MIDPLANE_BRIDGE_NAME)
 
-    def reinstall_8021q(self):
+    def reinsert_8021q(self):
         """
-        Reinstall module 8021q in case of vconfig add command failed to work
-        Would not do reinstall in a shared test server, in case of affect traffic
+        Reinsert module 8021q in case of vconfig add command failed to work
+        Would not do reinsert in a shared test server, in case of affect traffic
         """
         ngts_docker_count = 0
         out = VMTopology.cmd('docker ps')
@@ -1747,7 +1747,7 @@ def main():
     module = AnsibleModule(
         argument_spec=dict(
             cmd=dict(required=True, choices=['create', 'bind', 'bind_keysight_api_server_ip',
-                     'renumber', 'unbind', 'destroy', "connect-vms", "disconnect-vms", "reinstall-8021q"]),
+                     'renumber', 'unbind', 'destroy', "connect-vms", "disconnect-vms", "reinsert-8021q"]),
             vm_set_name=dict(required=False, type='str'),
             topo=dict(required=False, type='dict'),
             vm_names=dict(required=True, type='list'),
@@ -1793,8 +1793,8 @@ def main():
             net.create_bridges()
         elif cmd == 'destroy':
             net.destroy_bridges()
-        elif cmd == 'reinstall-8021q':
-            net.reinstall_8021q()
+        elif cmd == 'reinsert-8021q':
+            net.reinsert_8021q()
         elif cmd == 'bind':
             check_params(module, ['vm_set_name',
                                   'topo',
