@@ -29,7 +29,7 @@ class EthSwitch(BaseSwitch):
                                   "registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe " \
                                   "exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
         self.install_from_onie_timeout = 10 * 60
-        self.install_success_patterns = ['Debian GNU/Linux 10 .*', NvosConst.INSTALL_BOOT_PATTERN]
+        self.install_success_patterns = ['cumulus login:.*', NvosConst.INSTALL_BOOT_PATTERN, 'Debian GNU/Linux 12 .*']
 
         self.voltage_sensors = ["PMIC-1-PSU-12V-RAIL-IN", "PMIC-2-PSU-12V-RAIL-IN",
                                 "PMIC-2-ASIC-1.2V_MAIN-RAIL-OUT2", "PMIC-2-ASIC-1.8V_MAIN-RAIL-OUT1",
