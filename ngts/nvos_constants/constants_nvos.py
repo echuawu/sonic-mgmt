@@ -491,6 +491,8 @@ class SystemConsts:
     AUTO_SAVE_ENABLE_OFF = 'off'
     AUTO_SAVE_ENABLE_ON = 'on'
 
+    GENERAL_TRANSCEIVER_FIRMWARE_FILES = "/auto/sw_system_project/NVOS_INFRA/verification_files/transceiver_fw"
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000
