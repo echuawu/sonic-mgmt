@@ -7,8 +7,8 @@ import pytest
 import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.Devices.EthDevice import EthSwitch  # temporary, needed until nv unification RM 3735390.
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.system.System import System
@@ -16,7 +16,6 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AaaCo
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 from ngts.tools.test_utils.switch_recovery import generate_strong_password
-from ngts.nvos_tools.Devices.EthDevice import EthSwitch  # temporary, needed until nv unification RM 3735390.
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +126,7 @@ def show_sys_version(engines):
 
 
 @pytest.fixture(scope='function')
-def local_adminuser(engines):
+def local_adminuser(engines) -> UserInfo:
     adminuser = UserInfo(username=AaaConsts.LOCALADMIN, password=generate_strong_password(), role=AaaConsts.ADMIN)
     logging.info(f'Local admin user for test: "{adminuser.username}", "{adminuser.password}"')
     set_local_users(engines, [adminuser], apply=True)

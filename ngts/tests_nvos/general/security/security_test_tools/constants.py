@@ -27,7 +27,7 @@ class AaaConsts:
 
     MIN_PORT = 1
     MAX_PORT = 65535
-    TACACS_BAD_PORT = 123
+    AAA_SERVER_BAD_PORT = 123
 
     PAP = 'pap'
     CHAP = 'chap'

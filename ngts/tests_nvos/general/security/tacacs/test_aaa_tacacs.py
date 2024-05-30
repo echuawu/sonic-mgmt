@@ -2,7 +2,7 @@ import pytest
 
 from ngts.tests_nvos.general.security.constants import MAX_TEST_TIMEOUT
 from ngts.tests_nvos.general.security.security_test_tools.constants import AccountingConsts, \
-    AuthType
+    AuthType, AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_accounting_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_remote_aaa_testing import *
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
@@ -136,7 +136,7 @@ def test_tacacs_bad_port(test_api, engines, topology_obj):
         3. verify auth - expect fail
     """
     tacacs_server = TacacsPhysicalServer.SERVER_IPV4.copy()
-    tacacs_server.port = AaaConsts.TACACS_BAD_PORT
+    tacacs_server.port = AaaConsts.AAA_SERVER_BAD_PORT
     generic_aaa_test_bad_configured_server(test_api, engines, topology_obj,
                                            remote_aaa_type=RemoteAaaType.TACACS,
                                            remote_aaa_obj=System().aaa.tacacs,
@@ -404,7 +404,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
             configure_resource(engines, resource_obj=aaa.tacacs.hostname.hostname_id['1.2.3.4'], conf={
                 AaaConsts.TIMEOUT: rand_timeout,
                 AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: AaaConsts.TACACS_BAD_PORT
+                AaaConsts.PORT: AaaConsts.AAA_SERVER_BAD_PORT
             })
 
         with allure.step('Set tacacs in authentication order and failthrough off'):
@@ -430,7 +430,7 @@ def test_tacacs_timeout(test_api, engines, topology_obj, local_adminuser: UserIn
                 AaaConsts.PRIORITY: 2,
                 AaaConsts.TIMEOUT: rand_timeout2,
                 AaaConsts.SECRET: "xyz",
-                AaaConsts.PORT: AaaConsts.TACACS_BAD_PORT
+                AaaConsts.PORT: AaaConsts.AAA_SERVER_BAD_PORT
             }, apply=True, verify_apply=False)
 
         with allure.step('Make authentication attempt and measure time'):
