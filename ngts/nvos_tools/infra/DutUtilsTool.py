@@ -112,8 +112,8 @@ class DutUtilsTool:
             with allure.step('wait until the CLI is up'):
                 wait_until_cli_is_up(engine)
 
-            with allure.step('wait for ib-utils to be up'):
-                wait_for_ib_utils_docker(engine)
+            with allure.step('Wait until systemctl status is "running"'):
+                wait_on_systemctl_initialization(engine)
 
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
@@ -191,12 +191,6 @@ def wait_for_system_table_to_exist(engine):
     return True
 
 
-@retry(Exception, tries=60, delay=2)
-def wait_for_ib_utils_docker(engine):
-    cmd_output = engine.run_cmd('docker ps --format \"table {{.Names}}\"')
-    assert 'ib-utils' in cmd_output, "ib-utils still down"
-
-
 @retry(Exception, tries=60, delay=10)
 def wait_until_cli_is_up(engine):
     logger.info('Checking the status of nvued')
@@ -204,3 +198,10 @@ def wait_until_cli_is_up(engine):
     logger.info(output)
     if 'CLI is unavailable' in output:
         raise Exception("Waiting for NVUE to become functional")
+
+
+@retry(Exception, tries=12, delay=10)
+def wait_on_systemctl_initialization(engine):
+    output = engine.run_cmd("sudo systemctl is-system-running")
+    if "running" not in output:
+        raise Exception("Waiting for systemctl to finish initializing")
