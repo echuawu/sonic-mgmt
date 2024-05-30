@@ -1,5 +1,6 @@
 import logging
 import pytest
+
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.nvos_tools.acl.acl import Acl
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
@@ -253,11 +254,10 @@ def test_acl_ipv6(engines, test_api):
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_acl_loopback(engines, test_api):
     """
-    Validate ACLs rules over the loopback
+    Validate ACLs rules can't be defined for the loopback connection
     steps:
     1. config ACL with a rule
-    2. send packet
-    3. validate counters increase
+    2. try to apply, and fail
     """
     TestToolkit.tested_api = test_api
 
@@ -270,13 +270,8 @@ def test_acl_loopback(engines, test_api):
 
         acl_id_1 = "AA_TEST_ACL_LOOPBACK"
         acl_id_1_obj = config_acl_with_rule_attached_to_interface(engines.dut, acl_id_1, acl_type, rule_id,
-                                                                  rule_configuration_dict, mgmt_port, AclConsts.INBOUND, AclConsts.CONTROL_PLANE)
-
-    with allure.step("Validate ACL counters"):
-        rule_packets_1_before = get_rule_packets(mgmt_port, acl_id_1)
-        rule_packets_1_after = get_rule_packets(mgmt_port, acl_id_1)
-        assert int(rule_packets_1_after[rule_id]) > int(rule_packets_1_before[rule_id]), \
-            f'we expect to see increase in acl {acl_id_1} rule id {rule_id} counter - cause the first acl should be applied'
+                                                                  rule_configuration_dict, mgmt_port, AclConsts.INBOUND,
+                                                                  AclConsts.CONTROL_PLANE, should_succeed=False)
 
 
 @pytest.mark.acl
@@ -353,7 +348,7 @@ def test_show_acl_commands(engines, test_api):
     with allure.step("Define ACL to mgmt interface"):
         mgmt_port = MgmtPort()
         mgmt_port.interface.acl.set(acl_id).verify_result()
-        mgmt_port.interface.acl.acl_id[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True)
+        mgmt_port.interface.acl.acl_id[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True).verify_result()
 
         with allure.step("Validate configuration with show commands"):
             interface_acls_output = mgmt_port.interface.acl.parse_show()
@@ -1059,18 +1054,19 @@ def config_rule(engine, acl_id_obj, rule_id, rule_config_dict):
 
 
 def config_acl_with_rule_attached_to_interface(engine, acl_id, acl_type, rule_id, rule_configuration_dict, mgmt_port,
-                                               rule_direction, control_plane=AclConsts.CONTROL_PLANE, acl_obj=None):
+                                               rule_direction, control_plane=AclConsts.CONTROL_PLANE, acl_obj=None,
+                                               should_succeed=True):
     with allure.step(f"config acl {acl_id} with rule {rule_id} attached to interface {mgmt_port.name}"):
         if acl_obj:
-            config_rule(engine, acl_obj, rule_id, rule_configuration_dict)
+            config_rule(engine, acl_obj, rule_id, rule_configuration_dict).verify_result()
         else:
             acl = Acl()
             acl.set(acl_id).verify_result()
             acl_obj = acl.acl_id[acl_id]
             acl_obj.set(AclConsts.TYPE, acl_type).verify_result()
-            config_rule(engine, acl_obj, rule_id, rule_configuration_dict)
-            attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane)
-            logger.info("sleep 2 sec after rule attachment")
+            config_rule(engine, acl_obj, rule_id, rule_configuration_dict).verify_result()
+            attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane).verify_result(should_succeed)
+        logger.info("sleep 2 sec after rule attachment")
         time.sleep(2)
         return acl_obj
 
@@ -1079,9 +1075,10 @@ def attach_acl_to_interface(acl_id, mgmt_port, rule_direction, control_plane=Acl
     with allure.step(f"Attach acl {acl_id} to interface {mgmt_port.name}"):
         mgmt_port.interface.acl.set(acl_id).verify_result()
         if rule_direction == AclConsts.INBOUND:
-            mgmt_port.interface.acl.acl_id[acl_id].inbound.set(control_plane, apply=True)
+            result_obj = mgmt_port.interface.acl.acl_id[acl_id].inbound.set(control_plane, apply=True)
         elif rule_direction == AclConsts.OUTBOUND:
-            mgmt_port.interface.acl.acl_id[acl_id].outbound.set(control_plane, apply=True)
+            result_obj = mgmt_port.interface.acl.acl_id[acl_id].outbound.set(control_plane, apply=True)
+        return result_obj
 
 
 def validate_counters_after_traffic(engine, rule_direction, mgmt_port, acl_id, rule_id, ping_dest=None, packet=None):
