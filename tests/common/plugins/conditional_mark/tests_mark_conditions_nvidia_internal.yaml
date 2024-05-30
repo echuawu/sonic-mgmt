@@ -341,6 +341,12 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_secure_corrupt_f
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+dash/platform/test_dpu_show_platform_temperature.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3923171"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3923171"
+
 platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file[BIOS:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
