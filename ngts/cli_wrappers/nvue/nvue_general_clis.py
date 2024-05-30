@@ -144,6 +144,19 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         assert in_onie, 'NVOS install failed - not in ONIE'
         self.install_image_onie(self.engine, image_path, platform_params, topology_obj)
 
+    def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
+                     platform_params=None, deploy_type='sonic', reboot_after_install=None, fw_pkg_path=None,
+                     set_timezone='Israel', disable_ztp=False, configure_dns=False):
+        if image_path.startswith('http'):
+            image_path = '/auto/' + image_path.split('/auto/')[1]
+
+        with allure.step('Preparing switch for installation'):
+            logger.info("Begin: Preparing switch for installation ")
+            in_onie = self.prepare_for_installation(topology_obj)
+            logger.info("End: Preparing switch for installation ")
+
+        self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params, topology_obj)
+
     def install_image_onie(self, engine, image_path, platform_params, topology_obj):
         with allure.step('Install image onie - NVOS'):
             # SonicOnieCli(dut_ip, dut_ssh_port).install_image(image_path=image_path, platform_params=platform_params,

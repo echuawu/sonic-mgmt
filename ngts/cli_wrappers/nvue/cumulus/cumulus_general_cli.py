@@ -60,7 +60,7 @@ class CumulusGeneralCli(NvueGeneralCli):
             logging.info(f"Enter new password {self.device.default_password}")
             _, index = serial_engine.run_cmd(self.device.default_password, ["Retype new password:"], timeout=5)
             logging.info(f"Enter new password {self.device.default_password} again")
-            _, index = serial_engine.run_cmd(self.device.default_password, ["Welcome to NVIDIA Cumulus"],
+            _, index = serial_engine.run_cmd(self.device.default_password, [".*"],
                                              timeout=10)
 
         with allure.step('Wait until switch is up'):
@@ -75,4 +75,7 @@ class CumulusGeneralCli(NvueGeneralCli):
         pass
 
     def disable_ztp(self, disable_ztp=False):
+        pass
+
+    def _verify_dockers_are_up(self, dockers_list):
         pass
