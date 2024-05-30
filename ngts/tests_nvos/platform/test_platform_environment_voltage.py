@@ -36,7 +36,7 @@ def test_show_platform_environment_voltage(engines):
             sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
                 platform.environment.voltage.show(random_sensor)).verify_result()
             with allure.step("Verify both dictionaries are equal"):
-                voltage_output_for_sensor = voltage_output[random_sensor]
+                voltage_output_for_sensor = voltage_output[random_sensor].copy()
                 # the actual voltage might fluctuate between the two `nv show` commands, so we don't compare it
                 del sensor_output['actual']
                 del voltage_output_for_sensor['actual']

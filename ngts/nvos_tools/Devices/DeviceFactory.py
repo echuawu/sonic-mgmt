@@ -1,7 +1,7 @@
 import logging
 from ngts.nvos_tools.Devices.IbDevice import GorillaSwitch, \
     MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch, CrocodileSimxSwitch
-from ngts.nvos_tools.Devices.EthDevice import AnacondaSwitch, Mlx4700Switch
+from ngts.nvos_tools.Devices.EthDevice import AnacondaSwitch, Mlx2410Switch, Mlx4600Switch, Mlx4700Switch
 from dotted_dict import DottedDict
 
 logger = logging.getLogger()
@@ -23,7 +23,9 @@ class DeviceFactory:
             'QM3400_simx - Crocodile': CrocodileSimxSwitch,
             'QM8790 - Black Mamba': BlackMambaSwitch,
             'QM3000 - Black Mamba': BlackMambaSwitch,
-            'Mellanox SN4700': Mlx4700Switch
+            'Mellanox SN4700': Mlx4700Switch,
+            'Mellanox SN4600': Mlx4600Switch,
+            'Mellanox SN2410': Mlx2410Switch
         }
 
     @staticmethod

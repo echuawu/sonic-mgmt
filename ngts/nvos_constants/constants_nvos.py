@@ -576,6 +576,7 @@ class PlatformConsts:
     FW_SOURCE = "fw-source"
     FW_SOURCE_DEFAULT = "default"
     FW_SOURCE_CUSTOM = "custom"
+    FW_SPECTRUM1 = "1-Spectrum"
     FW_SPECTRUM2 = "1-Spectrum2"
     FW_SPECTRUM3 = "1-Spectrum3"
     FW_FIELDS = [FW_ACTUAL, FW_PART_NUMBER, FW_AUTO_UPDATE, FW_SOURCE]

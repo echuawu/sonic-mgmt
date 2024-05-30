@@ -156,8 +156,45 @@ class AnacondaSwitch(EthSwitch):
             "asic-model": self.asic_type
         })
 
+# -------------------------- Mlx2410 Switch -----------------------------
+
+
+class Mlx2410Switch(EthSwitch):
+    def __init__(self):
+        super().__init__(asic_amount=1)
+
+    def _init_constants(self):
+        super()._init_constants()
+        self.core_count = 2
+        self.asic_type = 'Spectrum'
+        self.constants.firmware.append(PlatformConsts.FW_SPECTRUM)
+
+        self.show_platform_output.update({
+            "product-name": "MSN2410",
+            "asic-model": self.asic_type
+        })
+
+# -------------------------- Mlx4600 Switch -----------------------------
+
+
+class Mlx4600Switch(EthSwitch):
+    def __init__(self):
+        super().__init__(asic_amount=1)
+
+    def _init_constants(self):
+        super()._init_constants()
+        self.core_count = 8
+        self.asic_type = 'Spectrum-3'
+        self.constants.firmware.append(PlatformConsts.FW_SPECTRUM3)
+
+        self.show_platform_output.update({
+            "product-name": "MSN4600",
+            "asic-model": self.asic_type
+        })
 
 # -------------------------- Mlx4700 Switch -----------------------------
+
+
 class Mlx4700Switch(EthSwitch):
     def __init__(self):
         super().__init__(asic_amount=1)
