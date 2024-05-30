@@ -1511,6 +1511,7 @@ class IndependentModuleConst:
 
 
 class PerfConsts:
+    CONFIG_FILES_DIR = os.path.join(BugHandlerConst.NGTS_PATH, 'tests/performance/config_files')
     LEFT_TG_ALIAS = "left_tg"
     RIGHT_TG_ALIAS = "right_tg"
     AR_PERF_CONFIG_FOLDER = 'config_files'

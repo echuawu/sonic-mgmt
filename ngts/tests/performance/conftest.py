@@ -11,9 +11,6 @@ from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 logger = logging.getLogger()
 ar_helper = ArHelper()
 
-BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-CONFIG_FILES_DIR = os.path.join(BASE_DIR, 'config_files')
-
 
 @pytest.fixture(scope='module', autouse=True)
 def skip_if_not_performance_setup(is_performance):
@@ -30,7 +27,7 @@ def config_node(cli_objects, engines, topology_obj):
     ar_perf_helper = ArPerfHelper(engines)
     tg_engines = ar_perf_helper.tg_engines
     for engine in tg_engines:
-        copy_files_to_syncd(engines[engine], PerfConsts.CONFIG_FILES_DICT[engine], CONFIG_FILES_DIR)
+        copy_files_to_syncd(engines[engine], PerfConsts.CONFIG_FILES_DICT[engine], PerfConsts.CONFIG_FILES_DIR)
         ar_perf_helper.run_cmd_on_syncd(engines[engine], PerfConsts.DISABLE_MAC_SCRIPT, python=True)
         cli_objects[engine].mac.clear_fdb()
         ar_perf_helper.run_cmd_on_syncd(engines[engine], PerfConsts.LB_SCRIPT_TG,
