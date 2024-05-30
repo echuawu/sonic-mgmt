@@ -3335,9 +3335,9 @@
     - mtvr-hippo-03
   comment: Mellanox MTR testbed
 
-- conf-name: mtvr-hippo-03-t0-56
+- conf-name: mtvr-hippo-03-t0-64
   group-name: vm-t1
-  topo: t0-56
+  topo: t0-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
   ptf_ip: 10.245.34.122/16
