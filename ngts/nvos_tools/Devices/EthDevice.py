@@ -1,7 +1,7 @@
 import logging
 import os
 
-from ngts.nvos_constants.constants_nvos import NvosConst, FansConsts, PlatformConsts, DiskConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, FansConsts, PlatformConsts, CumulusConsts, DiskConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
@@ -20,6 +20,10 @@ class EthSwitch(BaseSwitch):
         self.default_password = os.environ["CUMULUS_SWITCH_PASSWORD"]
         self.default_username = os.environ["CUMULUS_SWITCH_USER"]
         self.manufacture_password = "cumulus"
+        self.switch_type = "ETH"
+
+    def init_documents_consts(self, version_num=""):
+        super().init_documents_consts(version_num)
 
     def _init_constants(self):
         super()._init_constants()
@@ -29,7 +33,10 @@ class EthSwitch(BaseSwitch):
                                   "registered trademark Linux (R) is used pursuant to a sublicense from LMI,\nthe " \
                                   "exclusive licensee of Linus Torvalds, owner of the mark on a world-wide\nbasis.\n"
         self.install_from_onie_timeout = 10 * 60
-        self.install_success_patterns = ['cumulus login:.*', NvosConst.INSTALL_BOOT_PATTERN]  # , 'Debian GNU/Linux 12 .*']
+        self.login_pattern = CumulusConsts.LINUX_BOOT_PATTERN
+        self.install_patterns = {self.login_pattern: 0, NvosConst.INSTALL_BOOT_PATTERN: 1,
+                                 CumulusConsts.LOGIN_BOOT_PATTERN: 2}
+        self.install_success_patterns = list(self.install_patterns.keys())
 
         self.voltage_sensors = ["PMIC-1-PSU-12V-RAIL-IN", "PMIC-2-PSU-12V-RAIL-IN",
                                 "PMIC-2-ASIC-1.2V_MAIN-RAIL-OUT2", "PMIC-2-ASIC-1.8V_MAIN-RAIL-OUT1",

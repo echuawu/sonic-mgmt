@@ -17,13 +17,14 @@ logger = logging.getLogger()
 # -------------------------- Base Device ----------------------------
 class BaseDevice(ABC):
 
-    def __init__(self, asic_amount=1):
+    def __init__(self, switch_type="", asic_amount=1):
         self.default_password = ""
         self.default_username = ""
         self.prev_default_password = ""
         self.open_api_port = ""
         self.dependent_dockers = []
         self.asic_amount = asic_amount
+        self.switch_type = switch_type
 
         self._init_constants()
         self._init_available_databases()
@@ -40,6 +41,10 @@ class BaseDevice(ABC):
         self._init_system_lists()
         self._init_security_lists()
         self._init_password_hardening_lists()
+
+    def init_documents_consts(self, version_num=""):
+        self.documents_path = {}
+        self.documents_files = {}
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -237,6 +242,9 @@ class BaseSwitch(BaseDevice):
                                          'stats_dump_files', 'hw_mgmt_files'])
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
     SsdImageConsts = namedtuple('SsdImageConsts', ('file', 'current_version', 'alternate_version'))
+
+    def init_documents_consts(self, version_num=""):
+        super().init_documents_consts(version_num)
 
     def _init_available_databases(self):
         super()._init_available_databases()

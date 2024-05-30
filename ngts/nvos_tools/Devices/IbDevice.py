@@ -3,7 +3,8 @@ import os
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts, SystemConsts
+from ngts.nvos_constants.constants_nvos import (NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts,
+                                                SystemConsts, DocumentsConsts)
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -19,8 +20,10 @@ logger = logging.getLogger()
 
 class IbSwitch(BaseSwitch):
 
-    def __init__(self, asic_amount):
-        super().__init__(asic_amount)
+    def __init__(self, asic_amount, switch_type="IB"):
+        super().__init__(switch_type=switch_type, asic_amount=asic_amount)
+        self.documents_path = None
+        self.documents_files = None
         self._init_sensors_dict()
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
@@ -177,6 +180,8 @@ class IbSwitch(BaseSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.full_version_pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
+        self.version_number_pattern = r'\d{2}\.\d{2}\.\d{4}'
         self.health_monitor_config_file_path = ""
         self.platform_file_path = ""
         self.ib_ports_num = 64
@@ -184,7 +189,9 @@ class IbSwitch(BaseSwitch):
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = False
-        self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
+        self.login_pattern = NvosConst.INSTALL_SUCCESS_PATTERN
+        self.install_patterns = {self.login_pattern: 0}
+        self.install_success_patterns = list(self.install_patterns.keys())
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
@@ -348,6 +355,22 @@ class IbSwitch(BaseSwitch):
                     file='/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg',
                     current_version='0202-000', alternate_version='0202-002'),
         }
+
+    def init_documents_consts(self, version_num=""):
+        self.documents_files = {
+            DocumentsConsts.TYPE_EULA: "NVOS_EULA.pdf",
+            DocumentsConsts.TYPE_RELEASE_NOTES: f"NVOS_{self.switch_type}_v{version_num}_Release_Notes.pdf",
+            DocumentsConsts.TYPE_USER_MANUAL: f"NVOS_{self.switch_type}_v{version_num}_User_Manual.pdf",
+            DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES: "Open_Source_Licenses.txt"}
+        self.documents_path = {DocumentsConsts.TYPE_EULA:
+                               f"/usr/share/nginx/html/system_documents/eula/{self.documents_files[DocumentsConsts.TYPE_EULA]}",
+                               DocumentsConsts.TYPE_RELEASE_NOTES:
+                               f"/usr/share/nginx/html/system_documents/release_notes/{self.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES]}",
+                               DocumentsConsts.TYPE_USER_MANUAL:
+                               f"/usr/share/nginx/html/system_documents/user_manual/{self.documents_files[DocumentsConsts.TYPE_USER_MANUAL]}",
+                               DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES:
+                               f"/usr/share/nginx/html/system_documents/open_source_licenses/"
+                               f"{self.documents_files[DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES]}"}
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
@@ -612,7 +635,7 @@ class CrocodileSimxSwitch(IbSwitch):
 class NvLinkSwitch(IbSwitch):
 
     def __init__(self, asic_amount):
-        super().__init__(asic_amount)
+        super().__init__(switch_type="NVL", asic_amount=asic_amount)
 
     def _init_constants(self):
         super()._init_constants()

@@ -1,4 +1,6 @@
 import logging
+
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tools.test_utils import allure_utils as allure
 import pytest
 import random
@@ -10,8 +12,9 @@ logger = logging.getLogger()
 
 
 @pytest.mark.system
+@pytest.mark.documents
 @pytest.mark.simx
-def test_show_document(engines):
+def test_show_document(engines, devices):
     """
     Run nv show system documentation command and verify the docs paths and types
         Test flow:
@@ -21,15 +24,18 @@ def test_show_document(engines):
     system = System()
     with allure.step('Run nv show system documentation'):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.documentation.show()).verify_result()
+
     with allure.step('Verify all the documents paths'):
-        verify_documents_path(output, 'path')
+        verify_documents_path(output, 'path', devices.dut)
+
     with allure.step('Verify all the documents types'):
         verify_documents_type(output, 'type')
 
 
 @pytest.mark.system
+@pytest.mark.documents
 @pytest.mark.simx
-def test_show_document_files(engines):
+def test_show_document_files(engines, devices):
     """
     Run nv show system documentation files command and verify the docs paths
         Test flow:
@@ -37,17 +43,21 @@ def test_show_document_files(engines):
             2. for each file validate: the right path
     """
     system = System()
-    with allure.step('Run nv show system documentation files'):
-        output_files = OutputParsingTool.parse_json_str_to_dictionary(system.documentation.show('files')).verify_result()
+    with (allure.step('Run nv show system documentation files')):
+        output_files = OutputParsingTool.parse_json_str_to_dictionary(system.documentation.show('files')
+                                                                      ).verify_result()
+
     with allure.step('Verify all the documents paths'):
-        verify_documents_path(output_files, 'path')
+        verify_documents_path(output_files, 'path', devices.dut)
+
     with allure.step('Verify all the documents size'):
-        verify_documents_size(engines.dut)
+        verify_documents_size(engines.dut, devices.dut)
 
 
 @pytest.mark.system
+@pytest.mark.documents
 @pytest.mark.simx
-def test_upload_document(engines):
+def test_upload_document(engines, devices):
     """
     Test flow:
         1. pick randomly one of the user docs save as <random_file>
@@ -67,7 +77,10 @@ def test_upload_document(engines):
     invalid_url_2 = 'ffff://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
     upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
 
-    random_file = random.choice([DocumentsConsts.FILE_NAME_RELEASE_NOTES, DocumentsConsts.FILE_NAME_OPEN_SOURCE_LICENSES, DocumentsConsts.FILE_NAME_USER_MANUAL, DocumentsConsts.FILE_NAME_EULA])
+    update_documents_name(devices.dut)
+    random_file = random.choice([devices.dut.documents_files[DocumentsConsts.TYPE_EULA],
+                                 devices.dut.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES],
+                                 devices.dut.documents_files[DocumentsConsts.TYPE_USER_MANUAL]])
     with allure.step('try to upload one of the user docs - Positive Flow'):
         output = system.documentation.action_upload(file_name=random_file, upload_path=upload_path)
         with allure.step('verify the upload message'):
@@ -82,6 +95,16 @@ def test_upload_document(engines):
         assert "is not a" in output.info, "URL used non supported transfer protocol"
 
 
+def update_documents_name(device):
+    with allure.step("Check OS version"):
+        version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()[
+            'image']
+        version_num = TestToolkit.get_version_num(version)
+
+    with allure.step("Update documents path"):
+        device.init_documents_consts(version_num)
+
+
 def verify_documents_type(output, validation_key):
     """
 
@@ -94,24 +117,32 @@ def verify_documents_type(output, validation_key):
     verify_documents(output, validation_key, types)
 
 
-def verify_documents_path(output, validation_key):
+def verify_documents_path(output, validation_key, device):
     """
 
     :param output:
     :param validation_key:
     :return:
     """
-    paths = [DocumentsConsts.PATH_EULA, DocumentsConsts.PATH_RELEASE_NOTES, DocumentsConsts.PATH_USER_MANUAL, DocumentsConsts.PATH_OPEN_SOURCE_LICENSES]
-    verify_documents(output, validation_key, paths)
+    update_documents_name(device)
+    verify_documents(output, validation_key, [device.documents_path[DocumentsConsts.TYPE_EULA],
+                                              device.documents_path[DocumentsConsts.TYPE_RELEASE_NOTES],
+                                              device.documents_path[DocumentsConsts.TYPE_USER_MANUAL],
+                                              device.documents_path[DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES]])
 
 
-def verify_documents_size(engine):
-    files_list = [DocumentsConsts.PATH_EULA, DocumentsConsts.PATH_RELEASE_NOTES, DocumentsConsts.PATH_USER_MANUAL]
+def verify_documents_size(engine, device):
+    update_documents_name(device)
+    files_list = [device.documents_files[DocumentsConsts.TYPE_EULA],
+                  device.dut.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES],
+                  device.dut.documents_files[DocumentsConsts.TYPE_USER_MANUAL]]
+
     error_msg = ''
     for file in files_list:
         temp = int(engine.run_cmd('stat -c %s {}'.format(file)).splitlines()[0])
         if DocumentsConsts.MIN_FILES_SIZE > temp:
-            error_msg += "The {} expected size should be more than {} and the current size is {}".format(file, DocumentsConsts.MIN_FILES_SIZE, temp)
+            error_msg += ("The {} expected size should be more than {} and the current size is"
+                          " {}").format(file, DocumentsConsts.MIN_FILES_SIZE, temp)
     assert not error_msg, error_msg
 
 
@@ -124,7 +155,10 @@ def verify_documents(output, validation_key, expected_list):
     :return:
     """
     with allure.step('validate the output contains the expected list'):
-        assert len(output.keys()) == len(expected_list), 'the expected out is {}, the output is {}'.format(output.keys(), expected_list)
+        assert len(output.keys()) == len(expected_list), ('the expected out is {}, the output is '
+                                                          '{}').format(output.keys(), expected_list)
     for key, value in zip(output.keys(), expected_list):
         assert validation_key in output[key].keys(), 'no {}'.format(validation_key)
-        assert output[key][validation_key] == value, 'the {validation_key} of {key} is {val} not as expected {value}'.format(validation_key=validation_key, key=key, val=output[key][validation_key], value=value)
+        assert output[key][validation_key] == value, ('the {validation_key} of {key} is '
+                                                      '{val} not as expected {value}').format(
+            validation_key=validation_key, key=key, val=output[key][validation_key], value=value)

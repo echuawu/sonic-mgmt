@@ -126,7 +126,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             self._scp_image(ssh_engine, image_path, file_on_switch)
             found_pattern_index = self._onie_nos_install_image(serial_engine, file_on_switch,
                                                                self.device.install_success_patterns)
-            assert found_pattern_index == 0, "Failed to install image on onie"
+            assert found_pattern_index == self.device.install_patterns[self.device.login_pattern], \
+                "Failed to install image on onie"
 
         logger.info(f'*** Image {image_path} successfully installed ***')
 
