@@ -115,7 +115,8 @@ def get_real_file_path(file_path: str) -> str:
 
 
 def check_partitions_capacity(partition_name: str = DiskConsts.DEFAULT_PARTITION_NAME,
-                              allowed_limit: int = DiskConsts.PARTITION_CAPACITY_LIMIT):
+                              allowed_limit: int = DiskConsts.PARTITION_CAPACITY_LIMIT,
+                              minimum_free_space: float = DiskConsts.MINIMUM_FREE_SPACE):
     """
     Validate there is enough capacity left on disk
     - Create a folder for disk partition to mount
@@ -142,6 +143,12 @@ def check_partitions_capacity(partition_name: str = DiskConsts.DEFAULT_PARTITION
                 available_disk_space = int(storage.strip()[:-1])
                 assert available_disk_space < allowed_limit, f'The disk space is over {allowed_limit}%, so image may ' \
                                                              f'not fit '
+        with allure.step('Check Minimum Free Space'):
+            free_space = disk_tool.get_free_space()
+            # Trim "G" symbol from the end, e.g '6.7G%'
+            free = float(free_space.strip()[:-1])
+            assert free >= minimum_free_space, f'Available disk space {free}G is below {minimum_free_space}G'
+
     finally:
         disk_tool.unmount_partitions(partitions)
 

@@ -28,10 +28,12 @@ def test_system_services(engines, devices):
         assert res_obj.result, res_obj.info
 
 
+@pytest.mark.cumulus
 @pytest.mark.init_flow
-def test_partitions_capacity():
-    check_partitions_capacity(partition_name=DiskConsts.DEFAULT_PARTITION_NAME,
-                              allowed_limit=DiskConsts.PARTITION_CAPACITY_LIMIT)
+def test_partitions_capacity(devices):
+    check_partitions_capacity(partition_name=devices.dut.disk_default_partition_name,
+                              allowed_limit=devices.dut.disk_partition_capacity_limit,
+                              minimum_free_space=devices.dut.disk_minimum_free_space)
 
 
 @pytest.mark.init_flow

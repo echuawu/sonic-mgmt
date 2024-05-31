@@ -1,7 +1,7 @@
 import logging
 import os
 
-from ngts.nvos_constants.constants_nvos import NvosConst, FansConsts, PlatformConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, FansConsts, PlatformConsts, DiskConsts
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
@@ -48,6 +48,9 @@ class EthSwitch(BaseSwitch):
             "manufacturer": "Mellanox"
         })
 
+        self.disk_partition_capacity_limit = 70  # Percent value
+        self.disk_minimum_free_space = 5.5  # Gig
+
     def ib_ports_num(self):
         return 0
 
@@ -60,8 +63,9 @@ class EthSwitch(BaseSwitch):
     def _init_fan_list(self):
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
-        self.fan_led_list = ["FAN1", "FAN2", "FAN3", "FAN4", "FAN5", "FAN6",
-                             "PSU", "SYSTEM"]
+
+    def _init_led_list(self):
+        self.led_list = ["FAN1", "FAN2", "FAN3", "FAN4", "FAN5", "FAN6", "PSU", "SYSTEM"]
 
     def _init_platform_lists(self):
         super()._init_platform_lists()

@@ -23,6 +23,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/cumulus/cumulus_security_password_hardening.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/cumulus/cumulus_infra.cases </cases>
 	</test>
 </DBDEF>

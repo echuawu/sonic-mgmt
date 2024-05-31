@@ -1207,6 +1207,7 @@ class UfmMadConsts:
 class DiskConsts:
     DEFAULT_PARTITION_NAME = 'sda'
     PARTITION_CAPACITY_LIMIT = 40  # Percent value
+    MINIMUM_FREE_SPACE = 0.0  # Gigs
 
 
 class BiosConsts:

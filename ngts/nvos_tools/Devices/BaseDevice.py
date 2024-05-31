@@ -5,7 +5,7 @@ from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
 from typing import Tuple
 
-from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
+from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, DiskConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
@@ -312,6 +312,9 @@ class BaseSwitch(BaseDevice):
             "asic-model": "",
             "system-uuid": ExpectedString(regex=r"[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}"),
         }
+        self.disk_default_partition_name = DiskConsts.DEFAULT_PARTITION_NAME
+        self.disk_partition_capacity_limit = DiskConsts.PARTITION_CAPACITY_LIMIT
+        self.disk_minimum_free_space = DiskConsts.MINIMUM_FREE_SPACE
 
     def _init_psu_list(self):
         super()._init_psu_list()

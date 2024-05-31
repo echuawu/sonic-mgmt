@@ -4,8 +4,8 @@
 		<default_params_type> extended_setup_step_params </default_params_type>
 		<DB>
 			<info> </info>
-			<owner> Alon N. </owner>
-			<group> NVOS </group>
+			<owner> Paul Schmidt </owner>
+			<group> Cumulus </group>
 			<dimension> VER </dimension>
 
             <pre>
@@ -23,6 +23,6 @@
 		</Case>
 	</global>
 	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/security/cases/nvos_security_ssh_hardening.cases </cases>
+		<cases> sonic-mgmt/nvos-tool/mars/cases/cumulus/cumulus_security_ssh_hardening.cases </cases>
 	</test>
 </DBDEF>
