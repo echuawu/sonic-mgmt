@@ -3,13 +3,14 @@ import os
 import signal
 import subprocess
 import time
+from typing import Tuple
 
 import ngts.tools.test_utils.allure_utils as allure
 from ngts.tests_nvos.system.gnmi.constants import GnmiMode, ERR_GNMIC_NOT_INSTALLED
 
 
 class GnmiClient:
-    def __init__(self, server_host, server_port, username, password, cmd_time: int = 5, cacert=''):
+    def __init__(self, server_host, server_port, username, password, cmd_time: int = 5, cacert='', verify_tools_installed: bool = True):
         assert cmd_time >= 0, f'unsupported cmd time: {cmd_time}. must be >= 0'
 
         self.server_host = server_host
@@ -19,24 +20,27 @@ class GnmiClient:
         self.cacert = cacert
         self.cmd_time = cmd_time
 
-        with allure.step('verify gnmic installed on player'):
-            self._verify_gnmic_installed()
+        if verify_tools_installed:
+            with allure.step('verify gnmic installed on player'):
+                self._verify_gnmic_installed()
+            with allure.step('verify grpcurl installed on player'):
+                self._verify_grpcurl_installed()
 
     def run_subscribe_interface(self, mode: str, interface_name: str, username: str = '', password: str = '',
                                 skip_cert_verify: bool = False, cacert='', debug_mode: bool = True,
-                                cmd_time=None) -> str:
+                                cmd_time=None) -> Tuple[str, str]:
         assert mode in GnmiMode.ALL_MODES, f'unsupported gnmi subscribe mode: "{mode}"'
         subscribe_op = (f"subscribe --prefix 'interfaces/interface[name={interface_name}]/state' --path 'description' "
                         f"--target netq {mode} --format flat")
         return self._run_gnmic_op(subscribe_op, skip_cert_verify, cacert, debug_mode, cmd_time, username, password)
 
     def run_capabilities(self, username: str = '', password: str = '', skip_cert_verify: bool = False, cacert='',
-                         debug_mode: bool = True, cmd_time=None) -> str:
+                         debug_mode: bool = True, cmd_time=None) -> Tuple[str, str]:
         capabilities_op = "capabilities"
         return self._run_gnmic_op(capabilities_op, skip_cert_verify, cacert, debug_mode, cmd_time, username, password)
 
     def _run_gnmic_op(self, gnmi_op: str, skip_cert_verify: bool, cacert: str, debug_mode: bool, cmd_time,
-                      username: str = '', password: str = '', ) -> str:
+                      username: str = '', password: str = '', ) -> Tuple[str, str]:
         with allure.step('compose the gnmic command'):
             username = username or self.username
             password = password or self.password
@@ -58,7 +62,12 @@ class GnmiClient:
         output = self._run_cmd_in_process(cmd)
         assert ERR_GNMIC_NOT_INSTALLED not in output, f"gnmic is not installed on player.\n{cmd}\n{output}"
 
-    def _run_cmd_in_process(self, cmd: str, cmd_time=None) -> str:
+    def _verify_grpcurl_installed(self):
+        cmd = 'grpcurl -version'
+        output = self._run_cmd_in_process(cmd)
+        assert ERR_GNMIC_NOT_INSTALLED not in output, f"grpcurl is not installed on player.\n{cmd}\n{output}"
+
+    def _run_cmd_in_process(self, cmd: str, cmd_time=None) -> Tuple[str, str]:
         self._log(f"run: {cmd}")
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    preexec_fn=os.setsid)
@@ -73,7 +82,7 @@ class GnmiClient:
         err = err.decode('utf-8')
         self._log(f"output: {output}")
         self._log(f"err: {err}")
-        return output
+        return output, err
 
     def _log(self, msg: str):
         logging.info(f"[GnmiClient] {msg}")

@@ -1,8 +1,6 @@
 import logging
 import os
-import random
 import signal
-import string
 import time
 
 import pytest
@@ -19,13 +17,15 @@ from ngts.tests_nvos.general.security.conftest import local_adminuser
 from ngts.tests_nvos.general.security.security_test_tools.constants import AuthConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
 from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
-from ngts.tests_nvos.system.gnmi.constants import GnmiMode, ERR_GNMIC_AUTH_FAIL
+from ngts.tests_nvos.system.gnmi.constants import GnmiMode, ERR_GNMIC_AUTH_FAIL, ERR_GNMIC_CERT, NFS_GNMI_CACERT_FILE, \
+    DUT_HOSTNAME_FOR_CERT
 from ngts.tests_nvos.system.gnmi.helpers import gnmi_basic_flow, validate_gnmi_is_running_and_stream_updates, \
     validate_show_gnmi, validate_gnmi_server_in_health_issues, run_gnmi_client_in_the_background, \
     verify_description_value, run_gnmi_client_and_parse_output, validate_gnmi_enabled_and_running, \
     validate_memory_and_cpu_utilization, get_infiniband_name_from_port_name, get_port_oid_from_infiniband_port, \
     create_gnmi_infiniband_list, validate_redis_cli_and_gnmi_commands_results, create_interface_state_commands_list, \
-    create_gnmi_counter_list, create_platform_general_commands_list
+    create_gnmi_counter_list, create_platform_general_commands_list, change_interface_description, \
+    load_certificate_into_gnmi, verify_msg_not_in_out_or_err, verify_msg_in_out_or_err
 from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround
 
 logger = logging.getLogger()
@@ -332,11 +332,11 @@ def test_gnmi_max_clients():
     3. subscribe another client
     4. change port description - expect only the first 10 clients receive update
     """
-    pass    # TODO: case required?
+    pass  # TODO: case required?
 
 
 @pytest.mark.parametrize('test_flow', [TestFlowType.GOOD_FLOW])
-def test_gnmi_authentication(test_flow, engines, devices, local_adminuser, aaa_users):
+def test_gnmi_authentication(test_flow, engines, local_adminuser, aaa_users):
     """
     verify that gnmi clients must be properly authenticated to subscribe and get updates
 
@@ -360,32 +360,78 @@ def test_gnmi_authentication(test_flow, engines, devices, local_adminuser, aaa_u
                     if auth_method == RemoteAaaType.LDAP:
                         wait_for_ldap_nvued_restart_workaround(None)
             with allure.step(f'change description of interface: "{selected_port.name}"'):
-                rand_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
-                selected_port.ib_interface.set(NvosConst.DESCRIPTION, rand_str, apply=True).verify_result()
-                time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
+                new_description = change_interface_description(selected_port)
             with allure.step('create gnmi client'):
                 client = GnmiClient(engines.dut.ip, GnmiConsts.GNMI_DEFAULT_PORT, user.username, user.password)
             if test_flow == TestFlowType.GOOD_FLOW:
                 with allure.step(f'verify gnmi auth with valid {auth_method} user "{user.username}"'):
                     with allure.step('verify using subscribe command'):
-                        out = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name, skip_cert_verify=True)
-                        assert rand_str in out, (f'new interface description not found in output.\nexpected: {rand_str}\n'
-                                                 f'output:\n{out}')
-                        assert ERR_GNMIC_AUTH_FAIL not in out, (f'gnmic auth failed.\n"{ERR_GNMIC_AUTH_FAIL}" in output.\n'
-                                                                f'output:\n{out}')
+                        out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name,
+                                                                  skip_cert_verify=True)
+                        verify_msg_in_out_or_err(new_description, out)
+                        verify_msg_not_in_out_or_err(ERR_GNMIC_AUTH_FAIL, out, err)
                     with allure.step('verify using capabilities command'):
-                        out = client.run_capabilities(skip_cert_verify=True)
-                        assert ERR_GNMIC_AUTH_FAIL not in out, (f'gnmic auth failed.\n"{ERR_GNMIC_AUTH_FAIL}" in output.\n'
-                                                                f'output:\n{out}')
+                        out, err = client.run_capabilities(skip_cert_verify=True)
+                        verify_msg_not_in_out_or_err(ERR_GNMIC_AUTH_FAIL, out, err)
             else:
                 with allure.step('verify gnmi client with invalid user credentials'):
                     with allure.step('verify using subscribe command'):
-                        out = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name, password="abcde", skip_cert_verify=True)
-                        assert rand_str not in out, (f'new interface description unexpectedly found in output.\n'
-                                                     f'new description: "{rand_str}"\noutput:\n{out}')
-                        assert ERR_GNMIC_AUTH_FAIL in out, (f'output does not contain expected auth fail error.\n'
-                                                            f'expected error: "{ERR_GNMIC_AUTH_FAIL}"\noutput:\n{out}')
+                        out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name, password="abcde",
+                                                                  skip_cert_verify=True)
+                        verify_msg_not_in_out_or_err(new_description, out)
+                        verify_msg_in_out_or_err(ERR_GNMIC_AUTH_FAIL, out, err)
                     with allure.step('verify using capabilities command'):
-                        out = client.run_capabilities(password='abcde', skip_cert_verify=True)
-                        assert ERR_GNMIC_AUTH_FAIL in out, (f'output does not contain expected auth fail error.\n'
-                                                            f'expected error: "{ERR_GNMIC_AUTH_FAIL}"\noutput:\n{out}')
+                        out, err = client.run_capabilities(password='abcde', skip_cert_verify=True)
+                        verify_msg_in_out_or_err(ERR_GNMIC_AUTH_FAIL, out, err)
+
+
+def test_gnmi_cert_badflow(engines, local_adminuser):
+    """
+    verify that gnmi works with certificate verification
+
+    1. bad-flow: don't load certificate into gnmi
+    2. run gnmi client without insecure flag
+    3. bad-flow: expect fail
+    """
+    with allure.step('run gnmi client without insecure flag - expect fail'):
+        with allure.step('create gnmi client'):
+            client = GnmiClient(engines.dut.ip, GnmiConsts.GNMI_DEFAULT_PORT, local_adminuser.username,
+                                local_adminuser.password, cacert=NFS_GNMI_CACERT_FILE)
+        with allure.step('verify capabilities'):
+            out, err = client.run_capabilities()
+            verify_msg_in_out_or_err(ERR_GNMIC_CERT, out, err)
+        with allure.step('verify subscribe'):
+            selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+            new_description = change_interface_description(selected_port)
+            out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name)
+            verify_msg_not_in_out_or_err(new_description, out)
+            verify_msg_in_out_or_err(ERR_GNMIC_CERT, out, err)
+        with allure.step('verify reflection'):
+            pass  # out_reflect, err = client.run_reflection()  # TODO: implement
+
+
+def test_gnmi_cert_goodflow(engines, local_adminuser, add_etc_host_mapping):
+    """
+    verify that gnmi works with certificate verification
+
+    1. good-flow: load certificate into gnmi
+    2. run gnmi client without insecure flag
+    3. good-flow: expect success
+    """
+    with allure.step('load certificate into gnmi'):
+        load_certificate_into_gnmi(engines.dut)
+    with allure.step('run gnmi client without insecure flag - expect success'):
+        with allure.step('create gnmi client'):
+            client = GnmiClient(DUT_HOSTNAME_FOR_CERT, GnmiConsts.GNMI_DEFAULT_PORT, local_adminuser.username,
+                                local_adminuser.password, cacert=NFS_GNMI_CACERT_FILE)
+        with allure.step('verify capabilities'):
+            out, err = client.run_capabilities()
+            verify_msg_not_in_out_or_err(ERR_GNMIC_CERT, out, err)
+        with allure.step('verify subscribe'):
+            selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
+            new_description = change_interface_description(selected_port)
+            out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name)
+            verify_msg_in_out_or_err(new_description, out)
+            verify_msg_not_in_out_or_err(ERR_GNMIC_CERT, out, err)
+        with allure.step('verify reflection'):
+            pass  # out_reflect, err = client.run_reflection()  # TODO: implement
