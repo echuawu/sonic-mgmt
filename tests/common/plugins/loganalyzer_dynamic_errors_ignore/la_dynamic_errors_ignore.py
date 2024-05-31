@@ -41,8 +41,9 @@ def initialize_cached_variables(session):
 
 
 def pytest_runtest_setup(item):
-    extended_ignore_list = get_extended_ignore_list(item)
-    item.session.config.cache.set("extended_ignore_list", extended_ignore_list)
+    if not item.config.getoption('disable_loganalyzer') or item.config.getoption('force_load_err_list'):
+        extended_ignore_list = get_extended_ignore_list(item)
+        item.session.config.cache.set("extended_ignore_list", extended_ignore_list)
 
 
 def pytest_runtest_teardown(item):

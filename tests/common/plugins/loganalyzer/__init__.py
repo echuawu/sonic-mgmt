@@ -19,6 +19,9 @@ def pytest_addoption(parser):
                      help="params that may needed in log_analyzer_bug_handler when err detected, "
                           "log_analyzer_bug_handler is called in _post_err_msg_handler, "
                           "vendor can implement their own logic in log_analyzer_bug_handler.")
+    parser.addoption("--force_load_err_list", action="store_true", default=False,
+                     help="Load the user defined err msgs which is not included in the common ignore file,"
+                          "even when disable_loganalyzer is true")
 
 
 @reset_ansible_local_tmp
