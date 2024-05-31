@@ -118,7 +118,8 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
                 ignoreRegex = [
                     r".*mlnx_switch_health_event_handle: Health event happened.*HW catastrophic.*"
                     r"event",
-                    r"on_switch_shutdown_request: Syncd stopped"
+                    r"on_switch_shutdown_request: Syncd stopped",
+                    r".*Sysfs running counter is not updated for more than \d+ sec.*"
                 ]
                 loganalyzer[dut].ignore_regex.extend(ignoreRegex)
 
