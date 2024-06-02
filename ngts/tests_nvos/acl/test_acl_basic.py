@@ -320,29 +320,40 @@ def test_show_acl_commands(engines, test_api):
 
         with allure.step("Validate configuration with show commands"):
             rule_id_1_obj = acl_id_obj.rule.rule_id[rule_id_1]
-            acl_id_output = acl_id_obj.parse_show()  # nv show acl <acl-id>
-            rule_output = acl_id_obj.rule.parse_show()  # nv show acl <acl-id> rule
-            rule_id_1_output = rule_id_1_obj.parse_show()  # nv show acl <acl-id> rule <rule-id>
-            action_show = rule_id_1_obj.action.parse_show()
-            match_show = rule_id_1_obj.match.parse_show()
-            match_ip_show = rule_id_1_obj.match.ip.parse_show()
-            dest_port_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.tcp.dest_port.parse_show()
-            tcp_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.parse_show()
-            tcp_flags_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.flags.parse_show()
-            tcp_mask_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.mask.parse_show()
-            ecn_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.parse_show()
-            ecn_flags_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.flags.parse_show()
+            acl_id_output = acl_id_obj.parse_show()
             assert expected_acl_dict[acl_id] == acl_id_output
+
+            rule_output = acl_id_obj.rule.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE] == rule_output
+
+            rule_id_1_output = rule_id_1_obj.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1] == rule_id_1_output
+
+            action_show = rule_id_1_obj.action.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.ACTION] == action_show  # bug 3659032
+
+            match_show = rule_id_1_obj.match.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.MATCH] == match_show
+
+            match_ip_show = rule_id_1_obj.match.ip.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_1][AclConsts.MATCH][AclConsts.IP] == match_ip_show
+
+            dest_port_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.tcp.dest_port.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_2][AclConsts.MATCH][AclConsts.IP]['tcp']['dest-port'] == dest_port_show
+
+            tcp_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'] == tcp_show
+
+            tcp_flags_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.flags.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'][AclConsts.FLAGS] == tcp_flags_show
+
+            tcp_mask_show = acl_id_obj.rule.rule_id[rule_id_3].match.ip.tcp.mask.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_3][AclConsts.MATCH][AclConsts.IP]['tcp'][AclConsts.MASK] == tcp_mask_show
+
+            ecn_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_2][AclConsts.MATCH][AclConsts.IP]['ecn'] == ecn_show
+
+            ecn_flags_show = acl_id_obj.rule.rule_id[rule_id_2].match.ip.ecn.flags.parse_show()
             assert expected_acl_dict[acl_id][AclConsts.RULE][rule_id_2][AclConsts.MATCH][AclConsts.IP]['ecn'][AclConsts.FLAGS] == ecn_flags_show
 
     with allure.step("Define ACL to mgmt interface"):
@@ -352,14 +363,18 @@ def test_show_acl_commands(engines, test_api):
 
         with allure.step("Validate configuration with show commands"):
             interface_acls_output = mgmt_port.interface.acl.parse_show()
-            interface_acl_output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
-            statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show()
-            rule_statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show(rule_id_1)
-            inbound_output = mgmt_port.interface.acl.acl_id[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
             assert acl_id_output[AclConsts.RULE].keys() == interface_acls_output[acl_id][AclConsts.STATISTICS].keys()
+
+            interface_acl_output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
             assert rule_output.keys() == interface_acl_output[AclConsts.STATISTICS].keys()
+
+            statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show()
             assert rule_output.keys() == statistics_output.keys()
+
+            rule_statistics_output = mgmt_port.interface.acl.acl_id[acl_id].statistics.parse_show(rule_id_1)
             assert statistics_output[rule_id_1].keys() == rule_statistics_output.keys()
+
+            inbound_output = mgmt_port.interface.acl.acl_id[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
             assert rule_output.keys() == inbound_output[AclConsts.STATISTICS].keys()
 
 
