@@ -323,6 +323,7 @@ class BaseSwitch(BaseDevice):
         self.disk_default_partition_name = DiskConsts.DEFAULT_PARTITION_NAME
         self.disk_partition_capacity_limit = DiskConsts.PARTITION_CAPACITY_LIMIT
         self.disk_minimum_free_space = DiskConsts.MINIMUM_FREE_SPACE
+        self.mgmt_interfaces = ['eth0']
 
     def _init_psu_list(self):
         super()._init_psu_list()

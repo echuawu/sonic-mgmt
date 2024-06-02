@@ -2,6 +2,7 @@ from ngts.nvos_constants.constants_nvos import ConfState
 from .IfIndex import IfIndex
 from .Ip import Ip
 from .Link import LinkMgmt
+from .LldpInterface import LldpInterface
 from .Type import Type
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import InternalNvosConsts, IbInterfaceConsts
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
@@ -35,6 +36,7 @@ class Interface(BaseComponent):
         self.link = LinkMgmt(self)
         self.plan_ports = self.plan_ports = BaseComponent(self, path='/plan-ports')
         self.acl = Acl(self)
+        self.lldp = LldpInterface(self)
 
     def wait_for_port_state(self, state, timeout=InternalNvosConsts.DEFAULT_TIMEOUT, logical_state=None, sleep_time=2,
                             dut_engine=None):

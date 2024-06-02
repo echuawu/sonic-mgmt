@@ -524,6 +524,7 @@ class BlackMambaSwitch(IbSwitch):
 
         # Temporary remove until operational code integrated with master branch
         self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
+        self.mgmt_interfaces = ['eth0', 'eth1']
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -591,6 +592,7 @@ class CrocodileSwitch(IbSwitch):
 
         # Temporary remove until operational code integrated with master branch
         self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
+        self.mgmt_interfaces = ['eth0', 'eth1']
 
     def _init_fan_list(self):
         super()._init_fan_list()

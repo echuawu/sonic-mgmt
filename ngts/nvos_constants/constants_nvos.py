@@ -249,6 +249,7 @@ class ActionConsts:
 class SystemConsts:
     HOSTNAME = 'hostname'
     STATUS = 'status'
+    STATE = 'state'
     STATUS_DEFAULT_VALUE = 'System is ready'
     STATUS_NOT_OK = 'System is not ready'
     STATUS_UP = 'UP'
@@ -403,6 +404,7 @@ class SystemConsts:
     }
 
     SHOW_VALUE_YES = 'yes'
+    SHOW_VALUE_NO = 'no'
     DHCP_SHOW_FIELDS = ['has-lease', 'is-running', 'set-hostname', 'state']
     DHCP_SHOW_DEFAULT_VALUES = [SHOW_VALUE_YES, SHOW_VALUE_YES, USER_STATE_ENABLED, USER_STATE_ENABLED]
 
@@ -490,6 +492,11 @@ class SystemConsts:
     AUTO_SAVE_ENABLE = 'enable'
     AUTO_SAVE_ENABLE_OFF = 'off'
     AUTO_SAVE_ENABLE_ON = 'on'
+
+    LLDP_INTERVAL = 'tx-interval'
+    LLDP_MULTIPLIER = 'tx-hold-multiplier'
+    LLDP_STATE = 'state'
+    LLDP_IS_RUNNING = 'is-running'
 
 
 class DocumentsConsts:
