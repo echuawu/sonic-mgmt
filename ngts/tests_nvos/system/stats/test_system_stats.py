@@ -1226,12 +1226,19 @@ def validate_stats_files_exist_in_techsupport(system, engine, stats_files):
     """
     generate techsupport and validate stats files exist in the stats dir
     """
-    tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
-    logger.info("The techsupport file name is : " + tech_support_folder)
-    techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'stats')
-    for stat_file in stats_files:
-        assert "{}.gz".format(stat_file) in techsupport_files_list, \
-            "Expect to have {} file, in the tech support stats files {}".format(stat_file, techsupport_files_list)
+    try:
+        tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
+        logger.info("The techsupport file name is : " + tech_support_folder)
+        system.techsupport.extract_techsupport_files(engine)
+        techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, 'stats')
+        for stat_file in stats_files:
+            assert "{}.gz".format(stat_file) in techsupport_files_list, \
+                "Expect to have {} file, in the tech support stats files {}".format(stat_file, techsupport_files_list)
+
+    finally:
+        system.techsupport.cleanup(engine)
+        if system.techsupport.file_name:
+            system.techsupport.action_delete(system.techsupport.file_name)
 
 
 def check_sample_timestamp(row, prev_sample_time, category):

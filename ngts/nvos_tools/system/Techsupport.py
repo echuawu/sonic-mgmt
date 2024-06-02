@@ -100,3 +100,15 @@ class TechSupport(BaseComponent):
             return sdk_dump_ext_regex.sub(r'\1_\2', filename)
 
         return filename
+
+    def get_techsupport_files_list(self, engine, tech_folder):
+        """
+        :param engine:
+        :param tech_folder: :param tech_folder: the tech_folder sub folder in techsupport .tar.gz
+        :return: list of files contained in that sub-folder)
+        """
+        with allure.step(f'Get all tech-support files from {tech_folder}'):
+            logging.info(f'Get all tech-support files from {tech_folder}')
+            full_path = SystemConsts.TECHSUPPORT_FILES_PATH + self.file_name.replace('.tar.gz', "")
+            output = engine.run_cmd('ls ' + full_path + '/' + tech_folder)
+            return output.split()

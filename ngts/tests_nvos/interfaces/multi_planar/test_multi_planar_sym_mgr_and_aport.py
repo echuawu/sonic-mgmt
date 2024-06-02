@@ -919,14 +919,20 @@ def validate_mp_database_files_exist_in_techsupport(system, engine):
     """
     generate techsupport and validate all asics database files exist in the dump dir
     """
-    tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
-    logger.info("The techsupport file name is : " + tech_support_folder)
-    techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, tech_support_folder, 'dump')
-    for db_table in MultiPlanarConsts.DATABASE_TABLES:
-        assert "{}.json".format(db_table) in techsupport_files_list, \
-            "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
-        assert "{}.json.0".format(db_table) in techsupport_files_list, \
-            "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
+    try:
+        tech_support_folder, duration = system.techsupport.action_generate(engine=engine)
+        logger.info("The techsupport file name is : " + tech_support_folder)
+        system.techsupport.extract_techsupport_files(engine)
+        techsupport_files_list = system.techsupport.get_techsupport_files_list(engine, 'dump')
+        for db_table in MultiPlanarConsts.DATABASE_TABLES:
+            assert "{}.json".format(db_table) in techsupport_files_list, \
+                "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
+            assert "{}.json.0".format(db_table) in techsupport_files_list, \
+                "Expect to have {}.json file, in the tech support dump files {}".format(db_table, techsupport_files_list)
+    finally:
+        system.techsupport.cleanup(engine)
+        if system.techsupport.file_name:
+            system.techsupport.action_delete(system.techsupport.file_name)
 
 
 def validate_set_and_unset_fae_interface_link_lanes_command(selected_fae_port):
