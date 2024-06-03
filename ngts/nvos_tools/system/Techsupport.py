@@ -41,12 +41,12 @@ class TechSupport(BaseComponent):
             cmd_out, duration = OperationTime.save_duration('generate tech-support', option, test_name, SendCommandTool.execute_command,
                                                             NvueSystemCli.action_generate_techsupport, engine,
                                                             self.get_resource_path().replace('/files', ' '), option, since_time)
+            if 'Command failed' in cmd_out.info:
+                return cmd_out.info, duration
             self.parse_techsupport_folder_name(cmd_out)
             return SystemConsts.TECHSUPPORT_FILES_PATH + self.file_name, duration
 
     def parse_techsupport_folder_name(self, techsupport_res):
-        if 'Command failed' in techsupport_res.info:
-            return techsupport_res.info
         techsupport_res_list = techsupport_res.returned_value.split('\n')
         files_name = "".join([name for name in techsupport_res_list if '.tar.gz' in name])
         files_name = files_name.replace('Generated tech-support', '').split(' ')
