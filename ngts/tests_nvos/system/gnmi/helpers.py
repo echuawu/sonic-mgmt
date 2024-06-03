@@ -12,14 +12,15 @@ import ngts.tools.test_utils.allure_utils as allure
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.constants.constants import GnmiConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts
+from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts, TestFlowType
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
 from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, NFS_GNMI_CERTS_DIR, SERVICE_KEY, SERVICE_PEM, \
-    DOCKER_CERTS_DIR
+    DOCKER_CERTS_DIR, GnmiMode, NFS_GNMI_CACERT_FILE
 
 logger = logging.getLogger()
 
@@ -392,3 +393,41 @@ def verify_msg_not_in_out_or_err(msg: str, out: str, err: str = None):
 
 def verify_msg_in_out_or_err(msg: str, out: str, err: str = None):
     verify_msg_existence_in_out_or_err(msg, True, out, err)
+
+
+def verify_gnmi_client(test_flow, server_host, server_port, username, password, skip_cert_verify: bool,
+                       err_msg_to_check: str, port_to_change=None):
+    log_msg = (f'verify gnmi client with{"" if skip_cert_verify else "out"} skip-verify '
+               f'and credentials: {username} / {password}')
+    selected_port = port_to_change or Tools.RandomizationTool.select_random_port(
+        requested_ports_state=None).returned_value
+
+    with allure.step('create gnmi client'):
+        client = GnmiClient(server_host, server_port, username, password, cacert=NFS_GNMI_CACERT_FILE)
+    with allure.step(f'change description of interface: "{selected_port.name}"'):
+        new_description = change_interface_description(selected_port)
+
+    if test_flow == TestFlowType.GOOD_FLOW:
+        with allure.step(f'good-flow: {log_msg}'):
+            with allure.step('verify using capabilities command'):
+                out, err = client.run_capabilities(skip_cert_verify=skip_cert_verify)
+                verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using subscribe command'):
+                out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name,
+                                                          skip_cert_verify=skip_cert_verify)
+                verify_msg_in_out_or_err(new_description, out)
+                verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using reflection command'):
+                pass  # out_reflect, err = client.run_reflection()  # TODO: implement
+    else:
+        with allure.step(f'bad-flow: {log_msg}'):
+            with allure.step('verify using capabilities command'):
+                out, err = client.run_capabilities(skip_cert_verify=skip_cert_verify)
+                verify_msg_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using subscribe command'):
+                out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name,
+                                                          skip_cert_verify=skip_cert_verify)
+                verify_msg_not_in_out_or_err(new_description, out)
+                verify_msg_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using reflection command'):
+                pass  # out_reflect, err = client.run_reflection()  # TODO: implement
