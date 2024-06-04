@@ -25,7 +25,7 @@ class DeviceFactory:
             'QM3000 - Black Mamba': BlackMambaSwitch,
             'Mellanox SN4700': Mlx4700Switch,
             'Mellanox SN4600': Mlx4600Switch,
-            'Mellanox SN2410': Mlx2410Switch
+            'Mellanox 2410': Mlx2410Switch
         }
 
     @staticmethod
