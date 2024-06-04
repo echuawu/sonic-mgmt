@@ -10,7 +10,8 @@ from ngts.tests_nvos.system.gnmi.constants import GnmiMode, ERR_GNMIC_NOT_INSTAL
 
 
 class GnmiClient:
-    def __init__(self, server_host, server_port, username, password, cmd_time: int = 5, cacert='', verify_tools_installed: bool = True):
+    def __init__(self, server_host, server_port, username, password, cmd_time: int = 5, cacert='',
+                 verify_tools_installed: bool = True):
         assert cmd_time >= 0, f'unsupported cmd time: {cmd_time}. must be >= 0'
 
         self.server_host = server_host
@@ -29,18 +30,55 @@ class GnmiClient:
     def run_subscribe_interface(self, mode: str, interface_name: str, username: str = '', password: str = '',
                                 skip_cert_verify: bool = False, cacert='', debug_mode: bool = True,
                                 cmd_time=None) -> Tuple[str, str]:
-        assert mode in GnmiMode.ALL_MODES, f'unsupported gnmi subscribe mode: "{mode}"'
-        subscribe_op = (f"subscribe --prefix 'interfaces/interface[name={interface_name}]/state' --path 'description' "
-                        f"--target netq {mode} --format flat")
-        return self._run_gnmic_op(subscribe_op, skip_cert_verify, cacert, debug_mode, cmd_time, username, password)
+        out, err, _ = self._run_subscribe_interface(mode, interface_name, username, password, skip_cert_verify, cacert,
+                                                    debug_mode, cmd_time, False)
+        return out, err
+
+    def run_subscribe_interface_and_keep_session_alive(self, mode: str, interface_name: str, username: str = '',
+                                                       password: str = '',
+                                                       skip_cert_verify: bool = False, cacert='',
+                                                       debug_mode: bool = True) -> subprocess.Popen:
+
+        _, _, process = self._run_subscribe_interface(mode, interface_name, username, password, skip_cert_verify,
+                                                      cacert,
+                                                      debug_mode, None, True)
+        return process
 
     def run_capabilities(self, username: str = '', password: str = '', skip_cert_verify: bool = False, cacert='',
                          debug_mode: bool = True, cmd_time=None) -> Tuple[str, str]:
         capabilities_op = "capabilities"
-        return self._run_gnmic_op(capabilities_op, skip_cert_verify, cacert, debug_mode, cmd_time, username, password)
+        out, err, _ = self._run_gnmic_op(capabilities_op, skip_cert_verify, cacert, debug_mode, cmd_time, username,
+                                         password)
+        return out, err
+
+    def close_session_and_get_out_and_err(self, process: subprocess.Popen, delay=None) -> Tuple[str, str]:
+        if process.poll() is None:
+            sleep_time = delay or self.cmd_time
+            self._log(f'process not finished yet. wait {sleep_time} seconds')
+            time.sleep(sleep_time)
+            self._log(f'wait time is up. kill process and get output')
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        output, err = process.communicate()
+        output = output.decode('utf-8')
+        err = err.decode('utf-8')
+        self._log(f"output: {output}")
+        self._log(f"err: {err}")
+        return output, err
+
+    def _run_subscribe_interface(self, mode: str, interface_name: str, username: str = '', password: str = '',
+                                 skip_cert_verify: bool = False, cacert='', debug_mode: bool = True,
+                                 cmd_time=None, keep_session_alive: bool = False) -> Tuple[str, str, subprocess.Popen]:
+        allowed_modes = GnmiMode.ALL_MODES if not keep_session_alive else [GnmiMode.STREAM, GnmiMode.POLL]
+        assert mode in allowed_modes, f'unsupported gnmi subscribe mode: "{mode}"'
+        mode = f"--mode {mode}" if mode != GnmiMode.STREAM else GnmiMode.STREAM
+        subscribe_op = (f"subscribe --prefix 'interfaces/interface[name={interface_name}]/state' --path 'description' "
+                        f"--target netq {mode} --format flat")
+        return self._run_gnmic_op(subscribe_op, skip_cert_verify, cacert, debug_mode, cmd_time, username, password,
+                                  keep_session_alive)
 
     def _run_gnmic_op(self, gnmi_op: str, skip_cert_verify: bool, cacert: str, debug_mode: bool, cmd_time,
-                      username: str = '', password: str = '', ) -> Tuple[str, str]:
+                      username: str = '', password: str = '', keep_session_alive: bool = False) -> Tuple[
+            str, str, subprocess.Popen]:
         with allure.step('compose the gnmic command'):
             username = username or self.username
             password = password or self.password
@@ -55,7 +93,7 @@ class GnmiClient:
             gnmic_cmd = (f"gnmic -a {self.server_host} --port {self.server_port} {cert_flag} "
                          f"-u {username} -p {password} {gnmi_op}") + (" -d" if debug_mode else "")
         with allure.step('run gnmic command in process'):
-            return self._run_cmd_in_process(gnmic_cmd, cmd_time)
+            return self._run_cmd_in_process(gnmic_cmd, cmd_time, keep_session_alive)
 
     def _verify_gnmic_installed(self):
         cmd = 'gnmic version'
@@ -67,22 +105,18 @@ class GnmiClient:
         output = self._run_cmd_in_process(cmd)
         assert ERR_GNMIC_NOT_INSTALLED not in output, f"grpcurl is not installed on player.\n{cmd}\n{output}"
 
-    def _run_cmd_in_process(self, cmd: str, cmd_time=None) -> Tuple[str, str]:
+    def _run_cmd_in_process(self, cmd: str, cmd_time=None, keep_process_alive: bool = False) -> Tuple[
+            str, str, subprocess.Popen]:
         self._log(f"run: {cmd}")
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    preexec_fn=os.setsid)
-        if process.poll() is None:
-            sleep_time = cmd_time or self.cmd_time
-            self._log(f'process not finished yet. wait {sleep_time} seconds')
-            time.sleep(sleep_time)
-            self._log(f'wait time is up. kill process and get output')
-            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-        output, err = process.communicate()
-        output = output.decode('utf-8')
-        err = err.decode('utf-8')
-        self._log(f"output: {output}")
-        self._log(f"err: {err}")
-        return output, err
+
+        if keep_process_alive:
+            self._log(f"keeping process alive and returning it")
+            return '', '', process
+
+        output, err = self.close_session_and_get_out_and_err(process, cmd_time)
+        return output, err, None
 
     def _log(self, msg: str):
         logging.info(f"[GnmiClient] {msg}")

@@ -42,8 +42,8 @@ def validate_memory_and_cpu_utilization():
 def run_gnmi_client_in_the_background(target_ip, xpath, device):
     prefix_and_path = xpath.rsplit("/", 1)
     command = f"gnmic -a {target_ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
-              f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {device.default_username} -p {device.default_password} --format flat"
+        f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
+        f"-u {device.default_username} -p {device.default_password} --format flat"
     # Use the subprocess.Popen function to run the command in the background
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                preexec_fn=os.setsid)
@@ -97,7 +97,7 @@ def validate_gnmi_server_docker_state(engines, should_run=True):
     should_run_str = '' if should_run else 'not'
     is_running_str = '' if cmd_output else 'not'
     assert bool(cmd_output) == should_run, f"The gnmi-server docker is {is_running_str} running, " \
-                                           f"but we expect it {should_run_str} to run"
+        f"but we expect it {should_run_str} to run"
 
 
 def validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
@@ -127,8 +127,8 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
         prefix_and_path = xpath.rsplit("/", 1)
         mode_flag = f"--mode {mode}" if mode else ''
         cmd = f"gnmic -a {target_ip} --port {target_port} --skip-verify subscribe --prefix '{prefix_and_path[0]}'" \
-              f" --path '{prefix_and_path[1]}' --target netq -u {username} " \
-              f"-p {password} {mode_flag} --format flat"
+            f" --path '{prefix_and_path[1]}' --target netq -u {username} " \
+            f"-p {password} {mode_flag} --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         if "poll" == mode:
             gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'],
@@ -325,8 +325,8 @@ def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, al
     for command in gnmi_list:
         prefix_and_path = command[GnmiConsts.XPATH_KEY].rsplit("/", 1)
         cmd = f"gnmic -a {engines.dut.ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
-              f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {devices.dut.default_username} -p {devices.dut.default_password} --mode once --format flat"
+            f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
+            f"-u {devices.dut.default_username} -p {devices.dut.default_password} --mode once --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])
@@ -403,7 +403,7 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
         requested_ports_state=None).returned_value
 
     with allure.step('create gnmi client'):
-        client = GnmiClient(server_host, server_port, username, password, cacert=NFS_GNMI_CACERT_FILE)
+        client = GnmiClient(server_host, server_port, username, password, cacert=NFS_GNMI_CACERT_FILE, cmd_time=10)
     with allure.step(f'change description of interface: "{selected_port.name}"'):
         new_description = change_interface_description(selected_port)
 

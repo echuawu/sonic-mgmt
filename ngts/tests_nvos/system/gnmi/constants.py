@@ -18,4 +18,4 @@ SERVICE_PEM = 'service.pem'
 
 ERR_GNMIC_NOT_INSTALLED = 'gnmic: command not found'
 ERR_GNMIC_AUTH_FAIL = 'Authentication failed'
-ERR_GNMIC_CERT = 'handshake failed: tls: failed to verify certificate'
+ERR_GNMIC_CERT = 'authentication handshake failed'
