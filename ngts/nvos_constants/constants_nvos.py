@@ -698,6 +698,19 @@ class ImageConsts:
     SCP_PATH_SERVER = 'scp://{username}:{password}@{ip}{path}'
 
 
+class TcpDumpConsts:
+    LLDP_CHASIS_ID = "chasis_id"
+    LLDP_PORT_ID = "port_id"
+    LLDP_TIME_TO_LIVE = "time_to_live"
+    LLDP_SYSTEM_NAME = "system_name"
+    LLDP_SYSTEM_DESCRIPTION = "system_description"
+    LLDP_SYSTEM_CAPABILITIES = "system_capabilities"
+    LLDP_ENABLED_CAPABILITIES = "enabled_capabilities"
+    LLDP_IPV4 = "IPv4"
+    LLDP_IPV6 = "IPv6"
+    LLDP_PORT_DESCRIPTION = "port_description"
+
+
 class NtpConsts:
     class Authentication(Enum):
         ENABLED = 'enabled'
