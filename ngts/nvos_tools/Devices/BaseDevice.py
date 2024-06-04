@@ -3,9 +3,10 @@ import os
 import time
 from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
-from typing import Tuple
+from typing import Tuple, List
 
-from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, DiskConsts
+from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, \
+    DiskConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
@@ -108,6 +109,9 @@ class BaseDevice(ABC):
     @abstractmethod
     def get_ib_ports_num(self):
         pass
+
+    def get_mgmt_ports(self) -> List[str]:
+        return None
 
     def get_default_password_by_version(self, version: str):
         return self.default_password
