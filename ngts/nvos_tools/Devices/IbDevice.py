@@ -522,9 +522,6 @@ class BlackMambaSwitch(IbSwitch):
         self.stats_power_header_num_of_lines = 25
         self.stats_temperature_header_num_of_lines = 103
 
-        # Temporary remove until operational code integrated with master branch
-        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
-
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
@@ -588,9 +585,6 @@ class CrocodileSwitch(IbSwitch):
         self.stats_fan_header_num_of_lines = 23
         self.stats_power_header_num_of_lines = 17
         self.stats_temperature_header_num_of_lines = 61
-
-        # Temporary remove until operational code integrated with master branch
-        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
 
     def _init_fan_list(self):
         super()._init_fan_list()

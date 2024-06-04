@@ -58,7 +58,7 @@ def test_range_clear_counters_negative(engines, players, interfaces, start_sm, f
     with allure.step("Get a random active port"):
         selected_ports = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()
 
-    out_of_range_p, out_of_range_sw, reversed_range, undefined_range = create_invalid_ranges(selected_ports.name)
+    out_of_range_p, out_of_range_sw, reversed_range, undefined_range = create_invalid_ranges(selected_ports[0].name)
     error_msg1 = 'does not exist'
     error_msg2 = "is not a 'interface name'. Valid interface types are"
 

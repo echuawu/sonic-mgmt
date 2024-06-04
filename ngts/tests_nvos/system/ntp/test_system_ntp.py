@@ -693,10 +693,11 @@ def test_configure_ntp_multiple_servers(test_api):
         with allure.step("Check unset of all servers"):
             logging.info("Check unset of all servers")
             system.ntp.unset(NtpConsts.SERVER, apply=True).verify_result()
+            time.sleep(5)
             ntp_show = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show()).get_returned_value()
             ntp_dict = NtpConsts.NTP_DEFAULT_DICT
             ntp_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
-            ValidationTool.compare_dictionary_content(ntp_show, NtpConsts.NTP_DEFAULT_DICT).verify_result()
+            ValidationTool.compare_dictionary_content(ntp_show, ntp_dict).verify_result()
             server_list = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.servers.show()).get_returned_value()
             assert not server_list, f"server list {server_list} should be empty"
 

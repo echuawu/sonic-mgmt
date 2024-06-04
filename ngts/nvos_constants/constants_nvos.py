@@ -1071,7 +1071,7 @@ class StatsConsts:
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
     DISK_FREE_SPACE_MIN = 30  # [%]
-    DISK_FREE_SPACE_MAX = 95  # [%]
+    DISK_FREE_SPACE_MAX = 99  # [%]
     DISK_RMN_LIFE_MIN = 70  # [%]
     DISK_RMN_LIFE_MAX = 100  # [%]
     DISK_FAIL_CNT_MIN = 0

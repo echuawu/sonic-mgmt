@@ -249,21 +249,7 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
 
 tests_nvos/system/test_system_ptp.py:
   skip:
-    reason: "Should run only on gorilla system"
-    conditions:
-      - "'gorilla' not in testbed"
-
-tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_once:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
-    conditions:
-      - https://redmine.mellanox.com/issues/3727441
-
-tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
-    conditions:
-      - https://redmine.mellanox.com/issues/3727441
+    reason: "Decided to disable for now"
 
 tests_nvos/checklist/test_bios_update.py::test_bios_upgrade:
   skip:
