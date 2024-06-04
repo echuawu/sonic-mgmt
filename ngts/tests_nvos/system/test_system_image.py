@@ -8,7 +8,7 @@ from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.redmine.redmine_api import *
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_constants.constants_nvos import ImageConsts
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst
 from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
 from ngts.nvos_tools.actions.Actions import Action
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
@@ -31,7 +31,8 @@ PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
 # BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}-001/amd64/{base_image}"
 
 # will be removed ones merged to develop
-base_version = "/auto/sw_system_release/nos/nvos/25.01.3000/amd64/dev/nvos-amd64-25.01.3000.bin"
+base_version = "/auto/sw_system_release/nos/nvos/25.01.4000/amd64/dev/nvos-amd64-25.01.4000.bin"
+xdr_base_version = "/auto/sw_system_release/nos/nvos/25.02.0914-003/amd64/dev/nvos-amd64-25.02.0914-003.bin"
 BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}.bin"
 BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}/amd64/{base_image}"
 
@@ -83,7 +84,7 @@ def test_show_system_image(original_version):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_downgrade_upgrade(release_name, test_api, original_version):
+def test_downgrade_upgrade(release_name, test_api, original_version, devices):
     """
     Check the image rename cmd.
     Validate that install and delete commands will success with the new name
@@ -99,7 +100,7 @@ def test_downgrade_upgrade(release_name, test_api, original_version):
     TestToolkit.tested_api = test_api
     system = System()
 
-    verify_current_version(original_version, system)
+    verify_current_version(original_version, system, devices.dut)
 
     original_images, _, original_image_partition, partition_id_for_new_image, fetched_image = \
         get_image_data_and_fetch_base_image(system, base_version)
@@ -626,10 +627,16 @@ def get_image_data_and_fetch_base_image(system, base_version):
     return original_images, original_image, original_image_partition, partition_id_for_new_image, image_name
 
 
-def verify_current_version(original_version, system):
+def verify_current_version(original_version, system, device):
     with allure.step(f"Verify that current image is {original_version}"):
         current_version = OutputParsingTool.parse_json_str_to_dictionary(system.version.show()).get_returned_value()['image']
         assert current_version == original_version, f"Current version is invalid: {current_version}, expected: {original_version}"
+
+    # this allure step will be deleted ones the first XDR GA will be released
+    global base_version
+    with allure.step("Set base image according to device type"):
+        if device.asic_type == NvosConst.QTM3:
+            base_version = xdr_base_version
 
 
 def create_images_output_dictionary(original_images, next_image, current_image, partition_id):

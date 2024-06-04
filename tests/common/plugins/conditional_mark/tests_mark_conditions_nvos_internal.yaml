@@ -73,7 +73,7 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_and_global_s
     conditions:
       - https://redmine.mellanox.com/issues/3317752
 
-tests_nvos/system/test_system_health.py::
+tests_nvos/system/test_system_health.py:
   skip:
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
     conditions:
@@ -343,4 +343,9 @@ tests_nvos/platform/test_platform_environment.py::test_show_platform_environment
       - "'gorilla' not in testbed"
       - https://redmine.mellanox.com/issues/3922682
 
+tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lanes:
+  skip:
+    reason: "Testcase skipped on XDR systems"
+    conditions:
+      - "'gorilla' not in testbed"
 ########################## NVOS IGNORE END ##########################
