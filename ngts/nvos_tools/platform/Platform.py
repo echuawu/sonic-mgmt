@@ -9,7 +9,7 @@ from ngts.nvos_tools.platform.Inventory import Inventory
 from ngts.nvos_tools.platform.Software import Software
 from ngts.nvos_tools.system.Firmware import Firmware
 from ngts.nvos_tools.system.Transceiver import Transceiver
-from ngts.nvos_tools.platform.PS_Redundancy import PS_Redundancy
+from ngts.nvos_tools.platform.PSRedundancy import PSRedundancy
 
 logger = logging.getLogger()
 
@@ -23,7 +23,7 @@ class Platform(BaseComponent):
         self.environment = Environment(self)
         self.software = Software(self)
         self.inventory = Inventory(self)
-        self.ps_redundancy = PS_Redundancy(self)
+        self.ps_redundancy = PSRedundancy(self)
         self.transceiver = Transceiver(self)
 
     def set(self, op_param_name="", op_param_value=""):
