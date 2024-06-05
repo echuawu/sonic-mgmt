@@ -1176,7 +1176,8 @@ class MarsConstants:
         '/auto/sw_regression/system/SONIC': '/auto/sw_regression/system/SONIC/',
         '/.autodirect/sw_regression/system/SONIC': '/.autodirect/sw_regression/system/SONIC',
         '/workspace': '/workspace',
-        '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS'
+        '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS',
+        '/.autodirect/sw/release/': '/.autodirect/sw/release/'
     }
 
     VER_SDK_PATH = "/opt/ver_sdk"
