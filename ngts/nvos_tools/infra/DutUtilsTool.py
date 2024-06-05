@@ -1,3 +1,5 @@
+from typing import Dict
+
 import logging
 import socket
 import time
@@ -151,6 +153,15 @@ class DutUtilsTool:
             logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
             engine.disconnect()
             return "Action succeeded"
+
+    @staticmethod
+    def get_engine_interface_name(engine, topology) -> str:
+        dut_setup_specific_attributes: Dict[str, str] = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']
+        setup_mgmt_ips = [dut_setup_specific_attributes['ip_address'], dut_setup_specific_attributes['ip_address_2']]
+        for index, mgmt_ip in enumerate(setup_mgmt_ips):
+            if mgmt_ip == engine.ip:
+                interface = 'eth' + str(index)
+        return interface
 
 
 def ping_device(ip_add):
