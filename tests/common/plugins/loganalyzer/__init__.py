@@ -79,5 +79,8 @@ def loganalyzer(duthosts, request):
             "rep_setup" in request.node.__dict__ and request.node.rep_setup.skipped:
         return
     logging.info("Starting to analyse on all DUTs")
-    parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test, 'store_la_logs': store_la_logs},
-                 duthosts, timeout=120)
+    if len(analyzers) == 1:
+        analyze_logs(analyzers, markers, node=duthosts[0], fail_test=fail_test, store_la_logs=store_la_logs)
+    else:
+        parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test, 'store_la_logs': store_la_logs},
+                     duthosts, timeout=120)
