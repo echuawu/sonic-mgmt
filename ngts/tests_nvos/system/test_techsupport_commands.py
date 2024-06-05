@@ -131,7 +131,9 @@ def test_techsupport_delete(engines):
 
         with allure.step('Generate two tech-support files'):
             first_file, duration = system.techsupport.action_generate()
+            system.techsupport.show()
             second_file, duration = system.techsupport.action_generate()
+            system.techsupport.show()
 
         with allure.step('Delete the first created tech-support file'):
             output = system.techsupport.action_delete(first_file.replace('/host/dump/', '')).get_returned_value()

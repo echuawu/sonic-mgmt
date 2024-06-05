@@ -348,4 +348,16 @@ tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lane
     reason: "Testcase skipped on XDR systems"
     conditions:
       - "'gorilla' not in testbed"
+
+tests_nvos/interfaces/test_port_split.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3924104"
+    conditions:
+      - https://redmine.mellanox.com/issues/3924104
+
+tests_nvos/system/test_system_profile_change.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3924104"
+    conditions:
+      - https://redmine.mellanox.com/issues/3924104
 ########################## NVOS IGNORE END ##########################
