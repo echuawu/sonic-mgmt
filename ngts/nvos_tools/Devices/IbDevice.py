@@ -597,9 +597,9 @@ class CrocodileSwitch(IbSwitch):
                                 'PMIC-6-ASIC2-DVDD-PL1-Out-2', 'PMIC-6-ASIC2-HVDD-PL1-Out-1', 'PMIC-7-12V-MAIN-In-1',
                                 'PMIC-7-CEX-VDD-Out-1', 'PSU-1-12V-Out', 'PSU-2-12V-Out', 'PSU-3-12V-Out',
                                 'PSU-4-12V-Out']
-        self.stats_fan_header_num_of_lines = 23
+        self.stats_fan_header_num_of_lines = 25
         self.stats_power_header_num_of_lines = 17
-        self.stats_temperature_header_num_of_lines = 61
+        self.stats_temperature_header_num_of_lines = 59
 
     def get_mgmt_ports(self) -> List[str]:
         return self.mgmt_ports

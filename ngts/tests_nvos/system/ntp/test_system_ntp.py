@@ -528,7 +528,7 @@ def test_configure_ntp_multiple_servers(test_api):
     - Show NTP configuration per-server
     - Unset of specific server and unset on all servers
     - Disable per-server configuration
-    - System remains stable and responsive with couple of ntp servers configured
+    - System remains stable and responsive with a couple of ntp servers configured
     - Proper behavior in case of disruption from an active server
         (verify it starts syncing with another existing server).
     - The maximum number of servers that can be configured.
@@ -582,9 +582,9 @@ def test_configure_ntp_multiple_servers(test_api):
                 ntp_dict[NtpConsts.REFERENCE] = ntp_show[NtpConsts.REFERENCE]
                 ntp_dict[NtpConsts.OFFSET] = ntp_show[NtpConsts.OFFSET]  # Offset is not validated
             else:
-                ntp_show_brief = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show('-w brief')).\
+                ntp_show_brief = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show('brief')).\
                     get_returned_value()
-                ntp_show_status = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show('-w status')).\
+                ntp_show_status = OutputParsingTool.parse_json_str_to_dictionary(system.ntp.show('status')).\
                     get_returned_value()
                 ntp_dict[NtpConsts.SERVER] = ntp_brief_dict[NtpConsts.SERVER] = NtpConsts.MULTIPLE_SERVERS_DEFAULT_DICT
                 ntp_dict[NtpConsts.DHCP] = ntp_brief_dict[NtpConsts.DHCP] = NtpConsts.Dhcp.DISABLED.value
@@ -609,9 +609,9 @@ def test_configure_ntp_multiple_servers(test_api):
                 ValidationTool.compare_dictionary_content(server_list, server_dict).verify_result()
             else:
                 server_brief_list = OutputParsingTool.parse_json_str_to_dictionary(
-                    system.ntp.servers.show('-w brief')).get_returned_value()
+                    system.ntp.servers.show('brief')).get_returned_value()
                 server_query_list = OutputParsingTool.parse_json_str_to_dictionary(
-                    system.ntp.servers.show('-w query')).get_returned_value()
+                    system.ntp.servers.show('query')).get_returned_value()
                 ValidationTool.compare_dictionary_content(server_brief_list, NtpConsts.MULTIPLE_SERVERS_CONFIG_DICT).\
                     verify_result()
                 listed_servers = len(server_query_list)
