@@ -12,6 +12,7 @@ from ngts.tools.test_utils import allure_utils as allure
 logger = logging.getLogger()
 
 
+@pytest.mark.cumulus
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.nvos_ci
@@ -32,6 +33,7 @@ def test_mgmt_show_interface(engines):
         validate_interface_fields(output_dictionary)
 
 
+@pytest.mark.cumulus
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.skynet
@@ -198,6 +200,7 @@ def verify_mac_address(expected_mac: str,
 
 # ------------ Open API tests -----------------
 
+@pytest.mark.cumulus
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.simx
@@ -210,6 +213,7 @@ def test_mgmt_show_interface_openapi(engines):
     test_mgmt_show_interface(engines)
 
 
+@pytest.mark.cumulus
 @pytest.mark.openapi
 @pytest.mark.ib
 @pytest.mark.simx
