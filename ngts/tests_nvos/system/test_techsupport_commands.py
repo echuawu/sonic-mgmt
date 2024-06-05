@@ -13,7 +13,8 @@ from ngts.tools.test_utils import allure_utils as allure
 
 @pytest.mark.system
 @pytest.mark.tech_support
-def test_techsupport_show(engines, test_name):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_techsupport_show(engines, test_name, test_api):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -28,14 +29,18 @@ def test_techsupport_show(engines, test_name):
     """
     system = System(None)
     operation = 'generate tech-support'
+    TestToolkit.tested_api = test_api
     duration = 0
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         output_dictionary_before_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
             system.techsupport.show()).get_returned_value().values())
         folder, duration = system.techsupport.action_generate(test_name=test_name)
+
         OperationTime.verify_operation_time(duration, operation).verify_result()
+        file1 = system.techsupport.file_name
         folder, duration = system.techsupport.action_generate()
         OperationTime.verify_operation_time(duration, operation).verify_result()
+        file2 = system.techsupport.file_name
         output_dictionary_after_actions = list(Tools.OutputParsingTool.parse_show_files_to_dict(
             system.techsupport.show()).get_returned_value().values())
         validate_techsupport_output(output_dictionary_before_actions, output_dictionary_after_actions, 2)
@@ -55,10 +60,14 @@ def test_techsupport_show(engines, test_name):
                                             for full_path in output_dict.values()], \
             f"Output of show tech-support has mismatch between keys (file names) and full-paths: {output_dict.items()}"
 
+    system.techsupport.action_delete(file1)
+    system.techsupport.action_delete(file2)
+
 
 @pytest.mark.system
 @pytest.mark.tech_support
-def test_techsupport_since(engines, test_name):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_techsupport_since(engines, test_name, test_api):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -70,6 +79,7 @@ def test_techsupport_since(engines, test_name):
     """
     system = System(None)
     operation = 'generate tech-support'
+    TestToolkit.tested_api = test_api
     with allure.step('Run show/action system tech-support and verify that each results updated as expected'):
         yesterday = datetime.datetime.today() - datetime.timedelta(days=1)
         yesterday_str = yesterday.strftime("%Y%m%d")
@@ -79,11 +89,13 @@ def test_techsupport_since(engines, test_name):
             system.techsupport.show()).get_returned_value().values())
         validate_techsupport_since(output_dictionary, tech_support_folder)
         OperationTime.verify_operation_time(duration, operation).verify_result()
+        system.techsupport.action_delete(system.techsupport.file_name)
 
 
 @pytest.mark.system
 @pytest.mark.tech_support
-def test_techsupport_since_invalid_date(engines):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_techsupport_since_invalid_date(engines, test_api):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -93,6 +105,7 @@ def test_techsupport_since_invalid_date(engines):
         2. validate Invalid date in the output
     """
     system = System(None)
+    TestToolkit.tested_api = test_api
     invalid_date_syntax = '20206610'
     with allure.step('Validating the generate command failed because '
                      'of Invalid date {invalid_date_syntax}'.format(invalid_date_syntax=invalid_date_syntax)):
@@ -202,10 +215,13 @@ def test_techsupport_upload(engines):
         output = system.techsupport.action_upload(file_name='nonexist', upload_path=invalid_url_2)
         assert "is not a" in output.info, "URL used non supported transfer protocol"
 
+    system.techsupport.action_delete(system.techsupport.file_name)
+
 
 @pytest.mark.system
 @pytest.mark.tech_support
-def test_techsupport_multiple_times(engines, test_name):
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_techsupport_multiple_times(engines, test_name, test_api):
     """
     Run nv show system tech-support files command and verify the required fields are exist
     command: nv show system tech-support files
@@ -215,11 +231,17 @@ def test_techsupport_multiple_times(engines, test_name):
     """
     system = System(None)
     operation = 'generate tech-support'
+    TestToolkit.tested_api = test_api
+    files_names = []
     with allure.step('Run show/action system tech-support 4 times in a row'):
         for i in range(0, 4):
             with allure.step("Generate Tech-Support for the {} time".format(i)):
                 folder, duration = system.techsupport.action_generate(test_name=test_name)
                 OperationTime.verify_operation_time(duration, operation).verify_result()
+                files_names.append(system.techsupport.file_name)
+
+    for file_name in files_names:
+        system.techsupport.action_delete(file_name)
 
 
 @pytest.mark.system
@@ -243,6 +265,8 @@ def test_techsupport_size(engines, test_name):
         size_in_MB = int(output.split(" ")[0])
         assert size_in_MB < 50, f"{tech_support_folder} size ({size_in_MB}MB) should be less than 50MB"
 
+        system.techsupport.action_delete(system.techsupport.file_name)
+
 
 def validate_techsupport_output(output_dictionary_before, output_dictionary_after, number_of_expected_files):
     """
@@ -260,37 +284,3 @@ def validate_techsupport_since(output_dictionary, substring):
     with allure.step('Validating the generate command and show command working as expected'):
         assert substring in output_dictionary, \
             "at least one of the new tech-support folders not found, expected folders"
-
-
-# ------------ Open API tests -----------------
-
-@pytest.mark.system
-@pytest.mark.openapi
-@pytest.mark.tech_support
-def test_techsupport_show_openapi(engines, test_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_show(engines, test_name)
-
-
-@pytest.mark.system
-@pytest.mark.openapi
-@pytest.mark.tech_support
-def test_techsupport_since_openapi(engines, test_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_since(engines, test_name)
-
-
-@pytest.mark.system
-@pytest.mark.openapi
-@pytest.mark.tech_support
-def test_techsupport_since_invalid_date_openapi(engines):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_since_invalid_date(engines)
-
-
-@pytest.mark.system
-@pytest.mark.openapi
-@pytest.mark.tech_support
-def test_techsupport_multiple_times_openapi(engines, test_name):
-    TestToolkit.tested_api = ApiType.OPENAPI
-    test_techsupport_multiple_times(engines, test_name)

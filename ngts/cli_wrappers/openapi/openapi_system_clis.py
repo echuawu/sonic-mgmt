@@ -112,6 +112,19 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params)
 
     @staticmethod
+    def action_delete(engine, resource_path, file_name):
+        logging.info("Running action: 'delete' on dut using OpenApi")
+        params = \
+            {
+                "state": "start",
+                "parameters": {
+                    'file-name': file_name,
+                }
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.DELETE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
     def action_generate_tpm_quote(engine, resource_path, pcrs='', nonce='', algorithm=''):
         logging.info("Running action: 'generate' on dut using OpenApi")
         parameters = {'pcrs': pcrs, 'nonce': nonce}

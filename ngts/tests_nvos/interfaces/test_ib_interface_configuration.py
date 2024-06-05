@@ -8,6 +8,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceCon
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -22,15 +23,15 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
 
     flow:
     1. Select a random port (state of which is up)
-    2. Select a random mtu value
-    3. Set the mtu value to selected one
-    4. Verify the mtu value is updated to selected value
-    5. Send traffic -> Verify the traffic passes successfully
-    6. Unset the mtu value -> should changed to default
-    7. If the default mtu value is not equal to the original:
-        7.1 Restore the original mtu value
-        7.2 Verify the mtu restored to original
-    8. Send traffic -> Verify the traffic passes successfully
+    2. Select an invalid mtu value
+    3. Verify the mtu value is not updated to selected invalid value
+    4. Select a random mtu value
+    5. Set the mtu value to selected one
+    6. Verify the mtu value is updated to selected value
+    7. Unset the mtu value -> should changed to default
+    8. If the default mtu value is not equal to the original:
+        8.1 Restore the original mtu value
+        8.2 Verify the mtu restored to original
     """
     with allure.step("Get a random active port"):
         selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
@@ -46,6 +47,12 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
     with allure.step("Get the max supported MTU value"):
         max_supported_mtu = current_link_dict[IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU]
         logging.info("Max supported mtu: {}".format(max_supported_mtu))
+
+    with allure.step('Negative validation with not supported for ib mtu 1000'):
+        selected_port.ib_interface.link.set(op_param_name='mtu', op_param_value='1000',
+                                            apply=True, ask_for_confirmation=True).verify_result(False)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        wait_for_port_to_become_active(selected_port)
 
     with allure.step("Select a random MTU value for port {}".format(selected_port.name)):
         mtu_values = [value for value in IbInterfaceConsts.MTU_VALUES if value <= int(max_supported_mtu)]
