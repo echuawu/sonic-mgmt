@@ -290,12 +290,8 @@ def verify_profile_and_split(selected_port):
         logging.warning("Currently not supported")
 
 
-def verify_the_setup_is_functional(system, engines, had_sm_before_test=True):
+def verify_the_setup_is_functional(system, engines):
     logging.info("Verify the setup is functional")
-
-    if had_sm_before_test:
-        with allure.step("Start OpenSM"):
-            OpenSmTool.start_open_sm(engines).verify_result()
 
     with allure.step("Run show commands"):
         system.message.show()

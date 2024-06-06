@@ -163,7 +163,7 @@ class BaseDevice(ABC):
         """
         result_obj = ResultObj(True, "")
         cmd_output = dut_engine.run_cmd('docker ps --format \"table {{.Names}}\"')
-        list_of_dockers = dockers_list if dockers_list else self.available_dockers
+        list_of_dockers = dockers_list or self.available_dockers
         for docker in list_of_dockers:
             if docker not in cmd_output:
                 result_obj.result = False
@@ -277,7 +277,7 @@ class BaseSwitch(BaseDevice):
         dump_files = ['APPL_DB.json', 'ASIC_DB.json', 'boot.conf', 'bridge.fdb', 'bridge.vlan', 'CONFIG_DB.json',
                       'COUNTERS_DB_1.json', 'COUNTERS_DB_2.json', 'COUNTERS_DB.json', 'date.counter_1',
                       'date.counter_2', 'df', 'dmesg', 'docker.pmon', 'docker.ps', 'docker.stats',
-                      'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm', 'ib-utils.dump',
+                      'docker.swss-ibv0.log', 'dpkg', 'fan', 'FLEX_COUNTER_DB.json', 'free', 'hdparm',
                       'ifconfig.counters_1', 'ifconfig.counters_2', 'interface.status', 'interface.xcvrs.eeprom',
                       'interface.xcvrs.presence', 'ip.addr', 'ip.interface', 'ip.link', 'ip.link.stats', 'ip.neigh',
                       'ip.neigh.noarp', 'ip.route', 'ip.rule', 'lspci', 'lsusb', 'machine.conf', 'mount',

@@ -30,18 +30,16 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             4. Run reset factory without params
             5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
-                6.1.	Start openSM
-                6.2.	Run several show commands
-                6.3.    Run set command & apply
+                6.1.	Run several show commands
+                6.2.    Run set command & apply
     """
     current_time = get_current_time(engines)
     system = System()
-    had_sm_before_test = False
     username = ''
     try:
         with allure.step('pre factory reset steps'):
             apply_and_save_port, current_time, just_apply_port, last_status_line, machine_type, not_apply_port, \
-                username, had_sm_before_test = factory_reset_no_params_pre_steps(engines, platform_params, system)
+                username = factory_reset_no_params_pre_steps(engines, platform_params, system)
 
         with allure.step("Run reset factory without params"):
             execute_reset_factory(engines, system, "", current_time)
@@ -55,7 +53,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             verify_cleanup_done(engines.dut, current_time, system, username)
 
         with allure.step("Verify the setup is functional"):
-            verify_the_setup_is_functional(system, engines, had_sm_before_test)
+            verify_the_setup_is_functional(system, engines)
 
 
 @pytest.mark.system
@@ -75,9 +73,8 @@ def test_reset_factory_keep_basic(engines):
             4. Run reset factory with keep basic param
             5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
-                6.1.	Start openSM
-                6.2.	Run several show commands
-                6.3.    Run set command & apply
+                6.1.	Run several show commands
+                6.2.    Run set command & apply
     """
     try:
         with allure.step('Create System object'):
@@ -149,9 +146,8 @@ def test_reset_factory_keep_all_config(engines):
             4. Run reset factory with keep all config params
             5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
-                6.1.	Start openSM
-                6.2.	Run several show commands
-                6.3.    Run set command & apply
+                6.1.	Run several show commands
+                6.2.    Run set command & apply
     """
     try:
         with allure.step('Create System object'):
@@ -234,9 +230,8 @@ def test_reset_factory_keep_only_files(engines):
             4. Run reset factory with keep only files param
             5. After system is up again, verify the cleanup done successfully
             6. Verify the setup is functional:
-                6.1.	Start openSM
-                6.2.	Run several show commands
-                6.3.    Run set command & apply
+                6.1.	Run several show commands
+                6.2.    Run set command & apply
     """
     try:
         with allure.step('Create System object'):

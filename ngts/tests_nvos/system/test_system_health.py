@@ -394,7 +394,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
     system.health.history.delete_history_file(HealthConsts.HEALTH_FIRST_FILE)
     time.sleep(1)
     system.validate_health_status(OK)
-    docker_to_stop = "ib-utils"
+    docker_to_stop = "gnmi-server"
 
     try:
         with allure.step("stop {} docker auto restart".format(docker_to_stop)):
@@ -406,7 +406,7 @@ def test_simulate_health_problem_with_docker_stop(devices, engines):
         with allure.step("stop {} docker".format(docker_to_stop)):
             output = engines.dut.run_cmd("docker stop {}".format(docker_to_stop))
             assert docker_to_stop in output, "Failed to stop docker"
-        health_issue_dict = {docker_to_stop: "Container 'ib-utils' is not running"}
+        health_issue_dict = {docker_to_stop: f"Container '{docker_to_stop}' is not running"}
         validate_health_fix_or_issue(system, health_issue_dict, date_time, False, expected_in_monitor_list=False)
 
     finally:

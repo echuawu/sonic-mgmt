@@ -6,10 +6,6 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 def factory_reset_no_params_pre_steps(engines, platform_params, system):
-    with allure.step("Check if setup had SM before test"):
-        have_sm_before_test = OpenSmTool.verify_open_sm_is_running()
-        logging.info(f'SM is{" not" if not have_sm_before_test else ""} running before factory reset')
-
     with allure.step('Create System object'):
         machine_type = platform_params['filtered_platform']
 
@@ -57,5 +53,4 @@ def factory_reset_no_params_pre_steps(engines, platform_params, system):
     with allure.step('pre factory reset TPM related check'):
         next(factory_reset_tpm_checker)
 
-    return apply_and_save_port, current_time, just_apply_port, last_status_line, machine_type, not_apply_port, \
-        username, have_sm_before_test
+    return apply_and_save_port, current_time, just_apply_port, last_status_line, machine_type, not_apply_port, username

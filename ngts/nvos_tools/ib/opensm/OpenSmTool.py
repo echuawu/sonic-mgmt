@@ -25,58 +25,6 @@ class OpenSmTool:
         return OpenSmTool.stop_open_sm_on_server(engines)
 
     @staticmethod
-    def start_open_sm_on_dut(engines=None):
-        """
-        Start open sm if it's not running
-        """
-        ib = Ib(None)
-        if OpenSmTool.verify_open_sm_is_running():
-            return ResultObj(True, returned_value='opensm is already enabled')
-
-        with allure.step("start OpenSM"):
-            ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_ENABLE)
-            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(
-                engine=engines.dut if engines else TestToolkit.engines.dut, ask_for_confirmation=True)
-            if "applied" not in output:
-                return ResultObj(False, "Failed to start openSM")
-
-            _wait_until_sm_is_running(ib)
-            res = OpenSmTool.verify_open_sm_is_running()
-            return ResultObj(res, "Failed to start openSM")
-
-    @staticmethod
-    def stop_open_sm_on_dut(engines=None):
-        """
-        Stop open sm if it's running
-        """
-        ib = Ib(None)
-        if not OpenSmTool.verify_open_sm_is_running():
-            return ResultObj(True, returned_value='opensm is already disabled')
-
-        with allure.step("Stop OpenSM"):
-            ib.sm.set(IbConsts.SM_STATE, IbConsts.SM_STATE_DISABLE)
-            output = TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config(
-                engine=engines.dut if engines else TestToolkit.engines.dut, ask_for_confirmation=True)
-            return ResultObj("applied" in output, "Failed to start openSM")
-
-    @staticmethod
-    def verify_open_sm_is_running():
-        with allure.step("Check if OpenSM is running"):
-            ib = Ib(None)
-            sm_dict = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
-            if IbConsts.SM_STATE not in sm_dict.keys():
-                logger.info('state label is not exist')
-                return
-
-            if sm_dict[IbConsts.SM_STATE] == IbConsts.SM_STATE_ENABLE:
-                logger.info('OpenSM is already enabled')
-                return True
-
-            else:
-                logging.info("OpenSM is disabled")
-                return False
-
-    @staticmethod
     def start_open_sm_on_server(engines):
         """
         Start open sm if it's not running
@@ -151,9 +99,3 @@ class OpenSmTool:
     def verify_open_sm_is_running_on_server(engines):
         is_running, port_name = OpenSmTool.is_sm_running_on_server(engines)
         return is_running
-
-
-@retry(Exception, tries=25, delay=4)
-def _wait_until_sm_is_running(ib):
-    sm_dict = OutputParsingTool.parse_json_str_to_dictionary(ib.sm.show()).verify_result()
-    assert sm_dict[IbConsts.IS_RUNNING] == IbConsts.IS_RUNNING_YES

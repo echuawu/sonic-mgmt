@@ -568,9 +568,6 @@ def test_split_port_redis_db_crash(engines, interfaces, start_sm, devices):
                                                         system_profile_output).verify_result()
         logging.info("All values returned successfully")
 
-        with allure.step("Check OpenSM status"):
-            OpenSmTool.verify_open_sm_is_running()
-
 
 def _run_cmd_nvue(engines, cmds_to_run, num_of_iterations):
     with allure.step("Run commands for {} iterations".format(num_of_iterations)):

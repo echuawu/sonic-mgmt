@@ -75,7 +75,7 @@ def test_system_ready_state_up(engines, devices, topology_obj):
         assert res_obj.result, res_obj.info
 
     with allure.step("Validate docker are up"):
-        dockers = list(set(devices.dut.available_dockers).difference(['ib-utils']))
+        dockers = devices.dut.available_dockers
         res_obj = devices.dut.verify_dockers(engines.dut, dockers)
         assert res_obj.result, res_obj.info
 

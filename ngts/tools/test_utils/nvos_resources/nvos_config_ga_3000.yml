@@ -4,10 +4,6 @@
     rev-id: 1.0
     version: 25.01.3932-014
 - set:
-    ib:
-      sm:
-        sm-priority: 15
-        state: enabled
     interface:
       eth0:
         description: PORTI1
