@@ -18,6 +18,7 @@ from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folde
 from ngts.scripts.allure_reporter import predict_allure_report_link
 
 logger = logging.getLogger()
+PYTEST_RUN_CMD = 'pytest_run_cmd'
 
 
 def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyzer_bug_metadata, testbed,
@@ -221,9 +222,9 @@ def log_analyzer_bug_handler(duthost, request):
         setup_name = request.config.getoption('--testbed')
 
     system_type = duthost.facts['hwsku']
-
+    pytest_cmd_args = get_pytest_cmd(request, log_analyzer_handler_info['cli_type'])
     bug_handler_dict = {'test_description': request.node.function.__doc__,
-                        'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
+                        'pytest_cmd_args': pytest_cmd_args,
                         'system_type': system_type,
                         'detected_in_version': log_analyzer_handler_info['version'],
                         'setup_name': setup_name,
@@ -270,6 +271,16 @@ def is_log_analyzer_bug_handler_enabled(bug_handler_actions):
     Check if need to run the log analyzer bug handler based on the bug handler actions.
     """
     return bug_handler_actions['only_check'] or bug_handler_actions['create'] or bug_handler_actions['update']
+
+
+def get_pytest_cmd(request, cli_type):
+    if cli_type == "Sonic":
+        cmd = request.session.config.cache.get(PYTEST_RUN_CMD, None)
+        if "--bug_handler_params" not in cmd:
+            cmd += " --bug_handler_params only_check"
+        return cmd
+    else:
+       return " ".join(request.node.config.invocation_params.args)
 
 
 def get_log_analyzer_handler_info(duthost):
