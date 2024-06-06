@@ -250,6 +250,7 @@ class SystemConsts:
     HOSTNAME = 'hostname'
     STATUS = 'status'
     STATE = 'state'
+    MAC = 'mac'
     STATUS_DEFAULT_VALUE = 'System is ready'
     STATUS_NOT_OK = 'System is not ready'
     STATUS_UP = 'UP'
