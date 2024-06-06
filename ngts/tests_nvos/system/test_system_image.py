@@ -133,7 +133,7 @@ def test_downgrade_upgrade(release_name, test_api, original_version, devices):
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_upload(engines, release_name, test_api, original_version):
+def test_system_image_upload(engines, release_name, test_api, original_version, devices):
     """
     Uploading image file to player and validate.
     1. Fetch random image
@@ -145,7 +145,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version):
     TestToolkit.tested_api = test_api
     system = System()
 
-    verify_current_version(original_version, system)
+    verify_current_version(original_version, system, devices.dut)
 
     _, _, _, _, image_names = get_image_data_and_fetch_random_image_files(release_name, system)
     image_name = image_names[0]
@@ -292,7 +292,7 @@ def test_system_image_bad_flow(engines, release_name, test_api, original_version
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_install_multiple_images(release_name, test_name, test_api, original_version):
+def test_install_multiple_images(release_name, test_name, test_api, original_version, devices):
     """
     Install system image test
 
@@ -300,7 +300,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
     5. Install image <img_1>, Verify installed images are listed in the show images
     6. Check available partitions capacity
     7. Set the original image to boot next
-    8. Reboot dut and make sure it bootes with original image
+    8. Reboot dut and make sure it boots with original image
     9. Uninstall all images that have been installed during the test
     10. Delete all images that have been fetched during the test
     """
@@ -317,7 +317,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
 
     system = System()
 
-    verify_current_version(original_version, system)
+    verify_current_version(original_version, system, devices.dut)
 
     original_images, original_image, original_image_partition, partition_id_for_new_image, image_files = \
         get_image_data_and_fetch_random_image_files(release_name, system, 1)
@@ -349,7 +349,7 @@ def test_install_multiple_images(release_name, test_name, test_api, original_ver
         cleanup_test(system, original_images, original_image_partition, image_files, orig_engine)
 
 
-def image_uninstall_test(release_name, original_version, uninstall_force="", test_name=""):
+def image_uninstall_test(release_name, original_version, devices, uninstall_force="", test_name=""):
     """
      Will check the uninstall commands
      for uninstall force command , the uninstall_force param need to get "force"
@@ -365,7 +365,7 @@ def image_uninstall_test(release_name, original_version, uninstall_force="", tes
     """
     system = System()
 
-    verify_current_version(original_version, system)
+    verify_current_version(original_version, system, devices.dut)
 
     original_images, _, original_image_partition, partition_id_for_new_image, fetched_image = \
         get_image_data_and_fetch_base_image(system, base_version)
@@ -402,7 +402,7 @@ def image_uninstall_test(release_name, original_version, uninstall_force="", tes
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_smallcase_n(engines, test_api, original_version):
+def test_system_image_install_reject_with_smallcase_n(engines, test_api, original_version, devices):
     """
     Check the image install cmd by rejecting the prompt with 'n'
     Validate that install image command will be aborted when the prompt is rejected.
@@ -413,14 +413,14 @@ def test_system_image_install_reject_with_smallcase_n(engines, test_api, origina
     TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 'n'
-    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version)
+    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version, devices)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_uppercase_n(engines, test_api, original_version):
+def test_system_image_install_reject_with_uppercase_n(engines, test_api, original_version, devices):
     """
     Check the image install cmd by rejecting the prompt with 'N'
     Validate that install image command will be aborted when the prompt is rejected.
@@ -431,14 +431,14 @@ def test_system_image_install_reject_with_uppercase_n(engines, test_api, origina
     TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 'N'
-    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version)
+    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version, devices)
 
 
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_system_image_install_reject_with_random_char(engines, test_api, original_version):
+def test_system_image_install_reject_with_random_char(engines, test_api, original_version, devices):
     """
     Check the image install cmd by rejecting the prompt with random character
     Validate that install image command will be aborted when the prompt is rejected.
@@ -449,12 +449,12 @@ def test_system_image_install_reject_with_random_char(engines, test_api, origina
     TestToolkit.tested_api = test_api
     system = System()
     prompt_response = 't'
-    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version)
+    system_image_install_reject_with_prompt(engines, system, prompt_response, original_version, devices)
 
 
-def system_image_install_reject_with_prompt(engines, system, prompt_response, original_version):
+def system_image_install_reject_with_prompt(engines, system, prompt_response, original_version, devices):
 
-    verify_current_version(original_version, system)
+    verify_current_version(original_version, system, devices.dut)
 
     action_job_id = 0
     try:
@@ -635,6 +635,7 @@ def verify_current_version(original_version, system, device):
     # this allure step will be deleted ones the first XDR GA will be released
     global base_version
     with allure.step("Set base image according to device type"):
+        logging.info(f"Device type: {device.asic_type}")
         if device.asic_type == NvosConst.QTM3:
             base_version = xdr_base_version
 
