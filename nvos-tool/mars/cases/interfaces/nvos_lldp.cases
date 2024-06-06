@@ -10,19 +10,118 @@
     <Case>
       <tags> LLDP Interface </tags>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 3600 </tout>
+      <tout> 7200 </tout>
       <tags>ALL</tags>
     </Case>
   </global>
 
   <case>
-    <name> LLDP Functionality test </name>
-    <info> </info>
+    <name> LLDP Enabled test </name>
+    <info></info>
+    <tout> 600 </tout>
     <cmd>
       <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_enabled --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
       </params>
     </cmd>
   </case>
 
+  <case>
+    <name> LLDP Disabled test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_disabled --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP custom interval test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_with_custom_interval --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP custom hostname test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_custom_hostname --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP one neighbor test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_one_neighbor --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP incorrect values test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_incorrect_values --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP max values exceed ttl test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_max_values --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP static ipv6 test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_additional_ipv6 --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP interface flapping test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_interface_flapping --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
+
+  <case>
+    <name> LLDP disable dhcp test </name>
+    <info></info>
+    <tout> 600 </tout>
+    <cmd>
+      <params>
+          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/lldp/test_lldp.py -k test_lldp_disable_dhcp --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
+      </params>
+    </cmd>
+  </case>
 </CASEDEF>
