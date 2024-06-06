@@ -68,6 +68,7 @@ arc-switch233-007,0.0.0.0/0,MLNX-OS,FanoutLeaf,,
 mtbc-sonic-02-2700,10.75.67.45/25,MLNX-OS,FanoutLeaf,,
 mtbc-3700c-02,10.75.67.51/24,MLNX-OS,FanoutLeaf,,
 r-tigon-14,10.210.25.188/22,MLNX-OS,FanoutLeaf,,
+r-anaconda-68,10.210.24.157/22,MLNX-OS,FanoutLeaf,,
 r-anaconda-69,10.210.24.150/22,MLNX-OS,FanoutLeaf,,
 r-anaconda-86,10.210.24.190/24,MLNX-OS,FanoutLeaf,,
 dummy-fanout,0.0.0.0/0,MLNX-OS,FanoutLeaf,,
@@ -129,6 +130,7 @@ r-panther-20,10.210.25.192,Mellanox-SN2700,DevSonic,,sonic
 r-panther-01,10.210.25.27,Mellanox-SN2700-A1-D48C8,DevSonic,,sonic
 r-panther-22,10.210.25.198,Mellanox-SN2700,DevSonic,,sonic
 r-panther-47,10.210.24.37,Mellanox-SN2700,DevSonic,,sonic
+r-panther-48,10.210.24.87,Mellanox-SN2700,DevSonic,,sonic
 r-anaconda-15,10.210.25.61,ACS-MSN3700C,DevSonic,,sonic
 r-anaconda-51,10.210.26.51,ACS-MSN3700,DevSonic,,sonic
 r-boxer-sw01,10.210.25.53,ACS-MSN2010,DevSonic,,sonic
