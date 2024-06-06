@@ -58,7 +58,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             bug_handler_update_action = bug_handler_action.get("update", False)
             bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
             logger.info(f"Run bug handler in no action mode: {bug_handler_no_action}")
-            if bug_handler_no_action:
+            if not bug_handler_create_action and not bug_handler_update_action:
                 tar_file_path = None
             else:
                 tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
