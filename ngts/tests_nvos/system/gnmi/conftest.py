@@ -1,11 +1,11 @@
 import logging
 import random
+import string
 from typing import Dict
 
 import pytest
 
 import ngts.tools.test_utils.allure_utils as allure
-from ngts.constants.constants import GnmiConsts
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import RemoteAaaType
@@ -15,7 +15,7 @@ from ngts.tests_nvos.general.security.tacacs.constants import TacacsDockerServer
 from ngts.tests_nvos.general.security.test_aaa_ldap.ldap_servers_info import LdapServersP3
 from ngts.tests_nvos.general.security.test_aaa_radius.constants import RadiusVmServer
 from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
-from ngts.tests_nvos.system.gnmi.constants import DUT_HOSTNAME_FOR_CERT, ETC_HOSTS, SERVICE_PEM, DOCKER_CERTS_DIR
+from ngts.tests_nvos.system.gnmi.constants import ETC_HOSTS, GNMI_TEST_CERT, DUT_MOUNT_GNMI_CERT_DIR
 
 logger = logging.getLogger()
 
@@ -40,12 +40,13 @@ def install_gnmi_on_player(engines):
 @pytest.fixture(scope='session', autouse=True)
 def install_grpcurl_on_player(engines):
     with allure.step('install grpcurl'):
-        player = GnmiClient('', '', '', '', 10, verify_tools_installed=False)
+        player = GnmiClient('', '', '', '', 10)
         player._run_cmd_in_process(
-            'sudo wget -O /tmp/grpcurl.tar.gz https://github.com/fullstorydev/grpcurl/releases/download/v1.8.8/grpcurl_1.8.8_linux_x86_64.tar.gz')
-        player._run_cmd_in_process('sudo tar -xzvf /tmp/grpcurl.tar.gz -C /tmp')
-        player._run_cmd_in_process('sudo mv /tmp/grpcurl /usr/local/bin/')
-        player._run_cmd_in_process('sudo rm /tmp/grpcurl.tar.gz')
+            'sudo wget -O /tmp/grpcurl.tar.gz https://github.com/fullstorydev/grpcurl/releases/download/v1.8.8/grpcurl_1.8.8_linux_x86_64.tar.gz',
+            wait_till_done=True)
+        player._run_cmd_in_process('sudo tar -xzvf /tmp/grpcurl.tar.gz -C /tmp', wait_till_done=True)
+        player._run_cmd_in_process('sudo mv /tmp/grpcurl /usr/local/bin/', wait_till_done=True)
+        player._run_cmd_in_process('sudo rm /tmp/grpcurl.tar.gz', wait_till_done=True)
     with allure.step('verify grpcurl installed'):
         player._verify_grpcurl_installed()
 
@@ -75,26 +76,36 @@ def aaa_users(engines) -> Dict[str, UserInfo]:
 
 
 @pytest.fixture()
-def add_etc_host_mapping(engines):
-    with allure.step(f'change dut hostname to {DUT_HOSTNAME_FOR_CERT}'):
-        System().set('hostname', DUT_HOSTNAME_FOR_CERT, ask_for_confirmation=True, apply=True).verify_result()
-    with allure.step(f'add mapping of new dut hostname to {ETC_HOSTS}'):
-        client = GnmiClient('', '', '', '')
-        client._run_cmd_in_process(f'echo "{engines.dut.ip} {DUT_HOSTNAME_FOR_CERT}" | sudo tee -a {ETC_HOSTS}')
-    yield
-    with allure.step(f'remove hostname mapping fro {ETC_HOSTS}'):
-        client._run_cmd_in_process(f"sudo sed -i '/{DUT_HOSTNAME_FOR_CERT}/d' {ETC_HOSTS}")
+def gnmi_cert_hostname(engines):
+    hostname = GNMI_TEST_CERT.ip
+    if not GNMI_TEST_CERT.ip:
+        assert GNMI_TEST_CERT.dn, f'{GNMI_TEST_CERT.info} has no ip/dn'
+        with allure.step(f'change dut hostname to {GNMI_TEST_CERT.dn}'):
+            System().set('hostname', GNMI_TEST_CERT.dn, ask_for_confirmation=True, apply=True).verify_result()
+        with allure.step(f'add mapping of new dut hostname to {ETC_HOSTS}'):
+            client = GnmiClient('', '', '', '')
+            client._run_cmd_in_process(f'echo "{engines.dut.ip} {GNMI_TEST_CERT.dn}" | sudo tee -a {ETC_HOSTS}',
+                                       wait_till_done=True)
+            hostname = GNMI_TEST_CERT.dn
+    yield hostname
+    if not GNMI_TEST_CERT.ip:
+        with allure.step(f'remove hostname mapping fro {ETC_HOSTS}'):
+            client._run_cmd_in_process(f"sudo sed -i '/{GNMI_TEST_CERT.dn}/d' {ETC_HOSTS}", wait_till_done=True)
 
 
 @pytest.fixture()
-def backup_and_restore_gnmi_cert(engines):
-    with allure.step('backup orig gnmi cert'):
-        engines.dut.run_cmd(
-            f'docker exec {GnmiConsts.GNMI_DOCKER} cp {DOCKER_CERTS_DIR}/{SERVICE_PEM} {DOCKER_CERTS_DIR}/{SERVICE_PEM}-orig')
+def restore_gnmi_cert(engines):
     yield
     with allure.step('restore orig gnmi cert'):
-        engines.dut.run_cmd(
-            f'docker exec {GnmiConsts.GNMI_DOCKER} cp {DOCKER_CERTS_DIR}/{SERVICE_PEM}-orig {DOCKER_CERTS_DIR}/{SERVICE_PEM}')
+        engines.dut.run_cmd(f'sudo rm -f {DUT_MOUNT_GNMI_CERT_DIR}/*')
     with allure.step('reload gnmi'):
         System().gnmi_server.disable_gnmi_server(True)
         System().gnmi_server.enable_gnmi_server(True)
+
+
+@pytest.fixture()
+def gnmi_cert_id():
+    rand_id = ''.join(random.choice(string.ascii_letters) for _ in range(6))
+    with allure.step(f'import certificate for gnmi as "{rand_id}"'):
+        pass  # TODO: complete
+    return rand_id

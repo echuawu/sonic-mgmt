@@ -1,5 +1,11 @@
 ########################## NVOS IGNORE START ##########################
 
+tests_nvos/system/gnmi/test_gnmi_pam.py::test_gnmi_auth_failing_clients_ddos:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3942921"
+    conditions:
+      - https://redmine.mellanox.com/issues/3942921
+
 tests_nvos/general/security/tacacs/test_aaa_tacacs.py::test_tacacs_accounting_top_server_only:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3750857"

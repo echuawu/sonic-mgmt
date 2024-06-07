@@ -18,9 +18,9 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.general.security.certificate.CertInfo import CertInfo
 from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
-from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, NFS_GNMI_CERTS_DIR, SERVICE_KEY, SERVICE_PEM, \
-    DOCKER_CERTS_DIR, GnmiMode, NFS_GNMI_CACERT_FILE
+from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, DOCKER_CERTS_DIR, GnmiMode, NFS_GNMI_CACERT_FILE
 
 logger = logging.getLogger()
 
@@ -360,19 +360,19 @@ def change_interface_description(selected_port):
     return rand_str
 
 
-def load_certificate_into_gnmi(engine: LinuxSshEngine):
+def load_certificate_into_gnmi(engine: LinuxSshEngine, cert: CertInfo):
     with allure.step('make dedicated dir in switch'):
         engine.run_cmd(f'mkdir -p {DUT_GNMI_CERTS_DIR}')
     with allure.step('scp cert to switch'):
-        with allure.step(f'copy {SERVICE_KEY}'):
-            scp_file(engine, f'{NFS_GNMI_CERTS_DIR}/{SERVICE_KEY}', f'{DUT_GNMI_CERTS_DIR}/{SERVICE_KEY}')
-        with allure.step('copy service.pem'):
-            scp_file(engine, f'{NFS_GNMI_CERTS_DIR}/{SERVICE_PEM}', f'{DUT_GNMI_CERTS_DIR}/{SERVICE_PEM}')
+        with allure.step(f'copy {cert.key_filename}'):
+            scp_file(engine, f'{cert.key}', f'{DUT_GNMI_CERTS_DIR}/{cert.key_filename}')
+        with allure.step(f'copy {cert.cert_filename}'):
+            scp_file(engine, f'{cert.cert}', f'{DUT_GNMI_CERTS_DIR}/{cert.cert_filename}')
     with allure.step('copy cert into gnmi docker'):
         engine.run_cmd(
-            f'docker cp {DUT_GNMI_CERTS_DIR}/{SERVICE_KEY} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{SERVICE_KEY}')
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.key_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.key_filename}')
         engine.run_cmd(
-            f'docker cp {DUT_GNMI_CERTS_DIR}/{SERVICE_PEM} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{SERVICE_PEM}')
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.cert_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.cert_filename}')
     with allure.step('restart gnmi'):
         system = System()
         system.gnmi_server.disable_gnmi_server()
