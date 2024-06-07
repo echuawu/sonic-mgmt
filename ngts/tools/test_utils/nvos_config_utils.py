@@ -117,7 +117,8 @@ def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_confi
                                                f"{NvosConst.SYSTEM_AAA_USER} {user_comp}; " for user_comp in
                                                user_config.keys() if
                                                user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
-                                               user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR])
+                                               user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR and
+                                               user_comp != NvosConst.SYSTEM_AAA_USER_CUMULUS])
 
                     # unset system aaa components
                     unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} {aaa_comp}; " for

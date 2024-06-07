@@ -118,6 +118,7 @@ class NvosConst:
     SYSTEM_AAA_USER = 'user'
     SYSTEM_AAA_USER_ADMIN = 'admin'
     SYSTEM_AAA_USER_MONITOR = 'monitor'
+    SYSTEM_AAA_USER_CUMULUS = 'cumulus'
 
     DEFAULT_CONFIG = {"system": {
         "aaa": {
