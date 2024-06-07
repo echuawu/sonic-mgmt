@@ -2278,8 +2278,8 @@
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/22/2" StartDevice="r-panther-23" StartPort="Ethernet86"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-panther-44" EndPort="ethernet 1/23" StartDevice="r-panther-23" StartPort="Ethernet88"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-panther-44" EndPort="ethernet 1/24" StartDevice="r-panther-23" StartPort="Ethernet92"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-panther-44" EndPort="ethernet 1/25" StartDevice="r-panther-23" StartPort="Ethernet96"/>
-      <DeviceInterfaceLink BandWidth="10000" EndDevice="r-panther-44" EndPort="ethernet 1/26/1" StartDevice="r-panther-23" StartPort="Ethernet100"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/25/1" StartDevice="r-panther-23" StartPort="Ethernet96"/>
+      <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/25/2" StartDevice="r-panther-23" StartPort="Ethernet100"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/27/1" StartDevice="r-panther-23" StartPort="Ethernet104"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/27/2" StartDevice="r-panther-23" StartPort="Ethernet106"/>
       <DeviceInterfaceLink BandWidth="50000" EndDevice="r-panther-44" EndPort="ethernet 1/28/1" StartDevice="r-panther-23" StartPort="Ethernet108"/>
@@ -2430,7 +2430,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r730-02" EndPort="p6p2" StartDevice="c-panther-02" StartPort="ethernet 1/26/2"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-12" EndPort="p5p1" StartDevice="r-panther-07" StartPort="ethernet 1/26/2"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-r740-12" EndPort="p5p2" StartDevice="r-panther-41" StartPort="ethernet 1/26/2"/>
-      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-dl360-01" EndPort="p2p1" StartDevice="r-panther-44" StartPort="ethernet 1/26/2"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-dl360-01" EndPort="p2p1" StartDevice="r-panther-44" StartPort="ethernet 1/26"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-dl360-01" EndPort="p2p2" StartDevice="r-panther-46" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="dev-r730-01" EndPort="p6p2" StartDevice="arc-switchmtbc02" StartPort="ethernet 1/32"/>
       <DeviceInterfaceLink BandWidth="100000" EndDevice="arc-host26" EndPort="p4p1" StartDevice="arc-switch1005" StartPort="ethernet 1/32"/>
@@ -4486,9 +4486,9 @@
       <InterfaceVlan mode="Access" portname="ethernet 1/22/2" vlanids="140"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/23" vlanids="141"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/24" vlanids="142"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/25" vlanids="143"/>
-      <InterfaceVlan mode="Access" portname="ethernet 1/26/1" vlanids="144"/>
-      <InterfaceVlan mode="Trunk" portname="ethernet 1/26/2" vlanids="101-156"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/25/1" vlanids="143"/>
+      <InterfaceVlan mode="Access" portname="ethernet 1/25/2" vlanids="144"/>
+      <InterfaceVlan mode="Trunk" portname="ethernet 1/26" vlanids="101-156"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/27/1" vlanids="145"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/27/2" vlanids="146"/>
       <InterfaceVlan mode="Access" portname="ethernet 1/28/1" vlanids="147"/>
