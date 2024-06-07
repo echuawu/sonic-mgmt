@@ -61,9 +61,9 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
 
             bug_handler_create_action = bug_handler_action.get("create", False)
             bug_handler_update_action = bug_handler_action.get("update", False)
-            bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
+            bug_handler_no_action = not bug_handler_create_action and not bug_handler_update_action
             logger.info(f"Run bug handler in no action mode: {bug_handler_no_action}")
-            if not bug_handler_create_action and not bug_handler_update_action:
+            if bug_handler_no_action:
                 tar_file_path = None
             else:
                 tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
@@ -96,7 +96,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             raise err
         finally:
             clear_files(session_id)
-        return summarize_la_bug_handler(bug_handler_dumps_results), la_errors
+        return summarize_la_bug_handler(bug_handler_dumps_results, bug_handler_action), la_errors
 
 
 def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
@@ -245,7 +245,13 @@ def log_analyzer_bug_handler(duthost, request):
             else:
                 error_msg += f"No relative bug detected for the err logs: {err_logs} \n"
 
-    if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
+    if log_analyzer_res[BugHandlerConst.UPDATE_ONLY]:
+        error_msg += f"There are err msg detected under the {BugHandlerConst.UPDATE_ONLY} mode:\n"
+        for err_with_update_only in log_analyzer_res[BugHandlerConst.UPDATE_ONLY]:
+            err_logs = err_with_update_only[BugHandlerConst.LA_ERROR]
+            error_msg += f"No relative bug detected for the err logs: {err_logs} \n"
+    elif log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
+
         created_bug_items = log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]
         error_msg += f"There are {len(created_bug_items)} new Log Analyzer bugs Created: \n"
         for index, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):

@@ -199,22 +199,17 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
 
 def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
                          bug_handler_no_action=False, bug_handler_action={}):
-    bug_handler_no_action = '--no_action' if bug_handler_no_action else ''
+
+    no_action = '--no_action' if bug_handler_no_action else ''
+    update_only = '--update_only' if not bug_handler_action["create"] and bug_handler_action["update"] else ''
+
     bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
-        f"--user {user} --branch {branch} --debug_level 2 --parsed_data '{yaml_parsed_file}' {bug_handler_no_action}"
+        f"--user {user} --branch {branch} --debug_level 2 --parsed_data '{yaml_parsed_file}' {no_action} {update_only}"
+
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     logger.info(bug_handler_output)
     bug_handler_file_result = json.loads(bug_handler_output)
-
-    status = bug_handler_file_result["status"]
-    action = bug_handler_file_result["action"]
-
-    if "no_action" in status and bug_handler_action.get(action, False):
-        logger.info("Run the test for one more time based on the decison to take action")
-        bug_handler_no_action = False
-        return run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
-                                    bug_handler_no_action, bug_handler_action)
 
     return bug_handler_file_result
 
@@ -226,22 +221,22 @@ def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_ha
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
         bug_id = get_created_bug_id(bug_handler_messages)
         recommended_action = f"Bug handler had created a new bug for this issue,<br>" \
-                             f" Please review ticket and update missing info.<br>" \
-                             f"Bug id: {bug_id}."
+            f" Please review ticket and update missing info.<br>" \
+            f"Bug id: {bug_id}."
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_ABORT:
         recommended_action = f"Bug handler could not compare signature in sanitizer log.<br>" \
-                             f"1. If sanitizer log is missing traceback, update sanitizer tool owner.<br>" \
-                             f"2. If sanitizer log does not missing traceback, <br>" \
-                             f"update bug handler owner team that bug handler " \
-                             f"could not parse sanitizer output correctly.<br>" \
-                             f"3. Open bug manually for this leak, if an open issue does not exist."
+            f"1. If sanitizer log is missing traceback, update sanitizer tool owner.<br>" \
+            f"2. If sanitizer log does not missing traceback, <br>" \
+            f"update bug handler owner team that bug handler " \
+            f"could not parse sanitizer output correctly.<br>" \
+            f"3. Open bug manually for this leak, if an open issue does not exist."
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
         recommended_action = "Bug handler had changed the status of an existing bug from fixed/closed to assigned.<br>" \
                              "Review the bug and alert the bug owner that fix is not working or merged."
     elif bug_handler_rc is not InfraConst.RC_SUCCESS:
         recommended_action = f"Bug handler had failed, please review bug handler output.<br>" \
-                             f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
-                             f"2. Rerun bug handler after fix or review sanitizer leak manually."
+            f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
+            f"2. Rerun bug handler after fix or review sanitizer leak manually."
     return recommended_action
 
 
@@ -419,7 +414,7 @@ def get_timestamp_from_log_line(line: str) -> datetime:
     return result
 
 
-def summarize_la_bug_handler(la_bug_handler_result):
+def summarize_la_bug_handler(la_bug_handler_result, bug_handler_action):
     """
     summarize the log analyzer bug handler result.
     :param la_bug_handler_result: result from the la bug handler function.
@@ -437,7 +432,9 @@ def summarize_la_bug_handler(la_bug_handler_result):
                                    BugHandlerConst.BUG_HANDLER_DECISION_UPDATE: {},
                                    BugHandlerConst.BUG_HANDLER_DECISION_SKIP: {},
                                    BugHandlerConst.BUG_HANDLER_FAILURE: [],
-                                   BugHandlerConst.NO_ACTION_MODE: []}
+                                   BugHandlerConst.NO_ACTION_MODE: [],
+                                   BugHandlerConst.UPDATE_ONLY: []}
+    update_only = not bug_handler_action["create"] and bug_handler_action["update"]
 
     for bug_handler_result_dict in la_bug_handler_result:
         bug_handler_status = bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS]
@@ -454,7 +451,12 @@ def summarize_la_bug_handler(la_bug_handler_result):
             else:
                 no_action_errs[BugHandlerConst.BUG_HANDLER_BUG_ID] = ""
             create_and_update_bugs_dict[BugHandlerConst.NO_ACTION_MODE].append(no_action_errs)
-
+        elif update_only and bug_handler_action == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
+            update_only_action_errs = {
+                BugHandlerConst.LA_ERROR: bug_handler_result_dict[BugHandlerConst.LA_ERROR],
+                BugHandlerConst.BUG_HANDLER_ACTION: bug_handler_action
+            }
+            create_and_update_bugs_dict[BugHandlerConst.UPDATE_ONLY].append(update_only_action_errs)
         elif bug_handler_action in BugHandlerConst.BUG_HANDLER_SUCCESS_ACTIONS_LIST\
                 and bug_handler_result_dict[BugHandlerConst.BUG_HANDLER_STATUS] in ['done', 'no_action mode']:
 
