@@ -13,19 +13,6 @@ class AaaConsts:
     LOCALMONITOR = 'localmonitor'
     STRONG_PASSWORD = 'Your_password1'
 
-    LOCAL_ONLY_TEST_USERS = [
-        {
-            USERNAME: LOCALADMIN,
-            PASSWORD: STRONG_PASSWORD,
-            ROLE: ADMIN
-        },
-        {
-            USERNAME: LOCALMONITOR,
-            PASSWORD: STRONG_PASSWORD,
-            ROLE: MONITOR
-        }
-    ]
-
     HOSTNAME = 'hostname'
     TIMEOUT = 'timeout'
     AUTH_TYPE = 'auth-type'
@@ -40,6 +27,7 @@ class AaaConsts:
 
     MIN_PORT = 1
     MAX_PORT = 65535
+    AAA_SERVER_BAD_PORT = 123
 
     PAP = 'pap'
     CHAP = 'chap'
@@ -47,6 +35,8 @@ class AaaConsts:
     LOGIN = 'login'
 
     PHYSICAL_AAA_SERVER_IPV4_ADDR = '10.7.34.20'
+    PHYSICAL_AAA_SERVER_IPV6_ADDR = 'fdfd:fdfd:7:34:46a8:42ff:fe27:8ab4'
+    PHYSICAL_AAA_SERVER_DN = 'fit-def-20'
     VM_AAA_SERVER_IPV4_ADDR = '10.237.0.86'
     VM_AAA_SERVER_IPV6_ADDR = 'fdfd:fdfd:10:237:250:56ff:fe1b:56'
     VM_AAA_SERVER_DN = 'fit-l-vrt-60-086'

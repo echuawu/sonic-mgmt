@@ -6,23 +6,24 @@ Secure Boot is a feature that validates secure boot and only signed modules are 
 
 In order to run this test, you need to specify the following argument: kernel_module_path
 '''
+import logging
+import os
 import re
 import time
-import logging
+
+import pytest
 
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
+from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.linux_tools.linux_tools import scp_file
-from ngts.conftest import TestToolkit
+from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.Tools import RandomizationTool
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.KernelModulesTool import KernelModulesTool
-from ngts.tools.test_utils import allure_utils as allure
-import pytest
-import os
 from ngts.tests_nvos.general.security.test_secure_boot.constants import ChainOfTrustNode, SecureBootConsts, SigningState
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from infra.tools.validations.traffic_validations.ping.send import ping_till_alive
+from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger(__name__)
 

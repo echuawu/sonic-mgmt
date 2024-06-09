@@ -66,6 +66,15 @@ class ConnectMSSQL:
         except Exception as e:
             raise Exception("SQL insert query: " + insert_query + " failed. error: " + str(e))
 
+    def query_insert_return_la_table_id(self, insert_query):
+        try:
+            self.cursor.execute(insert_query)
+            table_id = self.cursor.fetchone()[0]
+            self.conn.commit()
+            return table_id
+        except Exception as e:
+            raise Exception("SQL insert query: " + insert_query + " failed. error: " + str(e))
+
     def query_scalar(self, scalar_query):
         self.cursor.execute(scalar_query)
         result_id = self.cursor.fetchone()[0]

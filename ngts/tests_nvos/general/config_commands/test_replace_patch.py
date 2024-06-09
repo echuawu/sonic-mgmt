@@ -12,6 +12,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.simx
 def test_replace_empty_file(engines):
@@ -106,6 +107,7 @@ def test_replace_positive(engines, devices):
                                                                      new_ib0_description), "Set ib0 description can't be found in pending config"
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.simx
 def test_replace_negative(engines):
@@ -144,6 +146,7 @@ def test_replace_negative(engines):
     assert 'must contain a list of operation objects' in output2, 'the replace should fail'
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.simx
 def test_patch_empty_file(engines):
@@ -240,6 +243,7 @@ def test_patch_positive(engines):
             system.unset(SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.simx
 def test_patch_negative(engines):

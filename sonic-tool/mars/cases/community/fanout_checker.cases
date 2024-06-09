@@ -9,7 +9,7 @@
         <Case>
             <tags> VERIFY_FANOUT_VERSION  </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-            <tout> 9600 </tout>
+            <tout> 55555 </tout>
         </Case>
     </global>
 
@@ -24,10 +24,9 @@
         </ignore>
         <info> VERIFY FANOUT VERSION Case </info>
         <name> verify_fanout_version </name>
-        <tout> 300 </tout>
         <cmd>
             <params>
-                <static_args> --setup_name [[conf:extra_info.setup_name]] --sonic-topo=[[conf:extra_info.topology]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/test_verify_fanout_version.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --showlocals\'"</static_args>
+                <static_args> --setup_name [[conf:extra_info.setup_name]] --sonic-topo=[[conf:extra_info.topology]] --test_script /root/mars/workspace/sonic-mgmt/ngts/scripts/test_verify_fanout_version.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir --alluredir=/tmp/allure-results --timeout 300 --session-timeout 300 --showlocals\'"</static_args>
             </params>
         </cmd>
     </case>

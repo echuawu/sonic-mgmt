@@ -57,13 +57,17 @@ def pytest_sessionfinish(session, exitstatus):
                     export_session_info_to_allure(session_info_dict, allure_report_dir)
 
                 try:
+                    report_url = None
                     allure_server_obj = AllureServer(allure_server_addr, allure_server_port, allure_report_dir,
                                                      allure_server_project_id)
                     report_url = allure_server_obj.generate_allure_report()
-                    session.config.cache.set(ALLURE_REPORT_URL, report_url)
+
                 except Exception as err:
                     logger.error('Failed to send-results?project_id= allure report to server. Allure report not available. '
                                  '\nError: {}'.format(err))
+                finally:
+                    session.config.cache.set(ALLURE_REPORT_URL, report_url)
+
             else:
                 logger.error('PyTest argument "--alluredir" not provided. Impossible to generate Allure report')
 
@@ -81,31 +85,55 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         logger.info('Allure server address option does not exist')
 
 
-def get_setup_session_info(session):
-    ansible_dir = get_ansible_path(session)
-    testbed = session.config.option.testbed
-
+def get_dut_info(ansible_dir, dut_host):
     os.chdir(ansible_dir)
 
-    cmd = "ansible -m command -i inventory {} -a 'show version'".format(testbed)
+    cmd = "ansible -m command -i inventory {} -a 'show version'".format(dut_host)
     output = subprocess.check_output(cmd, shell=True).decode('utf-8')
 
-    version = re.compile(r"sonic software version: +([^\s]+)\s", re.IGNORECASE)
-    platform = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
-    hwsku = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
-    asic = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
+    version_reg = re.compile(r"sonic software version: +([^\s]+)\s", re.IGNORECASE)
+    platform_reg = re.compile(r"platform: +([^\s]+)\s", re.IGNORECASE)
+    hwsku_reg = re.compile(r"hwsku: +([^\s]+)\s", re.IGNORECASE)
+    asic_reg = re.compile(r"asic: +([^\s]+)\s", re.IGNORECASE)
+
+    version = version_reg.findall(output)[0] if version_reg.search(output) else ""
+    platform = platform_reg.findall(output)[0] if platform_reg.search(output) else ""
+    hwsku = hwsku_reg.findall(output)[0] if hwsku_reg.search(output) else ""
+    asic = asic_reg.findall(output)[0] if asic_reg.search(output) else ""
+
+    return version, platform, hwsku, asic
+
+
+def get_setup_session_info(session):
+    ansible_dir = get_ansible_path(session)
+    dut_hosts = session.config.option.ansible_host_pattern.split(",")
+    logger.info(f"dut hosts are:{dut_hosts}")
+
+    version_list = []
+    platform_list = []
+    hwsku_list = []
+    asic_list = []
+
+    for dut_host in dut_hosts:
+        version, platform, hwsku, asic = get_dut_info(ansible_dir, dut_host)
+        version_list.append(version)
+        platform_list.append(platform)
+        hwsku_list.append(hwsku)
+        asic_list.append(asic)
+
     random_seed = session.config.cache.get(RANDOM_SEED, None)
     pytest_run_cmd_args = session.config.cache.get(PYTEST_RUN_CMD, None)
     host_executor_ip = get_test_executor_host_ip_address()
 
     result = {
-        "Version": version.findall(output)[0] if version.search(output) else "",
-        "Platform": platform.findall(output)[0] if platform.search(output) else "",
-        "HwSKU": hwsku.findall(output)[0] if hwsku.search(output) else "",
+        "Dut_host": ", ".join(dut_hosts),
+        "Version": ", ".join(version_list),
+        "Platform": ", ".join(platform_list),
+        "HwSKU": ", ".join(hwsku_list),
         "Executor_IP": host_executor_ip,
         "PyTest_args": pytest_run_cmd_args,
-        "ASIC": asic.findall(output)[0] if asic.search(output) else "",
-        "Random_seed": random_seed
+        "ASIC": ",".join(asic_list),
+        "Random_seed": random_seed,
     }
 
     return result
@@ -187,6 +215,10 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
     allure_server_project_id_index = None
 
     for arg in pytest_cmd_line_args:
+
+        # update the pytest cmd for community case
+        if "pytest/__main__.py" in arg:
+            pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = "python3 -m pytest"
 
         if '--allure_server_project_id' in arg:
             allure_server_project_id_index = pytest_cmd_line_args.index(arg)
@@ -282,7 +314,7 @@ class AllureServer:
         if response.status_code != 200:
             logger.error('Failed to upload results to allure server, error: {}. \n status_code: {},'
                          ' \n headers is :{}, \n URL :{}, \n SSL_VERIFICATION :{}'.format(
-                         response.content, response.status_code, self.http_headers, url, SSL_VERIFICATION))
+                             response.content, response.status_code, self.http_headers, url, SSL_VERIFICATION))
             for result in data["results"]:
                 if "json" in result["file_name"]:
                     logger.info(result)

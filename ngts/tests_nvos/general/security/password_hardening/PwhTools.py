@@ -1,22 +1,22 @@
 import datetime
 import itertools
+import logging
 import random
 import string
-import time
-from ngts.tools.test_utils import allure_utils as allure
-import logging
+
 import pexpect
-from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+
+from infra.tools.general_constants.constants import DefaultConnectionValues
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
-from netmiko.ssh_exception import NetmikoAuthenticationException
-from infra.tools.general_constants.constants import DefaultConnectionValues
-from ngts.tests_nvos.system.clock.ClockTools import ClockTools
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
-from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.tests_nvos.general.security.constants import SSN_OPTIONS
+from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
+from ngts.tests_nvos.system.clock.ClockTools import ClockTools
+from ngts.tools.test_utils import allure_utils as allure
 
 
 class PwhTools:
@@ -615,7 +615,7 @@ class PwhTools:
         expected_patterns = []
         try:
             with allure.step('Composing the ssh command to pexpect process'):
-                ssn_cmd = f'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {username} {ip}'
+                ssn_cmd = f'ssh {SSN_OPTIONS} -l {username} {ip}'
                 # _ssh_command = DefaultConnectionValues.SSH_CMD.copy()
                 # _ssh_command += ['-p', str(PwhConsts.SSH_PORT)]
                 # _ssh_command += ['-l', username, ip]

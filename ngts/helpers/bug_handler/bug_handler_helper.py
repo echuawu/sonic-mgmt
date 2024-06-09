@@ -15,6 +15,9 @@ from datetime import datetime, timedelta
 from ngts.constants.constants import BugHandlerConst, InfraConst, PytestConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 
+TIMESTAMP_FORMATS = ["%b %d %H:%M:%S", "%Y %b %d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
+TIMESTAMP_LENGTH = [len(datetime.now().strftime(format)) for format in TIMESTAMP_FORMATS]
+
 logger = logging.getLogger()
 
 
@@ -223,22 +226,22 @@ def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_ha
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_CREATE:
         bug_id = get_created_bug_id(bug_handler_messages)
         recommended_action = f"Bug handler had created a new bug for this issue,<br>" \
-                             f" Please review ticket and update missing info.<br>" \
-                             f"Bug id: {bug_id}."
+            f" Please review ticket and update missing info.<br>" \
+            f"Bug id: {bug_id}."
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_ABORT:
         recommended_action = f"Bug handler could not compare signature in sanitizer log.<br>" \
-                             f"1. If sanitizer log is missing traceback, update sanitizer tool owner.<br>" \
-                             f"2. If sanitizer log does not missing traceback, <br>" \
-                             f"update bug handler owner team that bug handler " \
-                             f"could not parse sanitizer output correctly.<br>" \
-                             f"3. Open bug manually for this leak, if an open issue does not exist."
+            f"1. If sanitizer log is missing traceback, update sanitizer tool owner.<br>" \
+            f"2. If sanitizer log does not missing traceback, <br>" \
+            f"update bug handler owner team that bug handler " \
+            f"could not parse sanitizer output correctly.<br>" \
+            f"3. Open bug manually for this leak, if an open issue does not exist."
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
         recommended_action = "Bug handler had changed the status of an existing bug from fixed/closed to assigned.<br>" \
                              "Review the bug and alert the bug owner that fix is not working or merged."
     elif bug_handler_rc is not InfraConst.RC_SUCCESS:
         recommended_action = f"Bug handler had failed, please review bug handler output.<br>" \
-                             f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
-                             f"2. Rerun bug handler after fix or review sanitizer leak manually."
+            f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
+            f"2. Rerun bug handler after fix or review sanitizer leak manually."
     return recommended_action
 
 
@@ -305,7 +308,13 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
     """
     yaml_file_path = get_log_analyzer_yaml_path(test_name, dump_path)
     # remove date, time and hostname before creating the regex!
-    hostname_regex = hostname if re.findall(hostname, log_errors[0]) else r'\S+'
+
+    if re.findall(hostname, log_errors[0]):
+        hostname_regex = hostname
+    elif re.findall(r"\d sonic ", log_errors[0]):
+        hostname_regex = "sonic"
+    else:
+        hostname_regex = r'\S+'
     bug_title = create_bug_title(hostname_regex, log_errors[0])
     bug_regex = '.*' + error_to_regex(bug_title) + '.*'
     description = f'| \n{bug_title}\n' + '\n'.join(log_errors)
@@ -326,7 +335,10 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
 
 
 def create_bug_title(hostname_regex, first_line):
-    log_prefix = rf'^\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+{hostname_regex}\s'
+    time_pattern = r'.*\w+\s+\d+\s+\d+:\d+:\d+\.\d+\s+'
+    if not re.findall(time_pattern, first_line):
+        time_pattern = r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+.*'
+    log_prefix = time_pattern + hostname_regex + r'\s'
     bug_title = re.sub(log_prefix, '', first_line)
     bug_title = re.sub(r'message repeated \d+ times: \[ (.*?)\]', r'\1', bug_title)
     if len(bug_title) > BugHandlerConst.BUG_TITLE_LIMIT:
@@ -346,6 +358,8 @@ def error_to_regex(error_string):
     # -- Escapes out of all the meta characters --#
     error_string = re.escape(error_string)
     error_string = error_string.replace("\\", "\\\\")
+    # -- Replaces [123.1234], [ 123.1234], [   123.1234] to one regex
+    error_string = re.sub(r"\\\\\[(\\\\\s)*\d+\\\\\.\d+\\\\\]", r"\\\\[\\\\s*\\\\d+\\\\.\\\\d+\\\\]", error_string)
     # -- Replaces a white space with the white space regular expression
     error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)
     # -- Replaces date time with regular expressions
@@ -370,11 +384,10 @@ def group_log_errors_by_timestamp(log_errors):
     error_line_list = [line for line in log_errors.splitlines() if line.strip()]
     error_groups = []   # list of optional bugs, each element here is a list with log errors.
     current_group = []  # single bug log errors
-    time_pattern = r'(\w+\s+\d+\s+\d{2}:\d{2}:\d{2})'
-    prev_timestamp = datetime.strptime(re.findall(time_pattern, error_line_list[0])[0], "%b %d %H:%M:%S")
+    prev_timestamp = get_timestamp_from_log_line(error_line_list[0])
 
     for line in error_line_list:
-        timestamp = datetime.strptime(re.findall(time_pattern, line)[0], "%b %d %H:%M:%S")
+        timestamp = get_timestamp_from_log_line(line)
 
         if (timestamp - prev_timestamp) > timedelta(seconds=5):
             # close the group and create new one
@@ -387,6 +400,23 @@ def group_log_errors_by_timestamp(log_errors):
     if current_group:
         error_groups.append(current_group)
     return error_groups
+
+
+def get_timestamp_from_log_line(line: str) -> datetime:
+    result = None
+    for format, length in zip(TIMESTAMP_FORMATS, TIMESTAMP_LENGTH):
+        try:
+            if "%Y" in format:
+                result = datetime.strptime(line[:length], format)
+            else:
+                # If the timestamp doesn't show the year then we need this workaround to make sure it doesn't crash on
+                # February 29 because it's an invalid date. We specify 2020 because it was a leap year.
+                result = datetime.strptime("2020 " + line[:length], "%Y " + format)
+        except ValueError:
+            pass
+    if not result:
+        raise ValueError(f"Failed to parse time stamp of the following log line: {line}")
+    return result
 
 
 def summarize_la_bug_handler(la_bug_handler_result):

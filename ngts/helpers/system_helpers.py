@@ -49,3 +49,16 @@ def wait_for_all_jobs_done(engine, max_attempts=JOBS_MAX_ATTEMPTS, polling_inter
                tries=max_attempts,
                delay=polling_interval_sec,
                logger=logger)
+
+
+def copy_files_to_syncd(engine, files_list, directory):
+    for file in files_list:
+        logger.info(f'Copy {file} to syncd docker')
+        dst = os.path.join('/tmp', file)
+        engine.copy_file(source_file=os.path.join(directory, file),
+                         dest_file=file,
+                         file_system='/tmp',
+                         direction='put'
+                         )
+        engine.run_cmd('docker cp {} {}'.format(dst, 'syncd:/'))
+        engine.run_cmd("sudo docker exec -i syncd bash -c 'chmod +x {}'".format(file))

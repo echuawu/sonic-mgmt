@@ -96,11 +96,15 @@ def test_interface_link_diagnostics_basic(engines, devices):
     5. Run link diagnostics for not exist port/eth0/ib0/lo
     """
     selected_down_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_DOWN,
-                                                                      requested_ports_type=devices.dut.switch_type,
+                                                                      requested_ports_type=devices.dut.switch_type.lower(),
                                                                       num_of_ports_to_select=0).get_returned_value()
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
-                                                                    requested_ports_type=devices.dut.switch_type,
+                                                                    requested_ports_type=devices.dut.switch_type.lower(),
                                                                     num_of_ports_to_select=0).get_returned_value()
+    selected_fnm_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                     requested_ports_type=IbInterfaceConsts.FNM_PORT_TYPE,
+                                                                     num_of_ports_to_select=0).get_returned_value()
+
     all_switch_ports = selected_up_ports + selected_down_ports
     count_of_all_ports = len(all_switch_ports)
     with allure.step('Run nv show interface --view link-diagnostics to check fields, codes'):
@@ -132,7 +136,7 @@ def test_interface_link_diagnostics_basic(engines, devices):
 
     with allure.step('Run nv show interface for unplugged port'):
         for port in selected_down_ports:
-            if port.name == 'sw32p1':
+            if port.name == 'sw32p1' or port.name == 'swA32p1':
                 unplugged_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
                     port.interface.link.diagnostics.show()).get_returned_value()
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \
@@ -167,7 +171,7 @@ def test_interface_link_diagnostics_functional(engines, start_sm, devices):
     5. Rewrite transceiver opcode for port to 0, check output, system should return correct code and status
     """
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
-                                                                    requested_ports_type=devices.dut.switch_type,
+                                                                    requested_ports_type=devices.dut.switch_type.lower(),
                                                                     num_of_ports_to_select=0).get_returned_value()
     ports_connected = []
     with allure.step('Get ports connected to each others'):

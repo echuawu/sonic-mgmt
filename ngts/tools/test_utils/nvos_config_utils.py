@@ -10,6 +10,7 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils.nvos_general_utils import set_base_configurations
 import ngts.tools.test_utils.allure_utils as allure
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_configurations):
@@ -26,7 +27,58 @@ def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_confi
         set_comp = {k: v for comp in show_config_output for k, v in comp.get("set", {}).items()}
 
         with allure.step("Get the non-default set components"):
-            diff_config = ValidationTool.get_dictionaries_diff(set_comp, NvosConst.DEFAULT_CONFIG)
+            default_conf = NvosConst.DEFAULT_CONFIG
+            if is_redmine_issue_active([3831258])[0]:
+                default_conf["interface"] = {
+                    "eth0": {
+                        "acl": {
+                            "ACL_MGMT_INBOUND_CP_DEFAULT": {
+                                "inbound": {
+                                    "control-plane": {}
+                                }
+                            },
+                            "ACL_MGMT_INBOUND_CP_DEFAULT_IPV6": {
+                                "inbound": {
+                                    "control-plane": {}
+                                }
+                            },
+                            "ACL_MGMT_INBOUND_DEFAULT": {
+                                "inbound": {}
+                            },
+                            "ACL_MGMT_INBOUND_DEFAULT_IPV6": {
+                                "inbound": {}
+                            },
+                            "ACL_MGMT_OUTBOUND_CP_DEFAULT": {
+                                "outbound": {
+                                    "control-plane": {}
+                                }
+                            },
+                            "ACL_MGMT_OUTBOUND_CP_DEFAULT_IPV6": {
+                                "outbound": {
+                                    "control-plane": {}
+                                }
+                            }
+                        },
+                        "type": "eth"
+                    },
+                    "lo": {
+                        "acl": {
+                            "ACL_LOOPBACK_INBOUND_CP_DEFAULT": {
+                                "inbound": {
+                                    "control-plane": {}
+                                }
+                            },
+                            "ACL_LOOPBACK_INBOUND_CP_DEFAULT_IPV6": {
+                                "inbound": {
+                                    "control-plane": {}
+                                }
+                            }
+                        },
+                        "type": "loopback"
+                    }
+                }
+
+            diff_config = ValidationTool.get_dictionaries_diff(set_comp, default_conf)
             logging.info(diff_config)
 
         if diff_config:
@@ -65,7 +117,8 @@ def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_confi
                                                f"{NvosConst.SYSTEM_AAA_USER} {user_comp}; " for user_comp in
                                                user_config.keys() if
                                                user_comp != NvosConst.SYSTEM_AAA_USER_ADMIN and
-                                               user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR])
+                                               user_comp != NvosConst.SYSTEM_AAA_USER_MONITOR and
+                                               user_comp != NvosConst.SYSTEM_AAA_USER_CUMULUS])
 
                     # unset system aaa components
                     unset_cli_cmd += " ".join([f"{unset_system_cli} {NvosConst.SYSTEM_AAA} {aaa_comp}; " for

@@ -1,9 +1,7 @@
 import concurrent.futures
 import copy
 import logging
-import time
 import os
-import pytest
 import shutil
 import time
 
@@ -12,13 +10,10 @@ import pytest
 
 from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
 from ngts.constants.constants import PlayersAliases
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.nvos_constants.constants_nvos import NvosConst
-from ngts.helpers.run_process_on_host import wait_until_background_procs_done
-from ngts.tools.infra import get_platform_info
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
 from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
@@ -36,7 +31,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
                             sonic_topo, neighbor_type, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
                             fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
-                            verify_secure_boot):
+                            verify_secure_boot, chip_type):
     """
         Deploy SONiC/NVOS testing topology and upgrade switch
 
@@ -80,6 +75,8 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         :param additional_apps: additional_apps fixture
         :param workspace_path: workspace_path fixture
         :param wjh_deb_url: WJH deb URL
+        :param verify_secure_boot: verify_secure_boot
+        :param chip_type: chip_type fixture
         :raise AssertionError: in case of script failure.
     """
     try:
@@ -177,7 +174,8 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
                                 reboot_after_install=reboot_after_install, deploy_only_target=deploy_only_target,
                                 fw_pkg_path=fw_pkg_path, reboot=reboot, additional_apps=additional_apps,
                                 setup_info=setup_info, workspace_path=workspace_path, is_performance=is_performance,
-                                base_version=base_version, deploy_dpu=deploy_dpu, verify_secure_boot=verify_secure_boot)
+                                chip_type=chip_type, base_version=base_version, deploy_dpu=deploy_dpu,
+                                verify_secure_boot=verify_secure_boot)
 
         # Remove .pytest_cache folder after deploy - otherwise  - cached info from old image will be used in skip tests
         cache_full_path = os.path.join(os.path.dirname(__file__), '../../.pytest_cache')
@@ -213,7 +211,7 @@ def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_versi
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_dpu,
                             setup_name, platform_params, apply_base_config, target_version,
                             is_shutdown_bgp, reboot_after_install, deploy_only_target, fw_pkg_path, reboot,
-                            additional_apps, setup_info, workspace_path, is_performance, base_version='',
+                            additional_apps, setup_info, workspace_path, is_performance, chip_type, base_version='',
                             verify_secure_boot=True):
     """
     Post-installation steps
@@ -233,6 +231,7 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
     :param setup_info: dictionary with setup info
     :param workspace_path: workspace_path fixture
     :param is_performance: is_performance fixture, True in case when setup is performance
+    :param chip_type: chip_type fixture
     :param base_version: base_version fixture
     :param verify_secure_boot: verify_secure_boot flag
     """
@@ -247,7 +246,7 @@ def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_
                                                        platform_params, apply_base_config, target_version,
                                                        is_shutdown_bgp, reboot_after_install, deploy_only_target,
                                                        fw_pkg_path, reboot, additional_apps, setup_info, is_performance,
-                                                       deploy_dpu)
+                                                       chip_type, deploy_dpu)
 
 
 def get_cli_obj(topology_obj, cli_type, switch_type, engine, host, dut_alias):
@@ -269,6 +268,9 @@ def is_dut_supports_image(base_version_url, dut_name):
     image_supports = True
     # device mtvr-moose-01 is production and supports only prod versions of ONIE and SONiC
     if dut_name == 'mtvr-moose-01' and "prod" not in base_version_url:
+        image_supports = False
+    # when executed deploy of production image, skip the flow on not production devices
+    if dut_name != 'mtvr-moose-01' and 'prod' in base_version_url:
         image_supports = False
     return image_supports
 

@@ -9,7 +9,7 @@ from . import system_msg_handler
 
 from .system_msg_handler import AnsibleLogAnalyzer as ansible_loganalyzer
 from os.path import join, split
-from .bug_handler_helper import log_analyzer_bug_handler
+from .bug_handler_helper import log_analyzer_bug_handler, skip_loganalyzer_bug_handler
 
 ANSIBLE_LOGANALYZER_MODULE = system_msg_handler.__file__.replace(r".pyc", ".py")
 COMMON_MATCH = join(split(__file__)[0], "loganalyzer_common_match.txt")
@@ -166,7 +166,8 @@ class LogAnalyzer:
             tmp_folder = "/tmp/loganalyzer/{}".format(self.ansible_host.hostname)
             os.makedirs(tmp_folder, exist_ok=True)
             cur_time = time.strftime("%d_%m_%Y_%H_%M_%S", time.gmtime())
-            file_path = os.path.join(tmp_folder, f"log_error_{self.marker_prefix}_{cur_time}.json")
+            cleaned_marker_prefix = re.sub(r'[\\/\'"<>|]', '_', self.marker_prefix)
+            file_path = os.path.join(tmp_folder, "log_error_{}_{}.json".format(cleaned_marker_prefix, cur_time))
             logging.info("Log errors will be saved in file: {}".format(file_path))
             data = {'log_errors': log_errors}
             with open(file_path, "w+") as file:
@@ -219,6 +220,11 @@ class LogAnalyzer:
         self.ignore_regex = self.ansible_loganalyzer.create_msg_regex([COMMON_IGNORE])[1]
         self.expect_regex = self.ansible_loganalyzer.create_msg_regex([COMMON_EXPECT])[1]
         logging.debug('Loaded common config.')
+
+        if self.request:
+            extended_ignore_list = self.request.session.config.cache.get("extended_ignore_list", [])
+            self.ignore_regex.extend(extended_ignore_list)
+            logging.info(f"Loaded extend ignore config: {extended_ignore_list}")
 
     def parse_regexp_file(self, src):
         """
@@ -409,12 +415,16 @@ class LogAnalyzer:
 
         if fail:
             self._verify_log(analyzer_summary)
+        elif store_la_logs:
+            self._post_err_msg_handler(analyzer_summary)
         else:
-            self._post_err_msg_handler()
             return analyzer_summary
 
-    def _post_err_msg_handler(self):
-        log_analyzer_bug_handler(self.ansible_host, self.request)
+    def _post_err_msg_handler(self, analyzer_summary):
+        if skip_loganalyzer_bug_handler(self.ansible_host, self.request):
+            self._verify_log(analyzer_summary)
+        else:
+            log_analyzer_bug_handler(self.ansible_host, self.request)
 
     def save_extracted_log(self, dest):
         """

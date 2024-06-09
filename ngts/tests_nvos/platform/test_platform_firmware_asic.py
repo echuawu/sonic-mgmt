@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.platform.Platform import Platform
+from ngts.tests_nvos.platform.test_install_platform_firmware import get_asic_dict
 from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
@@ -24,45 +25,22 @@ def test_show_fae_firmware(devices):
     Show fae firmware test
 
     Test flow:
-    1. Run show fae firmware
-    2. Make sure that all required fields exist
-    3. Run show fae firmware asic
-    4. Compare the output results to the results of show fae firmware
+    1. Run show fae platform firmware
+    2. Make sure that all required fields exist for all ASICs
     """
     fae = Fae()
-    with allure.step("Run show command to view fae firmware"):
-        show_output = fae.firmware.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-
-        with allure.step("Validate all expected fields in show output"):
-            ValidationTool.verify_field_exist_in_json_output(output_dictionary,
-                                                             ["asic", "auto-update", "default"]).verify_result()
-            assert "asic" in output_dictionary, f"'asic' field is empty in show fae firmware output"
-
-            with allure.step("Validate asic amount"):
-                expected_asic_amount = len(devices.dut.device_list) - 1
-                assert len(output_dictionary["asic"]) == expected_asic_amount, \
-                    "Unexpected num of ASIC\n Expected : {}\n but got {}".format(
-                        expected_asic_amount, len(output_dictionary["asic"]))
-
-            with allure.step("Validate asic fields"):
-                verify_asic_fields(output_dictionary["asic"])
-
-        asic_list = output_dictionary["asic"]
 
     with allure.step("Run show fae firmware asic"):
-        show_output = fae.firmware.asic.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
+        output_dictionary = get_asic_dict(fae)
 
-        with allure.step("Validate asic fields"):
-            verify_asic_fields(output_dictionary)
+    with allure.step("Validate asic amount"):
+        expected_asic_amount = len(devices.dut.device_list) - 1
+        assert len(output_dictionary) == expected_asic_amount, \
+            "Unexpected num of ASIC\n Expected : {}\n but got {}".format(
+                expected_asic_amount, len(output_dictionary))
 
-        with allure.step("Compare asic names in outputs"):
-            compare_asic_names(asic_list, output_dictionary)
-
-        with allure.step("Compare current output to the output from 'show fae firmware"):
-            for asic_name, asic_prop in output_dictionary.items():
-                compare_asic_fields(asic_list[asic_name], asic_prop)
+    with allure.step("Validate asic fields"):
+        verify_asic_fields(output_dictionary)
 
 
 @pytest.mark.checklist
@@ -237,7 +215,7 @@ def set_auto_update(platform, value):
 
 def verify_asic_fields(asic_dictionary):
     with allure.step("Verify all expected asic fields are presented in the output"):
-        asic_fields = ["actual-firmware", "installed-firmware", "part-number", "type"]
+        asic_fields = ["actual-firmware", "installed-firmware", "part-number", "auto-update", "fw-source"]
         for asic_name, asic_prop in asic_dictionary.items():
             ValidationTool.verify_field_exist_in_json_output(asic_prop, asic_fields).verify_result()
 

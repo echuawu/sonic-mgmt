@@ -9,6 +9,7 @@ from .ConfigTool import ConfigTool
 from .SonicMgmtContainer import SonicMgmtContainer
 from .HostMethods import HostMethods
 from .DatabaseTool import DatabaseTool
+from .FilesTool import FilesTool
 
 
 class Tools:
@@ -23,3 +24,4 @@ class Tools:
     SonicMgmtContainer = SonicMgmtContainer()
     HostMethods = HostMethods()
     DatabaseTool = DatabaseTool()
+    FilesTool = FilesTool()

@@ -9,7 +9,7 @@
         <Case>
             <tags> VNET-VXLAN </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 5400 </tout>
+            <tout> 55555 </tout>
         </Case>
     </global>
 
@@ -24,10 +24,9 @@
         </ignore>
         <info> VNET-VxLAN test case </info>
         <name> vnet_vxlan </name>
-        <tout> 6000 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no --disable_loganalyzer -ra --showlocals --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no --disable_loganalyzer -ra --showlocals --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --timeout 6000 --session-timeout 6000 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
              </params>
         </cmd>
     </case>
@@ -43,10 +42,9 @@
         </ignore>
         <info> VNET-VxLAN 3K scaling test case </info>
         <name> vnet_vxlan_3k </name>
-        <tout> 6000 </tout>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --num_vnet=32 --num_routes=3000 --num_endpoints=512 --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --num_vnet=32 --num_routes=3000 --num_endpoints=512 --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --timeout 6000 --session-timeout 6000 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
              </params>
         </cmd>
     </case>
@@ -54,10 +52,9 @@
     <case>
         <info> VNET-VxLAN 33K scaling test case </info>
         <name> vnet_vxlan_33k </name>
-        <tout> 6000 </tout>
         <cmd>
              <params>
-                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --num_vnet=32 --num_routes=33000 --num_endpoints=33000 --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
+                <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --num_vnet=32 --num_routes=33000 --num_endpoints=33000 --ipv6_vxlan_test False --clean-alluredir --alluredir=/tmp/allure-results --timeout 6000 --session-timeout 6000 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_vxlan.py</static_args>
              </params>
         </cmd>
     </case>
@@ -73,10 +70,9 @@
         </ignore>
         <info> VNET-VxLAN route leak test case </info>
         <name> vnet_route_leak </name>
-        <tout> 6000 </tout>
         <cmd>
              <params>
-                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_route_leak.py </static_args>
+                 <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --setup-name [[conf:extra_info.setup_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\'--log-cli-level debug --show-capture=no -ra --showlocals --clean-alluredir --alluredir=/tmp/allure-results --timeout 6000 --session-timeout 6000 --allure_server_addr=\"10.215.11.120\"\'" --test-scripts vxlan/test_vnet_route_leak.py </static_args>
              </params>
         </cmd>
     </case>

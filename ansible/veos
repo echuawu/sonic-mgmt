@@ -115,6 +115,24 @@ R-R740-12_2 ansible_host=r-r740-12
 [vm_host_72]
 ARC-HOST70_2 ansible_host=ARC-HOST70
 
+[vm_host_73]
+MTVR-R740-05_1 ansible_host=mtvr-r740-05
+
+[vm_host_74]
+R-DL360-01_1 ansible_host=r-dl360-01
+
+[vm_host_75]
+R-DL360-01_2 ansible_host=r-dl360-01
+
+[vm_host_76]
+MTVR-R740-06_1 ansible_host=mtvr-r740-06
+
+[vm_host_77]
+MTVR-R740-06_2 ansible_host=mtvr-r740-06
+
+[vm_host_80]
+R-R740-15_1 ansible_host=r-r740-15
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -155,6 +173,12 @@ vm_host_69
 vm_host_70
 vm_host_71
 vm_host_72
+vm_host_73
+vm_host_74
+vm_host_75
+vm_host_76
+vm_host_77
+vm_host_80
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -1296,6 +1320,210 @@ VM3730 ansible_host=10.215.6.154
 VM3731 ansible_host=10.215.6.156
 VM3732 ansible_host=10.215.6.157
 
+[vms_73]
+VM3801 ansible_host=10.245.34.123
+VM3802 ansible_host=10.245.34.124
+VM3803 ansible_host=10.245.34.125
+VM3804 ansible_host=10.245.34.126
+VM3805 ansible_host=10.245.34.127
+VM3806 ansible_host=10.245.34.128
+VM3807 ansible_host=10.245.34.129
+VM3808 ansible_host=10.245.34.130
+VM3809 ansible_host=10.245.34.131
+VM3810 ansible_host=10.245.34.132
+VM3811 ansible_host=10.245.34.133
+VM3812 ansible_host=10.245.34.134
+VM3813 ansible_host=10.245.34.135
+VM3814 ansible_host=10.245.34.136
+VM3815 ansible_host=10.245.34.137
+VM3816 ansible_host=10.245.34.138
+VM3817 ansible_host=10.245.34.139
+VM3818 ansible_host=10.245.34.140
+VM3819 ansible_host=10.245.34.141
+VM3820 ansible_host=10.245.34.142
+VM3821 ansible_host=10.245.34.143
+VM3822 ansible_host=10.245.34.144
+VM3823 ansible_host=10.245.34.145
+VM3824 ansible_host=10.245.34.146
+VM3825 ansible_host=10.245.34.147
+VM3826 ansible_host=10.245.34.148
+VM3827 ansible_host=10.245.34.149
+VM3828 ansible_host=10.245.34.150
+VM3829 ansible_host=10.245.34.151
+VM3830 ansible_host=10.245.34.152
+VM3831 ansible_host=10.245.34.153
+VM3832 ansible_host=10.245.34.154
+
+[vms_74]
+VM3901 ansible_host=10.215.34.183
+VM3902 ansible_host=10.215.34.184
+VM3903 ansible_host=10.215.34.185
+VM3904 ansible_host=10.215.34.186
+VM3905 ansible_host=10.215.34.187
+VM3906 ansible_host=10.215.34.188
+VM3907 ansible_host=10.215.34.189
+VM3908 ansible_host=10.215.34.190
+VM3909 ansible_host=10.215.34.191
+VM3910 ansible_host=10.215.34.192
+VM3911 ansible_host=10.215.34.193
+VM3912 ansible_host=10.215.34.194
+VM3913 ansible_host=10.215.34.195
+VM3914 ansible_host=10.215.34.196
+VM3915 ansible_host=10.215.34.197
+VM3916 ansible_host=10.215.34.198
+VM3917 ansible_host=10.215.34.199
+VM3918 ansible_host=10.215.34.200
+VM3919 ansible_host=10.215.34.201
+VM3920 ansible_host=10.215.34.202
+VM3921 ansible_host=10.215.34.203
+VM3922 ansible_host=10.215.34.204
+VM3923 ansible_host=10.215.34.205
+VM3924 ansible_host=10.215.34.206
+VM3925 ansible_host=10.215.34.207
+VM3926 ansible_host=10.215.34.208
+VM3927 ansible_host=10.215.34.209
+VM3928 ansible_host=10.215.34.210
+VM3929 ansible_host=10.215.34.211
+VM3930 ansible_host=10.215.34.212
+VM3931 ansible_host=10.215.34.213
+VM3932 ansible_host=10.215.34.214
+
+[vms_75]
+VM4001 ansible_host=10.215.35.1
+VM4002 ansible_host=10.215.35.2
+VM4003 ansible_host=10.215.35.3
+VM4004 ansible_host=10.215.35.4
+VM4005 ansible_host=10.215.35.5
+VM4006 ansible_host=10.215.35.6
+VM4007 ansible_host=10.215.35.7
+VM4008 ansible_host=10.215.35.8
+VM4009 ansible_host=10.215.35.9
+VM4010 ansible_host=10.215.35.10
+VM4011 ansible_host=10.215.35.11
+VM4012 ansible_host=10.215.35.12
+VM4013 ansible_host=10.215.35.13
+VM4014 ansible_host=10.215.35.14
+VM4015 ansible_host=10.215.35.15
+VM4016 ansible_host=10.215.35.16
+VM4017 ansible_host=10.215.35.17
+VM4018 ansible_host=10.215.35.18
+VM4019 ansible_host=10.215.35.19
+VM4020 ansible_host=10.215.35.20
+VM4021 ansible_host=10.215.35.21
+VM4022 ansible_host=10.215.35.22
+VM4023 ansible_host=10.215.35.23
+VM4024 ansible_host=10.215.35.24
+VM4025 ansible_host=10.215.35.25
+VM4026 ansible_host=10.215.35.26
+VM4027 ansible_host=10.215.35.27
+VM4028 ansible_host=10.215.35.28
+VM4029 ansible_host=10.215.35.29
+VM4030 ansible_host=10.215.35.30
+VM4031 ansible_host=10.215.35.31
+VM4032 ansible_host=10.215.35.32
+
+[vms_76]
+VM4101 ansible_host=10.245.36.4
+VM4102 ansible_host=10.245.36.5
+VM4103 ansible_host=10.245.36.6
+VM4104 ansible_host=10.245.36.7
+VM4105 ansible_host=10.245.36.8
+VM4106 ansible_host=10.245.36.9
+VM4107 ansible_host=10.245.36.10
+VM4108 ansible_host=10.245.36.11
+VM4109 ansible_host=10.245.36.12
+VM4110 ansible_host=10.245.36.13
+VM4111 ansible_host=10.245.36.14
+VM4112 ansible_host=10.245.36.15
+VM4113 ansible_host=10.245.36.16
+VM4114 ansible_host=10.245.36.17
+VM4115 ansible_host=10.245.36.18
+VM4116 ansible_host=10.245.36.19
+VM4117 ansible_host=10.245.36.20
+VM4118 ansible_host=10.245.36.21
+VM4119 ansible_host=10.245.36.22
+VM4120 ansible_host=10.245.36.23
+VM4121 ansible_host=10.245.36.24
+VM4122 ansible_host=10.245.36.25
+VM4123 ansible_host=10.245.36.26
+VM4124 ansible_host=10.245.36.27
+VM4125 ansible_host=10.245.36.28
+VM4126 ansible_host=10.245.36.29
+VM4127 ansible_host=10.245.36.30
+VM4128 ansible_host=10.245.36.31
+VM4129 ansible_host=10.245.36.32
+VM4130 ansible_host=10.245.36.33
+VM4131 ansible_host=10.245.36.34
+VM4132 ansible_host=10.245.36.35
+
+[vms_77]
+VM4201 ansible_host=10.245.36.38
+VM4202 ansible_host=10.245.36.39
+VM4203 ansible_host=10.245.36.40
+VM4204 ansible_host=10.245.36.41
+VM4205 ansible_host=10.245.36.42
+VM4206 ansible_host=10.245.36.43
+VM4207 ansible_host=10.245.36.44
+VM4208 ansible_host=10.245.36.45
+VM4209 ansible_host=10.245.36.46
+VM4210 ansible_host=10.245.36.47
+VM4211 ansible_host=10.245.36.48
+VM4212 ansible_host=10.245.36.49
+VM4213 ansible_host=10.245.36.50
+VM4214 ansible_host=10.245.36.51
+VM4215 ansible_host=10.245.36.52
+VM4216 ansible_host=10.245.36.53
+VM4217 ansible_host=10.245.36.54
+VM4218 ansible_host=10.245.36.55
+VM4219 ansible_host=10.245.36.56
+VM4220 ansible_host=10.245.36.57
+VM4221 ansible_host=10.245.36.58
+VM4222 ansible_host=10.245.36.59
+VM4223 ansible_host=10.245.36.60
+VM4224 ansible_host=10.245.36.61
+VM4225 ansible_host=10.245.36.62
+VM4226 ansible_host=10.245.36.63
+VM4227 ansible_host=10.245.36.64
+VM4228 ansible_host=10.245.36.65
+VM4229 ansible_host=10.245.36.66
+VM4230 ansible_host=10.245.36.67
+VM4231 ansible_host=10.245.36.68
+VM4232 ansible_host=10.245.36.69
+
+[vms_80]
+VM4501 ansible_host=10.215.32.4
+VM4502 ansible_host=10.215.32.5
+VM4503 ansible_host=10.215.32.6
+VM4504 ansible_host=10.215.32.7
+VM4505 ansible_host=10.215.32.8
+VM4506 ansible_host=10.215.32.9
+VM4507 ansible_host=10.215.32.10
+VM4508 ansible_host=10.215.32.11
+VM4509 ansible_host=10.215.32.12
+VM4510 ansible_host=10.215.32.13
+VM4511 ansible_host=10.215.32.14
+VM4512 ansible_host=10.215.32.15
+VM4513 ansible_host=10.215.32.16
+VM4514 ansible_host=10.215.32.17
+VM4515 ansible_host=10.215.32.18
+VM4516 ansible_host=10.215.32.19
+VM4517 ansible_host=10.215.32.20
+VM4518 ansible_host=10.215.32.21
+VM4519 ansible_host=10.215.32.22
+VM4520 ansible_host=10.215.32.23
+VM4521 ansible_host=10.215.32.24
+VM4522 ansible_host=10.215.32.25
+VM4523 ansible_host=10.215.32.26
+VM4524 ansible_host=10.215.32.27
+VM4525 ansible_host=10.215.32.28
+VM4526 ansible_host=10.215.32.29
+VM4527 ansible_host=10.215.32.30
+VM4528 ansible_host=10.215.32.31
+VM4529 ansible_host=10.215.32.32
+VM4530 ansible_host=10.215.32.33
+VM4531 ansible_host=10.215.32.34
+VM4532 ansible_host=10.215.32.35
+
 [eos:children]
 vms_1
 vms_2
@@ -1336,6 +1564,12 @@ vms_69
 vms_70
 vms_71
 vms_72
+vms_73
+vms_74
+vms_75
+vms_76
+vms_77
+vms_80
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -1696,6 +1930,72 @@ host_var_file=host_vars/ARC-HOST70_2.yml
 host_var_file=host_vars/ARC-HOST70_2.yml
 mgmt_prefixlen=16
 
+[server_73:children]
+vm_host_73
+vms_73
+
+[server_73:vars]
+host_var_file=host_vars/MTVR-R740-05_1.yml
+
+[vms_73:vars]
+host_var_file=host_vars/MTVR-R740-05_1.yml
+mgmt_prefixlen=16
+
+[server_74:children]
+vm_host_74
+vms_74
+
+[server_74:vars]
+host_var_file=host_vars/R-DL360-01_1.yml
+
+[vms_74:vars]
+host_var_file=host_vars/R-DL360-01_1.yml
+mgmt_prefixlen=16
+
+[server_75:children]
+vm_host_75
+vms_75
+
+[server_75:vars]
+host_var_file=host_vars/R-DL360-01_2.yml
+
+[vms_75:vars]
+host_var_file=host_vars/R-DL360-01_2.yml
+mgmt_prefixlen=16
+
+[server_76:children]
+vm_host_76
+vms_76
+
+[server_76:vars]
+host_var_file=host_vars/MTVR-R740-06_1.yml
+
+[vms_76:vars]
+host_var_file=host_vars/MTVR-R740-06_1.yml
+mgmt_prefixlen=20
+
+[server_77:children]
+vm_host_77
+vms_77
+
+[server_77:vars]
+host_var_file=host_vars/MTVR-R740-06_2.yml
+
+[vms_77:vars]
+host_var_file=host_vars/MTVR-R740-06_2.yml
+mgmt_prefixlen=20
+
+[server_80:children]
+vm_host_80
+vms_80
+
+[server_80:vars]
+host_var_file=host_vars/R-R740-15_1.yml
+
+[vms_80:vars]
+host_var_file=host_vars/R-R740-15_1.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -1736,6 +2036,12 @@ server_69
 server_70
 server_71
 server_72
+server_73
+server_74
+server_75
+server_76
+server_77
+server_80
 
 [servers:vars]
 topologies=['dualtor', 'dualtor-64', 'dualtor-mixed', 'dualtor-aa', 'dualtor-aa-64', 'dualtor-56', 'dualtor-mixed-56', 'dualtor-aa-56', 't1', 't1-lag', 't1-28-lag', 't1-56-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-56-o8v48', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', 't0-120', dpu, dpu-1]

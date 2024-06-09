@@ -11,16 +11,18 @@ from retry import retry
 
 logger = logging.getLogger()
 
+OPEN_SM_PATH = "/labhome/juliav/workspace/sm_regression/sources/SM_MASTER/usr/sbin/opensm"
+
 
 class OpenSmTool:
 
     @staticmethod
     def start_open_sm(engines=None):
-        return OpenSmTool.start_open_sm_on_dut(engines)
+        return OpenSmTool.start_open_sm_on_server(engines)
 
     @staticmethod
     def stop_open_sm(engines=None):
-        return OpenSmTool.stop_open_sm_on_dut(engines)
+        return OpenSmTool.stop_open_sm_on_server(engines)
 
     @staticmethod
     def start_open_sm_on_dut(engines=None):
@@ -101,7 +103,7 @@ class OpenSmTool:
                 return ResultObj(False, "Failed to find GUID to start OpenSM")
 
         with allure.step("Start OpenSM"):
-            engines.ha.run_cmd("opensm -g {} -B".format(guid))
+            engines.ha.run_cmd(f"{OPEN_SM_PATH} -g {guid} -B")
             time.sleep(5)
 
         with allure.step("Verify OpenSM is running"):

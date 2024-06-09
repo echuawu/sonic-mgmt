@@ -1,5 +1,7 @@
 import logging
 import os
+import random
+import string
 
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
 from infra.tools.general_constants.constants import DefaultConnectionValues
@@ -127,7 +129,7 @@ class ScpAuthVerifier(AuthVerifier):
                 logging.info('Downloaded file successfully removed')
             else:
                 logging.info('Remove uploaded file')
-                self.engine.run_cmd(f'rm {dst_path}')
+                self.engine.run_cmd(f'rm -f {dst_path}')
                 logging.info('Uploaded file successfully removed')
         except Exception as e:
             logging.info('SCP failed')
@@ -139,14 +141,15 @@ class ScpAuthVerifier(AuthVerifier):
 
         if not check_result_in_caller_func:
             assert scp_success == expect_success, f'SCP success ({scp_success}) status ' \
-                                                  f'not as expected ({expect_success})'
+                f'not as expected ({expect_success})'
 
     def _verify_scp_download(self, switch_dir, expect_success, switch_filenme='', check_result_in_caller_func=False):
         with allure.step(f'Verify SCP download from the switch. Expect success: {expect_success}'):
-            filename = AuthConsts.SWITCH_SCP_DOWNLOAD_TEST_FILE_NAME if not switch_filenme else switch_filenme
+            src_filename = AuthConsts.SWITCH_SCP_DOWNLOAD_TEST_FILE_NAME if not switch_filenme else switch_filenme
+            dst_filename = ''.join([random.choice(string.ascii_lowercase) for _ in range(15)]) + '.txt'
             self.__verify_scp(
-                src_path=f'{switch_dir}/{filename}',
-                dst_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/{filename}',
+                src_path=f'{switch_dir}/{src_filename}',
+                dst_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/{dst_filename}',
                 download_from_remote=True,
                 expect_success=expect_success,
                 check_result_in_caller_func=check_result_in_caller_func
@@ -156,7 +159,7 @@ class ScpAuthVerifier(AuthVerifier):
         with allure.step(f'Verify SCP upload to the switch. Expect success: {expect_success}'):
             self.__verify_scp(
                 src_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/'
-                         f'{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
+                f'{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
                 dst_path=f'{switch_dir}/{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
                 download_from_remote=False,
                 expect_success=expect_success,

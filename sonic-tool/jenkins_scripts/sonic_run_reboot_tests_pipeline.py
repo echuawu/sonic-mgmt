@@ -121,7 +121,7 @@ CASES_FILE_REBOOT_WITH_UPGRADE_TESTCASE_TEMPLATE = '''<case>
     <tout> 5400 </tout>
     <cmd>
          <params>
-             <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\\\'--log-cli-level debug --downgrade_type=onie --show-capture=no -ra --showlocals --upgrade_type={test_type} --base_image_list={base_versions_list} --target_image_list={target_version} --restore_to_image={target_version} --clean-alluredir --alluredir=/tmp/allure-results --allure_server_project_id=\\\"\\\" --allure_server_addr=\\\"10.215.11.120\\\"\\\'" --test-scripts upgrade_path/test_upgrade_path.py::test_upgrade_path </static_args>
+             <static_args> --sonic-mgmt-dir /root/mars/workspace/[[conf:extra_info.sonic_mgmt_repo_name]] --dut-name [[conf:extra_info.dut_name]] --sonic-topo [[conf:extra_info.topology]] --json-root-dir [[conf:extra_info.json_root_dir]] --raw-options "\\\'--neighbor_type [[conf:extra_info.neighbor_type]] --log-cli-level debug --downgrade_type=onie --show-capture=no -ra --showlocals --upgrade_type={test_type} --base_image_list={base_versions_list} --target_image_list={target_version} --restore_to_image={target_version} --clean-alluredir --alluredir=/tmp/allure-results --allure_server_project_id=\\\"\\\" --allure_server_addr=\\\"10.215.11.120\\\"\\\'" --test-scripts upgrade_path/test_upgrade_path.py::test_upgrade_path </static_args>
          </params>
     </cmd>
 </case>

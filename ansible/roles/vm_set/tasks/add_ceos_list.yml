@@ -54,6 +54,17 @@
       pull: no
     source: build
 
+- name: Check if debian docker image exists
+  docker_image_info:
+    name:
+      - "debian:jessie"
+  become: yes
+  register: debian_stat
+
+- name: Import debian image
+  shell: "docker load -i {{ vm_images_path }}/debian.tar"
+  when: (debian_stat.images | length == 0)
+
 - name: Create net base containers
   become: yes
   docker_container:

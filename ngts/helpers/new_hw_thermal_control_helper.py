@@ -87,7 +87,7 @@ class TC_CONST(object):
     # thermal control config
     TC_CONFIG_FILE = f"{HW_MGMT_FOLDER}/config/tc_config.json"
     # list of platforms without a link to TC_CONFIG_FILE (copy file instead of link)
-    PLATFORMS_WITHOUT_TC_CONFIG_LINK = ["MQM9700", 'QM8790']
+    PLATFORMS_WITHOUT_TC_CONFIG_LINK = ["MQM9700", 'QM8790', 'QM3400']
     # hw-management-thermal folder
     HW_MGMT_THERMAL_FOLDER = "/etc/hw-management-thermal"
 
@@ -361,9 +361,6 @@ def collect_sensors_info(cli_objects, dut):
     sensors_counter['psu'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/hotplug_psus"))
     logger.info(f"PSU :{sensors_counter['psu']}")
 
-    sensors_counter['module'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/module_counter"))
-    logger.info(f"module counter:{sensors_counter['module']}")
-
     sensors_counter['gearbox'] = int(cli_object_dut.general.read_file(f"{TC_CONST.HW_MGMT_FOLDER}/config/gearbox_counter"))
     logger.info(f"gearbox counter:{sensors_counter['gearbox']}")
 
@@ -443,9 +440,10 @@ def get_tested_sensor_list(sensors_counter, dut, cli_object_dut):
         else:
             sensor_temperature_test_list.remove("module")
 
-    not_support_asic_platform_list = ["x86_64-nvidia_sn4280_simx-r0"]
-    if cli_object_dut.chassis.get_platform() in not_support_asic_platform_list:
-        sensor_temperature_test_list.remove("asic")
+    if hasattr(cli_object_dut.chassis, 'get_platform'):
+        not_support_asic_platform_list = ["x86_64-nvidia_sn4280_simx-r0"]
+        if cli_object_dut.chassis.get_platform() in not_support_asic_platform_list:
+            sensor_temperature_test_list.remove("asic")
 
     if not sensor_temperature_test_list:
         raise Exception("No sensor is available for testing ")
@@ -473,6 +471,7 @@ def get_module_index_supporting_sensor(dut):
 
 def get_tc_config(cli_objects):
     tc_config_content = cli_objects.dut.general.read_file(f"{TC_CONST.TC_CONFIG_FILE}")
+    tc_config_content = tc_config_content.replace('asic\\\\d+', 'asic')
     tc_config_dict = json.loads(tc_config_content)
     logger.info(f"tc_config: {tc_config_dict}")
     return tc_config_dict

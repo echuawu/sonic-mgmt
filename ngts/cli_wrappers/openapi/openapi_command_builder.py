@@ -1,20 +1,24 @@
-import logging
-from ngts.nvos_constants.constants_nvos import OpenApiReqType
-from ngts.nvos_tools.infra.ResultObj import ResultObj
 import json
-import time
-import allure
+import logging
 import re
+import time
+from typing import Tuple
+
+import allure
 import requests
 from requests.auth import HTTPBasicAuth
 from retry import retry
 
+from ngts.nvos_constants.constants_nvos import OpenApiReqType, NvosConst
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
 
 ENDPOINT_URL_TEMPLATE = 'https://{ip}:{port_num}/nvue_v1'
 REQ_HEADER = {"Content-Type": "application/json"}
 INVALID_RESPONSE = ["ays_fail", "invalid", "Bad Request", "Not Found", "Forbidden", "Internal Server Error"]
+PENDING_RESPONSE = "pending"
+APPLIED_RESPONSE = "applied"
 
 
 class RequestData:
@@ -40,16 +44,37 @@ class OpenApiRequest:
     port_num = "443"
 
     @staticmethod
-    def print_request(r: requests.Request):
-        output = "\n=======Request=======\nURL: {url}{body}\n=====================".format(
-            url=r.url, body="\nBody:\n" + json.dumps(r.body, indent=2) if r.body else "")
+    def print_request(r: requests.Request, req_data: RequestData):
+        output = f'\n' \
+            f'=======Request=======\n' \
+            f'Method: {r.method}\n' \
+            f'URL: {r.url}\n' \
+            f'User: {req_data.user_name}\n' \
+            f'Body: {OpenApiRequest.format_json_str(json.dumps(r.body, indent=2)) if r.body else "{}"}'
         logger.info(output)
 
     @staticmethod
     def print_response(r: requests.Response, req_type):
-        response = json.dumps(r.json(), indent=2) if req_type == OpenApiReqType.PATCH else r.content
-        output = "\n=======Response=======\n{}\n=====================".format(response)
+        if getattr(r, 'text', '').startswith('<html>'):
+            response = r.text
+        else:
+            response = json.dumps(r.json(), indent=2) if req_type == OpenApiReqType.PATCH else r.content
+        output = f'\n' \
+            f'=======Response=======\n' \
+            f'{OpenApiRequest.format_json_str(response)}\n' \
+            f'======================'
         logger.info(output)
+
+    @staticmethod
+    def format_json_str(s):
+        if isinstance(s, bytes):
+            s = s.decode('utf-8')
+        if s.startswith('"'):
+            s = s[1:]
+        if s.endswith('"'):
+            s = s[:-1]
+        s = s.replace('\\"', '"').replace('\\n', '\n')
+        return s or '{}'
 
     @staticmethod
     def _get_endpoint_url(request_data):
@@ -66,14 +91,19 @@ class OpenApiRequest:
             logging.info(f"Send {req_type} request to create NVUE change-set")
             r = requests.post(url=OpenApiRequest._get_endpoint_url(request_data) + "/revision",
                               auth=OpenApiRequest._get_http_auth(request_data), verify=False)
-            OpenApiRequest.print_request(r.request)
+            OpenApiRequest.print_request(r.request, request_data)
             OpenApiRequest.print_response(r, req_type)
+
+            validation_res = OpenApiRequest._validate_response(r, req_type)
+            if not validation_res.result:
+                return validation_res
+
             response = r.json()
             OpenApiRequest.changeset = response.popitem()[0]
 
             logging.info("Using NVUE change-set: '{}'".format(OpenApiRequest.changeset))
 
-            return OpenApiRequest._validate_response(r, req_type)
+            return validation_res
 
     @staticmethod
     def clear_changeset_and_payload():
@@ -82,9 +112,27 @@ class OpenApiRequest:
 
     @staticmethod
     def apply_nvue_changeset(request_data, op_param_name, add_approve=True):
+        res = OpenApiRequest._config_diff(request_data)
+        if not res.result:
+            return res.info
         res = OpenApiRequest._apply_config(request_data, add_approve)
         OpenApiRequest.clear_changeset_and_payload()
         return res.info
+
+    @staticmethod
+    def _config_diff(request_data):
+        with allure.step("Config diff"):
+            logging.info("Config diff")
+            params = {
+                'rev': 'applied',
+                'filled': 'False',
+                'diff': OpenApiRequest.changeset
+            }
+            r = requests.get(url=f'{OpenApiRequest._get_endpoint_url(request_data)}/', params=params, verify=False,
+                             auth=OpenApiRequest._get_http_auth(request_data))
+            OpenApiRequest.print_request(r.request, request_data)
+            OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
+            return OpenApiRequest._validate_response(r, OpenApiReqType.PATCH)
 
     @staticmethod
     def _apply_config(request_data, add_approve):
@@ -96,11 +144,12 @@ class OpenApiRequest:
                 req_quote=requests.utils.quote(OpenApiRequest.changeset, safe=""))
             r = requests.patch(url=url, auth=OpenApiRequest._get_http_auth(request_data), verify=False,
                                data=json.dumps(apply_payload), headers=REQ_HEADER)
-            OpenApiRequest.print_request(r.request)
+            OpenApiRequest.print_request(r.request, request_data)
             OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
             OpenApiRequest._validate_response(r, OpenApiReqType.PATCH)
 
             try:
+                time.sleep(1)
                 result = OpenApiRequest._check_apply_status(request_data, OpenApiRequest.changeset)
                 if result.result:
                     result.info = "Configuration applied successfully"
@@ -112,7 +161,7 @@ class OpenApiRequest:
                 return result
 
     @staticmethod
-    @retry(Exception, tries=5, delay=10)
+    @retry(Exception, tries=15, delay=3)
     def _check_apply_status(request_data, changeset):
         with allure.step("Check the status of the apply"):
             logging.info("Check the status of the apply")
@@ -120,16 +169,18 @@ class OpenApiRequest:
                 url_endpoint=OpenApiRequest._get_endpoint_url(request_data),
                 req_quote=requests.utils.quote(changeset, safe=""))
             r = requests.get(url=req_url, verify=False, auth=OpenApiRequest._get_http_auth(request_data))
+            OpenApiRequest.print_request(r.request, request_data)
             OpenApiRequest.print_response(r, OpenApiReqType.GET)
 
             res = OpenApiRequest._validate_response(r, OpenApiReqType.GET)
             if not res.result:
+                assert '500 Internal Server Error' not in res.info, res.info
                 return res.info
 
             obj = json.loads(r.content)
 
             if "state" in obj.keys():
-                if obj["state"] == "applied":
+                if obj["state"] == APPLIED_RESPONSE:
                     return ResultObj(True, "Configuration applied successfully")
                 if str(obj["state"]) in INVALID_RESPONSE:
                     logging.info("Apply state: " + str(obj["state"]))
@@ -138,6 +189,13 @@ class OpenApiRequest:
                     except BaseException:
                         msg = ""
                     return ResultObj(False, "Error: Failed to apply configuration. Reason: " + msg)
+                if obj["state"] == PENDING_RESPONSE:
+                    try:
+                        msg = obj["transition"]['issue']['00000']["message"]
+                        if NvosConst.NO_CONFIG_DIFF_APPLY_MSG in str(msg):
+                            return ResultObj(True, NvosConst.NO_CONFIG_DIFF_APPLY_MSG)
+                    except BaseException:
+                        raise Exception("Configuration status in pending")
                 else:
                     raise Exception("Waiting for configuration to be applied")
 
@@ -151,7 +209,19 @@ class OpenApiRequest:
         return dictionary
 
     @staticmethod
+    def _check_html_response(r: requests.Response) -> ResultObj:
+        if getattr(r, 'text', '').startswith('<html>'):
+            response = r.text
+            response_first_lines = "".join(response.split('\n')[:4])
+            if any(msg in response_first_lines for msg in INVALID_RESPONSE):
+                return ResultObj(False, "Error: Request failed. Details:\n" + response)
+        return ResultObj(True, "")
+
+    @staticmethod
     def _validate_response(r: requests.Response, req_type):
+        res = OpenApiRequest._check_html_response(r)
+        if not res.result:
+            return res
         if req_type == OpenApiReqType.PATCH:
             response = r.json()
         else:
@@ -169,7 +239,7 @@ class OpenApiRequest:
                                                             params=params,
                                                             resource_path=request_data.resource_path)
             r = requests.get(url=req_url, verify=False, auth=OpenApiRequest._get_http_auth(request_data))
-            OpenApiRequest.print_request(r.request)
+            OpenApiRequest.print_request(r.request, request_data)
             OpenApiRequest.print_response(r, OpenApiReqType.GET)
 
             res = OpenApiRequest._validate_response(r, OpenApiReqType.GET)
@@ -178,56 +248,53 @@ class OpenApiRequest:
             return r.content.decode('utf8')
 
     @staticmethod
+    def update_nvue_changeset(request_data) -> Tuple[bool, str]:
+        result, err = True, ''
+        if OpenApiRequest.changeset is None:
+            res = OpenApiRequest.create_nvue_changest(request_data)
+            result = res.result
+            if not result:
+                logging.info(f'Failed to create revision. Abort the current request\nInfo: {res.info}')
+                OpenApiRequest.clear_changeset_and_payload()
+                err = res.info
+        return result, err
+
+    @staticmethod
     def send_patch_request(request_data, op_params=''):
         with allure.step("Send PATCH request"):
-            logging.info("Send PATCH request")
             with allure.step("Add data to patch request"):
-                split_path = list(filter(None, request_data.resource_path.split('/')))
-                if op_params and (split_path[-1] != op_params):
-                    split_path.append(op_params)
-                OpenApiRequest.payload = OpenApiRequest._create_json_payload(split_path, request_data.param_value)
+                OpenApiRequest.payload = {request_data.param_name: request_data.param_value} \
+                    if request_data.param_value == 'null' else request_data.param_value
+                if request_data.param_value == 'save':
+                    OpenApiRequest.payload = {request_data.param_name: request_data.param_value}
+                url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path
 
-            if OpenApiRequest.changeset is None:
-                res = OpenApiRequest.create_nvue_changest(request_data)
-                if not res.result:
-                    logging.info(f'Failed to create revision. Abort the current request\nInfo: {res.info}')
-                    OpenApiRequest.changeset = None
-                    OpenApiRequest.payload = {}
-                    return res.info
-
-            rev_string = {"rev": OpenApiRequest.changeset}
-            req_type = OpenApiReqType.PATCH
+            res, err = OpenApiRequest.update_nvue_changeset(request_data)
+            if not res:
+                return err
 
             logging.info("Send PATCH request")
-            r = requests.patch(url=OpenApiRequest._get_endpoint_url(request_data) + "/",
+            r = requests.patch(url=url,
                                auth=OpenApiRequest._get_http_auth(request_data),
                                verify=False,
                                data=json.dumps(OpenApiRequest.payload).replace('"null"', "null"),
-                               params=rev_string,
+                               params={"rev": OpenApiRequest.changeset},
                                headers=REQ_HEADER)
-            OpenApiRequest.print_request(r.request)
-            OpenApiRequest.print_response(r, req_type)
-            res = OpenApiRequest._validate_response(r, req_type)
+            OpenApiRequest.print_request(r.request, request_data)
+            OpenApiRequest.print_response(r, OpenApiReqType.PATCH)
+            res = OpenApiRequest._validate_response(r, OpenApiReqType.PATCH)
             return res.info
 
     @staticmethod
     def send_delete_request(request_data, op_params=''):
         with allure.step('Send DELETE request'):
-            logging.info("Send DELETE request")
             if op_params:
                 request_data.param_value = 'null'
                 return OpenApiRequest.send_patch_request(request_data, op_params)
             else:
-                if OpenApiRequest.changeset is None:
-                    res = OpenApiRequest.create_nvue_changest(request_data)
-                    if not res.result:
-                        logging.info(f'Failed to create revision. Abort the current request\nInfo: {res.info}')
-                        OpenApiRequest.changeset = None
-                        OpenApiRequest.payload = {}
-                        return res.info
-
-                rev_string = {"rev": OpenApiRequest.changeset}
-                req_type = OpenApiReqType.DELETE
+                res, err = OpenApiRequest.update_nvue_changeset(request_data)
+                if not res:
+                    return err
 
                 if request_data.param_name == '':
                     url = OpenApiRequest._get_endpoint_url(request_data) + request_data.resource_path
@@ -239,12 +306,12 @@ class OpenApiRequest:
                 r = requests.delete(url=url,
                                     auth=OpenApiRequest._get_http_auth(request_data),
                                     verify=False,
-                                    params=rev_string,
+                                    params={"rev": OpenApiRequest.changeset},
                                     headers=REQ_HEADER)
 
-                OpenApiRequest.print_request(r.request)
-                OpenApiRequest.print_response(r, req_type)
-                res = OpenApiRequest._validate_response(r, req_type)
+                OpenApiRequest.print_request(r.request, request_data)
+                OpenApiRequest.print_response(r, OpenApiReqType.DELETE)
+                res = OpenApiRequest._validate_response(r, OpenApiReqType.DELETE)
                 return res.info
 
     @staticmethod
@@ -260,7 +327,12 @@ class OpenApiRequest:
                               auth=OpenApiRequest._get_http_auth(request_data), verify=False,
                               data=json.dumps(OpenApiRequest.payload),
                               headers=REQ_HEADER)
-            OpenApiRequest.print_request(r.request)
+            OpenApiRequest.print_request(r.request, request_data)
+
+            validation_res = OpenApiRequest._check_html_response(r)
+            if not validation_res.result:
+                return validation_res.info
+
             r = r.json()
             response = json.dumps(r, indent=2)
             if not response.isnumeric():
@@ -278,7 +350,7 @@ class OpenApiRequest:
 
             while True:
                 r = requests.get(url=req_url, verify=False, auth=auth, timeout=30)
-                OpenApiRequest.print_request(r.request)
+                OpenApiRequest.print_request(r.request, request_data)
                 OpenApiRequest.print_response(r, OpenApiReqType.GET)
                 response = json.loads(r.content)
                 if expected_regex and re.search(expected_regex, response['status']):

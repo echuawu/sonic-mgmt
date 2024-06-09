@@ -6,7 +6,6 @@ from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo 
 class LdapServers:
     GLOBAL_BASE_DN = 'dc=itzgeek,dc=local'
     GLOBAL_BIND_DN = 'cn=ldapadm,dc=itzgeek,dc=local'
-    GLOBAL_GROUP_ATTR = 'member'
     GLOBAL_VERSION = 3
 
     PHYSICAL_SERVER = LdapServerInfo(
@@ -16,7 +15,6 @@ class LdapServers:
         port=389,
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
-        group_attr=GLOBAL_GROUP_ATTR,
         timeout_bind=5,
         timeout_search=5,
         version=GLOBAL_VERSION,
@@ -41,7 +39,6 @@ class LdapServers:
         port=389,
         base_dn=GLOBAL_BASE_DN,
         bind_dn=GLOBAL_BIND_DN,
-        group_attr=GLOBAL_GROUP_ATTR,
         timeout_bind=5,
         timeout_search=5,
         version=GLOBAL_VERSION,
@@ -87,7 +84,6 @@ class LdapServers:
 class LdapServersP3:
     BASE_DN = 'dc=itzgeek,dc=local'
     BIND_DN = 'cn=ldapadm,dc=itzgeek,dc=local'
-    GROUP_ATTR = 'member'  # currently unused
     VERSION = 3
 
     LDAP1_IPV4 = LdapServerInfo(
@@ -97,7 +93,6 @@ class LdapServersP3:
         port=1389,
         base_dn=BASE_DN,
         bind_dn=BIND_DN,
-        group_attr=GROUP_ATTR,
         timeout_bind=5,
         timeout_search=5,
         version=VERSION,
@@ -142,7 +137,6 @@ class LdapServersP3:
         port=2389,
         base_dn=BASE_DN,
         bind_dn=BIND_DN,
-        group_attr=GROUP_ATTR,
         timeout_bind=5,
         timeout_search=5,
         version=VERSION,

@@ -43,41 +43,48 @@ def test_set_max_cli_session(engines, devices):
                 .verify_result()
 
     with allure.step("Open more than 98 cli's session and verify result"):
-        for _ in range(100):
-            try:
-                connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.DEFAULT_USER,
-                                                     port=22)
-                connection_list = []
-                connection_list.append(connection)
-                respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
-                if respond == 0:
-                    connection.sendline(devices.dut.default_password)
-                    connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
-            except Exception as err:
-                logger.info(err)
-                connection.sendline('w')
-                connection.expect('98 users')
-                with allure.step("Validate system resources CPU utilization with 100 cli session configured"):
-                    logging.info("Validate system resources CPU utilization with 100 cli session configured")
-                    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-                        system.show("cpu")).get_returned_value()
-                    cpu_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
-                    assert cpu_utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
-                        "CPU utilization: {actual}% is higher than the maximum limit of: {expected}%" \
-                        "".format(actual=cpu_utilization, expected=SystemConsts.CPU_PERCENT_THRESH_MAX)
+        connection_list = []
+        try:
+            for conn_no in range(100):
+                try:
+                    logger.info("Creating connection number: {}".format(conn_no + 1))
+                    connection = create_ssh_login_engine(engines.dut.ip, username=DefaultConnectionValues.DEFAULT_USER,
+                                                         port=22)
+                    connection_list.append(connection)
+                    respond = connection.expect([DefaultConnectionValues.PASSWORD_REGEX, '~'])
+                    if respond == 0:
+                        connection.sendline(devices.dut.default_password)
+                        connection.expect(DefaultConnectionValues.DEFAULT_PROMPTS[0])
+                except Exception as err:
+                    logger.info("Failed in creating connection {}, Error: {}".format(conn_no + 1, err))
+                    break
 
-                with allure.step("Validate system memory utilization with 100 cli session configured"):
-                    logging.info("Validate system memory  utilization with 100 cli session configured")
-                    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-                        system.show("memory")).get_returned_value()
-                    utilization = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["utilization"]
-                    assert SystemConsts.MEMORY_PERCENT_THRESH_MIN < utilization < \
-                        SystemConsts.MEMORY_PERCENT_THRESH_MAX, "Physical utilization percentage is out of range"
+            with allure.step("Validate no of users is 98"):
+                connection_list[conn_no - 1].sendline('w')
+                connection_list[conn_no - 1].expect('98 users')
 
-                with allure.step("Close all opened before cli sessions"):
-                    logging.info("Close all opened before cli sessions")
-                    for connection in connection_list:
-                        connection.close()
+            with allure.step("Validate system resources CPU utilization with 98 cli session configured"):
+                logging.info("Validate system resources CPU utilization with 98 cli session configured")
+                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
+                    system.show("cpu")).get_returned_value()
+                cpu_utilization = output_dictionary[SystemConsts.CPU_UTILIZATION_KEY]
+                assert cpu_utilization < SystemConsts.CPU_PERCENT_THRESH_MAX, \
+                    "CPU utilization: {actual}% is higher than the maximum limit of: {expected}%" \
+                    "".format(actual=cpu_utilization, expected=SystemConsts.CPU_PERCENT_THRESH_MAX)
+
+            with allure.step("Validate system memory utilization with 98 cli session configured"):
+                logging.info("Validate system memory  utilization with 98 cli session configured")
+                output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
+                    system.show("memory")).get_returned_value()
+                utilization = output_dictionary[SystemConsts.MEMORY_PHYSICAL_KEY]["utilization"]
+                assert SystemConsts.MEMORY_PERCENT_THRESH_MIN < utilization < \
+                    SystemConsts.MEMORY_PERCENT_THRESH_MAX, "Physical utilization percentage is out of range"
+
+        finally:
+            with allure.step("Close all opened before cli sessions"):
+                logging.info("Close all opened before cli sessions")
+                for connection in connection_list:
+                    connection.close()
 
     with allure.step("Negative validation for set command"):
         logger.info("Negative validation for set command")

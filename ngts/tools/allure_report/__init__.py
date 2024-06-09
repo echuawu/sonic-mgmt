@@ -7,8 +7,12 @@ from plugins.allure_server import pytest_addoption, pytest_sessionfinish, pytest
     cache_pytest_session_run_cmd, attach_pytest_specific_test_run_cmd_to_allure_report  # noqa: E402
 
 
-def testbed_param_already_loaded(session):
-    return hasattr(session.config.option, 'testbed')
+def ansible_host_pattern_param_already_loaded(session):
+    ansible_host_pattern_loaded = False
+    if hasattr(session.config.option, 'ansible_host_pattern'):
+        ansible_host_pattern_loaded = False if session.config.option.ansible_host_pattern == "stub_string" or \
+            not session.config.option.ansible_host_pattern else True
+    return ansible_host_pattern_loaded
 
 
 def get_setup_topology(session):
@@ -23,8 +27,7 @@ def pytest_sessionstart(session):
     session.config.option.allure_server_addr = "allure.nvidia.com"
     session.config.option.allure_server_port = ''
 
-    if not testbed_param_already_loaded(session):
+    if not ansible_host_pattern_param_already_loaded(session):
         topology = get_topology_by_setup_name_and_aliases(session.config.option.setup_name, slow_cli=False)
         dut_name = topology.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
-        setup_topology = get_setup_topology(session)
-        session.config.option.testbed = f'{dut_name}-{setup_topology}'
+        session.config.option.ansible_host_pattern = dut_name

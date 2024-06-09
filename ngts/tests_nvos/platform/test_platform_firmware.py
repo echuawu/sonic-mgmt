@@ -13,6 +13,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.nvos_ci
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_firmware(engines, devices, test_api, output_format):
@@ -38,14 +39,14 @@ def test_show_platform_firmware(engines, devices, test_api, output_format):
                         output_format=output_format, field_name_dict=PlatformConsts.FW_FIELD_NAME_DICT).get_returned_value()
                     assert output[PlatformConsts.FW_ACTUAL] not in {'', NvosConst.NOT_AVAILABLE}, \
                         f"{component}.{PlatformConsts.FW_ACTUAL} is empty or N/A"
-                    # todo: should I test other fields? part-number, fw-source
                     with allure.step(f"Compare {component} output against {component} entry in general output"):
-                        if test_api == ApiType.NVUE and component == PlatformConsts.FW_ASIC:
-                            # only ASIC has the auto-update option, so auto-update is omitted from the general output
-                            del output[PlatformConsts.FW_AUTO_UPDATE]
-                        ValidationTool.compare_dictionaries(all_output[component], output).verify_result()
+                        diff = ValidationTool.get_dictionaries_diff(all_output[component], output)
+                        assert not diff, (
+                            f"The following fields are missing in 'nv show platform firmware {component}' or have a "
+                            f"different value compared to 'nv show platform firmware': {diff}"
+                        )
             except Exception as e:
                 errors[component] = e
 
         assert not errors, f"Test failed for components {list(errors.keys())}. Errors were:\n" + \
-                           '\n\n'.join(f"{component}:\n{error}" for component, error in errors.items())
+            '\n\n'.join(f"{component}:\n{error}" for component, error in errors.items())

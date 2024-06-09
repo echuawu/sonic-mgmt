@@ -17,7 +17,8 @@ from ngts.helpers.run_process_on_host import run_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, PerformanceSetupConstants, \
-    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, PlatformTypesConstants
+    AppExtensionInstallationConstants, DefaultCredentialConstants, BluefieldConstants, \
+    PlatformTypesConstants, PerfConsts
 from ngts.helpers.breakout_helpers import get_port_current_breakout_mode, get_all_split_ports_parents, \
     get_split_mode_supported_breakout_modes, get_split_mode_supported_speeds, get_all_unsplit_ports
 from ngts.cli_util.cli_parsers import generic_sonic_output_parser
@@ -34,6 +35,7 @@ from ngts.scripts.check_and_store_sanitizer_dump import check_sanitizer_and_stor
 from infra.tools.nvidia_air_tools.air import get_dhcp_ips_dict
 from infra.tools.general_constants.constants import DefaultTestServerCred
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.topology_tools.nogaq import get_noga_entire_resource_data
 from ngts.tools.infra import update_platform_info_files
 from ngts.helpers.secure_boot_helper import SecureBootHelper
 
@@ -173,10 +175,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param wait_after_ping: how long in second wait after ping before ssh connection
         :return: None, raise error in case of unexpected result
         """
-        if not (ports_list or topology_obj):
-            raise Exception('ports_list or topology_obj must be passed to reboot_flow method')
-        if ports_list is None:
-            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        ports_list = self.get_ports_list_reboot_reload_flow(ports_list, topology_obj)
         with allure.step('Reboot switch by CLI - sudo {}'.format(reboot_type)):
             self.safe_reboot_flow(topology_obj, reboot_type, wait_after_ping=wait_after_ping)
             self.port_reload_reboot_checks(ports_list)
@@ -201,15 +200,35 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :param reload_force: provide if want to do reload with -f flag(force)
         :return: None, raise error in case of unexpected result
         """
-        if not (ports_list or topology_obj):
-            raise Exception('ports_list or topology_obj must be passed to reload_flow method')
-        if not ports_list:
-            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        ports_list = self.get_ports_list_reboot_reload_flow(ports_list, topology_obj)
         with allure.step('Reloading dut'):
             logger.info("Reloading dut")
             self.reload_configuration(reload_force)
             self.port_reload_reboot_checks(ports_list)
             self.check_and_apply_dns()
+
+    def get_ports_list_reboot_reload_flow(self, ports_list, topology_obj):
+        if not (ports_list or topology_obj):
+            raise Exception('ports_list or topology_obj must be passed to reload_flow method')
+        if not ports_list:
+            ports_list = topology_obj.players_all_ports[self.dut_alias]
+        # in perf setup, expected ports in up state are left_tg: (Ethernet0::252, 4), right_tg: (Ethernet256::508, 4)
+        if self.cli_obj.dut_alias in [PerfConsts.LEFT_TG_ALIAS, PerfConsts.RIGHT_TG_ALIAS]:
+            ports_list = self.get_performance_ports_list(topology_obj)
+        return ports_list
+
+    def get_performance_ports_list(self, topology_obj):
+        """
+        Method returns ports list of traffic generator from performance setup, which connected to DUT
+        :return: TG ports list
+        """
+        ports_list = []
+        switch_name = topology_obj.players[self.cli_obj.dut_alias]['attributes'].noga_query_data['attributes']['Common']['Name']
+        noga_entire_data = get_noga_entire_resource_data(resource_name=switch_name)
+        for resource in noga_entire_data:
+            if 'etp' in resource['name'] and switch_name not in resource['connected with']:
+                ports_list.append(resource['if'])
+        return ports_list
 
     def port_reload_reboot_checks(self, ports_list):
         self.verify_dockers_are_up()
@@ -339,7 +358,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 success = False
         assert success, 'Not all expected processes in RUNNING status'
 
-    @retry(Exception, tries=5, delay=30)
+    @retry(Exception, tries=2, delay=30)
     def generate_techsupport(self, duration=60):
         """
         Generate sysdump for a given time frame in seconds
@@ -391,6 +410,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 time.sleep(InfraConst.SLEEP_AFTER_RRBOOT)
                 self.do_installation(topology_obj, image_path, deploy_type, fw_pkg_path, platform_params)
 
+        with allure.step('Verify dockers are up'):
+            self.verify_dockers_are_up()
+
         if reboot_after_install:
             with allure.step("Validate dockers are up, reboot if any docker is not up"):
                 self.validate_dockers_are_up_reboot_if_fail()
@@ -402,6 +424,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         with allure.step("Init telemetry keys"):
             self.init_telemetry_keys()
+
+        self.engine.disconnect()
 
         self.update_platform_params(platform_params, setup_name)
 
@@ -664,7 +688,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         return dut_is_alive
 
-    def remote_reboot(self, topology_obj):
+    def remote_reboot(self, topology_obj, boot_into_onie=False):
         ip = self.engine.ip
         port = self.engine.ssh_port
         logger.info('Executing remote reboot')
@@ -672,9 +696,44 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             'remote_reboot']
         _, _, rc = run_process_on_host(cmd)
         if rc == InfraConst.RC_SUCCESS:
+            if boot_into_onie:
+                self.boot_into_onie_by_serial_on_remote_reboot(topology_obj)
             check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port)
         else:
             raise Exception('Remote reboot rc is other then 0')
+
+    def boot_into_onie_by_serial_on_remote_reboot(self, topology_obj):
+        serial_engine = SecureBootHelper.get_serial_engine_instance(topology_obj)
+        serial_engine.create_serial_engine(login_to_switch=False)
+        arrow_down_key = "\x1b[B"
+        arrow_up_key = "\x1b[A"
+        enter_key = '\r'
+
+        logger.info("Wait for GNU GRUB  version")
+        output, respond = serial_engine.run_cmd(
+            '', ['GRUB loading.', 'GNU GRUB  version'], timeout=240, send_without_enter=True)
+        logger.info(f"GNU GRUB  version is ready.\n output:{output} \n respond:{respond}")
+
+        logger.info("Select ONIE by pressing arrow down")
+        # press the arrow up several times to ensure the item is selected
+        for i in range(3):
+            logger.info("Sending one arrow down")
+            serial_engine.run_cmd(arrow_down_key, expected_value='.*', send_without_enter=True)
+            time.sleep(0.5)
+        logger.info("Onie option selected")
+
+        logger.info("Pressing Enter to enter ONIE grub menu")
+        serial_engine.run_cmd(enter_key, expected_value='.*', timeout=30, send_without_enter=True)
+
+        logger.info("Select 'ONIE: Install OS' by entering arrow up")
+        # press the arrow up several times to ensure the item is selected
+        for i in range(2):
+            logger.info("Sending one arrow up")
+            serial_engine.run_cmd(arrow_up_key, expected_value='.*', send_without_enter=True)
+            time.sleep(0.5)
+
+        logger.info("Pressing Enter to enter ONIE: Install OS")
+        serial_engine.run_cmd('\r', expected_value='.*', timeout=30, send_without_enter=True)
 
     def prepare_for_installation(self, topology_obj):
         switch_in_onie = False
@@ -684,18 +743,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
                 switch_in_onie = True
             except Exception as err:
                 logger.warning(f'DUT is not in ONIE. \n Got error: {err}')
-                if self.switch_dut_to_onie_due_to_unmatched_password():
+                # it can cover the following scenarios
+                # 1. user/password doesn't match the default one
+                # 2. ping and ssh switch are ok, but cannot login into it
+                if self.switch_dut_to_onie_by_remote_reboot(topology_obj):
                     switch_in_onie = True
         else:
-            if self.switch_dut_to_onie_by_serial_on_dut_stuck_on_selecting_os_page(topology_obj):
-                switch_in_onie = True
-            if self.switch_dut_from_sonic_to_onie_by_serial_on_dut_is_not_alive(topology_obj):
-                switch_in_onie = True
             if self.switch_dut_to_onie_by_remote_reboot(topology_obj):
                 switch_in_onie = True
-            if self.switch_dut_to_onie_due_to_unmatched_password():
+            elif self.switch_dut_to_onie_by_serial_on_dut_stuck_on_selecting_os_page(topology_obj):
                 switch_in_onie = True
-
+            elif self.switch_dut_from_sonic_to_onie_by_serial_on_dut_is_not_alive(topology_obj):
+                switch_in_onie = True
         return switch_in_onie
 
     def switch_dut_to_onie_due_to_unmatched_password(self):
@@ -715,7 +774,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         with allure.step('Do remote reboot because dut is not alive'):
             try:
                 logger.info("Do remote reboot ...")
-                self.remote_reboot(topology_obj)
+                self.remote_reboot(topology_obj, boot_into_onie=True)
             except Exception as err:
                 logger.info(f"remote reboot err:{err}")
 
@@ -857,10 +916,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         if reload_before_qos:
             with allure.step("Reload the dut"):
-                self.reload_configuration(force=True)
-
-        with allure.step('Verify dockers are up'):
-            self.verify_dockers_are_up()
+                self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj,
+                                        reload_force=True)
 
         with allure.step("Apply qos and dynamic buffer config"):
             self.cli_obj.qos.reload_qos()
@@ -877,6 +934,7 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             with allure.step('Apply DNS servers configuration'):
                 self.cli_obj.ip.apply_dns_servers_into_resolv_conf(
                     is_air_setup=platform_params.setup_name.startswith('air'))
+
         self.cli_obj.general.save_configuration()
 
     def apply_config_files(self, topology_obj, setup_name, platform_params):
@@ -892,10 +950,18 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         self.upload_config_db_file(topology_obj, setup_name, hwsku, platform, shared_path)
 
+        with allure.step("Disable autoneg on SW control ports if SW control feature enabled"):
+            if self.cli_obj.im.is_im_enabled():
+                port_supporting_im = self.cli_obj.im.get_ports_supporting_im(
+                    self.cli_obj.im.dut_ports_number_dict(topology_obj))
+                if port_supporting_im:
+                    with allure.step('Disable autoneg on ports supporting IM'):
+                        self.cli_obj.im.disable_autoneg_on_ports_supporting_im(port_supporting_im)
+
         if is_redmine_issue_active([3858467]) and platform == 'x86_64-mlnx_msn4700-r0':
-            self.engine.reload(['sudo config reload -f -y'])
+            self.reboot_reload_flow(r_type=SonicConst.CONFIG_RELOAD_CMD, topology_obj=topology_obj, reload_force=True)
         else:
-            self.engine.reload(['sudo reboot'])
+            self.reboot_reload_flow(topology_obj=topology_obj)
 
     def upload_port_config_ini(self, platform, hwsku, shared_path):
         switch_config_ini_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
@@ -1006,10 +1072,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         tree.write(filepath, encoding="utf-8")
 
     def get_updated_config_db(self, topology_obj, setup_name, hwsku, platform):
-        branch = get_sonic_branch(topology_obj)
+        branch = get_sonic_branch(topology_obj, self.cli_obj.dut_alias)
         config_file_prefix = self.get_config_file_prefix(setup_name)
         config_db_file_name = f"{self.get_image_sonic_version()}_{config_file_prefix}config_db.json"
-        if branch in ['202205', '202211', '202305', '202311']:
+        if branch in ['202205', '202211', '202305']:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_JSON
         else:
             base_config_db_json_file_name = SonicConst.CONFIG_DB_GNMI_JSON
@@ -1030,7 +1096,20 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         self.update_database_version(setup_name, config_db_file_name)
         if branch not in ['202205', '202211', '202305']:
             self.remove_syslog_telemetry_entry(setup_name, config_db_file_name)
+        self.update_config_db_simx_setup_metadata_mac(setup_name, config_db_file_name)
+
         return config_db_file_name
+
+    def update_config_db_simx_setup_metadata_mac(self, setup_name, config_db_json_file_name):
+        expected_base_mac_file_path = f'/tmp/simx_base_mac_{self.engine.ip}'
+        if os.path.exists(expected_base_mac_file_path):
+            mac_address = os.popen(f"cat {expected_base_mac_file_path}").read()
+            logger.info(f"Update the mac address for simx setup to: {mac_address}")
+            config_db_json = self.get_config_db_json_obj(setup_name, config_db_json_file_name=config_db_json_file_name)
+            config_db_json[ConfigDbJsonConst.DEVICE_METADATA][ConfigDbJsonConst.LOCALHOST][ConfigDbJsonConst.MAC] = \
+                mac_address
+
+            return self.create_extended_config_db_file(setup_name, config_db_json, file_name=config_db_json_file_name)
 
     def update_config_db_features(self, setup_name, hwsku, platform, config_db_json_file_name):
         init_config_db_json = self.get_init_config_db_json_obj(hwsku, platform, setup_name)
@@ -1349,6 +1428,15 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         # if sn2 in platform, it's spc1. e.g. x86_64-mlnx_msn2700-r0
         return 'sn2' in platform
 
+    def is_spc2(self, cli_object):
+        """
+        Function to check if the current DUT is SPC2
+        :param cli_object: cli_object
+        """
+        platform = cli_object.chassis.get_platform()
+        # if sn3 in platform, it's spc1. e.g. x86_64-mlnx_msn3800-r0
+        return 'sn3' in platform
+
     @classmethod
     def is_simx_moose(cls, engine):
 
@@ -1587,6 +1675,34 @@ class SonicGeneralCliDefault(GeneralCliCommon):
         :return: bootctl output
         """
         return self.engine.run_cmd('bootctl', validate=True)
+
+    def is_async_route_enabled(self, async_route_param):
+        """
+        Checks the status of async_route feature
+
+        :param str async_route_param: async_route feature parameter from sai.profile, f.e. 'SAI_ASYNC_ROUTING_ENABLED=1'
+        :return bool: True if feature is enabled, False otherwise
+        """
+        async_route_status = async_route_param.split('=')[-1]
+        return async_route_status == '1'
+
+    def enable_async_route_feature(self, platform, hwsku):
+        """
+        Checks if async route feature is enabled and enables it otherwise
+        """
+        switch_sai_xml_path = f'/usr/share/sonic/device/{platform}/{hwsku}'
+        default_sai_xml_file_name = 'sai.profile'
+        async_routing_enabled = 'SAI_ASYNC_ROUTING_ENABLED'
+
+        logger.info('Get SAI init config file path')
+        sai_profile_path = f'{switch_sai_xml_path}/{default_sai_xml_file_name}'
+        async_route_param = self.engine.run_cmd(f'sudo cat {sai_profile_path} | grep {async_routing_enabled}')
+        if async_route_param and not self.is_async_route_enabled(async_route_param):
+            if self.is_async_route_enabled(async_route_param):
+                logger.info('Async_route feature is already enabled')
+            else:
+                self.engine.run_cmd(f'sed -i "/{async_routing_enabled}/d" {sai_profile_path}')
+                self.engine.run_cmd(f'echo "{async_routing_enabled}=1" >> {sai_profile_path}')
 
 
 class SonicGeneralCli202012(SonicGeneralCliDefault):

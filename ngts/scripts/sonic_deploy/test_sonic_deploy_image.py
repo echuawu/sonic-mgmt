@@ -14,7 +14,7 @@ logger = logging.getLogger()
 @allure.title('Deploy sonic image')
 def test_deploy_sonic_image(topology_obj, setup_name, sonic_topo, platform_params, base_version, deploy_type,
                             apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, workspace_path,
-                            post_installation_validation):
+                            post_installation_validation, chip_type):
     """
     This script will deploy sonic image on the dut.
     :param topology_obj: topology object fixture
@@ -54,7 +54,7 @@ def test_deploy_sonic_image(topology_obj, setup_name, sonic_topo, platform_param
             topology_obj=topology_obj, sonic_topo=sonic_topo, recover_by_reboot=True, setup_name=setup_name,
             platform_params=platform_params, apply_base_config=apply_base_config, target_version="",
             is_shutdown_bgp=False, reboot_after_install=False, deploy_only_target=False, fw_pkg_path="",
-            reboot="reboot", additional_apps="", setup_info=setup_info)
+            reboot="reboot", additional_apps="", setup_info=setup_info, chip_type=chip_type)
 
 
 def check_bgp_is_shutdown(dut_engine):

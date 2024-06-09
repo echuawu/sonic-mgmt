@@ -154,7 +154,7 @@ def test_reset_factory_keep_all_config(engines, devices):
                 6.3.    Run set command & apply
     """
     try:
-        port_type = devices.dut.switch_type
+        port_type = devices.dut.switch_type.lower()
         with allure.step('Create System object'):
             system = System()
 
@@ -240,7 +240,7 @@ def test_reset_factory_keep_only_files(engines, devices):
                 6.3.    Run set command & apply
     """
     try:
-        port_type = devices.dut.switch_type
+        port_type = devices.dut.switch_type.lower()
         with allure.step('Create System object'):
             system = System()
             date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
@@ -323,7 +323,4 @@ def test_error_flow_reset_factory_with_params(test_api, engines, devices, topolo
 
 def execute_reset_factory(engines, system, flag, current_time):
     logging.info("Current time: " + str(current_time))
-    res_obj, duration = OperationTime.save_duration('reset factory', flag, pytest.test_name,
-                                                    system.factory_default.action_reset, param=flag)
-    res_obj.verify_result()
-    OperationTime.verify_operation_time(duration, 'reset factory').verify_result()
+    system.factory_default.action_reset(param=flag).verify_result()

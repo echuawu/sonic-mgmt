@@ -1,10 +1,13 @@
+import os
+
+
 class ArConsts:
     DOAI_CONTAINER_NAME = "doai"
     PORT_UTIL_CUSTOM_PERCENT = 1
     PORT_UTIL_DEFAULT_PERCENT = 70
     FRR_CONFIG_FOLDER = 'frr_config'
     AR_CONFIG_FOLDER = 'ar_profile_config'
-    AR_CUSTOM_PROFILE_FILE_NAME = 'custom_profile.json'
+    AR_CUSTOM_PROFILE_JSON = 'custom_profile.json'
     PACKET_SPEED_A = 5
     PACKET_SPEED_B = 15
     PACKET_NUM_SMALLEST = 20

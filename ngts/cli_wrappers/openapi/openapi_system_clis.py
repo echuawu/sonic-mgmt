@@ -112,6 +112,19 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, resource_path, params)
 
     @staticmethod
+    def action_delete(engine, resource_path, file_name):
+        logging.info("Running action: 'delete' on dut using OpenApi")
+        params = \
+            {
+                "state": "start",
+                "parameters": {
+                    'file-name': file_name,
+                }
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.DELETE, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
+
+    @staticmethod
     def action_generate_tpm_quote(engine, resource_path, pcrs='', nonce='', algorithm=''):
         logging.info("Running action: 'generate' on dut using OpenApi")
         parameters = {'pcrs': pcrs, 'nonce': nonce}
@@ -161,7 +174,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
                                                    engine.ip, "/system/log", params)
 
     @staticmethod
-    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True):
+    def action_reboot(engine, device, resource_path, op_param="", should_wait_till_system_ready=True, recovery_engine=None):
         logging.info("Running action: rotate system log on dut using OpenApi")
         parameters_dict = {}
         if "force" in op_param:
@@ -186,7 +199,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             check_port_status_till_alive(True, engine.ip, engine.ssh_port)
 
         if should_wait_till_system_ready:
-            device.wait_for_os_to_become_functional(engine).verify_result()
+            device.wait_for_os_to_become_functional(recovery_engine or engine).verify_result()
         return result
 
     @staticmethod

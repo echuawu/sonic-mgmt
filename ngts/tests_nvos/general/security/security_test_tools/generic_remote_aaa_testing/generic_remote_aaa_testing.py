@@ -13,7 +13,8 @@ from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.Aaa import Aaa
 from ngts.nvos_tools.system.Hostname import HostnameId
 from ngts.nvos_tools.system.RemoteAaaResource import RemoteAaaResource
-from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthMedium
+from ngts.tests_nvos.general.security.security_test_tools.constants import AddressingType, AuthConsts, AuthMedium, \
+    AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.constants import *
 from ngts.tests_nvos.general.security.security_test_tools.generic_remote_aaa_testing.generic_aaa_testing_utils import \
     detach_config
@@ -69,8 +70,18 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
     with allure.step('Set hostnames'):
         hostname1 = '1.2.3.4'
         hostname2 = '2.3.4.5'
+        hostname3 = AaaConsts.VM_AAA_SERVER_DN
+        hostname4 = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
         main_resource_obj.hostname.set(hostname1)
-        configure_resource(engines, main_resource_obj.hostname.hostname_id[hostname2], hostname_conf, apply=True)
+        hostname_conf[AaaConsts.PRIORITY] = 2
+        configure_resource(engines, main_resource_obj.hostname.hostname_id[hostname2], hostname_conf)
+        hostname_conf[AaaConsts.PRIORITY] = 3
+        configure_resource(engines, main_resource_obj.hostname.hostname_id[hostname3], hostname_conf)
+        hostname_conf[AaaConsts.PRIORITY] = 4
+        configure_resource(engines, main_resource_obj.hostname.hostname_id[hostname4], hostname_conf, apply=True)
+        non_default_hostnames = [hostname2, hostname3]  # FIXME: use hostname4 always after bug #3880238 fixed
+        if remote_aaa_type == RemoteAaaType.LDAP:
+            non_default_hostnames.append(hostname4)
 
     with allure.step('Verify general configurations'):
         for resource, expected_conf in confs.items():
@@ -85,7 +96,8 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
     with allure.step('Verify hostnames exist in show output'):
         show_rev_param = '' if remote_aaa_type == RemoteAaaType.LDAP else ConfState.APPLIED
         show_hostname_output = show_and_parse(main_resource_obj.hostname, rev=show_rev_param)
-        ValidationTool.verify_field_exist_in_json_output(show_hostname_output, [hostname1, hostname2]).verify_result()
+        ValidationTool.verify_field_exist_in_json_output(show_hostname_output,
+                                                         [hostname1, hostname2, hostname3, hostname4]).verify_result()
 
     with allure.step('Verify hostnames configurations'):
         with allure.step(f'Verify default configuration for hostname {hostname1}'):
@@ -99,14 +111,17 @@ def generic_aaa_test_set_unset_show(test_api, engines, remote_aaa_type: str, mai
                                                             expected_values=expected_conf.values(),
                                                             output_dict=cur_hostname_conf).verify_result()
 
-        with allure.step(f'Verify new configuration for hostname {hostname2}'):
-            expected_conf = hostname_conf
+        with allure.step(f'Verify new configuration for hostnames {non_default_hostnames}'):
+            expected_conf = hostname_conf.copy()
+            expected_conf[AaaConsts.PRIORITY] = 2
             if AaaConsts.SECRET in expected_conf.keys():
                 expected_conf[AaaConsts.SECRET] = '*'
-            cur_hostname_conf = show_and_parse(main_resource_obj.hostname.hostname_id[hostname2], rev=show_rev_param)
-            ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
-                                                            expected_values=expected_conf.values(),
-                                                            output_dict=cur_hostname_conf).verify_result()
+            for hostname in non_default_hostnames:
+                cur_hostname_conf = show_and_parse(main_resource_obj.hostname.hostname_id[hostname], rev=show_rev_param)
+                ValidationTool.validate_fields_values_in_output(expected_fields=expected_conf.keys(),
+                                                                expected_values=expected_conf.values(),
+                                                                output_dict=cur_hostname_conf).verify_result()
+                expected_conf[AaaConsts.PRIORITY] += 1
 
     if list(hostname_conf.keys()) != [AaaConsts.PRIORITY]:
         with allure.step(f'Clear hostname {hostname2} configuration'):
@@ -523,7 +538,6 @@ def generic_aaa_test_auth_error(test_flow, test_api, engines, topology_obj, requ
         5.	Set failthrough on
         6.	Verify auth with 2nd server credentials – expect success
         7.  Verify auth with local user credentials - expect success
-        8.  Verify auth with credentials from none of servers/local - expect fail
     @param test_flow: whether it's a good-flow / bad-flow test
     @param test_api: run commands with NVUE / OpenApi
     @param engines: engines object

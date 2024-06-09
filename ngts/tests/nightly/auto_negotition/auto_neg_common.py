@@ -1,5 +1,4 @@
 import logging
-import allure
 import random
 import pytest
 from retry.api import retry_call
@@ -12,6 +11,7 @@ from ngts.constants.constants import AutonegCommandConstants, PlatformTypesConst
 from ngts.helpers.interface_helpers import get_alias_number, get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 from ngts.tests.nightly.auto_negotition.auto_fec_common import TestAutoFecBase
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 ASIC_SUPPORTS_AN_AND_FORCE_COMBO = ["SPC", "SPC2", "SPC3"]

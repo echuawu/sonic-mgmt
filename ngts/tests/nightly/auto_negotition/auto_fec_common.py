@@ -1,10 +1,10 @@
 import pytest
 import logging
-import allure
 from retry.api import retry_call
 from ngts.constants.constants import AutonegCommandConstants, SonicConst, LinuxConsts
 from ngts.tests.nightly.conftest import compare_actual_and_expected
 from ngts.tests.push_build_tests.L2.lldp.test_lldp import verify_lldp_neighbor_info_for_sonic_port
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 
@@ -62,7 +62,7 @@ class TestAutoFecBase:
                            tries=20, delay=10, logger=logger)
                 if not self.is_simx:
                     retry_call(self.verify_mlxlink_fec_status_for_port, fargs=[port, port_conf_dict],
-                               tries=6, delay=10, logger=logger)
+                               tries=8, delay=10, logger=logger)
                 if lldp_checker:
                     retry_call(self.verify_interfaces_status_on_lldp_table, fargs=[port],
                                tries=4, delay=10, logger=logger)

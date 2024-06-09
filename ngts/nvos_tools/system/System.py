@@ -1,8 +1,9 @@
 import logging
 import time
 from retry import retry
+from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts
+from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -73,9 +74,12 @@ class System(BaseComponent):
         with allure.step("Validate health status with \"nv show system\" cmd"):
             logger.info("Validate health status with \"nv show system\" cmd")
             system_output = OutputParsingTool.parse_json_str_to_dictionary(self.show()).get_returned_value()
-            assert expected_status == system_output[SystemConsts.HEALTH_STATUS], \
-                "Unexpected health status. \n Expected: {}, but got :{}".\
-                format(expected_status, system_output[SystemConsts.HEALTH_STATUS])
+            if expected_status != system_output[SystemConsts.HEALTH_STATUS]:
+                health_output = OutputParsingTool.parse_json_str_to_dictionary(self.health.show()).get_returned_value()
+                health_issues_str = '\n'.join(f'{k}: {v}' for k, v in health_output[HealthConsts.ISSUES].items())
+                assert False, "Unexpected health status.\nExpected: {}, but got :{}," \
+                    " with the following health issues:\n{}".\
+                    format(expected_status, health_output[HealthConsts.STATUS], health_issues_str)
 
     @retry(Exception, tries=3, delay=2)
     def wait_until_health_status_change_to(self, expected_status):
@@ -132,8 +136,11 @@ class FactoryDefault(BaseComponent):
             DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
             end_time = time.time()
             duration = end_time - start_time
+
             with allure.step("Reset factory till system is functional takes: {} seconds".format(duration)):
                 logger.info("Reset factory till system is functional takes: {} seconds".format(duration))
+                OperationTime.verify_operation_time(duration, 'reset factory').verify_result()
+
             return res_obj
 
 

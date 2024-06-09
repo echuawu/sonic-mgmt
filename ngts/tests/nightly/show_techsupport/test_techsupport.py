@@ -76,19 +76,21 @@ def test_techsupport_mellanox_sdk_dump(topology_obj, engines, cli_objects, logan
             ignoreRegex = [
                 r".*SX_HEALTH_FATAL Detected with cause : FW health issue.*",
                 r".*SDK health event, device.*",
-                r".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*- Stopping further device monitoring.*",
-                r".*SXD_HEALTH_FATAL: On device 1 cause ='FW health'.*- Stopping further device monitoring.*",
+                r".*FW health.*stopping further device monitoring.*",
                 r".*on_switch_shutdown_request: Syncd stopped.*",
                 r".*ERROR - Read PWM error. Possible hw-management is not running.*",
                 r".*SX_HEALTH_FATAL: cause_string = \[FW health issue\].*",
+                r".*SX_HEALTH_FATAL: cause_string.*error msg generated from SDK.*",
                 r".*Failed command read at communication channel: Connection reset by peer.*",
+                r".*mlnx_switch_health_event_handle: Health event happened.*"
             ]
             if fw_event == "PLL_LOCK_EVENT":
                 ignoreRegex.extend([
                     r".*SXD_HEALTH_FW_FATAL: FW Fatal:fw_cause.*",
                     r".*SX_HEALTH_FATAL: cause_string = \[PLL lock failure\].*",
                     r".*Failed command read at communication channel: Connection reset by peer.*",
-                    r".*SXD_HEALTH_FATAL:\s?On device \d+ cause =\'PLL lock failure\'.*"
+                    r".*SXD_HEALTH_FATAL:\s?On device \d+ cause =\'PLL lock failure\'.*",
+                    r".*PLL lock failure.*further device monitoring.*"
                 ])
             loganalyzer[dut].ignore_regex.extend(ignoreRegex)
     with allure.step('STEP3: Count number of SDK extended dumps at dut after event occurred'):
@@ -114,9 +116,10 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
             for dut in loganalyzer:
                 loganalyzer[dut].expect_regex.extend(["Health-Check: Trigger SYSFS failure"])
                 ignoreRegex = [
-                    r"mlnx_switch_health_event_handle: Health event happened, severity fatal, cause HW catastrophic "
+                    r".*mlnx_switch_health_event_handle: Health event happened.*HW catastrophic.*"
                     r"event",
-                    r"on_switch_shutdown_request: Syncd stopped"
+                    r"on_switch_shutdown_request: Syncd stopped",
+                    r".*Sysfs running counter is not updated for more than \d+ sec.*"
                 ]
                 loganalyzer[dut].ignore_regex.extend(ignoreRegex)
 
@@ -152,8 +155,8 @@ def test_techsupport_health_event_sdk_dump(topology_obj, loganalyzer, engines, c
         raise err
 
     finally:
-        with allure.step("Verify basic container is up after restoring from health event"):
-            cli_objects.dut.general.verify_dockers_are_up()
+        with allure.step('Reload switch'):
+            cli_objects.dut.general.reload_flow(topology_obj=topology_obj, reload_force=True)
 
 
 def cp_sdk_event_trigger_script_to_dut_syncd(engine):
@@ -247,7 +250,7 @@ def check_all_dumps_file_exsits(topology_obj, engine, chip_type):
     # Check SDK dump:
     assert 'sai_sdk_dump.txt' in output_fw_dump, 'Missing SDK dump'
     # Check mlxtrace dump:
-    if not(is_redmine_issue_active([3587386]) and chip_type == "SPC4"):
+    if not (is_redmine_issue_active([3587386]) and chip_type == "SPC4"):
         if sonic_branch in branch_with_old_sdk:
             assert '_pci_cr0_mlxtrace.trc' in output_fw_dump, 'Missing mlxtrace'
         else:

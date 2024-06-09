@@ -6,13 +6,14 @@ import allure
 import sys
 from pathlib import Path
 
+from ngts.helpers import json_file_helper
 from ngts.scripts.sonic_deploy.image_preparetion_methods import is_url, get_sonic_branch
-from ngts.constants.constants import MarsConstants, SonicDeployConstants
+from ngts.constants.constants import MarsConstants, SonicDeployConstants, SonicConst
 from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigraph_cmd, deploy_minigpraph, \
     reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
     config_y_cable_simulator, add_host_for_y_cable_simulator
 from retry.api import retry_call
-from ngts.helpers.run_process_on_host import run_background_process_on_host, run_process_on_host
+from ngts.helpers.run_process_on_host import run_background_process_on_host
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -66,16 +67,14 @@ class SonicInstallationSteps:
         Start background threads for community setup
         """
         if neighbor_type == 'vsonic':
-            start_vsonic_vms_cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo,
-                                                                                       "start", "sonic-vs.img")
-            run_background_process_on_host(threads_dict, 'start_vsonic_vms', start_vsonic_vms_cmd, timeout=3600,
-                                           exec_path=ansible_path)
+            logger.info(f"Starting vsonic VMs")
+            SonicInstallationSteps.start_vsonic_vms(ansible_path=ansible_path,
+                                                    setup_name=setup_name,
+                                                    dut_names=[dut_name],
+                                                    sonic_topo=sonic_topo)
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
-        # TODO: Remove the "r-leopard-70" != dut_name and "r-leopard-70" != dut_name in the condition after the
-        #  hwsku Mellanox-SN4700-O8V48 is merged to upstream
-        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "r-leopard-70" != dut_name and \
-                "r-leopard-72" != dut_name:
+        if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "mtvr-hippo-03" != dut_name:
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
@@ -104,7 +103,7 @@ class SonicInstallationSteps:
         """
         devts_path = SonicInstallationSteps.get_devts_path()
         cmd = f'{python_bin_path} {devts_path}/scripts/docker/containers_bringup.py ' \
-              f'--setup_name {setup_name} --sonic_setup'
+            f'--setup_name {setup_name} --sonic_setup'
         return cmd
 
     @staticmethod
@@ -117,7 +116,7 @@ class SonicInstallationSteps:
         """
         sonic_mgmt_path = os.path.abspath(__file__).split('/ngts/')[0]
         cmd = f'{python_bin_path} {sonic_mgmt_path}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py ' \
-              f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
+            f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
         return cmd
 
     @staticmethod
@@ -163,7 +162,7 @@ class SonicInstallationSteps:
                 image_path = '/' + '/'.join(image_path.split('/')[file_path_index:])
             branch = get_sonic_branch(image_path)
             logger.info('SONiC branch is: {}'.format(branch))
-            ptf_tag = MarsConstants.BRANCH_PTF_MAPPING.get(branch, 'latest')
+            ptf_tag = MarsConstants.BRANCH_PTF_MAPPING.get(branch, '558858')
         except Exception as err:
             logger.error('Can not get SONiC branch and PTF tag from path: {}, using "latest". Error: {}'.format(
                 image_path, err))
@@ -182,6 +181,19 @@ class SonicInstallationSteps:
                 execute_script(cmd, ansible_path, validate=False, timeout=1200)
             except Exception as err:
                 logger.warning(f'Failed to stop for dut {dut_name}. Got error: {err}')
+
+    @staticmethod
+    def start_vsonic_vms(ansible_path, setup_name, dut_names, sonic_topo):
+        """
+        The method removes the topologies to get the clear environment.
+        """
+        for dut_name in dut_names:
+            cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo, "start",
+                                                                      "sonic-vs.img")
+            try:
+                execute_script(cmd, ansible_path, validate=False, timeout=2400)
+            except Exception as err:
+                logger.warning(f'Failed to start SONiC VMs for dut {dut_name}. Got error: {err}')
 
     @staticmethod
     def remove_topologies(ansible_path, dut_names, setup_name, sonic_topo):
@@ -318,10 +330,31 @@ class SonicInstallationSteps:
         return is_app_ext_dict
 
     @staticmethod
+    def copy_json_to_dut(json_content, filename, dest_path, dut_engine):
+        with open(f'/tmp/{filename}', 'w') as f:
+            json.dump(json_content, f, indent=4)
+        os.chmod(f'/tmp/{filename}', 0o777)
+        dut_engine.copy_file(source_file=f'/tmp/{filename}', dest_file=filename, file_system='/tmp/',
+                             overwrite_file=True, verify_file=False)
+        dut_engine.run_cmd(f'sudo cp /tmp/{filename} {dest_path}')
+
+    @staticmethod
+    def remove_redundant_service_port(dut_platform_path, hwsku, dut_engine, cli_obj):
+        port_to_remove = 'Ethernet513'
+        port_config_path = f'{dut_platform_path}/{hwsku}/port_config.ini'
+        dut_engine.run_cmd(f'grep -v "{port_to_remove}" {port_config_path} > tmp_port_config')
+        dut_engine.run_cmd(f'sudo mv tmp_port_config {port_config_path}')
+
+        platform_json_path = f'{dut_platform_path}/platform.json'
+        platform_json_obj = json_file_helper.get_platform_json(dut_engine, cli_obj)
+        del platform_json_obj['interfaces'][port_to_remove]
+        SonicInstallationSteps.copy_json_to_dut(platform_json_obj, 'platform.json', platform_json_path, dut_engine)
+
+    @staticmethod
     def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, setup_name, platform_params,
                                 apply_base_config, target_version, is_shutdown_bgp, reboot_after_install,
                                 deploy_only_target, fw_pkg_path, reboot, additional_apps, setup_info,
-                                is_performance, deploy_dpu=False):
+                                is_performance, chip_type, deploy_dpu=False):
         """
         Post-installation steps
         :param topology_obj: topology object
@@ -339,27 +372,38 @@ class SonicInstallationSteps:
         :param additional_apps: additional_apps fixture
         :param setup_info: dictionary with setup info
         :param is_performance: True in case when setup is performance
+        :param chip_type: the type of chip
+        :param deploy_dpu: deploy dpu flag
         """
         ansible_path = setup_info['ansible_path']
+        cli = SonicInstallationSteps.get_dut_cli(setup_info)
+        cli.cli_obj.general.update_platform_params(platform_params, setup_name)
 
-        # TODO: This is a WA for virtual smart switch before the hwsku Mellanox-SN4700-O8V48 is merged to upstream
-        if "r-leopard-70" in setup_name or "r-leopard-72" in setup_name:
+        if "mtvr-hippo-03" in setup_name:
             dut_name = setup_info['duts'][0]['dut_name']
-            dut_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0/Mellanox-SN4700-O8V48'
+            dut_platform_path = f'/usr/share/sonic/device/{platform_params["platform"]}'
             sonic_mgmt_hwsku_path = '/usr/share/sonic/device/x86_64-kvm_x86_64-r0'
             sonic_user = os.getenv("SONIC_SWITCH_USER")
             sonic_password = os.getenv("SONIC_SWITCH_PASSWORD")
+            dut_engine = topology_obj.players['dut']['engine']
+            SonicInstallationSteps.remove_redundant_service_port(dut_platform_path, platform_params['hwsku'],
+                                                                 dut_engine, cli.cli_obj)
+            dut_engine.run_cmd(f'sudo sonic-cfggen --preset t1 -p -H -k {platform_params["hwsku"]} > '
+                               f'{SonicConst.SONIC_CONFIG_FOLDER}{SonicConst.CONFIG_DB_JSON}')
             execute_script(f'sshpass -p "{sonic_password}" scp -o "StrictHostKeyChecking no"'
-                           f' -r {sonic_user}@{dut_name}:{dut_hwsku_path} '
+                           f' -r {sonic_user}@{dut_name}:{dut_platform_path}/{platform_params["hwsku"]} '
                            f'{sonic_mgmt_hwsku_path}', ansible_path)
             generate_minigraph(ansible_path, setup_info, dut_name, sonic_topo, None)
+
+        cli.enable_async_route_feature(platform_params['platform'], platform_params['hwsku'])
 
         if not is_community(sonic_topo):
             # Enable Port Init Profile for Canonical setups
             logger.info("Prepare sai.xml files for Port Init feature testing")
-            cli = setup_info['duts'][0]['cli_obj']
             cli.update_sai_xml_file(platform_params['platform'], platform_params['hwsku'], global_flag=True,
                                     local_flags=False)
+
+            cli.cli_obj.im.enable_im(topology_obj, platform_params, chip_type=chip_type)
 
         # Community only steps
         if is_community(sonic_topo):
@@ -440,6 +484,10 @@ class SonicInstallationSteps:
                     cli = dut['cli_obj']
                     cli.remove_minigraph_ipv6_mgmt_interface()
                     cli.remove_snmp_ipv6_addr()
+            # Enable IM
+            cli.cli_obj.im.enable_im(topology_obj=topology_obj, platform_params=platform_params, chip_type=chip_type,
+                                     enable_im=True, is_community=True)
+
             for dut in setup_info['duts']:
                 SonicInstallationSteps.post_install_check_sonic(sonic_topo=sonic_topo, dut_name=dut['dut_name'],
                                                                 ansible_path=ansible_path)
@@ -484,6 +532,15 @@ class SonicInstallationSteps:
             for dut in setup_info['duts']:
                 ports_list = topology_obj.players_all_ports[dut['dut_alias']]
                 dut['cli_obj'].cli_obj.interface.check_link_state(ports_list)
+
+    @staticmethod
+    def get_dut_cli(setup_info):
+        cli = None
+        for dut in setup_info['duts']:
+            if dut['dut_alias'] == 'dut':
+                cli = dut['cli_obj']
+                break
+        return cli
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,

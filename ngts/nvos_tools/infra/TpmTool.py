@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.tests_nvos.general.security.tpm_attestation import constants as tpmconst
@@ -54,6 +54,16 @@ class TpmTool:
 
     def get_quote_file_content(self):
         return self.engine.run_cmd(f'sudo cat {tpmconst.QUOTE_FILE_PATH}')
+
+    def is_tpm_lockout_counter_cleared(self) -> Tuple[bool, str]:
+        expected_counter_hex = '0x0'
+        with allure.step(f'check if tpm lockout counter is cleared: {expected_counter_hex}'):
+            actual_counter_hex = self.engine.run_cmd('sudo tpm2 getcap properties-variable | grep TPM2_PT_LOCKOUT_COUNTER:').split(':')[1].strip()
+            return actual_counter_hex == expected_counter_hex, actual_counter_hex
+
+    def clear_tpm_lockout_counter(self):
+        with allure.step('clear tpm lockout counter'):
+            self.engine.run_cmd('sudo tpm2_dictionarylockout --setup-parameters --clear-lockout')
 
     """ Helper methods """
 

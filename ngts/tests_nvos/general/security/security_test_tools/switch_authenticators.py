@@ -1,8 +1,10 @@
 import logging
-import pexpect
 import time
 
+import pexpect
+
 from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.tests_nvos.general.security.constants import SSN_OPTIONS
 
 MAX_TIMEOUT = 360
 PEXPECT_DELAY = 2
@@ -106,7 +108,7 @@ class Authenticator:
 class SshAuthenticator(Authenticator):
     def __init__(self, username, password, ip, port=22):
         super().__init__(username, password, ip, port)
-        self.ssn_command = f'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout={MAX_TIMEOUT} {self.username}@{self.ip}'
+        self.ssn_command = f'ssh {SSN_OPTIONS} -o ConnectTimeout={MAX_TIMEOUT} {self.username}@{self.ip}'
         self.ssh_session_already_started = False
         self.start_session()
 
@@ -185,7 +187,7 @@ class OpenapiAuthenticator(Authenticator):
         self.send_cmd('\r', DefaultConnectionValues.DEFAULT_PROMPTS)
 
         openapi_request = f"curl -k --user {self.username}:{password_to_send} " \
-                          f"--request GET 'https://{self.ip}/nvue_v1/system/version'"
+            f"--request GET 'https://{self.ip}/nvue_v1/system/version'"
         expected_msg = ['}', '</html>'] + DefaultConnectionValues.DEFAULT_PROMPTS
         self.log(f'Make auth attempt with password: {password_to_send} | Then, expect: {expected_msg}')
         send_timestamp, respond_index, output = self.send_cmd(openapi_request, expected_msg, timeout)

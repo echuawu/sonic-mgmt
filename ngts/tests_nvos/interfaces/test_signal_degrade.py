@@ -301,7 +301,7 @@ def _stop_signal_degrade_simulator(engines, mst_device):
 
 
 def _get_active_ports(devices):
-    active_ports = Tools.RandomizationTool.get_random_active_port(0, devices.dut.switch_type).get_returned_value()
+    active_ports = Tools.RandomizationTool.get_random_active_port(0, devices.dut.switch_type.lower()).get_returned_value()
     relevant_ports = []
     relevant_port_names = ["sw1p1", "sw1p2", "sw2p1", "sw2p2", "sw3p1", "sw3p2", "swp3", "swp4"]
     for port in active_ports:

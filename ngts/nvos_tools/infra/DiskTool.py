@@ -50,3 +50,14 @@ class DiskTool:
             output = self.engine.run_cmd(cmd)
             available_disk_storages = output.split('\n')
             return available_disk_storages
+
+    def get_free_space(self):
+        with allure.step('Get the available free space'):
+            # The fourth column contains the Usage in Gigabytes for disk free tool
+            cmd = 'df -h | grep "/$" | tr -s " " | cut -d" " -f4'
+            free_space = self.engine.run_cmd(cmd)
+            return free_space
+
+    @staticmethod
+    def get_path_available_capacity_percentage(engine, path):
+        return engine.run_cmd(f"df -h {path}" + " | awk 'NR==2 {sub(/%/,\"\",$5); print $5}'")

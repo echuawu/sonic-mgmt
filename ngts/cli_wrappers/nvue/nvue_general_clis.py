@@ -1,9 +1,11 @@
+import json
+
 from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts, SystemConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, ActionConsts, SystemConsts, ConfState
 from ngts.constants.constants import InfraConst
 from infra.tools.general_constants.constants import DefaultConnectionValues
 from infra.tools.connection_tools.pexpect_serial_engine import PexpectSerialEngine
@@ -82,7 +84,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         else:
             assert nos_image.startswith(
                 'http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. ' \
-                            f'Actual "nos_image"={nos_image}'
+                f'Actual "nos_image"={nos_image}'
             image_path = f'/auto/{nos_image.split("/auto/")[1]}'
             image_url = nos_image
         return image_path, image_url
@@ -124,7 +126,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             self._scp_image(ssh_engine, image_path, file_on_switch)
             found_pattern_index = self._onie_nos_install_image(serial_engine, file_on_switch,
                                                                self.device.install_success_patterns)
-            assert found_pattern_index == 0, "Failed to install image on onie"
+            assert found_pattern_index == self.device.install_patterns[self.device.login_pattern], \
+                "Failed to install image on onie"
 
         logger.info(f'*** Image {image_path} successfully installed ***')
 
@@ -141,6 +144,19 @@ class NvueGeneralCli(SonicGeneralCliDefault):
     def deploy_onie(self, image_path, in_onie, fw_pkg_path, platform_params, topology_obj):
         assert in_onie, 'NVOS install failed - not in ONIE'
         self.install_image_onie(self.engine, image_path, platform_params, topology_obj)
+
+    def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
+                     platform_params=None, deploy_type='sonic', reboot_after_install=None, fw_pkg_path=None,
+                     set_timezone='Israel', disable_ztp=False, configure_dns=False):
+        if image_path.startswith('http'):
+            image_path = '/auto/' + image_path.split('/auto/')[1]
+
+        with allure.step('Preparing switch for installation'):
+            logger.info("Begin: Preparing switch for installation ")
+            in_onie = self.prepare_for_installation(topology_obj)
+            logger.info("End: Preparing switch for installation ")
+
+        self.deploy_onie(image_path, in_onie, fw_pkg_path, platform_params, topology_obj)
 
     def install_image_onie(self, engine, image_path, platform_params, topology_obj):
         with allure.step('Install image onie - NVOS'):
@@ -175,9 +191,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def show_config(engine, output_type='json'):
+    def show_config(engine, revision='applied', output_type='json'):
         logging.info("Running 'nv config show' on dut")
-        output = engine.run_cmd('nv config show --output {output_type}'.format(output_type=output_type))
+        output = engine.run_cmd('nv config show --rev {revision} --output {output_type}'.format(output_type=output_type,
+                                                                                                revision=revision))
         return output
 
     @staticmethod
@@ -201,7 +218,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         return output
 
     @staticmethod
-    def apply_config(engine, ask_for_confirmation=False, option='', validate_apply_message='', rev_id=""):
+    def apply_config(engine, ask_for_confirmation=False, option='', validate_apply_message='', rev_id="",
+                     skip_no_config_diff_err=True):
         """
         Apply configuration
         :param option: could be [-y, --assume-yes, --assume-no, --confirm-yes, --confirm-no, --confirm-status]
@@ -218,16 +236,19 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             else:
                 output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                             tries_after_run_cmd=2)
-            if 'Declined apply after warnings' in output:
-                output = "Error: " + output
-            elif 'y: command not found' in output and 'applied' in output:
-                output = 'applied' + NvueGeneralCli.get_rev_id(output)
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
             assert validate_apply_message in output, 'Message {0} not exist in output {1}'. \
                 format(validate_apply_message, output)
         else:
             output = engine.run_cmd('nv {option} config apply {rev}'.format(option=option, rev=rev_id))
+
+        logging.info("Check apply result")
+        if skip_no_config_diff_err and NvosConst.NO_CONFIG_DIFF_APPLY_MSG in output:
+            output = ConfState.APPLIED + NvueGeneralCli.get_rev_id(output)  # skip no diff message
+        if ConfState.APPLIED not in output:
+            output = "Error: " + output
+
         return output
 
     @staticmethod

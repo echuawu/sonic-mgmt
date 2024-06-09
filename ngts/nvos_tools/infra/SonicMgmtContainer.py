@@ -17,7 +17,7 @@ class SonicMgmtContainer:
             logging.info("Restart rsyslog over sonic-mgmt container")
             sonic_mgmt_engine.run_cmd('sudo pkill rsyslogd')
             sonic_mgmt_engine.run_cmd('rm -f /var/run/rsyslogd.pid')
-            sonic_mgmt_engine.run_cmd('rsyslogd')
+            sonic_mgmt_engine.run_cmd('rsyslogd -n &')
 
     @staticmethod
     def remove_comment_sign_from_rsyslog_conf_file(sonic_mgmt_engine, sentences_list):

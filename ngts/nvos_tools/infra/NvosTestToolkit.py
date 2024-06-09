@@ -97,6 +97,15 @@ class TestToolkit:
         return pytest.is_sanitizer or pytest.is_code_coverage or pytest.is_debug_kernel
 
     @staticmethod
+    def get_version_num(version):
+        if not re.match(TestToolkit.devices.dut.full_version_pattern, version):
+            return ''
+
+        match = re.search(TestToolkit.devices.dut.version_number_pattern, version)
+        version_number = match.group()
+        return version_number
+
+    @staticmethod
     def version_to_release(version):
         """
         return the relevant release according to the version param.
@@ -106,9 +115,9 @@ class TestToolkit:
             from 'nvos-25.02.1910-014' to  'nvos-25-02-2000'
             from 'nvos-25.02.1320-014' to  'nvos-25-02-1400'
         """
-        pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
-        if not re.match(pattern, version):
+        if not re.match(TestToolkit.devices.dut.full_version_pattern, version):
             return ''
+
         pattern = r'(\d+)-(\d+)$'
         match = re.search(pattern, version)
         if match:

@@ -23,6 +23,9 @@ class JsonHandler:
         self.data.result = json_row['result']
         self.data.allure_url = json_row['allure_url']
         self.data.skip_reason = json_row['skip_reason']
+        self.data.exception = json_row['exception']
+        self.data.exception_regex = json_row['exception_regex']
+        self.data.la_redmine_issues = json_row['log_analyzer_redmine_issues']
         self.data.dump_info = json_row['dump_info']
         self.data.test_inserted_time = json_row['test_inserted_time']
         self.all_data.append(self.data)

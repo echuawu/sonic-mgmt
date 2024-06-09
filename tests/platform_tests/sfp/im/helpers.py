@@ -18,7 +18,7 @@ IM_SAI_ATTRIBUTE_NAME = "SAI_INDEPENDENT_MODULE_MODE"
 XCVRD_PMON_PROCESS_SKIP = "python3 /usr/local/bin/xcvrd --skip_cmis_mgr"
 
 IM_EEPROM_SPECIFICATION_KEY = "Specification compliance"
-IM_EEPROM_VENDOR_DATE_KEY = "Vendor Date Code\(YYYY-MM-DD Lot\)"
+IM_EEPROM_VENDOR_DATE_KEY = "Vendor Date Code\\(YYYY-MM-DD Lot\\)"
 IM_EEPROM_VENDOR_NAME_KEY = "Vendor Name"
 IM_EEPROM_VENDOR_OUI_KEY = "Vendor OUI"
 IM_EEPROM_VENDOR_PM_KEY = "Vendor PN"
@@ -49,9 +49,9 @@ EEPROM_CLI_KEYS = [
 ]
 
 TRANCEIVER_CLI_KEYS = [
-        IM_TRANCEIVER_STATUS_MODULE_STATE,
-        IM_TRANCEIVER_STATUS_REASON_FAULT
-    ]
+    IM_TRANCEIVER_STATUS_MODULE_STATE,
+    IM_TRANCEIVER_STATUS_REASON_FAULT
+]
 
 EEPROM_TO_REDIS_KEY_MAP = {
     IM_EEPROM_SPECIFICATION_KEY: IM_REDIS_SPECIFICATION_KEY,
@@ -137,7 +137,7 @@ def check_im_sai_attribute_value(duthost):
     dut_platfrom = duthost.facts['platform']
     sai_profile_path = os.path.join(PLATFORM_FOLDER_PATH, dut_platfrom, dut_hwsku, SAI_PROFILE_FILE_NAME)
     cmd = duthost.shell('cat {}'.format(sai_profile_path))
-    im_enabled_in_sai = re.search(f"{IM_SAI_ATTRIBUTE_NAME}=(\d?)", cmd['stdout']).group(1)
+    im_enabled_in_sai = re.search(f"{IM_SAI_ATTRIBUTE_NAME}=(\\d?)", cmd['stdout']).group(1)
     if im_enabled_in_sai != "1":
         pytest.skip(f"Skip TC as {IM_SAI_ATTRIBUTE_NAME} not enabled in {SAI_PROFILE_FILE_NAME} file")
 
@@ -161,7 +161,7 @@ def parse_output_to_dict(output, keys_list):
     """
     result_dict = {}
     for key in keys_list:
-        result_dict.update({key.replace('\\', ''): re.search(f"{key}(\s+)?: (.*)", output).group(2).rstrip()})
+        result_dict.update({key.replace('\\', ''): re.search(f"{key}(\\s+)?: (.*)", output).group(2).rstrip()})
     return result_dict
 
 
@@ -264,3 +264,62 @@ def get_split_ports(duthost, port_index):
     split_up_ports = [p for p, v in list(config_facts['PORT'].items()) if v.get('admin_status', None) == 'up' and
                       re.match(split_port_alias_pattern, v['alias'])]
     return split_up_ports
+
+
+def get_ports_supporting_im(duthost, conn_graph_facts):
+    """
+    @summary: This method is for get DUT ports supporting IM
+    @param: duthost: duthost fixture
+    @param: conn_graph_facts: conn_graph_facts fixture
+    @param: enum_frontend_asic_index: enum_frontend_asic_index fixture
+    @return: list of IM ports supported
+    """
+    ports_with_im_support = []
+    logging.info("Get all ports from DUT")
+    dut_interfaces = list(conn_graph_facts["device_conn"][duthost.hostname].keys())
+
+    logging.info("Create interface to physical port dict")
+    physical_index_to_interface_dict = {}
+    for interface in dut_interfaces:
+        int_to_index = get_physical_port_indices(duthost, interface)
+        index_to_interface = {v: k for k, v in int_to_index.items()}
+        physical_index_to_interface_dict.update(index_to_interface)
+
+    for port_number, port_name in physical_index_to_interface_dict.items():
+        cmd = duthost.shell(f"sudo cat /sys/module/sx_core/asic0/module{int(port_number) - 1}/control")
+        if int(cmd['stdout']) == IM_ENABLED:
+            # Check if port is split
+            split_ports = get_split_ports(duthost, int(port_number))
+            if split_ports:
+                ports_with_im_support += split_ports
+            else:
+                ports_with_im_support.append(port_name)
+
+    return ports_with_im_support
+
+
+def is_spc1(duthost):
+    """
+    @summary: This method checking if platform is SPC1
+    @param: duthost: duthost fixture
+    @return: list of IM ports supported
+    """
+    return True if "sn2" in duthost.facts["platform"] else False
+
+
+def is_spc2(duthost):
+    """
+    @summary: This method checking if platform is SPC2
+    @param: duthost: duthost fixture
+    @return: list of IM ports supported
+    """
+    return True if "sn3" in duthost.facts["platform"] else False
+
+
+def im_supported(duthost):
+    """
+    @summary: This method checking if platform supports Independent Module feature
+    @param: duthost: duthost fixture
+    @return: list of IM ports supported
+    """
+    return True if not is_spc1(duthost) and not is_spc2(duthost) else False

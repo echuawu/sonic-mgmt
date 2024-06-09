@@ -12,6 +12,7 @@ class Config(BaseComponent):
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/config')
         self.files = Files(self)
+        self.auto_save = BaseComponent(self, path='/auto-save')
 
     def action_fetch(self, remote_url, expected_str="", dut_engine=None):
         if not dut_engine:

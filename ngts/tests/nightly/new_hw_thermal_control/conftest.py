@@ -1,6 +1,7 @@
 import pytest
 import logging
 from ngts.helpers.new_hw_thermal_control_helper import collect_sensors_info, get_tc_config, is_support_new_hw_tc, TC_CONST
+from ngts.tests.conftest import toggle_rsyslog_configurations
 
 
 logger = logging.getLogger()
@@ -44,6 +45,16 @@ def recover_tc_service(skipping_new_hw_tc_tests, engines, cli_objects):
     if not cli_objects.dut.hw_mgmt.is_thermal_control_running():
         logger.warning("tc is not running, please check the reason")
         cli_objects.dut.hw_mgmt.start_thermal_control()
+
+
+@pytest.fixture(scope='package', autouse=True)
+def disable_rsyslog_repeated_msg_reduction(engines, is_simx):
+    dut_engine = engines.dut
+    toggle_rsyslog_configurations(dut_engine, ['$RepeatedMsgReduction on'], 'pmon', 'disable')
+
+    yield
+
+    toggle_rsyslog_configurations(dut_engine, ['$RepeatedMsgReduction on'], 'pmon', 'enable')
 
 
 @pytest.fixture(scope='function', autouse=True)

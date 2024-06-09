@@ -6,7 +6,7 @@ from ngts.tools.test_utils import allure_utils as allure
 
 
 def factory_reset_no_params_pre_steps(engines, platform_params, system, devices):
-    port_type = devices.dut.switch_type
+    port_type = devices.dut.switch_type.lower()
     with allure.step("Check if setup had SM before test"):
         have_sm_before_test = OpenSmTool.verify_open_sm_is_running()
         logging.info(f'SM is{" not" if not have_sm_before_test else ""} running before factory reset')

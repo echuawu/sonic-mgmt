@@ -195,7 +195,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         except Exception as e:
             self.Logger.info("Failed to add '--topology' option for test case {}, failure reason: {}".format(test_script_fullpath, repr(e)))
 
-        pytest_bin_name = "/var/AzDevOps/env-python3/bin/python3 -m pytest"
+        pytest_bin_name = "python3 -m pytest"
         random_seed = int(time.time())
 
         # The test script file must come first, see explaination on https://github.com/Azure/sonic-mgmt/pull/2131
@@ -241,7 +241,7 @@ class RunPytest(TermHandlerMixin, StandaloneWrapper):
         self.Logger.info("Starting pytest on sonic-mgmt player")
         dic_args = self._get_dic_args_by_running_stage(RunningStage.RUN)
         dic_args["epoint"] = epoint
-        for i in xrange(self.num_of_processes):
+        for _ in range(self.num_of_processes):
             epoint.Player.putenv("PYTHONPATH", "/devts/")
             epoint.Player.testPath = os.path.join(self.sonic_mgmt_path, "tests")
             epoint.Player.add_remote_test_path(epoint.Player.testPath)

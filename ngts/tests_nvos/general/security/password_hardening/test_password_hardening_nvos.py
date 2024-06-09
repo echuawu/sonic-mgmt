@@ -1,17 +1,21 @@
 import random
 import re
+import string
 
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 import pytest
-from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
-from ngts.nvos_tools.system.System import *
-from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
+from ngts.nvos_constants.constants_nvos import TestFlowType
+from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
+from ngts.nvos_tools.system.System import *
+from ngts.nvos_tools.system.User import User
 from ngts.tests_nvos.general.security.password_hardening.PwhConsts import PwhConsts
 from ngts.tests_nvos.general.security.password_hardening.PwhTools import PwhTools
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -33,7 +37,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
         8. Verify that login with weak password fails
     """
     with allure.step('Get password hardening configuration'):
-        conf = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show())\
+        conf = OutputParsingTool.parse_json_str_to_dictionary(system.security.password_hardening.show()) \
             .get_returned_value()
 
     with allure.step('Pick a strong and a weak password'):
@@ -63,6 +67,7 @@ def test_password_hardening_weak_and_strong_passwords(engines, system):
         PwhTools.verify_login(engines.dut, username, strong_pw, login_should_succeed=True)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -90,6 +95,7 @@ def test_password_hardening_show_system_security(engines, system):
                                                         output_dict=output).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -152,6 +158,7 @@ def test_password_hardening_enable_disable(engines, system, testing_users):
         user_obj.set(PwhConsts.PW, '"' + strong_pw + '"', apply=True).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -180,12 +187,14 @@ def test_password_hardening_set_unset(engines, system):
                                                           [orig_pwh_conf[setting]]).get_returned_value()
 
             if setting == PwhConsts.EXPIRATION or setting == PwhConsts.EXPIRATION_WARNING:
-                smaller = int(value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[PwhConsts.EXPIRATION_WARNING])
+                smaller = int(
+                    value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[PwhConsts.EXPIRATION_WARNING])
                 larger = int(value if setting == PwhConsts.EXPIRATION else orig_pwh_conf[PwhConsts.EXPIRATION])
                 while smaller > larger:
                     value = RandomizationTool.select_random_value(PwhConsts.VALID_VALUES[setting],
                                                                   [orig_pwh_conf[setting]]).get_returned_value()
-                    smaller = int(value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[PwhConsts.EXPIRATION_WARNING])
+                    smaller = int(value if setting == PwhConsts.EXPIRATION_WARNING else orig_pwh_conf[
+                        PwhConsts.EXPIRATION_WARNING])
                     larger = int(value if setting == PwhConsts.EXPIRATION else orig_pwh_conf[PwhConsts.EXPIRATION])
 
             logging.info('Selected value for setting "{}" - "{}")'.format(setting, value))
@@ -212,6 +221,7 @@ def test_password_hardening_set_unset(engines, system):
             PwhTools.verify_pwh_setting_value_in_show(pwh_obj, setting, PwhConsts.DEFAULTS[setting])
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -292,6 +302,7 @@ def test_password_hardening_set_invalid_input(engines, system):
             PwhTools.verify_error(res_obj=res_obj, error_should_contain=PwhConsts.ERR_EXP_WARN_LEQ_EXP)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -369,6 +380,7 @@ def test_password_hardening_functionality(engines, system, testing_users, tst_al
             prev_conf = conf  # step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -420,6 +432,7 @@ def test_password_hardening_history_functionality(engines, system, testing_users
                                       should_succeed=True)
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -444,7 +457,8 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
     pw2 = testing_users[user2][PwhConsts.PW]
     user2_obj = testing_users[user2][PwhConsts.USER_OBJ]
 
-    exp = random.randint(0, PwhConsts.MAX[PwhConsts.EXPIRATION])  # can randomize between min_expiration to max_expiration but the test will be too long
+    exp = random.randint(0, PwhConsts.MAX[
+        PwhConsts.EXPIRATION])  # can randomize between min_expiration to max_expiration but the test will be too long
 
     with allure.step('Set expiration setting to {}'.format(exp)):
         pwh_obj.set(PwhConsts.EXPIRATION_WARNING, -1).verify_result()
@@ -477,6 +491,7 @@ def test_password_hardening_expiration_functionality(engines, system, init_time,
                     day_num += step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -537,6 +552,7 @@ def test_password_hardening_expiration_warning_functionality(engines, system, in
                     day_num += step
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -587,7 +603,7 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
         passwords_to_set = pw_hist1[1:]  # take the same N new passwords that were set to user1
         assert len(passwords_to_set) == hist_cnt, 'Error: Something is wrong.\nExpected len(passwords_to_set) : {}\n' \
                                                   'Actual len(passwords_to_set) : {}\n' \
-                                                  'passwords_to_set : {}'\
+                                                  'passwords_to_set : {}' \
             .format(hist_cnt, len(passwords_to_set), passwords_to_set)
 
         for i in range(hist_cnt):
@@ -618,6 +634,7 @@ def test_password_hardening_history_multi_user(engines, system, testing_users):
         res_obj.verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -663,6 +680,7 @@ def test_password_hardening_history_increase(engines, system, testing_users):
             PwhTools.set_pw_expect_pwh_error(user_obj, pw_i, [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.security
 @pytest.mark.simx_security
@@ -708,5 +726,40 @@ def test_password_hardening_history_when_feature_disabled(engines, system, testi
         for i in range(1, hist_cnt):
             pw_i = pw_history[i]
             with allure.step('Set user "{}" with pw_{} - "{}" and expect errors'.format(username, i, pw_i)):
-                logging.info('Round #{} - Set user "{}" with pw_{} - "{}" and expect errors'.format(i, username, i, pw_i))
+                logging.info(
+                    'Round #{} - Set user "{}" with pw_{} - "{}" and expect errors'.format(i, username, i, pw_i))
                 PwhTools.set_pw_expect_pwh_error(user_obj, pw_i, [PwhConsts.WEAK_PW_ERRORS[PwhConsts.HISTORY_CNT]])
+
+
+@pytest.mark.cumulus
+@pytest.mark.system
+@pytest.mark.security
+@pytest.mark.simx_security
+def test_password_hardening_max_password_len(disable_password_hardening):
+    """
+    Max allowed password is 511 chars. Verify it
+
+    1. Set user with password of 511 (and lower) chars
+    2. set user with password of 512 (and higher) chars
+    """
+
+    def case_flow(flow_type):
+        is_good_flow = flow_type == TestFlowType.GOOD_FLOW
+        password_len = PwhConsts.MAX_VALID_PASSWORD_LEN
+        if not is_good_flow:
+            password_len += 1
+        username = User.generate_username()
+        password = ''.join(random.choice(string.ascii_lowercase) for _ in range(password_len))
+        with allure.step(f'set user "{username}" with password of len {password_len}'):
+            res = System().aaa.user.user_id[username].set('password', password)
+        with allure.step(f'verify command {"success" if is_good_flow else "fail"}'):
+            res.verify_result(should_succeed=is_good_flow)
+        if not is_good_flow:
+            with allure.step('verify error message'):
+                assert PwhConsts.ERR_MAX_PASSWORD_LEN in res.info, (f'error message mismatch.\n'
+                                                                    f'expected: {PwhConsts.ERR_MAX_PASSWORD_LEN}\n'
+                                                                    f'actual: {res.info}')
+
+    for test_flow in TestFlowType.ALL_TYPES:
+        with allure.step(test_flow):
+            case_flow(test_flow)

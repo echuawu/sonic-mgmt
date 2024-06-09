@@ -312,7 +312,7 @@ class SonicInterfaceCli(InterfaceCliCommon):
         if ifaces is None:
             ifaces = ['Ethernet0']
         tries_num = self.get_tries_num()
-        with allure.step('Check that link in UP state'):
+        with allure.step(f'Check that link in {expected_status.upper()} state'):
             retry_call(self.check_ports_status,
                        fargs=[ifaces, expected_status],
                        tries=tries_num,
@@ -615,6 +615,14 @@ class SonicInterfaceCli(InterfaceCliCommon):
                 return interface
         return None
 
+    def get_admin_up_ports(self):
+        intf_status = self.parse_interfaces_status()
+        admin_up_ports = []
+        for interface in intf_status.keys():
+            if intf_status[interface]['Admin'] == 'up' and interface.startswith('Ethernet'):
+                admin_up_ports.append(interface)
+        return admin_up_ports
+
     def show_interfaces_counters(self, validate=False):
         """
         show interfaces counters
@@ -633,7 +641,8 @@ class SonicInterfaceCli(InterfaceCliCommon):
         'TX_UTIL': '0.00%', 'TX_ERR': '0', 'TX_DRP': '0', 'TX_OVR': '0'}, 'Ethernet8': {'STATE'.......
         """
         ifaces_status = self.show_interfaces_counters()
-        return generic_sonic_output_parser(ifaces_status, headers_ofset=headers_ofset, len_ofset=len_ofset,
+        filtered_ifaces_status = re.sub(r"Last cached time was.*\d+\n", "", ifaces_status)
+        return generic_sonic_output_parser(filtered_ifaces_status, headers_ofset=headers_ofset, len_ofset=len_ofset,
                                            data_ofset_from_start=data_ofset_from_start,
                                            data_ofset_from_end=None, column_ofset=2, output_key='IFACE')
 

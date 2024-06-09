@@ -37,7 +37,13 @@ class IbInterfaceConsts:
     IP = "ip"
     IFINDEX = "ifindex"
     LINK_LOGICAL_PORT_STATE = "logical-state"
+    LINK_LOGICAL_PORT_STATE_ACTIVE = 'Active'
+    LINK_LOGICAL_PORT_STATE_INITIALIZE = 'Initialize'
+    LINK_LOGICAL_PORT_STATE_DOWN = 'Down'
     LINK_PHYSICAL_PORT_STATE = "physical-state"
+    LINK_PHYSICAL_PORT_STATE_LINK_UP = 'LinkUp'
+    LINK_PHYSICAL_PORT_STATE_DISABLED = 'Disabled'
+    LINK_PHYSICAL_PORT_STATE_POLLING = 'Polling'
     LINK_STATE = "state"
     LINK_DIAGNOSTICS = "diagnostics"
     LINK_DIAGNOSTICS_UNPLUGGED_PORT = {'1024': {'status': 'Cable is unplugged'}}
@@ -74,6 +80,7 @@ class IbInterfaceConsts:
     LINK_STATS_OUT_WAIT = "out-wait"
     LINK_BREAKOUT_NDR = "2x-ndr"
     LINK_BREAKOUT_HDR = "2x-hdr"
+    LINK_ROUND_TRIP_LATENCY = "round-trip-latency"
     PRIMARY_ASIC = "primary-asic"
     IP_VRF = "vrf"
     IP_ADDRESS = "address"
@@ -82,6 +89,7 @@ class IbInterfaceConsts:
     IP_DHCP6 = "dhcp-client6"
     NAME = "name"
     IB_PORT_TYPE = "ib"
+    FNM_PORT_TYPE = "fnm"
     LOOPBACK_PORT_TYPE = "loopback"
     ETH_PORT_TYPE = "eth"
     MTU_VALUES = [256, 512, 1024, 2048, 4096]

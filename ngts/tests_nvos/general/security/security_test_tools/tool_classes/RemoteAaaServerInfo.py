@@ -1,21 +1,22 @@
 import copy
 import logging
-from typing import List
+from typing import List, Dict
 
-from ngts.nvos_tools.system.Ldap import Ldap
-from ngts.nvos_tools.system.System import System
-from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
-from ngts.tools.test_utils import allure_utils as allure
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
-from ngts.nvos_tools.system.Hostname import Hostname, HostnameId
+from ngts.nvos_tools.system.Hostname import HostnameId
+from ngts.nvos_tools.system.Ldap import Ldap
+from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
+from ngts.tests_nvos.general.security.test_aaa_ldap.constants import LdapConsts
+from ngts.tools.test_utils import allure_utils as allure
 
 
 class RemoteAaaServerInfo:
-    def __init__(self, hostname, priority, secret, port, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
+    def __init__(self, hostname, priority, secret, port, users: List[UserInfo], ipv4_addr: str = '',
+                 docker_name: str = ''):
         self.hostname = hostname
         self.priority = priority
         self.secret = secret
@@ -68,11 +69,13 @@ def update_active_aaa_server(item, server: RemoteAaaServerInfo):
 
 
 class TacacsServerInfo(RemoteAaaServerInfo):
-    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '', docker_name: str = ''):
+    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '',
+                 docker_name: str = '', users_per_auth_type: Dict[str, List[UserInfo]] = None):
         super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.timeout = timeout
         # self.retransmit = retransmit
         self.auth_type = auth_type
+        self.users_per_auth_type = users_per_auth_type
 
     def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
         conf_to_set = {
@@ -86,22 +89,33 @@ class TacacsServerInfo(RemoteAaaServerInfo):
         self._configure(engines, hostname_resource_obj, conf_to_set, set_explicit_priority, apply, dut_engine)
 
     def make_unreachable(self, engines, apply=False, dut_engine=None):
-        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port + 6, apply=apply,
+        System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, AaaConsts.AAA_SERVER_BAD_PORT, apply=apply,
                                                                     dut_engine=dut_engine)
 
     def make_reachable(self, engines, apply=False, dut_engine=None):
         System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port, apply=apply,
                                                                     dut_engine=dut_engine)
 
+    def update_auth_type(self, auth_type: str, item, dut_engine=None, set_on_dut: bool = True):
+        logging.info(f'Update server info of "{self.hostname} - {self.port}" users to use {auth_type} passwords')
+        self.auth_type = auth_type
+        self.users = self.users_per_auth_type[auth_type]
+
+        if set_on_dut:
+            assert item, f"argument 'item' was not provided"
+            engine = dut_engine or (
+                item.active_remote_admin_engine if hasattr(item, 'active_remote_admin_engine') else None)
+            System().aaa.tacacs.hostname.hostname_id[self.hostname].set(AaaConsts.AUTH_TYPE, auth_type, apply=True,
+                                                                        dut_engine=engine)
+
 
 class LdapServerInfo(RemoteAaaServerInfo):
     def __init__(self, hostname, priority, secret, port, users: List[UserInfo],
-                 base_dn, bind_dn, group_attr,
-                 timeout_bind, timeout_search, version, ssl_port=636, ipv4_addr: str = '', docker_name: str = ''):
+                 base_dn, bind_dn, timeout_bind, timeout_search, version,
+                 ssl_port=636, ipv4_addr: str = '', docker_name: str = ''):
         super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
         self.base_dn = base_dn
         self.bind_dn = bind_dn
-        self.group_attr = group_attr
         self.timeout_bind = timeout_bind
         self.timeout_search = timeout_search
         self.version = version
@@ -116,7 +130,6 @@ class LdapServerInfo(RemoteAaaServerInfo):
             LdapConsts.PORT: self.port,
             LdapConsts.BASE_DN: self.base_dn,
             LdapConsts.BIND_DN: self.bind_dn,
-            LdapConsts.GROUP_ATTR: self.group_attr,
             LdapConsts.VERSION: self.version,
             # LdapConsts.HOSTNAME: self.hostname
         }
@@ -135,3 +148,40 @@ class LdapServerInfo(RemoteAaaServerInfo):
         ldap.hostname.hostname_id['unreachable-' + self.hostname].unset(apply=False, dut_engine=dut_engine)
         ldap.hostname.hostname_id[self.hostname].set(AaaConsts.PRIORITY, self.priority,
                                                      apply=apply, dut_engine=dut_engine)
+
+
+class RadiusServerInfo(RemoteAaaServerInfo):
+    def __init__(self, hostname, priority, secret, port, timeout, auth_type, users: List[UserInfo], ipv4_addr: str = '',
+                 docker_name: str = ''):
+        super().__init__(hostname, priority, secret, port, users, ipv4_addr, docker_name)
+        self.timeout = timeout
+        self.auth_type = auth_type
+
+    def configure(self, engines, set_explicit_priority=False, apply=False, dut_engine=None):
+        conf_to_set = {
+            AaaConsts.SECRET: self.secret,
+            AaaConsts.PORT: self.port,
+            AaaConsts.TIMEOUT: self.timeout,
+            AaaConsts.AUTH_TYPE: self.auth_type
+        }
+        hostname_resource_obj = System().aaa.radius.hostname.hostname_id[self.hostname]
+        self._configure(engines, hostname_resource_obj, conf_to_set, set_explicit_priority, apply, dut_engine)
+
+    def make_unreachable(self, engines, apply=False, dut_engine=None):
+        System().aaa.radius.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, AaaConsts.AAA_SERVER_BAD_PORT,
+                                                                    apply=apply, dut_engine=dut_engine)
+
+    def make_reachable(self, engines, apply=False, dut_engine=None):
+        System().aaa.radius.hostname.hostname_id[self.hostname].set(AaaConsts.PORT, self.port, apply=apply,
+                                                                    dut_engine=dut_engine)
+
+    def update_auth_type(self, auth_type: str, item, dut_engine=None, set_on_dut: bool = True):
+        logging.info(f'Update server info of "{self.hostname} - {self.port}" users to use {auth_type} passwords')
+        self.auth_type = auth_type
+
+        if set_on_dut:
+            assert item, f"argument 'item' was not provided"
+            engine = dut_engine or (
+                item.active_remote_admin_engine if hasattr(item, 'active_remote_admin_engine') else None)
+            System().aaa.radius.hostname.hostname_id[self.hostname].set(AaaConsts.AUTH_TYPE, auth_type, apply=True,
+                                                                        dut_engine=engine)

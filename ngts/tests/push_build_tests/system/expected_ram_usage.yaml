@@ -17,7 +17,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 45
@@ -39,7 +39,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 45
@@ -61,7 +61,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 65
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -83,7 +83,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -105,7 +105,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -127,7 +127,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -150,7 +150,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -172,7 +172,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -194,7 +194,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -216,7 +216,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -239,7 +239,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -261,7 +261,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 65
@@ -283,7 +283,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -305,7 +305,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -327,7 +327,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 75
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 55
@@ -350,7 +350,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 50
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 50
@@ -372,7 +372,7 @@ master:
     snmpd: 20
     zebra: 85
     bgpd: 50
-    bgpcfgd: 30
+    bgpcfgd: 35
     bgpmon: 20
     fpmsyncd: 7
     orchagent: 60

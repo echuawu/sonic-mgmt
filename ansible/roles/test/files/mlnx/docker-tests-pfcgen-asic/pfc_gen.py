@@ -8,6 +8,7 @@ The idea is
     4. The PFC will be triggered
 
 '''
+import re
 import sys
 import time
 from python_sdk_api.sx_api import *
@@ -109,9 +110,7 @@ def build_port_name_dict():
     return result
 
 
-def get_port_map(handle):
-    portmap = {}
-
+def get_port_attibutes(handle):
     # Get ports count
     port_cnt_p = new_uint32_t_p()
     uint32_t_p_assign(port_cnt_p, 0)
@@ -128,7 +127,27 @@ def get_port_map(handle):
     if (rc != SX_STATUS_SUCCESS):
         print("sx_api_port_device_get failed, rc = %d")
         sys.exit(rc)
+    return port_attributes_list, port_cnt
 
+
+def get_label_log_port_map(handle):
+    label_log_port_map = {}
+    port_attributes_list, port_cnt = get_port_attibutes(handle)
+    for i in range(0, port_cnt):
+        port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list, i)
+        log_port = int(port_attributes.log_port)
+        label_port = port_attributes.port_mapping.module_port + 1
+        if label_port not in label_log_port_map:
+            label_log_port_map[label_port] = [log_port]
+        else:
+            label_log_port_map[label_port].append(log_port)
+
+    return label_log_port_map
+
+
+def get_port_map(handle):
+    portmap = {}
+    port_attributes_list, port_cnt = get_port_attibutes(handle)
     for i in range(0, port_cnt):
         port_attributes = sx_port_attributes_t_arr_getitem(port_attributes_list, i)
         log_port = int(port_attributes.log_port)
@@ -150,6 +169,31 @@ def parse_priority(x):
         if (1 << i) & x:
             priorities.append(i)
     return priorities
+
+
+def get_log_ports(handle, args):
+    log_ports = []
+    if args.label_port_list:
+        label_log_port_map = get_label_log_port_map(handle)
+        for port_index in args.label_port_list.split(','):
+            label_port = re.findall(r'\d+', port_index)[0]
+            matched_str_list = re.findall(r'[a-z]?', port_index)
+            index_str_list = list(filter(None, matched_str_list))
+            if index_str_list == []:
+                log_port_index = 0
+            else:
+                log_port_index = ord(index_str_list[0]) - ord('a')
+            log_ports.append(label_log_port_map[int(label_port)][log_port_index])
+    else:
+        portmap = get_port_map(handle)
+        print(portmap)
+        port_name_dict = build_port_name_dict()
+        for port in args.interface_list.split(','):
+            p,sp = port_name_dict[port]
+            log_port = portmap[p][sp]
+            print(log_port)
+            log_ports.append(log_port)
+    return log_ports
 
 
 def start_pfc(handle, log_ports, priority):
@@ -179,6 +223,7 @@ def main():
     parser = argparse.ArgumentParser(description='pfc_gen.py -i <port> -p <priority>',
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("-i", "--interface_list", type=str, help="Interface list to send packets, seperated by ','", required=True)
+    parser.add_argument("-l", "--label_port_list", type=str, help="SDK label port list to send packets, separated by ','", default="")
     parser.add_argument('-p', "--priority", type=int, help="PFC class enable bitmap.", default=-1)
     parser.add_argument('-d', "--disable", action='store_true', help="PFC class enable bitmap.")
     parser.add_argument("-r", "--rsyslog-server", type=str, default="127.0.0.1", help="Rsyslog server IPv4 address")
@@ -193,16 +238,7 @@ def main():
         print("Failed to open api handle.\nPlease check that SDK is running.")
         sys.exit(rc)
 
-    log_ports = []
-    portmap = get_port_map(handle)
-    print(portmap)
-    port_name_dict = build_port_name_dict()
-    for port in args.interface_list.split(','):
-        p,sp = port_name_dict[port]
-        log_port = portmap[p][sp]
-        print(log_port)
-        log_ports.append(log_port)
-
+    log_ports = get_log_ports(handle, args)
     priority = parse_priority(args.priority)[0]
 
     logger = logging.getLogger('MyLogger')

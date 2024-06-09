@@ -22,12 +22,29 @@ def test_check_errors_in_log_during_deploy_sonic_image(engines, request, loganal
     oldest_syslog_id = get_oldest_syslog_id(engines.dut)
     new_log_analyzer_start_string = get_new_start_string(engines.dut, oldest_syslog_id, log_analyzer_start_string_line)
     insert_new_start_string(engines.dut, oldest_syslog_id, new_log_analyzer_start_string)
+    ignore_regex = [
+        r".*crashkernel=\d+M",
+        r".*Command line: BOOT_IMAGE=.*",
+        r".*kexec: Reserving the low 1M of memory for crashkernel.*",
+        r".*Reserving .* memory .* for crashkernel .*",
+        r".*Kernel command line: BOOT_IMAGE=.*",
+        r".*DMA: preallocated .* pool for atomic allocations.*",
+        r".*DPC: error containment capabilities:.*",
+        r".*GPT: Use GNU Parted to correct GPT errors.*",
+        r".*NOHZ tick-stop error: Non-RCU local softirq work is pending, handler #08!!!.*",
+        r".*ERR rsyslogd: cannot connect to [\d\.]+:\d+: (Connection timed out|Network is unreachable).*",
+        r".*ERR rsyslogd: omfwd: remote server at [\d\.]+:\d+ seems to have closed connection.*",
+        r".*TPM interrupt not working, polling instead.*",
+        r".*Failed to get link config: No such device.*",
+        r".*ERR configmgrd: Failed to get primary ASIC for.*",
+    ]
 
-    # Logic below is required to overcome the issue the when end_marker is not present in syslog - in this case,
-    # the end_marker will be added forcefully
     logger.info('Adding end_marker in syslog')
-    for dut in loganalyzer:
-        run_id = loganalyzer[dut].ansible_loganalyzer.run_id
+    for analyzer in loganalyzer.values():
+        analyzer.ignore_regex.extend(ignore_regex)
+        # Logic below is required to overcome the issue the when end_marker is not present in syslog - in this case,
+        # the end_marker will be added forcefully
+        run_id = analyzer.ansible_loganalyzer.run_id
         # Command below may fail, but we do not care about it - LA will do the same after test executed(it will pass)
         engines.dut.run_cmd(f'sudo python /tmp/loganalyzer.py --action add_end_marker --run_id {run_id}')
 

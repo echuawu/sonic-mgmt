@@ -30,6 +30,30 @@ tests/nightly/crm/test_crm.py::test_crm_acl:
     conditions:
       - "https://redmine.mellanox.com/issues/3841291"
 
+tests/nightly/crm/test_crm.py::test_crm_route:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/nightly/crm/test_crm.py::test_crm_nexthop_group_and_member:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceDefaultVrf:test_ecmp_calculator_interface_default_vrf:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/push_build_tests/L3/static_route/test_static_route.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"
@@ -43,6 +67,24 @@ tests/nightly/runtime/test_runtime.py:
     conditions:
       - "'simx' in platform"
       - "https://redmine.mellanox.com/issues/3649746"
+
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_vlan]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
+
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_route]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
+
+tests/nightly/runtime/test_runtime.py::TestRuntime::test_runtime[add_del_po]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3896416"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3896416"
 
 tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[psu_err_direction]:
   skip:
@@ -137,17 +179,27 @@ tests/push_build_tests/L3/dhcp_relay/test_dhcp_relay.py::TestDHCPRelay::test_dhc
     conditions:
       - https://github.com/Azure/sonic-buildimage/issues/6053
 
+tests/nightly/adaptive_routing:
+  skip:
+    reason: "Adaptive Routing is not supported on SimX Platform"
+    conditions:
+    - "'simx' in platform"
+
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "Testcase ignored on SIMX platform "
+    reason: "(SIMX platform) or (RM issue https://redmine.mellanox.com/issues/3900119 on sn5400)"
+    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3900119 and ('sn5400' in platform)"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
-    reason: "Testcase ignored due to platform 2201"
+    reason: "Testcase ignored due to platform 2201 or RM issue: https://redmine.mellanox.com/issues/3864087"
+    conditions_logical_operator: or
     conditions:
       - "'2201' in platform"
+      - "https://redmine.mellanox.com/issues/3864087"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
@@ -172,9 +224,10 @@ tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sd
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump:
   skip:
-    reason: "Testcase ignored due to platform SIMX"
+    reason: "Testcase ignored due to platform SIMX or due to RM issue 3894921"
     conditions:
       - "'simx' in platform"
+      - "https://redmine.mellanox.com/issues/3894921"
 
 tests/push_build_tests/general/wjh/test_wjh.py::test_buffer:
   skip:
@@ -278,10 +331,76 @@ tests/nightly/secure/test_secure_boot.py:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3824755"
     conditions:
       - "https://redmine.mellanox.com/issues/3824755"
+
+tests/push_build_tests/system/test_cpu_ram_hdd_usage.py::TestCpuRamHddUsage::test_ram_usage:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3879251 or the test is related to performance, no meaningful to run it on simx platform "
+    conditions_logical_operator: or
+    conditions:
+      - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn2700-r0' in platform"
+      - "https://redmine.mellanox.com/issues/3879251 and 'x86_64-mlnx_msn3700-r0' in platform"
+      - "'simx' in platform"
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
+# The previous case test_fwutil_install_onie_key_check_fail failed due to 3899639 and failed to recover the DUT, so
+# affect this case. Use the same issue to skip this case
+tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_secure_corrupt_fw:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899639"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899639"
+
 ########################## NGTS IGNORE END ##########################
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+dash/platform/test_dpu_show_platform_temperature.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3923171"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3923171"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_file[BIOS:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3863086"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_install_url[BIOS:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3863086"
+
+platform_tests/fwutil/test_fwutil.py::test_fwutil_update_current[BIOS:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3863086"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3863086"
+
+tacacs/test_accounting.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876512"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3876512"
+
+tacacs/test_authorization.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876512"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3876512"
+
 platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
   skip:
     reason: "Simx doesn't support due to QEMU Disk and it is not meaningful to simulate it"
@@ -290,21 +409,33 @@ platform_tests/cli/test_show_platform.py::test_show_platform_ssdhealth:
 
 virtual_smart_switch/test_dpu_ip_assignment.py:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3835047"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3858205"
     conditions:
-      - "https://redmine.mellanox.com/issues/3835047"
+      - "https://redmine.mellanox.com/issues/3858205"
 
 syslog/test_logrotate.py::test_orchagent_logrotate:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3867329"
+    reason: "Testcase ignored due to github issue: https://github.com/sonic-net/sonic-mgmt/issues/12612"
     conditions:
-      - "https://redmine.mellanox.com/issues/3867329"
+      - https://github.com/sonic-net/sonic-mgmt/issues/12612
 
 tests/show_techsupport/test_auto_techsupport.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3814698 and SmartSwitch testbeds"
     conditions:
       - "https://redmine.mellanox.com/issues/3814698 and ('r-leopard-79' in testbed or 'mtvr-leopard-01' in testbed)"
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_rate_limit_interval:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876676"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3876676"
+
+show_techsupport/test_auto_techsupport.py::TestAutoTechSupport::test_max_limit:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3876676"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3876676"
 
 passw_hardening/test_passw_hardening.py:
   skip:
@@ -360,6 +491,11 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiQSharedWatermark:
     conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3097795 and '202111' in release"
+qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
+  skip:
+    reason: "Testcase ignored due to RM issue https://redmine.mellanox.com/issues/3900025"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3900025"
 
 telemetry/test_events.py::test_events:
   skip:
@@ -603,11 +739,12 @@ ecmp/inner_hashing:
 
 platform_tests/test_sensors.py::test_sensors:
   skip:
-    reason: "Testcase ignored due to RM issue 3556737 on simx platform or due to RM issue 3796902 on affected setups"
+    reason: "Testcase ignored due to RM issue 3556737 on simx platform, due to RM issue 3816778 on r-anaconda-15 or due to RM issue 3859826 on sn4600"
     conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3796902 and ('r-tigon-17' in testbed or 'r-anaconda-15' in testbed)"
+    - "https://redmine.mellanox.com/issues/3556737 and 'simx' in platform"
+    - "https://redmine.mellanox.com/issues/3816778 and 'r-anaconda-15' in testbed"
+    - "https://redmine.mellanox.com/issues/3925256 and 'sn4600' in platform"
 
 qos/test_qos_sai_dual_tor.py:
   skip:
@@ -703,191 +840,365 @@ dash/test_dash_vnet.py::test_outbound_vnet_direct:
     conditions:
       - "https://redmine.mellanox.com/issues/3634592 and 'nvda_bf' in platform"
 
-hash/test_generic_hash.py::test_lag_hash[IN_PORT:
+hash/test_generic_hash.py::test_ecmp_hash[CRC-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_lag_hash[SRC_MAC:
+hash/test_generic_hash.py::test_lag_hash[CRC-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[IN_PORT:
+hash/test_generic_hash.py::test_ecmp_hash[CRC_CCITT-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[SRC_MAC:
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_nexthop_flap[IN_PORT:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_lag_member_flap[IN_PORT:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC_CCITT-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_lag_member_flap[SRC_MAC:
+hash/test_generic_hash.py::test_ecmp_hash[CRC-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[IP_PROTOCOL:
+hash/test_generic_hash.py::test_lag_hash[CRC-INNER_L4_SRC_PORT:
   skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_lag_member_flap[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[INNER_SRC_IP-ipv6-ipv4:
+hash/test_generic_hash.py::test_ecmp_hash[CRC_CCITT-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv4-ipv4-vxlan]:
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv4-ipv4-nvgre]:
+hash/test_generic_hash.py::test_ecmp_hash[CRC_CCITT-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv6-ipv4-vxlan]:
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_flap[INNER_DST_IP-ipv6-ipv4-nvgre]:
+hash/test_generic_hash.py::test_ecmp_hash[CRC-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[IN_PORT:
+hash/test_generic_hash.py::test_lag_hash[CRC-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[SRC_MAC:
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-INNER_ETHERTYPE:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[IP_PROTOCOL:
+hash/test_generic_hash.py::test_lag_hash[CRC-INNER_ETHERTYPE:
   skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_SRC_IP-ipv6-ipv4:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv4-ipv4-vxlan]:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC_CCITT-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv4-ipv4-nvgre]:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv6-ipv4-vxlan]:
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC_CCITT-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_lag_member_remove_add[INNER_DST_IP-ipv6-ipv4-nvgre]:
+hash/test_generic_hash.py::test_lag_member_flap[CRC-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_reboot[IN_PORT:
+hash/test_generic_hash.py::test_lag_member_flap[CRC_CCITT-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3332532"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3332532"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_reboot[SRC_MAC:
+hash/test_generic_hash.py::test_lag_member_flap[CRC-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3261661"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3261661"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_reboot[IP_PROTOCOL:
+hash/test_generic_hash.py::test_lag_member_flap[CRC-INNER_L4_DST_PORT:
   skip:
-    reason: "Test is not supported until the Hashing Algorithm feature is available."
-
-hash/test_generic_hash.py::test_reboot[INNER_SRC_IP-ipv4-ipv4:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_reboot[INNER_SRC_IP-ipv6-ipv4:
+hash/test_generic_hash.py::test_lag_member_flap[CRC_CCITT-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv4-ipv4-vxlan]:
+hash/test_generic_hash.py::test_lag_member_flap[CRC_CCITT-INNER_L4_DST_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
 
-hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv4-ipv4-nvgre]:
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv6-ipv4-vxlan]:
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC_CCITT-INNER_IP_PROTOCOL:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3870562"
 
-hash/test_generic_hash.py::test_reboot[INNER_DST_IP-ipv6-ipv4-nvgre]:
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-INNER_L4_SRC_PORT:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3356861"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
     conditions:
-      - "https://redmine.mellanox.com/issues/3356861"
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC_CCITT-INNER_L4_SRC_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC_CCITT-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870562"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-INNER_IP_PROTOCOL:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870562"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC-INNER_L4_SRC_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-INNER_L4_SRC_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_reboot[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_reboot[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_flap[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_lag_member_flap[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_nexthop_flap[CRC_CCITT-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_reboot[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870562"
+
+hash/test_generic_hash.py::test_reboot[CRC_CCITT-INNER_IP_PROTOCOL:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870562"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870562"
+
+hash/test_generic_hash.py::test_reboot[CRC-INNER_L4_SRC_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_reboot[CRC-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_reboot[CRC_CCITT-INNER_L4_SRC_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_reboot[CRC_CCITT-INNER_L4_DST_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3710956"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3710956"
+
+hash/test_generic_hash.py::test_lag_hash[CRC-DST_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-DST_MAC:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_lag_hash[CRC-ETHERTYPE:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-ETHERTYPE:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_lag_hash[CRC-VLAN_ID:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_lag_hash[CRC_CCITT-VLAN_ID:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3870867"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3870867"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
+
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC_CCITT-IN_PORT:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3872427"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3872427"
 
 hash/test_generic_hash.py::test_lag_member_remove_add:
   skip:
@@ -900,19 +1211,6 @@ hash/test_generic_hash.py::test_lag_member_flap:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647677"
     conditions:
       - "https://redmine.mellanox.com/issues/3647677"
-
-dut_console/test_idle_timeout.py::test_timeout:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3717856"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3717856"
-
-dut_console/test_escape_character.py::test_console_escape:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3717856"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3717856"
-
 
 platform_tests/daemon/test_syseepromd.py::test_pmon_syseepromd_kill_and_start_status:
   skip:
@@ -957,10 +1255,8 @@ platform_tests/sfp/test_sfputil.py:
 platform_tests/test_xcvr_info_in_db.py:
   skip:
     reason: "QSFP eeprom emulation is not supported currently. Target POR 2023.Rel.2"
-    conditions_logical_operator: or
     conditions:
       - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3836978"
 
 platform_tests/api/test_chassis.py::TestChassisApi::test_get_base_mac:
   skip:
@@ -1106,15 +1402,11 @@ cacl/test_cacl_application.py/test_cacl_application_nondualtor:
 
 process_monitoring/test_critical_process_monitoring.py::test_orchagent_heartbeat:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3785024"
+    reason: "Testcase ignored due to RM issue 3879572 or to RM issue 3785024 on sn5400"
+    conditions_logical_operator: or
     conditions:
-      - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
-
-tests/nightly/secure/test_secure_corrupt_fw/test_secure_corrupt_fw.py:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3788777"
-    conditions:
-      - "https://redmine.mellanox.com/issues/3788777 and ('sn5400' in platform)"
+    - "https://redmine.mellanox.com/issues/3879572"
+    - "https://redmine.mellanox.com/issues/3785024 and ('sn5400' in platform)"
 
 tests/nightly/secure/test_secure_upgrade/test_secure_upgrade.py:
   skip:
@@ -1128,16 +1420,22 @@ tests/push_build_tests/system/test_reboot_reload.py:
     conditions:
       - "https://redmine.mellanox.com/issues/3795822 and ('sn5400' in platform)"
 
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_bios_key_check_fail:
+platform_tests/cli/test_show_platform.py::test_show_platform_pcieinfo:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3796871"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3892182"
     conditions:
-      - "https://redmine.mellanox.com/issues/3796871 and ('sn5400' in platform)"
+      - "https://redmine.mellanox.com/issues/3892182 and ('sn5400' in platform)"
 
-tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_fwutil_install_onie_key_check_fail:
+platform_tests/daemon/test_pcied.py::test_pmon_pcied_running_status:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3796871"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3892182"
     conditions:
-      - "https://redmine.mellanox.com/issues/3796871 and ('sn5400' in platform)"
+      - "https://redmine.mellanox.com/issues/3892182 and ('sn5400' in platform)"
+
+tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_toggle_peer_port:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3899851"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3899851 and ('sn5400' in platform)"
 
 ########################## NVIDIA INTERNAL HIPPO BRINGUP IGNORE END ############################

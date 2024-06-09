@@ -41,6 +41,11 @@ mux_simulator_http_port:
     sonic-dual-tor-tigon-dualtor-aa-64: 8083
     sonic-dual-tor-tigon-dualtor-mixed: 8083
 
+    sonic-dual-tor-tigon-01-dualtor: 8083
+    sonic-dual-tor-tigon-01-dualtor-64: 8083
+    sonic-dual-tor-tigon-01-dualtor-aa: 8083
+    sonic-dual-tor-tigon-01-dualtor-aa-64: 8083
+
     sonic-dual-tor-leopard: 8083
     sonic-dual-tor-leopard-dualtor: 8083
     sonic-dual-tor-leopard-dualtor-aa: 8083

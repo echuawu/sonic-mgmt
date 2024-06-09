@@ -31,6 +31,7 @@ from ngts.helpers.rocev2_acl_counter_helper import copy_apply_rocev2_acl_config,
 from ngts.helpers.sonic_branch_helper import get_sonic_branch
 from ngts.constants.constants import AppExtensionInstallationConstants
 from ngts.common.checkers import is_feature_ready
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 
 PRE_UPGRADE_CONFIG = '/tmp/config_db_{}_base.json'
@@ -55,6 +56,18 @@ def is_evpn_support(image_branch):
         if version in image_branch:
             return False
     return True
+
+
+def apply_dns_servers_resolve_conf(dut_engine):
+    """
+    Set into /etc/resolv.conf Nvidia LAB DNS servers
+    """
+    tmp_resolv_conf_path = f'/tmp/{SonicConst.RESOLV_CONF_NAME}'
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_FIRST}" > {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_SECOND}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "nameserver {SonicConst.NVIDIA_LAB_DNS_THIRD}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo echo "search {SonicConst.NVIDIA_LAB_DNS_SEARCH}" >> {tmp_resolv_conf_path}')
+    dut_engine.run_cmd(f'sudo mv {tmp_resolv_conf_path} {SonicConst.RESOLV_CONF_PATH}')
 
 
 @pytest.fixture(scope='package', autouse=True)
@@ -110,6 +123,9 @@ def push_gate_configuration(topology_obj, cli_objects, engines, interfaces, plat
 
         # Install app here in order to test migrating app from base image to target image
         if shared_params.app_ext_is_app_ext_supported:
+            if is_redmine_issue_active([3883023]):
+                with allure.step('Apply DNS servers configuration'):
+                    apply_dns_servers_resolve_conf(engines.dut)
             with allure.step("Install app {}".format(app_name)):
                 install_app(engines.dut, cli_objects.dut, app_name, app_repository_name, version)
     # variable below required for correct interfaces speed cleanup

@@ -53,6 +53,11 @@ class DatabaseConst:
     }
 
 
+class CumulusConsts:
+    LINUX_BOOT_PATTERN = 'Debian GNU/Linux 12 .*'
+    LOGIN_BOOT_PATTERN = 'cumulus login:.*'
+
+
 class NvosConst:
     QTM2 = "Quantum2"
     QTM3 = "Quantum3"
@@ -113,6 +118,7 @@ class NvosConst:
     SYSTEM_AAA_USER = 'user'
     SYSTEM_AAA_USER_ADMIN = 'admin'
     SYSTEM_AAA_USER_MONITOR = 'monitor'
+    SYSTEM_AAA_USER_CUMULUS = 'cumulus'
 
     DEFAULT_CONFIG = {"system": {
         "aaa": {
@@ -143,6 +149,13 @@ class NvosConst:
     INSTALL_BOOT_PATTERN = "boot:"
     INSTALL_CUMULUS_SUCCESS_PATTERN = '.* login:'
     NVOS_INSTALL_TIMEOUT = 6 * 60  # 6 minutes
+
+    COVERAGE_PATH = "/var/lib/python/coverage"
+    MAX_COVERAGE_PATH_CAPACITY_PERCENTAGE = 90
+
+    NO_CONFIG_DIFF_APPLY_MSG = "config apply executed with no config diff"
+    DECLINED_APPLY_MSG = 'Declined apply after warnings'
+    Y_COMMAND_NOT_FOUND = 'y: command not found'
 
 
 class CertificateFiles:
@@ -262,6 +275,8 @@ class SystemConsts:
     SECURITY = 'security'
     DATE_TIME = 'date-time'
     TECHSUPPORT_FILES_PATH = '/host/dump/'
+    TECHSUPPORT_EMPTY_FILES_TO_IGNORE = ['queue.counters_2', 'queue.counters_1.0', 'swapon',
+                                         'queue.counters_1', 'queue.counters_2.0']
     PATH_KEY = 'path'
     LATEST_KEY = 'latest'
 
@@ -477,6 +492,12 @@ class SystemConsts:
     EVENTS_TABLE_SIZE_DEFAULT = 1000
     EVENTS_TABLE_SIZE_MAX = 10000
 
+    AUTO_SAVE_ENABLE = 'enable'
+    AUTO_SAVE_ENABLE_OFF = 'off'
+    AUTO_SAVE_ENABLE_ON = 'on'
+
+    GENERAL_TRANSCEIVER_FIRMWARE_FILES = "/auto/sw_system_project/NVOS_INFRA/verification_files/transceiver_fw"
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000
@@ -484,14 +505,6 @@ class DocumentsConsts:
     TYPE_USER_MANUAL = 'User manual'
     TYPE_OPEN_SOURCE_LICENSES = 'Open source licenses'
     TYPE_RELEASE_NOTES = 'Release notes'
-    PATH_EULA = "/usr/share/nginx/html/system_documents/eula/NVOS_EULA.pdf"
-    PATH_USER_MANUAL = "/usr/share/nginx/html/system_documents/user_manual/NVOS_User_Manual.pdf"
-    PATH_OPEN_SOURCE_LICENSES = "/usr/share/nginx/html/system_documents/open_source_licenses/Open_Source_Licenses.txt"
-    PATH_RELEASE_NOTES = "/usr/share/nginx/html/system_documents/release_notes/NVOS_Release_Notes.pdf"
-    FILE_NAME_EULA = "NVOS_EULA.pdf"
-    FILE_NAME_USER_MANUAL = "NVOS_User_Manual.pdf"
-    FILE_NAME_OPEN_SOURCE_LICENSES = "Open_Source_Licenses.txt"
-    FILE_NAME_RELEASE_NOTES = "NVOS_Release_Notes.pdf"
 
 
 class IpConsts:
@@ -569,10 +582,14 @@ class PlatformConsts:
     FW_SOURCE = "fw-source"
     FW_SOURCE_DEFAULT = "default"
     FW_SOURCE_CUSTOM = "custom"
+    FW_SPECTRUM1 = "1-Spectrum"
+    FW_SPECTRUM2 = "1-Spectrum2"
+    FW_SPECTRUM3 = "1-Spectrum3"
     FW_FIELDS = [FW_ACTUAL, FW_PART_NUMBER, FW_AUTO_UPDATE, FW_SOURCE]
     HARDWARE_TRANCEIVER_DIAGNOSTIC_STATUS = "diagnostics-status"
     HARDWARE_TRANCEIVER_NOT_EXIST = "Non present module"
     HARDWARE_TRANCEIVER_NOT_DDMI = "No Diagnostic Data Available. Module is not DDMI capable"
+    ENV_CPU = "CPU"
     ENV_FAN = "fan"
     ENV_LED = "led"
     ENV_UID = "UID"
@@ -586,16 +603,31 @@ class PlatformConsts:
     ENV_LED_COLOR_BLUE = "blue"
     ENV_LED_COLOR_AMBER = "amber"
     ENV_LED_COLOR_AMBER_BLINK = "amber_blink"
-    ENV_LED_COLOR_OFF = "off"
+    ENV_LED_TURN_OFF = "off"
     ENV_LED_TURN_ON = "on"
-    ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_COLOR_OFF,
+    ENV_LED_COLOR_OPTIONS = [ENV_LED_COLOR_GREEN, ENV_LED_COLOR_RED, ENV_LED_TURN_OFF,
                              ENV_LED_COLOR_BLUE, ENV_LED_COLOR_AMBER, ENV_LED_COLOR_AMBER_BLINK]
-    ENV_LED_COMP = ["PSU_STATUS", "STATUS", "UID"]
     ENV_PSU_PROP = ["capacity", "current", "power", "state", "voltage"]
+    ENV_TEMP_CURR_PROP = "current"
+    ENV_TEMP_STATE_PROP = "state"
+    ENV_TEMP_STATE_OK = 'ok'
     HW_COMP_SWITCH = "SWITCH"
-    TRANSCEIVER_STATUS = "module-status"
-    TRANSCEIVER_ERROR_STATUS = "module-error-status"
+    TRANSCEIVER_STATUS = "status"
+    TRANSCEIVER_ERROR_STATUS = "error-status"
     SW_FIELD_NAMES = ('description', 'package', 'version')
+    ENV_TEMP_TOLERANCE = 20  # [%]
+    ENV_TEMP_MIN = 15  # [Celsius]
+    ENV_TEMP_MAX = 90  # [Celsius]
+    VOLTAGE_FILES_PATH = '/var/run/hw-management/ui/voltage'
+    PSU_STATE = 'state'
+    PS_REDUNDANCY_POLICY = 'policy'
+    PS_REDUNDANCY_MIN_REQ = 'min-required'
+    PS_REDUNDANCY_NO = 'no-redundancy'
+    PS_REDUNDANCY_PS = 'ps-redundancy'
+    PS_REDUNDANCY_GRID = 'grid-redundancy'
+    PS_REDUNDANCY_POLICY_TYPE = [PS_REDUNDANCY_NO, PS_REDUNDANCY_PS, PS_REDUNDANCY_GRID]
+    PS_REDUNDANCY_POLICY_TYPE_DEF = PS_REDUNDANCY_PS
+    VOLTAGE_FILES_PATTERN = 'PMIC|PSU'
 
 
 class FansConsts:
@@ -606,6 +638,7 @@ class FansConsts:
     FEATURE_DISABLED = 'disabled'
     STATE_OK = 'ok'
     STATE_NOT_OK = 'Not OK'
+    STATE_ABSENT = 'absent'
     FAN_DIRECTION_MISMATCH_ERR = "is not aligned with fan1 direction"
 
 
@@ -649,6 +682,7 @@ class IbConsts:
                                      'ibdiagnet2.net_dump', 'ibdiagnet2.nodes_info', 'ibdiagnet2.pkey', 'ibdiagnet2.pm',
                                      'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey']
     IBDIAGNET_EXPECTED_MESSAGE = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
+    IB_INTERFACE_NAME_REGEX = "([a-zA-Z]+)(\d+)(p\d+)"  # noqa: E402
 
 
 class ImageConsts:
@@ -754,7 +788,7 @@ class NtpConsts:
     SHOW_TIME_DIFF_THRESHOLD = 0.5  # [sec]
     SYNCHRONIZATION_MAX_TIME = 100  # [sec]
     SYNCHRONIZATION_TIME_AFTER_REBOOT = 60  # [sec]
-    CONFIG_TIME = 5  # [sec]
+    CONFIG_TIME = 10  # [sec]
     NUMBER_OF_ITERATION = 5
     OLD_DATE = '2 OCT 2006 18:00:00'  # [Date and Time]
     NTP_MAX_DIFF_TIME = 180  # [sec]
@@ -949,7 +983,7 @@ class OperationTimeConsts:
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
     THRESHOLDS = {'reboot': 180,
-                  'reset factory': 240,
+                  'reset factory': 250,
                   'install user FW': 450,
                   'install default fw': 360,
                   'port goes up': 30,
@@ -1044,7 +1078,7 @@ class StatsConsts:
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
     DISK_FREE_SPACE_MIN = 30  # [%]
-    DISK_FREE_SPACE_MAX = 95  # [%]
+    DISK_FREE_SPACE_MAX = 99  # [%]
     DISK_RMN_LIFE_MIN = 70  # [%]
     DISK_RMN_LIFE_MAX = 100  # [%]
     DISK_FAIL_CNT_MIN = 0
@@ -1065,15 +1099,13 @@ class StatsConsts:
 class MultiPlanarConsts:
     INTERNAL_PATH = "/tmp/"
     SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
-    SIMULATION_FILE = "platform.json"
     A_PORT_SPLIT_SIMULATION_FILE = "split_sw10p1_aport.json"
     FNM_PORT_SPLIT_SIMULATION_FILE = 'fnm_split_platform.json'
     NVL5_SIMULATION_FILE = 'nvl5_platform.json'
     ORIGIN_FILE = "platform_origin.json"
     ORIGIN_FULL_PATH = SIMULATION_PATH + ORIGIN_FILE
     AGGREGATED_PORT_SIMULATION_FILE = "aggregated_port_platform.json"
-    PLATFORM_PATH = "/usr/share/sonic/device/x86_64-mlnx_mqm9700-r0/"
-    PLATFORM_FULL_PATH = PLATFORM_PATH + SIMULATION_FILE
+    PLATFORM_FILE_FULL_PATH = "/usr/share/sonic/device/{}/platform.json"
     MULTI_PLANAR_KEYS = ['asic', 'parent-alias', 'parent-port', 'plane']
 
     PHYSICAL_STATE_PARAM = 'SAI_PORT_STAT_INFINIBAND_PHYSICAL_STATE'
@@ -1182,6 +1214,7 @@ class UfmMadConsts:
 class DiskConsts:
     DEFAULT_PARTITION_NAME = 'sda'
     PARTITION_CAPACITY_LIMIT = 40  # Percent value
+    MINIMUM_FREE_SPACE = 0.0  # Gigs
 
 
 class BiosConsts:
@@ -1229,8 +1262,10 @@ class AclConsts:
     MATCH_IP = 'match_ip'
     SOURCE_IP = 'source-ip'
     DEST_IP = 'dest-ip'
-    SOURCE_PORT = 'source-port'
-    DEST_PORT = 'dest-port'
+    TCP_SOURCE_PORT = 'tcp-source-port'
+    UDP_SOURCE_PORT = 'udp-source-port'
+    TCP_DEST_PORT = 'tcp-dest-port'
+    UDP_DEST_PORT = 'udp-dest-port'
     FRAGMENT = 'fragment'
     ECN_FLAGS = 'ecn_flags'
     ECN_IP_ECT = 'ecn_ip-ect'
@@ -1255,15 +1290,15 @@ class AclConsts:
     SOURCE_MAC_MASK = 'source-mac-mask'
     DEST_MAC = 'dest-mac'
     DEST_MAC_MASK = 'dest-mac-mask'
-    TCPMSS = 'tcpmss'
-    ALL_TCPMSS_EXCEPT = 'all-tcpmss-except'
+    MSS = 'mss'
+    ALL_MSS_EXCEPT = 'all-mss-except'
     RECENT_LIST = 'recent-list'
     RECENT_LIST_NAME = 'recent_list_name'
     RECENT_LIST_UPDATE = 'update-interval'
     RECENT_LIST_HIT = 'hit-count'
     RECENT_LIST_ACTION = 'recent-list-action'
     HASHLIMIT_NAME = 'hash_name'
-    HASHLIMIT_RATE = 'rate'
+    HASHLIMIT_RATE = 'rate-above'
     HASHLIMIT_BURST = 'burst'
     HASHLIMIT_MODE = 'mode'
     HASHLIMIT_EXPIRE = 'expire'

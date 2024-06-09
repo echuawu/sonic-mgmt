@@ -238,7 +238,6 @@ crm/test_crm.py::test_crm_fdb_entry:
     reason: "Unsupported topology, expected to run only on 'T0*' or 'M0/MX' topology"
     conditions:
       - "'t0' not in topo_name and topo_type not in ['m0', 'mx']"
-
 #######################################
 #####            decap            #####
 #######################################
@@ -341,9 +340,9 @@ dualtor/test_orchagent_active_tor_downstream.py::test_downstream_ecmp_nexthops:
 
 dualtor/test_orchagent_mac_move.py:
   skip:
-    reason: "This testcase is designed for single tor testbed with mock dualtor config."
+    reason: "This testcase is designed for single tor testbed with mock dualtor config. Or skip by issue 12795"
     conditions:
-      - "(topo_type not in ['t0']) or ('dualtor' in topo_name)"
+      - "(topo_type not in ['t0']) or ('dualtor' in topo_name) or (https://github.com/sonic-net/sonic-mgmt/issues/12795)"
 
 dualtor/test_orchagent_standby_tor_downstream.py::test_downstream_standby_mux_toggle_active:
   skip:
@@ -696,11 +695,35 @@ hash/test_generic_hash.py::test_ecmp_and_lag_hash:
     conditions:
       - "asic_gen == 'spc1'"
 
+hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
+
+hash/test_generic_hash.py::test_ecmp_hash[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
+
+hash/test_generic_hash.py::test_lag_hash[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
+
 hash/test_generic_hash.py::test_lag_member_flap:
   skip:
     reason: 'On Mellanox SPC1 platforms, due to HW limitation, it would not support CRC_CCITT algorithm'
     conditions:
       - "asic_gen == 'spc1'"
+
+hash/test_generic_hash.py::test_lag_member_flap[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
 
 hash/test_generic_hash.py::test_lag_member_remove_add:
   skip:
@@ -708,17 +731,35 @@ hash/test_generic_hash.py::test_lag_member_remove_add:
     conditions:
       - "asic_gen == 'spc1'"
 
+hash/test_generic_hash.py::test_lag_member_remove_add[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
+
 hash/test_generic_hash.py::test_nexthop_flap:
   skip:
     reason: 'On Mellanox SPC1 platforms, due to HW limitation, it would not support CRC_CCITT algorithm'
     conditions:
       - "asic_gen == 'spc1'"
 
+hash/test_generic_hash.py::test_nexthop_flap[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
+
 hash/test_generic_hash.py::test_reboot:
   skip:
     reason: 'On Mellanox SPC1 platforms, due to HW limitation, it would not support CRC_CCITT algorithm'
     conditions:
       - "asic_gen == 'spc1'"
+
+hash/test_generic_hash.py::test_reboot[CRC-INNER_IP_PROTOCOL:
+  skip:
+    reason: "On Mellanox platforms, due to HW limitation, it would not support CRC algorithm on INNER_IP_PROTOCOL field"
+    conditions:
+    - "asic_type in ['mellanox']"
 
 #######################################
 #####           http              #####
@@ -1065,7 +1106,7 @@ platform_tests/test_cont_warm_reboot.py:
 
 platform_tests/test_platform_info.py::test_show_platform_fanstatus_mocked:
   skip:
-    reason: "Test not supported on Mellanox Platforms."
+    reason: "Test disabled on Mellanox platforms as it could be un-stable and interfered by the thermal algorithm."
     conditions:
       - "asic_type in ['mellanox']"
 
@@ -1078,21 +1119,27 @@ platform_tests/test_platform_info.py::test_show_platform_temperature_mocked:
 
 platform_tests/test_platform_info.py::test_thermal_control_fan_status:
   skip:
-    reason: "Test not supported on Mellanox Platforms."
+    reason: "Test disabled on Mellanox platforms as it could be un-stable and interfered by the thermal algorithm."
     conditions:
       - "asic_type in ['mellanox']"
 
 platform_tests/test_platform_info.py::test_thermal_control_load_invalid_format_json:
   skip:
-    reason: "Test not supported on Mellanox Platforms."
+    reason: "Test not required on Mellanox Platforms as all thermal policies have been removed from thermalctld"
     conditions:
       - "asic_type in ['mellanox']"
 
 platform_tests/test_platform_info.py::test_thermal_control_load_invalid_value_json:
   skip:
-    reason: "Test not supported on Mellanox Platforms."
+    reason: "Test not required on Mellanox Platforms as all thermal policies have been removed from thermalctld"
     conditions:
       - "asic_type in ['mellanox']"
+
+platform_tests/test_xcvr_info_in_db.py::test_xcvr_info_in_db:
+  xfail:
+    reason: "Expected to fail with flat memory modules due to test issue https://github.com/sonic-net/sonic-mgmt/issues/12981"
+    conditions:
+      - https://github.com/sonic-net/sonic-mgmt/issues/12981
 
 #######################################
 #####           qos               #####
@@ -1596,6 +1643,42 @@ vxlan/test_vxlan_crm.py:
     reason: "VxLAN crm test is not yet supported on multi-ASIC platform. Also this test can only run on 4600c, 2700 and 8102."
     conditions:
       - "(is_multi_asic == True) or (platform not in ['x86_64-8102_64h_o-r0', 'x86_64-8101_32fh_o-r0', 'x86_64-mlnx_msn4600c-r0', 'x86_64-mlnx_msn2700-r0', 'x86_64-mlnx_msn2700a1-r0', 'x86_64-mlnx_msn4700-r0', 'x86_64-nvidia_sn4280-r0'])"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_512_nexthop_groups[v4_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_128_group_members[v4_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_16k_routes[v6_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_512_nexthop_groups[v6_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_128_group_members[v6_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
+
+vxlan/test_vxlan_crm.py::Test_VxLAN_Crm::test_crm_16k_routes[v4_in_v6]:
+  skip:
+    reason: "On Mellanox spc1 platform, due to HW limitation, vxlan ipv6 tunnel is not supported"
+    conditions:
+      - "asic_gen == 'spc1'"
 
 vxlan/test_vxlan_ecmp.py:
   skip:

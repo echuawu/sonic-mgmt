@@ -109,7 +109,8 @@ def pytest_addoption(parser):
                      help="Name of k8s master group used in k8s inventory, format: k8s_vms{msetnumber}_{servernumber}")
 
     # neighbor device type
-    parser.addoption("--neighbor_type", action="store", default="eos", type=str, choices=["eos", "sonic", "cisco"],
+    parser.addoption("--neighbor_type", action="store", default="eos", type=str, choices=["eos", "sonic", "cisco",
+                                                                                          "vsonic", "ceos"],
                      help="Neighbor devices type")
 
     # FWUtil options
@@ -557,7 +558,7 @@ def nbrhosts(enhance_inventory, ansible_adhoc, tbinfo, creds, request):
 
     for k, v in list(tbinfo['topo']['properties']['topology']['VMs'].items()):
         vm_name = vm_name_fmt % (vm_base + v['vm_offset'])
-        if neighbor_type == "eos":
+        if "eos" in neighbor_type:
             device = NeighborDevice(
                 {
                     'host': EosHost(
@@ -571,7 +572,7 @@ def nbrhosts(enhance_inventory, ansible_adhoc, tbinfo, creds, request):
                     'conf': tbinfo['topo']['properties']['configuration'][k]
                 }
             )
-        elif neighbor_type == "sonic":
+        elif "sonic" in neighbor_type:
             device = NeighborDevice(
                 {
                     'host': SonicHost(

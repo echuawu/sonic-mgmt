@@ -6913,23 +6913,6 @@ sensors_checks:
       - jc42-i2c-0-1c/SODIMM Temp/temp1_min_alarm
       - jc42-i2c-0-1c/SODIMM Temp/temp1_crit_alarm
 
-      - mlxsw-i2c-2-48/front panel 001/temp2_crit_alarm
-      - mlxsw-i2c-2-48/front panel 001/temp2_fault
-      - mlxsw-i2c-2-48/front panel 002/temp3_crit_alarm
-      - mlxsw-i2c-2-48/front panel 002/temp3_fault
-      - mlxsw-i2c-2-48/front panel 003/temp4_crit_alarm
-      - mlxsw-i2c-2-48/front panel 003/temp4_fault
-      - mlxsw-i2c-2-48/front panel 004/temp5_crit_alarm
-      - mlxsw-i2c-2-48/front panel 004/temp5_fault
-      - mlxsw-i2c-2-48/front panel 005/temp6_crit_alarm
-      - mlxsw-i2c-2-48/front panel 005/temp6_fault
-      - mlxsw-i2c-2-48/front panel 006/temp7_crit_alarm
-      - mlxsw-i2c-2-48/front panel 006/temp7_fault
-      - mlxsw-i2c-2-48/front panel 007/temp8_crit_alarm
-      - mlxsw-i2c-2-48/front panel 007/temp8_fault
-      - mlxsw-i2c-2-48/front panel 008/temp9_crit_alarm
-      - mlxsw-i2c-2-48/front panel 008/temp9_fault
-
       - mp2975-i2c-5-65/PMIC-4 VDD_T4 ADJ Temp 1/temp1_max_alarm
       - mp2975-i2c-5-65/PMIC-4 VDD_T4 ADJ Temp 1/temp1_crit_alarm
 
@@ -7014,30 +6997,6 @@ sensors_checks:
 
       - - jc42-i2c-0-1c/SODIMM Temp/temp1_input
         - jc42-i2c-0-1c/SODIMM Temp/temp1_crit
-
-      - - mlxsw-i2c-2-48/front panel 001/temp2_input
-        - mlxsw-i2c-2-48/front panel 001/temp2_crit
-
-      - - mlxsw-i2c-2-48/front panel 002/temp3_input
-        - mlxsw-i2c-2-48/front panel 002/temp3_crit
-
-      - - mlxsw-i2c-2-48/front panel 003/temp4_input
-        - mlxsw-i2c-2-48/front panel 003/temp4_crit
-
-      - - mlxsw-i2c-2-48/front panel 004/temp5_input
-        - mlxsw-i2c-2-48/front panel 004/temp5_crit
-
-      - - mlxsw-i2c-2-48/front panel 005/temp6_input
-        - mlxsw-i2c-2-48/front panel 005/temp6_crit
-
-      - - mlxsw-i2c-2-48/front panel 006/temp7_input
-        - mlxsw-i2c-2-48/front panel 006/temp7_crit
-
-      - - mlxsw-i2c-2-48/front panel 007/temp8_input
-        - mlxsw-i2c-2-48/front panel 007/temp8_crit
-
-      - - mlxsw-i2c-2-48/front panel 008/temp9_input
-        - mlxsw-i2c-2-48/front panel 008/temp9_crit
 
       - - mp2975-i2c-5-65/PMIC-4 VDD_T4 ADJ Temp 1/temp1_input
         - mp2975-i2c-5-65/PMIC-4 VDD_T4 ADJ Temp 1/temp1_crit

@@ -11,6 +11,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_tools.infra.Fae import Fae
+from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
 
@@ -31,7 +32,7 @@ def test_ib_show_interface(engines, devices, test_api):
     """
     TestToolkit.tested_api = test_api
 
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type.lower()).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -39,7 +40,7 @@ def test_ib_show_interface(engines, devices, test_api):
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             selected_port.interface.show()).get_returned_value()
-        validate_one_port_show_output(output_dictionary, devices.dut.switch_type)
+        validate_one_port_show_output(output_dictionary, devices.dut.switch_type.lower())
 
     '''with allure.step(f'Check interface primary ASIC for port {selected_port.name}'):
         fae = Fae(port_name=selected_port.name)
@@ -62,8 +63,13 @@ def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
 
     flow:
     1. Run 'nv show interface'
-    2. Select a random port from the output
+    2. Select a random port from the output in 'up' state
     3. Verify the required fields are presented in the output
+    4. Change the port state to 'down'
+    5. Verify the port state as down
+    6. Change the port state to 'up'
+    7. Verify the port state as up
+
     """
     TestToolkit.tested_api = test_api
 
@@ -72,7 +78,7 @@ def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
 
     result = Tools.RandomizationTool.select_random_port(requested_ports_state="up",
                                                         requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE,
-                                                        requested_ports_type=devices.dut.switch_type)
+                                                        requested_ports_type=devices.dut.switch_type.lower())
     if not result.result:
         return
 
@@ -87,7 +93,7 @@ def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
                      'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type)
+        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type.lower())
 
     try:
         with allure.step('Set the state of selected port to "down"'):
@@ -100,7 +106,7 @@ def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
-                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, False)
+                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type.lower(), False)
 
             with allure.step('Set the state of selected port to "up"'):
                 selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -113,7 +119,7 @@ def test_ib_show_interface_all_state_up(engines, devices, start_sm, test_api):
 
             with allure.step('Run show command on selected port and verify that each field has an appropriate '
                              'value according to the state of the port'):
-                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, True)
+                validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type.lower(), True)
     finally:
         with allure.step('Set the state of selected port to "up"'):
             selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_UP, apply=True,
@@ -132,7 +138,7 @@ def test_ib_show_interface_all_state_down(engines, devices):
 
     flow:
     1. Run 'nv show interface'
-    2. Select a random port from the output
+    2. Select a random port from the output in 'down' state
     3. Verify the required fields are presented in the output
     """
     output_dictionary = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
@@ -140,7 +146,7 @@ def test_ib_show_interface_all_state_down(engines, devices):
 
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state="down",
                                                                requested_ports_logical_state=None,
-                                                               requested_ports_type=devices.dut.switch_type).get_returned_value()
+                                                               requested_ports_type=devices.dut.switch_type.lower()).get_returned_value()
     TestToolkit.update_tested_ports([selected_port])
 
     assert selected_port.name in output_dictionary.keys(), "selected port can't be found in the output"
@@ -149,8 +155,11 @@ def test_ib_show_interface_all_state_down(engines, devices):
         selected_port.interface.show()).get_returned_value()
 
     with allure.step('Run show command on selected port and verify that each field has an appropriate '
-                     'value according to the state of the port'):
-        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type, False)
+                     'value according to the state of the port, expecting Polling state since cable is not connected'):
+        validate_one_port_in_show_all_ports(output_dictionary, devices.dut.switch_type.lower(), False)
+        Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary[IbInterfaceConsts.LINK],
+                                                          field_name=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
+                                                          expected_value=IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_POLLING).verify_result()
 
 
 @pytest.mark.ib_interfaces
@@ -166,10 +175,11 @@ def test_ib_show_interface_name_link(engines, devices, test_api):
     1. Select a random port (status of which is up)
     2. Run 'nv show interface <name> link' on selected port
     3. Verify the required fields are presented in the output
+    4. Verify state based on logical & physical state
     """
     TestToolkit.tested_api = test_api
 
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type.lower()).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -179,18 +189,7 @@ def test_ib_show_interface_name_link(engines, devices, test_api):
             selected_port.interface.link.show()).get_returned_value()
 
         validate_link_fields(output_dictionary)
-
-    with allure.step("Verify output of link state"):
-        with allure.step("Verify json output"):
-            json_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                selected_port.interface.link.state.show()).get_returned_value()
-            assert "up" in json_output.keys() or "down" in json_output.keys(), "up/down state was not found"
-        '''with allure.step("Verify string output"):
-            str_output = selected_port.interface.link.state.show_interface_link_state(
-                output_format=OutputFormat.auto)
-            req_fields = ["operational", "applied", "description"]
-            Tools.ValidationTool.verify_sub_strings_in_str_output(str_output, req_fields).verify_result()
-            assert "up" in str_output or "down" in str_output, "up/down state was not found"'''
+        verify_expected_link_state(output_dictionary)
 
 
 @pytest.mark.ib_interfaces
@@ -205,7 +204,7 @@ def test_ib_show_interface_name_stats(engines, devices, test_api):
     2. Run 'nv show interface <name> link stats' on selected port
     3. Verify the required fields are presented in the output
     """
-    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type).get_returned_value()
+    selected_port = Tools.RandomizationTool.select_random_port(requested_ports_type=devices.dut.switch_type.lower()).get_returned_value()
 
     TestToolkit.update_tested_ports([selected_port])
 
@@ -266,6 +265,10 @@ def test_show_interface_filter(engines):
         output_dict_filtered = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             interface.show('--filter ""')).get_returned_value()
 
+    with allure.step('Run show interface without filter'):
+        output_dict = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            interface.show()).get_returned_value()
+
     with allure.step('Compare between filtered output dictionary to the full dictionary'):
         ValidationTool.compare_nested_dictionary_content(output_dict_filtered, output_dict).verify_result()
 
@@ -315,7 +318,6 @@ def validate_link_fields(output_dictionary, switch_type, port_up=True):
                                                                field_to_check, port_up).verify_result()
         # Will be changed
         field_to_check = [IbInterfaceConsts.LINK_LANES]
-        # TBD - Need to check if exists for nvl
         res = Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check, port_up)
         logging.warning(res.info)
 
@@ -349,3 +351,31 @@ def validate_one_port_in_show_all_ports(output_dictionary, switch_type, port_up=
     Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
     validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], switch_type, port_up)
+
+
+def verify_expected_link_state(output_dictionary):
+    link_physical_port_state = output_dictionary[IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE]
+    link_logical_port_state = output_dictionary[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE]
+    if link_physical_port_state in \
+        [IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_POLLING,
+         IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_DISABLED]:
+
+        Tools.ValidationTool.validate_fields_values_in_output(
+            output_dict=output_dictionary,
+            expected_fields=[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE, IbInterfaceConsts.LINK_STATE],
+            expected_values=[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_DOWN, NvosConsts.LINK_STATE_DOWN]) \
+            .verify_result()
+
+    elif link_physical_port_state == IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_LINK_UP:
+
+        Tools.ValidationTool.verify_field_value_in_output(
+            output_dictionary=output_dictionary,
+            field_name=IbInterfaceConsts.LINK_STATE,
+            expected_value=NvosConsts.LINK_STATE_UP).verify_result()
+
+        assert link_logical_port_state in [IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_ACTIVE,
+                                           IbInterfaceConsts.LINK_LOGICAL_PORT_STATE_INITIALIZE], \
+            "Link logical port state {} isn't as we expected".format(link_logical_port_state)
+
+    else:
+        raise Exception("Link physical port state {} isn't as we expected".format(link_physical_port_state))

@@ -25,7 +25,7 @@ from ngts.cli_wrappers.linux.linux_cli import LinuxCli, LinuxCliStub
 from ngts.cli_wrappers.nvue.nvue_cli import NvueCli
 from ngts.constants.constants import PytestConst, NvosCliTypes, DebugKernelConsts, \
     BugHandlerConst, InfraConst, PlayersAliases
-from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run
+from ngts.tools.infra import get_platform_info, get_devinfo, is_deploy_run, get_chip_type
 from ngts.tests.nightly.app_extension.app_extension_helper import APP_INFO
 from ngts.helpers.sonic_branch_helper import get_sonic_branch, update_branch_in_topology, update_sanitizer_in_topology, \
     get_sonic_image
@@ -311,7 +311,7 @@ def update_topology_with_cli_class(topology):
     # TODO: determine player type by topology attribute, rather than alias
     nvos_setup = False
     for player_key, player_info in topology.players.items():
-        if player_key in PlayersAliases.duts_list:
+        if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.'][
                     'CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
                 update_nvos_topology(topology, player_info)
@@ -319,6 +319,12 @@ def update_topology_with_cli_class(topology):
             else:
                 player_info['cli'] = SonicCli(topology, dut_alias=player_key)
                 player_info.update({'stub_cli': SonicCliStub(topology)})
+        elif player_key == 'dut-b':
+            player_info['cli'] = SonicCli(topology, dut_alias='dut-b')
+
+        elif player_key == 'left_tg' or player_key == 'right_tg':
+            player_info['cli'] = SonicCli(topology, dut_alias=player_key)
+            player_info.update({'stub_cli': SonicCliStub(topology)})
         else:
             player_info['cli'] = LinuxCli(player_info['engine'])
             player_info.update({'stub_cli': LinuxCliStub(player_info['engine'])})
@@ -375,8 +381,8 @@ def dut_mac(engines, cli_objects):
 
 @pytest.fixture(scope='session')
 def chip_type(topology_obj):
-    chip_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['chip_type']
-    return chip_type
+    switch_attributes = topology_obj.players['dut']['attributes'].noga_query_data['attributes']
+    return get_chip_type(switch_attributes)
 
 
 @pytest.fixture(scope='session')
@@ -433,6 +439,7 @@ def is_code_coverage_run(topology_obj, should_skip_checking_fixture):
 
     try:
         pytest.is_code_coverage = bool(topology_obj.players['dut']['cli'].general.echo('${COVERAGE_FILE}'))
+        logger.info(f'Code coverage image: {pytest.is_code_coverage}')
     except SSHException as err:
         logger.warning(f'Unable to check if its code coverage run. Assuming that the device is not reachable. '
                        f'Setting the is_code_coverage_run as False, '
@@ -489,7 +496,7 @@ def platform_params(show_platform_summary, setup_name, topology_obj):
     platform_data = DottedDict()
     platform_data.platform = show_platform_summary['platform']
     platform_data.filtered_platform = re.search(
-        r"(msn\d{4}a\w?|msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|mqm\d{4}|mbf.*c|900.*a|N5110_LD)",
+        r"(msn\d{4}a\w?|msn\d{4}c|msn\d{4}|sn\d{4}|qm\d{4}|q\d{4}|mqm\d{4}|mbf.*c|900.*a|N5110_LD)",
         show_platform_summary['platform'], re.IGNORECASE).group(1)
     platform_data.hwsku = show_platform_summary['hwsku']
     platform_data.setup_name = setup_name

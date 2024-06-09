@@ -19,6 +19,7 @@ logger = logging.getLogger()
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.nvos_ci
 @pytest.mark.skynet
@@ -44,7 +45,7 @@ def test_show_platform_environment(engines, devices, test_api, output_format):
         output = OutputParsingTool.parse_show_output_to_dict(raw_output, output_format).get_returned_value()
         ValidationTool.validate_set_equal(output.keys(),
                                           devices.dut.psu_fan_list + devices.dut.fan_list + devices.dut.psu_list +
-                                          devices.dut.temperature_sensors + devices.dut.fan_led_list +
+                                          devices.dut.temperature_sensors + devices.dut.led_list +
                                           devices.dut.voltage_sensors).verify_result()
 
 
@@ -75,16 +76,30 @@ def test_show_platform_environment_fan(engines, devices, test_api, output_format
                                           ).verify_result()
 
     with allure.step("Assert all fans have the same direction"):
-        directions = {fan["direction"] for fan in output.values()}
+        directions = {fan["direction"] for fan in output.values() if fan["direction"] != "None"}
         assert len(directions) == 1, f"Not all fans show the same direction: {output}"
 
     with allure.step("Checking properties of random fan"):
         random_fan = random.choice(devices.dut.fan_list)
         _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
 
-    with allure.step("Checking properties of random PSU fan"):
-        random_fan = random.choice(devices.dut.psu_fan_list)
-        _test_specific_fan(random_fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+    with allure.step("Checking properties of PSU fans"):
+        for fan in devices.dut.psu_fan_list:
+            if output.get(fan).get("state") == "absent":
+                _test_absent_fan(fan, output_format, devices.dut.platform_environment_absent_fan_values, output, platform)
+                continue
+        _test_specific_fan(fan, output_format, devices.dut.platform_environment_fan_values, output, platform)
+
+
+def _test_absent_fan(fan, output_format, expected, output, platform):
+    logger.info(f"Testing properties of absent fan {fan}")
+    with allure.step("Checking output of 'show platform environment fan'"):
+        ValidationTool.validate_output_of_show(output[fan], expected).verify_result()
+    with allure.step("Checking output of 'show platform environment fan <fan-id>'"):
+        fan_output = OutputParsingTool.parse_show_output_to_dict(
+            platform.environment.fan.show(fan, output_format=output_format),
+            output_format=output_format).get_returned_value()
+        ValidationTool.validate_output_of_show(fan_output, expected).verify_result()
 
 
 def _test_specific_fan(fan, output_format, expected, output, platform):
@@ -100,6 +115,7 @@ def _test_specific_fan(fan, output_format, expected, output, platform):
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
@@ -113,7 +129,7 @@ def test_show_platform_environment_led(engines, devices, test_api):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_led_list)
+        output = _verify_output(platform, "led", devices.dut.led_list)
 
     with allure.step("Check that all required properties for each led"):
         logging.info("Check that all required properties for each led")
@@ -147,7 +163,7 @@ def test_set_platform_environment_led(engines, devices, test_api):
         platform = Platform()
 
     with allure.step("Execute show platform environment led and make sure all the components exist"):
-        output = _verify_output(platform, "led", devices.dut.fan_led_list + PlatformConsts.ENV_LED_COMP)
+        output = _verify_output(platform, "led", devices.dut.led_list)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")
@@ -162,8 +178,8 @@ def test_set_platform_environment_led(engines, devices, test_api):
                 continue
             if TestToolkit.tested_api != "OpenApi":
                 should_succeed = False
-            platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=led)\
-                .verify_result(should_succeed)
+            platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_OFF),
+                                            suffix=led).verify_result(should_succeed)
 
     with allure.step("Check that all leds are green and UID off by default"):
         logging.info("Check that all leds are green and UID off by default")
@@ -172,18 +188,20 @@ def test_set_platform_environment_led(engines, devices, test_api):
 
     with allure.step("Change UID state led to on"):
         logging.info("Check UID state led to on")
-        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_TURN_ON, led=PlatformConsts.ENV_UID)
+        platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_ON),
+                                        suffix=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.led.show()).verify_result()
-        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_BLUE, True)\
+        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_BLUE, True) \
             .verify_result()
 
     with allure.step("Change UID state led to off"):
         logging.info("Change UID state led to off")
-        platform.environment.action_turn(turn_type=PlatformConsts.ENV_LED_COLOR_OFF, led=PlatformConsts.ENV_UID)
+        platform.environment.led.action(action='turn-{type}'.format(type=PlatformConsts.ENV_LED_TURN_OFF),
+                                        suffix=PlatformConsts.ENV_UID)
         output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.led.show()).verify_result()
-        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_COLOR_OFF, True) \
+        Tools.ValidationTool.compare_values(output['UID']['color'], PlatformConsts.ENV_LED_TURN_OFF, True) \
             .verify_result()
 
     with allure.step("Check that all leds are green and UID off after unset"):
@@ -222,12 +240,23 @@ def test_show_platform_environment_psu(engines, devices, test_api):
 
 
 @pytest.mark.platform
+@pytest.mark.cumulus
 @pytest.mark.simx
 @pytest.mark.skynet
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_environment_temperature(engines, devices, test_api):
     """
     Show platform environment temperature test
+
+    Test flow:
+    1. Select a FAN to test
+    2. Validate every temperature sensor component in nv show platform environment temperature command
+    3. Validate every temperature sensor component properties
+    4. Validate every temperature sensor temp in the valid range
+    5. Validate CPU sensors temp in specified range from mean by some tolerance
+    6. Validate ASIC sensors temp in specified range from mean by some tolerance
+    7. Validate PSU sensors temp in specified range from mean by some tolerance
+
     """
     TestToolkit.tested_api = test_api
 
@@ -238,7 +267,8 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
         output = _verify_output(platform, "temperature", devices.dut.temperature_sensors)
 
     with allure.step("make sure all temperature sensors are present in the output"):
-        with allure.step("Verify for every sensor in sensors_dict[TEMPERATURE], it exist in nv show platform temperature"):
+        with allure.step(
+                "Verify for every sensor in sensors_dict[TEMPERATURE], it exist in nv show platform temperature"):
             diff_sensors = [x for x in devices.dut.sensors_dict["TEMPERATURE"] if x not in output.keys()]
             err_mes = '' if not len(diff_sensors) else 'the next sensors are not in the output: {}'.format(diff_sensors)
         with allure.step("Verify no extra sensors are found in nv show platform environment temperature"):
@@ -250,17 +280,19 @@ def test_show_platform_environment_temperature(engines, devices, test_api):
     with allure.step("Check that all required properties for each temperature"):
         logging.info("Check that all required properties for each temperature")
         for temp, temp_prop in output.items():
+            if temp_prop.get("state") == 'absent':
+                continue
             _verify_temp_prop(temp, temp_prop)
 
-    if "SODIMM 1 Temp" in output.keys():
-        with allure.step('Verify "SODIMM 1 Temp" values'):
-            _verify_temp_prop("SODIMM 1 Temp", output["SODIMM 1 Temp"])
+    with allure.step("Check that all sensors in required range"):
+        logging.info("Check that all sensors in required range")
+        for temp, temp_prop in output.items():
+            _verify_temp_in_range(temp, temp_prop, PlatformConsts.ENV_TEMP_MIN,
+                                  PlatformConsts.ENV_TEMP_MAX)
 
-    with allure.step("Check output of a specific temperature comp"):
-        temperature_to_check = list(output.keys())[0]
-        output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-            platform.environment.temperature.show(op_param=temperature_to_check)).verify_result()
-        _verify_temp_prop(temperature_to_check, output)
+    verify_sensor_group_by_tolerance(output, PlatformConsts.ENV_CPU)
+    verify_sensor_group_by_tolerance(output, PlatformConsts.FW_ASIC)
+    verify_sensor_group_by_tolerance(output, PlatformConsts.ENV_PSU.upper())
 
 
 @pytest.mark.platform
@@ -351,7 +383,7 @@ def _verify_fan_direction_mismatch_behaviour(engines, devices, feature_enable):
         with allure.step('Check System health status'):
             output = Tools.OutputParsingTool.parse_json_str_to_dictionary(system.health.show()).verify_result()
             health_status = output['status']
-            assert health_status == HealthConsts.OK, 'System health status is {} instead of {}'.\
+            assert health_status == HealthConsts.OK, 'System health status is {} instead of {}'. \
                 format(health_status, HealthConsts.OK)
 
         with allure.step("Validate there should not be any Fan direction Health Issues"):
@@ -377,7 +409,7 @@ def _set_platform_environment_fan_direction(engines, devices, platform, fan_to_c
     with allure.step("Check fan state and direction via CLI"):
         actual_direction = output['direction']
         state = output['state']
-        assert actual_direction == direction, "Unexpected direction of fan: {} instead of {}".\
+        assert actual_direction == direction, "Unexpected direction of fan: {} instead of {}". \
             format(actual_direction, direction)
         assert state == 'ok', "State of Fan {} is {} instead of ok".format(fan_name, state)
 
@@ -421,6 +453,35 @@ def _verify_temp_prop(temp, temp_prop):
         assert _get_float(crit_value) or "N/A" in crit_value, "the critical temperature value is invalid"
 
 
+def _verify_temp_in_range(temp, temp_prop, min_temp, max_temp):
+    curr_temp = temp_prop[PlatformConsts.ENV_TEMP_CURR_PROP]
+    assert temp_prop['state'] == PlatformConsts.ENV_TEMP_STATE_OK, 'sensor state is {} instead of {}'.format(
+        temp_prop['state'], PlatformConsts.ENV_TEMP_STATE_OK)
+    assert min_temp <= _get_float(curr_temp) <= max_temp, f"{temp} temperature {curr_temp} is not within" \
+        f" the valid range ({min_temp} - {max_temp})."
+
+
+def verify_sensor_group_by_tolerance(output, category):
+    with allure.step("Check that {} temps are within the specified range from mean by tolerance of {}%"
+                     .format(category, PlatformConsts.ENV_TEMP_TOLERANCE)):
+        logging.info("Check that {} temps are within the specified range from mean by tolerance of {}%"
+                     .format(category, PlatformConsts.ENV_TEMP_TOLERANCE))
+    sensors = {temp: float(temp_prop[PlatformConsts.ENV_TEMP_CURR_PROP]) for temp, temp_prop in output.items()
+               if category in temp}
+    sensor_mean_temp = sum(sensors.values()) / len(sensors)
+
+    for sensor, sensor_temp in sensors.items():
+        _verify_temp_by_tolerance(sensor, sensor_temp, sensor_mean_temp, PlatformConsts.ENV_TEMP_TOLERANCE,
+                                  category)
+
+
+def _verify_temp_by_tolerance(temp, curr_temp, mean_temp, p, category):
+    min_temp = mean_temp * (1 - p / 100)
+    max_temp = mean_temp * (1 + p / 100)
+    assert min_temp <= curr_temp <= max_temp, \
+        f"{category}: {temp} temperature {curr_temp} is not within the tolerated range from mean ({min_temp} - {max_temp})."
+
+
 def _verify_output(platform, comp_name, req_fields):
     logging.info("Required comp: " + str(req_fields))
     with allure.step("Verify text output"):
@@ -449,8 +510,8 @@ def _verify_led_prop(led, led_prop):
 def _verify_led_color(led, led_prop):
     logging.info("led {}".format(led))
     if led == PlatformConsts.ENV_UID:
-        assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_OFF, \
-            PlatformConsts.ENV_LED_COLOR_OFF + " not found for " + led
+        assert led_prop['color'] == PlatformConsts.ENV_LED_TURN_OFF, \
+            PlatformConsts.ENV_LED_TURN_OFF + " not found for " + led
     else:
         assert led_prop['color'] == PlatformConsts.ENV_LED_COLOR_GREEN, \
             PlatformConsts.ENV_LED_COLOR_GREEN + " not found for " + led

@@ -17,7 +17,7 @@ from ngts.tests_nvos.general.security.security_test_tools.constants import AaaCo
 from ngts.tests_nvos.general.security.security_test_tools.resource_utils import configure_resource
 from ngts.tests_nvos.general.security.security_test_tools.security_test_utils import set_local_users
 from ngts.tests_nvos.general.security.security_test_tools.switch_authenticators import SshAuthenticator
-from ngts.tests_nvos.general.security.tacacs.constants import TacacsServers, TacacsDockerServer0
+from ngts.tests_nvos.general.security.tacacs.constants import TacacsDockerServer0, TacacsPhysicalServer
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_general_utils import loganalyzer_ignore
 
@@ -140,8 +140,8 @@ def test_auth_restrictions_fail_delay(test_api, engines, test_user):
         cur_fail_delay = OutputParsingTool.parse_json_str_to_dictionary(restrictions.show()).get_returned_value()[
             RestrictionsConsts.FAIL_DELAY]
         assert str(fail_delay) == str(cur_fail_delay), f'Fail delay was not changed.\n' \
-                                                       f'Expected {fail_delay}\n' \
-                                                       f'Actual: {cur_fail_delay}'
+            f'Expected {fail_delay}\n' \
+            f'Actual: {cur_fail_delay}'
 
     with allure.step('Make 2 authentication failureS'):
         attempter = SshAuthenticator(test_user[AaaConsts.USERNAME], test_user[AaaConsts.PASSWORD], engines.dut.ip)
@@ -262,7 +262,7 @@ def test_auth_restrictions_action_clear_user(test_api, engines, test_user):
     with allure.step('Verify user blocked'):
         login_succeeded, _ = attempter.attempt_login_success()
         assert not login_succeeded, f'User should be blocked.\n' \
-                                    f'Expect 2 - Login fail: {not login_succeeded}'
+            f'Expect 2 - Login fail: {not login_succeeded}'
 
     with allure.step('Unblock user using action clear command'):
         restrictions.action_clear(user_to_clear=test_user[AaaConsts.USERNAME])  # todo: verify if its per user
@@ -315,7 +315,7 @@ def test_auth_restrictions_action_clear_all(test_api, engines, test_users):
     with allure.step(f'Verify user {user1[AaaConsts.USERNAME]} blocked'):
         login_succeeded, _ = attempter.attempt_login_success()
         assert not login_succeeded, f'User should be blocked.\n' \
-                                    f'Expect 2 - Login fail: {not login_succeeded}'
+            f'Expect 2 - Login fail: {not login_succeeded}'
 
     with allure.step(f'Unblock user {user1[AaaConsts.USERNAME]} using action clear command'):
         restrictions.action_clear()  # todo: verify if its per user
@@ -341,7 +341,7 @@ def test_auth_restrictions_action_clear_all(test_api, engines, test_users):
             with allure.step(f'Verify user {attempters[k].username} blocked'):
                 login_succeeded, _ = attempters[k].attempt_login_success()
                 assert not login_succeeded, f'User should be blocked.\n' \
-                                            f'Expect 2 - Login fail: {not login_succeeded}'
+                    f'Expect 2 - Login fail: {not login_succeeded}'
 
     with allure.step('Unblock all users'):
         restrictions.action_clear()  # todo: verify if its per user
@@ -419,10 +419,10 @@ def test_auth_restrictions_multi_user(test_api, engines):
                      f'and user "{test_admin_upper[AaaConsts.USERNAME]}" other is not'):
         login_succeeded, _ = lower_attempter.attempt_login_success()
         assert not login_succeeded, f'User {test_admin_lower[AaaConsts.USERNAME]} should be blocked.\n' \
-                                    f'Expect login fail: {not login_succeeded}'
+            f'Expect login fail: {not login_succeeded}'
         login_succeeded, _ = upper_attempter.attempt_login_success()
         assert login_succeeded, f'User {test_admin_upper[AaaConsts.USERNAME]} should not be blocked.\n' \
-                                f'Expect login success: {login_succeeded}'
+            f'Expect login success: {login_succeeded}'
 
 
 @pytest.mark.simx
@@ -459,7 +459,7 @@ def test_auth_restrictions_auth_success_clears_user(test_api, engines, test_user
     with allure.step('Verify user is blocked'):
         login_succeeded, _ = attempter.attempt_login_success()
         assert not login_succeeded, f'User {test_user[AaaConsts.USERNAME]} should be blocked.\n' \
-                                    f'Expect login fail: {not login_succeeded}'
+            f'Expect login fail: {not login_succeeded}'
 
     with allure.step(f'Sleep {lockout_reattempt + RestrictionsConsts.ALLOWED_MARGIN} seconds'):
         time.sleep(lockout_reattempt + RestrictionsConsts.ALLOWED_MARGIN)
@@ -522,8 +522,8 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
         for _ in range(2):
             out = request_engine.run_cmd(bad_request)
             assert RestrictionsConsts.OPENAPI_AUH_ERROR in out, f'Unexpected OpenApi response.\n' \
-                                                                f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
-                                                                f'actual:\n{out}'
+                f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
+                f'actual:\n{out}'
         # openapi_bad_attempter = LinuxSshEngine(engines.dut.ip, 'asd', test_user[AaaConsts.PASSWORD])
         # succeeded, _, output = openapi_attempter.attempt_login_failure()
         # assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
@@ -538,8 +538,8 @@ def test_auth_restrictions_ssh_and_openapi_counting(test_api, engines, test_user
     with allure.step('Verify user is blocked'):
         out = engines.dut.run_cmd(good_request)
         assert RestrictionsConsts.OPENAPI_AUH_ERROR in out, f'Unexpected OpenApi response.\n' \
-                                                            f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
-                                                            f'actual:\n{out}'
+            f'expected: {RestrictionsConsts.OPENAPI_AUH_ERROR}\n' \
+            f'actual:\n{out}'
         # succeeded, _, output = openapi_attempter.attempt_login_success()
         # assert not succeeded and RestrictionsConsts.OPENAPI_AUH_ERROR in output, 'Expected auth error from openapi'
 
@@ -562,7 +562,7 @@ def test_auth_restrictions_remote_counting(test_api, engines, request, devices, 
     TestToolkit.tested_api = test_api
 
     with allure.step('Configure remote auth with more than <lockout-attempts> servers'):
-        servers_info = [TacacsServers.PHYSICAL_SERVER.copy(), TacacsDockerServer0.SERVER_IPV4.copy(),
+        servers_info = [TacacsPhysicalServer.SERVER_IPV4.copy(), TacacsDockerServer0.SERVER_IPV4.copy(),
                         TacacsDockerServer0.SERVER_DN.copy()]
         prio = 3
         for server in servers_info:

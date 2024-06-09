@@ -23,16 +23,6 @@ class RuleID(BaseComponent):
         super().__init__(parent=parent_obj, path=f'/{rule_id}')
         self.match = Match(self)
         self.action = Action(self)
-        self.recent_list = RecentList(self)
 
     def set_remark(self, remark):
         return self.set(AclConsts.REMARK, remark)
-
-
-class RecentList(BaseComponent):
-
-    def __init__(self, parent_obj=None):
-        BaseComponent.__init__(self, parent=parent_obj, path='/recent-list')
-
-    def set_action(self, action):
-        return self.set(AclConsts.ACTION, action)

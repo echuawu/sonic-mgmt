@@ -91,6 +91,7 @@ class NvosConsts:
     NVOS_SOURCE_PATH = '/src'
     GCOV_CONTAINERS_SOURCES_PATH = {'swss-ibv00': '/src/sonic_swss_src_cov.tar.gz',
                                     'syncd-ibv00': '/src/sonic_syncd_src_cov.tar.gz'}
+    DEST_PATH = "/.autodirect/sw_regression/system/NVOS/MARS/results/coverage_report/"
 
 
 class SonicConsts:

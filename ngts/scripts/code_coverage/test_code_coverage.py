@@ -10,8 +10,8 @@ from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.constants.constants import NvosCliTypes
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.scripts.code_coverage.code_coverage_consts import SharedConsts, NvosConsts, SonicConsts
-from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_tools.infra.HostMethods import HostMethods
 
 logger = logging.getLogger()
 
@@ -30,7 +30,7 @@ def test_extract_python_coverage(topology_obj, dest, engines):
     engine, cli_obj, is_nvos = get_topology_info(topology_obj)
 
     if is_nvos:
-        extract_python_coverage_for_nvos(dest, engines, engine, cli_obj)
+        extract_python_coverage_for_nvos(dest if dest else NvosConsts.DEST_PATH, engines, cli_obj)
     else:
         extract_python_coverage_for_sonic(dest, engines, engine, cli_obj)
 
@@ -149,11 +149,8 @@ def get_topology_info(topology_obj):
         return engine, cli_obj, is_nvos
 
 
-def extract_python_coverage_for_nvos(dest, engines, engine, cli_obj):
-    dest = get_dest_path(engine, dest) + SharedConsts.PYTHON_DIR
-
-    with allure.step("Check capacity"):
-        check_used_capacity(engine)
+def extract_python_coverage_for_nvos(dest, engines, cli_obj):
+    dest = get_dest_path(engines.dut, dest) + SharedConsts.PYTHON_DIR
 
     with allure.step('Get coverage file path'):
         coverage_file = get_python_coverage_file(cli_obj)
@@ -162,16 +159,13 @@ def extract_python_coverage_for_nvos(dest, engines, engine, cli_obj):
         engines.dut.run_cmd('sudo systemctl restart nvued.service')
 
     with allure.step("Pre step - start dockers"):
-        nvos_pre_step(engine)
+        nvos_pre_step(engines.dut)
 
     with allure.step("Collect python coverage"):
-        collect_python_coverage(cli_obj, engine, dest, coverage_file)
+        collect_python_coverage(cli_obj, engines.dut, dest, coverage_file)
 
     with allure.step("Delete 'raw' files from host"):
         engines.dut.run_cmd('rm -f /var/lib/python/coverage/raw.*')
-
-    with allure.step("Check capacity"):
-        check_used_capacity(engine)
 
 
 def extract_python_coverage_for_sonic(dest, engines, engine, cli_obj):
@@ -205,7 +199,6 @@ def collect_python_coverage(cli_obj, engine, dest, coverage_file):
         try:
             host_coverage_xml_file = os.path.join(coverage_dir, f'{coverage_xml_filename_prefix}-{timestamp}.xml')
             create_coverage_xml(cli_obj.general, coverage_file, host_coverage_xml_file)
-            check_used_capacity(engine)
         except Exception as ex:
             logger.info("Coverage collection for host has failed: " + str(ex))
 
@@ -243,16 +236,6 @@ def collect_python_coverage(cli_obj, engine, dest, coverage_file):
             cli_obj.general.rm(file, flags='-f')
 
 
-def check_used_capacity(engine):
-    try:
-        logger.info("Check used capacity for /var/lib/python/coverage")
-        engine.run_cmd("df -h /var/lib/python/coverage/")
-        engine.run_cmd("du -sh /var/lib/python/coverage")
-        engine.run_cmd("du -h /sonic")
-    except BaseException as ex:
-        logger.warning(str(ex))
-
-
 def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_prefix):
     combined_coverage_file = '/sonic/combined_coverage.info'
     lcov_files = system_helpers.list_files(engine, SharedConsts.GCOV_DIR, pattern=lcov_filename_prefix)
@@ -276,7 +259,7 @@ def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_p
         lcov_file_name = f'{info_file_string}-{timestamp}.info'
         lcov_file = f'{SharedConsts.GCOV_DIR}/{lcov_file_name}'
         sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" '
-                                     f'--output-file {lcov_file}')
+                               f'--output-file {lcov_file}')
 
         engine.copy_file(source_file=lcov_file,
                          dest_file=os.path.join(c_dest, lcov_file_name),
@@ -405,8 +388,8 @@ def create_gcov_report_for_container(docker_cli_obj, gcov_filename_prefix, conta
     docker_cli_obj.tar(flags=f'xzf {source_path} -C {SharedConsts.GCOV_DIR}')
 
     flags = f'--json-pretty -r {SharedConsts.GCOV_DIR} -o {container_gcov_json_file}'
-    additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions ' \
-                       '--gcov-ignore-parse-errors --gcov-ignore-errors=source_not_found'
+    additional_flags = ' --exclude-unreachable-branches --exclude-throw-branches --decisions '
+
     for path in NvosConsts.NVOS_EXCLUDE_PATHS:
         additional_flags += f' --exclude-directories {path}'
 
@@ -418,14 +401,15 @@ def create_lcov_report_for_container(docker_cli_obj, lcov_filename_prefix, conta
     container_lcov_file = os.path.join(SharedConsts.GCOV_DIR, f'{lcov_filename_prefix}-{container}.info')
 
     docker_cli_obj.lcovr(flags=f'--gcov-tool gcov --capture --directory {SharedConsts.GCOV_DIR} '
-                               f'--output-file {container_lcov_file}')
+                         f'--output-file {container_lcov_file}')
     return container_lcov_file
 
 
 def nvos_pre_step(engine):
     try:
+        engine.run_cmd(f'sudo chmod 777 {NvosConst.COVERAGE_PATH}/raw.*')
         with allure.step("Start SNMP"):
-            DutUtilsTool.start_snmp_server(engine=engine, state=NvosConst.ENABLED, readonly_community='qwerty12',
-                                           listening_address='all')
+            HostMethods.start_snmp_server(engine=engine, state=NvosConst.ENABLED, readonly_community='qwerty12',
+                                          listening_address='all')
     except BaseException as ex:
         logging.info("NVOS pre step failed")

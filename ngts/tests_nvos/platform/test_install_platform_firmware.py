@@ -1,9 +1,10 @@
 import logging
+from typing import Tuple
 
 import pytest
 
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
-from ngts.nvos_constants.constants_nvos import NvosConst, PlatformConsts
+from ngts.nvos_constants.constants_nvos import NvosConst, PlatformConsts, HealthConsts
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
@@ -17,7 +18,7 @@ logger = logging.getLogger()
 
 @pytest.mark.checklist
 @pytest.mark.platform
-def test_install_platform_firmware(engines, test_name):
+def test_install_platform_firmware(engines, devices, test_name):
     """
     Install platform firmware test
 
@@ -32,23 +33,19 @@ def test_install_platform_firmware(engines, test_name):
     platform = Platform()
     fae = Fae()
     fw_has_changed = False
-    fw_file_name = "fw-QTM2-rel-31_2012_3008-EVB.mfa"
+    new_fw_name, fw_file_name = get_version_and_file_name(devices.dut.asic_type)
     fw_file = f"/auto/sw_system_project/NVOS_INFRA/verification_files/{fw_file_name}"
-    new_fw_name = "31.2012.3008"
-    new_fw_to_install = fw_file.split("/")[-1]
-    logging.info("using {} fw file".format(fw_file))
+    logging.info(f"using {fw_file} fw file")
 
     with allure.step("Check actual firmware value"):
-        show_output = fae.firmware.asic.show()
-        output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
-        assert output_dictionary and len(output_dictionary.keys()) > 0, "asic list is empty"
-
-        first_asic_name = list(output_dictionary.keys())[0]
-        actual_firmware = output_dictionary[first_asic_name]["actual-firmware"]
+        asic_dictionary = get_asic_dict(fae)
+        first_asic_name = list(asic_dictionary.keys())[0]
+        actual_firmware = asic_dictionary[first_asic_name]["actual-firmware"]
         logging.info("Original actual firmware - " + actual_firmware)
-        installed_firmware = output_dictionary[first_asic_name]["installed-firmware"]
+        installed_firmware = asic_dictionary[first_asic_name]["installed-firmware"]
         logging.info("Original actual installed firmware - " + installed_firmware)
         validate_all_asics_have_same_info()
+        system.validate_health_status(HealthConsts.OK)
 
     try:
         with allure.step("Install system firmware file - " + fw_file):
@@ -59,13 +56,14 @@ def test_install_platform_firmware(engines, test_name):
 
             with allure.step("Install firmware and verify"):
                 res_obj, duration = OperationTime.save_duration('install user FW', 'include reboot', test_name,
-                                                                install_new_user_fw, system, platform, new_fw_to_install, fae,
+                                                                install_new_user_fw, system, platform, fw_file_name, fae,
                                                                 new_fw_name, actual_firmware, engines, test_name)
                 OperationTime.verify_operation_time(duration, 'install user FW').verify_result()
 
             with allure.step('Verify the firmware installed successfully'):
                 verify_firmware_with_platform_and_fae_cmd(platform, fae, new_fw_name, new_fw_name)
                 validate_all_asics_have_same_info()
+                system.validate_health_status(HealthConsts.OK)
                 fw_has_changed = True
 
     finally:
@@ -76,6 +74,23 @@ def test_install_platform_firmware(engines, test_name):
         with allure.step('Verify the firmware installed successfully'):
             verify_firmware_with_platform_and_fae_cmd(platform, fae, actual_firmware, actual_firmware)
             validate_all_asics_have_same_info()
+            system.validate_health_status(HealthConsts.OK)
+
+
+def get_version_and_file_name(asic_type: str) -> Tuple[str, str]:
+    if asic_type == NvosConst.QTM2:
+        return "31_2014_0902-024", "fw-QTM2-rel-31_2014_0902-024.mfa"
+    elif asic_type == NvosConst.QTM3:
+        return "35_2014_0902-024", "fw-QTM3-rel-35_2014_0902-024.mfa"
+    else:
+        raise NotImplementedError()
+
+
+def get_asic_dict(fae):
+    show_output = OutputParsingTool.parse_json_str_to_dictionary(fae.platform.firmware.show()).get_returned_value()
+    asic_dictionary = {k: v for k, v in show_output.items() if PlatformConsts.FW_ASIC in k}
+    assert asic_dictionary and len(asic_dictionary.keys()) > 0, "asic list is empty"
+    return asic_dictionary
 
 
 def install_image_fw(system, platform, engines, test_name, fw_has_changed):
@@ -128,7 +143,7 @@ def verify_field_value_in_output_for_each_asic(output_dictionary, field, value):
 
 
 def validate_all_asics_have_same_info():
-    show_output = Fae().firmware.asic.show()
+    show_output = get_asic_dict(Fae())
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(show_output).get_returned_value()
     assert output_dictionary and len(output_dictionary.keys()) > 0, "asic list is empty"
 
@@ -143,8 +158,7 @@ def validate_all_asics_have_same_info():
 def verify_firmware_with_platform_and_fae_cmd(platform, fae, installed_fw, actual_fw):
     output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(platform.firmware.asic.show()).get_returned_value()
     verify_field_value_in_output_for_each_asic(output_dictionary, "actual-firmware", actual_fw)
-    output_dictionary = OutputParsingTool.parse_json_str_to_dictionary(
-        fae.firmware.asic.show()).get_returned_value()
-    for asic in output_dictionary:
-        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "installed-firmware", installed_fw)
-        verify_field_value_in_output_for_each_asic(output_dictionary[asic], "actual-firmware", actual_fw)
+    asic_dictionary = get_asic_dict(fae)
+    for asic in asic_dictionary:
+        verify_field_value_in_output_for_each_asic(asic_dictionary[asic], "installed-firmware", installed_fw)
+        verify_field_value_in_output_for_each_asic(asic_dictionary[asic], "actual-firmware", actual_fw)

@@ -12,6 +12,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 logger = logging.getLogger()
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.simx
 def test_show_diff_history(engines):

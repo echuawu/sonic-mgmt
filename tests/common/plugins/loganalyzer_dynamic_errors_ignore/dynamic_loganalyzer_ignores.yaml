@@ -134,6 +134,7 @@
       - dualtor_io/test_normal_op.py::test_lower_tor_config_reload_downstream_upper_tor
       - dualtor_io/test_normal_op.py::test_upper_tor_config_reload_downstream_lower_tor
       - bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress
+      - hash/test_generic_hash.py::test_reboot
       # Ignore reboot related errors for test which checks errors after SONiC image deploy
       - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py
       - system_health/test_system_health.py
@@ -243,6 +244,23 @@
       Redmine:
       - 3439686
 
+# Ignore errors on SPC simx for it does not support hw emulation
+- Errors_list:
+    - '.*ERR hw-management: hw-management is already started.*'
+    - '.*ERR systemd.*Failed to start Chassis HW management service of Mellanox systems.*'
+    - '.*ERR determine-reboot-cause: Hardware reboot cause is not ready.*'
+  Conditions:
+    - Platform:
+      - 2700_simx
+
+# Ignore errors on simx which does not support hw emulation : https://redmine.mellanox.com/issues/3879165, Currently only the 4700
+- Errors_list:
+    - '.*ERR kernel.* PMBus status register not found.*'
+  Conditions:
+    - Platform:
+      - 2700_simx
+      - 3700_simx
+      - 5600_simx
 
 - Errors_list:
     - '.* ERR pmon#chassis_db_init: Fail to decode DMI /sys/firmware/dmi/entries/2-0/raw due to FileNotFoundError\(2, ''No such file or directory''\)'
@@ -345,24 +363,24 @@
 
 # From ngts/tests/nightly/auto_negotition/negative_auto_neg_log_analyzer_ignores
 - Errors_list:
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] configuration is invalid.*'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_update_speed: Failed to merge speeds, interface types and auto_neg.*'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_attr_set: Failed to update speed.*'
-    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] mlnx_sai_utils.c\[.*\]- sai_set_attribute: Failed set attrib dispatch.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[Speed\[.*\] configuration is invalid.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[.*\]- mlnx_port_update_speed: Failed to merge speeds, interface types and auto_neg.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[.*\]- mlnx_port_attr_set: Failed to update speed.*'
+    - '.* ERR syncd#SDK: \[SAI_UTILS.ERR\] .*mlnx_sai_utils.c\[.*\]- sai_set_attribute: Failed set attrib dispatch.*'
     - '.* ERR syncd#SDK: :- sendApiResponse: api SAI_COMMON_API_SET failed in syncd mode: SAI_STATUS_INVALID_ATTR_VALUE_.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: VID: oid:.* RID: oid:.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_.*INTERFACE_TYPE:.*SAI_PORT_INTERFACE_TYPE_.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_AUTO_NEG_MODE:.*'
     - '.* ERR swss#orchagent: :- set: set status: SAI_STATUS_INVALID_ATTR_VALUE_.*'
     - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+.*interface type to .*'
-    - '.* ERR swss#orchagent: :- setPortAutoNeg: Failed to set AutoNeg \d+ to port pid:\d+.*'
+    - '.* ERR swss#orchagent: :- setPortAutoNeg: Failed to set AutoNeg \d+ to port .*\d+.*'
     - '.* ERR swss#orchagent: :- handleSaiSetStatus: Encountered failure in set operation, exiting orchagent.*'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[.*\] configuration doesn''t match mask for \d+ lanes.*'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[.*\]- mlnx_port_speeds_merge: Port \[.*\] configuration doesn''t match mask for \d+ lanes.*'
     - '.* ERR syncd#SDK: :- processQuadEvent: attr: SAI_PORT_ATTR_SPEED: \d+.*'
     - '.* ERR swss#orchagent: :- handleSaiSetStatus: Encountered SAI_STATUS_INVALID_ATTR_VALUE_0 in set operation.*'
     - '.* ERR swss#orchagent: :- doPortTask: Failed to set port Ethernet\d+ speed from \d+ to \d+.*'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed_sp2: Failed to set port .* rate - Parameter Error.'
-    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed: Failed to apply speed/intf bitmap \[0x.*\] for port\[0x.*\].'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed_sp2: Failed to set port .* rate - Parameter Error.'
+    - '.* ERR syncd#SDK: \[SAI_PORT.ERR\] .*mlnx_sai_port.c\[\d+\]- mlnx_port_update_speed: Failed to apply speed/intf bitmap \[0x.*\] for port\[0x.*\].'
     - '.* ERR syncd#SDK: \[PORT.ERR\] Port rate given is not compatible with the capability rate of the switch.'
     - '.* ERR syncd#SDK: \[PORT.ERR\] Port rate capability validation failed \(Parameter Error\).'
     - '.* ERR syncd#SDK: \[PORT.ERR\] Specified admin rate value is invalid, rc = Parameter Error'
@@ -598,6 +616,12 @@
       - 3565127
 
 - Errors_list:
+    - '.*ERR systemd-networkd-wait-online\[\d+\]: Timeout occurred while waiting for network connectivity.*'
+  Conditions:
+    - Redmine:
+      - 3873181
+
+- Errors_list:
     - '.*ERR lldp#lldp-syncd \[lldp_syncd\] ERROR: Could not infer system information from.*'
   Conditions:
     - Affected_test_cases:
@@ -612,8 +636,6 @@
       - autorestart/test_container_autorestart.py
       Redmine:
         - 3071644
-      GitHub:
-        - https://github.com/Azure/sonic-buildimage/issues/10867
 
 - Errors_list:
     - '.* WARNING syncd#SDK: \[SAI_TUNNEL.WARNING\] mlnx_sai_tunnel.c\[\d+\]- mlnx_sdk_fill_tunnel_ttl_data: TTL uniform model is not supported for non-ipinip type on Spectrum 1, using default settings in switch'
@@ -1200,8 +1222,6 @@
   Conditions:
     - Redmine:
       - 3168474
-      GitHub:
-      - https://github.com/sonic-net/sonic-buildimage/issues/6675
 
 - Errors_list:
     - '.* ERR .*#rsyslogd: imfile: error reading state file for .*'
@@ -1885,6 +1905,12 @@
       Redmine:
       - 3238763
 
+- Errors_list:
+  - '.*ERR swss#swssconfig:.*Failed to open file \/etc\/swss\/config.d\/ipinip.json'
+  Conditions:
+  - Affected_test_cases:
+    - tests/performance/test_ar_performance.py::TestArPerformance::test_ar_perf_reload_reboot
+
 # The below errors should be ignored, because it is caused by FW was busing(err is -16) , and it is an expected behaviour
 - Errors_list:
     - '.*ERR kernel: \[.*\] Fails to get module type, err: -16.*'
@@ -2090,23 +2116,6 @@
       - tests/nightly/lag/test_lag.py
       Redmine:
         - 3137284
-
-- Errors_list:
-    - '.* ERR decode-syseeprom: Nowhere to read syseeprom from! No symlink found'
-    - '.* ERR hw-management: hw-management is already started'
-    - '.* ERR systemd\[\d+\]: Failed to start Chassis HW management service of Mellanox systems.'
-    - '.* ERR show: Nowhere to read syseeprom from! No symlink found'
-    - '.* ERR install-pending-fw.py: Nowhere to read syseeprom from! No symlink found'
-    - '.* ERR healthd: Failed to read from file /var/run/hw-management/led/led_status_capability - FileNotFoundError\(2, .No such file or directory.\)'
-    - '.* ERR healthd:- FileNotFoundError\(2, ''No such file or directory''\)'
-    - '.* ERR sonic-db-cli: :- guard: RedisReply catches system_error: command: .*, reason: ERR wrong number of arguments for ''hset'' command: Input/output error'
-    - '.* ERR wrong number of arguments for ''hset'' command: Input/output error: Input/output error'
-    - '.* ERR hostcfgd: Failed to get status of snmp.service: rc=-15 stderr=b'''''
-    - '.* ERR hostcfgd: \[''sudo'', ''systemctl'', ''start'', ''.*.service''\] - failed: return code - \d+, output:.*'
-    - '.* ERR hostcfgd: \[''systemctl'', ''(start|restart)'', ''.*''\] - failed: return code - \d+, output:.*'
-  Conditions:
-    - Redmine:
-        - 3580484
 
 - Errors_list:
     - '.*ERR syncd#SDK: \[SX_API_DBG\.ERR\].+CR-Space dump faile.*'
@@ -3343,15 +3352,6 @@
       - 3589197
 
 - Errors_list:
-  - '.*ERR kernel:.*SXD_HEALTH_FATAL.*stopping further device monitoring.*'
-  - '.*ERR syncd#SDK.*mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
-  - '.*ERR syncd#SDK.*SX_HEALTH_FATAL: cause_string.*error msg generated from SDK.*'
-  - '.*ERR swss#orchagent.*on_switch_shutdown_request: Syncd stopped.*error msg generated from orchagent.*'
-  Conditions:
-  - Affected_test_cases:
-    - tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_mellanox_sdk_dump
-
-- Errors_list:
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp_max does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Thermal sysfs \/run\/hw-management\/thermal\/psu\d_temp does not exist.*'
     - '.*ERR (pmon#(psud|thermalctld)|psuutil): Failed to read from file \/var\/run\/hw-management\/thermal\/psu.* - FileNotFoundError.*No such file or directory.*'
@@ -3611,6 +3611,16 @@
   Conditions:
     - Redmine:
       - 3715126
+
+- Errors_list:
+  - '.*ERR syncd#SDK: \[TRACE_CBUFF.ERR\] Received port profile apply done OK event, but port profile \(index \d+\) has already been destroyed.*'
+  - '.*ERR syncd#SDK: \[TRACE_CBUFF.ERR\] Could not send port added events.*'
+  - '.*ERR syncd#SDK: \[CORE_API.ERR\] Failed to process port profile apply status job, error: Internal Error.*'
+  Conditions:
+  - Redmine:
+    - 3908922
+    Platform:
+    - simx
 
 - Errors_list:
     - '.*ERR kernel: .* Bulk-Cntr PPCNT parser - unexpected PPCNT group.*'
@@ -4016,6 +4026,7 @@
     - ".*SXD_HEALTH_FATAL:On device 1 cause ='FW health issue'.*"
     - '.*ERR swss-ibv00#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
     - '.*ERR syncd-ibv00#SDK: \[SAI_SWITCH.ERR\] mlnx_sai_switch_ib.c\[\d+\]- mlnx_switch_health_event_handle: Health event happened, severity fatal, cause FW health issue.*'
+    - '.*ERR health-statsd#health_history: syncd-ibv00: Container.*'
   Conditions:
     - Affected_test_cases:
       - tests_nvos/system/test_fw_dump_me.py::test_fw_dump_me
@@ -4152,7 +4163,14 @@
     - 3836978
 
 - Errors_list:
-    - '.*ERR hostcfgd: file size check failed: \/etc\/pam\.d\/login is empty, file corrupted.*'
+    - '.*ERR hostcfgd: file size check failed: \/etc\/pam\.d\/.* is empty, file corrupted.*'
   Conditions:
   - Redmine:
     - 3853187
+
+# Ignore errors based on analysis of RM issue 3896758
+- Errors_list:
+  - '.*Failed to restart.*?service: Transaction for .*?service/restart is destructive'
+  Conditions:
+  - Affected_test_cases:
+    - tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py

@@ -55,6 +55,6 @@ def test_ib0_interface_description(engines):
 @pytest.mark.ib
 @pytest.mark.simx
 @pytest.mark.nvos_chipsim_ci
-def atest_ib0_interface_description_openapi(engines):
+def test_ib0_interface_description_openapi(engines):
     TestToolkit.tested_api = ApiType.OPENAPI
     test_ib0_interface_description(engines)

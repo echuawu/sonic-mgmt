@@ -40,9 +40,10 @@ def main(argv):
         cmd = REBOOT_CMD_TO_RUN.format(ip=ip_add, username=user_name, password=password)
         print("cmd: {}".format(cmd))
         os.system(cmd)
-        print("Sleep for 3 min")
-        time.sleep(180)
         print("Reboot completed for '{}'".format(ip_add))
+
+    print("Sleep for 3 min")
+    time.sleep(180)
 
 
 if __name__ == "__main__":

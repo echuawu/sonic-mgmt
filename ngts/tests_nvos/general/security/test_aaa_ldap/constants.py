@@ -12,7 +12,6 @@ class LdapConsts:
     PORT = 'port'
     BASE_DN = 'base-dn'
     BIND_DN = 'bind-dn'
-    GROUP_ATTR = 'group-attribute'
     # LOGIN_ATTR = 'login-attribute'  not supported now
     # BIND_PASSWORD = 'password'
     SECRET = 'secret'
@@ -43,7 +42,7 @@ class LdapConsts:
     MEMBER_UID = 'memberuid'
     MEMBER = 'member'
 
-    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, GROUP_ATTR, SECRET, TIMEOUT_BIND, TIMEOUT, VERSION]
+    LDAP_FIELDS = [PORT, BASE_DN, BIND_DN, SECRET, TIMEOUT_BIND, TIMEOUT, VERSION]
     SSL_FIELDS = [SSL_CA_LIST, SSL_CERT_VERIFY, SSL_MODE, SSL_PORT, SSL_TLS_CIPHERS]
 
     # possible values
@@ -69,7 +68,6 @@ class LdapConsts:
         PORT: TEST_PORTS,
         BASE_DN: str,
         BIND_DN: str,
-        GROUP_ATTR: str,
         # LOGIN_ATTR: str,  not supported now
         SECRET: str,
         TIMEOUT_BIND: list(range(1, 60 + 1)),
@@ -97,7 +95,6 @@ class LdapConsts:
         PORT: 389,
         BASE_DN: 'ou=users,dc=example,dc=com',
         BIND_DN: '',
-        GROUP_ATTR: 'member',
         # LOGIN_ATTR: 'cn',  not supported now
         SECRET: '*',
         TIMEOUT_BIND: 5,
@@ -115,7 +112,6 @@ class LdapConsts:
         PORT: True,
         BASE_DN: False,
         BIND_DN: False,
-        GROUP_ATTR: False,
         # LOGIN_ATTR: 'cn',  not supported now
         SECRET: False,
         TIMEOUT_BIND: True,
@@ -137,7 +133,6 @@ class LdapConsts:
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "secret": "secret",
         # "login-attribute": "cn",  not supported now
-        "group-attribute": "member",
         # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "1",
@@ -176,7 +171,6 @@ class LdapConsts:
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "secret": "secret",
         # "login-attribute": "cn",  not supported now
-        "group-attribute": "member",
         # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "1",
@@ -213,7 +207,6 @@ class LdapConsts:
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "secret": "secret",
         # "login-attribute": "cn",  not supported now
-        "group-attribute": "member",
         # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "1",
@@ -250,7 +243,6 @@ class LdapConsts:
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "secret": "secret",
         # "login-attribute": "cn",  not supported now
-        "group-attribute": "member",
         # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "1",
@@ -287,7 +279,6 @@ class LdapConsts:
         "bind-dn": "cn=ldapadm,dc=itzgeek,dc=local",
         "secret": "secret",
         # "login-attribute": "cn", not supported now
-        "group-attribute": "member",
         # "scope": "subtree", not supported now
         "port": "389",
         "timeout-bind": "1",
@@ -398,7 +389,6 @@ class LdapDefaults:
         LdapConsts.PORT: 389,
         LdapConsts.BASE_DN: 'ou=users,dc=example,dc=com',
         LdapConsts.BIND_DN: '',
-        LdapConsts.GROUP_ATTR: 'member',
         # LOGIN_ATTR: 'cn',  not supported now
         LdapConsts.SECRET: '*',
         LdapConsts.TIMEOUT_BIND: 5,

@@ -226,10 +226,12 @@ class Parse_Lab_Graph():
                         devtype = dev.attrib['Type']
                         protocol = dev.attrib['Protocol']
                         mgmt_ip = dev.attrib['ManagementIp']
+                        mgmt_gw = dev.attrib.get('ManagementGw')
                         deviceinfo[hostname]['HwSku'] = hwsku
                         deviceinfo[hostname]['Type'] = devtype
                         deviceinfo[hostname]['Protocol'] = protocol
                         deviceinfo[hostname]['ManagementIp'] = mgmt_ip
+                        deviceinfo[hostname]['ManagementGw'] = mgmt_gw
                         self.consolelinks[hostname] = {}
             console_link_root = console_root.find('ConsoleLinksInfo')
             if console_link_root:
@@ -508,6 +510,10 @@ def build_results(lab_graph, hostnames, ignore_error=False):
         device_conn[hostname] = lab_graph.get_host_connections(hostname)
         host_vlan = lab_graph.get_host_vlan(hostname)
         port_vlans = lab_graph.get_host_port_vlans(hostname)
+        port_vlans_sorted = sorted(port_vlans.items(), key=lambda s: len(s[1]['vlanlist']))
+        # sort port_vlans by its value, in case of some port with large number of vlan list would make some port failed
+        # to be choose correctly
+        port_name_sorted_by_value = [port[0] for port in port_vlans_sorted]
         # for multi-DUTs, must ensure all have vlan configured.
         if host_vlan:
             device_vlan_range[hostname] = host_vlan["VlanRange"]
@@ -522,7 +528,7 @@ def build_results(lab_graph, hostnames, ignore_error=False):
                 for a_host_vlan in host_vlan["VlanList"]:
                     # Get the corresponding port for this vlan from the port vlan list for this hostname
                     found_port_for_vlan = False
-                    for a_port in port_vlans:
+                    for a_port in port_name_sorted_by_value:
                         if a_host_vlan in port_vlans[a_port]['vlanlist']:
                             if a_port in port_name_list_sorted:
                                 port_index = port_name_list_sorted.index(a_port)

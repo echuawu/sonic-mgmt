@@ -12,6 +12,7 @@ from ngts.tools.test_utils import allure_utils as allure
 logger = logging.getLogger()
 
 
+@pytest.mark.cumulus
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.nvos_ci
@@ -36,6 +37,7 @@ def test_show_platform_software(engines, test_api, output_format):
                                           ).verify_result()
 
 
+@pytest.mark.cumulus
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)

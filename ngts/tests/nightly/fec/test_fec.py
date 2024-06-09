@@ -1,7 +1,6 @@
 import pytest
 import logging
 import random
-import allure
 import re
 from retry import retry
 from retry.api import retry_call
@@ -14,6 +13,7 @@ from infra.tools.validations.traffic_validations.ping.ping_runner import PingChe
 from ngts.tests.nightly.fec.conftest import get_tested_lb_dict_tested_ports
 from ngts.helpers.interface_helpers import get_lb_mutual_speed, speed_string_to_int_in_mb
 from ngts.tests.nightly.auto_negotition.auto_fec_common import TestAutoFecBase
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 
 logger = logging.getLogger()

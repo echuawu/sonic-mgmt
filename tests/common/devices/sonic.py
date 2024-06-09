@@ -2355,30 +2355,20 @@ Totals               6450                 6449
         json_info = json.loads(commond_output["stdout"])
         return json_info
 
-    def links_status_oper_admin_down(self, ports):
-        show_int_result = self.command("show interface status")
-        for output_line in show_int_result['stdout_lines']:
-            output_port = output_line.strip().split(' ')[0]
-            # Only care about port that connect to current DUT
-            if output_port in ports:
-                # Here only check the oper/admin status both down status
-                if 'up' in output_line:
-                    logging.info("Interface {} is either oper or admin up on {}".format(output_port, self.hostname))
-                    return False
-                logging.info("Interface {} is both oper and admin down on {}".format(output_port, self.hostname))
-        return True
-
     def links_status_down(self, ports):
         show_int_result = self.command("show interface status")
         for output_line in show_int_result['stdout_lines']:
             output_port = output_line.strip().split(' ')[0]
             # Only care about port that connect to current DUT
             if output_port in ports:
-                # Here only check the oper and admin both down status
-                if 'up' in output_line:
-                    logging.info("Interface {} is either oper or admin up on {}".format(output_port, self.hostname))
+                # Either oper or admin status 'down' means link down
+                # for SONiC OS, oper/admin status could only be up/down, so only 2 conditions here
+                if 'down' in output_line:
+                    logging.info("Interface {} is down on {}".format(output_port, self.hostname))
+                    continue
+                else:
+                    logging.info("Interface {} is up on {}".format(output_port, self.hostname))
                     return False
-                logging.info("Interface {} is both oper and admin down on {}".format(output_port, self.hostname))
         return True
 
     def links_status_up(self, ports):

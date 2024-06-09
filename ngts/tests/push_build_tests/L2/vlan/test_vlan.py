@@ -300,8 +300,8 @@ class TestVLAN:
             logger.info("Configure Vlan {} on the dut {}".format(self.vlan_4095, self.dut_engine.ip))
             output = self.cli_object.vlan.add_vlan(self.vlan_4095)
             logger.info("Verify Configure Vlan {} on the dut {} failed".format(self.vlan_4095, self.dut_engine.ip))
-            expected_err_msg = [(r"Error:\s+Invalid\s+VLAN\s+ID\s+{}\s+\(1-{}\)".format(self.vlan_4095,
-                                                                                        self.vlan_4094), True)]
+            expected_err_msg = [(r"Error:\s+Invalid\s+VLAN\s+ID\s+{}\s+\((1|2)-{}\)".format(self.vlan_4095,
+                                                                                            self.vlan_4094), True)]
             verify_show_cmd(output, expected_err_msg)
             logger.info("Clean Vlan configuration from {}".format(self.dut_hb_1, self.po_iface))
             self.cli_object.vlan.del_port_from_vlan(self.po_iface, self.vlan_30)

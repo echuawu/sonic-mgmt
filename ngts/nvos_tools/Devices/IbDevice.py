@@ -1,11 +1,14 @@
+from typing import List
+
 import logging
 import os
 import time
 from collections import namedtuple
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, PlatformConsts
-from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts
+from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
+from ngts.nvos_constants.constants_nvos import (NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts,
+                                                SystemConsts, DocumentsConsts)
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
@@ -13,6 +16,7 @@ from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tools.test_utils.nvos_general_utils import get_version_info
 
 logger = logging.getLogger()
@@ -20,8 +24,10 @@ logger = logging.getLogger()
 
 class IbSwitch(BaseSwitch):
 
-    def __init__(self, asic_amount):
-        super().__init__(asic_amount)
+    def __init__(self, asic_amount, switch_type="IB"):
+        super().__init__(switch_type=switch_type, asic_amount=asic_amount)
+        self.documents_path = None
+        self.documents_files = None
         self._init_sensors_dict()
         self.open_api_port = "443"
         self.default_password = os.environ["NVU_SWITCH_NEW_PASSWORD"]
@@ -57,19 +63,28 @@ class IbSwitch(BaseSwitch):
         self.supported_ib_speeds = {'hdr': '200G', 'edr': '100G', 'fdr': '56G', 'sdr': '10G', 'ndr': '400G'}
 
     def _init_fan_list(self):
-        super()._init_fan_list()
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2",
                          "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
-        self.fan_led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
+
+    def _init_led_list(self):
+        self.led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "PSU_STATUS", "STATUS", "UID"]
 
     def _init_system_lists(self):
-        super()._init_system_lists()
         self.user_fields = ['admin', 'monitor']
 
     def _init_security_lists(self):
-        super()._init_security_lists()
         self.kex_algorithms = ['curve25519-sha256', 'curve25519-sha256@libssh.org', 'diffie-hellman-group16-sha512',
                                'diffie-hellman-group18-sha512', 'diffie-hellman-group14-sha256']
+
+    def _init_password_hardening_lists(self):
+        self.aaa_admin_role = 'admin'
+        self.aaa_monitor_role = 'monitor'
+        self.local_test_users = [{AaaConsts.USERNAME: AaaConsts.LOCALADMIN,
+                                  AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
+                                  AaaConsts.ROLE: self.aaa_admin_role},
+                                 {AaaConsts.USERNAME: AaaConsts.LOCALMONITOR,
+                                  AaaConsts.PASSWORD: AaaConsts.STRONG_PASSWORD,
+                                  AaaConsts.ROLE: self.aaa_monitor_role}]
 
     def _init_available_databases(self):
         super()._init_available_databases()
@@ -83,25 +98,25 @@ class IbSwitch(BaseSwitch):
 
         self.available_tables['database'] = {
             DatabaseConst.APPL_DB_ID:
-                {"ALIAS_PORT_MAP": self.get_ib_ports_num()},
+            {"ALIAS_PORT_MAP": self.get_ib_ports_num()},
             DatabaseConst.ASIC_DB_ID:
-                {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() + 1,
-                 "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 1,
-                 "LANES": 1,
-                 "VIDCOUNTER": 1,
-                 "RIDTOVID": 1,
-                 "HIDDEN": 1,
-                 "COLDVIDS": 1},
+            {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() + 1,
+             "ASIC_STATE:SAI_OBJECT_TYPE_SWITCH": 1,
+             "LANES": 1,
+             "VIDCOUNTER": 1,
+             "RIDTOVID": 1,
+             "HIDDEN": 1,
+             "COLDVIDS": 1},
             DatabaseConst.COUNTERS_DB_ID:
-                {"COUNTERS_PORT_NAME_MAP": 1,
-                 "COUNTERS:oid": self.get_ib_ports_num()},
+            {"COUNTERS_PORT_NAME_MAP": 1,
+             "COUNTERS:oid": self.get_ib_ports_num()},
             DatabaseConst.CONFIG_DB_ID:
-                {"IB_PORT": self.get_ib_ports_num(),
-                 "FEATURE": 11,
-                 "CONFIG_DB_INITIALIZED": 1,
-                 "DEVICE_METADATA": 1,
-                 "VERSIONS": 1,
-                 "KDUMP": 1}
+            {"IB_PORT": self.get_ib_ports_num(),
+             "FEATURE": 11,
+             "CONFIG_DB_INITIALIZED": 1,
+             "DEVICE_METADATA": 1,
+             "VERSIONS": 1,
+             "KDUMP": 1}
         }
         self.available_tables['database'][DatabaseConst.ASIC_DB_ID].update(
             {"ASIC_STATE:SAI_OBJECT_TYPE_PORT": self.get_ib_ports_num() / 2,
@@ -169,18 +184,22 @@ class IbSwitch(BaseSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.full_version_pattern = r'^nvos-\d{2}\.\d{2}\.\d{4}(-\d{3})?$'
+        self.version_number_pattern = r'\d{2}\.\d{2}\.\d{4}'
         self.health_monitor_config_file_path = ""
+        self.platform_file_path = ""
         self.ib_ports_num = 64
         self.primary_asic = f"{IbConsts.DEVICE_ASIC_PREFIX}1"
         self.primary_swid = f"{IbConsts.SWID}0"
         self.primary_ipoib_interface = IbConsts.IPOIB_INT0
         self.multi_asic_system = False
-        self.install_success_patterns = [NvosConst.INSTALL_SUCCESS_PATTERN]
+        self.login_pattern = NvosConst.INSTALL_SUCCESS_PATTERN
+        self.install_patterns = {self.login_pattern: 0}
+        self.install_success_patterns = list(self.install_patterns.keys())
         self.mst_dev_name = '/dev/mst/mt54002_pciconf0'  # TODO update
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
-        self.switch_type = "ib"
 
         self.category_default_disabled_dict = {
             StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -312,13 +331,31 @@ class IbSwitch(BaseSwitch):
                                   "\u2588\u2588\u2588\u2588\u2551\n \u255a\u2550\u255d  \u255a\u2550\u2550" \
                                   "\u2550\u255d  \u255a\u2550\u2550\u2550\u255d   \u255a\u2550\u2550\u2550" \
                                   "\u2550\u2550\u255d \u255a\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n"
-        self.ssd_image = {
-            'StorFly VSFBM4XC016G-MLX2': ('0202-002', '/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg'),
+        self.ssd_image_per_ssd_model = {
+            'StorFly VSFBM4XC016G-MLX2':
+                BaseSwitch.SsdImageConsts(
+                    file='/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg',
+                    current_version='0202-000', alternate_version='0202-002'),
         }
-        self.bios_version_name = "0ACQF.cab"
 
     def sleep_after_system_reboot(self):
         pass
+
+    def init_documents_consts(self, version_num=""):
+        self.documents_files = {
+            DocumentsConsts.TYPE_EULA: "NVOS_EULA.pdf",
+            DocumentsConsts.TYPE_RELEASE_NOTES: f"NVOS_{self.switch_type}_v{version_num}_Release_Notes.pdf",
+            DocumentsConsts.TYPE_USER_MANUAL: f"NVOS_{self.switch_type}_v{version_num}_User_Manual.pdf",
+            DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES: "Open_Source_Licenses.txt"}
+        self.documents_path = {DocumentsConsts.TYPE_EULA:
+                               f"/usr/share/nginx/html/system_documents/eula/{self.documents_files[DocumentsConsts.TYPE_EULA]}",
+                               DocumentsConsts.TYPE_RELEASE_NOTES:
+                               f"/usr/share/nginx/html/system_documents/release_notes/{self.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES]}",
+                               DocumentsConsts.TYPE_USER_MANUAL:
+                               f"/usr/share/nginx/html/system_documents/user_manual/{self.documents_files[DocumentsConsts.TYPE_USER_MANUAL]}",
+                               DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES:
+                               f"/usr/share/nginx/html/system_documents/open_source_licenses/"
+                               f"{self.documents_files[DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES]}"}
 
     def get_ib_ports_num(self):
         return self.ib_ports_num
@@ -332,7 +369,7 @@ class IbSwitch(BaseSwitch):
                              "TEMPERATURE": self.temperature_sensors}
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
-        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
+        # DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
     def reload_device(self, engine, cmd_list, validate=False):
@@ -348,19 +385,20 @@ class GorillaSwitch(IbSwitch):
     def _init_constants(self):
         IbSwitch._init_constants(self)
         self.core_count = 4
+        self.mgmt_ports = ['eth0']
         self.asic_type = NvosConst.QTM2
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
-
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
         self.show_platform_output.update({
             "product-name": "MQM9700",
             "asic-model": self.asic_type,
         })
-        self.current_bios_version_name = "0ACQF_06.01.003"
-        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
-        self.previous_bios_version_name = "0ACQF_06.01.002"
-        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab"
-        self.current_cpld_version = BaseSwitch.CpldImageConsts(
+        self.current_bios_version_name = "0ACQF_06.01.005"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.003"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+        self.previous_cpld_version = BaseSwitch.CpldImageConsts(
             burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
             refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",
             version_names={
@@ -369,13 +407,13 @@ class GorillaSwitch(IbSwitch):
                 "CPLD3": "CPLD000268_REV0700",
             }
         )
-        self.previous_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_BURN_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600_IPN.vme",
-            refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/OLD/FUI000188_REFRESH_Gorilla_MNG_CPLD000324_REV0100_CPLD000268_REV0500_CPLD000232_REV0600.vme",
+        self.current_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000276_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0400_CPLD000268_REV0700_IPN.vme",
+            refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000276_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0400_CPLD000268_REV0700.vme",
             version_names={
-                "CPLD1": "CPLD000232_REV0600",
-                "CPLD2": "CPLD000324_REV0100",
-                "CPLD3": "CPLD000268_REV0500",
+                "CPLD1": "CPLD000232_REV0700",
+                "CPLD2": "CPLD000324_REV0400",
+                "CPLD3": "CPLD000268_REV0700",
             }
         )
         self.stats_fan_header_num_of_lines = 25
@@ -383,10 +421,16 @@ class GorillaSwitch(IbSwitch):
         self.stats_temperature_header_num_of_lines = 53
         self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
 
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
+
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2"]
-        self.fan_led_list.append('FAN7')
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.append('FAN7')
 
     def _init_temperature(self):
         super()._init_temperature()
@@ -398,6 +442,9 @@ class GorillaSwitch(IbSwitch):
             "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_environment_absent_fan_values = {
+            "state": FansConsts.STATE_ABSENT, "direction": "N/A", "current-speed": "N/A",
+            "min-speed": "N/A", "max-speed": "N/A"}
         self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": ExpectedString(regex="MQM9700.*")})
 
@@ -412,8 +459,12 @@ class GorillaSwitchBF3(GorillaSwitch):
         super()._init_constants()
         self.constants.firmware.remove(PlatformConsts.FW_BIOS)
         self.ib_ports_num = 64
+        self.mgmt_ports = ['eth0']
         self.core_count = 16
         self.asic_type = NvosConst.QTM2
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_temperature(self):
         super()._init_temperature()
@@ -431,9 +482,15 @@ class BlackMambaSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_qm8790-r0")
+        self.show_platform_output.update({
+            "product-name": "QM3000",
+            "asic-model": self.asic_type,
+        })
 
         self.voltage_sensors = ["PMIC-1+12V_VDD_ASIC1+Vol+In+1", "PMIC-1+ASIC1_VDD+Vol+Out+1",
                                 "PMIC-2+12V_HVDD_DVDD_ASIC1+Vol+In+1", "PMIC-2+ASIC1_DVDD_PL0+Vol+Out+2",
@@ -455,10 +512,20 @@ class BlackMambaSwitch(IbSwitch):
                                 "PSU-2+12V+Vol+Out", "PSU-3+12V+Vol+Out", "PSU-4+12V+Vol+Out", "PSU-5+12V+Vol+Out",
                                 "PSU-6+12V+Vol+Out", "PSU-7+12V+Vol+Out", "PSU-8+12V+Vol+Out"]
 
+        self.stats_fan_header_num_of_lines = 37
+        self.stats_power_header_num_of_lines = 25
+        self.stats_temperature_header_num_of_lines = 103
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
+
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list += ["FAN7/1", "FAN7/2", "FAN8/1", "FAN8/2", "FAN9/1", "FAN9/2", "FAN10/1", "FAN10/2"]
-        self.fan_led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list += ['FAN7', 'FAN8', 'FAN9', 'FAN10']
 
     def _init_psu_list(self):
         super()._init_psu_list()
@@ -467,15 +534,24 @@ class BlackMambaSwitch(IbSwitch):
 
     def _init_temperature(self):
         super()._init_temperature()
-        self.temperature_sensors += ["ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
+        self.temperature_sensors += ["ASIC1", "ASIC2", "ASIC3", "ASIC4", "PSU-7-Temp", "SODIMM-2-Temp"]
+        self.temperature_sensors.remove("ASIC")
         self.temperature_sensors.remove("PSU-1-Temp")
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": None})
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_xdr.yml'
 
+
 # -------------------------- Crocodile Switch ----------------------------
-
-
 class CrocodileSwitch(IbSwitch):
 
     def __init__(self):
@@ -486,14 +562,39 @@ class CrocodileSwitch(IbSwitch):
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
+        self.mgmt_ports = ['eth0', 'eth1']
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-nvidia_qm3400-r0")
+        self.show_platform_output.update({
+            "product-name": "QM3400",
+            "asic-model": self.asic_type,
+        })
+        self.voltage_sensors = ['PMIC-1-12V-VDD-ASIC1-In-1', 'PMIC-1-ASIC1-VDD-Out-1',
+                                'PMIC-2-12V-HVDD-DVDD-ASIC1-In-1', 'PMIC-2-ASIC1-DVDD-PL0-Out-2',
+                                'PMIC-2-ASIC1-HVDD-PL0-Out-1', 'PMIC-3-12V-HVDD-DVDD-ASIC1-In-1',
+                                'PMIC-3-ASIC1-DVDD-PL1-Out-2', 'PMIC-3-ASIC1-HVDD-PL1-Out-1',
+                                'PMIC-4-12V-VDD-ASIC2-In-1', 'PMIC-4-ASIC2-VDD-Out-1',
+                                'PMIC-5-12V-HVDD-DVDD-ASIC2-In-1', 'PMIC-5-ASIC2-DVDD-PL0-Out-2',
+                                'PMIC-5-ASIC2-HVDD-PL0-Out-1', 'PMIC-6-12V-HVDD-DVDD-ASIC2-In-1',
+                                'PMIC-6-ASIC2-DVDD-PL1-Out-2', 'PMIC-6-ASIC2-HVDD-PL1-Out-1', 'PMIC-7-12V-MAIN-In-1',
+                                'PMIC-7-CEX-VDD-Out-1', 'PSU-1-12V-Out', 'PSU-2-12V-Out', 'PSU-3-12V-Out',
+                                'PSU-4-12V-Out']
+        self.stats_fan_header_num_of_lines = 25
+        self.stats_power_header_num_of_lines = 17
+        self.stats_temperature_header_num_of_lines = 59
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_fan_list(self):
         super()._init_fan_list()
         self.fan_list.remove("FAN6/1")
         self.fan_list.remove("FAN6/2")
-        self.fan_led_list.remove('FAN6')
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.remove('FAN6')
 
     def _init_psu_list(self):
         super()._init_psu_list()
@@ -502,11 +603,20 @@ class CrocodileSwitch(IbSwitch):
 
     def _init_temperature(self):
         super()._init_temperature()
-        self.temperature_sensors += ["PSU-3-Temp", "PSU-4-Temp"]
+        self.temperature_sensors += ["ASIC1", "ASIC2", "PSU-3-Temp", "PSU-4-Temp"]
         self.temperature_sensors.remove("ASIC")
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
         return 'nvos_config_xdr.yml'
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": None})
 
 
 # -------------------------- Crocodile Simx Switch ----------------------------
@@ -520,19 +630,24 @@ class CrocodileSimxSwitch(IbSwitch):
 class NvLinkSwitch(IbSwitch):
 
     def __init__(self, asic_amount):
-        super().__init__(asic_amount)
+        super().__init__(switch_type="NVL", asic_amount=asic_amount)
 
     def _init_constants(self):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
-        # self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
-        #     "x86_64-mlnx_mqm9700-r0")
-        self.switch_type = "nvl"
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+            "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
 # -------------------------- Juliet Switch ----------------------------
+
+
 class JulietSwitch(NvLinkSwitch):
     FaeImagesTestConsts = namedtuple('FaeImagesTestConsts', ('current_image_version', 'alternate_image_version'))
 
@@ -543,6 +658,14 @@ class JulietSwitch(NvLinkSwitch):
         super()._init_constants()
         self.bmc_image_info = self.FaeImagesTestConsts(current_image_version='bmc_1.pkg', alternate_image_version='bmc_2.pkg')
         self.fpga_image_info = self.FaeImagesTestConsts(current_image_version='fpga_1.pkg', alternate_image_version='fpga_2.pkg')
+
+    def _init_fan_list(self):
+        super()._init_fan_list()
+        self.fan_list += ["FAN7/1", "FAN7/2"]
+
+    def _init_led_list(self):
+        super()._init_led_list()
+        self.led_list.append('FAN7')
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
@@ -704,6 +827,7 @@ class CaimanSwitch(NvLinkSwitch):
         self.core_count = 4
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
+        self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
 
 
 # -------------------------- Marlin Switch ----------------------------

@@ -3,9 +3,10 @@ import os
 import time
 from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
-from typing import Tuple
+from typing import Tuple, List
 
-from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts
+from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, \
+    DiskConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
@@ -17,13 +18,14 @@ logger = logging.getLogger()
 # -------------------------- Base Device ----------------------------
 class BaseDevice(ABC):
 
-    def __init__(self, asic_amount=1):
+    def __init__(self, switch_type="", asic_amount=1):
         self.default_password = ""
         self.default_username = ""
         self.prev_default_password = ""
         self.open_api_port = ""
         self.dependent_dockers = []
         self.asic_amount = asic_amount
+        self.switch_type = switch_type
 
         self._init_constants()
         self._init_available_databases()
@@ -31,6 +33,7 @@ class BaseDevice(ABC):
         self._init_dependent_services()
         self._init_dockers()
         self._init_fan_list()
+        self._init_led_list()
         self._init_psu_list()
         self._init_fan_direction_dir()
         self._init_temperature()
@@ -39,6 +42,10 @@ class BaseDevice(ABC):
         self._init_system_lists()
         self._init_security_lists()
         self._init_password_hardening_lists()
+
+    def init_documents_consts(self, version_num=""):
+        self.documents_path = {}
+        self.documents_files = {}
 
     def _init_available_databases(self):
         self.available_databases = {}
@@ -69,7 +76,9 @@ class BaseDevice(ABC):
 
     def _init_fan_list(self):
         self.fan_list = []
-        self.fan_led_list = []
+
+    def _init_led_list(self):
+        self.led_list = []
 
     def _init_psu_list(self):
         self.psu_list = []
@@ -100,6 +109,9 @@ class BaseDevice(ABC):
     @abstractmethod
     def get_ib_ports_num(self):
         pass
+
+    def get_mgmt_ports(self) -> List[str]:
+        return None
 
     def get_default_password_by_version(self, version: str):
         return self.default_password
@@ -230,9 +242,13 @@ class BaseAppliance(BaseDevice):
 class BaseSwitch(BaseDevice):
     __metaclass__ = ABCMeta
 
-    Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware'])
+    Constants = namedtuple('Constants', ['system', 'dump_files', 'sdk_dump_files', 'firmware', 'log_dump_files',
+                                         'stats_dump_files', 'hw_mgmt_files'])
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
     SsdImageConsts = namedtuple('SsdImageConsts', ('file', 'current_version', 'alternate_version'))
+
+    def init_documents_consts(self, version_num=""):
+        super().init_documents_consts(version_num)
 
     def _init_available_databases(self):
         super()._init_available_databases()
@@ -270,11 +286,25 @@ class BaseSwitch(BaseDevice):
                       'saidump', 'sensors', 'services.summary', 'ssdhealth', 'STATE_DB.json', 'swapon', 'sysctl',
                       'syseeprom', 'systemd.analyze.blame', 'systemd.analyze.dump', 'systemd.analyze.plot.svg',
                       'temperature', 'top', 'version', 'vlan.summary', 'vmstat', 'vmstat.m', 'vmstat.s', 'who']
-        sdk_dump_files = ["fw_trace_attr.json", "fw_trace_attr.json.gz", "fw_trace_string_db.json",
-                          "fw_trace_string_db.json.gz"]
+        sdk_dump_files = ['fw_trace_attr.json', 'fw_trace_string_db.json', 'sai_sdk_dump.gz',
+                          'sdk_dump_ext_dev1_summary.txt.gz', 'sdk_dump_ext_dev1_cr_space_2.udmp.gz',
+                          'sdk_dump_ext_dev1_gw.udmp.gz', 'sdk_dump_ext_dev1_dpt.txt.gz',
+                          'sdk_dump_ext_dev1_fw_trace.txt.gz', 'fw_trace_attr.json.gz', 'fw_trace_string_db.json.gz',
+                          'sai_sdk_dump.json.gz', 'sdk_dump_ext_dev1_cr_space_1.udmp.gz',
+                          'sdk_dump_ext_dev1_cr_space_3.udmp.gz', 'sdk_dump_ext_dev1_driver.txt.gz',
+                          'sdk_dump_ext_dev1_amber.hex.gz']
+        log_dump_files = ["access.log.gz", "audit.log.gz", "auth.log.gz", "btmp.gz", "cron.log.gz", "error.log.gz",
+                          "firewall_packet_capture.log.gz", "fw_trace_attr.json.gz", "health_history.gz",
+                          "nv-cli.log.gz", "nvued.log.gz", "syslog.gz", "tc_log.gz", "wtmp.gz", "ztp.log.gz"]
+
+        stats_dump_files = ["cpu.csv.gz", "disk.csv.gz", "fan.csv.gz", "power.csv.gz",
+                            "mgmt-interface.csv.gz", "temperature.csv.gz", "voltage.csv.gz"]
+        hw_mgmt_files = ['hw-mgmt-dump.tar.gz']
+
         firmware = [PlatformConsts.FW_ASIC, PlatformConsts.FW_BIOS, PlatformConsts.FW_SSD,
                     PlatformConsts.FW_CPLD + '1', PlatformConsts.FW_CPLD + '2', PlatformConsts.FW_CPLD + '3']
-        self.constants = BaseSwitch.Constants(system_dic, dump_files, sdk_dump_files, firmware)
+        self.constants = BaseSwitch.Constants(system_dic, dump_files, sdk_dump_files, firmware, log_dump_files,
+                                              stats_dump_files, hw_mgmt_files)
         self.current_bios_version_name = ""
         self.current_bios_version_path = ""
         self.previous_bios_version_name = ""
@@ -294,6 +324,9 @@ class BaseSwitch(BaseDevice):
             "asic-model": "",
             "system-uuid": ExpectedString(regex=r"[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}"),
         }
+        self.disk_default_partition_name = DiskConsts.DEFAULT_PARTITION_NAME
+        self.disk_partition_capacity_limit = DiskConsts.PARTITION_CAPACITY_LIMIT
+        self.disk_minimum_free_space = DiskConsts.MINIMUM_FREE_SPACE
 
     def _init_psu_list(self):
         super()._init_psu_list()

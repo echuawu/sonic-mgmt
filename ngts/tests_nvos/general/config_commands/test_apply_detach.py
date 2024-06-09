@@ -14,6 +14,7 @@ from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 logger = logging.getLogger()
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.nvos_ci
 @pytest.mark.configuration
@@ -42,6 +43,7 @@ def test_detach(engines):
                 "pending revision should be empty, detach command should clean the last revision"
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.configuration
 @pytest.mark.simx
@@ -89,6 +91,7 @@ def test_apply_assume(engines):
         NvueGeneralCli.apply_config(engines.dut, True, ConfigConsts.APPLY_YES)
 
 
+@pytest.mark.cumulus
 @pytest.mark.general
 @pytest.mark.configuration
 @pytest.mark.simx

@@ -76,12 +76,13 @@ class FaeFirmware(BaseComponent):
 
     def __init__(self, parent_obj=None):
         super().__init__(parent=parent_obj, path='/firmware')
-        # TODO - IF THE FPGA/BMC COMMAND HAS THE SAME HIERARCHY, WE MIGHT NEED TO ADD THE ADJUSTMENT HERE.
-        self.cpld = FaeCpldComponent(self, 'cpld')
-        self.bios = FaeBiosComponent(self, 'bios')
-        self.ssd = FaePlatformComponent(self, 'ssd')
-        self.bmc = FaePlatformComponent(self, 'bmc')
-        self.fpga = FaePlatformComponent(self, 'fpga')
+        self.asic1 = FaePlatformComponent(self, 'ASIC1')
+        # multi-asic devices also have asic2 but our tests don't need it currently
+        self.cpld = FaeCpldComponent(self, 'CPLD')
+        self.bios = FaeBiosComponent(self, 'BIOS')
+        self.ssd = FaePlatformComponent(self, 'SSD')
+        self.bmc = FaePlatformComponent(self, 'BMC')
+        self.fpga = FaePlatformComponent(self, 'FPGA')
 
     def install_bios_firmware(self, bios_image_path, device):
         with allure.step("installing bios firmware from {action_type}".format(action_type=bios_image_path)):
@@ -98,6 +99,8 @@ class FaeBiosComponent(BaseComponent):
 class FaePlatformComponent(BaseComponent):
     def __init__(self, parent_obj=None, component_name=None):
         super().__init__(parent=parent_obj, path=f"/{component_name}")
+        # todo: restructure this class (and update relevant tests) to use the Files class
+        # todo: self.files = Files(self)
 
     def show_files(self):
         """nv show fae platform firmware (bios|cpld|ssd) files"""

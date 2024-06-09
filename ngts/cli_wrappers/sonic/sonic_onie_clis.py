@@ -128,8 +128,15 @@ class SonicOnieCli:
         prompts = ["Installed.*base\\s+image.*successfully", pexpect.TIMEOUT]
 
         full_image_path = f"{MarsConstants.HTTP_SERVER_NBU_NFS}{image_path}"
+        image_name = image_path.split('/')[-1]
+        local_image_file = '/tmp/' + image_name
 
-        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {full_image_path}"], prompts)
+        logger.info('Starting download sonic image via http')
+        download_image_cmd = f"wget -O {local_image_file} {full_image_path}"
+        retry_call(self.run_cmd_set, fargs=[[download_image_cmd]], tries=5, delay=10, logger=logger)
+
+        logger.info('Starting onie-nos-install sonic image')
+        stdout, pexpect_entry = self.run_cmd_set([f"onie-nos-install {local_image_file}"], prompts)
 
         while num_retry > 0:
             if pexpect_entry == 0:
@@ -186,7 +193,7 @@ class SonicOnieCli:
         """
         # Copy directly to DUT
         scp_cmd = f'sshpass -p \'root\' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} ' \
-                  f'{image_path} root@{self.ip}:{dst_image_file_path}'
+            f'{image_path} root@{self.ip}:{dst_image_file_path}'
         out, err, rc = run_process_on_host(scp_cmd, timeout=1800)
         if rc:
             logger.error(f'Failed copy SONiC image, std_out: {out}, std_err: {err}, rc: {rc}')

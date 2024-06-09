@@ -1,3 +1,5 @@
+from typing import Dict
+
 import logging
 import socket
 import time
@@ -112,8 +114,8 @@ class DutUtilsTool:
             with allure.step('wait until the CLI is up'):
                 wait_until_cli_is_up(engine)
 
-            with allure.step('wait for ib-utils to be up'):
-                wait_for_ib_utils_docker(engine)
+            with allure.step('Wait until systemctl status is "running"'):
+                wait_on_systemctl_initialization(engine)
 
             return ResultObj(result=True, info="System Is Ready", issue_type=IssueType.PossibleBug)
 
@@ -151,6 +153,15 @@ class DutUtilsTool:
             logging.info('Got "OSError: Socket is closed" - Current engine was also disconnected')
             engine.disconnect()
             return "Action succeeded"
+
+    @staticmethod
+    def get_engine_interface_name(engine, topology) -> str:
+        dut_setup_specific_attributes: Dict[str, str] = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']
+        setup_mgmt_ips = [dut_setup_specific_attributes['ip_address'], dut_setup_specific_attributes['ip_address_2']]
+        for index, mgmt_ip in enumerate(setup_mgmt_ips):
+            if mgmt_ip == engine.ip:
+                interface = 'eth' + str(index)
+        return interface
 
 
 def ping_device(ip_add):
@@ -191,12 +202,6 @@ def wait_for_system_table_to_exist(engine):
     return True
 
 
-@retry(Exception, tries=60, delay=2)
-def wait_for_ib_utils_docker(engine):
-    cmd_output = engine.run_cmd('docker ps --format \"table {{.Names}}\"')
-    assert 'ib-utils' in cmd_output, "ib-utils still down"
-
-
 @retry(Exception, tries=60, delay=10)
 def wait_until_cli_is_up(engine):
     logger.info('Checking the status of nvued')
@@ -204,3 +209,10 @@ def wait_until_cli_is_up(engine):
     logger.info(output)
     if 'CLI is unavailable' in output:
         raise Exception("Waiting for NVUE to become functional")
+
+
+@retry(Exception, tries=12, delay=10)
+def wait_on_systemctl_initialization(engine):
+    output = engine.run_cmd("sudo systemctl is-system-running")
+    if "running" not in output:
+        raise Exception("Waiting for systemctl to finish initializing")

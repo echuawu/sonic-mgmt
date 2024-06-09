@@ -1,13 +1,17 @@
 import logging
 import os
 import re
+import time
+import random
 
+from retry.api import retry_call
 from retry import retry
 from functools import partial
 from ngts.tests.nightly.adaptive_routing.constants import ArConsts
-from ngts.constants.constants import AppExtensionInstallationConstants
+from ngts.constants.constants import AppExtensionInstallationConstants, PerfConsts
 from ngts.tests.conftest import get_dut_loopbacks
 from infra.tools.validations.traffic_validations.scapy.scapy_runner import ScapyChecker
+from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 
 logger = logging.getLogger()
 
@@ -299,10 +303,10 @@ class ArHelper:
         :param sender_intf: sender interface
         :param sender_pkt_format: packet to send
         :param sender_count: number of packets to send
-        sendpfast: use sendpfast method to send traffic
-        mbps: megabit per second traffic to be send
-        loop: number of times packet to be send
-        timeout: timeout to be set for sending traffic
+        :param sendpfast: use sendpfast method to send traffic
+        :param mbps: megabit per second traffic to be sent
+        :param loop: number of times packet to be sent
+        :param timeout: timeout to be set for sending traffic
         """
         traffic_validation = {'sender': sender,
                               'send_args': {'interface': sender_intf,
@@ -335,19 +339,23 @@ class ArHelper:
         ecmp_port_list.remove(original_tx_port)
         return ecmp_port_list.pop()
 
-    @retry(Exception, tries=3, delay=20)
-    def get_interfaces_counters(self, cli_objects, ports, stat):
+    @retry(Exception, tries=12, delay=5)
+    def get_interfaces_counters(self, cli_objects, ports, stat, device='dut'):
         """
         This method is used to get interfaces counters
         :param cli_objects: cli_objects fixture
         :param ports: list of ports for which statistics must be taken
-        :param stat: port stat TX_OK, RX_OK etc
+        :param stat: port stat TX_OK, RX_OK etc.
+        :param device: the device which the method runs on
         :return: port statistic dictionary
         """
         port_stat_dict = {}
-        counters_data = cli_objects['dut'].interface.parse_interfaces_counters()
+        counters_data = cli_objects[device].interface.parse_interfaces_counters()
         for port in ports:
-            port_stat_dict[port] = port_stat_dict.get(port, 0) + int(counters_data[port][stat].replace(",", ""))
+            port_stat_dict[port] = port_stat_dict.get(port, 0)
+            stat_value = counters_data[port][stat].replace(",", "").replace("%", "")
+            stat_value = round(float(stat_value))
+            port_stat_dict[port] = int(stat_value)
         return port_stat_dict
 
     def validate_roce_v2_pkts_traffic(self, players, interfaces, ha_dut_1_mac, dut_ha_1_mac, sender_count,
@@ -376,8 +384,8 @@ class ArHelper:
             self.disable_doai_service(cli_objects)
             warn_output = cli_objects.dut.ar.enable_ar_function(validate=False)
             assert ArConsts.WARNING_MESSAGE in warn_output, f'Adaptive Routing should print warning when enabling' \
-                                                            f'ar function before ' \
-                                                            f'{AppExtensionInstallationConstants.DOAI} service'
+                f'ar function before ' \
+                f'{AppExtensionInstallationConstants.DOAI} service'
         except Exception as err:
             raise err
         finally:
@@ -478,20 +486,21 @@ class ArHelper:
         engines.dut.run_cmd('docker exec syncd python /packets_aging.py enable')
         engines.dut.run_cmd('docker exec syncd rm -rf /packets_aging.py')
 
-    def copy_and_load_profile_config(self, engines, cli_objects, config_folder):
+    def copy_and_load_profile_config(self, engines, cli_objects, config_folder, custom_profile_json):
         """
         This method is used to copy  profile config file from sonic-mgmt to DUT and perform load
         :param engines: engines fixture
         :param cli_objects: cli_objects fixture
         :param config_folder: folder where config stored
+        :param custom_profile_json: name of the custom profile
         """
-        engines.dut.copy_file(source_file=os.path.join(config_folder, ArConsts.AR_CUSTOM_PROFILE_FILE_NAME),
-                              dest_file=ArConsts.AR_CUSTOM_PROFILE_FILE_NAME,
+        engines.dut.copy_file(source_file=os.path.join(config_folder, custom_profile_json),
+                              dest_file=custom_profile_json,
                               file_system='/tmp/',
                               overwrite_file=True,
                               verify_file=False)
 
-        cli_objects.dut.general.load_configuration('/tmp/' + ArConsts.AR_CUSTOM_PROFILE_FILE_NAME)
+        cli_objects.dut.general.load_configuration('/tmp/' + custom_profile_json)
 
     def enable_ar_profile(self, cli_objects, profile_name, restart_swss=False):
         """
@@ -574,3 +583,199 @@ class ArHelper:
         self.enable_ar_port(cli_objects, tx_ports)
         self.config_save_reload(cli_objects, topology_obj, reload_force=True)
         self.verify_bgp_neighbor(cli_objects)
+
+
+class ArPerfHelper(ArHelper):
+
+    def __init__(self, engines):
+        self.engines = engines
+        self.tg_engines = self.get_tg_engines(engines)
+
+    def generate_traffic_from_node(self, engines, dest_mac, packet_size=4000):
+        num_of_packets = PerfConsts.PACKET_SIZE_TO_PACKET_NUM_DICT[packet_size]
+        self.verify_traffic_generation_enabled(engines)
+        logger.info(f'Generate traffic from left and right node with packet size {packet_size}')
+        for engine in self.tg_engines:
+            engines[engine].run_cmd(f'sudo python3 {PerfConsts.TRAFFIC_SENDER_SCRIPT_TG} -s {packet_size} '
+                                    f'-n {num_of_packets} -m {dest_mac} -g {engine}', validate=True)
+
+    def get_tg_engines(self, engines):
+        tg_engines = [engine for engine in engines if re.search("tg$", engine)]
+        logger.info(f'traffic generator engines are {tg_engines}')
+        return tg_engines
+
+    def run_cmd_on_syncd(self, engine, script_name, python=False, additional_args=""):
+        prefix = "/"
+        if python:
+            prefix = "python3 "
+        logger.info("Running command on syncd docker:")
+        engine.run_cmd("sudo docker exec -i syncd bash -c '{}{} {}'".format(prefix, script_name, additional_args),
+                       validate=True)
+
+    def copy_traffic_cmds_to_node(self, engine, engine_name):
+        dest_file_name = "_".join([PerfConsts.TRAFFIC_SENDER_SCRIPT_TG])
+        logger.info("Copying traffic commands to syncd docker")
+        engine.copy_file(source_file=os.path.join(PerfConsts.CONFIG_FILES_DIR,
+                                                  PerfConsts.TRAFFIC_SENDER_SCRIPT_TG),
+                         dest_file=dest_file_name,
+                         file_system='/home/admin',
+                         direction='put'
+                         )
+
+    def copy_ip_neighbor_cmds_to_dut(self, engine):
+        logger.info("Copying ip neighbors commands to DUT")
+        engine.copy_file(source_file=os.path.join(PerfConsts.CONFIG_FILES_DIR,
+                                                  PerfConsts.IP_NEIGH_SCRIPT),
+                         dest_file=PerfConsts.IP_NEIGH_SCRIPT,
+                         file_system='/home/admin',
+                         direction='put'
+                         )
+        engine.run_cmd(f'chmod +x {PerfConsts.IP_NEIGH_SCRIPT}')
+
+    def config_ip_neighbors_on_dut(self, dut_engine, topology_obj):
+        mac_dict = {}
+        for engine in self.tg_engines:
+            mac_dict[engine] = self.get_switch_mac(topology_obj, engine)
+        logger.info("Config permanent ip neighbors on DUT")
+        self.copy_ip_neighbor_cmds_to_dut(dut_engine)
+        ip_neigh_cmd = " ".join([PerfConsts.IP_NEIGH_SCRIPT, mac_dict["left_tg"], mac_dict["right_tg"],
+                                 PerfConsts.L_IP_NEIGH, PerfConsts.R_IP_NEIGH])
+        ip_neigh_cmd = "sudo ./" + ip_neigh_cmd
+        dut_engine.run_cmd(ip_neigh_cmd, validate=True)
+
+    def validate_tx_utilization(self, cli_objects, ports_list, device, ibm=False, packet_size=4000,
+                                stress_mode=False, negative_mode=False):
+        util_threshold = self.get_util_threshold(device, ibm, packet_size)
+        logger.info(f'Utilization threshold is {util_threshold}%')
+        sample_time = PerfConsts.DEFAULT_SAMPLE_TIME_IN_SEC
+        total_sample_time = sample_time + PerfConsts.SLEEP_TIME_BEFORE_SAMPLE
+        if stress_mode:
+            sample_time = PerfConsts.EXTENDED_SAMPLE_TIME_IN_SEC
+            logger.info(f'Stress mode - sampling time of port utilization is {sample_time} seconds')
+        util_counters_dict = {}
+        logger.info('Check interface counters responding before sampling')
+        self.get_interfaces_counters(cli_objects, ports_list, 'TX_UTIL', device=device)
+        start_time = time.time()
+        while time.time() - start_time < total_sample_time:
+            sample_dict = self.get_interfaces_counters(cli_objects, ports_list, 'TX_UTIL', device=device)
+            for port, value in sample_dict.items():
+                if port not in util_counters_dict:
+                    util_counters_dict[port] = []
+                util_counters_dict[port].append((value, time.time()))
+        with allure.step(f'Check the average port utilization on {device}'):
+            for port, util_values in util_counters_dict.items():
+                counted_util_values = [value_timestamp_pair for value_timestamp_pair in util_values
+                                       if value_timestamp_pair[PerfConsts.TIMESTAMP_INDEX] >=
+                                       start_time + PerfConsts.SLEEP_TIME_BEFORE_SAMPLE]
+                sum_of_util = sum(value_timestamp_pair[PerfConsts.VALUE_INDEX] for value_timestamp_pair in counted_util_values)
+                avg_port_util = round(sum_of_util / len(counted_util_values))
+                if not negative_mode:
+                    logger.debug(f'Verify that the port utilization of {device} is above {util_threshold}% ')
+                    if avg_port_util < util_threshold:
+                        raise AssertionError(f'Port utilization of {port} is on average {avg_port_util}% '
+                                             f'when at least {util_threshold}% is expected')
+                    logger.debug('Port utilization is above threshold as expected')
+
+                else:
+                    logger.debug(f'Verify that the port utilization of {device} is 0% ')
+                    if avg_port_util != 0:
+                        raise AssertionError(f'Port utilization is {avg_port_util}%'
+                                             f' but is expected to be 0% after {port} has been shut down')
+                    logger.debug('Port utilization is 0% as expected')
+
+    def get_util_threshold(self, device, ibm, packet_size):
+        if device == 'dut':
+            if ibm:
+                util_threshold = PerfConsts.DUT_TX_UTIL_W_IBM_TH_DICT[packet_size]
+            else:
+                util_threshold = PerfConsts.DUT_TX_UTIL_TH_DICT[packet_size]
+        else:
+            util_threshold = PerfConsts.TG_TX_UTIL_TH
+        return util_threshold
+
+    def stop_traffic_generation(self, engines):
+
+        for engine in self.tg_engines:
+            logger.info(f'Stop traffic generation on {engine}')
+            engines[engine].run_cmd("redis-cli -n 4 hset 'SCHEDULER|scheduler.traffic' pir 1")
+
+    def verify_traffic_generation_enabled(self, engines):
+        for engine in self.tg_engines:
+            logger.info(f'Enable traffic generation on {engine}')
+            engines[engine].run_cmd("redis-cli -n 4 hset 'SCHEDULER|scheduler.traffic' pir 0")
+
+    def get_ports_by_type(self, topology_obj):
+        ports_dict = {}
+        for engine in self.tg_engines:
+            ports_dict[engine] = {}
+            cli_object = topology_obj.players[engine]['cli']
+            tg_switch_name = topology_obj.players[engine]['attributes'].noga_query_data['attributes']['Common']['Name']
+            dut_switch_name = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Common']['Name']
+            lldp_table_output = cli_object.lldp.parse_lldp_table_info()
+            mloop_ports_list = []
+            egress_ports_list = []
+            logger.debug(f'Define the type of port - MLOOP or egress,'
+                         f' by checking if it is connected to the DUT or to itself')
+            for port, port_info in lldp_table_output.items():
+                if port_info[0] == tg_switch_name:
+                    mloop_ports_list.append(port)
+                elif port_info[0] == dut_switch_name:
+                    egress_ports_list.append(port)
+            logger.debug('Check if the number of ports is as expected')
+            self.validate_number_of_ports(mloop_ports_list, 'mloop', engine)
+            self.validate_number_of_ports(mloop_ports_list, 'egress', engine)
+            ports_dict[engine]['mloop_ports'] = mloop_ports_list
+            ports_dict[engine]['egress_ports'] = egress_ports_list
+
+        return ports_dict
+
+    def get_dut_ports(self, topology_obj):
+        ports_dict = topology_obj.ports
+        ports_list = list(ports_dict.values())
+        self.validate_number_of_ports(ports_list, 'ar', "dut")
+        return ports_list
+
+    def validate_number_of_ports(self, ports_list, port_type, device):
+        actual_length = len(ports_list)
+        expected_length = PerfConsts.EXPECTED_PORTS_BY_TYPE[port_type]
+        if actual_length != expected_length:
+            raise AssertionError(f'Ports number on {device} expected to be {expected_length},'
+                                 f' but got only {actual_length}')
+
+    def ensure_ar_perf_config_set(self, cli_objects, topology_obj):
+        logger.info('Check if AR is enabled, and enable AR if is not')
+        self.ensure_ar_active(cli_objects)
+        logger.info('Verify that all ports are configured with AR enabled')
+        actual_ar_ports = sorted(self.get_ar_configuration(cli_objects)[ArConsts.AR_PORTS_GLOBAL])
+        expected_ar_ports = sorted(self.get_dut_ports(topology_obj))
+        if actual_ar_ports != expected_ar_ports:
+            non_ar_ports = list(set(expected_ar_ports) - set(actual_ar_ports))
+            logger.info(f'Not all ports are configured with AR enabled, enabling AR on {non_ar_ports}')
+            self.enable_ar_port(cli_objects, non_ar_ports, restart_swss=True)
+
+    def link_flap_flow(self, cli_objects, port_list, flap_count=1):
+        for i in range(flap_count):
+            logger.info(f'Shutdown ports {port_list} and check they are down')
+            cli_objects.dut.interface.disable_interfaces(port_list)
+            cli_objects.dut.interface.check_link_state(port_list, expected_status='down')
+            retry_call(self.validate_tx_utilization,
+                       fargs=[cli_objects, port_list, "dut"],
+                       fkwargs={"ibm": False, "packet_size": 4000,
+                                "stress_mode": False, "negative_mode": True},
+                       tries=10,
+                       delay=5,
+                       logger=logger)
+            logger.info(f'Startup ports {port_list} and check they are up')
+            cli_objects.dut.interface.enable_interfaces(port_list)
+            cli_objects.dut.interface.check_link_state(port_list)
+
+    def get_switch_mac(self, topology_obj, engine_name):
+        """
+        Pytest fixture which are returning mac address for the selected switch
+        """
+        cli_object = topology_obj.players[engine_name]['cli']
+        return cli_object.mac.get_mac_address_for_interface("Ethernet0")
+
+    def choose_reboot_type(self, supported_types_list):
+        reboot_type = random.choice(supported_types_list)
+        return reboot_type

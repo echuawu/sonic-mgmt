@@ -64,7 +64,8 @@ def create_result_dir(setup_name, session_id, suffix_path_name, topology_obj):
     """
     player_info = topology_obj.players['dut']
     if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] == "NVUE":
-        folder_path = '/'.join([InfraConst.NVOS_REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
+        folder_path = '/'.join(
+            [InfraConst.NVOS_REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
     else:
         folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, setup_name, session_id, suffix_path_name])
     logger.info("Create folder: {} if it doesn't exist".format(folder_path))
@@ -128,6 +129,11 @@ def get_devinfo(switch_attributes):
     return switch_attributes[next_key]['devdescription']
 
 
+def get_chip_type(switch_attributes):
+    next_key = 'BF Switch' if is_sonic_dpu(switch_attributes) else 'Specific'
+    return switch_attributes[next_key]['chip_type']
+
+
 def is_sonic_dpu(switch_attributes):
     return 'BF Switch' in switch_attributes
 
@@ -152,7 +158,6 @@ def is_test_skipped(request, test_name):
 
 
 def is_deploy_run():
-
     is_deploy_test_run = False
     for item in sys.argv:
         if PytestConst.DEPLOY_TEST_FILE_NAME in item:

@@ -1,12 +1,12 @@
 {
     "MSN2010": {
-        "show_ifaces_status": "1.802",
         "add_vlan": "1.007",
         "del_vlan": "1.516",
         "add_route": "1.002",
         "del_route": "0.989",
         "add_po": "1.003",
         "del_po": "1.045",
+        "show_ifaces_status": "1.802",
         "show_iface_tr_eeprom": "1.593",
         "show_pl_fan": "1.111",
         "show_pl_psustatus": "1.076",
@@ -15,16 +15,16 @@
         "show_pl_ssdhealth": "1.8",
         "show_pl_syseeprom": "1.268",
         "show_pl_temperature": "1.128",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "11.3808"
     },
     "MSN2100": {
-        "show_ifaces_status": "1.734",
         "add_vlan": "0.989",
         "del_vlan": "1.486",
         "add_route": "0.998",
         "del_route": "0.999",
         "add_po": "0.982",
         "del_po": "0.98",
+        "show_ifaces_status": "1.734",
         "show_iface_tr_eeprom": "1.575",
         "show_pl_fan": "1.089",
         "show_pl_psustatus": "1.066",
@@ -33,16 +33,16 @@
         "show_pl_ssdhealth": "1.82",
         "show_pl_syseeprom": "1.257",
         "show_pl_temperature": "1.11",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "11.2034"
     },
     "SN2201": {
-        "show_ifaces_status": "1.41",
         "add_vlan": "0.765",
         "del_vlan": "1.137",
         "add_route": "0.74",
         "del_route": "0.746",
         "add_po": "0.77",
         "del_po": "0.802",
+        "show_ifaces_status": "1.41",
         "show_iface_tr_eeprom": "1.376",
         "show_pl_fan": "0.895",
         "show_pl_psustatus": "0.859",
@@ -51,16 +51,16 @@
         "show_pl_ssdhealth": "1.103",
         "show_pl_syseeprom": "1.127",
         "show_pl_temperature": "0.915",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "8.1858"
     },
     "MSN2410": {
-        "show_ifaces_status": "1.565",
         "add_vlan": "0.983",
         "del_vlan": "1.426",
         "add_route": "0.888",
         "del_route": "0.909",
         "add_po": "0.871",
         "del_po": "0.888",
+        "show_ifaces_status": "1.565",
         "show_iface_tr_eeprom": "1.436",
         "show_pl_fan": "1.061",
         "show_pl_psustatus": "1.017",
@@ -69,16 +69,16 @@
         "show_pl_ssdhealth": "1.966",
         "show_pl_syseeprom": "1.214",
         "show_pl_temperature": "1.109",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "10.1226"
     },
     "SN2700": {
-        "show_ifaces_status": "1.477",
         "add_vlan": "0.912",
         "del_vlan": "1.442",
         "add_route": "0.899",
         "del_route": "0.822",
         "add_po": "0.811",
         "del_po": "0.874",
+        "show_ifaces_status": "1.477",
         "show_iface_tr_eeprom": "1.568",
         "show_pl_fan": "1.157",
         "show_pl_psustatus": "0.991",
@@ -87,16 +87,16 @@
         "show_pl_ssdhealth": "1.678",
         "show_pl_syseeprom": "1.343",
         "show_pl_temperature": "1.121",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "9.9406"
     },
     "MSN2700": {
-        "show_ifaces_status": "1.477",
         "add_vlan": "0.912",
         "del_vlan": "1.442",
         "add_route": "0.899",
         "del_route": "0.822",
         "add_po": "0.811",
         "del_po": "0.874",
+        "show_ifaces_status": "1.477",
         "show_iface_tr_eeprom": "1.568",
         "show_pl_fan": "1.157",
         "show_pl_psustatus": "0.991",
@@ -105,16 +105,16 @@
         "show_pl_ssdhealth": "1.678",
         "show_pl_syseeprom": "1.343",
         "show_pl_temperature": "1.121",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "9.9406"
     },
     "MSN3420": {
-        "show_ifaces_status": "0.931",
         "add_vlan": "0.537",
         "del_vlan": "0.766",
         "add_route": "0.474",
         "del_route": "0.483",
         "add_po": "0.496",
         "del_po": "0.494",
+        "show_ifaces_status": "0.931",
         "show_iface_tr_eeprom": "0.884",
         "show_pl_fan": "0.578",
         "show_pl_psustatus": "0.557",
@@ -123,16 +123,16 @@
         "show_pl_ssdhealth": "1.038",
         "show_pl_syseeprom": "0.653",
         "show_pl_temperature": "0.58",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.4208"
     },
     "MSN3700": {
-        "show_ifaces_status": "0.807",
         "add_vlan": "0.429",
         "del_vlan": "0.64",
         "add_route": "0.427",
         "del_route": "0.442",
         "add_po": "0.447",
         "del_po": "0.424",
+        "show_ifaces_status": "0.807",
         "show_iface_tr_eeprom": "0.817",
         "show_pl_fan": "0.586",
         "show_pl_psustatus": "0.542",
@@ -141,16 +141,16 @@
         "show_pl_ssdhealth": "1.112",
         "show_pl_syseeprom": "0.674",
         "show_pl_temperature": "0.594",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.0404"
     },
     "MSN3700C": {
-        "show_ifaces_status": "0.967",
         "add_vlan": "0.461",
         "del_vlan": "0.69",
         "add_route": "0.477",
         "del_route": "0.464",
         "add_po": "0.48",
         "del_po": "0.461",
+        "show_ifaces_status": "0.967",
         "show_iface_tr_eeprom": "0.819",
         "show_pl_fan": "0.518",
         "show_pl_psustatus": "0.539",
@@ -159,16 +159,16 @@
         "show_pl_ssdhealth": "0.903",
         "show_pl_syseeprom": "0.692",
         "show_pl_temperature": "0.553",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.251"
     },
     "MSN3800": {
-        "show_ifaces_status": "0.871",
         "add_vlan": "0.457",
         "del_vlan": "0.664",
         "add_route": "0.442",
         "del_route": "0.434",
         "add_po": "0.457",
         "del_po": "0.454",
+        "show_ifaces_status": "0.871",
         "show_iface_tr_eeprom": "0.787",
         "show_pl_fan": "0.542",
         "show_pl_psustatus": "0.539",
@@ -177,16 +177,16 @@
         "show_pl_ssdhealth": "1.022",
         "show_pl_syseeprom": "0.617",
         "show_pl_temperature": "0.589",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.1218"
     },
     "MSN4410": {
-        "show_ifaces_status": "0.792",
         "add_vlan": "0.447",
         "del_vlan": "0.658",
         "add_route": "0.427",
         "del_route": "0.439",
         "add_po": "0.429",
         "del_po": "0.442",
+        "show_ifaces_status": "0.792",
         "show_iface_tr_eeprom": "0.723",
         "show_pl_fan": "0.52",
         "show_pl_psustatus": "0.522",
@@ -195,16 +195,16 @@
         "show_pl_ssdhealth": "0.971",
         "show_pl_syseeprom": "0.605",
         "show_pl_temperature": "0.519",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.0638"
     },
     "MSN4600": {
-        "show_ifaces_status": "0.881",
         "add_vlan": "0.453",
         "del_vlan": "0.684",
         "add_route": "0.455",
         "del_route": "0.45",
         "add_po": "0.444",
         "del_po": "0.456",
+        "show_ifaces_status": "0.881",
         "show_iface_tr_eeprom": "0.755",
         "show_pl_fan": "0.55",
         "show_pl_psustatus": "0.562",
@@ -213,16 +213,16 @@
         "show_pl_ssdhealth": "1.018",
         "show_pl_syseeprom": "0.623",
         "show_pl_temperature": "0.558",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.0974"
     },
     "MSN4600C": {
-        "show_ifaces_status": "0.869",
         "add_vlan": "0.446",
         "del_vlan": "0.672",
         "add_route": "0.452",
         "del_route": "0.451",
         "add_po": "0.449",
         "del_po": "0.446",
+        "show_ifaces_status": "0.869",
         "show_iface_tr_eeprom": "0.779",
         "show_pl_fan": "0.55",
         "show_pl_psustatus": "0.532",
@@ -231,16 +231,16 @@
         "show_pl_ssdhealth": "1.027",
         "show_pl_syseeprom": "0.608",
         "show_pl_temperature": "0.558",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.0974"
     },
     "MSN4700": {
-        "show_ifaces_status": "0.772",
         "add_vlan": "0.436",
         "del_vlan": "0.636",
         "add_route": "0.436",
         "del_route": "0.42",
         "add_po": "0.446",
         "del_po": "0.422",
+        "show_ifaces_status": "0.772",
         "show_iface_tr_eeprom": "0.719",
         "show_pl_fan": "0.535",
         "show_pl_psustatus": "0.499",
@@ -249,16 +249,16 @@
         "show_pl_ssdhealth": "0.992",
         "show_pl_syseeprom": "0.592",
         "show_pl_temperature": "0.532",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "5.0364"
     },
     "SN5400": {
-        "show_ifaces_status": "0.772",
         "add_vlan": "0.436",
         "del_vlan": "0.636",
         "add_route": "0.436",
         "del_route": "0.42",
         "add_po": "0.446",
         "del_po": "0.422",
+        "show_ifaces_status": "0.772",
         "show_iface_tr_eeprom": "0.719",
         "show_pl_fan": "0.535",
         "show_pl_psustatus": "0.499",
@@ -267,16 +267,16 @@
         "show_pl_ssdhealth": "0.992",
         "show_pl_syseeprom": "0.592",
         "show_pl_temperature": "0.532",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "4.148"
     },
     "SN5600": {
-        "show_ifaces_status": "0.772",
         "add_vlan": "0.436",
         "del_vlan": "0.636",
         "add_route": "0.436",
         "del_route": "0.42",
         "add_po": "0.446",
         "del_po": "0.422",
+        "show_ifaces_status": "0.772",
         "show_iface_tr_eeprom": "0.719",
         "show_pl_fan": "0.535",
         "show_pl_psustatus": "0.499",
@@ -285,6 +285,6 @@
         "show_pl_ssdhealth": "0.992",
         "show_pl_syseeprom": "0.592",
         "show_pl_temperature": "0.532",
-        "show_sys_health_summary": "2"
+        "show_sys_health_summary": "4.0962"
     }
 }

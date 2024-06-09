@@ -1,4 +1,6 @@
-from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
+from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts, AddressingType
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.RemoteAaaServerInfo import RadiusServerInfo
+from ngts.tests_nvos.general.security.security_test_tools.tool_classes.UserInfo import UserInfo
 
 
 class RadiusConstants:
@@ -127,3 +129,39 @@ class RadiusConstants:
     }
 
     SLEEP_TO_APPLY_CONFIGURATIONS = 5
+
+
+class RadiusVmServer:
+    USERS = [
+        UserInfo(
+            username='rad1adm1',
+            password='rad1adm1',
+            role=AaaConsts.ADMIN
+        ),
+        UserInfo(
+            username='rad1mon1',
+            password='rad1mon1',
+            role=AaaConsts.MONITOR
+        ),
+    ]
+
+    SERVER_IPV4 = RadiusServerInfo(
+        hostname=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+        priority=1,
+        secret='testing123',
+        port=1812,
+        timeout=5,
+        auth_type=AaaConsts.PAP,
+        users=USERS,
+        ipv4_addr=AaaConsts.VM_AAA_SERVER_IPV4_ADDR,
+    )
+    SERVER_IPV6 = SERVER_IPV4.copy()
+    SERVER_IPV6.hostname = AaaConsts.VM_AAA_SERVER_IPV6_ADDR
+    SERVER_DN = SERVER_IPV4.copy()
+    SERVER_DN.hostname = AaaConsts.VM_AAA_SERVER_DN
+
+    SERVER_BY_ADDRESSING_TYPE = {
+        AddressingType.IPV4: SERVER_IPV4,
+        AddressingType.IPV6: SERVER_IPV6,
+        AddressingType.DN: SERVER_DN
+    }

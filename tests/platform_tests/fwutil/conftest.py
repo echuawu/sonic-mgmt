@@ -47,7 +47,7 @@ def check_path_exists(duthost, path):
 def pytest_generate_tests(metafunc):
     val = metafunc.config.getoption('--fw-pkg')
     if 'fw_pkg_name' in metafunc.fixturenames:
-        metafunc.parametrize('fw_pkg_name', [val], scope="module")
+        metafunc.parametrize('fw_pkg_name', val.split(','), scope="module")
 
 
 @pytest.fixture(scope='module')
@@ -81,11 +81,12 @@ def extract_fw_data(fw_pkg_path):
     return fw_data
 
 
-@pytest.fixture(scope='function')
-def random_component(duthost, fw_pkg):
-    chass = list(show_firmware(duthost)["chassis"].keys())[0]
-    components = list(fw_pkg["chassis"].get(chass, {}).get("component", {}).keys())
-    cpld_components = [com for com in components if "CPLD" in com]
+@pytest.fixture(scope='function', params=["CPLD", "ONIE", "BIOS"])
+def component(request, duthost, fw_pkg):
+    component_type = request.param
+    chassis = list(show_firmware(duthost)["chassis"].keys())[0]
+    available_components = list(fw_pkg["chassis"].get(chassis, {}).get("component", {}).keys())
+    cpld_components = [com for com in available_components if "CPLD" in com]
     # if in the host section, the CPLD defined is different, then need to use the one defined for this host.
     # For example: if the CPLD2 is defined for the SN3700c, and CPLD1 defined for the r-anaconda-15, then when run
     # test for the r-anaconda-15, it will take the CPLD1 instead of CPLD2 as on of the component
@@ -93,15 +94,18 @@ def random_component(duthost, fw_pkg):
         host_components = list(fw_pkg["host"].get(duthost.hostname, {}).get("component", []).keys())
         cpld_host_components = [com for com in host_components if "CPLD" in com]
         if cpld_host_components:
-            components = list(set(components) ^ set(cpld_components) | set(host_components))
+            available_components = list(set(available_components) ^ set(cpld_components) | set(host_components))
         else:
-            components = list(set(components) | set(host_components))
+            available_components = list(set(available_components) | set(host_components))
 
-    if 'ONIE' in components:
-        components.remove('ONIE')
-    if len(components) == 0:
-        pytest.skip("No suitable components found in config file for platform {}.".format(duthost.facts['platform']))
-    return components[randrange(len(components))]
+    if 'ONIE' in available_components:
+        available_components.remove('ONIE')
+    if len(available_components) > 0:
+        for component in available_components:
+            if component_type in component:
+                return component
+    pytest.skip(f"No suitable components found in config file for "
+                f"platform {duthost.facts['platform']}, firmware type {component_type}.")
 
 
 @pytest.fixture(scope='function')
