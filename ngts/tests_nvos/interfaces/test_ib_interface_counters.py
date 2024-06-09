@@ -63,7 +63,7 @@ def test_range_clear_counters_negative(engines, players, interfaces, start_sm, f
     error_msg2 = "is not a 'interface name'. Valid interface types are"
 
     with allure.step("Create Interface"):
-        interface = Interface(parent_obj=None)
+        interface = Interface(parent_obj=None, port_name=out_of_range_p)
 
     with allure.step("check out of range {}".format(out_of_range_p)):
         interface.action_clear_counter_for_interface(interface_name=out_of_range_p)
@@ -109,6 +109,8 @@ def test_range_clear_counters_positive(engines, players, interfaces, start_sm, f
 
     with allure.step("Get all IB ports sorted list"):
         sorted_list = interface.get_sorted_interfaces_list()
+        sorted_p1_list = [item for item in sorted_list if item.endswith('p1')]
+        sorted_p2_list = [item for item in sorted_list if item.endswith('p2')]
 
     file_name, user_name, ssh_connection = create_new_user(engines.dut)
 
@@ -116,29 +118,27 @@ def test_range_clear_counters_positive(engines, players, interfaces, start_sm, f
         Tools.TrafficGeneratorTool.send_ib_traffic(players, interfaces, True).verify_result()
 
     with allure.step("Get 4 random numbers - to define ranges"):
-        randoms = list(random.sample(range(2, len(sorted_list) - 1), 4))
-        random.shuffle(randoms)
+        randoms = sorted(sorted(random.sample(range(2, len(sorted_p1_list) - 1), 4)))
+
         with allure.step("define ranges"):
             reg = IbConsts.IB_INTERFACE_NAME_REGEX
-            first_range_last_point = re.match(reg, sorted_list[randoms[0]]).group(2)
-            second_range_first_point = re.match(reg, sorted_list[randoms[1]]).group(1) + re.match(reg, sorted_list[
-                randoms[1]]).group(2)
-            second_range_last_point = re.match(reg, sorted_list[randoms[2]]).group(2)
-            random_port = sorted_list[randoms[3]]
+            first_range_last_point = re.match(reg, sorted_p1_list[randoms[0]]).group(2)
+            second_range_first_point = re.match(reg, sorted_p1_list[randoms[1]]).group(1) + re.match(reg, sorted_p1_list[randoms[1]]).group(2)
+            second_range_last_point = re.match(reg, sorted_p1_list[randoms[2]]).group(2)
+            random_port = sorted_p1_list[randoms[3]]
 
     with allure.step("Run clear counters using range for p1 or p2 only"):
         with allure.step('Run clear counter command'):
             p_number = random.randint(1, 2)
-            interface.action_clear_counter_for_interface(engine=ssh_connection,
-                                                         interface_name='{first}-{last}p{p_number}-{p_number}, {random_port}'.format(
-                                                             p_number=p_number, first=second_range_first_point,
-                                                             last=second_range_last_point, random_port=random_port))
+            expected_files = sorted_p1_list[randoms[1]:randoms[2] + 1] if p_number == 1 else sorted_p2_list[randoms[1]:randoms[2] + 1]
+            expected_files += [random_port]
+            interface.action_clear_counter_for_interface(engine=ssh_connection, interface_name='{first}-{last}p{p_number}-{p_number},{random_port}'.format(p_number=p_number, first=second_range_first_point, last=second_range_last_point, random_port=random_port))
 
         with allure.step('verify that a clear file is added to each port'):
             all_files = ssh_connection.run_cmd('ls {}'.format(file_name)).split()
-            missing_ports = [port for port in sorted_list[randoms[1]:randoms[2]] if port not in all_files]
+            missing_ports = [port for port in expected_files if port not in all_files]
             msg = "\n".join("{} is missing".format(port) for port in missing_ports)
-            assert msg != "", msg
+            assert not msg, msg
 
         with allure.step('verify show command output'):
             with allure.step('Check selected port counters'):
@@ -150,16 +150,13 @@ def test_range_clear_counters_positive(engines, players, interfaces, start_sm, f
     with allure.step("Run clear counters using range and multiple ports and verify results"):
 
         with allure.step('Run clear counter command'):
-            interface.action_clear_counter_for_interface(engine=ssh_connection,
-                                                         interface_name='{first}-{last}p1-2, {random_port}'.format(
-                                                             first=selected_ports[0].name, last=first_range_last_point,
-                                                             random_port=random_port))
+            interface.action_clear_counter_for_interface(engine=ssh_connection, interface_name='{first}-{last}p1-2,{random_port}'.format(first=selected_ports[0].name[:-2], last=first_range_last_point, random_port=random_port))
 
         with allure.step('verify that a clear file is added to each port'):
             all_files = ssh_connection.run_cmd('ls {}'.format(file_name)).split()
             missing_ports = [port for port in sorted_list[:randoms[0]] if port not in all_files]
             msg = "\n".join("{} is missing".format(port) for port in missing_ports)
-            assert msg != "", msg
+            assert not msg, msg
 
         with allure.step('verify show command output'):
             with allure.step('Check selected port counters'):

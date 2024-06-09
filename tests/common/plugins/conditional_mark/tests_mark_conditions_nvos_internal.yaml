@@ -313,6 +313,13 @@ tests_nvos/system/test_system_ztp.py::test_ztp_connectivity_check:
     conditions:
       - https://redmine.mellanox.com/issues/3919469
 
+tests_nvos/interfaces/test_ib_interface_counters.py::test_range_clear_counters_negative:
+  skip:
+    reason: "Testcase skipped due to RM issues: https://redmine.mellanox.com/issues/3916837 and 3920791"
+    conditions:
+      - https://redmine.mellanox.com/issues/3916837
+      - https://redmine.mellanox.com/issues/3920791
+
 tests_nvos/system/test_system_ztp.py::test_ztp_json_complex:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
