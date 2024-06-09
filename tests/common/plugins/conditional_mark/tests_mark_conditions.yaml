@@ -1172,13 +1172,13 @@ platform_tests/daemon/test_chassisd.py:
 
 platform_tests/daemon/test_fancontrol.py:
   skip:
-    reason: "exists thermalctl daemon."
+    reason: "exists thermalctl daemon that controls the fan, test not needed."
     conditions:
       - "asic_type in ['mellanox']"
 
 platform_tests/daemon/test_ledd.py:
   skip:
-    reason: "exists thermalctl daemon."
+    reason: "The led is controlled by FW on mellanox platform, test not needed."
     conditions:
       - "asic_type in ['mellanox']"
 
