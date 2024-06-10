@@ -1,0 +1,16 @@
+- header:
+    model: mqm9700
+    nvue-api-version: nvue_v1
+    rev-id: 1.0
+    version: 25.01.3932-014
+- set:
+    system:
+      aaa:
+        authentication:
+          restrictions:
+            fail-delay: 0
+            lockout-state: disabled
+      security:
+        password-hardening:
+          state: enabled
+      timezone: Asia/Jerusalem

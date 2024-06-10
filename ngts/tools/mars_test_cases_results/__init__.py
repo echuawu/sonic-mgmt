@@ -258,11 +258,9 @@ def exception_to_regex(error_string):
 def get_exception(test_obj):
     exception = ""
     exception_regex = ""
-    repr_excinfo = test_obj.longrepr.reprcrash.message
-    if repr_excinfo:
-        exception = repr_excinfo
-        exception_regex = exception_to_regex(repr_excinfo)
-
+    if hasattr(test_obj.longrepr, 'reprcrash') and hasattr(test_obj.longrepr.reprcrash, 'message'):
+        exception = test_obj.longrepr.reprcrash.message
+        exception_regex = exception_to_regex(exception)
     return exception, exception_regex
 
 
