@@ -332,6 +332,12 @@ tests_nvos/interfaces/test_lldp.py::test_lldp_interface_flapping:
     conditions:
       - https://redmine.mellanox.com/issues/3937660
 
+tests_nvos/interfaces/link_detection/test_link_detection.py::test_port_ranges:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3953065"
+    conditions:
+      - https://redmine.mellanox.com/issues/3953065
+
 tests_nvos/platform/test_platform.py::test_show_platform:
   skip:
     reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3922673"

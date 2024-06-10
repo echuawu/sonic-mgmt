@@ -1144,6 +1144,21 @@ class StatsConsts:
     CLEAR = 'clear'
 
 
+class LinkDetectionConsts:
+    PLATFORM_CAPABILITIES = "capabilities"
+    PLATFORM_LINK_DETECTION = "link_detection"
+    EMPTY_STRING = ""
+    SPEED_WIDTH_MISMATCH = "speed_width_mismatch"
+    NO_NEGOTIATION = "no_negotiation"
+    PLANARIZED_MISMATCH = "planarized_mismatch"
+    PLANARIZED = "planarized"
+    NUM_OF_PLANES = "num_of_planes"
+    SUPPORTED_WIDTH = "supported_width"
+    SUPPORTED_SPEED = "supported_speed"
+    CONNECTION_MODE_NDR = 'ndr'
+    CONNECTION_MODE_XDR = 'xdr'
+
+
 class MultiPlanarConsts:
     INTERNAL_PATH = "/tmp/"
     SIMULATION_PATH = "/auto/sw_system_project/NVOS_INFRA/verification/xdr/simulation/"
