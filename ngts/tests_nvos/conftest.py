@@ -1,38 +1,43 @@
 import datetime
 import logging
 import os
+import random
 import smtplib
 import time
 from email.mime.text import MIMEText
+from typing import Dict
 
 import pytest
 from dotted_dict import DottedDict
 from retry import retry
 
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from infra.tools.sql.connect_to_mssql import ConnectMSSQL
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
 from ngts.cli_wrappers.openapi.openapi_command_builder import OpenApiRequest
 from ngts.constants.constants import DbConstants, CliType, DebugKernelConsts, InfraConst
 from ngts.nvos_constants.constants_nvos import ApiType, OperationTimeConsts, OutputFormat
+from ngts.nvos_constants.constants_nvos import NvosConst
+from ngts.nvos_tools.Devices.BaseDevice import BaseDevice
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
 from ngts.nvos_tools.Devices.EthDevice import EthSwitch
 from ngts.nvos_tools.cli_coverage.nvue_cli_coverage import NVUECliCoverage
 from ngts.nvos_tools.ib.opensm.OpenSmTool import OpenSmTool
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
+from ngts.nvos_tools.infra.DiskTool import DiskTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.TrafficGeneratorTool import TrafficGeneratorTool
 from ngts.nvos_tools.system.System import System
 from ngts.scripts.code_coverage.code_coverage_consts import NvosConsts
+from ngts.scripts.code_coverage.test_code_coverage import extract_python_coverage_for_nvos
 from ngts.tools.test_utils import allure_utils as allure
 from ngts.tools.test_utils.nvos_config_utils import clear_conf
-from ngts.nvos_tools.infra.DiskTool import DiskTool
-from ngts.nvos_constants.constants_nvos import NvosConst
-from ngts.scripts.code_coverage.test_code_coverage import extract_python_coverage_for_nvos
-from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround, set_base_configurations, set_base_configurations_cl
-from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.tools.test_utils.nvos_general_utils import wait_for_ldap_nvued_restart_workaround, set_base_configurations, \
+    set_base_configurations_cl
 
 logger = logging.getLogger()
 
@@ -73,9 +78,10 @@ def check_ib_output(request):
 
 
 @pytest.fixture(scope='session')
-def engines(topology_obj):
+def engines(topology_obj, devices):
     engines_data = DottedDict()
     engines_data.dut = topology_obj.players['dut']['engine']
+    update_engine_dut_mgmt_port(topology_obj, engines_data.dut, devices.dut)
     # ha and hb are the traffic dockers
     if "ha" in topology_obj.players:
         engines_data.ha = topology_obj.players['ha']['engine']
@@ -90,6 +96,28 @@ def engines(topology_obj):
 
     TestToolkit.update_engines(engines_data)
     return engines_data
+
+
+def update_engine_dut_mgmt_port(topology, dut_engine: LinuxSshEngine, dut_device: BaseDevice):
+    mgmt_ports = dut_device.get_mgmt_ports()
+    if not mgmt_ports or len(mgmt_ports) == 1:
+        logger.info('keep original dut engine ip')
+        return
+
+    dut_setup_specific_attributes: Dict[str, str] = topology.players['dut']['attributes'].noga_query_data['attributes']['Specific']
+    setup_mgmt_ips = [dut_setup_specific_attributes['ip_address'], dut_setup_specific_attributes['ip_address_2']]
+    available_mgmt_ips = [ip for ip in setup_mgmt_ips if ip != '']
+    if len(available_mgmt_ips) != len(mgmt_ports):
+        logger.info('keep original dut engine ip')
+        return
+
+    logger.info(f'device mgmt ports names: {mgmt_ports}')
+    logger.info(f'setup mgmt ports ips: {available_mgmt_ips}')
+
+    chosen_mgmt_port = random.choice(mgmt_ports)
+    chosen_mgmt_port_ip = available_mgmt_ips[mgmt_ports.index(chosen_mgmt_port)]
+    logger.info(f'chosen mgmt port for dut engine: {available_mgmt_ips} - {chosen_mgmt_port_ip}')
+    dut_engine.ip = chosen_mgmt_port_ip
 
 
 @pytest.fixture(scope="session")
@@ -254,7 +282,7 @@ def clear_security_config(item):
                 logging.info('Clear authentication settings to allow local admin user engine continue')
                 res = System().aaa.authentication.unset(op_param='order', apply=True, dut_engine=remote_admin_engine)
                 assert 'verifyingreadying' in res.info, f'Expected to have "{"verifyingreadying"}" ' \
-                                                        f'in output. Actual output: {res.info}'
+                    f'in output. Actual output: {res.info}'
             finally:
                 item.active_remote_aaa_server = None
                 wait_for_ldap_nvued_restart_workaround(item, engine_to_use=local_dut_engine)
@@ -368,9 +396,9 @@ def debug_kernel_check(engines, test_name, setup_name, session_id):
         if mem_leaks_output:
             logger.info("kernel memory leaks were found, will send mail with the leaks")
             context = f"Kernel memory leaks were found during test:{test_name}\n" \
-                      f"Setup: {setup_name}\n" \
-                      f"Session ID: {session_id}\n" \
-                      f"{mem_leaks_output}"
+                f"Setup: {setup_name}\n" \
+                f"Session ID: {session_id}\n" \
+                f"{mem_leaks_output}"
             try:
                 s = smtplib.SMTP(InfraConst.NVIDIA_MAIL_SERVER)
                 email_contents = MIMEText(context)

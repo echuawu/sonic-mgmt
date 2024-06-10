@@ -102,6 +102,10 @@ def test_interface_link_diagnostics_basic(engines):
                                                                       num_of_ports_to_select=0).get_returned_value()
     selected_up_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
                                                                     num_of_ports_to_select=0).get_returned_value()
+    selected_fnm_ports = Tools.RandomizationTool.select_random_ports(requested_ports_state=NvosConsts.LINK_STATE_UP,
+                                                                     requested_ports_type=IbInterfaceConsts.FNM_PORT_TYPE,
+                                                                     num_of_ports_to_select=0).get_returned_value()
+
     all_switch_ports = selected_up_ports + selected_down_ports
     count_of_all_ports = len(all_switch_ports)
     with allure.step('Run nv show interface --view link-diagnostics to check fields, codes'):
@@ -133,7 +137,7 @@ def test_interface_link_diagnostics_basic(engines):
 
     with allure.step('Run nv show interface for unplugged port'):
         for port in selected_down_ports:
-            if port.name == 'sw32p1':
+            if port.name == 'sw32p1' or port.name == 'swA32p1':
                 unplugged_port_output = Tools.OutputParsingTool.parse_show_interface_pluggable_output_to_dictionary(
                     port.ib_interface.link.diagnostics.show()).get_returned_value()
                 assert unplugged_port_output == IbInterfaceConsts.LINK_DIAGNOSTICS_UNPLUGGED_PORT, \

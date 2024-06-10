@@ -30,6 +30,30 @@ tests/nightly/crm/test_crm.py::test_crm_acl:
     conditions:
       - "https://redmine.mellanox.com/issues/3841291"
 
+tests/nightly/crm/test_crm.py::test_crm_route:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/nightly/crm/test_crm.py::test_crm_nexthop_group_and_member:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/nightly/ecmp_calculator/test_ecmp_calculator.py::TestInterfaceDefaultVrf:test_ecmp_calculator_interface_default_vrf:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
+tests/push_build_tests/L3/static_route/test_static_route.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3933623"
+    conditions:
+      - "https://redmine.mellanox.com/issues/3933623"
+
 tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
   skip:
     reason: "Testcase not supported on current platform"

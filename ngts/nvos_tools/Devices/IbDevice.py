@@ -1,3 +1,5 @@
+from typing import List
+
 import logging
 import os
 
@@ -400,6 +402,7 @@ class GorillaSwitch(IbSwitch):
     def _init_constants(self):
         IbSwitch._init_constants(self)
         self.core_count = 4
+        self.mgmt_ports = ['eth0']
         self.asic_type = NvosConst.QTM2
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
@@ -434,6 +437,9 @@ class GorillaSwitch(IbSwitch):
         self.stats_power_header_num_of_lines = 13
         self.stats_temperature_header_num_of_lines = 53
         self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -470,8 +476,12 @@ class GorillaSwitchBF3(GorillaSwitch):
         super()._init_constants()
         self.constants.firmware.remove(PlatformConsts.FW_BIOS)
         self.ib_ports_num = 64
+        self.mgmt_ports = ['eth0']
         self.core_count = 16
         self.asic_type = NvosConst.QTM2
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_temperature(self):
         super()._init_temperature()
@@ -489,6 +499,7 @@ class BlackMambaSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
@@ -522,9 +533,8 @@ class BlackMambaSwitch(IbSwitch):
         self.stats_power_header_num_of_lines = 25
         self.stats_temperature_header_num_of_lines = 103
 
-        # Temporary remove until operational code integrated with master branch
-        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
-        self.mgmt_interfaces = ['eth0', 'eth1']
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -586,13 +596,13 @@ class CrocodileSwitch(IbSwitch):
                                 'PMIC-6-ASIC2-DVDD-PL1-Out-2', 'PMIC-6-ASIC2-HVDD-PL1-Out-1', 'PMIC-7-12V-MAIN-In-1',
                                 'PMIC-7-CEX-VDD-Out-1', 'PSU-1-12V-Out', 'PSU-2-12V-Out', 'PSU-3-12V-Out',
                                 'PSU-4-12V-Out']
-        self.stats_fan_header_num_of_lines = 23
+        self.stats_fan_header_num_of_lines = 25
         self.stats_power_header_num_of_lines = 17
-        self.stats_temperature_header_num_of_lines = 61
+        self.stats_temperature_header_num_of_lines = 59
+        self.mgmt_ports = ["eth0", "eth1"]
 
-        # Temporary remove until operational code integrated with master branch
-        self.constants.system['version'].remove(SystemConsts.VERSION_ONIE)
-        self.mgmt_interfaces = ['eth0', 'eth1']
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -643,10 +653,14 @@ class NvLinkSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
         self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-mlnx_mqm9700-r0")
+
+    def get_mgmt_ports(self) -> List[str]:
+        return self.mgmt_ports
 
 
 # -------------------------- Juliet Switch ----------------------------

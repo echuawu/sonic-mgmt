@@ -6,6 +6,10 @@ sonic-dual-tor-tigon,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/
 sonic-dual-tor-tigon-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],4600C Active-Standby Dual-TOR testbed
 sonic-dual-tor-tigon-dualtor-64,vm-t1,dualtor-64,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,[r-tigon-20;r-tigon-21],4600C Active-Standby Dual-TOR testbed
 
+sonic-dual-tor-tigon-01,vm-t1,dualtor,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,[mtvr-tigon-02;mtvr-tigon-04],Dual-TOR testbed
+sonic-dual-tor-tigon-01-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,[mtvr-tigon-02;mtvr-tigon-04],4600C Active-Standby Dual-TOR testbed
+sonic-dual-tor-tigon-01-dualtor-64,vm-t1,dualtor-64,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,[mtvr-tigon-02;mtvr-tigon-04],4600C Active-Standby Dual-TOR testbed
+
 sonic-dual-tor-leopard,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,[r-leopard-70;r-leopard-72],Dual-TOR testbed
 sonic-dual-tor-leopard-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-r-leopard-70,10.215.26.182/16,,server_61,VM2601,[r-leopard-70;r-leopard-72],4700 Active-Standby Dual-TOR testbed
 
@@ -218,6 +222,36 @@ r-tigon-21-dualtor-64,vm-t1,dualtor-64,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.
 r-tigon-21-dualtor-aa,vm-t1,dualtor-aa,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 r-tigon-21-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
 
+mtvr-tigon-04-t0,vm-t2,t0,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t0-16,vm-t2,t0-16,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t0-52-lag,vm-t2,t0-52,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t0-56,vm-t2,t0-56,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t0-64,vm-t2,t0-64,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t1,vm-t2,t1,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t1-lag,vm-t2,t1-lag,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-t1-64-lag,vm-t2,t1-64-lag,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-ptf32,vm-t2,ptf32,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-ptf64,vm-t2,ptf64,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-dualtor,vm-t2,dualtor,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-dualtor-64,vm-t2,dualtor-64,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-dualtor-aa,vm-t2,dualtor-aa,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+mtvr-tigon-04-ptf-any,vm-t2,ptf-any,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
+
+mtvr-tigon-02-t0,vm-t1,t0,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t0-16,vm-t1,t0-16,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t0-52-lag,vm-t1,t0-52,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t0-56,vm-t1,t0-56,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t0-64,vm-t1,t0-64,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t1,vm-t1,t1,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-t1-64-lag,vm-t1,t1-64-lag,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-ptf64,vm-t1,ptf64,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-dualtor,vm-t1,dualtor,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-dualtor-64,vm-t1,dualtor-64,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-dualtor-aa,vm-t1,dualtor-aa,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+
 r-tigris-26-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigris-26,10.215.20.61/16,,server_19,VM1901,r-tigris-26,Mellanox MTR testbed
 r-tigris-26-t0-16,vm-t1,t0-16,docker-ptf-mlnx,ptf-r-tigris-26,10.215.20.61/16,,server_19,VM1901,r-tigris-26,Mellanox MTR testbed
 r-tigris-26-t0-52,vm-t1,t0-52,docker-ptf-mlnx,ptf-r-tigris-26,10.215.20.61/16,,server_19,VM1901,r-tigris-26,Mellanox MTR testbed
@@ -304,6 +338,13 @@ mtvr-hippo-03-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.12
 mtvr-hippo-03-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.122/16,,server_73,VM3801,mtvr-hippo-03,Mellanox MTR testbed
 mtvr-hippo-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-mtvr-hippo-03,10.245.34.122/16,,server_73,VM3801,mtvr-hippo-03,Mellanox MTR testbed
 
+r-panther-47-t0,vm-t1,t0,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+r-panther-47-t0-56,vm-t1,t0-56,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+r-panther-47-t1,vm-t1,t1,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+r-panther-47-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+r-panther-47-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+r-panther-47-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
+
 r-r740-07-bf2-sonic-01-dpu,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 r-r740-07-bf2-sonic-01-ptf-any,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 
@@ -341,11 +382,14 @@ r-leopard-01-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-leopard-01,10.215.22.61/1
 r-tigon-11-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigon-11,10.213.14.62/16,,server_16,VM1601,r-tigon-11,Mellanox MTR testbed
 r-tigon-20-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigon-20,10.215.18.183/16,,server_17,VM1701,r-tigon-20,Mellanox MTR testbed
 r-tigon-21-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-r-tigon-21,10.215.20.122/16,,server_18,VM1801,r-tigon-21,Mellanox MTR testbed
+mtvr-tigon-02-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-mtvr-tigon-02,10.245.36.3/20,,server_76,VM4101,mtvr-tigon-02,Mellanox MTVR testbed
+mtvr-tigon-04-fastreboot,vm-t2,t0,docker-ptf-mlnx,ptf-mtvr-tigon-04,10.245.36.37/20,,server_77,VM4201,mtvr-tigon-04,Mellanox MTVR testbed
 r-tigris-26-fastreboot,vm-t1,t0-64,docker-ptf-mlnx,ptf-r-tigris-26,10.215.20.61/16,,server_19,VM1901,r-tigris-26,Mellanox MTR testbed
 c-panther-01-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-c-panther-01,10.75.207.41/24,,server_8,VM0801,c-panther-01,Mellanox MTBC testbed
 mtbc-sonic-01-2410-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-mtbc02,10.75.206.220/24,,server_5,VM0501,mtbc-sonic-01-2410,Mellanox MTBC testbed
 mtbc-sonic-03-2700-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-mtbc03,10.75.207.38/24,,server_10,VM1001,mtbc-sonic-03-2700,Mellanox MTBC testbed
 mts-sonic-dut-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-mts,10.9.78.237/24,,server_2,VM0201,mts-sonic-dut,Mellanox MTS testbed
+r-panther-47-fastreboot,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
 
 r-bulldog-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bulldog-03,Mellanox MTR testbed
 r-bulldog-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bulldog-04,Mellanox MTR testbed

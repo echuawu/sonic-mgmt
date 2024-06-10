@@ -5,6 +5,7 @@ import csv
 import os
 
 from datetime import datetime, timedelta
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.nvos_constants.constants_nvos import ApiType, NvosConst, StatsConsts
 from ngts.nvos_tools.infra.ConnectionTool import ConnectionTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -871,29 +872,30 @@ def test_system_stats_big_files(engines, devices, test_api):
         with allure.step("Delete uploaded file"):
             engine.run_cmd(cmd='rm -f {}'.format(file_path))
 
-        with allure.step("Replace internal file with a huge file"):
-            file_name = 'temperature.csv'
-            file_path = StatsConsts.HUGE_FILE_PATH + file_name
-            player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
-                                                dest_password=devices.dut.default_password,
-                                                dest_folder=StatsConsts.INTERNAL_PATH,
-                                                dest_ip=engines.dut.ip,
-                                                local_file_path=file_path)
-            engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
+        if not is_redmine_issue_active([3938803]):
+            with allure.step("Replace internal file with a huge file"):
+                file_name = 'temperature.csv'
+                file_path = StatsConsts.HUGE_FILE_PATH + file_name
+                player_engine.upload_file_using_scp(dest_username=devices.dut.default_username,
+                                                    dest_password=devices.dut.default_password,
+                                                    dest_folder=StatsConsts.INTERNAL_PATH,
+                                                    dest_ip=engines.dut.ip,
+                                                    local_file_path=file_path)
+                engine.run_cmd("sudo cp /tmp/{} /var/stats".format(file_name))
 
-        with allure.step("Restart process..."):
-            engine.run_cmd("sudo systemctl restart stats-reportd")
+            with allure.step("Restart process..."):
+                engine.run_cmd("sudo systemctl restart stats-reportd")
 
-        with allure.step("Wait 15 seconds..."):
-            time.sleep(StatsConsts.SLEEP_15_SECONDS)
+            with allure.step("Wait 15 seconds..."):
+                time.sleep(StatsConsts.SLEEP_15_SECONDS)
 
-        with allure.step("Validate creating new category file when file size is over 600MB"):
-            validate_number_of_lines_in_external_file(engines, system, 'temperature',
-                                                      devices.dut.stats_temperature_header_num_of_lines,
-                                                      devices.dut.stats_temperature_header_num_of_lines + 100)
+            with allure.step("Validate creating new category file when file size is over 600MB"):
+                validate_number_of_lines_in_external_file(engines, system, 'temperature',
+                                                          devices.dut.stats_temperature_header_num_of_lines,
+                                                          devices.dut.stats_temperature_header_num_of_lines + 100)
 
-        with allure.step("Delete uploaded file"):
-            engine.run_cmd(cmd='rm -f /tmp/{}'.format(file_name))
+            with allure.step("Delete uploaded file"):
+                engine.run_cmd(cmd='rm -f /tmp/{}'.format(file_name))
 
     finally:
         set_system_stats_to_default(engine, system)

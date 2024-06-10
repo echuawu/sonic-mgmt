@@ -173,8 +173,8 @@ class Mlx2410Switch(EthSwitch):
     def _init_constants(self):
         super()._init_constants()
         self.core_count = 2
-        self.asic_type = 'Spectrum'
-        self.constants.firmware.append(PlatformConsts.FW_SPECTRUM)
+        self.asic_type = 'Spectrum-1'
+        self.constants.firmware.append(PlatformConsts.FW_SPECTRUM1)
 
         self.show_platform_output.update({
             "product-name": "MSN2410",

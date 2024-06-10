@@ -542,7 +542,7 @@
 				],
 				"CPLD2": [
 					{
-						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI000282/FUI000282.mpfa",
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/hw_cpld/Approved_CPLDs/SN5400/FUI000271/FUI000271.mpfa",
 						"version": "CPLD000352_REV0200",
 						"reboot": ["power off", "cold"]
 					}

@@ -84,7 +84,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         else:
             assert nos_image.startswith(
                 'http://'), f'Argument "nos_image" should start with one of ["/auto/", "http://"]. ' \
-                            f'Actual "nos_image"={nos_image}'
+                f'Actual "nos_image"={nos_image}'
             image_path = f'/auto/{nos_image.split("/auto/")[1]}'
             image_url = nos_image
         return image_path, image_url
@@ -236,10 +236,6 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             else:
                 output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                             tries_after_run_cmd=2)
-            if NvosConst.DECLINED_APPLY_MSG in output:
-                output = "Error: " + output
-            elif NvosConst.Y_COMMAND_NOT_FOUND in output and ConfState.APPLIED in output:
-                output = ConfState.APPLIED + NvueGeneralCli.get_rev_id(output)
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
             assert validate_apply_message in output, 'Message {0} not exist in output {1}'. \
@@ -247,8 +243,11 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         else:
             output = engine.run_cmd('nv {option} config apply {rev}'.format(option=option, rev=rev_id))
 
+        logging.info("Check apply result")
         if skip_no_config_diff_err and NvosConst.NO_CONFIG_DIFF_APPLY_MSG in output:
-            output = ConfState.APPLIED
+            output = ConfState.APPLIED + NvueGeneralCli.get_rev_id(output)  # skip no diff message
+        if ConfState.APPLIED not in output:
+            output = "Error: " + output
 
         return output
 

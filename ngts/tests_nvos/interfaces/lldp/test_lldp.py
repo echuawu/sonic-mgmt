@@ -138,7 +138,7 @@ def test_lldp_one_neighbor(engines, devices, test_api):
     system = System()
     _verify_lldp_running(system.lldp, engine=engines.dut)
 
-    for interface_name in devices.dut.mgmt_interfaces:
+    for interface_name in devices.dut.get_mgmt_ports():
         with allure.step(f"Verify {interface_name} has only one neighbor"):
             mgmt_interface = MgmtPort(name=interface_name)
             output_dict = OutputParsingTool.parse_json_str_to_dictionary(
@@ -149,8 +149,7 @@ def test_lldp_one_neighbor(engines, devices, test_api):
 
         with allure.step(f"Verify neighbor {neighbor_id} is not empty for {interface_name}"):
             neighbor_dict = OutputParsingTool.parse_json_str_to_dictionary(
-                mgmt_interface.interface.lldp.neighbor.show_neighbor_id(engine=engines.dut,
-                                                                        neighbor_id=neighbor_id)).get_returned_value()
+                mgmt_interface.interface.lldp.neighbor.neighbor_id[neighbor_id].show())
             assert neighbor_dict, f"The neighbor {neighbor_id} is empty"
 
 
@@ -251,7 +250,7 @@ def test_lldp_additional_ipv6(engines, devices, topology_obj):
     serial_engine = topology_obj.players['dut_serial']['engine']
     _verify_lldp_running(system.lldp, engine=engine)
 
-    for interface_name in devices.dut.mgmt_interfaces:
+    for interface_name in devices.dut.get_mgmt_ports():
         mgmt_interface = MgmtPort(name=interface_name)
 
         try:
@@ -288,7 +287,7 @@ def test_lldp_interface_flapping(engines, devices, topology_obj):
     lldp = system.lldp
     _verify_lldp_running(lldp, engine=engines.dut)
 
-    mgmt_ports = [MgmtPort(name=interface_name) for interface_name in devices.dut.mgmt_interfaces]
+    mgmt_ports = [MgmtPort(name=interface_name) for interface_name in devices.dut.get_mgmt_ports()]
 
     try:
         for _ in range(4):
@@ -329,7 +328,7 @@ def test_lldp_disable_dhcp(engines, devices, topology_obj):
     serial_engine = topology_obj.players['dut_serial']['engine']
     _verify_lldp_running(system.lldp, engine=serial_engine)
 
-    for interface_name in devices.dut.mgmt_interfaces:
+    for interface_name in devices.dut.get_mgmt_ports():
         mgmt_interface = MgmtPort(name=interface_name)
 
         try:
@@ -357,7 +356,7 @@ def test_lldp_disable_dhcp(engines, devices, topology_obj):
 
 def _verify_cli_output_with_dump_output(engine, device, lldp, system_output):
     cli_output = lldp.parsed_show()
-    for interface_name in device.mgmt_interfaces:
+    for interface_name in device.get_mgmt_ports():
         with allure.step(f"Get and parse tcp dump for {interface_name}"):
             lldp_dump = LLDPTool.get_lldp_frames(engine=engine, interface=interface_name)
             lldp_dict = LLDPTool.parse_lldp_dump(lldp_dump)
@@ -387,7 +386,7 @@ def _verify_lldp_is_sending_frames(lldp, engine, device):
 
     with allure.step("Verify lldp frames are being sent for each active mgmt interface"):
         interval = int(cli_output[SystemConsts.LLDP_INTERVAL])
-        for interface_name in device.mgmt_interfaces:
+        for interface_name in device.get_mgmt_ports():
             output = LLDPTool.get_lldp_frames(engine=engine, interval=interval, interface=interface_name)
             assert interface_name in output, f"The data for {interface_name} not found in lldp frames"
 
@@ -407,7 +406,7 @@ def _verify_lldp_not_running(lldp, engine, device):
         assert cli_output[SystemConsts.LLDP_STATE] == NvosConst.DISABLED, 'The lldp is enabled'
 
     with allure.step("Verify lldp frames are not being sent for each active mgmt interface"):
-        for interface_name in device.mgmt_interfaces:
+        for interface_name in device.get_mgmt_ports():
             mgmt_interface = MgmtPort(name=interface_name)
             output_dict = OutputParsingTool.parse_json_str_to_dictionary(
                 mgmt_interface.interface.lldp.neighbor.show()).get_returned_value()

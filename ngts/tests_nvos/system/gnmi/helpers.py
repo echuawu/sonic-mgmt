@@ -1,20 +1,26 @@
 import logging
 import os
+import random
 import re
+import string
 import subprocess
 import time
 
 from retry import retry
 
 import ngts.tools.test_utils.allure_utils as allure
-from infra.tools.redmine.redmine_api import is_redmine_issue_active
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
+from infra.tools.linux_tools.linux_tools import scp_file
 from ngts.constants.constants import GnmiConsts
-from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts
+from ngts.nvos_constants.constants_nvos import HealthConsts, NvosConst, DatabaseConst, SystemConsts, TestFlowType
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
+from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
+from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, NFS_GNMI_CERTS_DIR, SERVICE_KEY, SERVICE_PEM, \
+    DOCKER_CERTS_DIR, GnmiMode, NFS_GNMI_CACERT_FILE
 
 logger = logging.getLogger()
 
@@ -36,8 +42,8 @@ def validate_memory_and_cpu_utilization():
 def run_gnmi_client_in_the_background(target_ip, xpath, device):
     prefix_and_path = xpath.rsplit("/", 1)
     command = f"gnmic -a {target_ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
-              f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {device.default_username} -p {device.default_password} --format flat"
+        f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
+        f"-u {device.default_username} -p {device.default_password} --format flat"
     # Use the subprocess.Popen function to run the command in the background
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                preexec_fn=os.setsid)
@@ -74,13 +80,15 @@ def gnmi_basic_flow(engines, mode='', ipv6=False):
         validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=mode)
 
 
-def validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode='', username='', password=''):
+def validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode='', username='',
+                                                password=''):
     with allure.step('Validate gnmi is running and stream updates'):
         validate_gnmi_enabled_and_running(gnmi_server_obj, engines)
         validate_gnmi_server_in_health_issues(system, expected_gnmi_health_issue=False)
         port_description = Tools.RandomizationTool.get_random_string(7)
         change_port_description_and_validate_gnmi_updates(engines, port_description=port_description,
-                                                          target_ip=target_ip, mode=mode, username=username, password=password)
+                                                          target_ip=target_ip, mode=mode, username=username,
+                                                          password=password)
 
 
 @retry(Exception, tries=6, delay=2)
@@ -89,7 +97,7 @@ def validate_gnmi_server_docker_state(engines, should_run=True):
     should_run_str = '' if should_run else 'not'
     is_running_str = '' if cmd_output else 'not'
     assert bool(cmd_output) == should_run, f"The gnmi-server docker is {is_running_str} running, " \
-                                           f"but we expect it {should_run_str} to run"
+        f"but we expect it {should_run_str} to run"
 
 
 def validate_show_gnmi(gnmi_server_obj, engines, gnmi_state=GnmiConsts.GNMI_STATE_ENABLED,
@@ -119,8 +127,8 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
         prefix_and_path = xpath.rsplit("/", 1)
         mode_flag = f"--mode {mode}" if mode else ''
         cmd = f"gnmic -a {target_ip} --port {target_port} --skip-verify subscribe --prefix '{prefix_and_path[0]}'" \
-              f" --path '{prefix_and_path[1]}' --target netq -u {username} " \
-              f"-p {password} {mode_flag} --format flat"
+            f" --path '{prefix_and_path[1]}' --target netq -u {username} " \
+            f"-p {password} {mode_flag} --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         if "poll" == mode:
             gnmi_client_output = sonic_mgmt_engine.run_cmd_set([cmd, '\n', '\n', '\x03', '\x03'],
@@ -146,7 +154,8 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
         return gnmi_updates_dict
 
 
-def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, mode='', username='', password=''):
+def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, mode='', username='',
+                                                      password=''):
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
     selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
@@ -316,8 +325,8 @@ def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, al
     for command in gnmi_list:
         prefix_and_path = command[GnmiConsts.XPATH_KEY].rsplit("/", 1)
         cmd = f"gnmic -a {engines.dut.ip} --port {GnmiConsts.GNMI_DEFAULT_PORT} --skip-verify subscribe " \
-              f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
-              f"-u {devices.dut.default_username} -p {devices.dut.default_password} --mode once --format flat"
+            f"--prefix '{prefix_and_path[0]}' --path '{prefix_and_path[1]}' --target netq " \
+            f"-u {devices.dut.default_username} -p {devices.dut.default_password} --mode once --format flat"
         logger.info(f"run on the sonic mgmt docker {sonic_mgmt_engine.ip}: {cmd}")
         gnmi_client_output = sonic_mgmt_engine.run_cmd(cmd)
         gnmi_client_output = re.sub(r'(\\["\\n]+|\s+)', '', gnmi_client_output.split(":")[-1])
@@ -340,6 +349,85 @@ def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, al
 
 
 def verify_description_value(output, expected_description):
-    if not is_redmine_issue_active([3727441]):
-        Tools.ValidationTool.verify_field_value_in_output(output, NvosConst.DESCRIPTION,
-                                                          expected_description).verify_result()
+    Tools.ValidationTool.verify_field_value_in_output(output, NvosConst.DESCRIPTION,
+                                                      expected_description).verify_result()
+
+
+def change_interface_description(selected_port):
+    rand_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
+    selected_port.ib_interface.set(NvosConst.DESCRIPTION, rand_str, apply=True).verify_result()
+    time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
+    return rand_str
+
+
+def load_certificate_into_gnmi(engine: LinuxSshEngine):
+    with allure.step('make dedicated dir in switch'):
+        engine.run_cmd(f'mkdir -p {DUT_GNMI_CERTS_DIR}')
+    with allure.step('scp cert to switch'):
+        with allure.step(f'copy {SERVICE_KEY}'):
+            scp_file(engine, f'{NFS_GNMI_CERTS_DIR}/{SERVICE_KEY}', f'{DUT_GNMI_CERTS_DIR}/{SERVICE_KEY}')
+        with allure.step('copy service.pem'):
+            scp_file(engine, f'{NFS_GNMI_CERTS_DIR}/{SERVICE_PEM}', f'{DUT_GNMI_CERTS_DIR}/{SERVICE_PEM}')
+    with allure.step('copy cert into gnmi docker'):
+        engine.run_cmd(
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{SERVICE_KEY} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{SERVICE_KEY}')
+        engine.run_cmd(
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{SERVICE_PEM} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{SERVICE_PEM}')
+    with allure.step('restart gnmi'):
+        system = System()
+        system.gnmi_server.disable_gnmi_server()
+        system.gnmi_server.enable_gnmi_server()
+
+
+def verify_msg_existence_in_out_or_err(msg: str, should_be_in: bool, out: str, err: str = None):
+    msg_in_out = msg in out
+    msg_in_err = msg in err if err else False
+    assert (msg_in_out or msg_in_err) == should_be_in, ((f'"{msg}" unexpectedly was{" not" if should_be_in else ""} '
+                                                         f'found in out{"/err" if err is not None else ""}.\nout: {out}') +
+                                                        (f'\nerr: {err}' if err is not None else ''))
+
+
+def verify_msg_not_in_out_or_err(msg: str, out: str, err: str = None):
+    verify_msg_existence_in_out_or_err(msg, False, out, err)
+
+
+def verify_msg_in_out_or_err(msg: str, out: str, err: str = None):
+    verify_msg_existence_in_out_or_err(msg, True, out, err)
+
+
+def verify_gnmi_client(test_flow, server_host, server_port, username, password, skip_cert_verify: bool,
+                       err_msg_to_check: str, port_to_change=None):
+    log_msg = (f'verify gnmi client with{"" if skip_cert_verify else "out"} skip-verify '
+               f'and credentials: {username} / {password}')
+    selected_port = port_to_change or Tools.RandomizationTool.select_random_port(
+        requested_ports_state=None).returned_value
+
+    with allure.step('create gnmi client'):
+        client = GnmiClient(server_host, server_port, username, password, cacert=NFS_GNMI_CACERT_FILE, cmd_time=10)
+    with allure.step(f'change description of interface: "{selected_port.name}"'):
+        new_description = change_interface_description(selected_port)
+
+    if test_flow == TestFlowType.GOOD_FLOW:
+        with allure.step(f'good-flow: {log_msg}'):
+            with allure.step('verify using capabilities command'):
+                out, err = client.run_capabilities(skip_cert_verify=skip_cert_verify)
+                verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using subscribe command'):
+                out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name,
+                                                          skip_cert_verify=skip_cert_verify)
+                verify_msg_in_out_or_err(new_description, out)
+                verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using reflection command'):
+                pass  # out_reflect, err = client.run_reflection()  # TODO: implement
+    else:
+        with allure.step(f'bad-flow: {log_msg}'):
+            with allure.step('verify using capabilities command'):
+                out, err = client.run_capabilities(skip_cert_verify=skip_cert_verify)
+                verify_msg_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using subscribe command'):
+                out, err = client.run_subscribe_interface(GnmiMode.ONCE, selected_port.name,
+                                                          skip_cert_verify=skip_cert_verify)
+                verify_msg_not_in_out_or_err(new_description, out)
+                verify_msg_in_out_or_err(err_msg_to_check, out, err)
+            with allure.step('verify using reflection command'):
+                pass  # out_reflect, err = client.run_reflection()  # TODO: implement

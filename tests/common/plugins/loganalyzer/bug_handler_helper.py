@@ -18,12 +18,13 @@ from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folde
 from ngts.scripts.allure_reporter import predict_allure_report_link
 
 logger = logging.getLogger()
+PYTEST_RUN_CMD = 'pytest_run_cmd'
 
 
 def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyzer_bug_metadata, testbed,
                                bug_handler_action):
     """
-    Call bug handler on all log errors and return list of dictionaries with results
+    Call bug handler on all log errors and return a list of dictionaries with results and a list of the LA errors caught
     :param cli_type: i.e, Sonic
     :param branch: i.e 202211
     :param test_name: i.e, test_lags_scale
@@ -31,7 +32,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
     :param log_analyzer_bug_metadata: dictionary with info that we want to add to log analyzer bug
     :param testbed: testbed
     :param bug_handler_action: dictionary include if need to create or update the RM issue when err msg found.
-    :return: A list of dictionaries with results for each optional bug
+    :return: A tuple of two values. The first value is a list of dictionaries with results for each optional bug:
     i.e., ['test_name': 'test_lags_scale',
             'results':
     [{'file_name': '2022-06-21_23-24-07_orchagent-asan.log.40',
@@ -39,9 +40,13 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
     'rc': 0,
     'decision': 'update'},...]
     },...]
+            The second value is a list of LA errors that happened in the test:
+     i.e., ['May 12 06:57:50.560887 r-tigon-04 ERR admin: This is An Error #1',
+     'May 12 06:57:50.857573 r-tigon-04 ERR admin: Some Error #2']
     """
 
     with allure.step("Log Analyzer bug handler"):
+        la_errors = []
         bug_handler_dumps_results = []
         hostname = duthost.hostname
         log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
@@ -58,7 +63,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             bug_handler_update_action = bug_handler_action.get("update", False)
             bug_handler_no_action = not (bug_handler_create_action and bug_handler_update_action)
             logger.info(f"Run bug handler in no action mode: {bug_handler_no_action}")
-            if bug_handler_no_action:
+            if not bug_handler_create_action and not bug_handler_update_action:
                 tar_file_path = None
             else:
                 tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
@@ -67,14 +72,15 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
                 with log_errors_file_path.open("r") as log_errors_file:
                     data = json.load(log_errors_file)
                 logger.info(f"Handling the err msg: {data}")
-                error_groups = group_log_errors_by_timestamp(data.get("log_errors", ""))
+                log_errors = data.get("log_errors", "")
+                la_errors.extend([line for line in log_errors.splitlines() if line.strip()])
+                error_groups = group_log_errors_by_timestamp(log_errors)
                 log_errors_file_path.unlink()
 
                 for error_group in error_groups:
                     yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
                                                                    test_name, tar_file_path, hostname,
                                                                    log_analyzer_bug_metadata)
-
                     if yaml_file_path:
                         with allure.step("Run Bug Handler on Log Analyzer error"):
                             logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
@@ -90,7 +96,7 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             raise err
         finally:
             clear_files(session_id)
-        return summarize_la_bug_handler(bug_handler_dumps_results)
+        return summarize_la_bug_handler(bug_handler_dumps_results), la_errors
 
 
 def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
@@ -193,6 +199,9 @@ def log_analyzer_bug_handler(duthost, request):
     If the run_log_analyzer_bug_handler is True, run this function to handle the err msg detected in the loganalyzer
     """
     test_name = re.sub(r'[\\/\'"<>|]', '_', request.node.name)
+    la_rm_issues = request.session.config.cache.get(BugHandlerConst.LA_RM_ISSUES_DICT, dict())
+    test_id = request.node.nodeid
+    test_rm_issues = []
     log_analyzer_handler_info = get_log_analyzer_handler_info(duthost)
     bug_handler_actions = get_bug_handler_actions(request)
 
@@ -213,14 +222,14 @@ def log_analyzer_bug_handler(duthost, request):
         setup_name = request.config.getoption('--testbed')
 
     system_type = duthost.facts['hwsku']
-
+    pytest_cmd_args = get_pytest_cmd(request, log_analyzer_handler_info['cli_type'])
     bug_handler_dict = {'test_description': request.node.function.__doc__,
-                        'pytest_cmd_args': " ".join(request.node.config.invocation_params.args),
+                        'pytest_cmd_args': pytest_cmd_args,
                         'system_type': system_type,
                         'detected_in_version': log_analyzer_handler_info['version'],
                         'setup_name': setup_name,
                         'report_url': allure_report_url}
-    log_analyzer_res = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
+    log_analyzer_res, la_error_messages = handle_log_analyzer_errors(log_analyzer_handler_info['cli_type'],
                                                   log_analyzer_handler_info['branch'], test_name, duthost,
                                                   bug_handler_dict, setup_name, bug_handler_actions)
     logger.info(f"Log Analyzer result: {json.dumps(log_analyzer_res, indent=2)}")
@@ -232,19 +241,28 @@ def log_analyzer_bug_handler(duthost, request):
             err_logs = err_with_no_action[BugHandlerConst.LA_ERROR]
             if bug_id:
                 error_msg += f"Relative bug is #{bug_id} detected for the err logs: {err_logs} \n"
+                test_rm_issues.append(bug_id)
             else:
                 error_msg += f"No relative bug detected for the err logs: {err_logs} \n"
 
     if log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]:
         created_bug_items = log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_CREATE]
         error_msg += f"There are {len(created_bug_items)} new Log Analyzer bugs Created: \n"
-        for i, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):
-            error_msg += f"{i}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
-
+        for index, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):
+            error_msg += f"{index}) {REDMINE_ISSUES_URL+str(bug_id)}:  {bug_title}\n"
+            test_rm_issues.append(bug_id)
+    elif log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE]:
+        created_bug_items = log_analyzer_res[BugHandlerConst.BUG_HANDLER_DECISION_UPDATE]
+        for index, (bug_id, bug_title) in enumerate(created_bug_items.items(), start=1):
+            test_rm_issues.append(bug_id)
     if log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE]:
-        error_msg = error_msg + f"\nThe log analyzer bug handler has failed, due to the following:" \
-                                f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
+        la_error_messages = f"{BugHandlerConst.BUG_HANDLER_FAILURE_EXCEPTION}, due to the following:" \
+                            f"{json.dumps(log_analyzer_res[BugHandlerConst.BUG_HANDLER_FAILURE], indent=2)}"
+        error_msg = error_msg + la_error_messages
+
     if error_msg:
+        la_rm_issues[test_id] = (test_rm_issues, la_error_messages)
+        request.session.config.cache.set(BugHandlerConst.LA_RM_ISSUES_DICT, la_rm_issues)
         raise Exception(error_msg)
 
 
@@ -253,6 +271,16 @@ def is_log_analyzer_bug_handler_enabled(bug_handler_actions):
     Check if need to run the log analyzer bug handler based on the bug handler actions.
     """
     return bug_handler_actions['only_check'] or bug_handler_actions['create'] or bug_handler_actions['update']
+
+
+def get_pytest_cmd(request, cli_type):
+    if cli_type == "Sonic":
+        cmd = request.session.config.cache.get(PYTEST_RUN_CMD, None)
+        if "--bug_handler_params" not in cmd:
+            cmd += " --bug_handler_params only_check"
+        return cmd
+    else:
+       return " ".join(request.node.config.invocation_params.args)
 
 
 def get_log_analyzer_handler_info(duthost):

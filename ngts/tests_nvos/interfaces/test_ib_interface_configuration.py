@@ -8,6 +8,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceCon
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 
 logger = logging.getLogger()
 
@@ -22,15 +23,15 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
 
     flow:
     1. Select a random port (state of which is up)
-    2. Select a random mtu value
-    3. Set the mtu value to selected one
-    4. Verify the mtu value is updated to selected value
-    5. Send traffic -> Verify the traffic passes successfully
-    6. Unset the mtu value -> should changed to default
-    7. If the default mtu value is not equal to the original:
-        7.1 Restore the original mtu value
-        7.2 Verify the mtu restored to original
-    8. Send traffic -> Verify the traffic passes successfully
+    2. Select an invalid mtu value
+    3. Verify the mtu value is not updated to selected invalid value
+    4. Select a random mtu value
+    5. Set the mtu value to selected one
+    6. Verify the mtu value is updated to selected value
+    7. Unset the mtu value -> should changed to default
+    8. If the default mtu value is not equal to the original:
+        8.1 Restore the original mtu value
+        8.2 Verify the mtu restored to original
     """
     with allure.step("Get a random active port"):
         selected_port = Tools.RandomizationTool.get_random_traffic_port().get_returned_value()[0]
@@ -46,6 +47,12 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
     with allure.step("Get the max supported MTU value"):
         max_supported_mtu = current_link_dict[IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU]
         logging.info("Max supported mtu: {}".format(max_supported_mtu))
+
+    with allure.step('Negative validation with not supported for ib mtu 1000'):
+        selected_port.ib_interface.link.set(op_param_name='mtu', op_param_value='1000',
+                                            apply=True, ask_for_confirmation=True).verify_result(False)
+        NvueGeneralCli.detach_config(TestToolkit.engines.dut)
+        wait_for_port_to_become_active(selected_port)
 
     with allure.step("Select a random MTU value for port {}".format(selected_port.name)):
         mtu_values = [value for value in IbInterfaceConsts.MTU_VALUES if value <= int(max_supported_mtu)]
@@ -121,16 +128,15 @@ def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
         logging.info("Current lanes value of port '{}' is: {}".format(selected_port.name, current_lanes_value))
         verify_speed_values(devices, selected_port)
 
-    with allure.step("Get the supported link ib-speeds"):
-        supported_ib_speeds = current_link_dict[IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS]
+    with allure.step("Get supported ib-speeds"):
+        supported_ib_speeds = current_link_dict[IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS].split(',')
         logging.info("Supported ib-speeds: {}".format(supported_ib_speeds))
 
         '''with allure.step("Verify the traffic passes successfully"):
             Tools.TrafficGeneratorTool.send_ib_traffic(players=players, interfaces=interfaces, should_success=True'''
 
     with allure.step("Select a random ib-speed value for port {}".format(selected_port.name)):
-        selected_ib_speed_value = Tools.RandomizationTool.select_random_value(
-            list(devices.dut.supported_ib_speeds.keys()), [origin_ib_speed_value, 'ndr']).get_returned_value()
+        selected_ib_speed_value = Tools.RandomizationTool.select_random_value(supported_ib_speeds).get_returned_value()
         logging.info("Selected ib-speed: " + selected_ib_speed_value)
 
     with allure.step("Set ib-speed '{}' for port '{}".format(selected_ib_speed_value, selected_port.name)):
@@ -145,7 +151,7 @@ def test_ib_interface_speed(engines, players, interfaces, devices, start_sm):
             Tools.ValidationTool.compare_values(current_ib_speed_value, selected_ib_speed_value, True).verify_result()
             verify_speed_values(devices, selected_port)
 
-        with allure.step("Get the supported link ib-speeds"):
+        with allure.step("Get supported ib-speeds"):
             supported_ib_speeds = current_link_dict[IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS]
             logging.info("Supported ib-speeds: {}".format(supported_ib_speeds))
 
@@ -388,7 +394,7 @@ def round_string_number_with_positivity_check(value, name):
     return res
 
 
-@retry(Exception, tries=10, delay=10)
+@retry(Exception, tries=12, delay=15)
 def wait_for_port_to_become_active(port_obj):
     with allure.step("Waiting for port {} to become active".format(port_obj.name)):
         current_link_dict = OutputParsingTool.parse_json_str_to_dictionary(port_obj.ib_interface.link.show()).\

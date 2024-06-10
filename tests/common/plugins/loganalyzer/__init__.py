@@ -19,6 +19,9 @@ def pytest_addoption(parser):
                      help="params that may needed in log_analyzer_bug_handler when err detected, "
                           "log_analyzer_bug_handler is called in _post_err_msg_handler, "
                           "vendor can implement their own logic in log_analyzer_bug_handler.")
+    parser.addoption("--force_load_err_list", action="store_true", default=False,
+                     help="Load the user defined err msgs which is not included in the common ignore file,"
+                          "even when disable_loganalyzer is true")
 
 
 @reset_ansible_local_tmp
@@ -76,5 +79,8 @@ def loganalyzer(duthosts, request):
             "rep_setup" in request.node.__dict__ and request.node.rep_setup.skipped:
         return
     logging.info("Starting to analyse on all DUTs")
-    parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test, 'store_la_logs': store_la_logs},
-                 duthosts, timeout=120)
+    if len(analyzers) == 1:
+        analyze_logs(analyzers, markers, node=duthosts[0], fail_test=fail_test, store_la_logs=store_la_logs)
+    else:
+        parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test, 'store_la_logs': store_la_logs},
+                     duthosts, timeout=120)

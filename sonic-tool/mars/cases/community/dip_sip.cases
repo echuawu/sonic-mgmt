@@ -9,7 +9,7 @@
         <Case>
             <tags> DIP_SIP </tags>
             <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/community_mars_pytest_runner.py  </wrapper>
-            <tout> 0 </tout>
+            <tout> 55555 </tout>
         </Case>
     </global>
 

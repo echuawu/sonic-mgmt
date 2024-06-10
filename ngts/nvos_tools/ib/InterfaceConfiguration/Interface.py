@@ -12,7 +12,7 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.cli_wrappers.nvue.nvue_ib_interface_clis import NvueIbInterfaceCli
 from ngts.cli_wrappers.openapi.openapi_ib_interface_clis import OpenApiIbInterfaceCli
-from ngts.nvos_constants.constants_nvos import ApiType, IbConsts
+from ngts.nvos_constants.constants_nvos import ApiType, IbConsts, ActionConsts
 from ngts.nvos_tools.acl.acl import Acl
 from retry import retry
 import allure
@@ -102,7 +102,7 @@ class Interface(BaseComponent):
 
             if not engine:
                 engine = TestToolkit.engines.dut
-            result_obj = SendCommandTool.execute_command(self.port_obj._cli_wrapper.action_clear_counters, engine, self.mgmt_path, fae_param)
+            result_obj = SendCommandTool.execute_command(self.port_obj.api_obj[TestToolkit.tested_api].action_clear_counters, engine, self.mgmt_path, fae_param)
 
             return result_obj
 
@@ -110,9 +110,7 @@ class Interface(BaseComponent):
         with allure.step("Clear counters for interface {}".format(interface_name)):
             if not engine:
                 engine = TestToolkit.engines.dut
-            result_obj = SendCommandTool.execute_command(self.port_obj._cli_wrapper.clear_stats, engine,
-                                                         self.mgmt_path, interface_name, fae_param)
-            return result_obj
+            return self.action(dut_engine=engine, action=ActionConsts.CLEAR, suffix=interface_name + ' link counters')
 
     def get_sorted_interfaces_list(self):
         with allure.step("get sorted interfaces list"):

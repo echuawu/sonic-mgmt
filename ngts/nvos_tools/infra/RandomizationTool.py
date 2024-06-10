@@ -118,7 +118,8 @@ class RandomizationTool:
     def get_random_traffic_port():
         list_of_ports = Port.get_list_of_active_ports()
         list_of_ports = list(port for port in list_of_ports if
-                             port.name.startswith("sw1p") or port.name.startswith("sw2p"))
+                             port.name.startswith("sw1p") or port.name.startswith("sw2p") or
+                             port.name.startswith("swA1p") or port.name.startswith("swA2p"))
         return RandomizationTool.select_random_values(list_of_ports, None, 1)
 
     @staticmethod

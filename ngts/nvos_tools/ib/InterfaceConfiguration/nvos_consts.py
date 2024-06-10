@@ -81,6 +81,7 @@ class IbInterfaceConsts:
     IP_DHCP6 = "dhcp-client6"
     NAME = "name"
     IB_PORT_TYPE = "ib"
+    FNM_PORT_TYPE = "fnm"
     LOOPBACK_PORT_TYPE = "loopback"
     ETH_PORT_TYPE = "eth"
     MTU_VALUES = [256, 512, 1024, 2048, 4096]

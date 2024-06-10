@@ -1176,7 +1176,8 @@ class MarsConstants:
         '/auto/sw_regression/system/SONIC': '/auto/sw_regression/system/SONIC/',
         '/.autodirect/sw_regression/system/SONIC': '/.autodirect/sw_regression/system/SONIC',
         '/workspace': '/workspace',
-        '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS'
+        '/.autodirect/LIT/SCRIPTS': '/.autodirect/LIT/SCRIPTS',
+        '/.autodirect/sw/release/': '/.autodirect/sw/release/'
     }
 
     VER_SDK_PATH = "/opt/ver_sdk"
@@ -1434,6 +1435,8 @@ class BugHandlerConst:
     BUG_HANDLER_ACTION = "action"
     BUG_HANDLER_BUG_ID = "bug_id"
     BUG_HANDLER_MESSAGES = "messages"
+    LA_RM_ISSUES_DICT = "la_rm_issues_dict"
+    BUG_HANDLER_FAILURE_EXCEPTION = "The log analyzer bug handler has failed"
     BUG_HANDLER_SUCCESS_ACTIONS_LIST = [BUG_HANDLER_DECISION_CREATE, BUG_HANDLER_DECISION_UPDATE,
                                         BUG_HANDLER_DECISION_SKIP]
     BUG_TITLE_LIMIT = 230

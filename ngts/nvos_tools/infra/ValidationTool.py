@@ -237,7 +237,8 @@ class ValidationTool:
                         return ResultObj(False, "'{}' are not equal for both dictionaries.\nvalue1: {}\tvalue2: {}"
                                          .format(key, first_dictionary[key], second_dictionary[key]))
             return ResultObj(True, "The dictionaries are equal")
-        return ResultObj(False, "The dictionaries are not equal")
+        return ResultObj(False, f"The dictionaries have different keys.\nDict1: {first_dictionary.keys()}\n"
+                         f"Dict2: {second_dictionary.keys()}")
 
     @staticmethod
     def verify_substring_in_output(output, substring, err_message_in_case_of_failure, should_be_found=False):
@@ -339,9 +340,9 @@ class ValidationTool:
             return ResultObj(True, "all expected files are exist", True)
 
     @staticmethod
-    def get_dictionaries_diff(dict1, dict2, exceptions={}):
+    def get_dictionaries_diff(dict1, dict2, exceptions={}) -> Dict:
         """
-        Compare two given dictionaries and return the diff
+        Returns the items from dict1 that are missing or different in dict2.
         @param dict1: 1st dict
         @param dict2: 2nd dict
         @param exceptions: dict of exceptions.

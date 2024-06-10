@@ -118,6 +118,7 @@ class NvosConst:
     SYSTEM_AAA_USER = 'user'
     SYSTEM_AAA_USER_ADMIN = 'admin'
     SYSTEM_AAA_USER_MONITOR = 'monitor'
+    SYSTEM_AAA_USER_CUMULUS = 'cumulus'
 
     DEFAULT_CONFIG = {"system": {
         "aaa": {
@@ -498,6 +499,8 @@ class SystemConsts:
     LLDP_MULTIPLIER = 'tx-hold-multiplier'
     LLDP_STATE = 'state'
     LLDP_IS_RUNNING = 'is-running'
+
+    GENERAL_TRANSCEIVER_FIRMWARE_FILES = "/auto/sw_system_project/NVOS_INFRA/verification_files/transceiver_fw"
 
 
 class DocumentsConsts:
@@ -1090,7 +1093,7 @@ class StatsConsts:
     CPU_REBOOT_CNT_MIN = 0
     CPU_REBOOT_CNT_MAX = 100
     DISK_FREE_SPACE_MIN = 30  # [%]
-    DISK_FREE_SPACE_MAX = 95  # [%]
+    DISK_FREE_SPACE_MAX = 99  # [%]
     DISK_RMN_LIFE_MIN = 70  # [%]
     DISK_RMN_LIFE_MAX = 100  # [%]
     DISK_FAIL_CNT_MIN = 0

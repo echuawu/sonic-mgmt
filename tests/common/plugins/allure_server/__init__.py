@@ -57,13 +57,17 @@ def pytest_sessionfinish(session, exitstatus):
                     export_session_info_to_allure(session_info_dict, allure_report_dir)
 
                 try:
+                    report_url = None
                     allure_server_obj = AllureServer(allure_server_addr, allure_server_port, allure_report_dir,
                                                      allure_server_project_id)
                     report_url = allure_server_obj.generate_allure_report()
-                    session.config.cache.set(ALLURE_REPORT_URL, report_url)
+
                 except Exception as err:
                     logger.error('Failed to send-results?project_id= allure report to server. Allure report not available. '
                                  '\nError: {}'.format(err))
+                finally:
+                    session.config.cache.set(ALLURE_REPORT_URL, report_url)
+
             else:
                 logger.error('PyTest argument "--alluredir" not provided. Impossible to generate Allure report')
 
@@ -211,6 +215,10 @@ def get_pytest_run_cmd(request, get_current_test_run_cmd=False):
     allure_server_project_id_index = None
 
     for arg in pytest_cmd_line_args:
+
+        # update the pytest cmd for community case
+        if "pytest/__main__.py" in arg:
+            pytest_cmd_line_args[pytest_cmd_line_args.index(arg)] = "python3 -m pytest"
 
         if '--allure_server_project_id' in arg:
             allure_server_project_id_index = pytest_cmd_line_args.index(arg)

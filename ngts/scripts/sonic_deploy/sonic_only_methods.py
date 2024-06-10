@@ -67,10 +67,11 @@ class SonicInstallationSteps:
         Start background threads for community setup
         """
         if neighbor_type == 'vsonic':
-            start_vsonic_vms_cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo,
-                                                                                       "start", "sonic-vs.img")
-            run_background_process_on_host(threads_dict, 'start_vsonic_vms', start_vsonic_vms_cmd, timeout=3600,
-                                           exec_path=ansible_path)
+            logger.info(f"Starting vsonic VMs")
+            SonicInstallationSteps.start_vsonic_vms(ansible_path=ansible_path,
+                                                    setup_name=setup_name,
+                                                    dut_names=[dut_name],
+                                                    sonic_topo=sonic_topo)
         add_topo_cmd = SonicInstallationSteps.get_add_topology_cmd(setup_name, dut_name, sonic_topo, neighbor_type, ptf_tag)
         run_background_process_on_host(threads_dict, 'add_topology', add_topo_cmd, timeout=3600, exec_path=ansible_path)
         if not is_bf_topo(sonic_topo) and not is_dualtor_topo(sonic_topo) and "mtvr-hippo-03" != dut_name:
@@ -102,7 +103,7 @@ class SonicInstallationSteps:
         """
         devts_path = SonicInstallationSteps.get_devts_path()
         cmd = f'{python_bin_path} {devts_path}/scripts/docker/containers_bringup.py ' \
-              f'--setup_name {setup_name} --sonic_setup'
+            f'--setup_name {setup_name} --sonic_setup'
         return cmd
 
     @staticmethod
@@ -115,7 +116,7 @@ class SonicInstallationSteps:
         """
         sonic_mgmt_path = os.path.abspath(__file__).split('/ngts/')[0]
         cmd = f'{python_bin_path} {sonic_mgmt_path}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py ' \
-              f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
+            f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
         return cmd
 
     @staticmethod
@@ -180,6 +181,19 @@ class SonicInstallationSteps:
                 execute_script(cmd, ansible_path, validate=False, timeout=1200)
             except Exception as err:
                 logger.warning(f'Failed to stop for dut {dut_name}. Got error: {err}')
+
+    @staticmethod
+    def start_vsonic_vms(ansible_path, setup_name, dut_names, sonic_topo):
+        """
+        The method removes the topologies to get the clear environment.
+        """
+        for dut_name in dut_names:
+            cmd = SonicInstallationSteps.get_stop_start_sonic_vms_cmd(setup_name, dut_name, sonic_topo, "start",
+                                                                      "sonic-vs.img")
+            try:
+                execute_script(cmd, ansible_path, validate=False, timeout=2400)
+            except Exception as err:
+                logger.warning(f'Failed to start SONiC VMs for dut {dut_name}. Got error: {err}')
 
     @staticmethod
     def remove_topologies(ansible_path, dut_names, setup_name, sonic_topo):

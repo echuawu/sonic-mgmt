@@ -266,6 +266,10 @@ def test_show_interface_filter(engines):
         output_dict_filtered = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
             interface.show('--filter ""')).get_returned_value()
 
+    with allure.step('Run show interface without filter'):
+        output_dict = Tools.OutputParsingTool.parse_show_all_interfaces_output_to_dictionary(
+            interface.show()).get_returned_value()
+
     with allure.step('Compare between filtered output dictionary to the full dictionary'):
         ValidationTool.compare_nested_dictionary_content(output_dict_filtered, output_dict).verify_result()
 

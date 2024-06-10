@@ -9,7 +9,7 @@
     </Test>
     <Case>
       <wrapper> [[run_time:db_tests_path]]/sonic-mgmt/sonic-tool/mars/scripts/canonical_mars_pytest_runner.py </wrapper>
-      <tout> 0 </tout>
+      <tout> 55555 </tout>
     </Case>
   </global>
 

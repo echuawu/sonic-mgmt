@@ -73,7 +73,7 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_server_and_global_s
     conditions:
       - https://redmine.mellanox.com/issues/3317752
 
-tests_nvos/system/test_system_health.py::
+tests_nvos/system/test_system_health.py:
   skip:
     reason: "Testcase skipped due to health status is not ok on marlin because we don’t have the pmon docker"
     conditions:
@@ -249,21 +249,7 @@ tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py::test_
 
 tests_nvos/system/test_system_ptp.py:
   skip:
-    reason: "Should run only on gorilla system"
-    conditions:
-      - "'gorilla' not in testbed"
-
-tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_once:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
-    conditions:
-      - https://redmine.mellanox.com/issues/3727441
-
-tests_nvos/system/gnmi/test_gnmi_server.py::test_gnmi_basic_flow_stream:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3727441"
-    conditions:
-      - https://redmine.mellanox.com/issues/3727441
+    reason: "Decided to disable for now"
 
 tests_nvos/checklist/test_bios_update.py::test_bios_upgrade:
   skip:
@@ -327,6 +313,13 @@ tests_nvos/system/test_system_ztp.py::test_ztp_connectivity_check:
     conditions:
       - https://redmine.mellanox.com/issues/3919469
 
+tests_nvos/interfaces/test_ib_interface_counters.py::test_range_clear_counters_negative:
+  skip:
+    reason: "Testcase skipped due to RM issues: https://redmine.mellanox.com/issues/3916837 and 3920791"
+    conditions:
+      - https://redmine.mellanox.com/issues/3916837
+      - https://redmine.mellanox.com/issues/3920791
+
 tests_nvos/system/test_system_ztp.py::test_ztp_json_complex:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
@@ -375,4 +368,21 @@ tests_nvos/platform/test_platform_environment.py::test_show_platform_environment
       - "'gorilla' not in testbed"
       - https://redmine.mellanox.com/issues/3922682
 
+tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lanes:
+  skip:
+    reason: "Testcase skipped on XDR systems"
+    conditions:
+      - "'gorilla' not in testbed"
+
+tests_nvos/interfaces/test_port_split.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3924104"
+    conditions:
+      - https://redmine.mellanox.com/issues/3924104
+
+tests_nvos/system/test_system_profile_change.py:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3924104"
+    conditions:
+      - https://redmine.mellanox.com/issues/3924104
 ########################## NVOS IGNORE END ##########################
