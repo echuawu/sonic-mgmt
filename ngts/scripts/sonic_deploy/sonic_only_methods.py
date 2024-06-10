@@ -103,7 +103,7 @@ class SonicInstallationSteps:
         """
         devts_path = SonicInstallationSteps.get_devts_path()
         cmd = f'{python_bin_path} {devts_path}/scripts/docker/containers_bringup.py ' \
-              f'--setup_name {setup_name} --sonic_setup'
+            f'--setup_name {setup_name} --sonic_setup'
         return cmd
 
     @staticmethod
@@ -116,7 +116,7 @@ class SonicInstallationSteps:
         """
         sonic_mgmt_path = os.path.abspath(__file__).split('/ngts/')[0]
         cmd = f'{python_bin_path} {sonic_mgmt_path}/sonic-tool/sonic_ngts/scripts/update_sonic_mgmt.py ' \
-              f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
+            f'--dut={dut_name} --mgmt_repo={sonic_mgmt_path}'
         return cmd
 
     @staticmethod
@@ -340,7 +340,7 @@ class SonicInstallationSteps:
 
     @staticmethod
     def remove_redundant_service_port(dut_platform_path, hwsku, dut_engine, cli_obj):
-        port_to_remove = 'Ethernet513'
+        port_to_remove = 'Ethernet520'
         port_config_path = f'{dut_platform_path}/{hwsku}/port_config.ini'
         dut_engine.run_cmd(f'grep -v "{port_to_remove}" {port_config_path} > tmp_port_config')
         dut_engine.run_cmd(f'sudo mv tmp_port_config {port_config_path}')
