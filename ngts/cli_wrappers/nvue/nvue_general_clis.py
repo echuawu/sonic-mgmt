@@ -236,6 +236,7 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             else:
                 output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                             tries_after_run_cmd=2)
+            output = output.replace(NvosConst.Y_COMMAND_NOT_FOUND, "")
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
             assert validate_apply_message in output, 'Message {0} not exist in output {1}'. \

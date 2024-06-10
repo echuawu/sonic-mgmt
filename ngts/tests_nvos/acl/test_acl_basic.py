@@ -955,7 +955,7 @@ def test_adding_new_rule(engines, topology_obj):
 
         with allure.step("unset new rule and add new rule to be after the default rules"):
             new_acl_obj.unset()
-            mgmt_port.interface.acl.unset(new_acl, apply=True, ask_for_confirmation=True)
+            mgmt_port.interface.acl.unset(new_acl, apply=True)
             new_acl_obj.show(should_succeed=False)
             new_acl = 'ZZ_TEST_ADD_NEW_RULE'
             new_acl_obj = config_acl_with_rule_attached_to_interface(engines.dut, new_acl, acl_type, new_rule,
@@ -979,7 +979,7 @@ def test_adding_new_rule(engines, topology_obj):
     finally:
         with allure.step("cleanup"):
             Acl().unset()
-            mgmt_port.interface.acl.unset(new_acl, apply=True, ask_for_confirmation=True)
+            mgmt_port.interface.acl.unset(new_acl, apply=True)
 
 
 @pytest.mark.acl
@@ -1055,7 +1055,7 @@ def test_override_default_rule(engines, topology_obj):
 
     finally:
         with allure.step("unset acl - should return all the default rules"):
-            acl_obj.unset(apply=True, ask_for_confirmation=True)
+            acl_obj.unset(apply=True)
 
             with allure.step("Validate"):
                 added_field_output = acl_obj.rule.parse_show(default_rule_to_add_field)
@@ -1085,7 +1085,7 @@ def config_rule(engine, acl_id_obj, rule_id, rule_config_dict):
         for key, value in rule_config_dict.items():
             RULE_CONFIG_FUNCTION[key](rule_id_obj, value).verify_result()
 
-        result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engine, True)
+        result_obj = SendCommandTool.execute_command(TestToolkit.GeneralApi[TestToolkit.tested_api].apply_config, engine)
         return result_obj
 
 
