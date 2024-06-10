@@ -173,7 +173,7 @@ class IbSwitch(BaseSwitch):
 
     def _init_dockers(self):
         super()._init_dockers()
-        self.available_dockers.extend(('database', 'ib-utils', 'gnmi-server'))
+        self.available_dockers.extend(('database', 'ib-utils', 'gnmi-server', 'lldp'))
         for deamon in NvosConst.DOCKER_PER_ASIC_LIST:
             for asic_num in range(0, self.asic_amount):
                 self.available_dockers.append("{deamon}{asic_num}".format(deamon=deamon, asic_num=asic_num))

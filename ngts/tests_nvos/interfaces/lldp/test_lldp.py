@@ -239,7 +239,7 @@ def test_lldp_max_values(engines, devices):
 @pytest.mark.lldp
 @pytest.mark.system
 @pytest.mark.interface
-def test_lldp_additional_ipv6(engines, devices):
+def test_lldp_additional_ipv6(engines, devices, topology_obj):
     """
     Check that correct lldp frames sent all IpV6 addresses.
     1. Verify lldp is running.
@@ -248,24 +248,28 @@ def test_lldp_additional_ipv6(engines, devices):
     """
     system = System()
     engine = engines.dut
+    serial_engine = topology_obj.players['dut_serial']['engine']
     _verify_lldp_running(system.lldp, engine=engine)
 
     for interface_name in devices.dut.mgmt_interfaces:
         mgmt_interface = MgmtPort(name=interface_name)
 
         try:
-            ip_address = IpTool.select_random_ipv6_address().verify_result()
+            ip_address_full = IpTool.select_random_ipv6_address().verify_result()  # 40c9:7735:e23d:dd2a:ca43:c5e9:682e:decb/114
+            ip_address, prefix = ip_address_full.split("/")
             with allure.step(f"Set random ipv6 address {ip_address} for {interface_name}"):
-                mgmt_interface.interface.ip.address.set(op_param_name=ip_address, apply=True,
-                                                        ask_for_confirmation=True).verify_result()
-                check_port_status_till_alive(True, engine.ip, engine.ssh_port)
+                mgmt_interface.interface.ip.address.set(op_param_name=ip_address_full, apply=True,
+                                                        ask_for_confirmation=True,
+                                                        dut_engine=serial_engine).verify_result()
+                check_port_status_till_alive(False, engine.ip, engine.ssh_port)
 
             with allure.step("Verify ipv6 address is in the lldp frame"):
-                output = LLDPTool.get_lldp_frames(engine=engine, interface=interface_name)
+                output = LLDPTool.get_lldp_frames(engine=serial_engine, interface=interface_name)
                 assert ip_address in output, f"The ipv6 address {ip_address} is not in lldp frame"
 
         finally:
-            mgmt_interface.interface.ip.address.unset(apply=True).verify_result()
+            mgmt_interface.interface.ip.address.unset(apply=True, dut_engine=serial_engine,
+                                                      ask_for_confirmation=True).verify_result()
 
 
 @pytest.mark.lldp
@@ -305,7 +309,7 @@ def test_lldp_interface_flapping(engines, devices, topology_obj):
     finally:
         with allure.step("Verify ports are up after all the flapping test"):
             for mgmt_port in mgmt_ports:
-                mgmt_port.interface.link.state.unset(apply=True, dut_engine=serial_engine).verify_result()
+                mgmt_port.interface.link.state.unset(apply=True, dut_engine=serial_engine, ask_for_confirmation=True).verify_result()
             check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
             _verify_lldp_is_sending_frames(lldp=lldp, engine=engines.dut, device=devices.dut)
 
@@ -318,7 +322,7 @@ def test_lldp_disable_dhcp(engines, devices, topology_obj):
     Check that correct lldp sends mac address if dhcp is disabled.
     1. Verify lldp is running.
     2. Disable dhcp client
-    3. Verify lldp frames do not contain ip addresses and hostnames.
+    3. Verify lldp frames do not contain ip addresses.
     4. Verify lldp frames contain mac address.
     """
     system = System()
@@ -329,21 +333,25 @@ def test_lldp_disable_dhcp(engines, devices, topology_obj):
         mgmt_interface = MgmtPort(name=interface_name)
 
         try:
+            with allure.step("Get ip addresses"):
+                ip_addresses_dict = OutputParsingTool.parse_json_str_to_dictionary(
+                    mgmt_interface.interface.ip.address.show(dut_engine=serial_engine)).get_returned_value()
+                ip_addresses = list(ip_addresses_dict.keys())
+
             with allure.step(f"Disable dhcp-client for {interface_name}"):
                 mgmt_interface.interface.ip.dhcp_client.set(SystemConsts.STATE, NvosConst.DISABLED, apply=True,
-                                                            ask_for_confirmation=True).verify_result()
+                                                            ask_for_confirmation=True, dut_engine=serial_engine).verify_result()
                 check_port_status_till_alive(False, engines.dut.ip, engines.dut.ssh_port)
 
             with allure.step("Verify lldp frames do not contain hostname"):
                 output = LLDPTool.get_lldp_frames(engine=serial_engine, interface=interface_name)
-                system_output = OutputParsingTool.parse_json_str_to_dictionary(system.show()).get_returned_value()
-                interface_link = OutputParsingTool.parse_json_str_to_dictionary(mgmt_interface.interface.link.show()).get_returned_value()
-                assert system_output[
-                    SystemConsts.HOSTNAME] not in output, f"The {system_output[SystemConsts.HOSTNAME]} is found in output"
+                interface_link = OutputParsingTool.parse_json_str_to_dictionary(mgmt_interface.interface.link.show(dut_engine=serial_engine)).get_returned_value()
+                for ip_address in ip_addresses:
+                    assert ip_address not in output, f"The {ip_address} is found in output"
                 assert interface_link[SystemConsts.MAC] in output, f"The {interface_link[SystemConsts.MAC]} is not found in output"
 
         finally:
-            mgmt_interface.interface.ip.dhcp_client.unset(apply=True).verify_result()
+            mgmt_interface.interface.ip.dhcp_client.unset(apply=True, dut_engine=serial_engine, ask_for_confirmation=True).verify_result()
             check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
 
 
