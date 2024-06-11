@@ -5,6 +5,8 @@ from retry import retry
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
@@ -479,6 +481,48 @@ def test_interface_eth0_dhcp_hostname(engines, topology_obj, serial_engine):
     with allure.step('Check hostname received by dhcp'):
         system.unset(op_param=SystemConsts.HOSTNAME, apply=True, ask_for_confirmation=True)
         wait_for_hostname_changed(system, dhcp_hostname)
+
+
+@pytest.mark.ib
+@pytest.mark.simx
+def test_mgmt_interface_default(engines, topology_obj):
+    """
+    Verify default fields, stats, logs
+
+    flow:
+    1. Check default fields
+    2. Check mgmt port ip is reachable
+    3. Check logs
+    4. Check stats
+    """
+    system = System(None)
+    mgmt_port_name = DutUtilsTool.get_engine_interface_name(engines.dut, topology_obj)
+    mgmt_port = MgmtPort(mgmt_port_name)
+
+    with allure.step('Run show command on mgmt port and verify default values'):
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
+            mgmt_port.interface.show()).get_returned_value()
+
+        field_to_check = [IbInterfaceConsts.TYPE, IbInterfaceConsts.LINK,
+                          IbInterfaceConsts.IFINDEX, IbInterfaceConsts.IP]
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+
+    with allure.step('Verify mgmt interface is reachable'):
+        check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
+
+    with allure.step('Check logs for mgmt interface exist'):
+        show_output = system.log.show_log(exit_cmd='q')
+        ValidationTool.verify_expected_output(show_output, mgmt_port_name).verify_result()
+
+    with allure.step('Check stats'):
+        output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
+            mgmt_port.interface.link.stats.show()).get_returned_value()
+        field_to_check = [IbInterfaceConsts.LINK_STATS_CARRIER_TRANSITION, IbInterfaceConsts.LINK_STATS_IN_BYTES,
+                          IbInterfaceConsts.LINK_STATS_IN_DROPS, IbInterfaceConsts.LINK_STATS_IN_ERRORS,
+                          IbInterfaceConsts.LINK_STATS_IN_PKTS, IbInterfaceConsts.LINK_STATS_OUT_BYTES,
+                          IbInterfaceConsts.LINK_STATS_OUT_DROPS, IbInterfaceConsts.LINK_STATS_OUT_ERRORS,
+                          IbInterfaceConsts.LINK_STATS_OUT_PKTS]
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
 
 def validate_interface_ip_address(address, output_dictionary, validate_in=True):

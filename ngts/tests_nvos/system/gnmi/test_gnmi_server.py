@@ -10,6 +10,7 @@ from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from ngts.constants.constants import GnmiConsts
 from ngts.nvos_constants.constants_nvos import ApiType
 from ngts.nvos_constants.constants_nvos import NvosConst, DatabaseConst
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
@@ -29,7 +30,7 @@ logger = logging.getLogger()
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_basic_flow_poll(engines):
+def test_gnmi_basic_flow_poll(engines, topology_obj):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - poll.
@@ -45,12 +46,13 @@ def test_gnmi_basic_flow_poll(engines):
             10. validate gnmi-server is running
             11. validate gnmi-server stream updates
     """
-    gnmi_basic_flow(engines, mode=GnmiMode.POLL)
+    mgmt_port_name = DutUtilsTool.get_engine_interface_name(engines.dut, topology_obj)
+    gnmi_basic_flow(engines, mode=GnmiMode.POLL, mgmt_port_name=mgmt_port_name)
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
-def test_gnmi_basic_flow_once(engines):
+def test_gnmi_basic_flow_once(engines, topology_obj):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - once.
@@ -66,13 +68,14 @@ def test_gnmi_basic_flow_once(engines):
             10. validate gnmi-server is running
             11. validate gnmi-server stream updates
     """
-    gnmi_basic_flow(engines, mode=GnmiMode.ONCE)
+    mgmt_port_name = DutUtilsTool.get_engine_interface_name(engines.dut, topology_obj)
+    gnmi_basic_flow(engines, mode=GnmiMode.ONCE, mgmt_port_name=mgmt_port_name)
 
 
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_gnmi_basic_flow_stream(test_api, engines):
+def test_gnmi_basic_flow_stream(test_api, engines, topology_obj):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client,
      with subscribe mode - stream.
@@ -88,8 +91,9 @@ def test_gnmi_basic_flow_stream(test_api, engines):
             10. validate gnmi-server is running
             11. validate gnmi-server stream updates
     """
+    mgmt_port_name = DutUtilsTool.get_engine_interface_name(engines.dut, topology_obj)
     TestToolkit.tested_api = test_api
-    gnmi_basic_flow(engines, mode=GnmiMode.STREAM)
+    gnmi_basic_flow(engines, mode=GnmiMode.STREAM, mgmt_port_name=mgmt_port_name)
 
 
 @pytest.mark.system

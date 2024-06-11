@@ -1,5 +1,7 @@
 import logging
 import pytest
+
+from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tools.test_utils import allure_utils as allure
 import random
 import string
@@ -192,7 +194,8 @@ def test_system_snmp_functional(engines, topology_obj):
     """
     skip_if_engines_does_not_exist_in_setup([NvosConst.HOST_HA], engines)
     system = System(None)
-    mgmt_port = MgmtPort('eth0')
+    mgmt_port_name = DutUtilsTool.get_engine_interface_name(engines.dut, topology_obj)
+    mgmt_port = MgmtPort(mgmt_port_name)
     host_engine = engines.ha
     ip_address = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['ip_address']
     dhcp_hostname = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific']['dhcp_hostname']

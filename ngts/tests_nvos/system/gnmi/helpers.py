@@ -50,7 +50,7 @@ def run_gnmi_client_in_the_background(target_ip, xpath, device):
     return process
 
 
-def gnmi_basic_flow(engines, mode='', ipv6=False):
+def gnmi_basic_flow(engines, mode='', ipv6=False, mgmt_port_name='eth0'):
     """
     Check gnmi basic flow: show command , disable and enable commands, validate stream updates to gnmi-client.
         Test flow:
@@ -67,7 +67,7 @@ def gnmi_basic_flow(engines, mode='', ipv6=False):
     """
     system = System()
     gnmi_server_obj = system.gnmi_server
-    target_ip = MgmtPort('eth0').interface.get_ipv6_address() if ipv6 else engines.dut.ip
+    target_ip = MgmtPort(mgmt_port_name).interface.get_ipv6_address() if ipv6 else engines.dut.ip
     validate_gnmi_is_running_and_stream_updates(system, gnmi_server_obj, engines, target_ip, mode=mode)
 
     with allure.step('Disable gnmi'):
