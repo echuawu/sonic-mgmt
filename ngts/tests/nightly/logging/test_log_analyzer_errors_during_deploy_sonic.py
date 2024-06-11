@@ -46,7 +46,7 @@ def test_check_errors_in_log_during_deploy_sonic_image(engines, request, loganal
         # the end_marker will be added forcefully
         run_id = analyzer.ansible_loganalyzer.run_id
         # Command below may fail, but we do not care about it - LA will do the same after test executed(it will pass)
-        engines.dut.run_cmd(f'sudo python /tmp/loganalyzer.py --action add_end_marker --run_id {run_id}')
+        engines.dut.run_cmd(f'sudo python /tmp/loganalyzer.py --action add_end_marker --run_id {run_id}', validate=True)
 
 
 def get_la_start_string(engine, request):
