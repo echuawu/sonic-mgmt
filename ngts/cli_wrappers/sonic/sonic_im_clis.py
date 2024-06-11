@@ -1,5 +1,7 @@
 import allure
 import logging
+import json
+import os
 
 from ngts.helpers.interface_helpers import get_alias_number
 from ngts.helpers.sonic_branch_helper import get_sonic_branch
@@ -141,6 +143,22 @@ class SonicImClis:
         self.engine.run_cmd(f'sudo mv /tmp/{IndependentModuleConst.OPTICS_SI_SETTINGS_FILE_NAME}'
                             f' {IndependentModuleConst.IM_INTERFACE_SETTINGS_FILE_PATH.format(PLATFORM=platform, HWSKU=hwsku)}')
 
+    def update_port_lanes_in_config_db(self, platform_params, im_ports):
+        if platform_params.host_name in ['r-moose-01', 'mtvr-moose-04']:
+            with allure.step("Change port lanes to 4 for IM ports at Community moose setups"):
+                config_db = self.general_cli.get_config_db()
+                for port in im_ports:
+                    lanes_to_use = [lane for lane in config_db['PORT'][port]['lanes'].split(',')][:4]
+                    config_db['PORT'][port]['lanes'] = ','.join(lanes_to_use)
+                with open('/tmp/config_db.json', 'w') as f:
+                    json.dump(config_db, f, indent=4)
+                os.chmod('/tmp/config_db.json', 0o777)
+                self.engine.copy_file(source_file='/tmp/config_db.json',
+                                      dest_file="config_db.json", file_system='/tmp/',
+                                      overwrite_file=True, verify_file=False)
+                self.engine.run_cmd("sudo cp /tmp/config_db.json /etc/sonic/config_db.json")
+                self.general_cli.reload_configuration(force=True)
+
     def enable_im(self, topology_obj, platform_params, chip_type, enable_im=True, is_community=False):
         """
         @summary: This method is for enable IM feature at DUT
@@ -177,3 +195,6 @@ class SonicImClis:
                                                         self.enable_cmis_mgr_in_pmon_file(platform_params)
                                                         self.disable_autoneg_on_ports_supporting_im(
                                                             port_supporting_im)
+                                                        if is_community:
+                                                            self.update_port_lanes_in_config_db(platform_params,
+                                                                                                port_supporting_im)
