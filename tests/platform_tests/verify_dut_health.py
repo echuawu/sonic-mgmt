@@ -6,6 +6,8 @@ import traceback
 from tests.common.helpers.assertions import pytest_assert
 from tests.common.utilities import wait_until
 from tests.common.platform.transceiver_utils import parse_transceiver_info
+from tests.platform_tests.sfp.test_sfputil import cmd_sfp_presence
+from tests.platform_tests.sfp.util import parse_output
 from tests.common.reboot import reboot, REBOOT_TYPE_COLD
 
 test_report = dict()
@@ -78,7 +80,9 @@ def check_interfaces_and_transceivers(duthost, request):
         "Check whether transceiver information of all ports are in redis")
     xcvr_info = duthost.command("redis-cli -n 6 keys TRANSCEIVER_INFO*")
     parsed_xcvr_info = parse_transceiver_info(xcvr_info["stdout_lines"])
-    interfaces = conn_graph_facts["device_conn"][duthost.hostname]
+    sfp_presence = duthost.command(cmd_sfp_presence)
+    parsed_presence = parse_output(sfp_presence["stdout_lines"][2:])
+    interfaces = [interface for interface, present in parsed_presence.items() if present == 'Present']
     for intf in interfaces:
         if intf not in parsed_xcvr_info:
             raise RebootHealthError(
