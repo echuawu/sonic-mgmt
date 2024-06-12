@@ -365,6 +365,12 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_secure_corrupt_f
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+sflow/test_sflow.py:
+  skip:
+    reason: "Testcase ignored due to community sflow test had not been adapted to the dualtor setup"
+    conditions:
+    - "'dualtor' in topo_name"
+
 dash/platform/test_dpu_show_platform_temperature.py:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3923171"
