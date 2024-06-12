@@ -6,6 +6,7 @@ import time
 from contextlib import contextmanager
 from typing import Tuple
 
+from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from infra.tools.connection_tools.proxy_ssh_engine import ProxySshEngine
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.constants.constants import LinuxConsts
@@ -142,7 +143,7 @@ def check_partitions_capacity(partition_name: str = DiskConsts.DEFAULT_PARTITION
                 # Trim percent symbol from the end, e.g '22%'
                 available_disk_space = int(storage.strip()[:-1])
                 assert available_disk_space < allowed_limit, f'The disk space is over {allowed_limit}%, so image may ' \
-                                                             f'not fit '
+                    f'not fit '
         with allure.step('Check Minimum Free Space'):
             free_space = disk_tool.get_free_space()
             # Trim "G" symbol from the end, e.g '6.7G%'
@@ -189,3 +190,7 @@ def get_version_info(version: str) -> Tuple[str, str]:
         bin_num = match.group(2) if match.group(2) else ''
         return version_num, bin_num
     return '', ''
+
+
+def generate_scp_uri_using_player(player: LinuxSshEngine, file_path: str) -> str:
+    return f'scp://{player.username}:{player.password}@{player.ip}{file_path}'

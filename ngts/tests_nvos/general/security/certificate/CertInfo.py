@@ -2,22 +2,24 @@
 
 
 class CertInfo:
-    def __init__(self, info, key, cert, p12_bundle, dn, ip, cacert):
+    def __init__(self, name, info, private, public, p12_bundle, p12_password, dn, ip, cacert):
+        self.name: str = name
         self.info: str = info
-        self.key: str = key
-        self.cert: str = cert
+        self.private: str = private
+        self.public: str = public
         self.p12_bundle: str = p12_bundle
+        self.p12_password: str = p12_password
         self.dn: str = dn
         self.ip: str = ip
         self.cacert: str = cacert
 
     @property
-    def key_filename(self) -> str:
-        return None if not self.key else self.key.split('/')[-1]
+    def private_filename(self) -> str:
+        return None if not self.private else self.private.split('/')[-1]
 
     @property
-    def cert_filename(self) -> str:
-        return None if not self.cert else self.cert.split('/')[-1]
+    def public_filename(self) -> str:
+        return None if not self.public else self.public.split('/')[-1]
 
     @property
     def bundle_filename(self) -> str:

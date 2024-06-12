@@ -27,7 +27,7 @@ MAX_GNMI_SUBSCRIBERS = 10
 CERTIFICATE = 'certificate'
 DEFAULT_CERTIFICATE = 'self-signed'
 
-GNMI_TEST_CERT: CertInfo = TestCert.gnmi_cert
+GNMI_TEST_CERT: CertInfo = TestCert.gnmi_cert_valid_1
 
 
 class GnmicErr:

@@ -12,24 +12,22 @@ from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 logger = logging.getLogger()
 
 
-class Certificate(BaseComponent):
+class CaCertificate(BaseComponent):
 
     def __init__(self, parent_obj):
-        BaseComponent.__init__(self, parent_obj, path='/certificate')
-        self.cert_id: Dict[str, CertId] = DefaultDict(lambda cert_id: CertId(self, cert_id))
+        BaseComponent.__init__(self, parent_obj, path='/ca-certificate')
+        self.cert_id: Dict[str, CaCertId] = DefaultDict(lambda cert_id: CaCertId(self, cert_id))
 
 
-class CertId(BaseComponent):
+class CaCertId(BaseComponent):
     def __init__(self, parent, cert_id):
         BaseComponent.__init__(self, parent, path=f'/{cert_id}')
 
-    def action_import(self, data='', passphrase='', uri_bundle='', uri_private_key='', uri_public_key='',
-                      dut_engine=None) -> ResultObj:
+    def action_import(self, data='', uri='', dut_engine=None) -> ResultObj:
         with allure.step(f'Execute action import for {self.get_resource_path()}'):
             engine = dut_engine or TestToolkit.engines.dut
-            return SendCommandTool.execute_command(self._cli_wrapper.action_import_certificate, engine,
-                                                   self.get_resource_path(), data, passphrase, uri_bundle,
-                                                   uri_private_key, uri_public_key)
+            return SendCommandTool.execute_command(self._cli_wrapper.action_import_ca_certificate, engine,
+                                                   self.get_resource_path(), data, uri)
 
     def action_delete(self, dut_engine=None) -> ResultObj:
         with allure.step(f'Execute action import for {self.get_resource_path()}'):

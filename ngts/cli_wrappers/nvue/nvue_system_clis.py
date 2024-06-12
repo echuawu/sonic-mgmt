@@ -1,7 +1,6 @@
 import logging
 
 from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli, check_output
-from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 
 logger = logging.getLogger()
@@ -248,16 +247,33 @@ class NvueSystemCli(NvueBaseCli):
 
     @staticmethod
     @check_output
-    def action_import(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase, data):
-        path = resource_path.replace('/', ' ')
+    def action_import_certificate(engine, resource_path, data='', passphrase='', uri_bundle='', uri_private_key='', uri_public_key=''):
+        path = resource_path.replace('/', ' ').strip()
+        params = {'data': data, 'passphrase': passphrase, 'uri-bundle': uri_bundle, 'uri-private-key': uri_private_key,
+                  'uri-public-key': uri_public_key}
+        cmd = f'nv action import {path}'
+        for param, val in params.items():
+            if val:
+                cmd = f'{cmd} {param} {val}'
+        logging.info(f"Running action cmd: '{cmd}' on dut using NVUE")
+        return engine.run_cmd(cmd)
 
-        action_import = f"nv action import {path} {cert_id}"
-        action_import_dict = {
-            CertificateFiles.URI_BUNDLE: f"{action_import} {import_type} {uri1} {CertificateFiles.PASSPHRASE} {passphrase}",
-            CertificateFiles.PUBLIC_PRIVATE: f"{action_import} {CertificateFiles.PUBLIC_KEY_FILE} {uri1} {CertificateFiles.PRIVATE_KEY_FILE} {uri2}",
-            CertificateFiles.DATA: f"{action_import} {import_type} {data}",
-            CertificateFiles.URI: f"{action_import} {import_type} {uri1}"}
+    @staticmethod
+    @check_output
+    def action_import_ca_certificate(engine, resource_path, data='', uri=''):
+        path = resource_path.replace('/', ' ').strip()
+        params = {'data': data, 'uri': uri}
+        cmd = f'nv action import {path}'
+        for param, val in params.items():
+            if val:
+                cmd = f'{cmd} {param} {val}'
+        logging.info(f"Running action cmd: '{cmd}' on dut using NVUE")
+        return engine.run_cmd(cmd)
 
-        cmd = " ".join(action_import_dict[import_type].split())
-        logging.info("Running action cmd: '{cmd}' on dut using NVUE".format(cmd=cmd))
+    @staticmethod
+    @check_output
+    def action_delete_certificate(engine, resource_path):
+        path = resource_path.replace('/', ' ').strip()
+        cmd = f'nv action delete {path}'
+        logging.info(f"Running action cmd: '{cmd}' on dut using NVUE")
         return engine.run_cmd(cmd)

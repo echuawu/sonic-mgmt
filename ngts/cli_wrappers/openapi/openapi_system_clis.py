@@ -3,7 +3,6 @@ import logging
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
 from ngts.nvos_constants.constants_nvos import ActionType
-from ngts.nvos_constants.constants_nvos import CertificateFiles
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from .openapi_command_builder import OpenApiCommandHelper
 
@@ -258,40 +257,39 @@ class OpenApiSystemCli(OpenApiBaseCli):
             DutUtilsTool.wait_for_nvos_to_become_functional(engine).verify_result()
 
     @staticmethod
-    def action_import_certificate(engine, resource_path, import_type, cert_id, uri1, uri2, passphrase):
-        logging.info(f'Run action import on: {resource_path}')
-
-        action_import_param_dict = {
-            CertificateFiles.URI_BUNDLE:
-                {
-                    CertificateFiles.URI_BUNDLE: uri1,
-                    CertificateFiles.PASSPHRASE: passphrase
-                },
-            CertificateFiles.PUBLIC_PRIVATE:
-                {
-                    CertificateFiles.PUBLIC_KEY_FILE: uri1,
-                    CertificateFiles.PRIVATE_KEY_FILE: uri2
-                },
-            CertificateFiles.DATA:
-                {
-                    CertificateFiles.DATA: uri1
-                }}
-
-        params = {
-            'state': 'start',
-            'parameters': action_import_param_dict[import_type]
-        }
-
-        return OpenApiCommandHelper.execute_action(ActionType.IMPORT, engine.username, engine.password,
+    def action_import_certificate(engine, resource_path, data='', passphrase='', uri_bundle='', uri_private_key='', uri_public_key=''):
+        logging.info(f'Run action import on: {resource_path} using OpenApi')
+        parameters = {'data': data, 'passphrase': passphrase, 'uri-bundle': uri_bundle, 'uri-private-key': uri_private_key,
+                      'uri-public-key': uri_public_key}
+        parameters = {param: val for param, val in parameters.items() if val}
+        params = \
+            {
+                "state": "start",
+                "parameters": parameters
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.IMPORT, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
 
     @staticmethod
-    def action_delete_certificate(engine, resource_path, cert_id):
-        logging.info(f'Run action delete on: {resource_path}')
+    def action_import_ca_certificate(engine, resource_path, data='', uri=''):
+        logging.info(f'Run action import on: {resource_path} using OpenApi')
+        parameters = {'data': data, 'uri': uri}
+        parameters = {param: val for param, val in parameters.items() if val}
+        params = \
+            {
+                "state": "start",
+                "parameters": parameters
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.IMPORT, engine.engine.username, engine.engine.password,
+                                                   engine.ip, resource_path, params)
 
-        params = {
-            'state': 'start'
-        }
-
-        return OpenApiCommandHelper.execute_action(ActionType.DELETE, engine.username, engine.password,
+    @staticmethod
+    def action_delete_certificate(engine, resource_path):
+        logging.info(f'Run action delete on: {resource_path} using OpenApi')
+        params = \
+            {
+                "state": "start",
+                "parameters": {}
+            }
+        return OpenApiCommandHelper.execute_action(ActionType.DELETE, engine.engine.username, engine.engine.password,
                                                    engine.ip, resource_path, params)
