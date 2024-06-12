@@ -71,6 +71,7 @@ r-tigon-14,10.210.25.188/22,MLNX-OS,FanoutLeaf,,
 r-anaconda-68,10.210.24.157/22,MLNX-OS,FanoutLeaf,,
 r-anaconda-69,10.210.24.150/22,MLNX-OS,FanoutLeaf,,
 r-anaconda-86,10.210.24.190/24,MLNX-OS,FanoutLeaf,,
+mtvr-anaconda-01,10.245.21.5/22,MLNX-OS,FanoutLeaf,,
 dummy-fanout,0.0.0.0/0,MLNX-OS,FanoutLeaf,,
 arc-host60,10.213.84.1,TestServ,Server,,
 mts-sai-host-3,10.9.78.60,TestServ,Server,,
@@ -87,6 +88,7 @@ r-r640-16,10.215.26.180,TestServ,Server,,
 mtvr-r640-01,10.245.20.120,TestServ,Server,,
 mtvr-r640-02,10.245.20.180,TestServ,Server,,
 mtvr-r740-01,10.245.20.60,TestServ,Server,,
+mtvr-r740-07,10.245.40.1,TestServ,Server,,
 dev-r-vrt-249,,TestServ,Server,,
 dev-r730-01,,TestServ,Server,,
 dev-r730-02,,TestServ,Server,,
@@ -141,6 +143,7 @@ r-leopard-50,10.210.25.201,ACS-MSN4700,DevSonic,,sonic
 r-leopard-79,10.210.25.4,Mellanox-SN4700-O28,DevSonic,,sonic
 r-leopard-70,10.210.24.88,Mellanox-SN4700-O8V48,DevSonic,,sonic
 r-leopard-72,10.210.24.196,Mellanox-SN4700-O8V48,DevSonic,,sonic
+mtvr-panther-02,10.245.21.2,Mellanox-SN2700,DevSonic,,sonic
 mtvr-moose-01,10.245.20.39,ACS-SN5600,DevSonic,,sonic
 mtvr-moose-02,10.245.20.40,ACS-MSN4700,DevSonic,,sonic
 mtvr-moose-03,10.245.20.41,ACS-MSN4700,DevSonic,,sonic
