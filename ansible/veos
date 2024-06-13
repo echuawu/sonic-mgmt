@@ -142,6 +142,9 @@ MTVR-R740-05_2 ansible_host=mtvr-r740-05
 [vm_host_82]
 MTVR-R740-07_1 ansible_host=mtvr-r740-07
 
+[vm_host_83]
+MTVR-R740-07_2 ansible_host=mtvr-r740-07
+
 [vm_host:children]
 vm_host_1
 vm_host_2
@@ -191,6 +194,7 @@ vm_host_79
 vm_host_80
 vm_host_81
 vm_host_82
+vm_host_83
 
 [vms_0]
 VM0000 ansible_host=0.0.0.0
@@ -1638,6 +1642,40 @@ VM4730 ansible_host=10.245.40.33
 VM4731 ansible_host=10.245.40.34
 VM4732 ansible_host=10.245.40.35
 
+[vms_83]
+VM4801 ansible_host=10.245.40.37
+VM4802 ansible_host=10.245.40.38
+VM4803 ansible_host=10.245.40.39
+VM4804 ansible_host=10.245.40.40
+VM4805 ansible_host=10.245.40.41
+VM4806 ansible_host=10.245.40.42
+VM4807 ansible_host=10.245.40.43
+VM4808 ansible_host=10.245.40.44
+VM4809 ansible_host=10.245.40.45
+VM4810 ansible_host=10.245.40.46
+VM4811 ansible_host=10.245.40.47
+VM4812 ansible_host=10.245.40.48
+VM4813 ansible_host=10.245.40.49
+VM4814 ansible_host=10.245.40.50
+VM4815 ansible_host=10.245.40.51
+VM4816 ansible_host=10.245.40.52
+VM4817 ansible_host=10.245.40.53
+VM4818 ansible_host=10.245.40.54
+VM4819 ansible_host=10.245.40.55
+VM4820 ansible_host=10.245.40.56
+VM4821 ansible_host=10.245.40.57
+VM4822 ansible_host=10.245.40.58
+VM4823 ansible_host=10.245.40.59
+VM4824 ansible_host=10.245.40.60
+VM4825 ansible_host=10.245.40.61
+VM4826 ansible_host=10.245.40.62
+VM4827 ansible_host=10.245.40.63
+VM4828 ansible_host=10.245.40.64
+VM4829 ansible_host=10.245.40.65
+VM4830 ansible_host=10.245.40.66
+VM4831 ansible_host=10.245.40.67
+VM4832 ansible_host=10.245.40.68
+
 [eos:children]
 vms_1
 vms_2
@@ -1687,6 +1725,7 @@ vms_79
 vms_80
 vms_81
 vms_82
+vms_83
 
 ## The groups below are helper to limit running playbooks to server_1, server_2 or server_3 only
 [server_1:children]
@@ -2146,6 +2185,17 @@ host_var_file=host_vars/MTVR-R740-07_1.yml
 host_var_file=host_vars/MTVR-R740-07_1.yml
 mgmt_prefixlen=16
 
+[server_83:children]
+vm_host_83
+vms_83
+
+[server_83:vars]
+host_var_file=host_vars/MTVR-R740-07_2.yml
+
+[vms_83:vars]
+host_var_file=host_vars/MTVR-R740-07_2.yml
+mgmt_prefixlen=16
+
 [servers:children]
 server_1
 server_2
@@ -2195,6 +2245,7 @@ server_79
 server_80
 server_81
 server_82
+server_83
 
 [servers:vars]
 topologies=['dualtor', 'dualtor-64', 'dualtor-mixed', 'dualtor-aa', 'dualtor-aa-64', 'dualtor-56', 'dualtor-mixed-56', 'dualtor-aa-56', 't1', 't1-lag', 't1-28-lag', 't1-56-lag', 't1-64-lag', 't1-64-lag-clet', 't0', 't0-16', 't0-56', 't0-56-po2vlan', 't0-56-o8v48', 't0-52', 'ptf32', 'ptf64', 't0-64', 't0-64-32', 't0-80', 't0-116', 't0-120', dpu, dpu-1]

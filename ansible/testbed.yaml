@@ -4196,6 +4196,84 @@
     - mtvr-panther-02
   comment: Mellanox MTR testbed
 
+- conf-name: mtvr-panther-03-t0
+  group-name: vm-t2
+  topo: t0
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-t0-56
+  group-name: vm-t2
+  topo: t0-56
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-t1
+  group-name: vm-t2
+  topo: t1
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-t1-lag
+  group-name: vm-t2
+  topo: t1-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-ptf32
+  group-name: vm-t2
+  topo: ptf32
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-ptf-any
+  group-name: vm-t2
+  topo: ptf-any
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
 - conf-name: r-r740-07-bf2-sonic-01-dpu
   group-name: vm-t1
   topo: dpu

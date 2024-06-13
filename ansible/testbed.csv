@@ -366,6 +366,13 @@ mtvr-panther-02-t1-lag,vm-t1,t1-lag,docker-ptf-mlnx,ptf-mtvr-panther-02,10.245.4
 mtvr-panther-02-ptf32,vm-t1,ptf32,docker-ptf-mlnx,ptf-mtvr-panther-02,10.245.40.3/16,,server_82,VM4701,mtvr-panther-02,Mellanox MTR testbed
 mtvr-panther-02-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-mtvr-panther-02,10.245.40.3/16,,server_82,VM4701,mtvr-panther-02,Mellanox MTR testbed
 
+mtvr-panther-03-t0,vm-t2,t0,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+mtvr-panther-03-t0-56,vm-t2,t0-56,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+mtvr-panther-03-t1,vm-t2,t1,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+mtvr-panther-03-t1-lag,vm-t2,t1-lag,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+mtvr-panther-03-ptf32,vm-t2,ptf32,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+mtvr-panther-03-ptf-any,vm-t2,ptf-any,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
+
 r-r740-07-bf2-sonic-01-dpu,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 r-r740-07-bf2-sonic-01-ptf-any,vm-t1,dpu,docker-ptf-mlnx,ptf-bf2-740-07-01,10.215.20.183/16,,server_55,VM2001,r-r740-07-bf2-sonic-01,Mellanox MTR testbed
 
@@ -413,6 +420,7 @@ mts-sonic-dut-fastreboot,vm-t1,t0,docker-ptf-mlnx,ptf-mts,10.9.78.237/24,,server
 r-panther-47-fastreboot,vm-t1,t1-lag,docker-ptf-mlnx,ptf-r-panther-47,10.215.32.3/16,,server_80,VM4501,r-panther-47,Mellanox MTR testbed
 r-panther-48-fastreboot,vm-t2,t0,docker-ptf-mlnx,ptf-r-panther-48,10.215.32.36/16,,server_79,VM4401,r-panther-48,Mellanox MTR testbed
 mtvr-panther-02-fastreboot,vm-t1,t1-lag,docker-ptf-mlnx,ptf-mtvr-panther-02,10.245.40.3/16,,server_82,VM4701,mtvr-panther-02,Mellanox MTR testbed
+mtvr-panther-03-fastreboot,vm-t2,t0,docker-ptf-mlnx,ptf-mtvr-panther-03,10.245.40.36/16,,server_83,VM4801,mtvr-panther-03,Mellanox MTR testbed
 
 r-bulldog-03-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bulldog-03,Mellanox MTR testbed
 r-bulldog-04-ptf-any,vm-t1,ptf-any,docker-ptf-mlnx,ptf-dummy,1.1.1.1/16,,server_54,VM0000,r-bulldog-04,Mellanox MTR testbed
