@@ -1,6 +1,7 @@
 from ngts.cli_wrappers.sonic.sonic_general_clis import *
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
-from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli
+from ngts.cli_wrappers.nvue.nvue_base_clis import NvueBaseCli, check_output
+from ngts.nvos_constants.constants_nvos import ActionType
 
 
 logger = logging.getLogger()
@@ -18,28 +19,25 @@ class NvueClusterCli(NvueBaseCli):
 
     @staticmethod
     def action_start_cluster_app(engine, path):
-        cmd = f"nv action start {path}"
-        cmd = " ".join(cmd.split())
-        logging.info(f"Running '{cmd}' on dut using NVUE")
-        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=5)
+        return NvueClusterCli.action(engine, action_type=ActionType.START.value, resource_path=path)
 
     @staticmethod
     def action_stop_cluster_app(engine, path):
-        cmd = f"nv action stop {path}"
-        cmd = " ".join(cmd.split())
-        logging.info(f"Running '{cmd}' on dut using NVUE")
-        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=5)
+        return NvueClusterCli.action(engine, action_type=ActionType.STOP.value, resource_path=path)
 
     @staticmethod
     def action_update_cluster_log_level(engine, path, level=''):
-        cmd = f"nv action update {path} {level}"
-        cmd = " ".join(cmd.split())
-        logging.info(f"Running '{cmd}' on dut using NVUE")
-        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=5)
+        return NvueClusterCli.action(engine, action_type=ActionType.UPDATE.value, resource_path=path, param_value=level)
 
     @staticmethod
     def action_restore_cluster(engine, path):
-        cmd = f"nv action restore {path}"
-        cmd = " ".join(cmd.split())
-        logging.info(f"Running '{cmd}' on dut using NVUE")
-        return DutUtilsTool.run_cmd_with_disconnect(engine, cmd, timeout=5)
+        return NvueClusterCli.action(engine, action_type=ActionType.RESTORE.value, resource_path=path)
+
+    @staticmethod
+    @check_output
+    def action_generate(engine, resource_path):
+        return NvueClusterCli.action(engine, action_type=ActionType.GENERATE.value, resource_path=resource_path)
+
+    @staticmethod
+    def action_fetch(engine, resource_path, remote_url):
+        return NvueClusterCli.action(engine, action_type=ActionType.FETCH.value, resource_path=resource_path, param_value=remote_url)
