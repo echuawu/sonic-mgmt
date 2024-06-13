@@ -209,8 +209,7 @@ def test_interface_eth0_mtu(engines, topology_obj):
         wait_for_mtu_changed(mgmt_port, 1500)
 
     with allure.step('Negative validation with not supported for eth mtu 256'):
-        mgmt_port.interface.link.set(op_param_name='mtu', op_param_value='256',
-                                     apply=True, ask_for_confirmation=True).verify_result(False)
+        mgmt_port.interface.link.set(op_param_name='mtu', op_param_value='256').verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         logger.info('Check port status, should be up')
         check_port_status_till_alive(True, engines.dut.ip, engines.dut.ssh_port)
