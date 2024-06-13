@@ -299,7 +299,7 @@ class AllureServer:
         else:
             logger.info('Allure project {} already exist on server. No need to create project'.format(self.project_id))
 
-    @retry(Exception, tries=2, delay=5)
+    @retry(Exception, tries=5, delay=5)
     def upload_results_to_allure_server(self):
         """
         This method uploads files from allure results folder to allure server
