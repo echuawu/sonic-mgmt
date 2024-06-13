@@ -661,11 +661,9 @@ class JulietSwitch(NvLinkSwitch):
 
     def _init_fan_list(self):
         super()._init_fan_list()
-        self.fan_list += ["FAN7/1", "FAN7/2"]
 
     def _init_led_list(self):
-        super()._init_led_list()
-        self.led_list.append('FAN7')
+        self.led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "STATUS", "UID"]
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
@@ -681,6 +679,16 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.ssd_image = None
         self.category_list = ['temperature', 'cpu', 'disk', 'fan', 'mgmt-interface', 'voltage']
         self.voltage_sensors = [
+            "HSC-VinDC-In",
+            "HSC-VinDC-Out",
+            "PDB-1-Conv-In-1",
+            "PDB-1-Conv-Out-1",
+            "PDB-2-Conv-In-1",
+            "PDB-2-Conv-Out-1",
+            "PDB-3-Conv-In-1",
+            "PDB-3-Conv-Out-1",
+            "PDB-4-Conv-In-1",
+            "PDB-4-Conv-Out-1",
             "PMIC-1-12V-VDD-ASIC1-In-1",
             "PMIC-1-ASIC1-VDD-Out-1",
             "PMIC-2-12V-HVDD-DVDD-ASIC1-In-1",
@@ -696,7 +704,11 @@ class JulietScaleoutSwitch(JulietSwitch):
             "PMIC-5-ASIC2-HVDD-PL0-Out-1",
             "PMIC-6-12V-HVDD-DVDD-ASIC2-In-1",
             "PMIC-6-ASIC2-DVDD-PL1-Out-2",
-            "PMIC-6-ASIC2-HVDD-PL1-Out-1"
+            "PMIC-6-ASIC2-HVDD-PL1-Out-1",
+            "PMIC-7-12V-MAIN-In-1",
+            "PMIC-7-CEX-VDD-Out-1",
+            "PMIC-8-COMEX-VDD-MEM-In-1",
+            "PMIC-8-COMEX-VDD-MEM-Out-1"
         ]
         # TBD
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
@@ -790,6 +802,9 @@ class JulietScaleoutSwitch(JulietSwitch):
     def _init_psu_list(self):
         self.psu_list = []
         self.psu_fan_list = []
+
+    def _init_led_list(self):
+        super()._init_led_list()
 
     def _init_platform_lists(self):
         super()._init_platform_lists()
