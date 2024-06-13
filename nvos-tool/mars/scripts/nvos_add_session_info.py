@@ -19,20 +19,20 @@
 @changed:
 
 """
+import fnmatch
 #######################################################################
 # Global imports
 #######################################################################
 import os
 import re
-import json
+from typing import Tuple
 
 #######################################################################
 # Local imports
 #######################################################################
 from mars_open_community.additional_info.session_add_info import SessionAddInfo
-from topology.TopologyAPI import TopologyAPI
-from mlxlib.remote.mlxrpc import RemoteRPC
 from mlxlib.common import trace
+from mlxlib.remote.mlxrpc import RemoteRPC
 
 logger = trace.set_logger()
 
@@ -84,39 +84,37 @@ class NvosAddSessionInfo(SessionAddInfo):
         @return:
             Tuple with return code and dictionary of additional info to add.
         """
-        print("Run NVOS AddSessionInfo.get_dynamic_info")
+        return self._get_required_info()
 
+    def _get_info_orig(self):
+        print("Run NVOS AddSessionInfo.get_dynamic_info")
         machines_players = self.conf_obj.get_active_players()
         print("machine_players=" + str(machines_players))
-
         if type(machines_players) is list:
             machine = machines_players[0]
         else:
             machine = machines_players
         print("machine=" + str(machine))
-
         remote_workspace = SONIC_MGMT_WORKSPACE
         if not remote_workspace:
             logger.error("'sonic_mgmt_workspace' must be defined in extra_info section of setup conf")
             return (1, {})
         print("remote_workspace=" + str(remote_workspace))
-
         dut_name = self.conf_obj.get_extra_info().get("dut_name")
         topology = self.conf_obj.get_extra_info().get("topology")
         code_coverage_run = self.conf_obj.get_extra_info().get("code_coverage_run")
         sanitizer_run = self.conf_obj.get_extra_info().get("sanitizer_run")
         repo_name = self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name")
-
         nvue_sswitch_user = os.getenv("NVU_SWITCH_USER")
         nvue_sswitch_pass = os.getenv("NVU_SWITCH_NEW_PASSWORD")
-
         cmd_system = "ansible -m command --extra-vars 'ansible_ssh_user={USER} ansible_ssh_pass={PASSWORD}' -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show system -o json'"
         cmd_device = "ansible -m command --extra-vars 'ansible_ssh_user={USER} ansible_password={PASSWORD}' -i inventory {DUT_NAME}-{TOPOLOGY} -a 'nv show ib device -o json'"
-        cmd_system = cmd_system.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name, TOPOLOGY=topology)
-        cmd_device = cmd_device.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name, TOPOLOGY=topology)
+        cmd_system = cmd_system.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name,
+                                       TOPOLOGY=topology)
+        cmd_device = cmd_device.format(USER=nvue_sswitch_user, PASSWORD=nvue_sswitch_pass, DUT_NAME=dut_name,
+                                       TOPOLOGY=topology)
         print("cmd=" + cmd_system)
         print("cmd=" + cmd_device)
-
         try:
             conn = RemoteRPC(machine)
             conn.import_module("os")
@@ -144,3 +142,62 @@ class NvosAddSessionInfo(SessionAddInfo):
             logger.error("Failed to execute command: %s" % cmd_system)
             logger.error("Exception error: %s" % repr(e))
             return 1, {}
+
+    def _get_required_info(self):
+        print("Run NVOS AddSessionInfo.get_dynamic_info")
+        try:
+            res = {
+                "dut_name": self.conf_obj.get_extra_info().get("dut_name"),
+                "target_version": self._get_version_from_version_param("target_version"),
+                # "base_version": self._get_version_from_version_param("base_version"),
+                "platform": self.conf_obj.get_extra_info().get("dut_hwsku"),
+                "asic": self.conf_obj.get_extra_info().get("chip_type"),
+                "topology": self.conf_obj.get_extra_info().get("topology"),
+                "is_code_coverage_run": self.conf_obj.get_extra_info().get("code_coverage_run"),
+                "is_sanitizer_run": self.conf_obj.get_extra_info().get("sanitizer_run"),
+                "repo_name": self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name"),
+            }
+
+            print("Regression Info:\n" + '\n'.join([f'{str(k)}: {str(v)}' for k,v in res.items()]))
+
+            return 0, res
+        except Exception as e:
+            logger.error("Exception error: %s" % repr(e))
+            return 1, {}
+
+    def _get_real_file_path(self, file_path: str) -> str:
+        """
+        @summary: Get the real file path from a given path
+        """
+        real_path = os.path.realpath(file_path)
+        containing_dir = os.path.dirname(real_path)
+        filename = os.path.basename(real_path)
+        dir_content = os.listdir(containing_dir)
+        matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
+        real_file_path = os.path.join(containing_dir, matching_filename)
+        return real_file_path
+
+    def _get_version_info(self, version: str) -> Tuple[str, str]:
+        """
+        extract version number and build number from a given image url/path or just a version
+        Examples:
+            - /a/b/c/d/25.01.3001.bin -> '25.01.3001', ''
+            - http://abc.com/a/b/c/25.01.3001-123.bin -> '25.01.3001', '123'
+            - 25.01.3001 -> '25.01.3001', ''
+        """
+        pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
+        match = re.search(pattern, version)
+        if match and match.group(0):
+            version_num = match.group(1)
+            bin_num = match.group(2) if match.group(2) else ''
+            return version_num, bin_num
+        return '', ''
+
+    def _get_version_from_version_param(self, version_param_name) -> str:
+        param_val = self.conf_obj.get_extra_info().get(version_param_name)
+        path = self._get_real_file_path(param_val)
+        version_num, build_num = self._get_version_info(path)
+        version = version_num + f'-{build_num}' if build_num else ''
+        return version
+
+
