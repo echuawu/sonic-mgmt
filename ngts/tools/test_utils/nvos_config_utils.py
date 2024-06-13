@@ -28,55 +28,54 @@ def clear_conf(dut_engine, markers=None, set_base_config_function=set_base_confi
 
         with allure.step("Get the non-default set components"):
             default_conf = NvosConst.DEFAULT_CONFIG
-            if is_redmine_issue_active([3831258])[0]:
-                default_conf["interface"] = {
-                    "eth0": {
-                        "acl": {
-                            "ACL_MGMT_INBOUND_CP_DEFAULT": {
-                                "inbound": {
-                                    "control-plane": {}
-                                }
-                            },
-                            "ACL_MGMT_INBOUND_CP_DEFAULT_IPV6": {
-                                "inbound": {
-                                    "control-plane": {}
-                                }
-                            },
-                            "ACL_MGMT_INBOUND_DEFAULT": {
-                                "inbound": {}
-                            },
-                            "ACL_MGMT_INBOUND_DEFAULT_IPV6": {
-                                "inbound": {}
-                            },
-                            "ACL_MGMT_OUTBOUND_CP_DEFAULT": {
-                                "outbound": {
-                                    "control-plane": {}
-                                }
-                            },
-                            "ACL_MGMT_OUTBOUND_CP_DEFAULT_IPV6": {
-                                "outbound": {
-                                    "control-plane": {}
-                                }
+            default_conf["interface"] = {
+                "eth0": {
+                    "acl": {
+                        "ACL_MGMT_INBOUND_CP_DEFAULT": {
+                            "inbound": {
+                                "control-plane": {}
                             }
                         },
-                        "type": "eth"
+                        "ACL_MGMT_INBOUND_CP_DEFAULT_IPV6": {
+                            "inbound": {
+                                "control-plane": {}
+                            }
+                        },
+                        "ACL_MGMT_INBOUND_DEFAULT": {
+                            "inbound": {}
+                        },
+                        "ACL_MGMT_INBOUND_DEFAULT_IPV6": {
+                            "inbound": {}
+                        },
+                        "ACL_MGMT_OUTBOUND_CP_DEFAULT": {
+                            "outbound": {
+                                "control-plane": {}
+                            }
+                        },
+                        "ACL_MGMT_OUTBOUND_CP_DEFAULT_IPV6": {
+                            "outbound": {
+                                "control-plane": {}
+                            }
+                        }
                     },
-                    "lo": {
-                        "acl": {
-                            "ACL_LOOPBACK_INBOUND_CP_DEFAULT": {
-                                "inbound": {
-                                    "control-plane": {}
-                                }
-                            },
-                            "ACL_LOOPBACK_INBOUND_CP_DEFAULT_IPV6": {
-                                "inbound": {
-                                    "control-plane": {}
-                                }
+                    "type": "eth"
+                },
+                "lo": {
+                    "acl": {
+                        "ACL_LOOPBACK_INBOUND_CP_DEFAULT": {
+                            "inbound": {
+                                "control-plane": {}
                             }
                         },
-                        "type": "loopback"
-                    }
+                        "ACL_LOOPBACK_INBOUND_CP_DEFAULT_IPV6": {
+                            "inbound": {
+                                "control-plane": {}
+                            }
+                        }
+                    },
+                    "type": "loopback"
                 }
+            }
 
             diff_config = ValidationTool.get_dictionaries_diff(set_comp, default_conf)
             logging.info(diff_config)
