@@ -587,6 +587,7 @@ class CrocodileSwitch(IbSwitch):
             "product-name": "QM3400",
             "asic-model": self.asic_type,
         })
+        self.mst_dev_name = '/dev/mst/mt54004_pciconf0'  # TODO update
         self.voltage_sensors = ['PMIC-1-12V-VDD-ASIC1-In-1', 'PMIC-1-ASIC1-VDD-Out-1',
                                 'PMIC-2-12V-HVDD-DVDD-ASIC1-In-1', 'PMIC-2-ASIC1-DVDD-PL0-Out-2',
                                 'PMIC-2-ASIC1-HVDD-PL0-Out-1', 'PMIC-3-12V-HVDD-DVDD-ASIC1-In-1',
