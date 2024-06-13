@@ -93,9 +93,13 @@ def filter_psu_platform_sensors(sensors_checks, psu_dict, psu_sensor_prefix):
     :return: a dictionary mapping psu_model to its sensors, in a similar format to the sku-sensors-data.yml file
     """
     psu_sensors_dict = {psu_dict[psu_num]: dict() for psu_num in psu_dict.keys()}
+    psu_indexes_per_model = dict()
+    for index, model in psu_dict.items():
+        psu_indexes_per_model.setdefault(model, []).append(index)
     psu_models = set(psu_dict.values())
+    path_count = {model: dict() for model in psu_models}
+    # Count the number of time a sensor appears on some psu slot per model
     for check_type, checks in sensors_checks.items():
-        seen_paths = {psu_dict[psu_num]: set() for psu_num in psu_dict.keys()}
         for check in checks:
             if not check:
                 # If the check is an empty line, it is needed for parsing, so we add it to all models
@@ -103,10 +107,16 @@ def filter_psu_platform_sensors(sensors_checks, psu_dict, psu_sensor_prefix):
                     psu_sensors_dict[model].setdefault(check_type, []).append(check)
                 continue
             model, path = process_sensor_path(check, psu_dict, psu_sensor_prefix)
-            # Update the psu_sensors_dict with path if a new path was found
-            if model and path not in seen_paths[model]:
-                psu_sensors_dict[model].setdefault(check_type, []).append(path)
-                seen_paths[model].add(path)
+            if model:
+                path_count[model].setdefault(check_type, {}).setdefault(path, 0)
+                path_count[model][check_type][path] += 1
+
+    # Only add a sensor path of a model if it appeared in all psu slots that use this model
+    for model, check_types in path_count.items():
+        for check_type, paths in check_types.items():
+            for path, count in paths.items():
+                if count == len(psu_indexes_per_model[model]):
+                    psu_sensors_dict[model].setdefault(check_type, []).append(path)
 
     return psu_sensors_dict
 
@@ -123,7 +133,6 @@ def process_sensor_path(sensor_path, psu_dict, psu_sensor_prefix):
     """
     psu_num_sensor_pattern = r'PSU-(\d+)(?:\([A-Z]\))?'  # matching PSU-i(side) part with side being optional
     psu_bus_sensor_pattern = rf'({psu_sensor_prefix}-)(\d+[a-zA-Z]*-\d+[a-zA-Z]*)'
-    paths_to_add = dict()
     # psu_model and generalized_sensor_path will be None if the sensor didn't match psu_num_sensor_path
     psu_model = None
     generalized_sensor_path = None
@@ -136,7 +145,6 @@ def process_sensor_path(sensor_path, psu_dict, psu_sensor_prefix):
 
         # Replace the bus path with *-* (from dps460-i2c-4-59 to dps460-i2c-*-*)
         generalized_sensor_path = re.sub(psu_bus_sensor_pattern, f"{psu_sensor_prefix}-*-*", generalized_sensor_path)
-        paths_to_add[psu_model] = generalized_sensor_path
     else:
         # If the path doesn't match our format, we want to ignore it
         logger.warning(f"path {sensor_path} didn't match PSU sensor format")
