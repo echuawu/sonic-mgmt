@@ -298,6 +298,19 @@ def cmp_dump(db_name, orig_db_dir, clet_db_dir):
     with open(os.path.join(clet_db_dir, fname), "r") as s:
         clet_data = json.load(s)
 
+    # Ignore the items that are expected to be changed in APPL_DB due to the minigraph load
+    def _del_flap_count_and_timestamp(data):
+        flap_count_and_timestamp_keys = ["last_up_time", "last_down_time", "flap_count"]
+        for key in data:
+            value = data[key].get('value')
+            if isinstance(value, dict):
+                for flap_count_and_timestamp_key in flap_count_and_timestamp_keys:
+                    if flap_count_and_timestamp_key in value.keys():
+                        del(data[key]['value'][flap_count_and_timestamp_key])
+    if db_name == 'app-db':
+        _del_flap_count_and_timestamp(orig_data)
+        _del_flap_count_and_timestamp(clet_data)
+
     if clet_data == orig_data:
         log_info("{} compared good orig={} clet={}".format(db_name, orig_db_dir, clet_db_dir))
         return 0, ""
