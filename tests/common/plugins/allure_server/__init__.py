@@ -280,6 +280,7 @@ class AllureServer:
         self.clean_results_on_allure_server()
         return report_url
 
+    @retry(Exception, tries=2, delay=5)
     def create_project_on_allure_server(self):
         """
         This method creates new project(if need) on allure server
@@ -293,6 +294,10 @@ class AllureServer:
             response = requests.post(url, json=data, headers=self.http_headers, verify=SSL_VERIFICATION)
             diff_time = time.time() - start_time
             logger.info("Creating project {} takes {}".format(self.project_id, diff_time))
+            # wait several seconds, it might improve the probability for uploading results successfully
+            # Maybe when creating new project, server side need some time to prepare resource
+            wait_time_for_new_project = 5
+            time.sleep(wait_time_for_new_project)
             if response.raise_for_status():
                 logger.error('Failed to create project on allure server, error: {}, \n status_code :{}'.format(
                     response.content, response.status_code))
@@ -355,6 +360,7 @@ class AllureServer:
                     f.close()
         return results
 
+    @retry(Exception, tries=2, delay=5)
     def generate_report_on_allure_server(self):
         """
         This method would generate the report on the remote allure server and display the report URL in the log
