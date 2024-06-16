@@ -25,7 +25,6 @@ import fnmatch
 #######################################################################
 import os
 import re
-from typing import Tuple
 
 #######################################################################
 # Local imports
@@ -58,21 +57,6 @@ class NvosAddSessionInfo(SessionAddInfo):
         """
         SessionAddInfo.__init__(self, conf_obj, extra_info, session_info)
 
-    def _parse_system_version(self, show_system_output, show_device_output, topology, code_coverage_run, sanitizer_run):
-        version = re.compile(r'"product-release": "(.*)"', re.IGNORECASE)
-        platform_re = re.compile(r'"platform": "(.*)"', re.IGNORECASE)
-        asic = re.compile(r'"type": "(.*)"', re.IGNORECASE)
-        res = {
-            "version": version.findall(show_system_output)[0] if version.search(show_system_output) else "",
-            "platform": platform_re.findall(show_system_output)[0] if platform_re.search(show_system_output) else "",
-            "topology": topology,
-            "asic": asic.findall(show_device_output)[0] if asic.search(show_device_output) else "",
-            "is_code_coverage_run": code_coverage_run,
-            "is_sanitizer_run": sanitizer_run,
-        }
-
-        return res
-
     def get_dynamic_info(self):
         """
         Implementation for getting the NVOS info for NVOS regression runs.
@@ -84,7 +68,75 @@ class NvosAddSessionInfo(SessionAddInfo):
         @return:
             Tuple with return code and dictionary of additional info to add.
         """
-        return self._get_required_info()
+        return self._get_info()
+
+    def _get_info(self):
+        print("Run NVOS AddSessionInfo.get_dynamic_info")
+        try:
+            res = {
+                "dut_name": self.conf_obj.get_extra_info().get("dut_name"),
+                "version": self._get_version_from_version_param("target_version"),
+                "base_version": self._get_version_from_version_param("base_version"),
+                "tarball": self._get_tarball_name(),
+                "platform": self.conf_obj.get_extra_info().get("dut_hwsku"),
+                "asic": self.conf_obj.get_extra_info().get("chip_type"),
+                "topology": self.conf_obj.get_extra_info().get("topology"),
+                "is_code_coverage_run": self.conf_obj.get_extra_info().get("code_coverage_run"),
+                "is_sanitizer_run": self.conf_obj.get_extra_info().get("sanitizer_run"),
+            }
+
+            print("Regression Info:\n" + '\n'.join([f'{str(k)}: {str(v)}' for k, v in res.items()]))
+
+            return 0, res
+        except Exception as e:
+            logger.error("Exception error: %s" % repr(e))
+            return 1, {}
+
+    def _get_tarball_name(self):
+        tarball = self.conf_obj.get_extra_info().get("custom_tarball_name")
+        return tarball.replace('SONIC_CANONICAL-sonic-mgmt_', '').replace('.db.1.tgz', '').replace('.b.1.tgz', '')
+
+    def _get_version_from_version_param(self, version_param_name) -> str:
+        param_val = self.conf_obj.get_extra_info().get(version_param_name)
+        path = self._get_real_file_path(param_val)
+        return self._get_formal_version_info(path) or self._get_dev_version_info(path)
+
+    def _get_real_file_path(self, file_path: str) -> str:
+        """
+        @summary: Get the real file path from a given path
+        """
+        real_path = os.path.realpath(file_path)
+        containing_dir = os.path.dirname(real_path)
+        filename = os.path.basename(real_path)
+        dir_content = os.listdir(containing_dir)
+        matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
+        real_file_path = os.path.join(containing_dir, matching_filename)
+        return real_file_path
+
+    def _get_formal_version_info(self, version: str) -> str:
+        """
+        extract version number and build number from a given image url/path or just a version
+        Examples:
+            - /a/b/c/d/25.01.3001.bin -> '25.01.3001', ''
+            - http://abc.com/a/b/c/25.01.3001-123.bin -> '25.01.3001', '123'
+            - 25.01.3001 -> '25.01.3001', ''
+        """
+        pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
+        match = re.search(pattern, version)
+        if match and match.group(0):
+            version_num = match.group(1)
+            bin_num = match.group(2) if match.group(2) else ''
+            res = version_num + (f'-{bin_num}' if bin_num else '')
+            return res
+        return ''
+
+    def _get_dev_version_info(self, version: str) -> str:
+        pattern = r'nvos-(.*)(?:\.bin)?$'
+        match = re.search(pattern, version)
+        if match and match.group(0):
+            version_name = match.group(1)
+            return version_name.replace('.bin', '')
+        return ''
 
     def _get_info_orig(self):
         print("Run NVOS AddSessionInfo.get_dynamic_info")
@@ -143,61 +195,17 @@ class NvosAddSessionInfo(SessionAddInfo):
             logger.error("Exception error: %s" % repr(e))
             return 1, {}
 
-    def _get_required_info(self):
-        print("Run NVOS AddSessionInfo.get_dynamic_info")
-        try:
-            res = {
-                "dut_name": self.conf_obj.get_extra_info().get("dut_name"),
-                "target_version": self._get_version_from_version_param("target_version"),
-                # "base_version": self._get_version_from_version_param("base_version"),
-                "platform": self.conf_obj.get_extra_info().get("dut_hwsku"),
-                "asic": self.conf_obj.get_extra_info().get("chip_type"),
-                "topology": self.conf_obj.get_extra_info().get("topology"),
-                "is_code_coverage_run": self.conf_obj.get_extra_info().get("code_coverage_run"),
-                "is_sanitizer_run": self.conf_obj.get_extra_info().get("sanitizer_run"),
-                "repo_name": self.conf_obj.get_extra_info().get("sonic_mgmt_repo_name"),
-            }
+    def _parse_system_version(self, show_system_output, show_device_output, topology, code_coverage_run, sanitizer_run):
+        version = re.compile(r'"product-release": "(.*)"', re.IGNORECASE)
+        platform_re = re.compile(r'"platform": "(.*)"', re.IGNORECASE)
+        asic = re.compile(r'"type": "(.*)"', re.IGNORECASE)
+        res = {
+            "version": version.findall(show_system_output)[0] if version.search(show_system_output) else "",
+            "platform": platform_re.findall(show_system_output)[0] if platform_re.search(show_system_output) else "",
+            "topology": topology,
+            "asic": asic.findall(show_device_output)[0] if asic.search(show_device_output) else "",
+            "is_code_coverage_run": code_coverage_run,
+            "is_sanitizer_run": sanitizer_run,
+        }
 
-            print("Regression Info:\n" + '\n'.join([f'{str(k)}: {str(v)}' for k,v in res.items()]))
-
-            return 0, res
-        except Exception as e:
-            logger.error("Exception error: %s" % repr(e))
-            return 1, {}
-
-    def _get_real_file_path(self, file_path: str) -> str:
-        """
-        @summary: Get the real file path from a given path
-        """
-        real_path = os.path.realpath(file_path)
-        containing_dir = os.path.dirname(real_path)
-        filename = os.path.basename(real_path)
-        dir_content = os.listdir(containing_dir)
-        matching_filename = [dir_file for dir_file in dir_content if fnmatch.fnmatch(dir_file, filename)][0]
-        real_file_path = os.path.join(containing_dir, matching_filename)
-        return real_file_path
-
-    def _get_version_info(self, version: str) -> Tuple[str, str]:
-        """
-        extract version number and build number from a given image url/path or just a version
-        Examples:
-            - /a/b/c/d/25.01.3001.bin -> '25.01.3001', ''
-            - http://abc.com/a/b/c/25.01.3001-123.bin -> '25.01.3001', '123'
-            - 25.01.3001 -> '25.01.3001', ''
-        """
-        pattern = r'(\d+\.\d+\.\d+)(?:-(\d+))?(?:\.bin)?$'
-        match = re.search(pattern, version)
-        if match and match.group(0):
-            version_num = match.group(1)
-            bin_num = match.group(2) if match.group(2) else ''
-            return version_num, bin_num
-        return '', ''
-
-    def _get_version_from_version_param(self, version_param_name) -> str:
-        param_val = self.conf_obj.get_extra_info().get(version_param_name)
-        path = self._get_real_file_path(param_val)
-        version_num, build_num = self._get_version_info(path)
-        version = version_num + f'-{build_num}' if build_num else ''
-        return version
-
-
+        return res
