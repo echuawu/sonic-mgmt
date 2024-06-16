@@ -189,8 +189,7 @@ def test_lldp_incorrect_values(engines, devices, test_api):
     with allure.step(f"Verify can't set {interval} * {multiplier} which exceeds TTL of {max_allowed_ttl}"):
         lldp.set(SystemConsts.LLDP_INTERVAL, interval).verify_result()
         lldp.set(SystemConsts.LLDP_MULTIPLIER, multiplier, apply=True).verify_result(should_succeed=False)
-        lldp.unset(SystemConsts.LLDP_INTERVAL).verify_result()
-        lldp.unset(SystemConsts.LLDP_MULTIPLIER).verify_result()
+        lldp.unset(apply=True).verify_result()
 
 
 @pytest.mark.lldp
@@ -229,9 +228,10 @@ def test_lldp_max_values(engines, devices):
                 TcpDumpConsts.LLDP_TIME_TO_LIVE]) == ttl, 'The cli ttl does not match sent frame time to live'
 
     finally:
-        with allure.step("Return to default interval and multiplier"):
+        with allure.step("Return to default lldp values"):
             lldp.unset(SystemConsts.LLDP_INTERVAL).verify_result()
-            lldp.unset(SystemConsts.LLDP_MULTIPLIER, apply=True).verify_result()
+            lldp.unset(SystemConsts.LLDP_MULTIPLIER).verify_result()
+            lldp.unset(SystemConsts.STATE, apply=True).verify_result()
             _verify_lldp_running(lldp, engine=engines.dut)
 
 
