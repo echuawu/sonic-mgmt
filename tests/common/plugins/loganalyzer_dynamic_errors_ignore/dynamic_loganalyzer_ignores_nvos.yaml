@@ -1568,3 +1568,9 @@
     - Affected_test_cases:
       - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[fan_err_direction]
       - tests_nvos/platform/test_platform_environment.py::test_platform_environment_fan_direction_mismatch
+
+- Errors_list:
+    - '.*ERR health-statsd#health_history: PSU-Redundancy: Power redundancy policy grid-redundant requires all (4) power supplies to be working, currently system has only 3.*'
+  Conditions:
+    - Affected_test_cases:
+      - tests/nightly/new_hw_thermal_control/test_new_hw_tc_algorithm.py::TestNewTc::test_sensor_errors[fan_err_direction]

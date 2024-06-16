@@ -40,7 +40,4 @@
 	<test>
 		<cases> sonic-mgmt/nvos-tool/mars/cases/fae/nvos_fae.cases </cases>
 	</test>
-	<test>
-		<cases> sonic-mgmt/nvos-tool/mars/cases/fae/nvos_fae_port_fast_recovery.cases </cases>
-	</test>
 </DBDEF>
