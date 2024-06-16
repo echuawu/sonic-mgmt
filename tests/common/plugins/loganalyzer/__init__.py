@@ -66,10 +66,15 @@ def loganalyzer(duthosts, request):
     should_rotate_log = request.config.getoption("--loganalyzer_rotate_logs")
     if should_rotate_log:
         parallel_run(analyzer_logrotate, [], {}, duthosts, timeout=120)
+
+    no_duthost = False
     for duthost in duthosts:
-        analyzer = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name, request=request)
-        analyzer.load_common_config()
-        analyzers[duthost.hostname] = analyzer
+        if duthost is None:
+            no_duthost = True
+        else:
+            analyzer = LogAnalyzer(ansible_host=duthost, marker_prefix=request.node.name, request=request)
+            analyzer.load_common_config()
+            analyzers[duthost.hostname] = analyzer
     markers = parallel_run(analyzer_add_marker, [analyzers], {}, duthosts, timeout=120)
 
     yield analyzers
@@ -78,6 +83,10 @@ def loganalyzer(duthosts, request):
     if "rep_call" in request.node.__dict__ and request.node.rep_call.skipped or \
             "rep_setup" in request.node.__dict__ and request.node.rep_setup.skipped:
         return
+
+    if no_duthost:
+        raise Exception(f"Some duthost objects are None so loganalyzer can't run: {duthosts=}. This is probably due to "
+                        f"a network error.")
     logging.info("Starting to analyse on all DUTs")
     if len(analyzers) == 1:
         analyze_logs(analyzers, markers, node=duthosts[0], fail_test=fail_test, store_la_logs=store_la_logs)
