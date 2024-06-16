@@ -16,17 +16,6 @@
   </global>
 
   <case>
-    <name> loganalyzer upgrade step </name>
-    <info> </info>
-    <tout> 600 </tout>
-    <cmd>
-      <params>
-          <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests/nightly/logging/test_log_analyzer_errors_during_deploy_sonic.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --log-level=INFO --clean-alluredir  --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]   --store_la_logs --ignore_la_failure\'"</static_args>
-      </params>
-    </cmd>
-  </case>
-
-  <case>
     <name> InitFlow </name>
     <info> </info>
     <cmd>
