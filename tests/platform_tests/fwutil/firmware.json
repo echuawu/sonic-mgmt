@@ -527,8 +527,8 @@
 				"BIOS": [
 					{
 						"force_reboot": true,
-						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x04_rc5/Release/0ACQF.cab",
-						"version": "0ACQF_06.01.004",
+						"firmware": "http://nbu-mtr-nfs.nvidia.com/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab",
+						"version": "0ACQF_06.01.005",
 						"reboot": ["cold"]
 					}
 				],
@@ -554,14 +554,14 @@
 				"BIOS": [
 					{
 						"force_reboot": true,
-						"firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03_rc1/Release/0ACQF.cab",
-						"version": "0ACQF_06.01.003",
+						"firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab",
+						"version": "0ACQF_06.01.005",
 						"reboot": ["cold"]
 					},
 					{
 						"force_reboot": true,
-						"firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x02/Release/0ACQF.cab",
-						"version": "0ACQF_06.01.002",
+						"firmware": "http://nbu-mtr-nfs.nvidia.com//auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03_rc1/Release/0ACQF.cab",
+						"version": "0ACQF_06.01.003",
 						"reboot": ["cold"]
 					}
 				],
