@@ -31,11 +31,13 @@ class IbInterfaceConsts:
     LINK_LOGICAL_PORT_STATE = "logical-state"
     LINK_LOGICAL_PORT_STATE_ACTIVE = 'Active'
     LINK_LOGICAL_PORT_STATE_INITIALIZE = 'Initialize'
+    LINK_LOGICAL_PORT_STATE_UP = 'Up'
     LINK_LOGICAL_PORT_STATE_DOWN = 'Down'
     LINK_PHYSICAL_PORT_STATE = "physical-state"
     LINK_PHYSICAL_PORT_STATE_LINK_UP = 'LinkUp'
     LINK_PHYSICAL_PORT_STATE_DISABLED = 'Disabled'
     LINK_PHYSICAL_PORT_STATE_POLLING = 'Polling'
+    LINK_PHYSICAL_PORT_STATE_POLLING_XDR = 'PortConfigurationTraining'
     LINK_STATE = "state"
     LINK_DIAGNOSTICS = "diagnostics"
     LINK_DIAGNOSTICS_UNPLUGGED_PORT = {'1024': {'status': 'Cable is unplugged'}}

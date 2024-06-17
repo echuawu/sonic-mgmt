@@ -244,6 +244,7 @@ class ActionConsts:
     CLEAR = 'clear'
     UPLOAD = 'upload'
     RENAME = 'rename'
+    RESET = 'reset'
 
 
 class SystemConsts:
@@ -571,6 +572,8 @@ class PlatformConsts:
     FW_SSD = "SSD"
     FW_FIELD_NAME_DICT = {"Actual FW": "actual-firmware"}
     FW_ACTUAL = "actual-firmware"
+    FW_UPGRADE_STATUS = 'fw-upgrade-status'
+    FW_UPGRADE_ERROR_MSG = 'fw-upgrade-error-msg'
     FW_PART_NUMBER = 'part-number'
     FW_AUTO_UPDATE = "auto-update"
     FW_SOURCE = "fw-source"
@@ -624,6 +627,8 @@ class PlatformConsts:
     VOLTAGE_FILES_PATTERN = 'PMIC|PSU'
     REMOVED = 'Removed'
     INSERTED = 'Inserted'
+    TRANSCEIVER_CABLE_TYPE = 'cable-type'
+    TRANSCEIVER_CABLE_OPTICAL_MODULE = 'Optical module'
 
 
 class FansConsts:

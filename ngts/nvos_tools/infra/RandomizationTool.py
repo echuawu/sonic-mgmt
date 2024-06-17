@@ -3,7 +3,7 @@ import string
 from random import randint
 from .ResultObj import ResultObj
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts, IbInterfaceConsts
-from ngts.nvos_constants.constants_nvos import SystemConsts
+from ngts.nvos_constants.constants_nvos import SystemConsts, PlatformConsts
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port, PortRequirements
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 import random
@@ -292,3 +292,24 @@ class RandomizationTool:
                 random_date = random_date_obj.strftime("%Y-%m-%d")
 
             return ResultObj(True, "Picked random date success", random_date)
+
+    @staticmethod
+    def select_random_transceiver(transceivers_output, cable_type, number_of_transceiver_to_select=1):
+        """
+        :summary: select random transceiver with a specific cable type
+
+        :param transceivers_output:
+        :param cable_type:
+        :param number_of_transceiver_to_select:
+        :return:
+        """
+        with allure.step("Select {} random transceiver with cable type: {}".format(number_of_transceiver_to_select, cable_type)):
+            transceivers_list = []
+            for transceiver, transceiver_data in transceivers_output.items():
+                if PlatformConsts.TRANSCEIVER_CABLE_TYPE in transceiver_data and transceiver_data[PlatformConsts.TRANSCEIVER_CABLE_TYPE] == cable_type:
+                    transceivers_list.append(transceiver)
+
+            if len(transceivers_list) < number_of_transceiver_to_select:
+                return ResultObj(False, "Failed to select {} {} transceivers. Only {} were found".format(number_of_transceiver_to_select, cable_type, len(transceivers_list)))
+
+            return ResultObj(True, "picked transceivers success", random.sample(transceivers_list, number_of_transceiver_to_select))

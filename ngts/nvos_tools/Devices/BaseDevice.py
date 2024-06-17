@@ -5,6 +5,7 @@ from abc import abstractmethod, ABCMeta, ABC
 from collections import namedtuple
 from typing import Tuple, List
 
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, \
     DiskConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
@@ -364,6 +365,9 @@ class BaseSwitch(BaseDevice):
         self.platform_inventory_switch_values = {
             "hardware-version": "", "model": "",  # update these in subclasses
             "serial": None, "state": FansConsts.STATE_OK, "type": PlatformConsts.HW_COMP_SWITCH.lower()}
+        self.platform_port_state = {
+            "polling-physical-state": IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_POLLING
+        }
 
     def _init_fan_direction_dir(self):
         super()._init_fan_direction_dir()
