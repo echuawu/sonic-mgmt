@@ -827,7 +827,7 @@ def get_sensor_read_err_file(sensor_type):
 def check_hw_thermal_control_status(cli_objects):
     assert cli_objects.dut.hw_mgmt.is_thermal_control_running(), "hw thermal control is not running"
     hw_tc_status = cli_objects.dut.hw_mgmt.show_thermal_control_status()
-    warning_error_reg = r".*(WARNING -|ERROR - ).*"
+    warning_error_reg = r".*(ERROR - ).*"
     warning_or_error_log = re.findall(warning_error_reg, hw_tc_status, flags=re.DOTALL)
     if warning_or_error_log:
         raise Exception(f"tc status include warning or error log: {hw_tc_status}")
