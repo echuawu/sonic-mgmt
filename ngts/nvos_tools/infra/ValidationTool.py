@@ -110,6 +110,7 @@ class ValidationTool:
             if field_name not in output_dictionary.keys():
                 result_obj.result = False
                 result_obj.info = "Field {field_name} can't be found".format(field_name=field_name)
+                return result_obj
 
             if str(output_dictionary[field_name]).strip() == str(expected_value).strip():
                 if should_be_equal:

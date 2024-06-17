@@ -4,7 +4,7 @@ import copy
 class UserInfo:
     def __init__(self, username, password, role):
         assert isinstance(username, str) and isinstance(password, str) \
-            and role in ['admin', 'monitor'], 'Invalid argument'
+            and role in ['admin', 'monitor', 'nvue-admin', 'nvue-monitor'], 'Invalid argument'
         self.username = username
         self.password = password
         self.role = role

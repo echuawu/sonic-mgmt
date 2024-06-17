@@ -126,8 +126,9 @@ def show_sys_version(engines):
 
 
 @pytest.fixture(scope='function')
-def local_adminuser(engines) -> UserInfo:
-    adminuser = UserInfo(username=AaaConsts.LOCALADMIN, password=generate_strong_password(), role=AaaConsts.ADMIN)
+def local_adminuser(engines, devices) -> UserInfo:
+    adminrole = devices.dut.aaa_admin_role
+    adminuser = UserInfo(username=AaaConsts.LOCALADMIN, password=generate_strong_password(), role=adminrole)
     logging.info(f'Local admin user for test: "{adminuser.username}", "{adminuser.password}"')
     set_local_users(engines, [adminuser], apply=True)
     return adminuser
