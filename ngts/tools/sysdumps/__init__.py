@@ -3,9 +3,11 @@ import logging
 import os
 import allure
 import math
+import json
 from ngts.constants.constants import PytestConst
 from ngts.tools.allure_report.allure_report_attacher import collect_stored_cmds_then_attach_to_allure_report, clean_stored_cmds_with_fixture_scope_list
 from ngts.scripts.store_techsupport_on_not_success import dump_simx_data
+
 
 logger = logging.getLogger()
 
@@ -32,28 +34,11 @@ def pytest_runtest_makereport(item, call):
                         dut_engine = topology_obj.players['dut']['engine']
                         duration = get_test_duration(item)
                         collect_stored_cmds_then_attach_to_allure_report(topology_obj)
-                        with allure.step('Generate Techsupport of last {} seconds'.format(duration)):
-                            output = dut_engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration),
-                                                        validate=True)
-                        remote_dump_path = output.splitlines()[-1]
+                        if topology_obj.players['dut'].get('is_nvos', False):
+                            generate_and_copy_nvos_dump(topology_obj, dut_engine, dumps_folder, item)
+                        else:
+                            generate_and_copy_sonic_dump(topology_obj, dut_engine, dumps_folder, duration, item)
 
-                    dest_file = dumps_folder + '/sysdump_' + item.name.replace('/', '_') + '.tar.gz'
-                    copy_msg = 'Copy dump {} to log folder {}'.format(remote_dump_path, dumps_folder)
-                    with allure.step(copy_msg):
-                        logger.info(copy_msg)
-                        dut_engine.copy_file(source_file=remote_dump_path,
-                                             dest_file=dest_file,
-                                             file_system='/',
-                                             direction='get',
-                                             overwrite_file=True,
-                                             verify_file=False)
-                        os.chmod(dest_file, 0o777)
-                    is_simx = item.funcargs.get('is_simx')
-                    is_air = item.funcargs.get('is_air')
-                    if is_simx and not is_air:
-                        with allure.step('Dump SIMX VM logs'):
-                            dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name.replace('/', '_'))
-                    store_dest_file_path(dest_file, item.name.replace('/', '_'))
                 except BaseException as err:
                     error_message = f'Failed to generate/store techsupport dump.\nGot error: {err}'
                     logger.error(error_message)
@@ -64,6 +49,56 @@ def pytest_runtest_makereport(item, call):
         if topology_obj:
             clean_stored_cmds_with_fixture_scope_list(topology_obj)
         os.environ[PytestConst.GET_DUMP_AT_TEST_FALIURE] = "True"
+
+
+def generate_and_copy_nvos_dump(topology_obj, dut_engine, dumps_folder, item):
+    if topology_obj.players['dut'].get('is_cumulus', False):
+        generate_and_copy_cumulus_dump(topology_obj, dut_engine, dumps_folder)
+        return
+
+    with allure.step("Generating NVOS tech-support"):
+        logging.info("Generating tech-support")
+        dut_engine.run_cmd('nv action generate system tech-support', validate=True)
+        output = dut_engine.run_cmd('nv show system tech-support files -o json', validate=True)
+        tech_support_file_on_switch = json.loads(output)["latest"]["path"]
+
+    dest_tech_support_file = dumps_folder + '/sysdump_' + item.name.replace('/', '_') + '.tar.gz'
+    copy_dump_file(dut_engine, tech_support_file_on_switch, dest_tech_support_file)
+    store_dest_file_path(dest_tech_support_file, item.name.replace('/', '_'))
+
+
+def generate_and_copy_cumulus_dump(topology_obj, dut_engine, dumps_folder):
+    logging.info("Generate dump for Cumulus - not implemented yet")
+    pass
+
+
+def generate_and_copy_sonic_dump(topology_obj, dut_engine, dumps_folder, duration, item):
+    with allure.step('Generate Techsupport of last {} seconds'.format(duration)):
+        output = dut_engine.run_cmd('sudo generate_dump -s \"-{} seconds\"'.format(duration), validate=True)
+        remote_dump_path = output.splitlines()[-1]
+
+    dest_file = dumps_folder + '/sysdump_' + item.name.replace('/', '_') + '.tar.gz'
+    copy_dump_file(dut_engine, remote_dump_path, dest_file)
+
+    is_simx = item.funcargs.get('is_simx')
+    is_air = item.funcargs.get('is_air')
+    if is_simx and not is_air:
+        with allure.step('Dump SIMX VM logs'):
+            dump_simx_data(topology_obj, dumps_folder, name_prefix=item.name.replace('/', '_'))
+    store_dest_file_path(dest_file, item.name.replace('/', '_'))
+
+
+def copy_dump_file(dut_engine, source_file, dest_file):
+    copy_msg = 'Copy dump {} to log folder {}'.format(source_file, dest_file)
+    with allure.step(copy_msg):
+        logger.info(copy_msg)
+        dut_engine.copy_file(source_file=source_file,
+                             dest_file=dest_file,
+                             file_system='/',
+                             direction='get',
+                             overwrite_file=True,
+                             verify_file=False)
+        os.chmod(dest_file, 0o777)
 
 
 def get_test_duration(item):

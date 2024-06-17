@@ -32,6 +32,7 @@ class IbSwitch(BaseSwitch):
         self.default_username = os.environ["NVU_SWITCH_USER"]
         self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
+        self.init_documents_consts()
 
     def get_default_password_by_version(self, version: str):
         version_num, _ = get_version_info(version)
@@ -358,11 +359,11 @@ class IbSwitch(BaseSwitch):
                     current_version='0202-000', alternate_version='0202-002'),
         }
 
-    def init_documents_consts(self, version_num=""):
+    def init_documents_consts(self):
         self.documents_files = {
             DocumentsConsts.TYPE_EULA: "NVOS_EULA.pdf",
-            DocumentsConsts.TYPE_RELEASE_NOTES: f"NVOS_{self.switch_type}_v{version_num}_Release_Notes.pdf",
-            DocumentsConsts.TYPE_USER_MANUAL: f"NVOS_{self.switch_type}_v{version_num}_User_Manual.pdf",
+            DocumentsConsts.TYPE_RELEASE_NOTES: f"NVOS_{self.switch_type}_Release_Notes.pdf",
+            DocumentsConsts.TYPE_USER_MANUAL: f"NVOS_{self.switch_type}_User_Manual.pdf",
             DocumentsConsts.TYPE_OPEN_SOURCE_LICENSES: "Open_Source_Licenses.txt"}
         self.documents_path = {DocumentsConsts.TYPE_EULA:
                                f"/usr/share/nginx/html/system_documents/eula/{self.documents_files[DocumentsConsts.TYPE_EULA]}",

@@ -43,7 +43,7 @@ class BaseDevice(ABC):
         self._init_security_lists()
         self._init_password_hardening_lists()
 
-    def init_documents_consts(self, version_num=""):
+    def init_documents_consts(self):
         self.documents_path = {}
         self.documents_files = {}
 
@@ -247,8 +247,8 @@ class BaseSwitch(BaseDevice):
     CpldImageConsts = namedtuple('CpldImageConsts', ('burn_image_path', 'refresh_image_path', 'version_names'))
     SsdImageConsts = namedtuple('SsdImageConsts', ('file', 'current_version', 'alternate_version'))
 
-    def init_documents_consts(self, version_num=""):
-        super().init_documents_consts(version_num)
+    def init_documents_consts(self):
+        super().init_documents_consts()
 
     def _init_available_databases(self):
         super()._init_available_databases()

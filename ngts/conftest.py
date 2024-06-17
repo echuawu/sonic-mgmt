@@ -252,15 +252,10 @@ def topology_obj(setup_name, request):
     update_branch_in_topology(topology, branch)
     is_sanitizer = request.session.config.cache.get(PytestConst.IS_SANITIZER_IMAGE, None)
     update_sanitizer_in_topology(topology, is_sanitizer=is_sanitizer)
-    update_topology_with_cli_class(topology)
+    update_topology_with_cli_class(topology, request)
     export_cli_type_to_cache(topology, request)
     enable_record_cmds(topology)
-    topology.players['dut']['is_nvos'] = \
-        topology.players['dut']['attributes'].noga_query_data['attributes']['Topology Conn.'][
-            'CLI_TYPE'] in NvosCliTypes.NvueCliTypes
 
-    if topology.players['dut']['is_nvos']:
-        update_default_password(topology.players['dut'], request)
     if request.config.option.ports_number == "max":
         # This is used for the fast reboot with max ports
         config_db = topology.players['dut']['cli'].general.get_config_db()
@@ -307,14 +302,14 @@ def export_cli_type_to_cache(topology, request):
     os.environ['CLI_TYPE'] = cli_type
 
 
-def update_topology_with_cli_class(topology):
+def update_topology_with_cli_class(topology, request=None):
     # TODO: determine player type by topology attribute, rather than alias
     nvos_setup = False
     for player_key, player_info in topology.players.items():
         if player_key == 'dut':
             if player_info['attributes'].noga_query_data['attributes']['Topology Conn.'][
                     'CLI_TYPE'] in NvosCliTypes.NvueCliTypes:
-                update_nvos_topology(topology, player_info)
+                update_nvos_topology(topology, player_info, request)
                 nvos_setup = True
             else:
                 player_info['cli'] = SonicCli(topology, dut_alias=player_key)
@@ -333,13 +328,18 @@ def update_topology_with_cli_class(topology):
         update_topology_for_mlnxos_setups(topology)  # for NVOS setups only
 
 
-def update_nvos_topology(topology, player_info):
+def update_nvos_topology(topology, player_info, request):
     if player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] != "NVUE":
         player_info['engine'] = LinuxSshEngine(player_info['engine'].ip, player_info['engine'].username,
                                                player_info['engine'].password)
         player_info['attributes'].noga_query_data['attributes']['Topology Conn.']['CLI_TYPE'] = "NVUE"
         player_info['attributes'].noga_query_data['attributes']['Common']['Description'] = "dut"
     player_info['cli'] = NvueCli(topology)
+    player_info['is_nvos'] = True
+    switch_type = player_info['attributes'].noga_query_data['attributes']['Specific'].get('TYPE', '')
+    if switch_type == NvosCliTypes.CumulusCliType:
+        player_info['is_cumulus'] = True
+    update_default_password(player_info, request)
 
 
 @pytest.fixture(scope='session')

@@ -15,7 +15,7 @@ logger = logging.getLogger()
 
 def get_asan_apps(topology_obj, cli_obj):
     asan_apps = []
-    if not topology_obj.players['dut']['is_nvos']:
+    if not topology_obj.players['dut'].get('is_nvos', False):
         apps_dict = cli_obj.app_ext.parse_app_package_list_dict()
         for app_name in SanitizerConst.ASAN_APPS:
             if app_name in apps_dict.keys():
@@ -152,11 +152,11 @@ def aggregate_asan_and_send_mail(mail_address, sanitizer_dump_path, extract_path
             s.sendmail(SanitizerConst.SENDER_MAIL, email_contents['To'], email_contents.as_string())
 
         text = f'Sanitizer found errors on daemons: \n' \
-               f'{asan_files_dict.keys()}\n' \
-               f'You should get mail for each daemon\n' \
-               f'All the ASAN files are here:\n' \
-               f'{extract_path}\n' \
-               f'Tar file:{sanitizer_dump_path}'
+            f'{asan_files_dict.keys()}\n' \
+            f'You should get mail for each daemon\n' \
+            f'All the ASAN files are here:\n' \
+            f'{extract_path}\n' \
+            f'Tar file:{sanitizer_dump_path}'
         summary_email_contents = organize_email_content(text,
                                                         f"Sanitizer report on setup {setup_name}",
                                                         mail_address)

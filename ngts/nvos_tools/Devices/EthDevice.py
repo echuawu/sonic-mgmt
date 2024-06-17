@@ -21,9 +21,10 @@ class EthSwitch(BaseSwitch):
         self.default_username = os.environ["CUMULUS_SWITCH_USER"]
         self.manufacture_password = "cumulus"
         self.switch_type = "ETH"
+        self.init_documents_consts()
 
-    def init_documents_consts(self, version_num=""):
-        super().init_documents_consts(version_num)
+    def init_documents_consts(self):
+        super().init_documents_consts()
 
     def _init_constants(self):
         super()._init_constants()

@@ -6650,7 +6650,7 @@
   server: server_54
   vm_base: VM0000
   dut:
-    - r-anaconda-25
+    - r-anaconda-24
   comment: Mellanox MTR testbed
 
 - conf-name: gorilla-71-ptf-any

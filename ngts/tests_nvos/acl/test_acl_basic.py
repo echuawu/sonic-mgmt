@@ -1,5 +1,6 @@
 import logging
 import pytest
+from retry import retry
 
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tools.test_utils import allure_utils as allure
@@ -365,6 +366,7 @@ def test_show_acl_commands(engines, test_api, topology_obj):
         mgmt_port = MgmtPort(mgmt_port_name)
         mgmt_port.interface.acl.set(acl_id).verify_result()
         mgmt_port.interface.acl.acl_id[acl_id].inbound.set(AclConsts.CONTROL_PLANE, apply=True).verify_result()
+        wait_till_acl_applied(mgmt_port, acl_id)
 
         with allure.step("Validate configuration with show commands"):
             interface_acls_output = mgmt_port.interface.acl.parse_show()
@@ -381,6 +383,12 @@ def test_show_acl_commands(engines, test_api, topology_obj):
 
             inbound_output = mgmt_port.interface.acl.acl_id[acl_id].inbound.parse_show(AclConsts.CONTROL_PLANE)
             assert rule_output.keys() == inbound_output[AclConsts.STATISTICS].keys()
+
+
+@retry(Exception, tries=3, delay=3)
+def wait_till_acl_applied(mgmt_port, acl_id):
+    interface_acls_output = mgmt_port.interface.acl.parse_show()
+    assert acl_id in interface_acls_output.keys(), f"{acl_id} not found"
 
 
 @pytest.mark.acl

@@ -77,7 +77,6 @@ def test_upload_document(engines, devices):
     invalid_url_2 = 'ffff://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
     upload_path = 'scp://{}:{}@{}/tmp/'.format(player.username, player.password, player.ip)
 
-    update_documents_name(devices.dut)
     random_file = random.choice([devices.dut.documents_files[DocumentsConsts.TYPE_EULA],
                                  devices.dut.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES],
                                  devices.dut.documents_files[DocumentsConsts.TYPE_USER_MANUAL]])
@@ -93,16 +92,6 @@ def test_upload_document(engines, devices):
     with allure.step('try to upload {} to invalid url - using non supported transfer protocol'.format(random_file)):
         output = system.documentation.action_upload(file_name=random_file, upload_path=invalid_url_2)
         assert "is not a" in output.info, "URL used non supported transfer protocol"
-
-
-def update_documents_name(device):
-    with allure.step("Check OS version"):
-        version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()[
-            'image']
-        version_num = TestToolkit.get_version_num(version)
-
-    with allure.step("Update documents path"):
-        device.init_documents_consts(version_num)
 
 
 def verify_documents_type(output, validation_key):
@@ -124,7 +113,6 @@ def verify_documents_path(output, validation_key, device):
     :param validation_key:
     :return:
     """
-    update_documents_name(device)
     verify_documents(output, validation_key, [device.documents_path[DocumentsConsts.TYPE_EULA],
                                               device.documents_path[DocumentsConsts.TYPE_RELEASE_NOTES],
                                               device.documents_path[DocumentsConsts.TYPE_USER_MANUAL],
@@ -132,7 +120,6 @@ def verify_documents_path(output, validation_key, device):
 
 
 def verify_documents_size(engine, device):
-    update_documents_name(device)
     files_list = [device.documents_files[DocumentsConsts.TYPE_EULA],
                   device.dut.documents_files[DocumentsConsts.TYPE_RELEASE_NOTES],
                   device.dut.documents_files[DocumentsConsts.TYPE_USER_MANUAL]]

@@ -1210,6 +1210,7 @@ class PlayersAliases:
 
 class NvosCliTypes:
     NvueCliTypes = ["NVUE", "MLNX_OS"]
+    CumulusCliType = "CUMULUS_SWITCH"
 
 
 class BluefieldConstants:
