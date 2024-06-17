@@ -98,7 +98,7 @@ class SonicImClis:
         """
         skip_xcvrd_cmis_mgr_flag = 'skip_xcvrd_cmis_mgr'
         cmd = f'sudo sed -i \'s/"{skip_xcvrd_cmis_mgr_flag}": true/"{skip_xcvrd_cmis_mgr_flag}": false/\' ' \
-              f'{SonicConst.PMON_DAEMON_CONTROL_JSON_PATH.format(PLATFORM=platform_params["platform"])}'
+            f'{SonicConst.PMON_DAEMON_CONTROL_JSON_PATH.format(PLATFORM=platform_params["platform"])}'
         self.engine.run_cmd(cmd)
 
     def dut_ports_number_dict(self, topology_obj, is_community=False):
@@ -164,6 +164,7 @@ class SonicImClis:
                                             self.enable_im_in_sai()
                                         with allure.step('Get all ports supporting IM'):
                                             if self.is_im_enabled():
+                                                self.general_cli.verify_dockers_are_up()
                                                 port_supporting_im = \
                                                     self.get_ports_supporting_im(
                                                         self.dut_ports_number_dict(topology_obj, is_community))
