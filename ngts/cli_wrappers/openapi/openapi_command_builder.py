@@ -46,11 +46,11 @@ class OpenApiRequest:
     @staticmethod
     def print_request(r: requests.Request, req_data: RequestData):
         output = f'\n' \
-                 f'=======Request=======\n' \
-                 f'Method: {r.method}\n' \
-                 f'URL: {r.url}\n' \
-                 f'User: {req_data.user_name}\n' \
-                 f'Body: {OpenApiRequest.format_json_str(json.dumps(r.body, indent=2)) if r.body else "{}"}'
+            f'=======Request=======\n' \
+            f'Method: {r.method}\n' \
+            f'URL: {r.url}\n' \
+            f'User: {req_data.user_name}\n' \
+            f'Body: {OpenApiRequest.format_json_str(json.dumps(r.body, indent=2)) if r.body else "{}"}'
         logger.info(output)
 
     @staticmethod
@@ -60,9 +60,9 @@ class OpenApiRequest:
         else:
             response = json.dumps(r.json(), indent=2) if req_type == OpenApiReqType.PATCH else r.content
         output = f'\n' \
-                 f'=======Response=======\n' \
-                 f'{OpenApiRequest.format_json_str(response)}\n' \
-                 f'======================'
+            f'=======Response=======\n' \
+            f'{OpenApiRequest.format_json_str(response)}\n' \
+            f'======================'
         logger.info(output)
 
     @staticmethod
@@ -222,12 +222,15 @@ class OpenApiRequest:
         res = OpenApiRequest._check_html_response(r)
         if not res.result:
             return res
-        if req_type == OpenApiReqType.PATCH:
-            response = r.json()
+        if req_type == OpenApiReqType.DELETE:
+            assert r.status_code == 204, f"Response code is: {r.status_code}, instead of 204"
         else:
-            response = json.loads(r.content)
-        if 'title' in response.keys() and response['title'] in INVALID_RESPONSE:
-            return ResultObj(False, "Error: Request failed. Details: " + response['detail'])
+            if req_type == OpenApiReqType.PATCH:
+                response = r.json()
+            else:
+                response = json.loads(r.content)
+            if 'title' in response.keys() and response['title'] in INVALID_RESPONSE:
+                return ResultObj(False, "Error: Request failed. Details: " + response['detail'])
         return ResultObj(True, "")
 
     @staticmethod
