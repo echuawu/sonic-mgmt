@@ -427,9 +427,8 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         self.engine.disconnect()
 
-        self.update_platform_params(platform_params, setup_name)
-
         if apply_base_config:
+            self.update_platform_params(platform_params, setup_name)
             with allure.step("Apply basic config"):
                 self.apply_basic_config(topology_obj, setup_name, platform_params, disable_ztp=disable_ztp,
                                         configure_dns=configure_dns)
