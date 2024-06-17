@@ -808,10 +808,10 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_platform_lists(self):
         super()._init_platform_lists()
-        # self.platform_environment_fan_values = {
-        #     "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
-        #     "min-speed": ExpectedString(range_min=2000, range_max=10000),
-        #     "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
         self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": ExpectedString(regex="N5110_LD.*")})
 
