@@ -12,3 +12,4 @@ class Firmware(BaseComponent):
         super().__init__(parent=parent_obj, path='/firmware')
         self.asic = Asic(self)
         self.transceiver = Transceiver(self)
+        self.bmc = BaseComponent(self, path='/BMC')

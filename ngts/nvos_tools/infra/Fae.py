@@ -81,7 +81,7 @@ class FaeFirmware(BaseComponent):
         self.cpld = FaeCpldComponent(self, 'CPLD')
         self.bios = FaeBiosComponent(self, 'BIOS')
         self.ssd = FaePlatformComponent(self, 'SSD')
-        self.bmc = FaePlatformComponent(self, 'BMC')
+        self.bmc = FaePlatformComponent(self, 'bmc')  # TODO: Fix after bug closed https://redmine.mellanox.com/issues/3955495
         self.fpga = FaePlatformComponent(self, 'FPGA')
 
     def install_bios_firmware(self, bios_image_path, device):
