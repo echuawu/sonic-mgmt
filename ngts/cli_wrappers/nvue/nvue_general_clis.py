@@ -236,6 +236,10 @@ class NvueGeneralCli(SonicGeneralCliDefault):
             else:
                 output = engine.run_cmd_set(['nv config apply', 'y'], patterns_list=[r"Are you sure?"],
                                             tries_after_run_cmd=2)
+            if NvosConst.DECLINED_APPLY_MSG in output:
+                output = "Error: " + output
+            elif NvosConst.Y_COMMAND_NOT_FOUND in output and ConfState.APPLIED in output:
+                output = ConfState.APPLIED + NvueGeneralCli.get_rev_id(output)
             output = output.replace(NvosConst.Y_COMMAND_NOT_FOUND, "")
         elif validate_apply_message:
             output = engine.run_cmd('nv {option} config apply'.format(option=option))
@@ -244,11 +248,8 @@ class NvueGeneralCli(SonicGeneralCliDefault):
         else:
             output = engine.run_cmd('nv {option} config apply {rev}'.format(option=option, rev=rev_id))
 
-        logging.info("Check apply result")
         if skip_no_config_diff_err and NvosConst.NO_CONFIG_DIFF_APPLY_MSG in output:
-            output = ConfState.APPLIED + NvueGeneralCli.get_rev_id(output)  # skip no diff message
-        if ConfState.APPLIED not in output:
-            output = "Error: " + output
+            output = ConfState.APPLIED
 
         return output
 
