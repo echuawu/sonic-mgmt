@@ -3,7 +3,7 @@ import time
 from retry import retry
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
 from ngts.nvos_tools.infra.BaseComponent import BaseComponent
-from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthConsts
+from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthConsts, ActionConsts
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
@@ -67,6 +67,10 @@ class System(BaseComponent):
         self.api = Api(self)
         self.ptp = BaseComponent(self, path='/ptp')
         self.lldp = Lldp(self)
+
+    def ssd_cleanup(self, expected_str="", dut_engine=None):
+        """nv action run fae system ssd-cleanup """
+        return self.action(ActionConsts.RUN, 'ssd-cleanup', expected_output=expected_str)
 
     @staticmethod
     def get_expected_fields(device, resource):

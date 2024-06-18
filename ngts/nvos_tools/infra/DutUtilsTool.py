@@ -5,7 +5,7 @@ import socket
 import time
 
 from paramiko.ssh_exception import AuthenticationException
-
+from netmiko import ConnectHandler
 from .ResultObj import ResultObj, IssueType
 import subprocess
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
@@ -216,3 +216,22 @@ def wait_on_systemctl_initialization(engine):
     output = engine.run_cmd("sudo systemctl is-system-running")
     if "running" not in output:
         raise Exception("Waiting for systemctl to finish initializing")
+
+
+def wait_for_specific_regex_in_logs(engine, regex):
+    """
+
+    :param engine:
+    :param regex:
+    :return:
+    """
+    device = {
+        'device_type': '',
+        'host': engine.ip,
+        'username': engine.username,
+        'password': engine.password,
+        'timeout': 70
+    }
+    connection = ConnectHandler(**device)
+    connection.send_command('nv show system log follow', delay_factor=2, expect_string=regex)
+    connection.disconnect()

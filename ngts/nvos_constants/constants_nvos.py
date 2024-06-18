@@ -233,6 +233,7 @@ class ActionType:
 
 class ActionConsts:
     CLEANUP = "cleanup"
+    RUN = "run"
     INSTALL = "install"
     UNINSTALL = "uninstall"
     BOOT_NEXT = "boot-next"
@@ -503,6 +504,11 @@ class SystemConsts:
     LLDP_LLDP = 'lldp'
 
     GENERAL_TRANSCEIVER_FIRMWARE_FILES = "/auto/sw_system_project/NVOS_INFRA/verification_files/transceiver_fw"
+
+    SSD_SPACE_TOTAL_SIZE = 'Size'
+    SSD_SPACE_USED_SIZE = 'Used'
+    SSD_SPACE_AVAILABLE_SIZE = 'Avail'
+    SSD_SPACE_USAGE_PERCENTAGE = 'Use%'
 
 
 class DocumentsConsts:
@@ -955,6 +961,7 @@ class SyslogConsts:
     CONFIG_TIME_DIFF_THRESHOLD = 1.0  # [sec]
     SHOW_TIME_DIFF_THRESHOLD = 1.0  # [sec]
     NVUE_LOG_PATH = "/var/log/nv-cli.log"
+    SYSLOG_LOG_PATH = "/var/log/syslog"
 
 
 class SyslogSeverityLevels:
