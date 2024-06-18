@@ -76,11 +76,17 @@ class SonicImClis:
         @return: list of IM ports supported
         """
         ports_with_im_support = []
-        for port_name, port_number in dut_ports_number_dict.items():
-            cmd = self.engine.run_cmd(
-                f"sudo cat {IndependentModuleConst.IM_CONTROL_FILE_PATH.format(PORT_NUMBER=int(port_number) - 1)}")
-            if int(cmd) == 1:
-                ports_with_im_support.append(port_name)
+        ports_numbers_to_check = []
+        for index, port_name in enumerate(dut_ports_number_dict):
+            ports_numbers_to_check.append(str(int(dut_ports_number_dict[port_name]) - 1))
+        if ports_numbers_to_check:
+            ports_numbers_to_check = ",".join(ports_numbers_to_check)
+            cmd = "for i in {%s}; do sudo cat /sys/module/sx_core/asic0/module$i/control; done" % ports_numbers_to_check
+            output = self.engine.run_cmd(cmd)
+            split_output = output.splitlines()
+            for index, port_name in enumerate(dut_ports_number_dict):
+                if int(split_output[index]) == 1:
+                    ports_with_im_support.append(port_name)
         logger.info(f'Ports supporting IM are {ports_with_im_support}')
         return ports_with_im_support
 
