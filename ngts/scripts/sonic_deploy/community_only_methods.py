@@ -100,6 +100,7 @@ def add_host_for_y_cable_simulator(dut, setup_info):
         logger.info('Adding "{IP} {NAME}" to file /etc/hosts'.format(IP=ip, NAME=name))
         engine = dut['engine']
         try:
+            engine.disconnect()
             engine.run_cmd('sudo chmod 777 /etc/hosts')
             engine.run_cmd('echo "{IP} {NAME}" >> /etc/hosts'.format(IP=ip, NAME=name))
         except Exception:
