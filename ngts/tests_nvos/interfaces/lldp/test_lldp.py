@@ -5,12 +5,14 @@ import pytest
 
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.nvos_constants.constants_nvos import SystemConsts, NvosConst, TcpDumpConsts, ApiType
+from ngts.nvos_tools.ib.InterfaceConfiguration.Interface import Interface
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import NvosConsts
 from ngts.nvos_tools.infra.IpTool import IpTool
 from ngts.nvos_tools.infra.LLDPTool import LLDPTool
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
+from ngts.nvos_tools.infra.ValidationTool import ValidationTool
 from ngts.nvos_tools.system.System import System
 from ngts.tools.test_utils import allure_utils as allure
 
@@ -30,6 +32,32 @@ def test_lldp_enabled(engines, devices, test_api):
     system = System()
     lldp = system.lldp
     _verify_lldp_is_sending_frames(lldp=lldp, engine=engines.dut, device=devices.dut)
+
+
+@pytest.mark.lldp
+@pytest.mark.system
+@pytest.mark.interface
+def test_lldp_show(engines, devices):
+    """
+    Verify lldp show is working as expected.
+
+    1. Verify lldp is running.
+    2. Verify interface lldp contains neighbor field.
+    """
+    system = System()
+    lldp = system.lldp
+
+    _verify_lldp_running(lldp, engine=engines.dut)
+    lldp_output = OutputParsingTool.parse_json_str_to_dictionary(Interface(parent_obj=None).lldp.show()).get_returned_value()
+    for interface_name in devices.dut.get_mgmt_ports():
+        ValidationTool.verify_field_exist_in_json_output(lldp_output,
+                                                         [interface_name]).verify_result()
+        eth_output = lldp_output[interface_name]
+        ValidationTool.verify_field_exist_in_json_output(eth_output,
+                                                         [SystemConsts.LLDP_LLDP]).verify_result()
+        eth_lldp_output = eth_output[SystemConsts.LLDP_LLDP]
+        ValidationTool.verify_field_exist_in_json_output(eth_lldp_output,
+                                                         [SystemConsts.LLDP_NEIGHBOR]).verify_result()
 
 
 @pytest.mark.lldp

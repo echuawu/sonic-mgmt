@@ -499,6 +499,8 @@ class SystemConsts:
     LLDP_MULTIPLIER = 'tx-hold-multiplier'
     LLDP_STATE = 'state'
     LLDP_IS_RUNNING = 'is-running'
+    LLDP_NEIGHBOR = 'neighbor'
+    LLDP_LLDP = 'lldp'
 
     GENERAL_TRANSCEIVER_FIRMWARE_FILES = "/auto/sw_system_project/NVOS_INFRA/verification_files/transceiver_fw"
 
