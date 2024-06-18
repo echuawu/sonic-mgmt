@@ -3107,6 +3107,8 @@
     - '.* ERR kernel: \[ .*\] Fails to read module eeprom, status: -16.*'
     - '.* ERR kernel: \[.*\] Fails to access .* module eeprom, status: -16.*'
     - '.* ERR pmon#xcvrd:.*Failed to get SFP type, index=\d+, error=\[Errno \d+\] Device or resource busy.*'
+    - '.*ERR swss#orchagent: :- on_switch_shutdown_request: Syncd stopped.*'
+    - '.*mlnx_switch_health_event_handle: Health event happened.*HW catastrophic.*'
   Conditions:
     - Affected_test_cases:
       - tests/nightly/auto_negotition/test_auto_neg_scale.py
