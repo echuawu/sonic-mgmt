@@ -2199,6 +2199,20 @@ r-tigon-11-ptf32
 r-tigon-11-ptf64
 r-tigon-11-ptf-any
 
+# MTR r-tigon-20 topologies
+r-tigon-20
+r-tigon-20-t0
+r-tigon-20-t0-16
+r-tigon-20-t0-52
+r-tigon-20-t0-56
+r-tigon-20-t0-64
+r-tigon-20-t1
+r-tigon-20-t1-lag
+r-tigon-20-t1-64-lag
+r-tigon-20-ptf32
+r-tigon-20-ptf64
+r-tigon-20-ptf-any
+
 # MTVR mtvr-tigon-02 topologies
 mtvr-tigon-02
 mtvr-tigon-02-t0
