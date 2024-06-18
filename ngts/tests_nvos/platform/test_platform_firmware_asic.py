@@ -108,7 +108,7 @@ def test_platform_firmware_image_rename(engines, devices, topology_obj):
     _, fetched_image_name, _ = get_image_data_and_fetch_random_image_files(platform, dut, topology_obj)
     fetched_image_file = platform.firmware.asic.files.file_name[fetched_image_name]
     with allure.step("Rename image without mfa ending"):
-        platform.firmware.asic.action_fetch(f"{PlatformConsts.FM_PATH}/{fetched_image_name}").verify_result()
+        platform.firmware.asic.action_fetch(f"{PlatformConsts.FW_PATH}/{fetched_image_name}").verify_result()
 
     with allure.step("Rename image and verify"):
         new_name = RandomizationTool.get_random_string(20, ascii_letters=string.ascii_letters + string.digits)
@@ -234,11 +234,14 @@ def get_image_data_and_fetch_random_image_files(platform, dut, topology_obj, ima
                                                 ) -> Tuple[str, str, str]:
     original_image, default_firmware = get_image_data(platform, dut)
 
-    with allure.step("Get {} available image files".format(images_amount_to_fetch)):
+    with ((allure.step("Get {} available image files".format(images_amount_to_fetch)))):
         asic_type = topology_obj.players['dut']['attributes'].noga_query_data['attributes']['Specific'][
             'chip_type']
-        image_to_fetch = '{}fw-{}-'.format(PlatformConsts.FM_PATH, asic_type) + \
-                         ImageConsts.FW_STABLE_VERSION
+        if "QTM3" in default_firmware:
+            image_to_fetch = '{}fw-{}-'.format(PlatformConsts.XDR_FW_PATH, asic_type) + \
+                ImageConsts.XDR_FW_STABLE_VERSION
+        else:
+            image_to_fetch = '{}fw-{}-'.format(PlatformConsts.FW_PATH, asic_type) + ImageConsts.FW_STABLE_VERSION
         image_name = 'fw-{}-'.format(asic_type) + ImageConsts.FW_STABLE_VERSION
         platform.firmware.asic.action_fetch(image_to_fetch).verify_result()
     return original_image, image_name, default_firmware
