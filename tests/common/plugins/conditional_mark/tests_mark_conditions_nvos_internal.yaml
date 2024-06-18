@@ -267,7 +267,7 @@ tests_nvos/system/test_system_image.py::test_install_multiple_images:
   skip:
     reason: "Need to fix the test - currently installs the same image twice"
 
-tests_nvos/platform/test_system_factory_reset.py::test_show_fae_firmware:
+tests_nvos/platform/test_platform_firmware_asic.py::test_show_fae_firmware:
   skip:
     reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3863937"
     conditions_logical_operator: and
@@ -347,6 +347,22 @@ tests_nvos/platform/test_platform_environment.py::test_show_platform_environment
     conditions:
       - "'gorilla' not in testbed"
       - https://redmine.mellanox.com/issues/3922682
+
+tests_nvos/platform/test_platform_environment_voltage.py::test_show_platform_environment_voltage:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3856591"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3856591
+
+tests_nvos/platform/test_platform_firmware.py::test_show_platform_firmware:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3956092"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3956092
 
 tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lanes:
   skip:

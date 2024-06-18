@@ -81,7 +81,6 @@ class NvosConst:
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
     IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
-    FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
     ROOT_USER = os.getenv("VM_USER")
     ROOT_PASSWORD = os.getenv("VM_PASSWORD")
@@ -561,7 +560,8 @@ class ConfigConsts:
 
 class PlatformConsts:
     PLATFORM_FW = "firmware"
-    FM_PATH = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/"
+    FW_PATH = "/auto/sw_system_project/MLNX_OS_INFRA/mlnx_os2/sx_mlnx_fw/"
+    XDR_FW_PATH = "/auto/mswg/release/sx_mlnx_fw/QTM3/rel-35_2014_0938/dev/"
     PLATFORM_ENVIRONMENT = "environment"
     PLATFORM_HW = "hardware"
     PLATFORM_SW = "software"
@@ -691,6 +691,7 @@ class ImageConsts:
     SWID = 'swid'
     FW_ASIC = 'ASIC'
     FW_STABLE_VERSION = 'rel-31_2010_4100-004-EVB.mfa'
+    XDR_FW_STABLE_VERSION = 'rel-35_2014_0938.mfa'
     SCP_PATH = 'scp://{}:{}@{}'.format(NvosConst.ROOT_USER, NvosConst.ROOT_PASSWORD,
                                        'fit70')
     SCP_PATH_SERVER = 'scp://{username}:{password}@{ip}{path}'
