@@ -23,7 +23,6 @@ from tests.common.utilities import get_inventory_files, get_host_visible_vars
 from tests.common.utilities import skip_release_for_platform
 from tests.common.utilities import wait_until
 
-
 pytestmark = [
     pytest.mark.sanity_check(skip_sanity=True),
     pytest.mark.disable_loganalyzer,  # disable automatic loganalyzer
@@ -37,6 +36,7 @@ THERMAL_CONTROL_TEST_CHECK_INTERVAL = 5
 
 BF_2_PLATFORM = 'arm64-nvda_bf-mbf2h536c'
 BF_3_PLATFORM = 'arm64-nvda_bf-9009d3b600cvaa'
+VPD_DATA_FILE = "/var/run/hw-management/eeprom/vpd_data"
 
 
 @pytest.fixture(scope='module')
@@ -95,6 +95,12 @@ def test_show_platform_summary(duthosts, enum_rand_one_per_hwsku_hostname, dut_v
     expected_fields_values = {expected_platform, expected_hwsku, expected_asic}
     if len(unexpected_fields) != 0:
         expected_fields_values.add(expected_num_asic)
+
+    if duthost.facts["asic_type"] in ["mellanox"]:
+        # For Mellanox devices, we validate the hw-revision using the value at VPD_DATA_FILE
+        vpd_data = duthost.command(f"cat {VPD_DATA_FILE}")["stdout_lines"]
+        hw_rev_expected = util.parse_colon_speparated_lines(vpd_data)["REV"]
+        expected_fields_values.add(hw_rev_expected)
 
     actual_fields_values = set(summary_dict.values())
     diff_fields_values = expected_fields_values.difference(actual_fields_values)
@@ -209,7 +215,7 @@ def test_show_platform_syseeprom(duthosts, enum_rand_one_per_hwsku_hostname, dut
 
         utility_cmd = "sudo python -c \"import imp; \
             m = imp.load_source('eeprom', '/usr/share/sonic/device/{}/plugins/eeprom.py'); \
-            t = m.board('board', '', '', ''); e = t.read_eeprom(); t.decode_eeprom(e)\"".\
+            t = m.board('board', '', '', ''); e = t.read_eeprom(); t.decode_eeprom(e)\"". \
             format(duthost.facts["platform"])
 
         utility_cmd_output = duthost.command(utility_cmd)
