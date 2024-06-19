@@ -7,6 +7,7 @@ from ngts.nvos_constants.constants_nvos import ApiType, SystemConsts, HealthCons
 from ngts.cli_wrappers.nvue.nvue_system_clis import NvueSystemCli
 from ngts.cli_wrappers.openapi.openapi_system_clis import OpenApiSystemCli
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
+from ngts.nvos_tools.system.Lldp import Lldp
 from ngts.nvos_tools.system.Security import Security
 from ngts.nvos_tools.system.Syslog import Syslog
 from ngts.nvos_tools.system.Ntp import Ntp
@@ -65,6 +66,7 @@ class System(BaseComponent):
         self.web_server_api = WebServerAPI(self)
         self.api = Api(self)
         self.ptp = BaseComponent(self, path='/ptp')
+        self.lldp = Lldp(self)
 
     @staticmethod
     def get_expected_fields(device, resource):
