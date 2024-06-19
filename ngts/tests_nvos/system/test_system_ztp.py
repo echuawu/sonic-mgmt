@@ -39,15 +39,15 @@ def test_show_ztp_command(engines, devices, serial_engine):
         # with allure.step("Run nv show system log command and check ztp logs inside"):
         #     serial_engine.serial_engine.expect("ztp", timeout=30) #TBD we need to implement parallel serial checker
 
-        with allure.step("Check ztp log file exist"):
-            wc_output = engines.dut.run_cmd(f'wc -c {SystemConsts.ZTP_DEFAULT_LOG_FILE}')
-            assert SystemConsts.ZTP_DEFAULT_LOG_FILE in wc_output, 'ZTP log file not exist'
+        # with allure.step("Check ztp log file exist"): TBD uncomment when redmine.mellanox.com/issues/3919469 fixed
+        #     wc_output = engines.dut.run_cmd(f'wc -c {SystemConsts.ZTP_DEFAULT_LOG_FILE}')
+        #     assert SystemConsts.ZTP_DEFAULT_LOG_FILE in wc_output, 'ZTP log file not exist'
 
         with allure.step("Save configuration"):
             NvueGeneralCli.save_config(engines.dut)
 
-        _wait_until_ztp_values_fields_changed(
-            system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_AFTER_CONFIG_SAVE_VALUES)
+        # _wait_until_ztp_values_fields_changed( TBD uncomment when redmine.mellanox.com/issues/3919469 fixed
+        #     system, SystemConsts.ZTP_OUTPUT_FIELDS, SystemConsts.ZTP_AFTER_CONFIG_SAVE_VALUES)
 
         with allure.step("Run nv set system ztp config-save enabled"):
             system.ztp.set('config-save', 'enabled').verify_result(True)

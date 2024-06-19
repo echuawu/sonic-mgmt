@@ -1,6 +1,7 @@
 import logging
 import pytest
 
+from retry import retry
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.tools.test_utils import allure_utils as allure
 import random
@@ -248,9 +249,7 @@ def test_system_snmp_functional(engines, topology_obj):
                                                           expected_value='nvosdescription')
 
         with allure.step("Snmpwalk after autorefresh"):
-            host_output = HostMethods.host_snmp_walk(host_engine, ip_address, mib='1.3.6.1.2.1.31.1.1.1.18',
-                                                     param='| grep nvosdescription')
-            assert 'nvosdescription' in host_output, 'snmp get with wrong port returned output'
+            _wait_snmpwalk_nvos_description(host_engine, ip_address)
 
     with allure.step("SNMP unset"):
         system.snmp_server.unset(apply=True).verify_result()
@@ -346,3 +345,10 @@ def skip_if_engines_does_not_exist_in_setup(required_engines_list, engines):
             not_existed_engines.append(engine_name)
     if not_existed_engines:
         pytest.skip("Skip this test cause don't have the required engines {}".format(not_existed_engines))
+
+
+@retry(Exception, tries=3, delay=3)
+def _wait_snmpwalk_nvos_description(host_engine, ip_address):
+    host_output = HostMethods.host_snmp_walk(host_engine, ip_address, mib='1.3.6.1.2.1.31.1.1.1.18',
+                                             param='| grep nvosdescription')
+    assert 'nvosdescription' in host_output, 'snmp get with wrong port returned output'

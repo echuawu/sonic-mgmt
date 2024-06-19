@@ -289,36 +289,6 @@ tests_nvos/fae/test_sonic_cli.py::test_change_sonic_cli_state:
     conditions:
       - https://redmine.mellanox.com/issues/3910184
 
-tests_nvos/system/test_system_ztp.py::test_show_ztp_command:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
-    conditions:
-      - https://redmine.mellanox.com/issues/3919469
-
-tests_nvos/system/test_system_ztp.py::test_ztp_json:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
-    conditions:
-      - https://redmine.mellanox.com/issues/3919469
-
-tests_nvos/system/test_system_ztp.py::test_ztp_image:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
-    conditions:
-      - https://redmine.mellanox.com/issues/3919469
-
-tests_nvos/system/test_system_ztp.py::test_ztp_startup_file_commands_list:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
-    conditions:
-      - https://redmine.mellanox.com/issues/3919469
-
-tests_nvos/system/test_system_ztp.py::test_ztp_connectivity_check:
-  skip:
-    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3919469"
-    conditions:
-      - https://redmine.mellanox.com/issues/3919469
-
 tests_nvos/interfaces/test_ib_interface_counters.py::test_range_clear_counters_negative:
   skip:
     reason: "Testcase skipped due to RM issues: https://redmine.mellanox.com/issues/3916837 and 3920791"
