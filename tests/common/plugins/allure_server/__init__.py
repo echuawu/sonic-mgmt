@@ -43,6 +43,9 @@ def pytest_sessionfinish(session, exitstatus):
         allure_server_addr = session.config.option.allure_server_addr
         allure_server_port = session.config.option.allure_server_port
         allure_server_project_id = session.config.option.allure_server_project_id
+        #  allure project id doesn't support '_' and upper case
+        if allure_server_project_id:
+            allure_server_project_id = allure_server_project_id.replace('_', '-').lower()
 
         if allure_server_addr:
             allure_report_dir = session.config.option.allure_report_dir
