@@ -85,6 +85,7 @@ def test_bmc_install(engines, devices):
 
         with allure.step("Deleting image file"):
             fae.platform.firmware.bmc.action_delete(image_filename).verify_result()
+            fae.platform.firmware.bmc.action_delete(initial_version).verify_result()
 
 
 def _select_random_image(fw_files_path, initial_files, initial_version):
@@ -133,7 +134,7 @@ def _get_initial_version_path(fw_files_path, platform):
             initial_version_path_list) > 0, f"Can't run test because there's no image file for restoring to the currently-"
         f"installed version. Current version is {initial_version} and the image files doesn't have it"
         initial_version_path = initial_version_path_list[0]
-    return initial_version, initial_version_path
+    return os.path.basename(initial_version_path), initial_version_path
 
 
 def _get_fw_images_paths():
