@@ -15,5 +15,5 @@ class FilesTool:
         :return: list of all subfiles in the folder
         """
         output = engine.run_cmd('ls {}/*'.format(folder_path))
-        reg = r'\b(?:{})-\d+\+[^\s]+\b|\b(?:{})+\d*+[^\s]+\b'.format(subfiles_pattern, subfiles_pattern)
+        reg = r'\b(?:{})-\d+\+[^\s]+\b|\b(?:{})\+\d*[^\s]+\b'.format(subfiles_pattern, subfiles_pattern)
         return re.findall(reg, output)

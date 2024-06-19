@@ -19,16 +19,13 @@
       security:
         password-hardening:
           state: enabled
-    message:
-      post-login: yoavpost
-      pre-login: yoavpre123
+      message:
+        post-login: yoavpost
+        pre-login: yoavpre123
       ntp:
         server:
           192.168.1.2:
             state: enabled
-      security:
-        password-hardening:
-          state: enabled
       snmp-server:
         auto-refresh-interval: 5
         listening-address:

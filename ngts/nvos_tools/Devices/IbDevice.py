@@ -674,6 +674,7 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_constants(self):
         super()._init_constants()
+        self.reboot_type = 'julietscaleout_reboot'
         self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
         self.ssd_image = None
