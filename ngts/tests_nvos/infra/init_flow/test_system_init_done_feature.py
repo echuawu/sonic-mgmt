@@ -34,7 +34,7 @@ def test_system_ready_state_up(engines, devices, topology_obj):
                             should_wait_till_system_ready=False, confirm=True).verify_result()
 
     # TODO - WA once "checkpoint # " prints are removed and the reboot is faster.
-    devices.dut.sleep_after_reboot()
+    devices.dut.sleep_after_system_reboot()
 
     with allure.step('reconnect to the switch'):
         serial_engine = ConnectionTool.create_serial_connection(topology_obj, devices)
@@ -108,7 +108,7 @@ def test_system_ready_state_down(engines, devices, topology_obj):
         DutUtilsTool.reload(engine=engines.dut, device=devices.dut, command=reload_cmd_set, should_wait_till_system_ready=False, confirm=True).verify_result()
 
     # TODO - WA once "checkpoint # " prints are removed and the reboot is faster.
-    devices.dut.sleep_after_reboot()
+    devices.dut.sleep_after_system_reboot()
 
     with allure.step('reconnect to the switch'):
         serial_engine = ConnectionTool.create_serial_connection(topology_obj, devices)
