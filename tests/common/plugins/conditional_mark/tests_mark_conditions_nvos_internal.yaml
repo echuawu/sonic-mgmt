@@ -1,5 +1,17 @@
 ########################## NVOS IGNORE START ##########################
 
+tests_nvos/system/gnmi/test_gnmi_cert.py::test_gnmi_delete_cert_in_use_by_gnmi:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3970205"
+    conditions:
+      - https://redmine.mellanox.com/issues/3970205
+
+tests_nvos/system/gnmi/test_gnmi_cert.py::test_gnmi_reboot_system:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3970593"
+    conditions:
+      - https://redmine.mellanox.com/issues/3970593
+
 tests_nvos/system/gnmi/test_gnmi_pam.py::test_gnmi_auth_failing_clients_ddos:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3942921"

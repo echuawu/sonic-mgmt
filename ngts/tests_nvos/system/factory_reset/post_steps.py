@@ -1,5 +1,6 @@
 from ngts.tests_nvos.general.security.tpm_attestation.helpers import factory_reset_tpm_checker
 from ngts.tests_nvos.system.factory_reset.helpers import *
+from ngts.tests_nvos.system.gnmi.helpers import factory_reset_gnmi_checker
 from ngts.tools.test_utils import allure_utils as allure
 
 
@@ -16,3 +17,5 @@ def factory_reset_no_params_post_steps(apply_and_save_port, engines, just_apply_
         validate_port_description(engines.dut, not_apply_port, "")
     with allure.step('post factory reset TPM related check'):
         next(factory_reset_tpm_checker)
+    with allure.step('post factory reset GNMI cert related check'):
+        next(factory_reset_gnmi_checker)
