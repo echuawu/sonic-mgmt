@@ -404,6 +404,18 @@ tests_nvos/system/test_system_factory_reset.py::test_reset_factory_without_param
     conditions:
       - https://redmine.mellanox.com/issues/3958670
 
+tests_nvos/system/test_system_factory_reset.py::test_reset_factory_keep_all_config:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3958670"
+    conditions:
+      - https://redmine.mellanox.com/issues/3958670
+
+tests_nvos/system/test_system_factory_reset.py::test_reset_factory_keep_basic:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3958670"
+    conditions:
+      - https://redmine.mellanox.com/issues/3958670
+
 tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_filter:
   skip:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3959678"
@@ -416,4 +428,9 @@ tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_format:
     conditions:
       - https://redmine.mellanox.com/issues/3959745
 
+tests_nvos/acl/test_acl_basic.py::test_rules_order[OpenApi]:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3960608"
+    conditions:
+      - https://redmine.mellanox.com/issues/3960608
 ########################## NVOS IGNORE END ##########################

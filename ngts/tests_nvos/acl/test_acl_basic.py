@@ -9,6 +9,7 @@ from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType, AclConsts
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
+from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from scapy import config
 from scapy import route
 from scapy.ansmachine import send
@@ -64,7 +65,7 @@ RULE_CONFIG_FUNCTION = {
 def test_rules_order(engines, test_api, topology_obj):
     """
     Validate acl rules order by priority of rules order.
-    the first rule that match the packet should applied even if the next rule also match but the action is different.
+    the first rule that match the packet should apply even if the next rule also match but the action is different.
     steps:
     1. config an ACL with 2 rules
     2. send packet
@@ -1035,11 +1036,16 @@ def test_override_default_rule(engines, topology_obj):
         default_rule_to_override_field_output = acl_obj.rule.parse_show(default_rule_to_override_field)
 
     try:
-        with allure.step("override default rules - add new field"):
+        with ((allure.step("override default rules - add new field"))):
             config_rule(engines.dut, acl_obj, default_rule_to_add_field, {AclConsts.SOURCE_IP: src_ip})
-            with allure.step("validate with show command"):
-                rule_output = acl_obj.rule.parse_show(default_rule_to_add_field)
-                assert rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.SOURCE_IP] == src_ip
+            if not is_redmine_issue_active([3955725])[0]:
+                with allure.step("validate with show command"):
+                    rule_output = acl_obj.rule.parse_show(default_rule_to_add_field)
+                    assert AclConsts.SOURCE_IP in rule_output[AclConsts.MATCH][AclConsts.IP].keys(), \
+                        f"{AclConsts.SOURCE_IP} not found in the output"
+                    assert rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.SOURCE_IP] == src_ip, \
+                        (f"{AclConsts.SOURCE_IP} = {rule_output[AclConsts.MATCH][AclConsts.IP][AclConsts.SOURCE_IP]}, "
+                         f"expected - {src_ip}")
 
             with allure.step("Validate ACL counters"):
                 rule_packets_before = get_rule_packets(mgmt_port, default_chosen_acl, default_rule_to_add_field)

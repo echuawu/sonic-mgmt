@@ -392,13 +392,12 @@ class ValidationTool:
     @staticmethod
     def validate_output_of_show(actual: Dict, expected: Dict, should_be_valid=True) -> ResultObj:
         with allure.step(f"Verify output is {'valid' if should_be_valid else 'invalid'}"):
-            with allure.step(f"Testing keys:"):
-                logger.info(f"Expected keys: {expected.keys()}")
+            with allure.step(f"Testing keys: {expected.keys()}"):
                 keys_comparison = ValidationTool.validate_set_equal(actual.keys(), expected.keys(), should_be_valid)
                 if should_be_valid and not keys_comparison.result:
                     return keys_comparison
 
-            with allure.step(f"Checking values:"):
+            with allure.step(f"Checking values"):
                 errors = []
                 for key, expected_value in expected.items():
                     actual_value = actual[key]

@@ -199,6 +199,10 @@ class IbSwitch(BaseSwitch):
         self.category_list = ['temperature', 'cpu', 'disk', 'power', 'fan', 'mgmt-interface', 'voltage']
         self.category_disk_interval_default = '30'
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
+        self.current_bios_version_name = "0ACQF_06.01.005"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.003"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
 
         self.category_default_disabled_dict = {
             StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
@@ -412,10 +416,7 @@ class GorillaSwitch(IbSwitch):
             "product-name": "MQM9700",
             "asic-model": self.asic_type,
         })
-        self.current_bios_version_name = "0ACQF_06.01.005"
-        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
-        self.previous_bios_version_name = "0ACQF_06.01.003"
-        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+
         self.previous_cpld_version = BaseSwitch.CpldImageConsts(
             burn_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_BURN_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700_IPN.vme",
             refresh_image_path="/auto/sw_system_project/NVOS_INFRA/verification_files/cpld_fw/FUI000258_REFRESH_Gorilla_MNG_CPLD000232_REV0700_CPLD000324_REV0300_CPLD000268_REV0700.vme",

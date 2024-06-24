@@ -175,7 +175,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version, 
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_image_uninstall(release_name, test_api, original_version, test_name):
+def test_image_uninstall(release_name, test_api, original_version, test_name, devices):
     """
      Will check the uninstall commands
 
@@ -187,14 +187,14 @@ def test_image_uninstall(release_name, test_api, original_version, test_name):
     5. Validate that uninstall will success
     """
     TestToolkit.tested_api = test_api
-    image_uninstall_test(release_name, original_version, uninstall_force="", test_name=test_name)
+    image_uninstall_test(release_name, original_version, devices, uninstall_force="", test_name=test_name)
 
 
 @pytest.mark.checklist
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
-def test_image_uninstall_force(release_name, original_version, test_name):
+def test_image_uninstall_force(release_name, original_version, test_name, devices):
     """
      Will check the uninstall force commands
 
@@ -205,7 +205,7 @@ def test_image_uninstall_force(release_name, original_version, test_name):
     4. Set the original image to be booted next
     5. Validate that uninstall force will success
     """
-    image_uninstall_test(release_name, original_version, uninstall_force="force", test_name=test_name)
+    image_uninstall_test(release_name, original_version, devices, uninstall_force="force", test_name=test_name)
 
 
 @pytest.mark.checklist

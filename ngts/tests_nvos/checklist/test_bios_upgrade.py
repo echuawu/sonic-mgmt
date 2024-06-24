@@ -36,7 +36,7 @@ def test_bios_upgrade(engines: ProxySshEngine, devices, test_api):
 
     TestToolkit.tested_api = test_api
 
-    with allure.step('Create System  object'):
+    with allure.step('Create System object'):
         platform = Platform()
         fae = Fae()
     try:

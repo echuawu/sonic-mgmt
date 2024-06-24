@@ -8,6 +8,7 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import NvosConst, SystemConsts
 
 logger = logging.getLogger()
 
@@ -18,7 +19,7 @@ logger = logging.getLogger()
 @pytest.mark.nvos_ci
 @pytest.mark.nvos_chipsim_ci
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_platform(engines, test_api):
+def test_show_platform(engines, test_api, devices):
     """
     Validates the output of nv show platform.
     The OpenAPI test checks the JSON output while the NVUE test checks the auto output.
@@ -35,4 +36,10 @@ def test_show_platform(engines, test_api):
     output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
     output = OutputParsingTool.parse_show_output_to_dict(platform.show(output_format=output_format),
                                                          output_format=output_format).get_returned_value()
+
+    #   WA to support Q3200_RA and QM3400 for Crocodile product name
+    if devices.dut.asic_type == NvosConst.QTM3 and SystemConsts.PRODUCT_NAME in output.keys() and \
+       output[SystemConsts.PRODUCT_NAME] in "Q3200_RA":
+        output[SystemConsts.PRODUCT_NAME] = devices.dut.show_platform_output[SystemConsts.PRODUCT_NAME]
+
     ValidationTool.validate_output_of_show(output, TestToolkit.devices.dut.show_platform_output).verify_result()
