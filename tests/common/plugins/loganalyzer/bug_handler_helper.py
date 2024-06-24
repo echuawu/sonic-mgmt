@@ -13,7 +13,7 @@ from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from ngts.constants.constants import BugHandlerConst, InfraConst, NvosCliTypes
 from ngts.nvos_constants.constants_nvos import SystemConsts
 
-from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folder, clear_files, bug_handler_wrapper, \
+from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folder, clear_files, bug_handler_wrapper_err_msg, \
     create_log_analyzer_yaml_file, group_log_errors_by_timestamp, summarize_la_bug_handler
 from ngts.scripts.allure_reporter import predict_allure_report_link
 
@@ -63,10 +63,11 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
             bug_handler_update_action = bug_handler_action.get("update", False)
             bug_handler_no_action = not bug_handler_create_action and not bug_handler_update_action
             logger.info(f"Run bug handler in no action mode: {bug_handler_no_action}")
-            if bug_handler_no_action:
-                tar_file_path = None
-            else:
-                tar_file_path = get_tech_support_from_switch(duthost, testbed, session_id, cli_type)
+
+            bug_handler_params = {"duthost": duthost,
+                                  "testbed": testbed,
+                                  "cli_type": cli_type,
+                                  "session_id": session_id}
 
             for log_errors_file_path in log_errors_dir_path.iterdir():
                 with log_errors_file_path.open("r") as log_errors_file:
@@ -79,17 +80,18 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
 
                 for error_group in error_groups:
                     yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
-                                                                   test_name, tar_file_path, hostname,
-                                                                   log_analyzer_bug_metadata)
+                                                                   test_name, hostname,
+                                                                   log_analyzer_bug_metadata, bug_handler_params)
                     if yaml_file_path:
                         with allure.step("Run Bug Handler on Log Analyzer error"):
                             logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")
                             error_dict = {BugHandlerConst.LA_ERROR: error_group}
-                            error_dict.update(bug_handler_wrapper(conf_path, redmine_project, branch,
-                                                                  tar_file_path, yaml_file_path,
-                                                                  BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
-                                                                  BugHandlerConst.BUG_HANDLER_SCRIPT,
-                                                                  bug_handler_no_action, bug_handler_action))
+                            error_dict.update(bug_handler_wrapper_err_msg(conf_path, redmine_project, branch,
+                                                                          yaml_file_path,
+                                                                          BugHandlerConst.BUG_HANDLER_LOG_ANALYZER_USER,
+                                                                          BugHandlerConst.BUG_HANDLER_SCRIPT,
+                                                                          bug_handler_action,
+                                                                          bug_handler_params))
                             bug_handler_dumps_results.append(error_dict)
         except Exception as err:
             logger.error("Bug handler failed")
@@ -97,57 +99,6 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
         finally:
             clear_files(session_id)
         return summarize_la_bug_handler(bug_handler_dumps_results, bug_handler_action), la_errors
-
-
-def get_tech_support_from_switch(duthost, testbed, session_id, cli_type):
-    """
-    generate tech support from the switch and copy it to player
-    :param duthost: duthost object
-    :param testbed: testbed name
-    :param session_id: MARS session id
-    :return: file path
-    """
-    if cli_type == "Sonic":
-        tar_file_path_on_switch = _generate_sonic_techsupport(duthost)
-    elif cli_type == "NVUE":
-        tar_file_path_on_switch = _generate_nvue_techsupport(duthost)
-    else:
-        raise Exception(f"No such cli_type: {cli_type}")
-
-    tar_file_name = tar_file_path_on_switch.split('/')[-1]
-    dumps_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
-    if not dumps_folder:  # default value is empty string, defined in steps file
-        dumps_folder = create_result_dir(testbed, session_id, InfraConst.CASES_DUMPS_DIR)
-
-    tar_file_path = dumps_folder + '/'
-
-    duthost.fetch(src=tar_file_path_on_switch, dest=tar_file_path, flat=True)
-    return os.path.join(dumps_folder, tar_file_name)
-
-
-@retry(Exception, tries=5, delay=20)
-def _generate_sonic_techsupport(duthost):
-    return duthost.shell('sudo generate_dump -s \"-{} hours\"'.format(2))["stdout_lines"][-1]
-
-
-def _generate_nvue_techsupport(duthost):
-    dump_file = duthost.shell('nv action generate system tech-support')["stdout_lines"][-2].split(' ')[-1]
-    return SystemConsts.TECHSUPPORT_FILES_PATH + dump_file
-
-
-def create_result_dir(testbed, session_id, suffix_path_name):
-    """
-    Create directory for test artifacts in shared location
-    :param testbed: name of the testbed
-    :param session_id: MARS session id
-    :param suffix_path_name: End part of the directory name
-    :return: created directory path
-    """
-    folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, testbed, session_id, suffix_path_name])
-    logging.info("Create folder: {} if it doesn't exist".format(folder_path))
-    pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
-    logging.info("Created folder - {}".format(folder_path))
-    return folder_path
 
 
 def skip_loganalyzer_bug_handler(duthost, request):

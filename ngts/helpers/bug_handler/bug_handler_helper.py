@@ -5,15 +5,16 @@ import yaml
 import json
 import logging
 import allure
-import pytest
+import math
+import pathlib
 
-from ngts.nvos_constants.constants_nvos import NvosConst
-from ngts.tools.test_utils.allure_utils import step as allure_step
+from retry.api import retry
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime, timedelta
-from ngts.constants.constants import BugHandlerConst, InfraConst, PytestConst
-from infra.tools.general_constants.constants import DefaultConnectionValues
+from ngts.constants.constants import BugHandlerConst, InfraConst
+from ngts.nvos_constants.constants_nvos import SystemConsts
+
 
 TIMESTAMP_FORMATS = ["%b %d %H:%M:%S", "%Y %b %d %H:%M:%S", "%Y-%m-%dT%H:%M:%S"]
 TIMESTAMP_LENGTH = [len(datetime.now().strftime(format)) for format in TIMESTAMP_FORMATS]
@@ -168,8 +169,7 @@ def remove_error_prefix_from_sanitizer_file(contents):
     return contents_without_prefix
 
 
-def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path,
-                        bug_handler_no_action=False, bug_handler_action={}):
+def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, yaml_parsed_file, user, bug_handler_path):
     """
     call bug handler on sanitizer or log analyzer file and return results as dictionary
     :param conf_path: i.e, /tmp/sonic_bug_handler.conf
@@ -188,7 +188,7 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     'bug_id': '1122554'}
     """
     bug_handler_file_result = run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user,
-                                                   bug_handler_path, bug_handler_no_action, bug_handler_action)
+                                                   bug_handler_path)
 
     bug_handler_file_result["file_name"] = upload_file_path
     logger.info(f"Bug Handler RC: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_RC]}")
@@ -197,14 +197,10 @@ def bug_handler_wrapper(conf_path, redmine_project, branch, upload_file_path, ya
     return bug_handler_file_result
 
 
-def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
-                         bug_handler_no_action=False, bug_handler_action={}):
-
-    no_action = '--no_action' if bug_handler_no_action else ''
-    update_only = '--update_only' if not bug_handler_action["create"] and bug_handler_action["update"] else ''
+def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path):
 
     bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
-        f"--user {user} --branch {branch} --debug_level 2 --parsed_data '{yaml_parsed_file}' {no_action} {update_only}"
+        f"--user {user} --branch {branch} --debug_level 2 --parsed_data '{yaml_parsed_file}'"
 
     logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
@@ -212,6 +208,161 @@ def run_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, u
     bug_handler_file_result = json.loads(bug_handler_output)
 
     return bug_handler_file_result
+
+
+def bug_handler_wrapper_err_msg(conf_path, redmine_project, branch, yaml_parsed_file, user,
+                                bug_handler_path, bug_handler_action={}, bug_handler_params={}):
+    """
+    call bug handler on sanitizer or log analyzer file and return results as dictionary
+    :param conf_path: i.e, /tmp/sonic_bug_handler.conf
+    :param redmine_project: i.e SONiC-Design
+    :param branch: i.e 202205
+    :param yaml_parsed_file: i.e, 2023-04-02_16-35-19_wjhd-asan.log.22.yaml
+    :param user: i.e log_analyzer
+    :param bug_handler_path: i.e /auto/sw_tools/Internal/BugHandling/bin/handle_bug.py
+    :param bug_handler_action: a dictionary that defined the actions for the bughandler
+    :param bug_handler_params: a dictionary to define the params of the bughandler
+    :return: dictionary with bug handler results,
+    i.e,
+    {'file_name': '2022-06-21_23-24-07_orchagent-asan.log.40',
+    'messages': ['INFO:handle_bug:reading configuration from', ...],
+    'rc': 0,
+    'action': 'update',
+    'bug_id': '1122554'}
+    """
+
+    bug_handler_file_result = run_err_msg_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user,
+                                                           bug_handler_path, bug_handler_action, bug_handler_params)
+
+    logger.info(f"Bug Handler RC: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_RC]}")
+    logger.info(f"Bug Handler Status: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_STATUS]}")
+    logger.info(f"Bug Handler Action: {bug_handler_file_result[BugHandlerConst.BUG_HANDLER_ACTION]}")
+    return bug_handler_file_result
+
+
+def run_err_msg_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed_file, user, bug_handler_path,
+                                 bug_handler_action={}, bug_handler_params={}):
+
+    bug_handler_create_action = bug_handler_action.get("create", False)
+    bug_handler_update_action = bug_handler_action.get("update", False)
+    bug_handler_no_action = not bug_handler_create_action and not bug_handler_update_action
+
+    no_action = '--no_action' if bug_handler_no_action else ''
+
+    update_only = not bug_handler_action["create"] and bug_handler_action["update"]
+    update_only_mode = '--update_only' if update_only else ''
+
+    bug_handler_cmd = f"env LOG_FORMAT_JSON=1 {bug_handler_path} --cfg {conf_path} --project {redmine_project} " \
+        f"--user {user} --branch {branch} --debug_level 2 " \
+        f"--parsed_data '{yaml_parsed_file}' {no_action} {update_only_mode}"
+
+    logger.info(f"Running Bug Handler CMD: {bug_handler_cmd}")
+    bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
+    logger.info(bug_handler_output)
+    bug_handler_file_result = json.loads(bug_handler_output)
+    if is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action):
+        ticket_id = get_ticket_id(bug_handler_file_result)
+        tar_file_path = get_tech_support_from_switch(bug_handler_params)
+
+        upload_script = BugHandlerConst.BUG_HANDLER_UPLOAD_ATTACHMENT_SCRIPT
+        upload_cmd = f"env LOG_FORMAT_JSON=1 {upload_script} --bug_id {ticket_id}  --attachments {tar_file_path}"
+        logger.info(f"Running uploading attchment command: {upload_cmd}")
+        upload_attachment_output = subprocess.run(upload_cmd, shell=True, capture_output=True).stdout
+        logger.info(upload_attachment_output)
+        upload_attachment_result = json.loads(upload_attachment_output)
+        if "error" in upload_attachment_result:
+            logger.error(f"Failed to upload the file: {upload_attachment_result}")
+        bug_handler_file_result["file_name"] = tar_file_path
+    return bug_handler_file_result
+
+
+def is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action):
+    return not ((update_only and bug_handler_file_result["action"] == "create") or
+                bug_handler_no_action or
+                bug_handler_file_result["action"] == "skip")
+
+
+def get_ticket_id(bug_handler_file_result):
+    if bug_handler_file_result['action'] == "update":
+        msgs = bug_handler_file_result['messages']
+        duplicated_reg = r"\[INFO\] found root bug: ([0-9]+) for duplicate bug:"
+        for msg in msgs:
+            match_res = re.search(duplicated_reg, msg)
+            if match_res:
+                ticket_id = match_res.group(1)
+                bug_handler_file_result['bug_id'] = ticket_id
+
+    return bug_handler_file_result['bug_id']
+
+
+def get_tech_support_from_switch(bug_handler_params):
+    """
+    generate tech support from the switch and copy it to player
+    :param bug_handler_params: bug_handler_params
+    :return: file path
+    """
+    duthost = bug_handler_params['duthost']
+    testbed = bug_handler_params['testbed']
+    session_id = bug_handler_params['session_id']
+    cli_type = bug_handler_params['cli_type']
+
+    if cli_type == "Sonic":
+        tar_file_path_on_switch = _generate_sonic_techsupport(duthost)
+    elif cli_type == "NVUE":
+        tar_file_path_on_switch = _generate_nvue_techsupport(duthost)
+    else:
+        raise Exception(f"No such cli_type: {cli_type}")
+
+    tar_file_name = tar_file_path_on_switch.split('/')[-1]
+    dumps_folder = os.environ.get(InfraConst.ENV_LOG_FOLDER)
+    if not dumps_folder:  # default value is empty string, defined in steps file
+        dumps_folder = create_result_dir(testbed, session_id, InfraConst.CASES_DUMPS_DIR)
+
+    tar_file_path = dumps_folder + '/'
+
+    duthost.fetch(src=tar_file_path_on_switch, dest=tar_file_path, flat=True)
+    return os.path.join(dumps_folder, tar_file_name)
+
+
+def create_result_dir(testbed, session_id, suffix_path_name):
+    """
+    Create directory for test artifacts in shared location
+    :param testbed: name of the testbed
+    :param session_id: MARS session id
+    :param suffix_path_name: End part of the directory name
+    :return: created directory path
+    """
+    folder_path = '/'.join([InfraConst.REGRESSION_SHARED_RESULTS_DIR, testbed, session_id, suffix_path_name])
+    logging.info("Create folder: {} if it doesn't exist".format(folder_path))
+    pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
+    logging.info("Created folder - {}".format(folder_path))
+    return folder_path
+
+
+def get_test_duration(duthost):
+    """
+    Get duration of test case. Init time + test body time + 120 seconds
+    :param item: pytest build-in
+    :return: integer, test duration
+    """
+    item = duthost.loganalyzer.request.node
+    duration = math.ceil(item.rep_setup.duration) + 120
+    if hasattr(item, "rep_call"):
+        duration = duration + math.ceil(item.rep_call.duration)
+    if hasattr(item, "rep_teardown"):
+        duration = duration + math.ceil(item.rep_teardown.duration)
+    return duration
+
+
+@retry(Exception, tries=5, delay=20)
+def _generate_sonic_techsupport(duthost):
+    duration = get_test_duration(duthost)
+    return duthost.shell(f'sudo generate_dump -s \"-{duration} seconds\"')["stdout_lines"][-1]
+
+
+def _generate_nvue_techsupport(duthost):
+    dump_file = duthost.shell('nv action generate system tech-support')["stdout_lines"][-2].split(' ')[-1]
+    return SystemConsts.TECHSUPPORT_FILES_PATH + dump_file
 
 
 def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_handler_messages):
@@ -231,8 +382,8 @@ def get_recommended_action_for_user(bug_handler_rc, bug_handler_decision, bug_ha
             f"could not parse sanitizer output correctly.<br>" \
             f"3. Open bug manually for this leak, if an open issue does not exist."
     elif bug_handler_decision == BugHandlerConst.BUG_HANDLER_DECISION_REOPEN:
-        recommended_action = "Bug handler had changed the status of an existing bug from fixed/closed to assigned.<br>" \
-                             "Review the bug and alert the bug owner that fix is not working or merged."
+        recommended_action = "Bug handler had changed the status of an existing bug from fixed/closed to assigned." \
+                             "<br>Review the bug and alert the bug owner that fix is not working or merged."
     elif bug_handler_rc is not InfraConst.RC_SUCCESS:
         recommended_action = f"Bug handler had failed, please review bug handler output.<br>" \
             f"1. If needed, consult with bug handler owner team about reason for failure.<br>" \
@@ -290,17 +441,25 @@ def get_log_analyzer_yaml_path(test_name, dump_path):
     return yaml_file_path
 
 
-def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar_file_path, hostname, bug_info_dictionary):
+def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, hostname,
+                                  bug_info_dictionary, bug_handler_params):
     """
     The function will create a YAML file in the needed format for bug handler script
     :param log_errors: list with log errors
     :param dump_path: path to dumps
     :param project: i.e, NVOS - Design
     :param test_name: name of the test
-    :param tar_file_path: path of tar file
+    :param bug_info_dictionary: a dictionary to save the content that the bug handler script required
+    :param bug_handler_params: a dictionary to define the params of the bughandler
     :param hostname: i.e, gorilla-153
     :return: path to parsed YAML file
     """
+    if bug_handler_params["cli_type"] == "Sonic":
+        # collect the dump only when it is needed.
+        tar_file_path = None
+    else:
+        tar_file_path = get_tech_support_from_switch(bug_handler_params)
+
     yaml_file_path = get_log_analyzer_yaml_path(test_name, dump_path)
     # remove date, time and hostname before creating the regex!
 
@@ -317,7 +476,7 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, tar
                                 'bug_title': bug_title,
                                 'description': f"{description}",
                                 'project': project,
-                                'attachments': [tar_file_path],
+                                'attachments': [tar_file_path] if tar_file_path else None,
                                 'session_id': os.environ.get(InfraConst.ENV_SESSION_ID),
                                 'test_name': test_name})
     yaml_content = yaml.dump(bug_info_dictionary)
