@@ -77,20 +77,21 @@ def aaa_users(engines) -> Dict[str, UserInfo]:
 
 @pytest.fixture()
 def gnmi_cert_hostname(engines):
-    hostname = GNMI_TEST_CERT.ip
-    if not GNMI_TEST_CERT.ip:
-        assert GNMI_TEST_CERT.dn, f'{GNMI_TEST_CERT.info} has no ip/dn'
-        with allure.step(f'change dut hostname to {GNMI_TEST_CERT.dn}'):
-            System().set('hostname', GNMI_TEST_CERT.dn, ask_for_confirmation=True, apply=True).verify_result()
+    cert = GNMI_TEST_CERT
+    hostname = cert.ip or cert.dn
+
+    if not cert.ip:
+        assert cert.dn, f'{cert.name} has no ip/dn'
+        with allure.step(f'change dut hostname to {cert.dn}'):
+            System().set('hostname', cert.dn, ask_for_confirmation=True, apply=True).verify_result()
         with allure.step(f'add mapping of new dut hostname to {ETC_HOSTS}'):
             client = GnmiClient('', '', '', '')
-            client._run_cmd_in_process(f'echo "{engines.dut.ip} {GNMI_TEST_CERT.dn}" | sudo tee -a {ETC_HOSTS}',
+            client._run_cmd_in_process(f'echo "{engines.dut.ip} {cert.dn}" | sudo tee -a {ETC_HOSTS}',
                                        wait_till_done=True)
-            hostname = GNMI_TEST_CERT.dn
     yield hostname
-    if not GNMI_TEST_CERT.ip:
+    if not cert.ip:
         with allure.step(f'remove hostname mapping fro {ETC_HOSTS}'):
-            client._run_cmd_in_process(f"sudo sed -i '/{GNMI_TEST_CERT.dn}/d' {ETC_HOSTS}", wait_till_done=True)
+            client._run_cmd_in_process(f"sudo sed -i '/{cert.dn}/d' {ETC_HOSTS}", wait_till_done=True)
 
 
 @pytest.fixture()

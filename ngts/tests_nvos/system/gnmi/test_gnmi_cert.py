@@ -36,10 +36,9 @@ def test_gnmi_cert(test_flow, engines, local_adminuser, gnmi_cert_hostname, rest
                      f'expect {"success" if is_good_flow else "fail"}'):
         verify_gnmi_client(test_flow, test_cert.dn or test_cert.ip, GnmiConsts.GNMI_DEFAULT_PORT,
                            local_adminuser.username,
-                           local_adminuser.password, False, GnmicErr.CERT_VERIFY_FAIL)
+                           local_adminuser.password, False, GnmicErr.CERT_VERIFY_FAIL, cacert=test_cert.cacert)
 
 
-@pytest.mark.TODO
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('api', ApiType.ALL_TYPES)
@@ -90,7 +89,6 @@ def test_gnmi_cert_cli(api):
                                                          f'actual: {out[CERTIFICATE]}')
 
 
-@pytest.mark.TODO
 @pytest.mark.system
 @pytest.mark.gnmi
 @pytest.mark.parametrize('test_flow', [TestFlowType.GOOD_FLOW])
@@ -113,7 +111,6 @@ def test_gnmi_cert_set_cert(test_flow, local_adminuser, gnmi_cert_hostname, gnmi
                            local_adminuser.password, True, GnmicErr.HANDSHAKE_FAIL)
 
 
-@pytest.mark.TODO
 @pytest.mark.system
 @pytest.mark.gnmi
 def test_gnmi_cert_set_non_existing_cert(local_adminuser, gnmi_cert_hostname, gnmi_cert_id):
@@ -131,7 +128,6 @@ def test_gnmi_cert_set_non_existing_cert(local_adminuser, gnmi_cert_hostname, gn
                            local_adminuser.username, local_adminuser.password, False, GnmicErr.HANDSHAKE_FAIL)
 
 
-@pytest.mark.TODO
 @pytest.mark.system
 @pytest.mark.gnmi
 def test_gnmi_cert_set_cert(local_adminuser, gnmi_cert_hostname, gnmi_cert_id):
@@ -163,7 +159,6 @@ def test_gnmi_cert_set_cert(local_adminuser, gnmi_cert_hostname, gnmi_cert_id):
                            local_adminuser.username, local_adminuser.password, False, GnmicErr.HANDSHAKE_FAIL)
 
 
-@pytest.mark.TODO
 @pytest.mark.system
 @pytest.mark.gnmi
 def test_gnmi_cert_set_cert_after_unset(local_adminuser, gnmi_cert_hostname, gnmi_cert_id):

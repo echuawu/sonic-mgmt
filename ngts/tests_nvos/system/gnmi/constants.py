@@ -10,8 +10,6 @@ class GnmiMode:
 
 
 DUT_HOSTNAME_FOR_CERT = 'nvos-dut'
-NFS_GNMI_CERTS_DIR = '/auto/sw_system_project/NVOS_INFRA/security/verification/certs/gnmi'
-NFS_GNMI_CACERT_FILE = f"{NFS_GNMI_CERTS_DIR}/ca.crt"
 DUT_GNMI_CERTS_DIR = '/tmp/gnmi-certs'
 DOCKER_CERTS_DIR = '/etc/netq/cert'
 

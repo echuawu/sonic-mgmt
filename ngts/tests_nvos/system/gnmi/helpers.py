@@ -20,7 +20,7 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.certificate.CertInfo import CertInfo
 from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
-from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, DOCKER_CERTS_DIR, GnmiMode, NFS_GNMI_CACERT_FILE
+from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, DOCKER_CERTS_DIR, GnmiMode
 
 logger = logging.getLogger()
 
@@ -364,15 +364,15 @@ def load_certificate_into_gnmi(engine: LinuxSshEngine, cert: CertInfo):
     with allure.step('make dedicated dir in switch'):
         engine.run_cmd(f'mkdir -p {DUT_GNMI_CERTS_DIR}')
     with allure.step('scp cert to switch'):
-        with allure.step(f'copy {cert.key_filename}'):
-            scp_file(engine, f'{cert.key}', f'{DUT_GNMI_CERTS_DIR}/{cert.key_filename}')
-        with allure.step(f'copy {cert.cert_filename}'):
-            scp_file(engine, f'{cert.cert}', f'{DUT_GNMI_CERTS_DIR}/{cert.cert_filename}')
+        with allure.step(f'copy {cert.private_filename}'):
+            scp_file(engine, f'{cert.private}', f'{DUT_GNMI_CERTS_DIR}/{cert.private_filename}')
+        with allure.step(f'copy {cert.public_filename}'):
+            scp_file(engine, f'{cert.public}', f'{DUT_GNMI_CERTS_DIR}/{cert.public_filename}')
     with allure.step('copy cert into gnmi docker'):
         engine.run_cmd(
-            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.key_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.key_filename}')
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.private_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.private_filename}')
         engine.run_cmd(
-            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.cert_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.cert_filename}')
+            f'docker cp {DUT_GNMI_CERTS_DIR}/{cert.public_filename} {GnmiConsts.GNMI_DOCKER}:{DOCKER_CERTS_DIR}/{cert.public_filename}')
     with allure.step('restart gnmi'):
         system = System()
         system.gnmi_server.disable_gnmi_server()
@@ -396,14 +396,16 @@ def verify_msg_in_out_or_err(msg: str, out: str, err: str = None):
 
 
 def verify_gnmi_client(test_flow, server_host, server_port, username, password, skip_cert_verify: bool,
-                       err_msg_to_check: str, port_to_change=None):
+                       err_msg_to_check: str, port_to_change=None, cacert=''):
+    assert cacert or skip_cert_verify, 'given cacert can not be empty when skip_cert_verify is False'
+
     log_msg = (f'verify gnmi client with{"" if skip_cert_verify else "out"} skip-verify '
                f'and credentials: {username} / {password}')
     selected_port = port_to_change or Tools.RandomizationTool.select_random_port(
         requested_ports_state=None).returned_value
 
     with allure.step('create gnmi client'):
-        client = GnmiClient(server_host, server_port, username, password, cacert=NFS_GNMI_CACERT_FILE, cmd_time=10)
+        client = GnmiClient(server_host, server_port, username, password, cacert=cacert, cmd_time=10)
     with allure.step(f'change description of interface: "{selected_port.name}"'):
         new_description = change_interface_description(selected_port)
 
