@@ -383,4 +383,43 @@ tests_nvos/system/test_system_profile_change.py:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3924104"
     conditions:
       - https://redmine.mellanox.com/issues/3924104
+
+tests_nvos/interfaces/nvl5_port/test_nvl5_port.py:
+  skip:
+    reason: "Testcase skipped on XDR systems"
+    conditions:
+      - "'gorilla' not in testbed"
+
+tests_nvos/platform/test_platform_transceiver.py:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3950840"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3950840
+
+tests_nvos/general/config_commands/test_config_fetch:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3955660"
+    conditions:
+      - https://redmine.mellanox.com/issues/3955660
+
+tests_nvos/system/test_system_factory_reset.py::test_reset_factory_without_params:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3958670"
+    conditions:
+      - https://redmine.mellanox.com/issues/3958670
+
+tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_filter:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3959678"
+    conditions:
+      - https://redmine.mellanox.com/issues/3959678
+
+tests_nvos/system/syslog/test_system_syslog.py::test_rsyslog_format:
+  skip:
+    reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3959745"
+    conditions:
+      - https://redmine.mellanox.com/issues/3959745
+
 ########################## NVOS IGNORE END ##########################
