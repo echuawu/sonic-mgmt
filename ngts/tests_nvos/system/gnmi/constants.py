@@ -27,6 +27,8 @@ DEFAULT_CERTIFICATE = 'self-signed'
 
 GNMI_TEST_CERT: CertInfo = TestCert.gnmi_cert_valid_1
 
+SERVER_REFLECTION_SUBSCRIBE_RESPONSE = '.gnmi.SubscribeResponse'
+
 
 class GnmicErr:
     GNMIC_NOT_INSTALLED = 'gnmic: command not found'
@@ -40,3 +42,10 @@ class GnmicErr:
     RPC_ERROR = 'rpc error'
     ALL_ERRS = [GNMIC_NOT_INSTALLED, AUTH_FAIL, HANDSHAKE_FAIL, AUTH_SERVICE_UNAVAILABLE,
                 REQUEST_FAILED, NO_SUBSCRIBER_SLOT_AVAILABLE, RCV_ERROR, RPC_ERROR]
+
+
+class GrpcMsg:
+    LIST_SERVICES_FAIL = 'Failed to list services'
+    MSG_SERVER_REFLECT = 'service ServerReflection'
+    MSG_SUBSCRIBE_RESPONSE = 'message SubscribeResponse'
+    ALL_MSGS = {SERVER_REFLECTION_SUBSCRIBE_RESPONSE: MSG_SUBSCRIBE_RESPONSE}

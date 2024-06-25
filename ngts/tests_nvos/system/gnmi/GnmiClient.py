@@ -69,6 +69,13 @@ class GnmiClient:
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         return self._get_cmd_process_output(process)
 
+    def run_describe(self, username: str = '', password: str = '', skip_cert_verify: bool = True, cacert='',
+                     cmd_time=None, service='') -> Tuple[str, str]:
+        describe_op = f"describe {service}"
+        out, err, _ = self._run_grpcurl_op(describe_op, skip_cert_verify, cacert, cmd_time, username,
+                                           password)
+        return out, err
+
     def _run_subscribe_interface(self, mode: str, interface_name: str, username: str = '', password: str = '',
                                  skip_cert_verify: bool = False, cacert='', debug_mode: bool = True,
                                  cmd_time=None, keep_session_alive: bool = False, wait_till_done: bool = False) -> \
@@ -100,6 +107,25 @@ class GnmiClient:
                          f"-u {username} -p {password} {gnmi_op}") + (" -d" if debug_mode else "")
         with allure.step('run gnmic command in process'):
             return self._run_cmd_in_process(gnmic_cmd, cmd_time, keep_session_alive, wait_till_done)
+
+    def _run_grpcurl_op(self, grpcurl_op: str, is_insecure: bool, cacert: str, cmd_time, username: str = '',
+                        password: str = '', keep_session_alive: bool = False) -> Tuple[
+            str, str, subprocess.Popen]:
+        with allure.step('compose the grpcurl command'):
+            username = username or self.username
+            password = password or self.password
+
+            if is_insecure:
+                cert_flag = '-insecure'
+            else:
+                cacert_to_use = cacert or self.cacert
+                assert cacert_to_use, 'cacert path was not specified'
+                cert_flag = f'-cacert {cacert_to_use}'
+
+            grpcurl_cmd = (f"grpcurl {cert_flag} -H username:{username} -H password:{password} "
+                           f"{self.server_host}:{self.server_port} {grpcurl_op}")
+        with allure.step('run grpcurl command in process'):
+            return self._run_cmd_in_process(grpcurl_cmd, cmd_time, keep_session_alive)
 
     def _verify_gnmic_installed(self):
         cmd = 'gnmic version'

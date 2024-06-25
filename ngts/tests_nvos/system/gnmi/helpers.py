@@ -20,7 +20,9 @@ from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.system.System import System
 from ngts.tests_nvos.general.security.certificate.CertInfo import CertInfo
 from ngts.tests_nvos.system.gnmi.GnmiClient import GnmiClient
-from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, DOCKER_CERTS_DIR, GnmiMode
+from ngts.tests_nvos.system.gnmi.constants import DUT_GNMI_CERTS_DIR, DOCKER_CERTS_DIR, GnmiMode, \
+    GrpcMsg, SERVER_REFLECTION_SUBSCRIBE_RESPONSE
+
 
 logger = logging.getLogger()
 
@@ -408,7 +410,6 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
         client = GnmiClient(server_host, server_port, username, password, cacert=cacert, cmd_time=10)
     with allure.step(f'change description of interface: "{selected_port.name}"'):
         new_description = change_interface_description(selected_port)
-
     if test_flow == TestFlowType.GOOD_FLOW:
         with allure.step(f'good-flow: {log_msg}'):
             with allure.step('verify using capabilities command'):
@@ -420,7 +421,8 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_in_out_or_err(new_description, out)
                 verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
-                pass  # out_reflect, err = client.run_reflection()  # TODO: implement
+                services = [SERVER_REFLECTION_SUBSCRIBE_RESPONSE]
+                verify_server_reflection(test_flow, client, services)
     else:
         with allure.step(f'bad-flow: {log_msg}'):
             with allure.step('verify using capabilities command'):
@@ -432,4 +434,18 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_not_in_out_or_err(new_description, out)
                 verify_msg_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
-                pass  # out_reflect, err = client.run_reflection()  # TODO: implement
+                verify_server_reflection(test_flow, client)
+
+
+def verify_server_reflection(test_flow, client, services=None):
+    out_reflect, err_reflect = client.run_describe()
+    if test_flow == TestFlowType.GOOD_FLOW:
+        verify_msg_in_out_or_err(GrpcMsg.MSG_SERVER_REFLECT, out_reflect)
+        verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
+        for service in services:
+            out_reflect, err_reflect = client.run_describe(service=service)
+            verify_msg_in_out_or_err(GrpcMsg.ALL_MSGS[service], out_reflect)
+            verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
+    else:
+        verify_msg_not_in_out_or_err(GrpcMsg.MSG_SERVER_REFLECT, out_reflect)
+        verify_msg_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
