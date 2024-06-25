@@ -433,4 +433,13 @@ tests_nvos/acl/test_acl_basic.py::test_rules_order[OpenApi]:
     reason: "Testcase skipped due to RM issue: https://redmine.mellanox.com/issues/3960608"
     conditions:
       - https://redmine.mellanox.com/issues/3960608
+
+tests_nvos/system/test_techsupport_feature.py::test_techsupport_expected_files:
+  skip:
+    reason: "Testcase skipped on non gorilla systems due to RM issue: https://redmine.mellanox.com/issues/3960812"
+    conditions_logical_operator: and
+    conditions:
+      - "'gorilla' not in testbed"
+      - https://redmine.mellanox.com/issues/3960812
+
 ########################## NVOS IGNORE END ##########################
