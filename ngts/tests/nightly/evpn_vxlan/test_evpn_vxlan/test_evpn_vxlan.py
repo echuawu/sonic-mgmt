@@ -301,7 +301,7 @@ class TestEvpnVxlan:
             cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_vlan_101_mac, self.dut_loopback_ip,
                                                      VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
 
-    def validate_basic_evpn_type_2_3_route(self, cli_objects):
+    def validate_basic_evpn_type_2_3_route(self, cli_objects, learned=True):
         """
         This method is used to verify basic evpn type 2 and type 3 route states
         :param cli_objects: cli_objects fixture
@@ -331,21 +331,21 @@ class TestEvpnVxlan:
         with allure.step('Validate CLI type-2 routes on HA'):
             ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
             cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_vlan_101_mac, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
+                                                     VxlanConstants.RD_101, self.hb_vlan_101_iface_ip, learned)
 
         with allure.step('Validate CLI type-3 routes on HA'):
             ha_type_3_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_multicast()
             cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_100)
+                                                     VxlanConstants.RD_100, learned)
             cli_objects.ha.frr.validate_type_3_route(ha_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_101)
+                                                     VxlanConstants.RD_101, learned)
 
         with allure.step('Validate CLI type-3 routes on HB'):
             hb_type_3_info = cli_objects.hb.frr.get_l2vpn_evpn_route_type_multicast()
             cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_100)
+                                                     VxlanConstants.RD_100, learned)
             cli_objects.hb.frr.validate_type_3_route(hb_type_3_info, self.dut_loopback_ip, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_101)
+                                                     VxlanConstants.RD_101, learned)
 
     def validate_traffic_and_counters(self, cli_objects, interfaces, vtep_mode=False):
         with allure.step("Send traffic from HB to HA via VLAN 101 to VNI 500101"):
@@ -622,35 +622,72 @@ EOF
                 cli_objects.hb.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
                                                            '{}.41'.format(interfaces.hb_dut_2))
 
+    def config_evpn_route_map(self, cli_objects):
+        with allure.step("Deny evpn type 2 and 3 routes by route map"):
+            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
+                                                      sequence='1', evpn_route_type='2')
+            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
+                                                      sequence='2', evpn_route_type='3')
+            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.PERMIT,
+                                                      sequence='3')
+        with allure.step("Bind route map to bgp"):
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip)
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip)
+
+    def remove_evpn_route_map(self, cli_objects):
+        with allure.step("Unbind route map to bgp"):
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
+                                                    bind=False)
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
+                                                    bind=False)
+        with allure.step("Remove route map"):
+            cli_objects.dut.frr.clean_evpn_route_map(VxlanConstants.EVPN_ROUTE_MAP)
+
     def test_local_mac_handling(self, engines, cli_objects):
         """
         This test will check EVPN VXLAN MAC advertise functionality.
 
         Test has next steps:
         1. Check VLAN to VNI mapping
-        2. Do type 2 and type 3 routes validations
-        3. Check on HA that in tunnel with VNI 500101 via BGP received static MAC from DUT(which configured for Vlan101)
-        4. Check on HA that in tunnel with VNI 500101 via BGP received MAC address for HB Vlan101 interface
+        2. Configure route map to block type 2 and 3 routes
+        3. Do route map deny action validations
+        4. Remove route map
+        5. Do type 2 and type 3 routes validations
+        6. Check on HA that in tunnel with VNI 500101 via BGP received static MAC from DUT(which configured for Vlan101)
+        7. Check on HA that in tunnel with VNI 500101 via BGP received MAC address for HB Vlan101 interface
         """
+        try:
+            with allure.step('Check CLI VLAN to VNI mapping'):
+                cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                    vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                       (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
-        with allure.step('Check CLI VLAN to VNI mapping'):
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
-                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                   (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
+            with allure.step('Configure route map to block type 2 and 3 routes'):
+                self.config_evpn_route_map(cli_objects)
 
-        with allure.step('Validate evpn type 2 and type 3 routes'):
-            self.validate_basic_evpn_type_2_3_route(cli_objects)
+            with allure.step('Validate evpn type 2 and type 3 routes are blocked'):
+                self.validate_basic_evpn_type_2_3_route(cli_objects, learned=False)
 
-        # MAC route validation
-        with allure.step(f"Validate route received at HA of Static MAC {VxlanConstants.STATIC_MAC_ADDR}"):
-            ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, VxlanConstants.STATIC_MAC_ADDR.replace('-', ':'),
-                                                     self.dut_loopback_ip, VxlanConstants.RD_101)
+            with allure.step('Remove route map'):
+                self.remove_evpn_route_map(cli_objects)
 
-        with allure.step(f"Validate route received at HA of MAC {self.hb_vlan_101_mac}"):
-            ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
-            cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_vlan_101_mac, self.dut_loopback_ip,
-                                                     VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
+            with allure.step('Validate evpn type 2 and type 3 routes are learned'):
+                self.validate_basic_evpn_type_2_3_route(cli_objects)
+
+            # MAC route validation
+            with allure.step(f"Validate route received at HA of Static MAC {VxlanConstants.STATIC_MAC_ADDR}"):
+                ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
+                cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, VxlanConstants.STATIC_MAC_ADDR.replace('-', ':'),
+                                                         self.dut_loopback_ip, VxlanConstants.RD_101)
+
+            with allure.step(f"Validate route received at HA of MAC {self.hb_vlan_101_mac}"):
+                ha_type_2_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_macip()
+                cli_objects.ha.frr.validate_type_2_route(ha_type_2_info, self.hb_vlan_101_mac, self.dut_loopback_ip,
+                                                         VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
+        except Exception as err:
+            with allure.step('Remove route map'):
+                self.remove_evpn_route_map(cli_objects)
+            raise err
 
     def test_remote_mac_handling(self, engines, cli_objects):
         """

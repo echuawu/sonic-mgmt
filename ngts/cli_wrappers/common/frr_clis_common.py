@@ -147,7 +147,7 @@ class FrrCliCommon(FrrCliInterface):
         return self.run_config_frr_cmd(cmd)
 
     @staticmethod
-    def validate_type_2_route(type_2_info, route_mac, peer_ip, peer_rd, route_ip=None):
+    def validate_type_2_route(type_2_info, route_mac, peer_ip, peer_rd, route_ip=None, learned=True):
         """
         Validate type-2 route in FRR output
         :param type_2_info: dictionary with cmd "show bgp l2vpn evpn route type macip" output
@@ -155,6 +155,7 @@ class FrrCliCommon(FrrCliInterface):
         :param peer_ip: BGP peer IP address which we expect in type-2 route
         :param peer_rd: BGP peer RD
         :param route_ip: IP address which we expect in type-2 route
+        :param learned: A flag to show the route is supposed to be learned or not
         """
         route_type = 2
         eth_tag = 0
@@ -164,11 +165,17 @@ class FrrCliCommon(FrrCliInterface):
         err_msg = 'Expected Type-2 route: {} \n not found in: \n{}'
         if route_ip:
             expected_type_2_route += ':[{}]:[{}]'.format(ip_len, route_ip)
-            assert expected_type_2_route in type_2_info['{}:{}'.format(peer_ip, peer_rd)], \
-                err_msg.format(expected_type_2_route, type_2_info)
+            if learned:
+                assert expected_type_2_route in type_2_info['{}:{}'.format(peer_ip, peer_rd)], \
+                    err_msg.format(expected_type_2_route, type_2_info)
+            else:
+                assert expected_type_2_route not in str(type_2_info)
         else:
-            assert expected_type_2_route in type_2_info['{}:{}'.format(peer_ip, peer_rd)], \
-                err_msg.format(expected_type_2_route, type_2_info)
+            if learned:
+                assert expected_type_2_route in type_2_info['{}:{}'.format(peer_ip, peer_rd)], \
+                    err_msg.format(expected_type_2_route, type_2_info)
+            else:
+                assert expected_type_2_route not in str(type_2_info)
 
     @staticmethod
     def validate_type_3_route(type_3_info, route_ip, peer_ip, peer_rd, learned=True):
@@ -188,7 +195,7 @@ class FrrCliCommon(FrrCliInterface):
         if learned:
             assert expected_type_3_route in type_3_info['{}:{}'.format(peer_ip, peer_rd)], err_msg
         else:
-            assert expected_type_3_route not in type_3_info, err_msg
+            assert expected_type_3_route not in str(type_3_info)
 
     @staticmethod
     def validate_type_5_route(type_5_info, route_ip, mask_len, peer_ip, peer_rd, learned=True):
@@ -209,7 +216,7 @@ class FrrCliCommon(FrrCliInterface):
         if learned:
             assert expected_type_5_route in type_5_info['{}:{}'.format(peer_ip, peer_rd)], err_msg
         else:
-            assert expected_type_5_route not in type_5_info, err_msg
+            assert expected_type_5_route not in str(type_5_info)
 
     @retry(Exception, tries=20, delay=2)
     def validate_bgp_neighbor_established(cls, neighbor, establish=True):
@@ -271,4 +278,52 @@ class FrrCliCommon(FrrCliInterface):
             enter_l2vpn_evpn_address_family_cmd,
             config_bgp_neighbor_activate_cmd
         ]
+        self.run_config_frr_cmd(cmd_list)
+
+    def bind_evpn_route_map(self, name, bgp_neighbor, bgp_session_id='', bind=True, direction='out'):
+        """
+        Bind evpn route map
+        """
+        config_mode_cmd = 'configure terminal'
+        config_bgp_mode = f'router bgp {bgp_session_id}'
+        config_evpn_mode = 'address-family l2vpn evpn'
+        bind_route_map_to_bgp_neighbor = f"neighbor {bgp_neighbor} route-map {name} {direction}"
+        un_bind_route_map_to_bgp_neighbor = 'no ' + bind_route_map_to_bgp_neighbor
+        cmd_list = [config_mode_cmd, config_bgp_mode, config_evpn_mode, bind_route_map_to_bgp_neighbor]
+        if not bind:
+            cmd_list = [config_mode_cmd, config_bgp_mode, config_evpn_mode, un_bind_route_map_to_bgp_neighbor]
+        self.run_config_frr_cmd(cmd_list)
+
+    def config_evpn_route_map(self, name, action, sequence, evpn_route_type=None):
+        """
+        Config route map
+        When the evpn_route_type is None, it would not config match rule
+        This is for configuring the route map with permit action
+        Example of route map
+
+            route-map RS-OUT deny 11
+             match evpn route-type multicast
+            exit
+            !
+            route-map RS-OUT permit 12
+            exit
+        """
+        config_mode_cmd = 'configure terminal'
+        config_route_map = f"route-map {name} {action} {sequence}"
+        config_rule = f"match evpn route-type {evpn_route_type}"
+        cmd_list = [config_mode_cmd, config_route_map]
+        if evpn_route_type:
+            cmd_list = [config_mode_cmd, config_route_map, config_rule]
+        self.run_config_frr_cmd(cmd_list)
+
+    def clean_evpn_route_map(self, name, action=None, sequence=None):
+        """
+        Remove route map configuration
+        When no action is provided, it would remove all the rules of a route map
+        """
+        config_mode_cmd = 'configure terminal'
+        no_route_map = f"no route-map {name}"
+        if action:
+            no_route_map = f"no route-map {name} {action} {sequence}"
+        cmd_list = [config_mode_cmd, no_route_map]
         self.run_config_frr_cmd(cmd_list)

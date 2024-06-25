@@ -1292,6 +1292,9 @@ class VxlanConstants:
 
     BGP_SESSION_ID = 65000
     PREFIX_LENGTH = 24
+    EVPN_ROUTE_MAP = 'EVPN-OUT'
+    DENY = 'deny'
+    PERMIT = 'permit'
     RD_20 = '20'
     RD_100 = '100'
     RD_101 = '101'

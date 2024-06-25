@@ -660,7 +660,7 @@ class TestEvpnVxlan:
                 cli_objects.hb.frr.validate_type_5_route(hb_type_5_info, ip_addr, mask, vtep_ip, rd)
 
     @retry(Exception, tries=5, delay=2)
-    def validate_multi_vrfs_evpn_type5_route(self, cli_objects):
+    def validate_multi_vrfs_evpn_type5_route(self, cli_objects, learned=True):
         """
         This method is used to verify evpn type 5 route state in multi vrfs scenario
         :param cli_objects: cli_objects fixture
@@ -681,7 +681,7 @@ class TestEvpnVxlan:
             ]
             ha_type_5_info = cli_objects.ha.frr.get_l2vpn_evpn_route_type_prefix()
             for ip_addr, mask, vtep_ip, rd in ha_type_5_check_list:
-                cli_objects.ha.frr.validate_type_5_route(ha_type_5_info, ip_addr, mask, vtep_ip, rd)
+                cli_objects.ha.frr.validate_type_5_route(ha_type_5_info, ip_addr, mask, vtep_ip, rd, learned)
 
     @retry(Exception, tries=5, delay=2)
     def validate_vrf_config_evpn_type5_route(self, cli_objects, bridge_ip, rd_num):
@@ -709,6 +709,27 @@ class TestEvpnVxlan:
         VxlanConfigTemplate.configuration(topology_obj, self.target_vxlan_config_dict, request)
         logger.info('Config new FRR configuration')
         FrrVrfConfigTemplate.configuration(topology_obj, FRR_CONFIG_CHANGE_DICT, request)
+
+    def config_evpn_route_map(self, cli_objects):
+        with allure.step("Deny evpn type 5 routes by route map"):
+            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
+                                                      sequence='1', evpn_route_type='5')
+            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.PERMIT,
+                                                      sequence='2')
+        with allure.step("Bind route map to bgp"):
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
+                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID)
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
+                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID)
+
+    def remove_evpn_route_map(self, cli_objects):
+        with allure.step("Unbind route map to bgp"):
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
+                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID, bind=False)
+            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
+                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID, bind=False)
+        with allure.step("Remove route map"):
+            cli_objects.dut.frr.clean_evpn_route_map(VxlanConstants.EVPN_ROUTE_MAP)
 
     def test_overlay_ecmp(self, topology_obj, cli_objects, engines, interfaces, overlay_ecmp_configuration):
         """
@@ -760,28 +781,46 @@ class TestEvpnVxlan:
 
         Test has next steps:
         1.L3 evpn type 5 info correct at HA, DUT, HB
-        2.Send traffic from HB link hb-dut-1 to HA VXLAN interface and vice-versa. Check that traffic pass
-        3.Send traffic from HB link hb-dut-2 to HA VXLAN interface and vice-versa. Check that traffic pass
+        2.Configure route map to block type 5 routes
+        3.Do route map deny action validations
+        4.Remove route map
+        5.Do type 5 routes validations
+        6.Send traffic from HB link hb-dut-1 to HA VXLAN interface and vice-versa. Check that traffic pass
+        7.Send traffic from HB link hb-dut-2 to HA VXLAN interface and vice-versa. Check that traffic pass
         """
-        with allure.step('Check CLI VLAN to VNI mapping'):
-            self.collect_mac_multi_vrfs(cli_objects, interfaces)
-            cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
-                vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
-                                   (VxlanConstants.VLAN_200, VxlanConstants.VNI_500200)])
+        try:
+            with allure.step('Check CLI VLAN to VNI mapping'):
+                self.collect_mac_multi_vrfs(cli_objects, interfaces)
+                cli_objects.dut.vxlan.check_vxlan_vlanvnimap(
+                    vlan_vni_map_list=[(VxlanConstants.VLAN_100, VxlanConstants.VNI_500100),
+                                       (VxlanConstants.VLAN_200, VxlanConstants.VNI_500200)])
 
-        with allure.step('Validate evpn type 5 routes'):
-            self.validate_multi_vrfs_evpn_type5_route(cli_objects)
+            with allure.step('Configure route map to block type 5 routes'):
+                self.config_evpn_route_map(cli_objects)
 
-        with allure.step(f'Validate vrf route installed of {VRF_1}'):
-            validate_ip_vrf_route(cli_objects.dut, VxlanConstants.BR_500100_IP, IP_MASK, VRF_1)
-            validate_ip_vrf_route(cli_objects.dut, self.hb_vlan_10_ip, IP_MASK, VRF_1)
+            with allure.step('Validate evpn type 5 routes are blocked'):
+                self.validate_multi_vrfs_evpn_type5_route(cli_objects, learned=False)
 
-        with allure.step(f'Validate vrf route installed of {VRF_2}'):
-            validate_ip_vrf_route(cli_objects.dut, VxlanConstants.BR_500200_IP, IP_MASK, VRF_2)
-            validate_ip_vrf_route(cli_objects.dut, self.hb_vlan_20_ip, IP_MASK, VRF_2)
+            with allure.step('Remove route map'):
+                self.remove_evpn_route_map(cli_objects)
 
-        with allure.step('Validate multi vrfs traffic'):
-            self.validate_multi_vrfs_traffic(interfaces, VxlanConstants.PACKET_NUM_100)
+            with allure.step('Validate evpn type 5 routes'):
+                self.validate_multi_vrfs_evpn_type5_route(cli_objects)
+
+            with allure.step(f'Validate vrf route installed of {VRF_1}'):
+                validate_ip_vrf_route(cli_objects.dut, VxlanConstants.BR_500100_IP, IP_MASK, VRF_1)
+                validate_ip_vrf_route(cli_objects.dut, self.hb_vlan_10_ip, IP_MASK, VRF_1)
+
+            with allure.step(f'Validate vrf route installed of {VRF_2}'):
+                validate_ip_vrf_route(cli_objects.dut, VxlanConstants.BR_500200_IP, IP_MASK, VRF_2)
+                validate_ip_vrf_route(cli_objects.dut, self.hb_vlan_20_ip, IP_MASK, VRF_2)
+
+            with allure.step('Validate multi vrfs traffic'):
+                self.validate_multi_vrfs_traffic(interfaces, VxlanConstants.PACKET_NUM_100)
+        except Exception as err:
+            with allure.step('Remove route map'):
+                self.remove_evpn_route_map(cli_objects)
+            raise err
 
     def test_vni_to_vrf_config_change(self, topology_obj, cli_objects, interfaces, vrf_config_change_configuration,
                                       request):
