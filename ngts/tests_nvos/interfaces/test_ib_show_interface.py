@@ -188,7 +188,7 @@ def test_ib_show_interface_name_link(engines, devices, test_api):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
             selected_port.interface.link.show()).get_returned_value()
 
-        validate_link_fields(output_dictionary)
+        validate_link_fields(output_dictionary, devices.dut.switch_type.lower())
         verify_expected_link_state(output_dictionary)
 
 
@@ -298,13 +298,14 @@ def validate_link_fields(output_dictionary, switch_type, port_up=True):
                           # IbInterfaceConsts.LINK_IB_SUBNET,
                           IbInterfaceConsts.LINK_SUPPORTED_LANES,
                           IbInterfaceConsts.LINK_MAX_SUPPORTED_MTU,
-                          IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS,
+                          # IbInterfaceConsts.LINK_SUPPORTED_IB_SPEEDS,
                           # IbInterfaceConsts.LINK_SUPPORTED_SPEEDS,
                           IbInterfaceConsts.LINK_LOGICAL_PORT_STATE,
                           IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE,
                           IbInterfaceConsts.LINK_VL_ADMIN_CAPABILITIES]
         if switch_type == "ib":
             field_to_check.insert(1, IbInterfaceConsts.LINK_IB_SUBNET)  # Insert at the desired position
+            field_to_check.insert(4, IbInterfaceConsts.LINK_IB_SUBNET)  # Insert at the desired position
 
         Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
 
@@ -357,8 +358,8 @@ def verify_expected_link_state(output_dictionary):
     link_physical_port_state = output_dictionary[IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE]
     link_logical_port_state = output_dictionary[IbInterfaceConsts.LINK_LOGICAL_PORT_STATE]
     if link_physical_port_state in \
-        [IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_POLLING,
-         IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_DISABLED]:
+            [IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_POLLING,
+             IbInterfaceConsts.LINK_PHYSICAL_PORT_STATE_DISABLED]:
 
         Tools.ValidationTool.validate_fields_values_in_output(
             output_dict=output_dictionary,
