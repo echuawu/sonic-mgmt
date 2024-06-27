@@ -636,7 +636,7 @@ class NvLinkSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
-        self.mgmt_ports = ['eth0', 'eth1']
+        self.mgmt_ports = ['eth0']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
