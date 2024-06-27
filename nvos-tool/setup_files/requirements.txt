@@ -32,3 +32,4 @@ grpcio==1.50.0
 pyodbc==4.0.34
 lxml
 perscache
+pytest-timeout==2.3.1

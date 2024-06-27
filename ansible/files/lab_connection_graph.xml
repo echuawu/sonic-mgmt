@@ -274,15 +274,15 @@
       <Device Hostname="gorilla-simx-87" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-simx-88" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-simx-89" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-90" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-91" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-92" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-93" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-94" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-95" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-96" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-97" HwSku="ACS-MQM9700" Type="DevSonic"/>
-      <Device Hostname="gorilla-simx-98" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-90" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-91" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-92" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-93" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-94" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-95" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-96" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-97" HwSku="ACS-MQM9700" Type="DevSonic"/>
+      <Device Hostname="croc-simx-98" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-chipsim-62" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-chipsim-63" HwSku="ACS-MQM9700" Type="DevSonic"/>
       <Device Hostname="gorilla-chipsim-63" HwSku="ACS-MQM9700" Type="DevSonic"/>

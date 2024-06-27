@@ -4794,6 +4794,32 @@
     - r-panther-48
   comment: Mellanox MTR testbed
 
+- conf-name: mtvr-panther-02-fastreboot
+  group-name: vm-t1
+  topo: t1-lag
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-02
+  ptf_ip: 10.245.40.3/16
+  ptf_ipv6:
+  server: server_82
+  vm_base: VM4701
+  dut:
+    - mtvr-panther-02
+  comment: Mellanox MTR testbed
+
+- conf-name: mtvr-panther-03-fastreboot
+  group-name: vm-t2
+  topo: t0
+  ptf_image_name: docker-ptf-mlnx
+  ptf: ptf-mtvr-panther-03
+  ptf_ip: 10.245.40.36/16
+  ptf_ipv6:
+  server: server_83
+  vm_base: VM4801
+  dut:
+    - mtvr-panther-03
+  comment: Mellanox MTR testbed
+
 - conf-name: r-bulldog-03-ptf-any
   group-name: vm-t1
   topo: ptf-any
@@ -6315,7 +6341,7 @@
     - gorilla-simx-88
   comment: Mellanox MTR testbed
 
-- conf-name: gorilla-simx-93-ptf-any
+- conf-name: croc-simx-93-ptf-any
   group-name: vm-t1
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
@@ -6325,10 +6351,10 @@
   server: server_54
   vm_base: VM0000
   dut:
-    - gorilla-simx-93
+    - croc-simx-93
   comment: Mellanox MTR testbed
 
-- conf-name: gorilla-simx-95-ptf-any
+- conf-name: croc-simx-95-ptf-any
   group-name: vm-t1
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
@@ -6338,10 +6364,10 @@
   server: server_54
   vm_base: VM0000
   dut:
-    - gorilla-simx-95
+    - croc-simx-95
   comment: Mellanox MTR testbed
 
-- conf-name: gorilla-simx-91-ptf-any
+- conf-name: croc-simx-91-ptf-any
   group-name: vm-t1
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
@@ -6351,10 +6377,10 @@
   server: server_54
   vm_base: VM0000
   dut:
-    - gorilla-simx-91
+    - croc-simx-91
   comment: Mellanox MTR testbed
 
-- conf-name: gorilla-simx-97-ptf-any
+- conf-name: croc-simx-97-ptf-any
   group-name: vm-t1
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
@@ -6364,7 +6390,7 @@
   server: server_54
   vm_base: VM0000
   dut:
-    - gorilla-simx-97
+    - croc-simx-97
   comment: Mellanox MTR testbed
 
 - conf-name: gorilla-chipsim-62-ptf-any
