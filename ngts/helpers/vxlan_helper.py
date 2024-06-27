@@ -476,3 +476,23 @@ def validate_ecmp_traffic(pcap_path_list, ip_check_list, sender_count, receiver_
         assert total_count == len(ip_check_list) * int(sender_count)
     else:
         assert total_count == receiver_count
+
+
+def config_evpn_route_map(cli_objects, route_map, bgp_session_id, route_map_params, bgp_neighbor_list):
+    logger.info(f"Config route map for evpn routes")
+    for action, sesquence, route_type in route_map_params:
+        cli_objects.dut.frr.config_evpn_route_map(route_map, action, sesquence, route_type)
+
+    logger.info("Bind route map to bgp")
+    for bgp_neighbor in bgp_neighbor_list:
+        cli_objects.dut.frr.bind_evpn_route_map(route_map, bgp_neighbor, bgp_session_id)
+
+
+def remove_evpn_route_map(cli_objects, route_map, bgp_session_id, bgp_neighbor_list):
+    logger.info("Unbind route map to bgp")
+    for bgp_neighbor in bgp_neighbor_list:
+        cli_objects.dut.frr.bind_evpn_route_map(name=route_map, bgp_neighbor=bgp_neighbor,
+                                                bgp_session_id=bgp_session_id, bind=False)
+
+    logger.info("Remove route map")
+    cli_objects.dut.frr.clean_evpn_route_map(route_map)

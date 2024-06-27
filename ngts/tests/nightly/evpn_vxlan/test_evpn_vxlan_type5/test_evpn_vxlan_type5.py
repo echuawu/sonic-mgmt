@@ -15,7 +15,7 @@ from ngts.config_templates.parallel_config_runner import parallel_config_runner
 from ngts.constants.constants import VxlanConstants
 from ngts.helpers.sniff_helper import send_traffic, start_sniffer, stop_sniffer
 from ngts.helpers.vxlan_helper import send_and_validate_traffic, verify_ecmp_counter_entry, sonic_ports_flap, \
-    restart_bgp_session, validate_ip_vrf_route, validate_ecmp_traffic
+    restart_bgp_session, validate_ip_vrf_route, validate_ecmp_traffic, config_evpn_route_map, remove_evpn_route_map
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from scapy.layers.inet6 import IP
 from scapy.layers.inet6 import IPv6
@@ -710,27 +710,6 @@ class TestEvpnVxlan:
         logger.info('Config new FRR configuration')
         FrrVrfConfigTemplate.configuration(topology_obj, FRR_CONFIG_CHANGE_DICT, request)
 
-    def config_evpn_route_map(self, cli_objects):
-        with allure.step("Deny evpn type 5 routes by route map"):
-            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
-                                                      sequence='1', evpn_route_type='5')
-            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.PERMIT,
-                                                      sequence='2')
-        with allure.step("Bind route map to bgp"):
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
-                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID)
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
-                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID)
-
-    def remove_evpn_route_map(self, cli_objects):
-        with allure.step("Unbind route map to bgp"):
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
-                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID, bind=False)
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
-                                                    bgp_session_id=VxlanConstants.BGP_SESSION_ID, bind=False)
-        with allure.step("Remove route map"):
-            cli_objects.dut.frr.clean_evpn_route_map(VxlanConstants.EVPN_ROUTE_MAP)
-
     def test_overlay_ecmp(self, topology_obj, cli_objects, engines, interfaces, overlay_ecmp_configuration):
         """
         This test will check EVPN Type 5 overlay ecmp functionality.
@@ -796,13 +775,25 @@ class TestEvpnVxlan:
                                        (VxlanConstants.VLAN_200, VxlanConstants.VNI_500200)])
 
             with allure.step('Configure route map to block type 5 routes'):
-                self.config_evpn_route_map(cli_objects)
+                config_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          (VxlanConstants.DENY, '1', '5'),
+                                          (VxlanConstants.PERMIT, '2', '')
+                                      ],
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
 
             with allure.step('Validate evpn type 5 routes are blocked'):
                 self.validate_multi_vrfs_evpn_type5_route(cli_objects, learned=False)
 
             with allure.step('Remove route map'):
-                self.remove_evpn_route_map(cli_objects)
+                remove_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
 
             with allure.step('Validate evpn type 5 routes'):
                 self.validate_multi_vrfs_evpn_type5_route(cli_objects)
@@ -819,7 +810,11 @@ class TestEvpnVxlan:
                 self.validate_multi_vrfs_traffic(interfaces, VxlanConstants.PACKET_NUM_100)
         except Exception as err:
             with allure.step('Remove route map'):
-                self.remove_evpn_route_map(cli_objects)
+                remove_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
             raise err
 
     def test_vni_to_vrf_config_change(self, topology_obj, cli_objects, interfaces, vrf_config_change_configuration,

@@ -8,7 +8,8 @@ from ngts.config_templates.vxlan_config_template import VxlanConfigTemplate
 from ngts.config_templates.frr_config_template import FrrConfigTemplate
 from ngts.constants.constants import VxlanConstants
 from ngts.helpers.vxlan_helper import apply_fdb_config, send_and_validate_traffic, verify_counter_entry, \
-    verify_mac_entry_learned, verify_mac_entry_not_learned, vni_to_hex_vni, verify_bgp_container_up
+    verify_mac_entry_learned, verify_mac_entry_not_learned, vni_to_hex_vni, verify_bgp_container_up, \
+    config_evpn_route_map, remove_evpn_route_map
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
 from infra.tools.validations.traffic_validations.ping.ping_runner import PingChecker
 
@@ -622,27 +623,6 @@ EOF
                 cli_objects.hb.vxlan.unbind_if_with_bridge(VxlanConstants.VNI_500100_IFACE,
                                                            '{}.41'.format(interfaces.hb_dut_2))
 
-    def config_evpn_route_map(self, cli_objects):
-        with allure.step("Deny evpn type 2 and 3 routes by route map"):
-            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
-                                                      sequence='1', evpn_route_type='2')
-            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.DENY,
-                                                      sequence='2', evpn_route_type='3')
-            cli_objects.dut.frr.config_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, action=VxlanConstants.PERMIT,
-                                                      sequence='3')
-        with allure.step("Bind route map to bgp"):
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip)
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip)
-
-    def remove_evpn_route_map(self, cli_objects):
-        with allure.step("Unbind route map to bgp"):
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.ha_vtep_ip,
-                                                    bind=False)
-            cli_objects.dut.frr.bind_evpn_route_map(name=VxlanConstants.EVPN_ROUTE_MAP, bgp_neighbor=self.hb_vtep_ip,
-                                                    bind=False)
-        with allure.step("Remove route map"):
-            cli_objects.dut.frr.clean_evpn_route_map(VxlanConstants.EVPN_ROUTE_MAP)
-
     def test_local_mac_handling(self, engines, cli_objects):
         """
         This test will check EVPN VXLAN MAC advertise functionality.
@@ -663,13 +643,25 @@ EOF
                                        (VxlanConstants.VLAN_101, VxlanConstants.VNI_500101)])
 
             with allure.step('Configure route map to block type 2 and 3 routes'):
-                self.config_evpn_route_map(cli_objects)
-
+                config_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          (VxlanConstants.DENY, '1', '2'),
+                                          (VxlanConstants.DENY, '2', '3'),
+                                          (VxlanConstants.PERMIT, '3', '')
+                                      ],
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
             with allure.step('Validate evpn type 2 and type 3 routes are blocked'):
                 self.validate_basic_evpn_type_2_3_route(cli_objects, learned=False)
 
             with allure.step('Remove route map'):
-                self.remove_evpn_route_map(cli_objects)
+                remove_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
 
             with allure.step('Validate evpn type 2 and type 3 routes are learned'):
                 self.validate_basic_evpn_type_2_3_route(cli_objects)
@@ -686,7 +678,11 @@ EOF
                                                          VxlanConstants.RD_101, self.hb_vlan_101_iface_ip)
         except Exception as err:
             with allure.step('Remove route map'):
-                self.remove_evpn_route_map(cli_objects)
+                remove_evpn_route_map(cli_objects, VxlanConstants.EVPN_ROUTE_MAP, VxlanConstants.BGP_SESSION_ID,
+                                      [
+                                          self.ha_vtep_ip,
+                                          self.hb_vtep_ip
+                                      ])
             raise err
 
     def test_remote_mac_handling(self, engines, cli_objects):
