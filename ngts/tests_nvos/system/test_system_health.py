@@ -724,7 +724,7 @@ def cause_health_file_rotation_and_validate(engine, system):
 
     with allure.step("Wait until file rotation"):
         logger.info("Wait until file rotation")
-        system.health.history.wait_until_health_history_file_rotation()
+        system.health.history.wait_until_health_history_file_rotation(engine)
 
     with allure.step("Validate we have 2 health files"):
         logger.info("Validate we have 2 health files")

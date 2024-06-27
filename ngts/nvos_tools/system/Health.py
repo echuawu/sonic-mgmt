@@ -1,6 +1,6 @@
 import logging
 import re
-
+import time
 import allure
 from retry import retry
 
@@ -64,8 +64,10 @@ class History(BaseComponent):
         logger.info("last status line is: \n {}".format(last_status))
         return HealthConsts.NOT_OK if HealthConsts.NOT_OK in last_status else HealthConsts.OK
 
-    @retry(Exception, tries=20, delay=30)
-    def wait_until_health_history_file_rotation(self):
+    def wait_until_health_history_file_rotation(self, engine):
+        with allure.step("Restart logrotate service..."):
+            engine.run_cmd("sudo systemctl restart logrotate")
+        time.sleep(10)
         line = self.search_line("health_history file deleted, creating new file")
         assert len(line) > 0
 
