@@ -33,7 +33,7 @@ def test_ib_interface_state(test_name):
     toggle_port_state(selected_port, NvosConsts.LINK_STATE_DOWN, test_name)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show()).get_returned_value()
+        selected_port.interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=IbInterfaceConsts.LINK_STATE,
@@ -42,7 +42,7 @@ def test_ib_interface_state(test_name):
     toggle_port_state(selected_port, NvosConsts.LINK_STATE_UP, test_name)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show()).get_returned_value()
+        selected_port.interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=IbInterfaceConsts.LINK_STATE,
@@ -50,10 +50,10 @@ def test_ib_interface_state(test_name):
 
 
 def toggle_port_state(selected_port, port_state, test_name=''):
-    selected_port.ib_interface.link.state.set(op_param_name=port_state, apply=True, ask_for_confirmation=True).verify_result()
+    selected_port.interface.link.state.set(op_param_name=port_state, apply=True, ask_for_confirmation=True).verify_result()
     with allure.step("Wait till port {} is {}".format(selected_port, port_state)):
         res_obj, duration = OperationTime.save_duration('port goes {}'.format(port_state), '', test_name,
-                                                        selected_port.ib_interface.wait_for_port_state, port_state,
+                                                        selected_port.interface.wait_for_port_state, port_state,
                                                         sleep_time=0.2)
         res_obj.verify_result()
         OperationTime.verify_operation_time(duration, 'port goes {}'.format(port_state)).verify_result()
@@ -78,11 +78,11 @@ def test_ib_interface_state_invalid(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(op_param_name='invalid_value', apply=True,
-                                              ask_for_confirmation=True).verify_result(False)
+    selected_port.interface.link.state.set(op_param_name='invalid_value', apply=True,
+                                           ask_for_confirmation=True).verify_result(False)
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show()).get_returned_value()
+        selected_port.interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=IbInterfaceConsts.LINK_STATE,
@@ -111,15 +111,15 @@ def test_ib_interface_state_unset(engines):
 
     TestToolkit.update_tested_ports([selected_port])
 
-    selected_port.ib_interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
-                                              ask_for_confirmation=True).verify_result()
+    selected_port.interface.link.state.set(op_param_name=NvosConsts.LINK_STATE_DOWN, apply=True,
+                                           ask_for_confirmation=True).verify_result()
 
-    selected_port.ib_interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
+    selected_port.interface.link.state.unset(apply=True, ask_for_confirmation=True).verify_result()
 
-    selected_port.ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
+    selected_port.interface.wait_for_port_state(NvosConsts.LINK_STATE_UP).verify_result()
 
     output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-        selected_port.ib_interface.link.show()).get_returned_value()
+        selected_port.interface.link.show()).get_returned_value()
 
     Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                       field_name=IbInterfaceConsts.LINK_STATE,

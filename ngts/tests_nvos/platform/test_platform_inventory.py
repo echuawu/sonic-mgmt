@@ -105,6 +105,9 @@ def test_show_platform_inventory_psu(engines, devices, test_api):
     """nv show platform inventory <random-psu-name>"""
     TestToolkit.tested_api = test_api
 
+    if not devices.dut.psu_list:
+        pytest.skip("Skipping test because DUT has no PSUs")
+
     with allure.step("Create System object"):
         platform = Platform()
 

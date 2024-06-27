@@ -187,7 +187,7 @@ class OpenapiAuthenticator(Authenticator):
         self.send_cmd('\r', DefaultConnectionValues.DEFAULT_PROMPTS)
 
         openapi_request = f"curl -k --user {self.username}:{password_to_send} " \
-                          f"--request GET 'https://{self.ip}/nvue_v1/system/version'"
+            f"--request GET 'https://{self.ip}/nvue_v1/system/version'"
         expected_msg = ['}', '</html>'] + DefaultConnectionValues.DEFAULT_PROMPTS
         self.log(f'Make auth attempt with password: {password_to_send} | Then, expect: {expected_msg}')
         send_timestamp, respond_index, output = self.send_cmd(openapi_request, expected_msg, timeout)

@@ -384,8 +384,8 @@ class ArHelper:
             self.disable_doai_service(cli_objects)
             warn_output = cli_objects.dut.ar.enable_ar_function(validate=False)
             assert ArConsts.WARNING_MESSAGE in warn_output, f'Adaptive Routing should print warning when enabling' \
-                                                            f'ar function before ' \
-                                                            f'{AppExtensionInstallationConstants.DOAI} service'
+                f'ar function before ' \
+                f'{AppExtensionInstallationConstants.DOAI} service'
         except Exception as err:
             raise err
         finally:

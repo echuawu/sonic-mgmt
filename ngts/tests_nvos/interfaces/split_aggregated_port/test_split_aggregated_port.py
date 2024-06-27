@@ -65,9 +65,9 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
 
     with allure_step("Split splitter port"):
         parent_port = split_ports[0]
-        parent_port.ib_interface.link.set(op_param_name='breakout',
-                                          op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
-                                          apply=True, ask_for_confirmation=True).verify_result()
+        parent_port.interface.link.set(op_param_name='breakout',
+                                       op_param_value=IbInterfaceConsts.LINK_BREAKOUT_NDR,
+                                       apply=True, ask_for_confirmation=True).verify_result()
 
     with allure_step("Get split ports"):
         child_ports = MultiPlanarTool._get_split_child_ports(parent_port)
@@ -83,13 +83,13 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
         Port.wait_for_port_state(child_port, "up")
 
     with allure_step("Change mtu on child port and check changes"):
-        child_ports[0].ib_interface.link.set(op_param_name='mtu', op_param_value=512, apply=True,
-                                             ask_for_confirmation=True).verify_result()
+        child_ports[0].interface.link.set(op_param_name='mtu', op_param_value=512, apply=True,
+                                          ask_for_confirmation=True).verify_result()
 
         with allure_step("Verify changed values on child port"):
-            child_ports[0].ib_interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
+            child_ports[0].interface.wait_for_port_state(NvosConsts.LINK_STATE_UP, sleep_time=8).verify_result()
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_link_output_to_dictionary(
-                child_ports[0].ib_interface.link.show()).get_returned_value()
+                child_ports[0].interface.link.show()).get_returned_value()
             Tools.ValidationTool.verify_field_value_in_output(output_dictionary=output_dictionary,
                                                               field_name='mtu',
                                                               expected_value='512').verify_result()
@@ -118,20 +118,20 @@ def test_interface_aggregated_port_split(engines, devices, test_api, players, in
 
         with allure_step("Check counters before split, should be not 0"):
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-                child_ports[0].ib_interface.link.stats.show()).get_returned_value()
+                child_ports[0].interface.link.stats.show()).get_returned_value()
             assert output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] == output_dictionary[
                 IbInterfaceConsts.LINK_STATS_OUT_PKTS]
 
     with allure_step("Clear counters and validate"):
-        child_ports[0].ib_interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
+        child_ports[0].interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
 
         with allure_step("Check counters after clear counters, should be 0"):
             output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
-                child_ports[0].ib_interface.link.stats.show()).get_returned_value()
+                child_ports[0].interface.link.stats.show()).get_returned_value()
             assert output_dictionary[IbInterfaceConsts.LINK_STATS_IN_PKTS] == output_dictionary[
                 IbInterfaceConsts.LINK_STATS_OUT_PKTS]
 
     with allure_step("Set config to default"):
-        child_ports[0].ib_interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).\
+        child_ports[0].interface.link.unset(op_param='breakout', apply=True, ask_for_confirmation=True).\
             verify_result()
         system.profile.action_profile_change(params_dict={"adaptive-routing": "enabled", "breakout-mode": "disabled"})

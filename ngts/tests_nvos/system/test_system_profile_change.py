@@ -93,8 +93,8 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
     with allure.step("Check traffic port up"):
         active_ports = Tools.RandomizationTool.get_random_active_port(number_of_values_to_select=0).get_returned_value()
         for port in active_ports:
-            port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
-                                                  logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
+            port.interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                               logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
     with allure.step('Check host ports up'):
         for host in traffic_hosts:
@@ -128,8 +128,8 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
 
         with allure.step("Check traffic port up"):
             for port in active_ports:
-                port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
-                                                      logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
+                port.interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                                   logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
         with allure.step('Check host ports up'):
             for host in traffic_hosts:
@@ -167,8 +167,8 @@ def test_system_profile_adaptive_routing(engines, players, interfaces, start_sm,
 
         with allure.step("Check traffic port up"):
             for port in active_ports:
-                port.ib_interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
-                                                      logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
+                port.interface.wait_for_port_state(state=NvosConsts.LINK_STATE_UP,
+                                                   logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).verify_result()
 
         with allure.step('Check host ports up'):
             for host in traffic_hosts:

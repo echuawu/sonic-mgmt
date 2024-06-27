@@ -62,18 +62,18 @@ class Port(BaseComponent):
         self.name = name
         self.show_output_dictionary = show_output_dictionary
         self.name_in_redis = name_in_redis
-        self.ib_interface = Interface(self, name)
+        self.interface = Interface(self, name)
         self.acl = Acl(self)
 
     @staticmethod
-    def get_list_of_active_ports():
+    def get_list_of_active_ports(port_type=IbInterfaceConsts.IB_PORT_TYPE):
         """
         Return a list of ports which are connected to a traffic server
         """
         with allure.step('Get a list of ports which state is up'):
             port_requirements_object = PortRequirements()
             port_requirements_object.set_port_state(NvosConsts.LINK_STATE_UP)
-            port_requirements_object.set_port_type(IbInterfaceConsts.IB_PORT_TYPE)
+            port_requirements_object.set_port_type(port_type)
             port_requirements_object.set_port_logical_state("Active")
             up_port_list = Port.get_list_of_ports(None, port_requirements_object)
 

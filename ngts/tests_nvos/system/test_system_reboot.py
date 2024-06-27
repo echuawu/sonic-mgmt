@@ -20,7 +20,7 @@ def test_reboot_command(engines, devices, test_name):
 
     with allure.step('Run nv action reboot system'):
         result_obj, duration = OperationTime.save_duration('reboot', '', test_name, system.reboot.action_reboot)
-        OperationTime.verify_operation_time(duration, 'reboot').verify_result()
+        OperationTime.verify_operation_time(duration, devices.dut.reboot_type).verify_result()
 
     with allure.step("Check system reboot output"):
         output = OutputParsingTool.parse_json_str_to_dictionary(system.reboot.show()).get_returned_value()

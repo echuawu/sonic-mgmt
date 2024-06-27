@@ -2,6 +2,8 @@ from typing import List
 
 import logging
 import os
+import time
+from collections import namedtuple
 
 import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
@@ -259,7 +261,7 @@ class IbSwitch(BaseSwitch):
         self.child_aggregated_port = 'sw10p1s1'
         self.aggregated_port_planarized_ports = 4
         self.fnm_plane_port_list = ['fnm1pl1', 'fnm1pl2']  # total 2 ports
-        self.non_ib_port_list = ['eth0', 'ib0', 'lo']  # total 3 ports
+        self.network_ports = ['eth0', 'ib0', 'lo']  # total 3 ports
         self.non_aggregated_port_list = ['sw10p1', 'sw10p2', 'sw11p1', 'sw11p2', 'sw12p1', 'sw12p2', 'sw13p1', 'sw13p2',
                                          'sw14p1', 'sw14p2', 'sw15p1', 'sw15p2', 'sw16p1', 'sw16p2', 'sw17p1', 'sw17p2',
                                          'sw18p1', 'sw18p2', 'sw19p1', 'sw19p2', 'sw20p1', 'sw20p2', 'sw21p1', 'sw21p2',
@@ -270,32 +272,10 @@ class IbSwitch(BaseSwitch):
                                          'sw7p1', 'sw7p2', 'sw8p1', 'sw8p2', 'sw9p1', 'sw9p2']  # total 55 ports
         self.all_plane_port_list = ['sw1p1pl1', 'sw1p1pl2', 'sw2p1pl1', 'sw2p1pl2', 'sw32p1pl1', 'sw32p1pl2']
         self.all_port_list = self.non_aggregated_port_list + self.aggregated_port_list + self.fnm_external_port_list
-        self.all_port_list += self.fnm_external_port_list + self.non_ib_port_list
-        self.nvl5_ports_list = ['access1p1', 'access1p10', 'access1p11', 'access1p12', 'access1p13', 'access1p14',
-                                'access1p15',
-                                'access1p16', 'access1p17', 'access1p18', 'access1p19', 'access1p2', 'access1p20',
-                                'access1p21',
-                                'access1p22', 'access1p23', 'access1p24', 'access1p25', 'access1p26', 'access1p27',
-                                'access1p28',
-                                'access1p29', 'access1p3', 'access1p30', 'access1p31', 'access1p32', 'access1p33',
-                                'access1p34',
-                                'access1p35', 'access1p36', 'access1p37', 'access1p38', 'access1p39', 'access1p4',
-                                'access1p40',
-                                'access1p41', 'access1p42', 'access1p43', 'access1p44', 'access1p45', 'access1p46',
-                                'access1p47',
-                                'access1p48', 'access1p49', 'access1p5', 'access1p50', 'access1p51', 'access1p52',
-                                'access1p53',
-                                'access1p54', 'access1p55', 'access1p56', 'access1p57', 'access1p58', 'access1p59',
-                                'access1p6',
-                                'access1p60', 'access1p61', 'access1p62', 'access1p63', 'access1p7', 'access1p8',
-                                'access1p9']
-        self.all_nvl5_ports_list = [self.nvl5_ports_list + self.non_ib_port_list]
-        self.nvl5_fnm_port = ['fnm1pl1']
+        self.all_port_list += self.fnm_external_port_list + self.network_ports
         self.fnm_link_speed = '400G'
-        self.all_fae_nvl5_ports_list = [self.nvl5_ports_list + self.non_ib_port_list + self.nvl5_fnm_port]
-        self.nvl5_port = ['access1p48']
-        self.nvl5_port_speed = '400G'
-        self.nvl5_port_type = 'nvl'
+        # TODO, ADD MORE PORTS, WE WANT IT TO BE MORE REALISTIC. MAYBE WE CAN USE THE FULL LIST OF ALL PORTS FOR NVL5
+        self.fnm_port_type = 'fnm'
         self.all_fae_port_list = self.all_port_list + self.all_plane_port_list + self.fnm_plane_port_list
         self.asic0 = 'asic0'
         self.asic1 = 'asic1'
@@ -362,6 +342,9 @@ class IbSwitch(BaseSwitch):
                     file='/auto/sw_system_project/NVOS_INFRA/verification_files/ssd_fw/virtium_ssd_fw_pkg.pkg',
                     current_version='0202-000', alternate_version='0202-002'),
         }
+
+    def sleep_after_system_reboot(self):
+        pass
 
     def init_documents_consts(self):
         self.documents_files = {
@@ -667,35 +650,192 @@ class NvLinkSwitch(IbSwitch):
 
 
 # -------------------------- Juliet Switch ----------------------------
-class JulietSwitch(NvLinkSwitch):
 
-    def __init__(self):
-        super().__init__(asic_amount=1)
+
+class JulietSwitch(NvLinkSwitch):
+    FaeImagesTestConsts = namedtuple('FaeImagesTestConsts', ('current_image_version', 'alternate_image_version'))
+
+    def __init__(self, asic_amount):
+        super().__init__(asic_amount=asic_amount)
 
     def _init_constants(self):
         super()._init_constants()
+        self.bmc_image_info = self.FaeImagesTestConsts(current_image_version='bmc_1.pkg', alternate_image_version='bmc_2.pkg')
+        self.fpga_image_info = self.FaeImagesTestConsts(current_image_version='fpga_1.pkg', alternate_image_version='fpga_2.pkg')
 
     def _init_fan_list(self):
         super()._init_fan_list()
-        self.fan_list += ["FAN7/1", "FAN7/2"]
 
     def _init_led_list(self):
-        super()._init_led_list()
-        self.led_list.append('FAN7')
+        self.led_list = ['FAN1', 'FAN2', 'FAN3', 'FAN4', 'FAN5', 'FAN6', "STATUS", "UID"]
 
 
 # -------------------------- JulietScaleout Switch ----------------------------
 class JulietScaleoutSwitch(JulietSwitch):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(asic_amount=2)
 
     def _init_constants(self):
         super()._init_constants()
+        self.reboot_type = 'julietscaleout_reboot'
+        self.core_count = 8
+        self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
+        self.ssd_image = None
+        self.category_list = ['temperature', 'cpu', 'disk', 'fan', 'mgmt-interface', 'voltage']
+        self.voltage_sensors = [
+            "HSC-VinDC-In",
+            "HSC-VinDC-Out",
+            "PDB-1-Conv-In-1",
+            "PDB-1-Conv-Out-1",
+            "PDB-2-Conv-In-1",
+            "PDB-2-Conv-Out-1",
+            "PDB-3-Conv-In-1",
+            "PDB-3-Conv-Out-1",
+            "PDB-4-Conv-In-1",
+            "PDB-4-Conv-Out-1",
+            "PMIC-1-12V-VDD-ASIC1-In-1",
+            "PMIC-1-ASIC1-VDD-Out-1",
+            "PMIC-2-12V-HVDD-DVDD-ASIC1-In-1",
+            "PMIC-2-ASIC1-DVDD-PL0-Out-2",
+            "PMIC-2-ASIC1-HVDD-PL0-Out-1",
+            "PMIC-3-12V-HVDD-DVDD-ASIC1-In-1",
+            "PMIC-3-ASIC1-DVDD-PL1-Out-2",
+            "PMIC-3-ASIC1-HVDD-PL1-Out-1",
+            "PMIC-4-12V-VDD-ASIC2-In-1",
+            "PMIC-4-ASIC2-VDD-Out-1",
+            "PMIC-5-12V-HVDD-DVDD-ASIC2-In-1",
+            "PMIC-5-ASIC2-DVDD-PL0-Out-2",
+            "PMIC-5-ASIC2-HVDD-PL0-Out-1",
+            "PMIC-6-12V-HVDD-DVDD-ASIC2-In-1",
+            "PMIC-6-ASIC2-DVDD-PL1-Out-2",
+            "PMIC-6-ASIC2-HVDD-PL1-Out-1",
+            "PMIC-7-12V-MAIN-In-1",
+            "PMIC-7-CEX-VDD-Out-1",
+            "PMIC-8-COMEX-VDD-MEM-In-1",
+            "PMIC-8-COMEX-VDD-MEM-Out-1"
+        ]
+        # TBD
+        self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
+            "x86_64-nvidia_n5110_ld-r0")
+        self.show_platform_output.update({
+            "product-name": "N5110_LD",
+            "asic-model": self.asic_type,
+        })
+        self.current_bios_version_name = "0ACTV_0.00.007"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
+        self.previous_bios_version_name = "0ACTV_0.00.007"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
+        self.bios_version_name = '0ACTV000_07.rom'
+
+        self.current_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            version_names={
+                "CPLD1": "CPLD000370_REV0010",
+                "CPLD2": "CPLD000371_REV0010",
+                "CPLD3": "CPLD000373_REV0009",
+                "CPLD4": "CPLD000372_REV0002"
+            }
+        )
+        self.previous_cpld_version = BaseSwitch.CpldImageConsts(
+            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            version_names={
+                "CPLD1": "CPLD000370_REV0010",
+                "CPLD2": "CPLD000371_REV0010",
+                "CPLD3": "CPLD000373_REV0009",
+                "CPLD4": "CPLD000372_REV0002"
+            }
+        )
+        # self.stats_fan_header_num_of_lines = 25
+        # self.stats_power_header_num_of_lines = 13
+        # self.stats_temperature_header_num_of_lines = 53
+        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
+        # Port 1-36 is from asic1/ Port 37-72 is from asic2
+        self.nvl5_access_ports_list = ['acp1', 'acp2', 'acp3', 'acp4', 'acp5', 'acp6',
+                                       'acp7', 'acp8', 'acp9', 'acp10', 'acp11', 'acp12', 'acp13', 'acp14',
+                                       'acp15', 'acp16', 'acp17', 'acp18', 'acp19', 'acp20',
+                                       'acp21', 'acp22', 'acp23', 'acp24', 'acp25', 'acp26',
+                                       'acp27', 'acp28', 'acp29', 'acp30', 'acp31', 'acp32',
+                                       'acp33', 'acp34', 'acp35', 'acp36', 'acp37', 'acp38', 'acp39', 'acp40',
+                                       'acp41', 'acp42', 'acp43', 'acp44', 'acp45', 'acp46',
+                                       'acp47', 'acp48', 'acp49', 'acp50', 'acp51', 'acp52',
+                                       'acp53', 'acp54', 'acp55', 'acp56', 'acp57', 'acp58',
+                                       'acp59', 'acp60', 'acp61', 'acp62', 'acp63', 'acp64',
+                                       'acp65', 'acp66', 'acp67', 'acp68', 'acp69', 'acp70',
+                                       'acp71', 'acp72']
+
+        self.nvl5_trunk_ports_list = ['sw1p1s1', 'sw1p1s2', 'sw1p2s1', 'sw1p2s2',
+                                      'sw2p1s1', 'sw2p1s2', 'sw2p2s1', 'sw2p2s2',
+                                      'sw3p1s1', 'sw3p1s2', 'sw3p2s1', 'sw3p2s2',
+                                      'sw4p1s1', 'sw4p1s2', 'sw4p2s1', 'sw4p2s2',
+                                      'sw5p1s1', 'sw5p1s2', 'sw5p2s1', 'sw5p2s2',
+                                      'sw6p1s1', 'sw6p1s2', 'sw6p2s1', 'sw6p2s2',
+                                      'sw7p1s1', 'sw7p1s2', 'sw7p2s1', 'sw7p2s2',
+                                      'sw8p1s1', 'sw8p1s2', 'sw8p2s1', 'sw8p2s2',
+                                      'sw9p1s1', 'sw9p1s2', 'sw9p2s1', 'sw9p2s2',
+                                      'sw10p1s1', 'sw10p1s2', 'sw10p2s1', 'sw10p2s2',
+                                      'sw11p1s1', 'sw11p1s2', 'sw11p2s1', 'sw11p2s2',
+                                      'sw12p1s1', 'sw12p1s2', 'sw12p2s1', 'sw12p2s2',
+                                      'sw13p1s1', 'sw13p1s2', 'sw13p2s1', 'sw13p2s2',
+                                      'sw14p1s1', 'sw14p1s2', 'sw14p2s1', 'sw14p2s2',
+                                      'sw15p1s1', 'sw15p1s2', 'sw15p2s1', 'sw15p2s2',
+                                      'sw16p1s1', 'sw16p1s2', 'sw16p2s1', 'sw16p2s2',
+                                      'sw17p1s1', 'sw17p1s2', 'sw17p2s1', 'sw17p2s2',
+                                      'sw18p1s1', 'sw18p1s2', 'sw18p2s1', 'sw18p2s2'
+                                      ]
+        self.network_ports = ['eth0', 'eth1', 'lo']
+        self.all_nvl5_ports_list = self.nvl5_access_ports_list + self.nvl5_trunk_ports_list + self.network_ports
+        self.nvl5_fnm_ports = ['fnm1', 'fnm2', 'fnma0p1', 'fnma1p1']
+        self.all_fae_nvl5_ports_list = self.all_nvl5_ports_list + self.nvl5_fnm_ports
+        self.nvl5_port = ['access1p48']
+        self.nvl5_port_speed = '400G'
+        self.nvl5_port_type = 'nvl'
         # will be updated
 
+    def _init_temperature(self):
+        super()._init_temperature()
+        self.temperature_sensors = ["ASIC", "Ambient-Port-Side-Temp",
+                                    "CPU-Core-0-Temp", "CPU-Core-1-Temp", "CPU-Core-2-Temp", "CPU-Core-3-Temp",
+                                    "swb_asic1", "swb_asic2", "SODIMM-1-Temp"]
+
+    def _init_fan_list(self):
+        super()._init_fan_list()
+        self.fan_led_list = []
+
+    def _init_psu_list(self):
+        self.psu_list = []
+        self.psu_fan_list = []
+
+    def _init_led_list(self):
+        super()._init_led_list()
+
+    def _init_platform_lists(self):
+        super()._init_platform_lists()
+        self.platform_environment_fan_values = {
+            "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
+            "min-speed": ExpectedString(range_min=2000, range_max=10000),
+            "max-speed": ExpectedString(range_min=20000, range_max=40000)}
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="N5110_LD.*")})
+
+    def sleep_after_system_reboot(self):
+        logger.info("Sleeping for 80 seconds - Reboot takes longer on juliet for now")
+        time.sleep(80)
+
+    def _relevant_config_filename_by_version(self, version: str) -> str:
+        return 'nvos_config_nvl5.yml'
+
+    def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
+        logger.info("Sleeping for 300 seconds - Since bios update on juliet enters ONIE Update menu and takes longer")
+        time.sleep(300)
+        DutUtilsTool.check_ssh_for_authentication_error(engine, self)
+        return DutUtilsTool.wait_for_nvos_to_become_functional(engine)
 
 # -------------------------- Caiman Switch ----------------------------
+
+
 class CaimanSwitch(NvLinkSwitch):
 
     def __init__(self):

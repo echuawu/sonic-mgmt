@@ -23,6 +23,13 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/multi_planar/test_multi_planar_sym_mgr_and_aport.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
       </params>
     </cmd>
+    <ignore>
+      <condition>
+        <key>dut_hwsku</key>
+        <op> in </op>
+        <value>[N5110_LD - JulietScaleout]</value>
+      </condition>
+    </ignore>
   </case>
   <case>
     <name> split aggregated port test </name>
@@ -33,6 +40,13 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/split_aggregated_port/test_split_aggregated_port.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
       </params>
     </cmd>
+    <ignore>
+      <condition>
+        <key>dut_hwsku</key>
+        <op> in </op>
+        <value>[N5110_LD - JulietScaleout]</value>
+      </condition>
+    </ignore>
   </case>
   <case>
     <name> split fnm port test </name>
@@ -43,6 +57,13 @@
           <static_args> --setup_name [[conf:extra_info.setup_name]] --test_script /root/mars/workspace/sonic-mgmt/ngts/tests_nvos/interfaces/split_fnm_port/test_split_fnm_port.py --raw_options "\'--rootdir=/root/mars/workspace/sonic-mgmt/ngts -c /root/mars/workspace/sonic-mgmt/ngts/pytest.ini --release_name=[[conf:extra_info.release_name]] --log-level=INFO --default_pass_env_var=[[conf:extra_info.default_pass_env_var]] --clean-alluredir --alluredir=/tmp/allure-results --showlocals  [[conf:extra_info.loganalyzer_options]]  \'"</static_args>
       </params>
     </cmd>
+    <ignore>
+      <condition>
+        <key>dut_hwsku</key>
+        <op> in </op>
+        <value>[N5110_LD - JulietScaleout]</value>
+      </condition>
+    </ignore>
   </case>
   <case>
     <name> nvl5 port test </name>

@@ -259,7 +259,7 @@ def create_and_copy_lcov_files(engine, sudo_cli_general, c_dest, lcov_filename_p
         lcov_file_name = f'{info_file_string}-{timestamp}.info'
         lcov_file = f'{SharedConsts.GCOV_DIR}/{lcov_file_name}'
         sudo_cli_general.lcovr(flags=f'-extract {combined_coverage_file} "*/{scr_file}.cpp" '
-                                     f'--output-file {lcov_file}')
+                               f'--output-file {lcov_file}')
 
         engine.copy_file(source_file=lcov_file,
                          dest_file=os.path.join(c_dest, lcov_file_name),
@@ -401,7 +401,7 @@ def create_lcov_report_for_container(docker_cli_obj, lcov_filename_prefix, conta
     container_lcov_file = os.path.join(SharedConsts.GCOV_DIR, f'{lcov_filename_prefix}-{container}.info')
 
     docker_cli_obj.lcovr(flags=f'--gcov-tool gcov --capture --directory {SharedConsts.GCOV_DIR} '
-                               f'--output-file {container_lcov_file}')
+                         f'--output-file {container_lcov_file}')
     return container_lcov_file
 
 

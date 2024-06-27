@@ -458,7 +458,7 @@ def _verify_temp_in_range(temp, temp_prop, min_temp, max_temp):
     assert temp_prop['state'] == PlatformConsts.ENV_TEMP_STATE_OK, 'sensor state is {} instead of {}'.format(
         temp_prop['state'], PlatformConsts.ENV_TEMP_STATE_OK)
     assert min_temp <= _get_float(curr_temp) <= max_temp, f"{temp} temperature {curr_temp} is not within" \
-                                                          f" the valid range ({min_temp} - {max_temp})."
+        f" the valid range ({min_temp} - {max_temp})."
 
 
 def verify_sensor_group_by_tolerance(output, category):

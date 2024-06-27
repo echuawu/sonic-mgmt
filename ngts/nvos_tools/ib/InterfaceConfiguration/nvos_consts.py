@@ -17,6 +17,14 @@ class NvosConsts:
     LINK_LOG_STATE_INITIALIZE = 'Initialize'
 
 
+class NvlInterfaceConsts:
+    NVL_PORT_TYPE = "nvl"
+
+
+class InterfaceConsts:
+    DESCRIPTION = "description"
+
+
 class IbInterfaceConsts:
     INTERFACE_NAME = "name"
     DESCRIPTION = "description"

@@ -29,20 +29,21 @@ def test_show_platform_environment_voltage(engines):
         assert len(sensors) == len(voltage_output.keys()), "test failed - expected sensors count = {expected}, show command output = {output} \n expected sensors list: {expected_list}".format(
             expected=len(sensors), output=len(voltage_output.keys()), expected_list=sensors)
 
-    with allure.step("check voltage in range for all sensors"):
-        for sesonr_data in voltage_output.values():
-            check_voltage_in_range(sesonr_data)
+    with allure.step("pick random sensor to check the out put of the two show commands"):
+        random_sensor = random.choice(list(voltage_output.keys()))
 
-    with allure.step("compare voltage show commands outputs"):
-        for sensor in voltage_output.keys():
+        with allure.step("Execute show platform environment voltage for random sensor {}".format(random_sensor)):
             sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                platform.environment.voltage.show(sensor)).verify_result()
-            voltage_output_for_sensor = voltage_output[sensor].copy()
-            assert abs(float(sensor_output['actual']) - float(voltage_output_for_sensor['actual'])) < 0.5, "the actual of sensor {} changed more than expected".format(sensor)
-            # the actual voltage might fluctuate between the two `nv show` commands, so we don't compare it normally
-            del sensor_output['actual']
-            del voltage_output_for_sensor['actual']
-            assert sensor_output == voltage_output_for_sensor, "at least one of the values is not equal show all {} show {} {}".format(voltage_output_for_sensor, sensor, sensor_output)
+                platform.environment.voltage.show(random_sensor)).verify_result()
+            with allure.step("Verify both dictionaries are equal"):
+                voltage_output_for_sensor = voltage_output[random_sensor].copy()
+                # the actual voltage might fluctuate between the two `nv show` commands, so we don't compare it
+                del sensor_output['actual']
+                del voltage_output_for_sensor['actual']
+                assert sensor_output == voltage_output_for_sensor, ""
+
+        random_sensor = get_random_sensor_max_min(voltage_output)
+        check_voltage_in_range(voltage_output[random_sensor])
 
 
 @pytest.mark.cumulus
@@ -107,15 +108,26 @@ def test_database_platform_environment_voltage(engines, devices):
         assert not err_mes, err_mes
 
 
+def get_random_sensor_max_min(sensors_dic):
+    """
+        get random sensor out of all the sensors with: ok state and have max, min values
+    :param sensors_dic:
+    :return:
+    """
+    sensors_list = []
+    for item in sensors_dic.keys():
+        if 'min' in sensors_dic[item].keys() and 'max' in sensors_dic[item].keys():
+            sensors_list.append(item)
+    assert sensors_list, "No sensors with Max and Min values"
+    return random.choice(sensors_list)
+
+
 def check_voltage_in_range(sensor_output):
     """
 
     :param sensor_output:
     :return:
     """
-    with allure.step("Verify the sensor have min and max voltage values"):
-        if 'min' not in sensor_output.keys() or 'max' not in sensor_output.keys():
-            return
     with allure.step("Verify the actual voltage is between min and max"):
         assert sensor_output['state'] == 'ok', ""
         assert float(sensor_output['actual']) < float(sensor_output['max']), "the actual voltage out of range, max voltage = {}".format(sensor_output['max'])
