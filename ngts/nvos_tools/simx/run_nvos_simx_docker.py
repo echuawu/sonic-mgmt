@@ -37,7 +37,6 @@ def test_run_nvos_simx_docker(topology_obj, target_version):
         set_base_configurations(dut_engine=dut_engine, apply=True)
 
 
-@retry(Exception, tries=3, delay=10)
 def start_simx_docker(target_version, dut_engine, server_engine):
     output = server_engine.run_cmd(f"sudo {path_to_source_code}/{chipsim_script_file_name} --ip {dut_engine.ip} "
                                    f"--nos-image {target_version}")
