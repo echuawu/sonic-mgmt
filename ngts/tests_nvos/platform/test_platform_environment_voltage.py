@@ -10,11 +10,12 @@ from ngts.nvos_constants.constants_nvos import DatabaseConst, PlatformConsts
 logger = logging.getLogger()
 
 
+@pytest.mark.cumulus
 @pytest.mark.platform
 @pytest.mark.simx
 @pytest.mark.skynet
 @pytest.mark.nvos_chipsim_ci
-def test_show_platform_environment_voltage(engines):
+def test_show_platform_environment_voltage(engines, devices):
     """
     Show platform environment test
     """
@@ -24,24 +25,22 @@ def test_show_platform_environment_voltage(engines):
     with allure.step("Execute show platform environment and make sure all the components exist"):
         voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.voltage.show()).verify_result()
-        sensors = Tools.FilesTool.get_subfiles_list(engine=engines.dut, folder_path=PlatformConsts.VOLTAGE_FILES_PATH,
-                                                    subfiles_pattern=PlatformConsts.VOLTAGE_FILES_PATTERN)
+        sensors = devices.dut.voltage_sensors
         assert len(sensors) == len(voltage_output.keys()), "test failed - expected sensors count = {expected}, show command output = {output} \n expected sensors list: {expected_list}".format(
             expected=len(sensors), output=len(voltage_output.keys()), expected_list=sensors)
 
-    with allure.step("pick random sensor to check the out put of the two show commands"):
-        random_sensor = random.choice(list(voltage_output.keys()))
-
-        with allure.step("Execute show platform environment voltage for random sensor {}".format(random_sensor)):
+    with allure.step("Execute show platform environment voltage for every sensor"):
+        for sensor in devices.dut.voltage_sensors:
             sensor_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
-                platform.environment.voltage.show(random_sensor)).verify_result()
+                platform.environment.voltage.show(sensor)).verify_result()
             with allure.step("Verify both dictionaries are equal"):
-                voltage_output_for_sensor = voltage_output[random_sensor].copy()
+                voltage_output_for_sensor = voltage_output[sensor].copy()
                 # the actual voltage might fluctuate between the two `nv show` commands, so we don't compare it
                 del sensor_output['actual']
                 del voltage_output_for_sensor['actual']
                 assert sensor_output == voltage_output_for_sensor, ""
 
+    with allure.step("Check voltage range for random sensor"):
         random_sensor = get_random_sensor_max_min(voltage_output)
         check_voltage_in_range(voltage_output[random_sensor])
 
@@ -128,7 +127,7 @@ def check_voltage_in_range(sensor_output):
     :param sensor_output:
     :return:
     """
-    with allure.step("Verify the actual voltage is between min and max"):
+    with allure.step("Verify the actual voltage is between min and max inclusive"):
         assert sensor_output['state'] == 'ok', ""
-        assert float(sensor_output['actual']) < float(sensor_output['max']), "the actual voltage out of range, max voltage = {}".format(sensor_output['max'])
-        assert float(sensor_output['actual']) > float(sensor_output['min']), "the actual voltage out of range, min voltage = {}".format(sensor_output['min'])
+        assert float(sensor_output['actual']) <= float(sensor_output['max']), "the actual voltage out of range, max voltage = {}".format(sensor_output['max'])
+        assert float(sensor_output['actual']) >= float(sensor_output['min']), "the actual voltage out of range, min voltage = {}".format(sensor_output['min'])

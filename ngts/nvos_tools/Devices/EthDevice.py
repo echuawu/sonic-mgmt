@@ -182,6 +182,8 @@ class Mlx2410Switch(EthSwitch):
             "asic-model": self.asic_type
         })
 
+        self.voltage_sensors = ["VIN", "VOUT1", "VOUT2"]
+
 # -------------------------- Mlx4600 Switch -----------------------------
 
 
@@ -199,6 +201,17 @@ class Mlx4600Switch(EthSwitch):
             "product-name": "MSN4600",
             "asic-model": self.asic_type
         })
+
+        self.voltage_sensors = ["PMIC-1-PSU-12V-RAIL-IN", "PMIC-2-PSU-12V-RAIL-IN",
+                                "PMIC-2-ASIC-1.2V_MAIN-RAIL-OUT2", "PMIC-2-ASIC-1.8V_MAIN-RAIL-OUT1",
+                                "PMIC-3-ASIC-1.8V_T0_3-RAIL-OUT2", "PMIC-3-COMEX-1.05V-RAIL-OUT",
+                                "PMIC-3-PSU-12V-RAIL-IN", "PMIC-3-PSU-12V-RAIL-IN1",
+                                "PMIC-5-ASIC-1.2V_T0_3-RAIL-OUT1", "PMIC-5-ASIC-1.2V_T4_7-RAIL-OUT2",
+                                "PMIC-5-PSU-12V-RAIL-IN", "PMIC-6-COMEX-1.8V-RAIL-OUT1",
+                                "PMIC-6-PSU-12V-RAIL-IN1", "PMIC-6-PSU-12V-RAIL-IN2",
+                                "PMIC-7-COMEX-1.2V-RAIL-OUT", "PMIC-7-PSU-12V-RAIL-IN1",
+                                "PMIC-7-PSU-12V-RAIL-IN2", "PSU-1R-12V-RAIL-OUT",
+                                "PSU-1R-220V-RAIL-IN"]
 
 # -------------------------- Mlx4700 Switch -----------------------------
 
