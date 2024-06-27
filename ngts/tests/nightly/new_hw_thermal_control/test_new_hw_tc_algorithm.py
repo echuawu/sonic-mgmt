@@ -222,6 +222,7 @@ class TestNewTc:
                 assert False, f" Does not find sku name in {platform_params.hwsku}"
             expected_hwsku_in_tc_config_file = special_hwsku_to_tc_config_map.get(hwsku,
                                                                                   expected_hwsku_in_tc_config_file)
+            expected_hwsku_in_tc_config_file = expected_hwsku_in_tc_config_file.replace('_', '')
 
         # In case platform name exists in NO_TC_CONFIG_LINK_PLATFORMS list, it means there is no link to TC_CONFIG_FILE,
         # and therefore just verifying config file contains the hwsku name. otherwise checking the tc_config link.

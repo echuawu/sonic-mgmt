@@ -141,7 +141,7 @@ class ScpAuthVerifier(AuthVerifier):
 
         if not check_result_in_caller_func:
             assert scp_success == expect_success, f'SCP success ({scp_success}) status ' \
-                                                  f'not as expected ({expect_success})'
+                f'not as expected ({expect_success})'
 
     def _verify_scp_download(self, switch_dir, expect_success, switch_filenme='', check_result_in_caller_func=False):
         with allure.step(f'Verify SCP download from the switch. Expect success: {expect_success}'):
@@ -159,7 +159,7 @@ class ScpAuthVerifier(AuthVerifier):
         with allure.step(f'Verify SCP upload to the switch. Expect success: {expect_success}'):
             self.__verify_scp(
                 src_path=f'{AuthConsts.SHARED_VERIFICATION_SCP_DIR}/'
-                         f'{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
+                f'{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
                 dst_path=f'{switch_dir}/{AuthConsts.SHARED_VERIFICATION_SCP_UPLOAD_TEST_FILE_NAME}',
                 download_from_remote=False,
                 expect_success=expect_success,

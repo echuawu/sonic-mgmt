@@ -21,7 +21,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
     Validate reset factory without params cleanup done as expected
 
         Test flow:
-            1. set description to ib ports:
+            1. set description to ib/nvl ports:
                 - set, apply and save configuration
                 - set and apply
                 - set
@@ -39,7 +39,7 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
     try:
         with allure.step('pre factory reset steps'):
             apply_and_save_port, current_time, just_apply_port, last_status_line, machine_type, not_apply_port, \
-                username = factory_reset_no_params_pre_steps(engines, platform_params, system)
+                username = factory_reset_no_params_pre_steps(engines, platform_params, system, devices)
 
         with allure.step("Run reset factory without params"):
             execute_reset_factory(engines, system, "", current_time)
@@ -132,12 +132,12 @@ def test_reset_factory_keep_basic(engines):
 @pytest.mark.system
 @pytest.mark.checklist
 @pytest.mark.reset_factory
-def test_reset_factory_keep_all_config(engines):
+def test_reset_factory_keep_all_config(engines, devices):
     """
     Validate reset factory with keep all config param cleanup done as expected
 
         Test flow:
-            1. set description to ib ports:
+            1. set description to ib/nvl ports:
                 - set, apply and save configuration
                 - set and apply
                 - set
@@ -150,6 +150,7 @@ def test_reset_factory_keep_all_config(engines):
                 6.2.    Run set command & apply
     """
     try:
+        port_type = devices.dut.switch_type.lower()
         with allure.step('Create System object'):
             system = System()
 
@@ -158,26 +159,26 @@ def test_reset_factory_keep_all_config(engines):
             system.validate_health_status(HealthConsts.OK)
             last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
-        with allure.step('Set description to ib ports'):
-            logger.info("Set description to ib ports")
+        with allure.step(f'Set description to {port_type} ports'):
+            logger.info(f"Set description to {port_type} ports")
             description = "with_keep_all_config_param"
-            ports = Tools.RandomizationTool.select_random_ports(requested_ports_state="up",
+            ports = Tools.RandomizationTool.select_random_ports(requested_ports_state="up", requested_ports_type=port_type,
                                                                 num_of_ports_to_select=3).get_returned_value()
             apply_and_save_port = ports[0]
             just_apply_port = ports[1]
             not_apply_port = ports[2]
 
-        with allure.step('Set and apply description to ib port, save config after it'):
-            logger.info("Set and apply description to ib port, save config after it")
-            apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
+        with allure.step(f'Set and apply description to {port_type} port, save config after it'):
+            logger.info(f"Set and apply description to {port_type} port, save config after it")
+            apply_and_save_port.interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
             NvueGeneralCli.save_config(engines.dut)
-        with allure.step('Set and apply description to ib port'):
-            logger.info("Set and apply description to ib port")
-            just_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
-        with allure.step('Set description to ib port'):
-            logger.info("Set description to ib port")
-            not_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
+        with allure.step(f'Set and apply description to {port_type} port'):
+            logger.info(f"Set and apply description to {port_type} port")
+            just_apply_port.interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
+        with allure.step(f'Set description to {port_type} port'):
+            logger.info(f"Set description to {port_type} port")
+            not_apply_port.interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
         with allure.step('Validate ports description'):
             logger.info("Validate ports description")
             validate_port_description(engines.dut, apply_and_save_port, description)
@@ -216,12 +217,12 @@ def test_reset_factory_keep_all_config(engines):
 @pytest.mark.system
 @pytest.mark.checklist
 @pytest.mark.reset_factory
-def test_reset_factory_keep_only_files(engines):
+def test_reset_factory_keep_only_files(engines, devices):
     """
     Validate reset factory with keep only files param cleanup done as expected
 
         Test flow:
-            1. set description to ib ports:
+            1. set description to ib/nvl ports:
                 - set, apply and save configuration
                 - set and apply
                 - set
@@ -234,6 +235,7 @@ def test_reset_factory_keep_only_files(engines):
                 6.2.    Run set command & apply
     """
     try:
+        port_type = devices.dut.switch_type.lower()
         with allure.step('Create System object'):
             system = System()
             date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
@@ -244,8 +246,8 @@ def test_reset_factory_keep_only_files(engines):
             system.validate_health_status(HealthConsts.OK)
             last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
-        with allure.step('Set description to ib ports'):
-            logger.info("Set description to ib ports")
+        with allure.step(f'Set description to {port_type} ports'):
+            logger.info(f"Set description to {port_type} ports")
             description = "with_all_files_param"
             ports = Tools.RandomizationTool.select_random_ports(requested_ports_state="up",
                                                                 num_of_ports_to_select=2).get_returned_value()
@@ -255,17 +257,17 @@ def test_reset_factory_keep_only_files(engines):
                                                                          num_of_ports_to_select=2).get_returned_value()[
                 0]
 
-        with allure.step('Set and apply description to ib port, save config after it'):
-            logger.info("Set and apply description to ib port, save config after it")
-            apply_and_save_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
+        with allure.step(f'Set and apply description to {port_type} port, save config after it'):
+            logger.info(f"Set and apply description to {port_type} port, save config after it")
+            apply_and_save_port.interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
             TestToolkit.GeneralApi[TestToolkit.tested_api].save_config(engines.dut)
             NvueGeneralCli.save_config(engines.dut)
-        with allure.step('Set and apply description to ib port'):
-            logger.info("Set and apply description to ib port")
-            just_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
-        with allure.step('Set description to ib port'):
-            logger.info("Set description to ib port")
-            not_apply_port.ib_interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
+        with allure.step(f'Set and apply description to {port_type} port'):
+            logger.info(f"Set and apply description to {port_type} port")
+            just_apply_port.interface.set(NvosConst.DESCRIPTION, description, apply=True).verify_result()
+        with allure.step(f'Set description to {port_type} port'):
+            logger.info(f"Set description to {port_type} port")
+            not_apply_port.interface.set(NvosConst.DESCRIPTION, description, apply=False).verify_result()
         with allure.step('Validate ports description'):
             logger.info("Validate ports description")
             validate_port_description(engines.dut, apply_and_save_port, description)

@@ -13,6 +13,6 @@ class PollingTool:
                      state=state, timeout=timeout))
 
         for port in ports:
-            port.ib_interface.wait_for_port_state(state, timeout).verify_result()
+            port.interface.wait_for_port_state(state, timeout).verify_result()
 
         return ResultObj(True, "All ports have reached state '{state}'".format(state=state))

@@ -21,7 +21,7 @@ logger = logging.getLogger()
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
+def test_show_nvl5_interface_commands(engines, devices, test_api):
     """
     validate all show fae interface nvl5 commands.
 
@@ -36,15 +36,18 @@ def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
     TestToolkit.tested_api = test_api
 
     with allure_step("Select nvl5 port"):
-        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
+        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_access_ports_list + devices.dut.nvl5_trunk_ports_list).get_returned_value()
         selected_port = MgmtPort(port_name)
         selected_fae_port = Fae(port_name=port_name)
+        fnm_port_name = RandomizationTool.select_random_value(devices.dut.nvl5_fnm_ports).get_returned_value()
+        fnm_port = MgmtPort(fnm_port_name)
+        fnm_fae_port = Fae(port_name=fnm_port_name)
 
     with allure_step("Validate show interface command with all nvl5 interfaces"):
-        show_interface_and_validate(engines, devices)
+        show_interface_and_validate(engines, devices, devices.dut.all_nvl5_ports_list)
 
     with allure_step("Validate show fae interface command with all nvl5 interfaces"):
-        show_interface_and_validate(engines, devices, 'fae')
+        show_interface_and_validate(engines, devices, devices.dut.all_fae_nvl5_ports_list, 'fae')
 
     with allure_step("Validate all multi planar fields exist and port {} type nvl, port speed 400G"
                      .format(selected_port.name)):
@@ -63,6 +66,15 @@ def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
     #     ValidationTool.compare_values(output_port, {'0': {'status': 'No issue was observed'}}).verify_result()
     # [TBD] will work only on real system,  when system arrived, bug 3730650
 
+    with allure_step("Validate all multi planar fields exist and port {} type fnm, port speed 400G"
+                     .format(selected_port.name)):
+        output_fae_port = OutputParsingTool.parse_show_interface_output_to_dictionary(
+            fnm_fae_port.port.interface.show()).get_returned_value()
+        fae_port_keys = list(output_fae_port.keys())
+        ValidationTool.validate_all_values_exists_in_list(MultiPlanarConsts.MULTI_PLANAR_KEYS, fae_port_keys). \
+            verify_result()
+        ValidationTool.compare_values(output_fae_port['type'], devices.dut.fnm_port_type).verify_result()
+
     with allure_step("Clear counters and validate"):
         selected_port.interface.action_clear_counter_for_all_interfaces(engines.dut).verify_result()
 
@@ -78,7 +90,7 @@ def test_show_nvl5_interface_commands(engines, devices, start_sm, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
+def test_nvl5_port_configuration(engines, devices, test_api):
     """
     Validate configuration applied on interface
 
@@ -91,7 +103,7 @@ def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
 
     try:
         with allure_step("Select nvl5 port"):
-            port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
+            port_name = RandomizationTool.select_random_value(devices.dut.nvl5_access_ports_list + devices.dut.nvl5_trunk_ports_list).get_returned_value()
             selected_port = MgmtPort(port_name)
 
         with allure_step("Set nvl5 {} port description and validate".format(selected_port.name)):
@@ -109,7 +121,7 @@ def test_nvl5_port_configuration(engines, devices, start_sm, test_api):
 @pytest.mark.multiplanar
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_nvl5_negative(engines, devices, start_sm, test_api):
+def test_nvl5_negative(engines, devices, test_api):
     """
     Validate negative testing on nvl5 port
 
@@ -122,7 +134,7 @@ def test_nvl5_negative(engines, devices, start_sm, test_api):
     TestToolkit.tested_api = test_api
 
     with allure_step("Select nvl5 port"):
-        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_port).get_returned_value()
+        port_name = RandomizationTool.select_random_value(devices.dut.nvl5_access_ports_list + devices.dut.nvl5_trunk_ports_list).get_returned_value()
         selected_port = MgmtPort(port_name)
 
     try:
@@ -146,9 +158,9 @@ def test_nvl5_negative(engines, devices, start_sm, test_api):
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
 
 
-def show_interface_and_validate(engines, devices, command=''):
+def show_interface_and_validate(engines, devices, ports_list, command=''):
     output_dictionary = OutputParsingTool.\
         parse_show_all_interfaces_output_to_dictionary(Port.show_interface(engines.dut, fae_param=command))\
         .get_returned_value()
     output_keys = list(output_dictionary.keys())
-    ValidationTool.compare_values(output_keys.sort(), devices.dut.all_nvl5_ports_list.sort()).verify_result()
+    ValidationTool.compare_values(output_keys.sort(), ports_list.sort()).verify_result()

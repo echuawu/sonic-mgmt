@@ -602,7 +602,7 @@ def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
             selected_aggregated_port.interface.link.state.set(op_param_name='down', apply=True).verify_result()
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, f"{MultiPlanarConsts.LOG_MSG_SET_FAE_INTERFACE}"
-                                                               f"{selected_aggregated_port.name}/link").verify_result()
+                                                  f"{selected_aggregated_port.name}/link").verify_result()
 
         with allure.step("Unset fae interface link state and check log file"):
             system.log.rotate_logs()
@@ -610,7 +610,7 @@ def test_symmetry_manager_log_and_tech_support(engines, devices, test_api):
                 verify_result()
             show_output = system.log.show_log(exit_cmd='q')
             ValidationTool.verify_expected_output(show_output, f"{MultiPlanarConsts.LOG_MSG_SET_FAE_INTERFACE}"
-                                                               f"{selected_aggregated_port.name}/link").verify_result()
+                                                  f"{selected_aggregated_port.name}/link").verify_result()
 
         with allure.step("Run action clear fae interface and check log file"):
             system.log.rotate_logs()
@@ -973,7 +973,7 @@ def validate_configuring_state_time(aggregated_port, state_value, max_time):
     diff_time = end_time - start_time
     logger.info(f"port: {aggregated_port.name}, state: {state_value}, diff_time = {diff_time}, retries={retries}")
     assert diff_time < max_time, f"set and apply state to '{state_value}' time: {diff_time} secs, " \
-                                 f"is higher than expected: {max_time} secs"
+        f"is higher than expected: {max_time} secs"
 
 
 def set_mp_config_to_default():

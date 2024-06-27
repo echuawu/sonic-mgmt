@@ -41,12 +41,12 @@ def test_ib_set_interface_description(engines):
         validate_interface_description_field(selected_port, DESCRIPTION_EMPTY, True)
 
     with allure.step('Run show command on selected port and verify that description field is set'):
-        selected_port.ib_interface.set(NvosConst.DESCRIPTION, DESCRIPTION_ABCD, apply=True).verify_result()
+        selected_port.interface.set(NvosConst.DESCRIPTION, DESCRIPTION_ABCD, apply=True).verify_result()
         selected_port.update_output_dictionary()
         validate_interface_description_field(selected_port, DESCRIPTION_ABCD, True)
 
     with allure.step('Run show command on selected port and verify that description field is cleared back'):
-        selected_port.ib_interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
+        selected_port.interface.unset(NvosConst.DESCRIPTION, apply=True).verify_result()
         selected_port.update_output_dictionary()
         validate_interface_description_field(selected_port, DESCRIPTION_EMPTY, True)
 

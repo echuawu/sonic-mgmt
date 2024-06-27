@@ -81,6 +81,7 @@ class NvosConst:
     PORT_STATUS_LABEL = 'admin_status'
     PORT_CONFIG_DB_TABLES_PREFIX = "IB_PORT"
     IMAGES_PATH_ON_SWITCH = "/tmp/temp_nvos.bin"
+    FM_PATH_ON_SWITCH = "/tmp/temp_fw.bin"
 
     ROOT_USER = os.getenv("VM_USER")
     ROOT_PASSWORD = os.getenv("VM_PASSWORD")
@@ -225,6 +226,10 @@ class ActionType:
     RENAME = '@rename'
     UPLOAD = '@upload'
     RESET = '@reset'
+    START = '@start'
+    STOP = '@stop'
+    UPDATE = '@update'
+    RESTORE = '@restore'
     CHANGE = '@change'
     ENABLE = '@enable'
     DISABLE = '@disable'
@@ -586,6 +591,8 @@ class PlatformConsts:
     FW_BIOS = "BIOS"
     FW_CPLD = "CPLD"
     FW_SSD = "SSD"
+    FW_FPGA = "FPGA"
+    FW_BMC = "BMC"
     FW_FIELD_NAME_DICT = {"Actual FW": "actual-firmware"}
     FW_ACTUAL = "actual-firmware"
     FW_UPGRADE_STATUS = 'fw-upgrade-status'
@@ -641,7 +648,7 @@ class PlatformConsts:
     PS_REDUNDANCY_POLICY_TYPE = [PS_REDUNDANCY_NO, PS_REDUNDANCY_PS, PS_REDUNDANCY_GRID]
     PS_REDUNDANCY_POLICY_TYPE_DEF = PS_REDUNDANCY_GRID
     PS_REBOOT_PSU_SKIP_STR = "SSKIP="
-    VOLTAGE_FILES_PATTERN = 'PMIC|PSU'
+    VOLTAGE_FILES_PATTERN = 'PMIC|PSU|PDB|HSC'
     REMOVED = 'Removed'
     INSERTED = 'Inserted'
     TRANSCEIVER_CABLE_TYPE = 'cable-type'
@@ -1016,6 +1023,7 @@ class OperationTimeConsts:
     SESSION_ID_COL = 'session_id'
     DATE_COL = 'date'
     THRESHOLDS = {'reboot': 220,
+                  'julietscaleout_reboot': 500,  # Currently there is a bug on this. Time needs to be decreased once fixed.
                   'reset factory': 260,
                   'install user FW': 450,
                   'install default fw': 360,

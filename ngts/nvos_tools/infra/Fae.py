@@ -34,6 +34,7 @@ class Fae(BaseComponent):
         super().__init__(parent=parent_obj,
                          api={ApiType.NVUE: NvueBaseCli, ApiType.OPENAPI: OpenApiBaseCli}, path='/fae')
         self.system = System(self)
+        self.firmware = Firmware(self)
         self.ipoibmapping = BaseComponent(self, path='/ipoib-mapping')
         self.health = Health(self)
         self.port = MgmtPort(port_name, self)
@@ -80,6 +81,8 @@ class FaeFirmware(BaseComponent):
         self.cpld = FaeCpldComponent(self, 'CPLD')
         self.bios = FaeBiosComponent(self, 'BIOS')
         self.ssd = FaePlatformComponent(self, 'SSD')
+        self.bmc = FaePlatformComponent(self, 'bmc')  # TODO: Fix after bug closed https://redmine.mellanox.com/issues/3955495
+        self.fpga = FaePlatformComponent(self, 'FPGA')
 
     def install_bios_firmware(self, bios_image_path, device):
         with allure.step("installing bios firmware from {action_type}".format(action_type=bios_image_path)):

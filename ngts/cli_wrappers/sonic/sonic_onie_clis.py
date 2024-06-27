@@ -193,7 +193,7 @@ class SonicOnieCli:
         """
         # Copy directly to DUT
         scp_cmd = f'sshpass -p \'root\' scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P {self.ssh_port} ' \
-                  f'{image_path} root@{self.ip}:{dst_image_file_path}'
+            f'{image_path} root@{self.ip}:{dst_image_file_path}'
         out, err, rc = run_process_on_host(scp_cmd, timeout=1800)
         if rc:
             logger.error(f'Failed copy SONiC image, std_out: {out}, std_err: {err}, rc: {rc}')
