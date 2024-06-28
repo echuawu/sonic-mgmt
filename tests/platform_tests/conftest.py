@@ -780,6 +780,9 @@ def dpu_npu_port_list(duthosts):
                     dpu_npu_port_list[dut.hostname].append(port_key.split("|")[-1])
     logging.info(f"dpu npu port list: {dpu_npu_port_list}")
     return dpu_npu_port_list
+
+
+@pytest.fixture(scope="module")
 def is_sw_control_feature_enabled(duthost):
     return im_supported(duthost) and im_ms_sku(duthost) and check_im_sai_attribute_value(duthost)
 
