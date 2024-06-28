@@ -13,8 +13,7 @@ def _port_alias_to_name_map_50G(all_ports, s100G_ports,):
     return new_map
 
 
-def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
-    print("Warning: hostname:" + hostname + ", hwsku: " + hwsku)
+def get_port_alias_to_name_map(hwsku, asic_name=None):
     port_alias_to_name_map = {}
     port_alias_asic_map = {}
     port_name_to_index_map = {}
@@ -41,7 +40,7 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
             for i in range(0, 4):
                 for j in range(0, 16):
                     port_alias_to_name_map["fortyGigE1/%d/%d" % (i + 1, j + 1)] = "Ethernet%d" % (i * 16 + j)
-        elif hwsku == "Force10-Z9100":
+        elif hwsku in ["Force10-Z9100", "Force10-Z9100-C32", "DellEMC-S5232f-C32"]:
             for i in range(0, 128, 4):
                 port_alias_to_name_map["hundredGigE1/%d" % (i / 4 + 1)] = "Ethernet%d" % i
         # TODO: Come up with a generic formula for generating etp style aliases based on number of ports and lanes
@@ -102,9 +101,32 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
                 or hwsku == "Arista-7050CX3-32S-C32":
             for i in range(1, 33):
                 port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 4)
-        elif hwsku == "Arista-7060DX5-64S":
+        elif hwsku in ["Arista-7060DX5-64S"]:
             for i in range(1, 65):
                 port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 8)
+        elif hwsku in ["Arista-7060X6-64DE", "Arista-7060X6-64DE-64x400G",
+                       "Arista-7060X6-64PE", "Arista-7060X6-64PE-64x400G"]:
+            for i in range(1, 65):
+                port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 8)
+            port_alias_to_name_map["Ethernet65"] = "Ethernet512"
+            port_alias_to_name_map["Ethernet66"] = "Ethernet513"
+        elif hwsku == "Arista-7060X6-64PE-128x400G":
+            for i in range(1, 65):
+                for j in [1, 5]:
+                    port_alias_to_name_map["Ethernet%d/%d" % (i, j)] = "Ethernet%d" % ((i - 1) * 8 + j - 1)
+            port_alias_to_name_map["Ethernet65"] = "Ethernet512"
+            port_alias_to_name_map["Ethernet66"] = "Ethernet513"
+        elif hwsku == "Arista-7060X6-64PE-256x200G":
+            for i in range(1, 65):
+                for j in [1, 3, 5, 7]:
+                    port_alias_to_name_map["Ethernet%d/%d" % (i, j)] = "Ethernet%d" % ((i - 1) * 8 + j - 1)
+            port_alias_to_name_map["Ethernet65"] = "Ethernet512"
+            port_alias_to_name_map["Ethernet66"] = "Ethernet513"
+        elif hwsku == "Arista-7050QX32S-Q32":
+            for i in range(5, 29):
+                port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 5) * 4)
+            for i in range(29, 37):
+                port_alias_to_name_map["Ethernet%d" % i] = "Ethernet%d" % ((i - 5) * 4)
         elif hwsku == "Mellanox-SN2700-D40C8S8":
             # 10G ports
             s10G_ports = [x for x in range(0, 4)] + [x for x in range(8, 12)]
@@ -150,275 +172,43 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
             for i in s100G_ports:
                 alias = "etp%d" % (i / 4 + 1)
                 port_alias_to_name_map[alias] = "Ethernet%d" % i
-        elif (hwsku == "Mellanox-SN2700" or hwsku == "ACS-MSN2700") or \
-             (hwsku == "ACS-MSN3700") or (hwsku == "ACS-MSN3700C") or \
-             (hwsku == "ACS-MSN3800") or (hwsku == "Mellanox-SN3800-D112C8") or \
-             (hwsku == "ACS-MSN4700") or (hwsku == "ACS-MSN4600C") or (hwsku == "Mellanox-SN4600C-D112C8") or (
-                         hwsku == "Mellanox-SN4600C-C64") or \
-             (hwsku == "ACS-MSN3420") or (hwsku == 'ACS-SN5600') or (hwsku == 'Mellanox-SN4700-O28') or \
-             (hwsku == 'Mellanox-SN4700-O8V48') or (hwsku == 'ACS-SN5400'):
-            if hostname == "arc-switch1038":
-                for i in range(1, 17):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
-
-                port_alias_to_name_map["etp17a"] = "Ethernet64"
-                port_alias_to_name_map["etp17b"] = "Ethernet65"
-                port_alias_to_name_map["etp17c"] = "Ethernet66"
-                port_alias_to_name_map["etp17d"] = "Ethernet67"
-                port_alias_to_name_map["etp21a"] = "Ethernet80"
-                port_alias_to_name_map["etp21b"] = "Ethernet82"
-
-                for i in range(23, 33):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
-            elif hostname == "r-tigris-04" or hostname == "r-tigris-13" or hostname == "r-tigris-25" or hostname == 'r-tigris-26':
-                port_alias_to_name_map["etp1a"] = "Ethernet0"
-                port_alias_to_name_map["etp1b"] = "Ethernet2"
-                port_alias_to_name_map["etp2a"] = "Ethernet4"
-                port_alias_to_name_map["etp2b"] = "Ethernet6"
-                port_alias_to_name_map["etp3a"] = "Ethernet8"
-                port_alias_to_name_map["etp3b"] = "Ethernet10"
-                port_alias_to_name_map["etp4a"] = "Ethernet12"
-                port_alias_to_name_map["etp4b"] = "Ethernet14"
-                port_alias_to_name_map["etp5a"] = "Ethernet16"
-                port_alias_to_name_map["etp5b"] = "Ethernet18"
-                port_alias_to_name_map["etp6a"] = "Ethernet20"
-                port_alias_to_name_map["etp6b"] = "Ethernet22"
-                port_alias_to_name_map["etp7a"] = "Ethernet24"
-                port_alias_to_name_map["etp7b"] = "Ethernet26"
-                port_alias_to_name_map["etp8a"] = "Ethernet28"
-                port_alias_to_name_map["etp8b"] = "Ethernet30"
-                port_alias_to_name_map["etp9a"] = "Ethernet32"
-                port_alias_to_name_map["etp9b"] = "Ethernet34"
-                port_alias_to_name_map["etp10a"] = "Ethernet36"
-                port_alias_to_name_map["etp10b"] = "Ethernet38"
-                port_alias_to_name_map["etp11a"] = "Ethernet40"
-                port_alias_to_name_map["etp11b"] = "Ethernet42"
-                port_alias_to_name_map["etp12a"] = "Ethernet44"
-                port_alias_to_name_map["etp12b"] = "Ethernet46"
-                port_alias_to_name_map["etp13a"] = "Ethernet48"
-                port_alias_to_name_map["etp13b"] = "Ethernet50"
-                port_alias_to_name_map["etp14a"] = "Ethernet52"
-                port_alias_to_name_map["etp14b"] = "Ethernet54"
-                port_alias_to_name_map["etp15a"] = "Ethernet56"
-                port_alias_to_name_map["etp15b"] = "Ethernet58"
-                port_alias_to_name_map["etp16a"] = "Ethernet60"
-                port_alias_to_name_map["etp16b"] = "Ethernet62"
-                port_alias_to_name_map["etp17a"] = "Ethernet64"
-                port_alias_to_name_map["etp17b"] = "Ethernet66"
-                port_alias_to_name_map["etp18a"] = "Ethernet68"
-                port_alias_to_name_map["etp18b"] = "Ethernet70"
-                port_alias_to_name_map["etp19a"] = "Ethernet72"
-                port_alias_to_name_map["etp19b"] = "Ethernet74"
-                port_alias_to_name_map["etp20a"] = "Ethernet76"
-                port_alias_to_name_map["etp20b"] = "Ethernet78"
-                port_alias_to_name_map["etp21a"] = "Ethernet80"
-                port_alias_to_name_map["etp21b"] = "Ethernet82"
-                port_alias_to_name_map["etp22a"] = "Ethernet84"
-                port_alias_to_name_map["etp22b"] = "Ethernet86"
-                port_alias_to_name_map["etp23a"] = "Ethernet88"
-                port_alias_to_name_map["etp23b"] = "Ethernet90"
-                port_alias_to_name_map["etp24a"] = "Ethernet92"
-                port_alias_to_name_map["etp24b"] = "Ethernet94"
-                port_alias_to_name_map["etp25"] = "Ethernet96"
-                port_alias_to_name_map["etp26"] = "Ethernet100"
-                port_alias_to_name_map["etp27a"] = "Ethernet104"
-                port_alias_to_name_map["etp27b"] = "Ethernet106"
-                port_alias_to_name_map["etp28a"] = "Ethernet108"
-                port_alias_to_name_map["etp28b"] = "Ethernet110"
-                port_alias_to_name_map["etp29"] = "Ethernet112"
-                port_alias_to_name_map["etp30"] = "Ethernet116"
-                port_alias_to_name_map["etp31a"] = "Ethernet120"
-                port_alias_to_name_map["etp31b"] = "Ethernet122"
-                port_alias_to_name_map["etp32a"] = "Ethernet124"
-                port_alias_to_name_map["etp32b"] = "Ethernet126"
-                port_alias_to_name_map["etp33"] = "Ethernet128"
-                port_alias_to_name_map["etp34"] = "Ethernet132"
-                port_alias_to_name_map["etp35a"] = "Ethernet136"
-                port_alias_to_name_map["etp35b"] = "Ethernet138"
-                port_alias_to_name_map["etp36a"] = "Ethernet140"
-                port_alias_to_name_map["etp36b"] = "Ethernet142"
-                port_alias_to_name_map["etp37"] = "Ethernet144"
-                port_alias_to_name_map["etp38"] = "Ethernet148"
-                port_alias_to_name_map["etp39a"] = "Ethernet152"
-                port_alias_to_name_map["etp39b"] = "Ethernet154"
-                port_alias_to_name_map["etp40a"] = "Ethernet156"
-                port_alias_to_name_map["etp40b"] = "Ethernet158"
-                port_alias_to_name_map["etp41a"] = "Ethernet160"
-                port_alias_to_name_map["etp41b"] = "Ethernet162"
-                port_alias_to_name_map["etp42a"] = "Ethernet164"
-                port_alias_to_name_map["etp42b"] = "Ethernet166"
-                port_alias_to_name_map["etp43a"] = "Ethernet168"
-                port_alias_to_name_map["etp43b"] = "Ethernet170"
-                port_alias_to_name_map["etp44a"] = "Ethernet172"
-                port_alias_to_name_map["etp44b"] = "Ethernet174"
-                port_alias_to_name_map["etp45a"] = "Ethernet176"
-                port_alias_to_name_map["etp45b"] = "Ethernet178"
-                port_alias_to_name_map["etp46a"] = "Ethernet180"
-                port_alias_to_name_map["etp46b"] = "Ethernet182"
-                port_alias_to_name_map["etp47a"] = "Ethernet184"
-                port_alias_to_name_map["etp47b"] = "Ethernet186"
-                port_alias_to_name_map["etp48a"] = "Ethernet188"
-                port_alias_to_name_map["etp48b"] = "Ethernet190"
-                port_alias_to_name_map["etp49a"] = "Ethernet192"
-                port_alias_to_name_map["etp49b"] = "Ethernet194"
-                port_alias_to_name_map["etp50a"] = "Ethernet196"
-                port_alias_to_name_map["etp50b"] = "Ethernet198"
-                port_alias_to_name_map["etp51a"] = "Ethernet200"
-                port_alias_to_name_map["etp51b"] = "Ethernet202"
-                port_alias_to_name_map["etp52a"] = "Ethernet204"
-                port_alias_to_name_map["etp52b"] = "Ethernet206"
-                port_alias_to_name_map["etp53a"] = "Ethernet208"
-                port_alias_to_name_map["etp53b"] = "Ethernet210"
-                port_alias_to_name_map["etp54a"] = "Ethernet212"
-                port_alias_to_name_map["etp54b"] = "Ethernet214"
-                port_alias_to_name_map["etp55a"] = "Ethernet216"
-                port_alias_to_name_map["etp55b"] = "Ethernet218"
-                port_alias_to_name_map["etp56a"] = "Ethernet220"
-                port_alias_to_name_map["etp56b"] = "Ethernet222"
-                port_alias_to_name_map["etp57a"] = "Ethernet224"
-                port_alias_to_name_map["etp57b"] = "Ethernet226"
-                port_alias_to_name_map["etp58a"] = "Ethernet228"
-                port_alias_to_name_map["etp58b"] = "Ethernet230"
-                port_alias_to_name_map["etp59a"] = "Ethernet232"
-                port_alias_to_name_map["etp59b"] = "Ethernet234"
-                port_alias_to_name_map["etp60a"] = "Ethernet236"
-                port_alias_to_name_map["etp60b"] = "Ethernet238"
-                port_alias_to_name_map["etp61a"] = "Ethernet240"
-                port_alias_to_name_map["etp61b"] = "Ethernet242"
-                port_alias_to_name_map["etp62a"] = "Ethernet244"
-                port_alias_to_name_map["etp62b"] = "Ethernet246"
-                port_alias_to_name_map["etp63a"] = "Ethernet248"
-                port_alias_to_name_map["etp63b"] = "Ethernet250"
-                port_alias_to_name_map["etp64a"] = "Ethernet252"
-                port_alias_to_name_map["etp64b"] = "Ethernet254"
-            elif hostname in ["r-tigon-04", "r-tigon-11", "r-tigon-20", "r-tigon-21", "mtvr-tigon-02", "mtvr-tigon-04"]:
-                for i in range(1, 65):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
-            elif hostname in ["mtvr-leopard-01", "r-leopard-79", "r-bobcat-01"]:
-                for i in range(1, 33):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
-            elif hostname in ["r-leopard-70", "r-leopard-72"]:
-                port_alias_to_name_map["etp1a"] = "Ethernet0"
-                port_alias_to_name_map["etp1b"] = "Ethernet4"
-                port_alias_to_name_map["etp2a"] = "Ethernet8"
-                port_alias_to_name_map["etp2b"] = "Ethernet12"
-                port_alias_to_name_map["etp3a"] = "Ethernet16"
-                port_alias_to_name_map["etp3b"] = "Ethernet20"
-                port_alias_to_name_map["etp4a"] = "Ethernet24"
-                port_alias_to_name_map["etp4b"] = "Ethernet28"
-                port_alias_to_name_map["etp5a"] = "Ethernet32"
-                port_alias_to_name_map["etp5b"] = "Ethernet36"
-                port_alias_to_name_map["etp6a"] = "Ethernet40"
-                port_alias_to_name_map["etp6b"] = "Ethernet44"
-                port_alias_to_name_map["etp7a"] = "Ethernet48"
-                port_alias_to_name_map["etp7b"] = "Ethernet52"
-                port_alias_to_name_map["etp8a"] = "Ethernet56"
-                port_alias_to_name_map["etp8b"] = "Ethernet60"
-                port_alias_to_name_map["etp9a"] = "Ethernet64"
-                port_alias_to_name_map["etp9b"] = "Ethernet68"
-                port_alias_to_name_map["etp10a"] = "Ethernet72"
-                port_alias_to_name_map["etp10b"] = "Ethernet76"
-                port_alias_to_name_map["etp11a"] = "Ethernet80"
-                port_alias_to_name_map["etp11b"] = "Ethernet84"
-                port_alias_to_name_map["etp12a"] = "Ethernet88"
-                port_alias_to_name_map["etp12b"] = "Ethernet92"
-                port_alias_to_name_map["etp13"] = "Ethernet96"
-                port_alias_to_name_map["etp14"] = "Ethernet104"
-                port_alias_to_name_map["etp15"] = "Ethernet112"
-                port_alias_to_name_map["etp16"] = "Ethernet120"
-                port_alias_to_name_map["etp17"] = "Ethernet128"
-                port_alias_to_name_map["etp18"] = "Ethernet136"
-                port_alias_to_name_map["etp19"] = "Ethernet144"
-                port_alias_to_name_map["etp20"] = "Ethernet152"
-                port_alias_to_name_map["etp21a"] = "Ethernet160"
-                port_alias_to_name_map["etp21b"] = "Ethernet164"
-                port_alias_to_name_map["etp22a"] = "Ethernet168"
-                port_alias_to_name_map["etp22b"] = "Ethernet172"
-                port_alias_to_name_map["etp23a"] = "Ethernet176"
-                port_alias_to_name_map["etp23b"] = "Ethernet180"
-                port_alias_to_name_map["etp24a"] = "Ethernet184"
-                port_alias_to_name_map["etp24b"] = "Ethernet188"
-                port_alias_to_name_map["etp25a"] = "Ethernet192"
-                port_alias_to_name_map["etp25b"] = "Ethernet196"
-                port_alias_to_name_map["etp26a"] = "Ethernet200"
-                port_alias_to_name_map["etp26b"] = "Ethernet204"
-                port_alias_to_name_map["etp27a"] = "Ethernet208"
-                port_alias_to_name_map["etp27b"] = "Ethernet212"
-                port_alias_to_name_map["etp28a"] = "Ethernet216"
-                port_alias_to_name_map["etp28b"] = "Ethernet220"
-                port_alias_to_name_map["etp29a"] = "Ethernet224"
-                port_alias_to_name_map["etp29b"] = "Ethernet228"
-                port_alias_to_name_map["etp30a"] = "Ethernet232"
-                port_alias_to_name_map["etp30b"] = "Ethernet236"
-                port_alias_to_name_map["etp31a"] = "Ethernet240"
-                port_alias_to_name_map["etp31b"] = "Ethernet244"
-                port_alias_to_name_map["etp32a"] = "Ethernet248"
-                port_alias_to_name_map["etp32b"] = "Ethernet252"
-            elif hostname in ["r-leopard-01", "r-leopard-58"]:
-                port_alias_to_name_map["etp1a"] = "Ethernet0"
-                port_alias_to_name_map["etp1b"] = "Ethernet4"
-                port_alias_to_name_map["etp2a"] = "Ethernet8"
-                port_alias_to_name_map["etp2b"] = "Ethernet12"
-                port_alias_to_name_map["etp3a"] = "Ethernet16"
-                port_alias_to_name_map["etp3b"] = "Ethernet20"
-                port_alias_to_name_map["etp4a"] = "Ethernet24"
-                port_alias_to_name_map["etp4b"] = "Ethernet28"
-                port_alias_to_name_map["etp5a"] = "Ethernet32"
-                port_alias_to_name_map["etp5b"] = "Ethernet36"
-                port_alias_to_name_map["etp6a"] = "Ethernet40"
-                port_alias_to_name_map["etp6b"] = "Ethernet44"
-                port_alias_to_name_map["etp7a"] = "Ethernet48"
-                port_alias_to_name_map["etp7b"] = "Ethernet52"
-                port_alias_to_name_map["etp8a"] = "Ethernet56"
-                port_alias_to_name_map["etp8b"] = "Ethernet60"
-                port_alias_to_name_map["etp9a"] = "Ethernet64"
-                port_alias_to_name_map["etp9b"] = "Ethernet68"
-                port_alias_to_name_map["etp10a"] = "Ethernet72"
-                port_alias_to_name_map["etp10b"] = "Ethernet76"
-                port_alias_to_name_map["etp11a"] = "Ethernet80"
-                port_alias_to_name_map["etp11b"] = "Ethernet84"
-                port_alias_to_name_map["etp12a"] = "Ethernet88"
-                port_alias_to_name_map["etp12b"] = "Ethernet92"
-                port_alias_to_name_map["etp13"] = "Ethernet96"
-                port_alias_to_name_map["etp14"] = "Ethernet104"
-                port_alias_to_name_map["etp15"] = "Ethernet112"
-                port_alias_to_name_map["etp16"] = "Ethernet120"
-                port_alias_to_name_map["etp17"] = "Ethernet128"
-                port_alias_to_name_map["etp18"] = "Ethernet136"
-                port_alias_to_name_map["etp19"] = "Ethernet144"
-                port_alias_to_name_map["etp20"] = "Ethernet152"
-                port_alias_to_name_map["etp21a"] = "Ethernet160"
-                port_alias_to_name_map["etp21b"] = "Ethernet164"
-                port_alias_to_name_map["etp22a"] = "Ethernet168"
-                port_alias_to_name_map["etp22b"] = "Ethernet172"
-                port_alias_to_name_map["etp23a"] = "Ethernet176"
-                port_alias_to_name_map["etp23b"] = "Ethernet180"
-                port_alias_to_name_map["etp24a"] = "Ethernet184"
-                port_alias_to_name_map["etp24b"] = "Ethernet188"
-                port_alias_to_name_map["etp25a"] = "Ethernet192"
-                port_alias_to_name_map["etp25b"] = "Ethernet196"
-                port_alias_to_name_map["etp26a"] = "Ethernet200"
-                port_alias_to_name_map["etp26b"] = "Ethernet204"
-                port_alias_to_name_map["etp27a"] = "Ethernet208"
-                port_alias_to_name_map["etp27b"] = "Ethernet212"
-                port_alias_to_name_map["etp28a"] = "Ethernet216"
-                port_alias_to_name_map["etp28b"] = "Ethernet220"
-                port_alias_to_name_map["etp29a"] = "Ethernet224"
-                port_alias_to_name_map["etp29b"] = "Ethernet228"
-                port_alias_to_name_map["etp30a"] = "Ethernet232"
-                port_alias_to_name_map["etp30b"] = "Ethernet236"
-                port_alias_to_name_map["etp31a"] = "Ethernet240"
-                port_alias_to_name_map["etp31b"] = "Ethernet244"
-                port_alias_to_name_map["etp32a"] = "Ethernet248"
-                port_alias_to_name_map["etp32b"] = "Ethernet252"
-            elif hostname in ["r-moose-01", "mtvr-moose-02", "mtvr-moose-03", "mtvr-moose-04", "mtvr-hippo-03",
-                              "mtvr-hippo-02"]:
-                for i in range(1, 65):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
-            else:
-                for i in range(1, 33):
-                    port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
-        elif hwsku == "Arista-7060CX-32S-D48C8":
+        elif hwsku == "Mellanox-SN3800-D112C8":
+            x_ports = [x for x in range(0, 95, 2)]
+            for i in x_ports:
+                alias = "etp%d" % (i / 4 + 1) + ("a" if i % 4 == 0 else "b")
+                # print alias, "Ethernet%d" % i
+                port_alias_to_name_map[alias] = "Ethernet%d" % i
+            x_ports = [x for x in range(96, 101, 4)] + [x for x in range(104, 111, 2)] +\
+                [x for x in range(112, 117, 4)] + [x for x in range(120, 127, 2)] + [x for x in range(128, 133, 4)] +\
+                [x for x in range(136, 143, 2)] + [x for x in range(144, 149, 4)] + [x for x in range(152, 159, 2)]
+            i = 0
+            while i < len(x_ports):
+                for j in range(0, 2):
+                    alias = "etp%d" % (x_ports[i] / 4 + 1)
+                    port_alias_to_name_map[alias] = "Ethernet%d" % x_ports[i]
+                    # print alias, "Ethernet%d" % ports[i]
+                    i += 1
+                for j in range(0, 2):
+                    alias = "etp%d" % (x_ports[i] / 4 + 1) + "a"
+                    port_alias_to_name_map[alias] = "Ethernet%d" % x_ports[i]
+                    # print alias, "Ethernet%d" % ports[i]
+                    i += 1
+                    alias = "etp%d" % (x_ports[i] / 4 + 1) + "b"
+                    port_alias_to_name_map[alias] = "Ethernet%d" % x_ports[i]
+                    # print alias, "Ethernet%d" % ports[i]
+                    i += 1
+            x_ports = [x for x in range(160, 255, 2)]
+            for i in x_ports:
+                alias = "etp%d" % (i / 4 + 1) + ("a" if i % 4 == 0 else "b")
+                # print alias, "Ethernet%d" % i
+                port_alias_to_name_map[alias] = "Ethernet%d" % i
+        elif hwsku in ["ACS-MSN3800", "ACS-MSN4600C"]:
+            for i in range(1, 65):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku in ['Mellanox-SN2700', 'ACS-MSN2700']:
+            for i in range(1, 33):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku in ["Arista-7060CX-32S-D48C8", "Arista-7050CX3-32S-D48C8"]:
             # All possible breakout 50G port numbers:
             all_ports = [x for x in range(1, 33)]
 
@@ -427,17 +217,27 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
             s100G_ports += [x for x in range(23, 27)]
 
             port_alias_to_name_map = _port_alias_to_name_map_50G(all_ports, s100G_ports)
-        elif hwsku == "Arista-7260CX3-D108C8":
+        elif hwsku in ["Arista-7260CX3-D108C8", "Arista-7260CX3-D108C8-AILAB", "Arista-7260CX3-D108C8-CSI"]:
             # All possible breakout 50G port numbers:
             all_ports = [x for x in range(1, 65)]
 
             # 100G ports
             s100G_ports = [x for x in range(13, 21)]
 
+            if hwsku == "Arista-7260CX3-D108C8-AILAB":
+                s100G_ports = [x for x in range(45, 53)]
+            elif hwsku == "Arista-7260CX3-D108C8-CSI":
+                # Treat 40G port as 100G ports
+                s100G_ports = [x for x in range(45, 53)] + [64]
+
             port_alias_to_name_map = _port_alias_to_name_map_50G(all_ports, s100G_ports)
-        elif hwsku == "Arista-7800R3-48CQ-LC" or hwsku == "Arista-7800R3K-48CQ-LC":
-            for i in range(1, 48):
+        elif hwsku in ["Arista-7800R3-48CQ2-C48", "Arista-7800R3-48CQM2-C48"]:
+            for i in range(1, 49):
                 port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku == "Arista-7800R3A-36DM2-C36" or hwsku == "Arista-7800R3A-36DM2-D36":
+            for i in range(1, 36):
+                sonic_name = "Ethernet%d" % ((i - 1) * 8)
+                port_alias_to_name_map["Ethernet{}/{}".format(i, 1)] = sonic_name
         elif hwsku == "INGRASYS-S9100-C32":
             for i in range(1, 33):
                 port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 4)
@@ -541,9 +341,15 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
         elif hwsku in ["Cisco-88-LC0-36FH-M-O36", "Cisco-88-LC0-36FH-O36"]:
             for i in range(0, 36, 1):
                 port_alias_to_name_map["Ethernet%d" % i] = "Ethernet%d" % (i * 8)
-        elif hwsku in ["msft_multi_asic_vs"]:
+        elif hwsku in ["msft_multi_asic_vs", "Nexus-3164"]:
             for i in range(1, 65):
                 port_alias_to_name_map["Ethernet1/%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku in ["Nexus-3132-GE-Q32", "Nexus-3132-GX-Q32"]:
+            for i in range(1, 33):
+                port_alias_to_name_map["Ethernet1/%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku == "Arista-7260QX-64":
+            for i in range(1, 67):
+                port_alias_to_name_map["Et%d" % i] = "Ethernet%d" % i
         elif hwsku == "msft_four_asic_vs":
             for i in range(1, 9):
                 port_alias_to_name_map["Ethernet1/%d" % i] = "Ethernet%d" % ((i - 1) * 4)
@@ -567,7 +373,38 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
         elif hwsku == "Arista-720DT-48S" or hwsku == "Arista-720DT-G48S4":
             for i in range(1, 53):
                 port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % (i - 1)
-        elif hwsku in ["Mellanox-SN4700-O8C48"]:
+        elif hwsku in ["ACS-MSN3420"]:
+            for i in range(1, 61):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku in ["ACS-MSN3700"]:
+            # 25G ports
+            s25G_ports = [0, 60, 64, 124]
+            for i in s25G_ports:
+                alias = "etp{}".format(i // 4 + 1)
+                port_alias_to_name_map[alias] = "Ethernet{}".format(i)
+
+            # 50G ports
+            s50G_ports = [i for i in range(20, 28)]
+            for i in s50G_ports:
+                alias = "etp{}{}".format(i // 4 + 1, chr(ord('a') + i % 4))
+                port_alias_to_name_map[alias] = "Ethernet{}".format(i)
+
+            # 100G ports
+            s100G_ports = [i for i in range(12, 20, 2)]
+            for i in s100G_ports:
+                alias = "etp{}{}".format(i // 4 + 1, chr(ord('a') + (i % 4) // 2))
+                port_alias_to_name_map[alias] = "Ethernet{}".format(i)
+
+            # 200G ports
+            s200G_ports = [4, 8] + [i for i in range(28, 60, 4)] + [i for i in range(68, 124, 4)]
+
+            for i in s200G_ports:
+                alias = "etp{}".format(i // 4 + 1)
+                port_alias_to_name_map[alias] = "Ethernet{}".format(i)
+        elif hwsku == 'Mellanox-SN4600C-C64':
+            for i in range(1, 65):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 4)
+        elif hwsku in ["Mellanox-SN4700-O8C48", "Mellanox-SN4700-O8V48"]:
             idx = 0
             for i in range(1, 13):
                 port_alias_to_name_map["etp%da" % i] = "Ethernet%d" % idx
@@ -582,6 +419,24 @@ def get_port_alias_to_name_map(hostname, hwsku, asic_name=None):
                 idx += 4
                 port_alias_to_name_map["etp%db" % i] = "Ethernet%d" % idx
                 idx += 4
+        elif hwsku in ['Mellanox-SN4700-O28', 'ACS-MSN4700']:
+            idx = 0
+            for i in range(1, 33):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % idx
+                idx += 8
+        elif hwsku in ['ACS-SN5400', 'ACS-SN5600']:
+            for i in range(1, 65):
+                port_alias_to_name_map["etp%d" % i] = "Ethernet%d" % ((i - 1) * 8)
+        elif hwsku == "Mellanox-SN5600-V256":
+            split_alias_list = ["a", "b", "c", "d"]
+            for i in range(1, 65):
+                for idx, split_alias in enumerate(split_alias_list):
+                    alias = "etp{}{}".format(i, split_alias)
+                    eth_name = "Ethernet{}".format((i - 1) * 8 + idx * 2)
+                    port_alias_to_name_map[alias] = eth_name
+        elif hwsku == "Arista-7060DX5-32":
+            for i in range(1, 33):
+                port_alias_to_name_map["Ethernet%d/1" % i] = "Ethernet%d" % ((i - 1) * 8)
         else:
             for i in range(0, 128, 4):
                 port_alias_to_name_map["Ethernet%d" % i] = "Ethernet%d" % i
