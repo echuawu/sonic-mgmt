@@ -20,11 +20,15 @@ class EthSwitch(BaseSwitch):
         self.default_password = os.environ["CUMULUS_SWITCH_PASSWORD"]
         self.default_username = os.environ["CUMULUS_SWITCH_USER"]
         self.manufacture_password = "cumulus"
-        self.switch_type = "ETH"
+        self.switch_type = CumulusConsts.ETH_SWITCH_TYPE
         self.init_documents_consts()
+        self.init_cli_coverage_prop("cumulus")
 
     def init_documents_consts(self):
         super().init_documents_consts()
+
+    def get_voltage_sensors(self, dut_engine=None):
+        return self.voltage_sensors
 
     def _init_constants(self):
         super()._init_constants()

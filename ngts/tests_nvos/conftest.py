@@ -480,13 +480,14 @@ def disable_cli_coverage(request):
 
 def run_cli_coverage(item, markers):
     if TestToolkit.tested_api == ApiType.NVUE and \
-            os.path.exists('/auto/sw/tools/comet/nvos/') and \
             'no_cli_coverage_run' not in markers and \
             not pytest.is_sanitizer and \
             pytest.is_mars_run and \
             not pytest.disable_cli_coverage:
         logging.info("API type is NVUE and is it not a sanitizer version, so CLI coverage script will run")
-        NVUECliCoverage.run(item, pytest.s_time)
+        NVUECliCoverage.run(item=item, start_time=pytest.s_time,
+                            project=TestToolkit.devices.dut.cli_coverage_project_name, department='verification',
+                            nvue_dir=TestToolkit.devices.dut.cli_coverage_path)
 
 
 @pytest.fixture(autouse=True)

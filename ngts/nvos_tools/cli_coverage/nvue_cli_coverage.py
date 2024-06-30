@@ -16,6 +16,7 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.SendCommandTool import SendCommandTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_constants.constants_nvos import CumulusConsts
 
 THRESHOLD_TIME_FOR_FULL_CMD_FILE = 24 * 3600
 
@@ -298,6 +299,18 @@ class NVUECliCoverage:
         return result_obj
 
     @classmethod
+    def update_version_details(cls):
+        if TestToolkit.devices.dut.switch_type == CumulusConsts.ETH_SWITCH_TYPE:
+            cls.build_id = OutputParsingTool.parse_json_str_to_dictionary(System().show()).get_returned_value()['build']
+            cls.swversion = cls.build_id.split()[-1]
+        else:
+            nvos_version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()[
+                'image']
+            release = TestToolkit.version_to_release(nvos_version).replace("nvos-", "")
+            cls.swversion = release.replace("-", ".")
+            cls.build_id = nvos_version.replace("nvos-", "")
+
+    @classmethod
     def run(cls, item, start_time, project='nvos', department='verification', nvue_dir='/auto/sw/tools/comet/nvos/'):
         """
         This is the main method to run the NVUE CLI coverage process
@@ -311,10 +324,7 @@ class NVUECliCoverage:
                 cls.nvue_full_list_dir = os.path.join(nvue_dir, 'full_command_lists')
                 cls.engine = TestToolkit.engines.dut
                 if not cls.swversion:  # only init it once per session
-                    nvos_version = OutputParsingTool.parse_json_str_to_dictionary(System().show('version')).get_returned_value()['image']
-                    release = TestToolkit.version_to_release(nvos_version).replace("nvos-", "")
-                    cls.swversion = release.replace("-", ".")
-                    cls.build_id = nvos_version.replace("nvos-", "")
+                    cls.update_version_details()
                 if not cls.system_type:  # only init it once per session
                     cls.system_type = OutputParsingTool.parse_json_str_to_dictionary(Platform().show()).get_returned_value()['product-name']
 

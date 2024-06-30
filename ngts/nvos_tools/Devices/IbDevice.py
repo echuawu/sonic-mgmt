@@ -18,13 +18,14 @@ from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tools.test_utils.nvos_general_utils import get_version_info
+from ngts.nvos_tools.infra.Tools import Tools
 
 logger = logging.getLogger()
 
 
 class IbSwitch(BaseSwitch):
 
-    def __init__(self, asic_amount, switch_type="IB"):
+    def __init__(self, asic_amount, switch_type=NvosConst.IB_SWITCH_TYPE):
         super().__init__(switch_type=switch_type, asic_amount=asic_amount)
         self.documents_path = None
         self.documents_files = None
@@ -35,6 +36,7 @@ class IbSwitch(BaseSwitch):
         self.prev_default_password = os.environ["NVU_SWITCH_PASSWORD"]
         self._init_ib_speeds()
         self.init_documents_consts()
+        self.init_cli_coverage_prop("nvos")
 
     def get_default_password_by_version(self, version: str):
         version_num, _ = get_version_info(version)
@@ -45,6 +47,10 @@ class IbSwitch(BaseSwitch):
                 return self.prev_default_password
         logging.info('using regular default password')
         return self.default_password
+
+    def get_voltage_sensors(self, dut_engine=None):
+        return Tools.FilesTool.get_subfiles_list(engine=dut_engine, folder_path=PlatformConsts.VOLTAGE_FILES_PATH,
+                                                 subfiles_pattern=PlatformConsts.VOLTAGE_FILES_PATTERN)
 
     def verify_ib_ports_state(self, dut_engine, expected_port_state):
         logging.info(f"number of ports: {self.ib_ports_num}")

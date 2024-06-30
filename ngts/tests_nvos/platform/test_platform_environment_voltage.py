@@ -22,11 +22,13 @@ def test_show_platform_environment_voltage(engines, devices):
     with allure.step("Create System object"):
         platform = Platform()
 
-    with allure.step("Execute show platform environment and make sure all the components exist"):
+    with (allure.step("Execute show platform environment and make sure all the components exist")):
         voltage_output = Tools.OutputParsingTool.parse_json_str_to_dictionary(
             platform.environment.voltage.show()).verify_result()
-        sensors = devices.dut.voltage_sensors
-        assert len(sensors) == len(voltage_output.keys()), "test failed - expected sensors count = {expected}, show command output = {output} \n expected sensors list: {expected_list}".format(
+        sensors = devices.dut.get_voltage_sensors(engines.dut)
+        assert len(sensors) == len(voltage_output.keys()), ("test failed - expected sensors count = "
+                                                            "{expected}, show command output = {output} \n "
+                                                            "expected sensors list: {expected_list}").format(
             expected=len(sensors), output=len(voltage_output.keys()), expected_list=sensors)
 
     with allure.step("Execute show platform environment voltage for every sensor"):

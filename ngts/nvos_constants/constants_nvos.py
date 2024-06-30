@@ -56,9 +56,11 @@ class DatabaseConst:
 class CumulusConsts:
     LINUX_BOOT_PATTERN = 'Debian GNU/Linux 12 .*'
     LOGIN_BOOT_PATTERN = 'cumulus login:.*'
+    ETH_SWITCH_TYPE = "ETH"
 
 
 class NvosConst:
+    IB_SWITCH_TYPE = "IB"
     QTM2 = "Quantum2"
     QTM3 = "Quantum3"
     DESCRIPTION = 'description'

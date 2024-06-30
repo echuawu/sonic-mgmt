@@ -27,6 +27,8 @@ class BaseDevice(ABC):
         self.dependent_dockers = []
         self.asic_amount = asic_amount
         self.switch_type = switch_type
+        self.cli_coverage_path = ""
+        self.cli_coverage_project_name = ""
 
         self._init_constants()
         self._init_available_databases()
@@ -106,6 +108,10 @@ class BaseDevice(ABC):
 
     def _init_password_hardening_lists(self):
         self.local_test_users = []
+
+    def init_cli_coverage_prop(self, cli_coverage_project_name):
+        self.cli_coverage_project_name = cli_coverage_project_name
+        self.cli_coverage_path = f"/auto/sw/tools/comet/{self.cli_coverage_project_name}/"
 
     @abstractmethod
     def get_ib_ports_num(self):
@@ -228,8 +234,13 @@ class BaseDevice(ABC):
     def reload_device(self, engine, cmd_list, validate=False):
         raise Exception(f"Not implemented for this switch {self.__class__.__name__}")
 
+    @abstractmethod
+    def get_voltage_sensors(self, dut_engine=None):
+        raise Exception(f"Not implemented for this switch {self.__class__.__name__}")
 
 # -------------------------- Base Appliance ----------------------------
+
+
 class BaseAppliance(BaseDevice):
     def __init__(self):
         BaseDevice.__init__(self)
