@@ -61,6 +61,7 @@ class CumulusConsts:
 class NvosConst:
     QTM2 = "Quantum2"
     QTM3 = "Quantum3"
+    NVL5 = 'NVLink-5 switch'
     DESCRIPTION = 'description'
     PORT_STATUS_UP = 'up'
     PORT_STATUS_DOWN = 'down'
