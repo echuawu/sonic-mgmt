@@ -29,10 +29,10 @@
       <Device Hostname="dev-r-vrt-232-007" HwSku="ACS-MSN3700" Type="DevSonic"/>
       <Device Hostname="dev-r-vrt-233-005" HwSku="ACS-MSN2700" Type="DevSonic"/>
       <Device Hostname="dev-r-vrt-233-007" HwSku="ACS-MSN3700" Type="DevSonic"/>
-      <Device Hostname="r-leopard-58" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="r-leopard-58" HwSku="Mellanox-SN4700-O8C48" Type="DevSonic"/>
       <Device Hostname="r-tigris-04" HwSku="ACS-MSN3800" Type="DevSonic"/>
       <Device Hostname="r-tigris-13" HwSku="Mellanox-SN3800-D112C8" Type="DevSonic"/>
-      <Device Hostname="r-leopard-01" HwSku="ACS-MSN4700" Type="DevSonic"/>
+      <Device Hostname="r-leopard-01" HwSku="Mellanox-SN4700-O8C48" Type="DevSonic"/>
       <Device Hostname="r-tigon-04" HwSku="Mellanox-SN4600C-C64" Type="DevSonic"/>
       <Device Hostname="r-tigon-11" HwSku="Mellanox-SN4600C-C64" Type="DevSonic"/>
       <Device Hostname="r-tigon-20" HwSku="Mellanox-SN4600C-C64" Type="DevSonic"/>
