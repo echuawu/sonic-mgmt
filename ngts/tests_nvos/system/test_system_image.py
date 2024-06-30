@@ -31,8 +31,12 @@ PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
 # BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}-001/amd64/{base_image}"
 
 # will be removed ones merged to develop
+base_versions = {'QTM3': xdr_base_version,
+                 'NVLink-5 switch': nvl5_base_version}
+
 base_version = "/auto/sw_system_release/nos/nvos/25.01.4000/amd64/dev/nvos-amd64-25.01.4000.bin"
 xdr_base_version = "/auto/sw_system_release/nos/nvos/25.02.0914-003/amd64/dev/nvos-amd64-25.02.0914-003.bin"
+nvl5_base_version = "/auto/sw_system_release/nos/nvos/25.02.0506/amd64/dev/nvos-amd64-25.02.0506.bin"
 BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}.bin"
 BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}/amd64/{base_image}"
 
@@ -187,7 +191,7 @@ def test_image_uninstall(release_name, test_api, original_version, test_name):
     5. Validate that uninstall will success
     """
     TestToolkit.tested_api = test_api
-    image_uninstall_test(release_name, original_version, uninstall_force="", test_name=test_name)
+    image_uninstall_test(release_name, original_version, devices, uninstall_force="", test_name=test_name)
 
 
 @pytest.mark.checklist
@@ -205,7 +209,7 @@ def test_image_uninstall_force(release_name, original_version, test_name):
     4. Set the original image to be booted next
     5. Validate that uninstall force will success
     """
-    image_uninstall_test(release_name, original_version, uninstall_force="force", test_name=test_name)
+    image_uninstall_test(release_name, original_version, devices, uninstall_force="force", test_name=test_name)
 
 
 @pytest.mark.checklist
@@ -636,8 +640,7 @@ def verify_current_version(original_version, system, device):
     global base_version
     with allure.step("Set base image according to device type"):
         logging.info(f"Device type: {device.asic_type}")
-        if device.asic_type == NvosConst.QTM3:
-            base_version = xdr_base_version
+        base_version = base_versions.get(device.asic_type, base_version)
 
 
 def create_images_output_dictionary(original_images, next_image, current_image, partition_id):

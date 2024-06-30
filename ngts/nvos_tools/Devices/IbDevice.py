@@ -676,6 +676,7 @@ class JulietScaleoutSwitch(JulietSwitch):
         super()._init_constants()
         self.asic_type = NvosConst.NVL5
         self.reboot_type = 'julietscaleout_reboot'
+        self.reset_factory = 'julietscaleout reset factory'
         self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
         self.ssd_image = None
