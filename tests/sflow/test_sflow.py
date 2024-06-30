@@ -116,7 +116,7 @@ def config_dut_ports(duthost, ports, vlan):
 
 
 def get_default_agent(duthost):
-    # get_default_agent function is used to get the agentip selected by the hsflowd daemon.
+    # get_default_agent function is used to get the agent ip selected by the hsflowd daemon.
     # hsflowd.auto is the auto generated file by hsflowd daemon
     hsflowd_autogen_file = '/etc/hsflowd.auto'
     result = duthost.shell(
@@ -313,6 +313,8 @@ def tested_portchannel_members(duthost, tbinfo):
     """
     mg_facts = duthost.get_extended_minigraph_facts(tbinfo)
     portchannel_interfaces_list = [details['members'] for details in mg_facts["minigraph_portchannels"].values()]
+    if len(portchannel_interfaces_list) < 2:
+        pytest.skip("The test requires at least two portchannels with multiple members")
     logger.info(f'The portchannel interface is: {portchannel_interfaces_list}')
 
     return portchannel_interfaces_list
