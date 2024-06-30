@@ -4,6 +4,11 @@ from ngts.tests_nvos.general.security.certificate.CertInfo import CertInfo
 
 CERT_MGMT_CERTS = '/auto/sw_system_project/NVOS_INFRA/security/verification/cert_mgmt'
 TEST_CERTS = '/auto/sw_system_project/NVOS_INFRA/security/verification/certs/test_certs'
+GET_SYSTEM_VERSION_PATH = '/nvue_v1/system/version'
+
+
+class CertMsgs:
+    SSL_CERTIFICATE_PROBLEM = 'SSL certificate problem'
 
 
 class TestCert:

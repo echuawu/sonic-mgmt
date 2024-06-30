@@ -185,4 +185,3 @@ class WebServerAPI(BaseComponent):
 class Api(BaseComponent):
     def __init__(self, parent_obj=None):
         BaseComponent.__init__(self, parent=parent_obj, path='/api')
-        self.certificate = Certificate(self)

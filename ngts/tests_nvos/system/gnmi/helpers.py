@@ -422,7 +422,7 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
                 services = [SERVER_REFLECTION_SUBSCRIBE_RESPONSE]
-                verify_server_reflection(test_flow, client, services)
+                verify_server_reflection(test_flow, client, skip_cert_verify, services)
     else:
         with allure.step(f'bad-flow: {log_msg}'):
             with allure.step('verify using capabilities command'):
@@ -434,16 +434,16 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_not_in_out_or_err(new_description, out)
                 verify_msg_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
-                verify_server_reflection(test_flow, client)
+                verify_server_reflection(test_flow, client, skip_cert_verify)
 
 
-def verify_server_reflection(test_flow, client, services=None):
-    out_reflect, err_reflect = client.run_describe()
+def verify_server_reflection(test_flow, client, skip_cert_verify, services=None):
+    out_reflect, err_reflect = client.run_describe(skip_cert_verify=skip_cert_verify)
     if test_flow == TestFlowType.GOOD_FLOW:
         verify_msg_in_out_or_err(GrpcMsg.MSG_SERVER_REFLECT, out_reflect)
         verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
         for service in services:
-            out_reflect, err_reflect = client.run_describe(service=service)
+            out_reflect, err_reflect = client.run_describe(service=service, skip_cert_verify=skip_cert_verify)
             verify_msg_in_out_or_err(GrpcMsg.ALL_MSGS[service], out_reflect)
             verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
     else:
