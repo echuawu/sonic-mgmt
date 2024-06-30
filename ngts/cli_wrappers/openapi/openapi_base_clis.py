@@ -1,6 +1,6 @@
 import logging
 
-from ngts.nvos_constants.constants_nvos import OpenApiReqType
+from ngts.nvos_constants.constants_nvos import OpenApiReqType, SystemConsts
 from ngts.nvos_constants.constants_nvos import OutputFormat
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from .openapi_command_builder import OpenApiCommandHelper
@@ -58,7 +58,7 @@ class OpenApiBaseCli:
             OpenApiBaseCli._action_key(action_type), engine.engine.username, engine.engine.password, engine.ip,
             url, data)
 
-        if expect_reboot or ("Performing reboot" in result):
+        if expect_reboot or any(msg in result for msg in SystemConsts.REBOOT_RESPONSE_MESSAGES):
             DutUtilsTool.wait_on_system_reboot(engine, recovery_engine)
 
         return result

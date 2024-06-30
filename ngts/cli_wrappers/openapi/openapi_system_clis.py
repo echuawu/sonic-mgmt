@@ -2,7 +2,7 @@ import logging
 
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from ngts.cli_wrappers.openapi.openapi_base_clis import OpenApiBaseCli
-from ngts.nvos_constants.constants_nvos import ActionType
+from ngts.nvos_constants.constants_nvos import ActionType, SystemConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from .openapi_command_builder import OpenApiCommandHelper
 
@@ -190,7 +190,7 @@ class OpenApiSystemCli(OpenApiBaseCli):
             params.update({"parameters": parameters_dict})
         result = OpenApiCommandHelper.execute_action(ActionType.REBOOT, engine.engine.username, engine.engine.password,
                                                      engine.ip, resource_path, params)
-        if "Performing reboot" in result:
+        if any(msg in result for msg in SystemConsts.REBOOT_RESPONSE_MESSAGES):
             logger.info("Waiting for switch shutdown after reload command")
             check_port_status_till_alive(False, engine.ip, engine.ssh_port)
             engine.disconnect()

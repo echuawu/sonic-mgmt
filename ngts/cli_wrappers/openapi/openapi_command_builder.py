@@ -9,7 +9,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from retry import retry
 
-from ngts.nvos_constants.constants_nvos import OpenApiReqType, NvosConst
+from ngts.nvos_constants.constants_nvos import OpenApiReqType, NvosConst, SystemConsts
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 
 logger = logging.getLogger()
@@ -358,7 +358,7 @@ class OpenApiRequest:
                 response = json.loads(r.content)
                 if expected_regex and re.search(expected_regex, response['status']):
                     return json.loads(r.content.decode('utf-8'))['status']
-                if "Performing reboot" in response['status']:
+                if any(msg in response['status'] for msg in SystemConsts.REBOOT_RESPONSE_MESSAGES):
                     return json.loads(r.content.decode('utf-8'))['status']
                 if response['state'] == "action_success":
                     return json.loads(r.content.decode('utf-8'))['status']

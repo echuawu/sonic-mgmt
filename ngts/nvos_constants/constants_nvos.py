@@ -517,6 +517,11 @@ class SystemConsts:
     SSD_SPACE_AVAILABLE_SIZE = 'Avail'
     SSD_SPACE_USAGE_PERCENTAGE = 'Use%'
 
+    REBOOT_RESPONSE_MESSAGES = (
+        "Performing reboot",
+        "Disconnecting from NVOS, system is offline during reboot",
+    )
+
 
 class DocumentsConsts:
     MIN_FILES_SIZE = 30000
