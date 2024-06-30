@@ -3,7 +3,7 @@ from typing import List
 from ngts.tests_nvos.general.security.certificate.CertInfo import CertInfo
 
 CERT_MGMT_CERTS = '/auto/sw_system_project/NVOS_INFRA/security/verification/cert_mgmt'
-GNMI_CERTS = f'/auto/sw_system_project/NVOS_INFRA/security/verification/certs/gnmi'
+TEST_CERTS = '/auto/sw_system_project/NVOS_INFRA/security/verification/certs/test_certs'
 
 
 class TestCert:
@@ -32,53 +32,52 @@ class TestCert:
         cacert=None
     )
 
-    gnmi_cert_valid_1 = CertInfo(
-        name='gnmi-valid-cert-1',
-        info='valid certificate for gnmi test - from ca1',
-        private=f'{GNMI_CERTS}/cert-from-ca1/service.key',
-        public=f'{GNMI_CERTS}/cert-from-ca1/service.pem',
-        p12_bundle=f'{GNMI_CERTS}/cert-from-ca1/service.p12',
+    cert_valid_1 = CertInfo(
+        name='valid-cert-1',
+        info='valid certificate for test - from ca1',
+        private=f'{TEST_CERTS}/cert-from-ca1/service.key',
+        public=f'{TEST_CERTS}/cert-from-ca1/service.pem',
+        p12_bundle=f'{TEST_CERTS}/cert-from-ca1/service.p12',
         p12_password='secret',
         dn='nvos-dut',
         ip=None,
-        cacert=f'{GNMI_CERTS}/ca1/ca.crt'
+        cacert=f'{TEST_CERTS}/ca1/ca.crt'
     )
 
-    gnmi_cert_valid_2 = CertInfo(
-        name='gnmi-valid-cert-2',
-        info='valid certificate for gnmi test - from ca2',
-        private=f'{GNMI_CERTS}/cert-from-ca2/service.key',
-        public=f'{GNMI_CERTS}/cert-from-ca2/service.pem',
-        p12_bundle=f'{GNMI_CERTS}/cert-from-ca2/service.p12',
+    cert_valid_2 = CertInfo(
+        name='valid-cert-2',
+        info='valid certificate for test - from ca2',
+        private=f'{TEST_CERTS}/cert-from-ca2/service.key',
+        public=f'{TEST_CERTS}/cert-from-ca2/service.pem',
+        p12_bundle=f'{TEST_CERTS}/cert-from-ca2/service.p12',
         p12_password='secret',
         dn='nvos-dut',
         ip=None,
-        cacert=f'{GNMI_CERTS}/ca2/ca.crt'
+        cacert=f'{TEST_CERTS}/ca2/ca.crt'
     )
 
-    gnmi_cert_private_public_mismatch = CertInfo(
-        name='gnmi-cert-private-public-mismatch',
-        info="invalid certificate for gnmi test - public and private don't match",
-        private=f'{GNMI_CERTS}/cert-from-ca1/service.key',
-        public=f'{GNMI_CERTS}/cert-from-ca2/service.pem',
+    cert_private_public_mismatch = CertInfo(
+        name='cert-private-public-mismatch',
+        info="invalid certificate for test - public and private don't match",
+        private=f'{TEST_CERTS}/cert-from-ca1/service.key',
+        public=f'{TEST_CERTS}/cert-from-ca2/service.pem',
         p12_bundle=None,
         p12_password=None,
         dn='nvos-dut',
         ip=None,
-        cacert=f'{GNMI_CERTS}/ca1/ca.crt'
+        cacert=f'{TEST_CERTS}/ca1/ca.crt'
     )
 
-    gnmi_cert_ca_mismatch = CertInfo(
-        name='gnmi-cert-ca-mismatch',
-        info="certificate for gnmi test - valid certificate but don't match ca",
-        private=f'{GNMI_CERTS}/cert-from-ca1/service.key',
-        public=f'{GNMI_CERTS}/cert-from-ca1/service.pem',
-        p12_bundle=f'{GNMI_CERTS}/cert-from-ca1/service.p12',
+    cert_ca_mismatch = CertInfo(
+        name='cert-ca-mismatch',
+        info="certificate for test - valid certificate but don't match ca",
+        private=f'{TEST_CERTS}/cert-from-ca1/service.key',
+        public=f'{TEST_CERTS}/cert-from-ca1/service.pem',
+        p12_bundle=f'{TEST_CERTS}/cert-from-ca1/service.p12',
         p12_password='secret',
         dn='nvos-dut',
         ip=None,
-        cacert=f'{GNMI_CERTS}/ca2/ca.crt'
+        cacert=f'{TEST_CERTS}/ca2/ca.crt'
     )
 
-    gnmi_all_certs: List[CertInfo] = [gnmi_cert_valid_1, gnmi_cert_valid_2, gnmi_cert_private_public_mismatch,
-                                      gnmi_cert_ca_mismatch]
+    all_certs: List[CertInfo] = [cert_valid_1, cert_valid_2, cert_private_public_mismatch, cert_ca_mismatch]
