@@ -260,7 +260,7 @@ def run_err_msg_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed
     bug_handler_output = subprocess.run(bug_handler_cmd, shell=True, capture_output=True).stdout
     logger.info(bug_handler_output)
     bug_handler_file_result = json.loads(bug_handler_output)
-    if is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action):
+    if is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action, yaml_parsed_file):
         ticket_id = get_ticket_id(bug_handler_file_result)
         tar_file_path = get_tech_support_from_switch(bug_handler_params)
 
@@ -276,10 +276,14 @@ def run_err_msg_bug_handler_tool(conf_path, redmine_project, branch, yaml_parsed
     return bug_handler_file_result
 
 
-def is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action):
-    return not ((update_only and bug_handler_file_result["action"] == "create") or
-                bug_handler_no_action or
-                bug_handler_file_result["action"] == "skip")
+def is_attachment_needed(bug_handler_file_result, update_only, bug_handler_no_action, yaml_parsed_file):
+    if (update_only and bug_handler_file_result["action"] == "create") or bug_handler_no_action or \
+            bug_handler_file_result["action"] == "skip":
+        return False
+    else:
+        with open(yaml_parsed_file, 'r') as stream:
+            data = yaml.safe_load(stream)
+            return not data['attachments']
 
 
 def get_ticket_id(bug_handler_file_result):
@@ -442,7 +446,7 @@ def get_log_analyzer_yaml_path(test_name, dump_path):
 
 
 def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, hostname,
-                                  bug_info_dictionary, bug_handler_params):
+                                  bug_info_dictionary, bug_handler_params, bug_handler_dumps_results):
     """
     The function will create a YAML file in the needed format for bug handler script
     :param log_errors: list with log errors
@@ -457,6 +461,10 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, hos
     if bug_handler_params["cli_type"] == "Sonic":
         # collect the dump only when it is needed.
         tar_file_path = None
+        for bug_handler_dumps_result in bug_handler_dumps_results:
+            if "file_name" in bug_handler_dumps_result:
+                tar_file_path = bug_handler_dumps_result["file_name"]
+                break
     else:
         tar_file_path = get_tech_support_from_switch(bug_handler_params)
 

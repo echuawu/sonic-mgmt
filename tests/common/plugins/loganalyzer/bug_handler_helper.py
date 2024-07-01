@@ -81,7 +81,8 @@ def handle_log_analyzer_errors(cli_type, branch, test_name, duthost, log_analyze
                 for error_group in error_groups:
                     yaml_file_path = create_log_analyzer_yaml_file(error_group, session_tmp_folder, redmine_project,
                                                                    test_name, hostname,
-                                                                   log_analyzer_bug_metadata, bug_handler_params)
+                                                                   log_analyzer_bug_metadata, bug_handler_params,
+                                                                   bug_handler_dumps_results)
                     if yaml_file_path:
                         with allure.step("Run Bug Handler on Log Analyzer error"):
                             logger.info(f"Run Bug Handler on Log Analyzer error: {error_group}")

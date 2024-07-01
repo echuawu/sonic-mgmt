@@ -92,4 +92,4 @@ def loganalyzer(duthosts, request):
         analyze_logs(analyzers, markers, node=duthosts[0], fail_test=fail_test, store_la_logs=store_la_logs)
     else:
         parallel_run(analyze_logs, [analyzers, markers], {'fail_test': fail_test, 'store_la_logs': store_la_logs},
-                     duthosts, timeout=120)
+                     duthosts, timeout=240)
