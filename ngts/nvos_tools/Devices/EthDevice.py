@@ -188,6 +188,9 @@ class Mlx2410Switch(EthSwitch):
 
         self.voltage_sensors = ["VIN", "VOUT1", "VOUT2"]
 
+    def _init_fan_list(self):
+        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2"]
+
 # -------------------------- Mlx4600 Switch -----------------------------
 
 
@@ -216,6 +219,9 @@ class Mlx4600Switch(EthSwitch):
                                 "PMIC-7-COMEX-1.2V-RAIL-OUT", "PMIC-7-PSU-12V-RAIL-IN1",
                                 "PMIC-7-PSU-12V-RAIL-IN2", "PSU-1R-12V-RAIL-OUT",
                                 "PSU-1R-220V-RAIL-IN"]
+
+    def _init_fan_list(self):
+        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1"]
 
 # -------------------------- Mlx4700 Switch -----------------------------
 
