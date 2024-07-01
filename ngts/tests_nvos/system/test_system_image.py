@@ -179,7 +179,7 @@ def test_system_image_upload(engines, release_name, test_api, original_version, 
 @pytest.mark.image
 @pytest.mark.system
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
-def test_image_uninstall(release_name, test_api, original_version, test_name):
+def test_image_uninstall(release_name, test_api, original_version, test_name, devices):
     """
      Will check the uninstall commands
 
@@ -198,7 +198,7 @@ def test_image_uninstall(release_name, test_api, original_version, test_name):
 @pytest.mark.simx
 @pytest.mark.image
 @pytest.mark.system
-def test_image_uninstall_force(release_name, original_version, test_name):
+def test_image_uninstall_force(release_name, original_version, test_name, devices):
     """
      Will check the uninstall force commands
 

@@ -4,7 +4,7 @@ from typing import Tuple
 
 import pytest
 
-from ngts.nvos_constants.constants_nvos import ImageConsts
+from ngts.nvos_constants.constants_nvos import ImageConsts, NvosConst
 from ngts.nvos_constants.constants_nvos import PlatformConsts
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
@@ -256,9 +256,9 @@ def get_image_data(platform, dut) -> Tuple[str, str]:
         original_images = OutputParsingTool.parse_json_str_to_dictionary(
             platform.firmware.show("ASIC")).get_returned_value()
         original_image = original_images[PlatformConsts.FW_ACTUAL]
-        if dut.asic_type == "Quantum2":
+        if dut.asic_type == NvosConst.QTM2:
             default_firmware = 'fw-QTM2.mfa'
-        elif dut.asic_type == "Quantum3":
+        elif dut.asic_type in [NvosConst.QTM3, NvosConst.NVL5]:
             default_firmware = 'fw-QTM3.mfa'
         else:
             raise Exception(f"Unsupported ASIC: {dut.asic_type}")
