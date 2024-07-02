@@ -504,6 +504,12 @@ qos/test_qos_sai.py::TestQosSai::testQosSaiHeadroomPoolSize:
     conditions:
       - "https://redmine.mellanox.com/issues/3900025"
 
+qos/test_qos_sai.py::TestQosSai::testQosSaiDwrr:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3971255 for r-moose-01 and mtvr-moose-04"
+    conditions:
+    -  "https://redmine.mellanox.com/issues/3971255 and ('r-moose-01' in testbed or 'mtvr-moose-04' in testbed)"
+
 telemetry/test_events.py::test_events:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3842291"
