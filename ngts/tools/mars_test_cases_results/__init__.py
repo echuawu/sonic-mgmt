@@ -25,6 +25,44 @@ EXCEPTION_REGEX = "exception_regex"
 LA_REDMINE_ISSUES = "log_analyzer_redmine_issues"
 SKYNET = "skynet"
 
+SONIC_CI_SETUP_NAME_PATTERNS = r"CI_sonic(?:_simx)?_SPC(?:\d+)?_\d+"
+SONIC_SETUP_NAME_PATTERN = rf"sonic_\S+_r-\S+-\S+|sonic_\S+_mtvr-\S+-\S+|sonic_simx_r-\S+-simx-\S+|\
+sonic_simx_mtvr-\S+-simx-\S+|{SONIC_CI_SETUP_NAME_PATTERNS}|sonic_air_\S+-\S+"
+SONIC_SWITCH_NAME_PATTERN = r"r-\S+|mtvr-\S+|r-\S+-simx-\S+|mtvr-\S+-simx-\S+"
+MAC_PATTERN = r"(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}|[0-9A-Fa-f]{12}"
+IPV4_PATTERN = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
+IPV6_PATTERN = r"\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b"
+BRACKETED_NUM_PATTERN = r"\[\s*\d+\.\d+\s*\]"  # match patterns like [123.1234], [ 123.54], [  13.45]
+
+# will match patterns like 2024 Jun 12 21:51:00.718628 with optional UTC at the end
+DATE_PATTERN1 = r"[A-Za-z]{3} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?(?: [A-Z]{3})?"
+# will match patterns like 2024 Jun 12 21:51:00.718628 ATF with optional UTC at the end
+DATE_PATTERN2 = r"\d{4} [A-Za-z]{3} \d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)(?: [A-Z]{3})?"
+# will match patterns like Tue Apr 23 23:57:35 UTC 20194
+DATE_PATTERN3 = r"\b[A-Za-z]{3} [A-Za-z]{3} \d{2} \d{2}:\d{2}:\d{2}?(?: [A-Z]{3})?(?: \d{4})?\b"
+DATE_PATTERN = rf"{DATE_PATTERN1}|{DATE_PATTERN2}|{DATE_PATTERN3}"
+
+HEX_NUM_PATTERN = r"0[xX][0-9a-fA-F]+|\b[0-9a-fA-F]*[0-9][0-9a-fA-F]*\b"
+DIGIT_PATTERN = r"\d+"
+QUOTE_PATTERN = r'"'
+
+REDACTED_SONIC_SETUP_NAME = "REDACTED_SONIC_SETUP_NAME"
+REDACTED_SONIC_SWITCH_NAME = "REDACTED_SONIC_SWITCH_NAME"
+REDACTED_MAC = "REDACTED_MAC"
+REDACTED_IP = "REDACTED_IP"
+REDACTED_BRACKETED_NUM = "REDACTED_BRACKETED_NUM"
+REDACTED_DATE = "REDACTED_DATE"
+HEX_NUM_REPLACEMENT = "*"
+DIGIT_REPLACEMENT = "*"
+ESCAPED_QUOTE_REPLACEMENT = r'\"'
+# The patterns are ordered so regex replacements are done correctly (i.e., replace full ip before digits)
+GENERALIZE_EXCEPTION_TUPLES = [(SONIC_SETUP_NAME_PATTERN, REDACTED_SONIC_SETUP_NAME),
+                               (SONIC_SWITCH_NAME_PATTERN, REDACTED_SONIC_SWITCH_NAME), (MAC_PATTERN, REDACTED_MAC),
+                               (IPV4_PATTERN, REDACTED_IP), (IPV6_PATTERN, REDACTED_IP),
+                               (BRACKETED_NUM_PATTERN, REDACTED_BRACKETED_NUM), (DATE_PATTERN, REDACTED_DATE),
+                               (HEX_NUM_PATTERN, HEX_NUM_REPLACEMENT), (DIGIT_PATTERN, DIGIT_REPLACEMENT),
+                               (QUOTE_PATTERN, ESCAPED_QUOTE_REPLACEMENT)]
+
 
 def pytest_addoption(parser):
     parser.addoption("--disable_exporting_results_to_mars_db", action="store_true", default=False,
@@ -219,7 +257,7 @@ def update_exception_from_la_error(tests_exceptions, test_case_name, la_redmine_
             log_error_without_prefix_ind = 1
             for log_error in test_case_la_exception:
                 match = log_error_prefix_pattern.match(log_error)
-                log_error_regex = exception_to_regex(match.group(log_error_without_prefix_ind))
+                log_error_regex = generalize_exception(match.group(log_error_without_prefix_ind))
                 test_exception_error_list.append(log_error_regex)
             test_case_exception = test_case_la_exception_str
             test_exception_regex = "Log Analyzer Errors: " + "\n" + str(test_exception_error_list)
@@ -230,28 +268,14 @@ def update_exception_from_la_error(tests_exceptions, test_case_name, la_redmine_
     return test_case_exception, test_exception_regex, test_case_la_issues
 
 
-def exception_to_regex(error_string):
+def generalize_exception(error_string):
     """
-    @summary: Converts a (list of) strings to one regular expression.
-    @param error_string:    The string(s) to be converted
-                            into a regular expression
-    @return: A SINGLE regular expression string
+    @summary: Converts a string to a more generalized form of the string (i.e., remove numbers)
+    @param error_string: The string to be converted into a generalized exception
+    @return: A more-generalized version of the string, turning different patterns to predefined constants
     """
-    # -- Escapes out of all the meta characters --#
-    error_string = re.escape(error_string)
-    # -- Replaces [123.1234], [ 123.1234], [   123.1234] to one regex
-    error_string = re.sub(r"\\\[(\\\s)*\d+\\\.\d+\\\]", r"\\[\\s*\\d+\\.\\d+\\]", error_string)
-    # -- Replaces a white space with the white space regular expression
-    error_string = re.sub(r"(\\\s+)+", "\\\\s+", error_string)  # This line is not necessary to match regex
-    # -- Replaces date time with regular expressions
-    error_string = re.sub(r" [A-Za-z]{3} \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z]{3} ",
-                          r" [A-Za-z]{3} \\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} [A-Z]{3} ", error_string)
-    # -- Replaces a hex number with the hex regular expression
-    error_string = re.sub(r"0x[0-9a-fA-F]+", r"0x[\\d+a-fA-F]+", error_string)
-    error_string = re.sub(r"\b[0-9a-fA-F]{3,}\b", r"[\\d+a-fA-F]+", error_string)
-    # -- Replaces any remaining digits with the digit regular expression
-    error_string = re.sub(r"\d+", r"\\d+", error_string)
-    error_string = re.sub(r'"', r'\"', error_string)
+    for regex_pattern, replacement in GENERALIZE_EXCEPTION_TUPLES:
+        error_string = re.sub(regex_pattern, replacement, error_string)
     return error_string
 
 
@@ -260,7 +284,13 @@ def get_exception(test_obj):
     exception_regex = ""
     if hasattr(test_obj.longrepr, 'reprcrash') and hasattr(test_obj.longrepr.reprcrash, 'message'):
         exception = test_obj.longrepr.reprcrash.message
-        exception_regex = exception_to_regex(exception)
+        exception_regex = generalize_exception(exception)
+    elif hasattr(test_obj.longrepr, 'errorstring'):
+        # In some cases like fixture look-up errors, the error is presented in the errorstring variable
+        # The first element of the split contains the relevant data
+        exception = test_obj.longrepr.errorstring.split('\n', maxsplit=1)[0]
+        exception_regex = generalize_exception(exception)
+
     return exception, exception_regex
 
 
