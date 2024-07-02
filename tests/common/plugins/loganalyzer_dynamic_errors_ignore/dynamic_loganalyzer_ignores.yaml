@@ -176,6 +176,7 @@
       - bgp/test_bgp_suppress_fib.py::test_bgp_route_with_suppress
       - iface_loopback_action/test_iface_loopback_action.py::test_loopback_action_reload
       - tests/nightly/lag/test_lag.py::test_core_functionality_with_reboot
+      - hash/test_generic_hash.py::test_reboot
 
 # Temporary errors which should be ignored in tests which doing reboot/reload - by RM issue 3024792
 - Errors_list:
