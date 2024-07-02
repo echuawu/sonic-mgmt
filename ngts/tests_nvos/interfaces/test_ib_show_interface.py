@@ -9,7 +9,7 @@ from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.nvos_tools.infra.RandomizationTool import RandomizationTool
 from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ValidationTool
-from ngts.nvos_constants.constants_nvos import ApiType
+from ngts.nvos_constants.constants_nvos import ApiType, NvosConst
 from ngts.nvos_tools.infra.Fae import Fae
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 
@@ -40,7 +40,7 @@ def test_ib_show_interface(engines, devices, test_api):
                      'value according to the state of the port'):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_output_to_dictionary(
             selected_port.interface.show()).get_returned_value()
-        validate_one_port_show_output(output_dictionary, devices.dut.switch_type.lower())
+        validate_one_port_show_output(output_dictionary, devices.dut.switch_type.lower(), devices.dut.asic_type == NvosConst.QTM3)
 
     '''with allure.step(f'Check interface primary ASIC for port {selected_port.name}'):
         fae = Fae(port_name=selected_port.name)
@@ -213,7 +213,7 @@ def test_ib_show_interface_name_stats(engines, devices, test_api):
         output_dictionary = Tools.OutputParsingTool.parse_show_interface_stats_output_to_dictionary(
             selected_port.interface.link.stats.show()).get_returned_value()
 
-        validate_stats_fields(output_dictionary)
+        validate_stats_fields(output_dictionary, devices.dut.asic_type == NvosConst.QTM3)
 
 
 @pytest.mark.ib_interfaces
@@ -323,28 +323,33 @@ def validate_link_fields(output_dictionary, switch_type, port_up=True):
         logging.warning(res.info)
 
 
-def validate_stats_fields(output_dictionary):
+def validate_stats_fields(output_dictionary, is_qtm3_device=False):
     with allure.step('Check that all expected fields under link-stats field exist in the output'):
         logging.info('Check that all expected fields under link-stats field exist in the output')
-        field_to_check = [IbInterfaceConsts.LINK_STATS_IN_BYTES,
-                          IbInterfaceConsts.LINK_STATS_IN_DROPS,
-                          IbInterfaceConsts.LINK_STATS_IN_ERRORS,
-                          IbInterfaceConsts.LINK_STATS_IN_SYMBOL_ERRORS,
-                          IbInterfaceConsts.LINK_STATS_IN_PKTS,
-                          IbInterfaceConsts.LINK_STATS_OUT_BYTES,
-                          IbInterfaceConsts.LINK_STATS_OUT_DROPS,
-                          IbInterfaceConsts.LINK_STATS_OUT_ERRORS,
-                          IbInterfaceConsts.LINK_STATS_OUT_PKTS,
-                          IbInterfaceConsts.LINK_STATS_OUT_WAIT]
-        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, field_to_check).verify_result()
+        fields_to_check = [IbInterfaceConsts.LINK_STATS_IN_BYTES,
+                           IbInterfaceConsts.LINK_STATS_IN_DROPS,
+                           IbInterfaceConsts.LINK_STATS_IN_ERRORS,
+                           IbInterfaceConsts.LINK_STATS_IN_SYMBOL_ERRORS,
+                           IbInterfaceConsts.LINK_STATS_IN_PKTS,
+                           IbInterfaceConsts.LINK_STATS_OUT_BYTES,
+                           IbInterfaceConsts.LINK_STATS_OUT_DROPS,
+                           IbInterfaceConsts.LINK_STATS_OUT_ERRORS,
+                           IbInterfaceConsts.LINK_STATS_OUT_PKTS,
+                           IbInterfaceConsts.LINK_STATS_OUT_WAIT]
+        if is_qtm3_device:
+            logging.info('Add expected fields for Quantum3 device')
+            fields_to_check.extend(IbInterfaceConsts.LINK_STATS_QNT3)
+            verify_non_negative_counters({IbInterfaceConsts.LINK_STATS_RCV_ICRC_ERRORS: output_dictionary[IbInterfaceConsts.LINK_STATS_RCV_ICRC_ERRORS],
+                                         IbInterfaceConsts.LINK_STATS_TX_PARITY_ERRORS: output_dictionary[IbInterfaceConsts.LINK_STATS_TX_PARITY_ERRORS]})
+        Tools.ValidationTool.verify_field_exist_in_json_output(output_dictionary, fields_to_check).verify_result()
 
 
-def validate_one_port_show_output(output_dictionary, switch_type):
+def validate_one_port_show_output(output_dictionary, switch_type, is_qtm3_device=False):
     validate_interface_fields(output_dictionary)
 
     validate_link_fields(output_dictionary[IbInterfaceConsts.LINK], switch_type)
 
-    validate_stats_fields(output_dictionary[IbInterfaceConsts.LINK][IbInterfaceConsts.LINK_STATS])
+    validate_stats_fields(output_dictionary[IbInterfaceConsts.LINK][IbInterfaceConsts.LINK_STATS], is_qtm3_device)
 
 
 def validate_one_port_in_show_all_ports(output_dictionary, switch_type, port_up=True):
@@ -380,3 +385,8 @@ def verify_expected_link_state(output_dictionary):
 
     else:
         raise Exception("Link physical port state {} isn't as we expected".format(link_physical_port_state))
+
+
+def verify_non_negative_counters(link_stats_dict):
+    for field, counter in link_stats_dict.items():
+        assert counter >= 0, f"counter isn't as we expected.\n we got: {field}={counter}"

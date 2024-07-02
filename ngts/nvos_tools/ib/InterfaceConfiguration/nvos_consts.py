@@ -80,6 +80,11 @@ class IbInterfaceConsts:
     LINK_STATS_OUT_ERRORS = "out-errors"
     LINK_STATS_OUT_PKTS = "out-pkts"
     LINK_STATS_OUT_WAIT = "out-wait"
+    LINK_STATS_RCV_ICRC_ERRORS = 'rcv-icrc-errors'
+    LINK_STATS_TX_PARITY_ERRORS = 'tx-parity-errors'
+    LINK_STATS_QNT3 = ['link-error-recovery', 'link-downed', 'port-rcv-remote-physical-errors', 'port-rcv-switch-relay-errors',
+                       'port-rcv-constraint-errors', 'local-link-integrity-errors', 'qp1-drops', 'buffer-overrun-errors',
+                       LINK_STATS_RCV_ICRC_ERRORS, LINK_STATS_TX_PARITY_ERRORS]
     LINK_BREAKOUT_NDR = "2x-ndr"
     LINK_BREAKOUT_HDR = "2x-hdr"
     LINK_ROUND_TRIP_LATENCY = "round-trip-latency"
