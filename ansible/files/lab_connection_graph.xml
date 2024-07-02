@@ -158,7 +158,7 @@
       <Device Hostname="r-panther-02" HwSku="Mellanox-SN2700-A1" Type="DevSonic"/>
       <Device Hostname="r-panther-42" HwSku="Mellanox-SN2700-A1" Type="DevSonic"/>
       <Device Hostname="r-panther-40" HwSku="Mellanox-SN2700-A1-D48C8" Type="DevSonic"/>
-      <Device Hostname="r-panther-45" HwSku="ACS-MSN2700" Type="DevSonic"/>
+      <Device Hostname="r-panther-45" HwSku="Mellanox-SN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-47" HwSku="Mellanox-SN2700" Type="DevSonic"/>
       <Device Hostname="r-panther-48" HwSku="Mellanox-SN2700-D40C8S8" Type="DevSonic"/>
       <Device Hostname="r-panther-20" HwSku="Mellanox-SN2700" Type="DevSonic"/>
