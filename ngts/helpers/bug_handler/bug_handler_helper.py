@@ -458,15 +458,11 @@ def create_log_analyzer_yaml_file(log_errors, dump_path, project, test_name, hos
     :param hostname: i.e, gorilla-153
     :return: path to parsed YAML file
     """
-    if bug_handler_params["cli_type"] == "Sonic":
-        # collect the dump only when it is needed.
-        tar_file_path = None
-        for bug_handler_dumps_result in bug_handler_dumps_results:
-            if "file_name" in bug_handler_dumps_result:
-                tar_file_path = bug_handler_dumps_result["file_name"]
-                break
-    else:
-        tar_file_path = get_tech_support_from_switch(bug_handler_params)
+    tar_file_path = None
+    for bug_handler_dumps_result in bug_handler_dumps_results:
+        if "file_name" in bug_handler_dumps_result:
+            tar_file_path = bug_handler_dumps_result["file_name"]
+            break
 
     yaml_file_path = get_log_analyzer_yaml_path(test_name, dump_path)
     # remove date, time and hostname before creating the regex!
