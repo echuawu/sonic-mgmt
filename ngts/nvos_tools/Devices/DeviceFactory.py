@@ -26,7 +26,9 @@ class DeviceFactory:
             'Mellanox SN4700': Mlx4700Switch,
             'Mellanox SN4600': Mlx4600Switch,
             'Mellanox 2410': Mlx2410Switch,
-            'N5110_LD - JulietScaleout': JulietScaleoutSwitch
+            'N5110_LD - JulietScaleout': JulietScaleoutSwitch,
+            'N5110_LD - JulietTTM': JulietTTMSwitch,
+            'N5100_LD - JulietNonScaleout': JulietNonScaleoutSwitch
         }
 
     @staticmethod
