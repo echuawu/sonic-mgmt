@@ -721,29 +721,29 @@ class JulietScaleoutSwitch(JulietSwitch):
             "asic-model": self.asic_type,
         })
         self.current_bios_version_name = "0ACTV_0.00.007"
-        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
+        self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/0ACTV_00.00.x07_rc5/Release/0ACTV.rom"
         self.previous_bios_version_name = "0ACTV_0.00.007"
         self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/SnowyOwl/BringUp/0ACTV000_07_BU3/Release/0ACTV000_07.rom"
         self.bios_version_name = '0ACTV000_07.rom'
 
         self.current_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            burn_image_path="/auto/sysgwork/eabboud/FUI000287_BURN_JULIET_CPLD000370_REV0010_CPLD000371_REV0010_CPLD000373_REV0010_CPLD000372_REV0003.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/FUI000287_BURN_JULIET_CPLD000370_REV0010_CPLD000371_REV0010_CPLD000373_REV0010_CPLD000372_REV0003.vme",
             version_names={
                 "CPLD1": "CPLD000370_REV0010",
                 "CPLD2": "CPLD000371_REV0010",
-                "CPLD3": "CPLD000373_REV0009",
-                "CPLD4": "CPLD000372_REV0002"
+                "CPLD3": "CPLD000373_REV0010",
+                "CPLD4": "CPLD000372_REV0003"
             }
         )
         self.previous_cpld_version = BaseSwitch.CpldImageConsts(
-            burn_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
-            refresh_image_path="/auto/sysgwork/eabboud/Juliet_CPLD_updated_26_05_24.vme",
+            burn_image_path="/auto/sysgwork/eabboud/FUI000287_BURN_JULIET_CPLD000370_REV0010_CPLD000371_REV0010_CPLD000373_REV0010_CPLD000372_REV0003.vme",
+            refresh_image_path="/auto/sysgwork/eabboud/FUI000287_BURN_JULIET_CPLD000370_REV0010_CPLD000371_REV0010_CPLD000373_REV0010_CPLD000372_REV0003.vme",
             version_names={
                 "CPLD1": "CPLD000370_REV0010",
                 "CPLD2": "CPLD000371_REV0010",
-                "CPLD3": "CPLD000373_REV0009",
-                "CPLD4": "CPLD000372_REV0002"
+                "CPLD3": "CPLD000373_REV0010",
+                "CPLD4": "CPLD000372_REV0003"
             }
         )
         # self.stats_fan_header_num_of_lines = 25
