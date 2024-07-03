@@ -49,7 +49,7 @@ def test_ib_interface_mtu(engines, players, interfaces, start_sm):
         logging.info("Max supported mtu: {}".format(max_supported_mtu))
 
     with allure.step('Negative validation with not supported for ib mtu 1000'):
-        selected_port.ib_interface.link.set(op_param_name='mtu', op_param_value='1000').verify_result(False)
+        selected_port.interface.link.set(op_param_name='mtu', op_param_value='1000').verify_result(False)
         NvueGeneralCli.detach_config(TestToolkit.engines.dut)
         wait_for_port_to_become_active(selected_port)
 

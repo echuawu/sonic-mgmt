@@ -168,7 +168,7 @@ def test_updates_on_gnmi_stream_mode(engines, devices):
 
         with allure.step('Set port description'):
             port_description = Tools.RandomizationTool.get_random_string(7)
-            selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+            selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
             selected_port.update_output_dictionary()
             verify_description_value(selected_port.show_output_dictionary, port_description)
 
@@ -276,7 +276,7 @@ def test_gnmi_performance(engines, devices):
         validate_memory_and_cpu_utilization()
 
     with allure.step(f"change port description"):
-        selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+        selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
         selected_port.update_output_dictionary()
         verify_description_value(selected_port.show_output_dictionary, port_description)
         logger.info(f"sleep {GnmiConsts.SLEEP_TIME_FOR_UPDATE} sec until we start validate the gnmi stream")

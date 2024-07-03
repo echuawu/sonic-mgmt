@@ -159,7 +159,7 @@ def run_gnmi_client_and_parse_output(engines, devices, xpath, target_ip, target_
 def change_port_description_and_validate_gnmi_updates(engines, port_description, target_ip, mode='', username='',
                                                       password=''):
     selected_port = Tools.RandomizationTool.select_random_port(requested_ports_state=None).returned_value
-    selected_port.ib_interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
+    selected_port.interface.set(NvosConst.DESCRIPTION, port_description, apply=True).verify_result()
     selected_port.update_output_dictionary()
     verify_description_value(selected_port.show_output_dictionary, port_description)
 
@@ -357,7 +357,7 @@ def verify_description_value(output, expected_description):
 
 def change_interface_description(selected_port):
     rand_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
-    selected_port.ib_interface.set(NvosConst.DESCRIPTION, rand_str, apply=True).verify_result()
+    selected_port.interface.set(NvosConst.DESCRIPTION, rand_str, apply=True).verify_result()
     time.sleep(GnmiConsts.SLEEP_TIME_FOR_UPDATE)
     return rand_str
 
@@ -422,7 +422,7 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_not_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
                 services = [SERVER_REFLECTION_SUBSCRIBE_RESPONSE]
-                verify_server_reflection(test_flow, client, skip_cert_verify, services)
+                verify_server_reflection(test_flow, client, skip_cert_verify, err_msg_to_check, services)
     else:
         with allure.step(f'bad-flow: {log_msg}'):
             with allure.step('verify using capabilities command'):
@@ -434,18 +434,18 @@ def verify_gnmi_client(test_flow, server_host, server_port, username, password, 
                 verify_msg_not_in_out_or_err(new_description, out)
                 verify_msg_in_out_or_err(err_msg_to_check, out, err)
             with allure.step('verify using reflection command'):
-                verify_server_reflection(test_flow, client, skip_cert_verify)
+                verify_server_reflection(test_flow, client, skip_cert_verify, err_msg_to_check)
 
 
-def verify_server_reflection(test_flow, client, skip_cert_verify, services=None):
+def verify_server_reflection(test_flow, client, skip_cert_verify, err_msg_to_check, services=None):
     out_reflect, err_reflect = client.run_describe(skip_cert_verify=skip_cert_verify)
     if test_flow == TestFlowType.GOOD_FLOW:
         verify_msg_in_out_or_err(GrpcMsg.MSG_SERVER_REFLECT, out_reflect)
-        verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
+        verify_msg_not_in_out_or_err(err_msg_to_check, out_reflect, err_reflect)
         for service in services:
             out_reflect, err_reflect = client.run_describe(service=service, skip_cert_verify=skip_cert_verify)
             verify_msg_in_out_or_err(GrpcMsg.ALL_MSGS[service], out_reflect)
-            verify_msg_not_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
+            verify_msg_not_in_out_or_err(err_msg_to_check, out_reflect, err_reflect)
     else:
         verify_msg_not_in_out_or_err(GrpcMsg.MSG_SERVER_REFLECT, out_reflect)
-        verify_msg_in_out_or_err(GrpcMsg.LIST_SERVICES_FAIL, out_reflect, err_reflect)
+        verify_msg_in_out_or_err(err_msg_to_check, out_reflect, err_reflect)

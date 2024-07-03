@@ -165,7 +165,7 @@ def _verify_transceiver_status(platform, transceiver_id, expected_module_status=
 
 def _verify_link_state_up(up_ports):
     outputs = [
-        OutputParsingTool.parse_json_str_to_dictionary(port.ib_interface.link.state.show()).get_returned_value()
+        OutputParsingTool.parse_json_str_to_dictionary(port.interface.link.state.show()).get_returned_value()
         for port in up_ports
     ]
     port_names = [port.name for port in up_ports]
@@ -177,7 +177,7 @@ def _verify_link_state_up(up_ports):
 
 def _verify_link_state_down(down_ports):
     outputs = [
-        OutputParsingTool.parse_json_str_to_dictionary(port.ib_interface.link.state.show()).get_returned_value()
+        OutputParsingTool.parse_json_str_to_dictionary(port.interface.link.state.show()).get_returned_value()
         for port in down_ports
     ]
     port_names = [port.name for port in down_ports]

@@ -18,7 +18,7 @@ class OpenSmTool:
 
     @staticmethod
     def start_open_sm(engines=None):
-        return OpenSmTool.start_open_sm_on_server(engines)
+        return OpenSmTool.start_open_sm_on_server(engines).verify_result()
 
     @staticmethod
     def stop_open_sm(engines=None):
