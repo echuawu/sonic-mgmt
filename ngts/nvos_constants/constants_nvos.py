@@ -538,7 +538,7 @@ class IpConsts:
     AUTOCONF = "autoconf"
     PYTHON_PATH = '/auto/app/Python-3.8.8/bin/python3.8'
     IB_DEV_2_NET_DEV = 'ibdev2netdev'
-    MAD_TEMPLATE = 'sudo {python_path} {nvmad_path}/nvmad.py --lid {lid} --mad MAD.GMP.VS.SwitchNetworkInfo --Ca {card}'
+    MAD_TEMPLATE = 'sudo {python_path} {nvmad_path}/nvmad.py --lid {lid} --mad MAD.GMP.VS.SwitchNetworkInfo --Ca {card} --modifier {modifier}'
     IPV4_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv4[0].ipv4'
     IPV4_NETMASK_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv4[0].netmask'
     IPV6_PREFIX = 'MAD.GMP.VS.SwitchNetworkInfo.IPv6[0].ipv6'
@@ -1246,11 +1246,10 @@ class UfmMadConsts:
     MGMT_PORT1 = 'eth1'
     IPV4_PREFIX = 'ipv4-prefix'
     IPV6_PREFIX = 'ipv6-prefix'
-    UFM_MAD_TABLE_ETH0 = '\"UFM_MAD_TABLE|eth0\"'
+    UFM_MAD_TABLE_ETH_TEMPLATE = '\"UFM_MAD_TABLE|{port_name}\"'
     UFM_MAD_TABLE_GENERAL = '\"UFM_MAD_TABLE|general\"'
     NUMBER_OF_ADDRESSES_IN_MAD_RESPONSE = 4
     CONFIG_TIME = 100  # [sec]
-    MST_DEV_NAME = '/dev/mst/mt54002_pciconf0'
     IBSNI_REGISTER = 'IBSNI'
     PMAOS_REGISTER = 'PMAOS'
     NVMAD_PATH = '/auto/sw_system_project/MLNX_OS_INFRA/mad_repository'

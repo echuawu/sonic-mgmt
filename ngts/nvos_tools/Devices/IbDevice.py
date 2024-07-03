@@ -489,7 +489,7 @@ class BlackMambaSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
-        self.mgmt_ports = ['eth0']  # ['eth0', 'eth1']
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-mlnx_qm8790-r0")
@@ -569,7 +569,7 @@ class CrocodileSwitch(IbSwitch):
         self.ib_ports_num = 64
         self.core_count = 4
         self.asic_type = NvosConst.QTM3
-        self.mgmt_ports = ['eth0']  # ['eth0', 'eth1']
+        self.mgmt_ports = ['eth0', 'eth1']
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH. \
             format("x86_64-nvidia_qm3400-r0")
         self.platform_file_path = MultiPlanarConsts.PLATFORM_FILE_FULL_PATH.format("x86_64-nvidia_qm3400-r0")
@@ -644,7 +644,7 @@ class NvLinkSwitch(IbSwitch):
         super()._init_constants()
         self.ib_ports_num = 64
         self.core_count = 4
-        self.mgmt_ports = ['eth0']  # ['eth0', 'eth1']
+        self.mgmt_ports = ['eth0', 'eth1']
         self.asic_type = NvosConst.QTM3
         self.health_monitor_config_file_path = HealthConsts.HEALTH_MONITOR_CONFIG_FILE_PATH.format(
             "x86_64-mlnx_mqm9700-r0")
