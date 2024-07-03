@@ -556,7 +556,7 @@ def _log_files_set_unset_log_rotation_max_number(engines, system_log_obj, log_na
         default_max_number = output_dictionary['max-number']
         system_log_obj.rotation.set('max-number', '0.001').verify_result(False)
         result_obj = system_log_obj.rotation.set('max-number', '9999999')
-        assert not result_obj.result and 'Valid range is' in result_obj.info, "Set of invalid max-number should fail"
+        assert not result_obj.result and 'is greater than the maximum' in result_obj.info, "Set of invalid max-number should fail"
 
     with allure.step("Validate set max-number 5"):
         logging.info("Validate set max-number 5")
