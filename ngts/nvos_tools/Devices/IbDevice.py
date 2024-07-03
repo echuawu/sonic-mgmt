@@ -209,8 +209,8 @@ class IbSwitch(BaseSwitch):
         self.system_profile_default_values = ['enabled', '2048', 'disabled', 'disabled', '1']
         self.current_bios_version_name = "0ACQF_06.01.005"
         self.current_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x05_rc1/Release/0ACQF.cab"
-        self.previous_bios_version_name = "0ACQF_06.01.003"
-        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x03/Release/0ACQF.cab"
+        self.previous_bios_version_name = "0ACQF_06.01.004"
+        self.previous_bios_version_path = "/auto/sw_system_release/sx_mlnx_bios/CoffeeLake/0ACQF_06.01.x04_rc1/Release/0ACQF.cab"
 
         self.category_default_disabled_dict = {
             StatsConsts.HISTORY_DURATION: StatsConsts.HISTORY_DURATION_DEFAULT,
