@@ -1,6 +1,6 @@
 import logging
 from ngts.nvos_tools.Devices.IbDevice import GorillaSwitch, \
-    MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch, CrocodileSimxSwitch, JulietScaleoutSwitch
+    MarlinSwitch, GorillaSwitchBF3, CrocodileSwitch, BlackMambaSwitch, CrocodileSimxSwitch, JulietScaleoutSwitch, JulietTTMSwitch, JulietNonScaleoutSwitch
 from ngts.nvos_tools.Devices.EthDevice import AnacondaSwitch, Mlx2410Switch, Mlx4600Switch, Mlx4700Switch
 from dotted_dict import DottedDict
 
