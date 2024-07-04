@@ -137,7 +137,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     la_redmine_issues = config.cache.get(BugHandlerConst.LA_RM_ISSUES_DICT, dict())
     logger.debug(f"la_issues = {la_redmine_issues}")
     cli_type = SKYNET if skynet else config.cache.get('CLI_TYPE', CliType.SONIC)
-    if valid_tests_data(report_url, session_id, mars_key_id):
+    if valid_tests_data(session_id, mars_key_id):
         tests_results, tests_skipreason, tests_exceptions = parse_tests_results(terminalreporter)
         for test_case_name, test_result in tests_results.items():
             test_exception, test_exception_regex, test_case_la_issues = update_exception_from_la_error(tests_exceptions,
@@ -185,15 +185,14 @@ def export_data(session_id, mars_key_id, cli_type):
         logger.warning("Error: {} has occurred, test data might not be exported".format(e))
 
 
-def valid_tests_data(report_url, session_id, mars_key_id):
+def valid_tests_data(session_id, mars_key_id):
     """
     This function return true only if the tests run as part of mars regression and have valid mars key id and session id.
-    :param report_url: url of allure report of test
     :param session_id: session id, i.e 1234567
     :param mars_key_id: mars key id, i.e 0.1.1.1.1.3.4.5
     :return: True, if all the parameters mention above are not None
     """
-    return report_url and session_id and mars_key_id
+    return session_id and mars_key_id
 
 
 def parse_tests_results(terminalreporter):
