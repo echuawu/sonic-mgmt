@@ -59,6 +59,12 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_bug_2705016:
     reason: "Testcase not supported on current platform"
     conditions:
       - "'simx' in platform or '2201' in platform"
+  xfail:
+    reason: "May fail due to RM 3971501 on r-leopard-56 or due to RM 3969985 on SPC4"
+    conditions_logical_operator: or
+    conditions:
+    - "https://redmine.mellanox.com/issues/3971501 and 'r-leopard-56' in testbed"
+    - "https://redmine.mellanox.com/issues/3969985 and 'sn5' in platform"
 
 tests/nightly/runtime/test_runtime.py:
   skip:
@@ -187,11 +193,7 @@ tests/nightly/adaptive_routing:
 
 tests/nightly/fec/test_fec.py::TestFec::test_negative_fec:
   skip:
-    reason: "(SIMX platform) or (RM issue https://redmine.mellanox.com/issues/3900119 on sn5400)"
-    conditions_logical_operator: or
-    conditions:
-      - "'simx' in platform"
-      - "https://redmine.mellanox.com/issues/3900119 and ('sn5400' in platform)"
+    reason: "Testcase is skipped permanently as it checks dut-host connections and we plan to move to SSIM which won't have such connections directly"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
   skip:
@@ -200,13 +202,14 @@ tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_loopback_ports:
     conditions:
       - "'2201' in platform"
       - "https://redmine.mellanox.com/issues/3864087 and 'mtvr-hippo-01' in testbed"
+    xfail:
+      reason: "Testcase may fail due to RM https://redmine.mellanox.com/issues/3971501 on r-leopard-56"
+      conditions:
+        - "https://redmine.mellanox.com/issues/3971501 and 'r-leopard-56' in testbed"
 
 tests/nightly/fec/test_fec.py::TestFec::test_fec_capabilities_hosts_ports:
   skip:
-    reason: "Testcase ignored by simx in platform"
-    conditions_logical_operator: or
-    conditions:
-      - "'simx' in platform"
+    reason: "Testcase is skipped permanently as it checks dut-host connections and we plan to move to SSIM which won't have such connections directly"
 
 tests/nightly/show_techsupport/test_techsupport.py::test_techsupport_fw_stuck_dump:
   skip:

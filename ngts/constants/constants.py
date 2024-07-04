@@ -233,6 +233,7 @@ class AutonegCommandConstants:
         CABLE_SPEED: (r"Supported Cable Speed (?:\(Ext.\))?\s+:\s+0x[0-9a-z]+\s+\(([\w.,]+)\)",
                       None, None, None, None)
     }
+    PAM4_MIN_LANE_SPEED_MB = 50000
 
 
 class DefaultCredentialConstants:
@@ -864,36 +865,45 @@ class FecConstants:
                 }
             },
             SonicConst.FEC_RS_MODE: {
-                SonicConst.PORT_SPLIT_NUM_1: {'50G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_1: {'25G': ['CR'],
+                                              '50G': ['CR2'],
                                               '100G': ['CR2'],
                                               '200G': ['CR4'],
-                                              '400G': ['CR8']
+                                              '400G': ['CR8'],
                                               },
-                SonicConst.PORT_SPLIT_NUM_2: {'50G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_2: {'25G': ['CR'],
+                                              '50G': ['CR2'],
                                               '100G': ['CR2'],
-                                              '200G': ['CR4']
+                                              '200G': ['CR4'],
                                               },
-                SonicConst.PORT_SPLIT_NUM_4: {'50G': ['CR'],
-                                              '100G': ['CR2']
+                SonicConst.PORT_SPLIT_NUM_4: {'25G': ['CR'],
+                                              '50G': ['CR2'],
+                                              '100G': ['CR2'],
                                               },
-                SonicConst.PORT_SPLIT_NUM_8: {'50G': ['CR']
+                SonicConst.PORT_SPLIT_NUM_8: {'25G': ['CR'],
+                                              '50G': ['CR'],
                                               }
             },
             SonicConst.FEC_NONE_MODE: {
-                SonicConst.PORT_SPLIT_NUM_1: {'10G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_1: {'1G': ['CR'],
+                                              '10G': ['CR'],
                                               '25G': ['CR'],
                                               '40G': ['CR4'],
-                                              '50G': ['CR'],
-                                              '100G': ['CR2']
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
                                               },
-                SonicConst.PORT_SPLIT_NUM_2: {'10G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_2: {'1G': ['CR'],
+                                              '10G': ['CR'],
                                               '25G': ['CR'],
                                               '40G': ['CR4'],
-                                              '50G': ['CR']
+                                              '50G': ['CR2'],
+                                              '100G': ['CR4']
                                               },
-                SonicConst.PORT_SPLIT_NUM_4: {'10G': ['CR'],
+                SonicConst.PORT_SPLIT_NUM_4: {'1G': ['CR'],
+                                              '10G': ['CR'],
                                               '25G': ['CR'],
-                                              '50G': ['CR']
+                                              '40G': ['CR4'],
+                                              '50G': ['CR2']
                                               },
                 SonicConst.PORT_SPLIT_NUM_8: {'10G': ['CR'],
                                               '25G': ['CR']
@@ -901,6 +911,8 @@ class FecConstants:
             }
         }
     }
+    COPPER_TYPE_PREFIX = 'CR'
+    OPTIC_TYPE_PREFIX = 'SR'
 
 
 FEC_MODES_TO_ETHTOOL = {
