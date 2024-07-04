@@ -108,7 +108,7 @@ def test_platform_firmware_image_rename(engines, devices, topology_obj):
     _, fetched_image_name, _ = get_image_data_and_fetch_random_image_files(platform, dut, topology_obj)
     fetched_image_file = platform.firmware.asic.files.file_name[fetched_image_name]
     with allure.step("Rename image without mfa ending"):
-        if dut.asic_type == 'Quantum3':
+        if dut.asic_type == NvosConst.QTM3 or dut.asic_type == NvosConst.NVL5:
             platform.firmware.asic.action_fetch(f"{PlatformConsts.XDR_FW_PATH}/{fetched_image_name}").verify_result()
         else:
             platform.firmware.asic.action_fetch(f"{PlatformConsts.FW_PATH}/{fetched_image_name}").verify_result()

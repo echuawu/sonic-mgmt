@@ -679,7 +679,6 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.reset_factory = 'julietscaleout reset factory'
         self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
-        self.ssd_image = None
         self.category_list = ['temperature', 'cpu', 'disk', 'fan', 'mgmt-interface', 'voltage']
         self.voltage_sensors = [
             "HSC-VinDC-In",

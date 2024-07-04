@@ -15,7 +15,7 @@ from ngts.nvos_tools.platform.Platform import Platform
 from ngts.tools.test_utils import allure_utils as allure
 
 logger = logging.getLogger()
-BMC_FW_LOCATION = '/auto/sw_system_release/bmc/juliet/'
+BMC_FW_LOCATION = '/auto/mswg/release/bmc/juliet/'
 
 
 @pytest.mark.bmc
@@ -129,6 +129,8 @@ def _fetch_image(expected_version_path, fae, image_filename, initial_files):
 def _get_initial_version_path(fw_files_path, platform):
     with allure.step("Get BMC name and verify we have an image for it"):
         initial_version = _get_bmc_firmware_actual_version(platform)
+        initial_version = initial_version.split('-')[0]  # This line needs to be removed. Currently file name and version are not the same.
+        # /auto/mswg/release/bmc/juliet/V.88.0002.0453/cec1736-apfw-4fe5-transition.fwpkg  but name version is actually 88.0002.0453-001
         initial_version_path_list = [file for file in fw_files_path if initial_version in file]
         assert len(
             initial_version_path_list) > 0, f"Can't run test because there's no image file for restoring to the currently-"
@@ -140,7 +142,7 @@ def _get_initial_version_path(fw_files_path, platform):
 def _get_fw_images_paths():
     with allure.step('Verify fw images we have'):
         fw_files_path = glob.glob(f"{BMC_FW_LOCATION}/**/*.fwpkg", recursive=True)
-        fw_files_path = [file for file in fw_files_path if 'transition' not in file]
+        # fw_files_path = [file for file in fw_files_path if 'transition' not in file] CURRENT BMC VERSION IS TRANSITION. So commenting out this line
         assert len(fw_files_path) > 0, "No fw images found to install"
     return fw_files_path
 
