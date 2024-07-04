@@ -3811,7 +3811,7 @@
   topo: t0
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3824,7 +3824,7 @@
   topo: t0-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3837,7 +3837,7 @@
   topo: t1
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3850,7 +3850,7 @@
   topo: t1-lag
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3863,7 +3863,7 @@
   topo: ptf32
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3876,7 +3876,7 @@
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-03
-  ptf_ip: 10.245.34.122/16
+  ptf_ip: 10.245.34.122/20
   ptf_ipv6:
   server: server_73
   vm_base: VM3801
@@ -3889,7 +3889,7 @@
   topo: t0
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
@@ -3902,7 +3902,7 @@
   topo: t0-64
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
@@ -3915,7 +3915,7 @@
   topo: t1
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
@@ -3928,7 +3928,7 @@
   topo: t1-lag
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
@@ -3941,7 +3941,7 @@
   topo: ptf32
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
@@ -3954,7 +3954,7 @@
   topo: ptf-any
   ptf_image_name: docker-ptf-mlnx
   ptf: ptf-mtvr-hippo-02
-  ptf_ip: 10.245.34.182/16
+  ptf_ip: 10.245.34.182/20
   ptf_ipv6:
   server: server_81
   vm_base: VM4601
