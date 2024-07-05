@@ -362,6 +362,12 @@ tests/nightly/secure/test_secure_boot/test_secure_boot.py::test_secure_corrupt_f
     conditions:
       - "https://redmine.mellanox.com/issues/3924730"
 
+tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3976522"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3976522"
+
 ########################## NGTS IGNORE END ##########################
 
 
