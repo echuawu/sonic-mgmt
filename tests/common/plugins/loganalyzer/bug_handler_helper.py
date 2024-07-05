@@ -10,7 +10,7 @@ import pathlib
 from retry.api import retry
 
 from tests.common.plugins.allure_wrapper import allure_step_wrapper as allure
-from ngts.constants.constants import BugHandlerConst, InfraConst, NvosCliTypes
+from ngts.constants.constants import BugHandlerConst, InfraConst, NvosCliTypes, FILE_INCLUDE_FAILED_SANITY_CHECKER_CASE
 from ngts.nvos_constants.constants_nvos import SystemConsts
 
 from ngts.helpers.bug_handler.bug_handler_helper import create_session_tmp_folder, clear_files, bug_handler_wrapper_err_msg, \
@@ -110,6 +110,9 @@ def skip_loganalyzer_bug_handler(duthost, request):
     log_errors_dir_path = Path(BugHandlerConst.LOG_ERRORS_DIR_PATH.format(hostname=hostname))
 
     def _skip_loganalyzer_bug_handler(duthost, request):
+        if Path(FILE_INCLUDE_FAILED_SANITY_CHECKER_CASE).exists():
+            logger.info("Skip bug handler due to sanity checker fail")
+            return True
         if not request:
             logger.warning("Skip the loganalyzer bug handler, To run the it, "
                            "'request' is needed when create LogAnalyzer")

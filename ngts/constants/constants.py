@@ -1572,3 +1572,4 @@ class PerfConsts:
 
 
 SETUPS_WITH_NON_DEFAULT_PTF = ['r-panther-40', 'r-panther-42', 'r-bobcat-01']
+FILE_INCLUDE_FAILED_SANITY_CHECKER_CASE = "/tmp/file_include_failed_sanity_checker_case.txt"

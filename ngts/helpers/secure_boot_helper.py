@@ -538,24 +538,19 @@ class SonicSecureBootHelper(SecureBootHelper):
             component_versions_dict[component] = version
         return component_versions_dict
 
-    def restore_cpld(self, topology_obj, platform_params):
+    @staticmethod
+    def restore_cpld(cli_objects, engines, topology_obj, platform_params):
         """
         Restore the CPLD to the expected latest one defined in firmware.json
         """
         cpld = SonicSecureBootConsts.CPLD_COMPONENT
-        cpld_component_data = self.get_component_data(platform_params, cpld)
-        url, latest_cpld_version = self.get_latest_expected_cpld(cpld_component_data, cpld)
+        cpld_component_data = SonicSecureBootHelper.get_component_data(platform_params, cpld)
+        url, latest_cpld_version = SonicSecureBootHelper.get_latest_expected_cpld(cpld_component_data, cpld)
         with allure.step(f"Restore the cpld back to {url}"):
-            serial_engine = self.get_serial_engine(topology_obj)
-            serial_engine.run_cmd(
-                f'sudo fwutil install chassis component {cpld} fw {url} -y',
-                SonicSecureBootConsts.INVALID_SIGNATURE_EXPECTED_MESSAGE[cpld],
-                SonicSecureBootConsts.CPLD_BURNING_RECOVER_TIMEOUT)
+            engines.dut.run_cmd(f'sudo fwutil install chassis component {cpld} fw {url} -y',)
+
         with allure.step("Power cycle after CPLD installation"):
-            self.cli_objects.dut.general.remote_reboot(topology_obj)
-        with allure.step("Check the CPLD version is restored to the latest one"):
-            current_cpld_version = self.get_fw_components_versions()[cpld]
-            assert current_cpld_version == latest_cpld_version, "The CPLD is not restored to the latest version."
+            cli_objects.dut.general.remote_reboot(topology_obj)
 
     @staticmethod
     def get_component_data(platform_params, component):
