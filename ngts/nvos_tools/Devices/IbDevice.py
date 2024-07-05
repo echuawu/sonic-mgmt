@@ -1,24 +1,22 @@
-from typing import List
-
 import logging
 import os
 import time
 from collections import namedtuple
+from typing import List
 
-import ngts.tests_nvos.general.security.tpm_attestation.constants as TpmConsts
 from ngts.nvos_constants.constants_nvos import HealthConsts, MultiPlanarConsts, PlatformConsts
 from ngts.nvos_constants.constants_nvos import (NvosConst, DatabaseConst, IbConsts, StatsConsts, FansConsts,
-                                                SystemConsts, DocumentsConsts)
+                                                DocumentsConsts)
 from ngts.nvos_tools.Devices.BaseDevice import BaseSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.Port import Port
 from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.DutUtilsTool import DutUtilsTool
 from ngts.nvos_tools.infra.OutputParsingTool import OutputParsingTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
+from ngts.nvos_tools.infra.Tools import Tools
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
 from ngts.tests_nvos.general.security.security_test_tools.constants import AaaConsts
 from ngts.tools.test_utils.nvos_general_utils import get_version_info
-from ngts.nvos_tools.infra.Tools import Tools
 
 logger = logging.getLogger()
 
@@ -426,7 +424,6 @@ class GorillaSwitch(IbSwitch):
         self.stats_fan_header_num_of_lines = 25
         self.stats_power_header_num_of_lines = 13
         self.stats_temperature_header_num_of_lines = 53
-        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
 
     def get_mgmt_ports(self) -> List[str]:
         return self.mgmt_ports
@@ -756,7 +753,6 @@ class JulietScaleoutSwitch(JulietSwitch):
         # self.stats_fan_header_num_of_lines = 25
         # self.stats_power_header_num_of_lines = 13
         # self.stats_temperature_header_num_of_lines = 53
-        self.supported_tpm_attestation_algos = [TpmConsts.SHA256]
         # Port 1-36 is from asic1/ Port 37-72 is from asic2
         self.nvl5_access_ports_list = ['acp1', 'acp2', 'acp3', 'acp4', 'acp5', 'acp6',
                                        'acp7', 'acp8', 'acp9', 'acp10', 'acp11', 'acp12', 'acp13', 'acp14',
