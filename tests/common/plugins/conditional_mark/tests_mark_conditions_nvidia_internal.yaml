@@ -863,9 +863,11 @@ dash/crm/test_dash_crm.py::TestDashCRM::test_dash_crm_cleanup:
 
 platform_tests/test_advanced_reboot.py::test_warm_reboot:
   xfail:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3836756 and '2700' in platform or due to RM 3976522"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3836756 and '2700' in platform"
+      - "https://redmine.mellanox.com/issues/3976522"
 
 dash/test_dash_vnet.py::test_outbound_vnet_direct:
   skip:
