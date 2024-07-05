@@ -1324,10 +1324,10 @@ class SonicGeneralCliDefault(GeneralCliCommon):
     def is_supported_split_mode(self, hwsku, split_num):
         split_supported_without_unmap = self.is_platform_supports_split_without_unmap(hwsku) or split_num == 2
         platform_not_sn3800 = not re.search("SN3800", hwsku)
-        split_supported_on_sn5600 = True
-        if re.search("SN5600", hwsku) and split_num == 8:
-            split_supported_on_sn5600 = False
-        return split_supported_without_unmap and platform_not_sn3800 and split_supported_on_sn5600
+        split_supported_on_sn5 = True
+        if re.search("SN5[46]00", hwsku) and split_num == 8:
+            split_supported_on_sn5 = False
+        return split_supported_without_unmap and platform_not_sn3800 and split_supported_on_sn5
 
     def update_breakout_mode_for_split_ports(self, split_ports_for_update, hwsku, breakout_cfg_dict,
                                              config_db_json, parsed_platform_json_by_breakout_modes):
