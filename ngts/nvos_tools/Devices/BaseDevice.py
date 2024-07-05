@@ -7,6 +7,7 @@ from typing import Tuple, List
 
 from ngts.nvos_constants.constants_nvos import DatabaseConst, FansConsts, NvosConst, PlatformConsts, SystemConsts, \
     DiskConsts
+from ngts.nvos_tools.ib.InterfaceConfiguration.nvos_consts import IbInterfaceConsts
 from ngts.nvos_tools.infra.DatabaseTool import DatabaseTool
 from ngts.nvos_tools.infra.ResultObj import ResultObj
 from ngts.nvos_tools.infra.ValidationTool import ExpectedString
@@ -72,7 +73,6 @@ class BaseDevice(ABC):
         self.mst_dev_name = ""
         self.constants = None
         self.voltage_sensors = []
-        self.supported_tpm_attestation_algos = []
 
     def _init_fan_list(self):
         self.fan_list = []

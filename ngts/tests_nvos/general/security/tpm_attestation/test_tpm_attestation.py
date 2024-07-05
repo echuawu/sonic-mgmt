@@ -1,3 +1,5 @@
+import random
+
 import pytest
 
 from ngts.nvos_constants.constants_nvos import ApiType
@@ -83,23 +85,26 @@ def test_generate_quote_bad_param(test_api, engines):
 
     with allure.step('attempt generate quote with bad param, expect error'):
         tpm = System().security.tpm
+        valid_algo = random.choice(list(SUPPORTED_ALGORITHMS))
+        invalid_algo = random.choice(list(UNSUPPORTED_ALGORITHMS))
         # empty param
         tpm.action_generate_quote().verify_result(False)
         tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM).verify_result(False)
-        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, algorithm=SHA256).verify_result(False)
+        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, algorithm=valid_algo).verify_result(False)
         tpm.action_generate_quote(nonce=VALID_NONCE_PARAM).verify_result(False)
-        tpm.action_generate_quote(nonce=VALID_NONCE_PARAM, algorithm=SHA256).verify_result(False)
+        tpm.action_generate_quote(nonce=VALID_NONCE_PARAM, algorithm=valid_algo).verify_result(False)
         # bad param
         bad = 'zz'
         tpm.action_generate_quote(pcrs=bad, nonce=VALID_NONCE_PARAM).verify_result(False)
-        tpm.action_generate_quote(pcrs=bad, nonce=VALID_NONCE_PARAM, algorithm=SHA256).verify_result(False)
+        tpm.action_generate_quote(pcrs=bad, nonce=VALID_NONCE_PARAM, algorithm=valid_algo).verify_result(False)
         tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=bad).verify_result(False)
-        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=bad, algorithm=SHA256).verify_result(False)
+        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=bad, algorithm=valid_algo).verify_result(False)
         tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=VALID_NONCE_PARAM, algorithm=bad).verify_result(False)
+        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=VALID_NONCE_PARAM, algorithm=invalid_algo).verify_result(False)
         # too large nonce
         long_str = ''.join(['a' for _ in range(MAX_CHARS_NONCE + 1)])
         tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=long_str).verify_result(False)
-        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=long_str, algorithm=SHA256).verify_result(False)
+        tpm.action_generate_quote(pcrs=VALID_PCRS_PARAM, nonce=long_str, algorithm=valid_algo).verify_result(False)
     with allure.step('verify no quote file generated'):
         verify_only_aik_at_tpm_dir(engines)
 
@@ -119,8 +124,8 @@ def test_generate_quote(test_api, engines, devices):
 
     with allure.step('generate quote'):
         tpm = System().security.tpm
-        tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
-        for valid_algo in devices.dut.supported_tpm_attestation_algos:
+        tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
+        for valid_algo in list(SUPPORTED_ALGORITHMS):
             tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=valid_algo).verify_result()
     with allure.step('verify quote file generated'):
         tpm_files = TpmTool(engines.dut).get_files_in_tpm_dir()
@@ -145,7 +150,7 @@ def test_upload_quote(test_api, engines, remote_engine):
 
     with allure.step('generate quote'):
         tpm = System().security.tpm
-        tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
+        tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
     with allure.step('upload quote'):
         tpm.action_upload(QUOTE_FILENAME, get_scp_url(remote_engine, QUOTE_FILENAME)).verify_result()
     with allure.step('sanity check for uploaded file'):
@@ -167,7 +172,7 @@ def test_generate_quote_overrides_file(engines):
         engines.dut.run_cmd(f'echo {dummy_quote_content} > /tmp/{QUOTE_FILENAME}')
         engines.dut.run_cmd(f'sudo mv /tmp/{QUOTE_FILENAME} {QUOTE_FILE_PATH}')
     with allure.step('generate quote again'):
-        System().security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
+        System().security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
     with allure.step('verify the original quote file was overridden'):
         cur_quote_content = TpmTool(engines.dut).get_quote_file_content()
         assert cur_quote_content != dummy_quote_content, \
@@ -197,7 +202,7 @@ def test_tpm_reboot_cases(engines, devices, save_local_timezone):
             aik_time1 = get_file_creation_time(engines.dut, AIK_FILE_PATH)
         with allure.step('generate quote'):
             system = System()
-            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
+            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
             quote_time1 = get_file_creation_time(engines.dut, QUOTE_FILE_PATH)
     with allure.step('reboot'):
         system.action('reboot', 'force', expect_reboot=True, output_format='')
@@ -234,7 +239,7 @@ def test_tpm_upgrade_cases(engines, devices):
     with allure.step('before upgrade steps'):
         with allure.step('generate quote'):
             system = System()
-            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM, algorithm=SHA256).verify_result()
+            system.security.tpm.action_generate_quote(VALID_PCRS_PARAM, VALID_NONCE_PARAM).verify_result()
     with allure.step('upgrade'):
         pass  # TODO: understand how
     with allure.step('checks after upgrade'):
