@@ -1309,6 +1309,14 @@ platform_tests/test_sequential_restart.py:
     conditions:
       - "'simx' in platform"
 
+platform_tests/test_sequential_restart.py::test_restart_swss:
+  skip:
+    reason: "Skipped due to RM 3816778 on r-anaconda-15 or RM https://redmine.mellanox.com/issues/3976564 on r-moose-02"
+    conditions_logical_operator: or
+    conditions:
+    - "https://redmine.mellanox.com/issues/3816778 and 'r-anaconda-15' in testbed"
+    - "https://redmine.mellanox.com/issues/3976564 and 'r-moose-02' in testbed"
+
 platform_tests/cli/test_show_platform.py::test_show_platform_syseeprom:
   skip:
     reason: "When deploying image, Simx will generate dynamic MAC"
