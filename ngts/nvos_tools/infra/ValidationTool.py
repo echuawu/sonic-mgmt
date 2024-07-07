@@ -166,10 +166,10 @@ class ValidationTool:
         result_obj = ResultObj(False, "")
         if value1 == value2:
             result_obj = ResultObj(True, "The values are equal", True) if should_equal else \
-                ResultObj(False, "The values are equal while they shouldn't", False)
+                ResultObj(False, f"The values are equal while they shouldn't\n both values: {value1}", False)
         else:
             result_obj = ResultObj(True, "The values are not equal as expected", True) if not should_equal else \
-                ResultObj(False, "The values are not equal while they should", False)
+                ResultObj(False, f"The values are not equal while they should \n value1: {value1}\nvalue2: {value2}", False)
         return result_obj
 
     @staticmethod

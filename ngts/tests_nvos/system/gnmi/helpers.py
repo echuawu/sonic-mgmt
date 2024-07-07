@@ -340,14 +340,14 @@ def validate_redis_cli_and_gnmi_commands_results(engines, devices, gnmi_list, al
             redis_output = str(sorted(redis_output.split(',')))
             gnmi_client_output = str(sorted(gnmi_client_output.split(',')))
         if command[GnmiConsts.COMPARISON_KEY]:
-            assert gnmi_client_output.lower() == command[GnmiConsts.COMPARISON_KEY][redis_output].lower()
+            Tools.ValidationTool.compare_values(gnmi_client_output.lower(), command[GnmiConsts.COMPARISON_KEY][redis_output].lower()).verify_result()
         elif allowed_range_in_bytes is not None:
             result = abs(int(gnmi_client_output) - int(redis_output))
             assert 0 <= result <= allowed_range_in_bytes, (
                 f"gNMI output: {gnmi_client_output} is not within {allowed_range_in_bytes} to "
                 f"redis output:{redis_output} for field: {prefix_and_path[1]}")
         else:
-            assert gnmi_client_output.lower() == redis_output.lower()
+            Tools.ValidationTool.compare_values(gnmi_client_output.lower(), redis_output.lower()).verify_result()
 
 
 def verify_description_value(output, expected_description):
