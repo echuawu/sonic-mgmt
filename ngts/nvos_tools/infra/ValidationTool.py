@@ -329,11 +329,11 @@ class ValidationTool:
                 engine.run_cmd('sudo rm -rf ' + zipped_folder_path + '/' + path.split('/')[1])
 
             with allure.step('Validate that all expected files are exist and nothing more'):
-                files = [file for file in output if file not in files_list]
+                files = [file for file in files_list if file not in output]
                 if len(files):
                     return ResultObj(False, "the next files are missed {files}".format(files=files))
 
-                files = [file for file in files_list if file not in output]
+                files = [file for file in output if file not in files_list]
                 if len(files):
                     logger.warning(
                         "the next files are in the dump folder but not in our check list {files}".format(files=files))

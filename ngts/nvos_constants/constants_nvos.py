@@ -712,7 +712,8 @@ class IbConsts:
     IBDIAGNET_EXPECTED_FILES_LIST = ['ibdiagnet2.db_csv', 'ibdiagnet2.ibnetdiscover', 'ibdiagnet2.log',
                                      'ibdiagnet2.lst',
                                      'ibdiagnet2.net_dump', 'ibdiagnet2.nodes_info', 'ibdiagnet2.pkey', 'ibdiagnet2.pm',
-                                     'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey']
+                                     'ibdiagnet2.sm', 'ibdiagnet2.vports', 'ibdiagnet2.vports_pkey',
+                                     'ibdiagnet2.debug', 'ibdiagnet2.net_dump_ext']
     IBDIAGNET_EXPECTED_MESSAGE = 'ibdiagnet output files were archived into ibdiagnet2_output.tgz'
     IB_INTERFACE_NAME_REGEX = "([a-zA-Z]+)(\d+)(p\d+)"  # noqa: E402
 

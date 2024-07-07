@@ -1083,6 +1083,7 @@ def test_override_default_rule(engines, topology_obj):
 def get_rule_packets(mgmt_port, acl_id, rule_id=None, rule_direction=AclConsts.INBOUND):
     output = mgmt_port.interface.acl.acl_id[acl_id].parse_show()
     res = {}
+    assert AclConsts.STATISTICS in output.keys(), f"{AclConsts.STATISTICS} is not found in the output"
     if rule_id:
         res[rule_id] = int(output[AclConsts.STATISTICS][rule_id][rule_direction]["packet"])
     else:
