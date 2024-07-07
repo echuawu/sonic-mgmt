@@ -443,7 +443,7 @@ class GorillaSwitch(IbSwitch):
         self.platform_environment_absent_fan_values = {
             "state": FansConsts.STATE_ABSENT, "direction": "N/A", "current-speed": "N/A",
             "min-speed": "N/A", "max-speed": "N/A"}
-        self.platform_inventory_switch_values.update({"hw-version": None,
+        self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": ExpectedString(regex="MQM9700.*")})
 
 
@@ -542,7 +542,7 @@ class BlackMambaSwitch(IbSwitch):
             "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hw-version": None,
+        self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": None})
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
@@ -613,7 +613,7 @@ class CrocodileSwitch(IbSwitch):
             "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hw-version": None,
+        self.platform_inventory_switch_values.update({"hardware-version": None,
                                                       "model": None})
 
 
@@ -796,6 +796,7 @@ class JulietScaleoutSwitch(JulietSwitch):
 
     def _init_fan_list(self):
         super()._init_fan_list()
+        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2", "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
         self.fan_led_list = []
 
     def _init_psu_list(self):
@@ -811,8 +812,8 @@ class JulietScaleoutSwitch(JulietSwitch):
             "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hw-version": None,
-                                                      "model": ExpectedString(regex="N5110_LD.*")})
+        self.platform_inventory_switch_values.update({"hardware-version": 'A2',
+                                                      "model": ExpectedString(regex="692-9K36F-00MV-JS0")})
 
     def sleep_after_system_reboot(self):
         logger.info("Sleeping for 80 seconds - Reboot takes longer on juliet for now")
@@ -839,6 +840,7 @@ class JulietTTMSwitch(JulietScaleoutSwitch):
         super()._init_constants()
 
     def _init_fan_list(self):
+        super()._init_fan_list()
         self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2"]
         self.fan_led_list = []
 
@@ -898,7 +900,7 @@ class JulietNonScaleoutSwitch(JulietScaleoutSwitch):
         })
 
     def _init_fan_list(self):
-        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2"]
+        self.fan_list = ["FAN1/1", "FAN1/2", "FAN2/1", "FAN2/2", "FAN3/1", "FAN3/2", "FAN4/1", "FAN4/2", "FAN5/1", "FAN5/2", "FAN6/1", "FAN6/2"]
         self.fan_led_list = []
 
     def _init_platform_lists(self):
@@ -907,8 +909,8 @@ class JulietNonScaleoutSwitch(JulietScaleoutSwitch):
             "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hw-version": None,
-                                                      "model": ExpectedString(regex="N5100_LD.*")})
+        self.platform_inventory_switch_values.update({"hardware-version": None,
+                                                      "model": ExpectedString(regex="692-9K36F-00MV-JS0")})
 
 # -------------------------- Caiman Switch ----------------------------
 
