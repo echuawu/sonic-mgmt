@@ -675,6 +675,7 @@ class JulietScaleoutSwitch(JulietSwitch):
         self.asic_type = NvosConst.NVL5
         self.reboot_type = 'julietscaleout_reboot'
         self.reset_factory = 'julietscaleout reset factory'
+        self.generate_tech_support = 'julietscaleout generate_tech_support'
         self.core_count = 8
         self.constants.firmware.extend([PlatformConsts.FW_FPGA, PlatformConsts.FW_BMC])
         self.category_list = ['temperature', 'cpu', 'disk', 'fan', 'mgmt-interface', 'voltage']
@@ -823,7 +824,7 @@ class JulietScaleoutSwitch(JulietSwitch):
         return 'nvos_config_nvl5.yml'
 
     def wait_for_os_to_become_functional(self, engine, find_prompt_tries=60, find_prompt_delay=10):
-        logger.info("Sleeping for 300 seconds - Since bios update on juliet enters ONIE Update menu and takes longer")
+        logger.info("Sleeping for 300 seconds - Reload on juliet takes longer until ready stater")
         time.sleep(300)
         DutUtilsTool.check_ssh_for_authentication_error(engine, self)
         return DutUtilsTool.wait_for_nvos_to_become_functional(engine)

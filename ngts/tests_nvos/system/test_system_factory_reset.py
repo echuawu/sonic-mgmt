@@ -2,6 +2,7 @@ import pytest
 
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.nvos_tools.cli_coverage.operation_time import OperationTime
+from ngts.nvos_tools.Devices.IbDevice import JulietSwitch
 from ngts.nvos_tools.ib.InterfaceConfiguration.MgmtPort import MgmtPort
 from ngts.nvos_tools.infra.NvosTestToolkit import TestToolkit
 from ngts.tests_nvos.system.factory_reset.helpers import *
@@ -56,13 +57,13 @@ def test_reset_factory_without_params(engines, devices, topology_obj, platform_p
             verify_cleanup_done(engines.dut, current_time, system, username)
 
         with allure.step("Verify the setup is functional"):
-            verify_the_setup_is_functional(system, engines, had_sm_before_test)
+            verify_the_setup_is_functional(system, engines, had_sm_before_test=had_sm_before_test, dut=devices.dut)
 
 
 @pytest.mark.system
 @pytest.mark.checklist
 @pytest.mark.reset_factory
-def test_reset_factory_keep_basic(engines):
+def test_reset_factory_keep_basic(engines, devices):
     """
     Validate reset factory with keep basic param cleanup done as expected
 
@@ -88,10 +89,12 @@ def test_reset_factory_keep_basic(engines):
         date_time_str = engines.dut.run_cmd("date").split(" ", 1)[1]
         current_time = datetime.strptime(date_time_str, '%d %b %Y %H:%M:%S %p %Z')
 
-        with allure.step('Validate health status is OK'):
-            logger.info("Validate health status is OK")
-            system.validate_health_status(HealthConsts.OK)
-            last_status_line = system.health.history.retry_get_health_history_file_summary_line()
+        with allure.step('Check is Juliet Device'):
+            if not isinstance(devices.dut, JulietSwitch):
+                with allure.step('Validate health status is OK'):
+                    logger.info("Validate health status is OK")
+                    system.validate_health_status(HealthConsts.OK)
+                    last_status_line = system.health.history.retry_get_health_history_file_summary_line()
 
         with allure.step('Set description to eth0 port'):
             logger.info("Set description to eth0 port")
@@ -130,7 +133,7 @@ def test_reset_factory_keep_basic(engines):
         update_timezone(system)
 
         with allure.step("Verify the setup is functional"):
-            verify_the_setup_is_functional(system, engines)
+            verify_the_setup_is_functional(system, engines, had_sm_before_test=True, dut=devices.dut)
 
 
 @pytest.mark.system
@@ -216,7 +219,7 @@ def test_reset_factory_keep_all_config(engines, devices):
             verify_cleanup_done(engines.dut, current_time, system, username, param=KEEP_ALL_CONFIG)
 
         with allure.step("Verify the setup is functional"):
-            verify_the_setup_is_functional(system, engines)
+            verify_the_setup_is_functional(system, engines, had_sm_before_test=True, dut=devices.dut)
 
 
 @pytest.mark.system
@@ -300,7 +303,7 @@ def test_reset_factory_keep_only_files(engines, devices):
             verify_cleanup_done(engines.dut, current_time, system, username, param=KEEP_ONLY_FILES)
 
         with allure.step("Verify the setup is functional"):
-            verify_the_setup_is_functional(system, engines)
+            verify_the_setup_is_functional(system, engines, had_sm_before_test=True, dut=devices.dut)
 
 
 @pytest.mark.system

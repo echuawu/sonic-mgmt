@@ -995,7 +995,8 @@ class OperationTimeConsts:
                   'reboot with default FW installation': 360,
                   'reboot with new user FW': 450,
                   'set hostname': 12,
-                  'generate tech-support': 75}
+                  'generate tech-support': 75,
+                  'julietscaleout generate_tech_support': 100}
 
 
 class StatsConsts:
