@@ -443,7 +443,7 @@ class GorillaSwitch(IbSwitch):
         self.platform_environment_absent_fan_values = {
             "state": FansConsts.STATE_ABSENT, "direction": "N/A", "current-speed": "N/A",
             "min-speed": "N/A", "max-speed": "N/A"}
-        self.platform_inventory_switch_values.update({"hardware-version": None,
+        self.platform_inventory_switch_values.update({"hw-version": None,
                                                       "model": ExpectedString(regex="MQM9700.*")})
 
 
@@ -542,7 +542,7 @@ class BlackMambaSwitch(IbSwitch):
             "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hardware-version": None,
+        self.platform_inventory_switch_values.update({"hw-version": None,
                                                       "model": None})
 
     def _relevant_config_filename_by_version(self, version: str) -> str:
@@ -613,7 +613,7 @@ class CrocodileSwitch(IbSwitch):
             "state": FansConsts.STATE_OK.lower(), "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hardware-version": None,
+        self.platform_inventory_switch_values.update({"hw-version": None,
                                                       "model": None})
 
 
@@ -811,7 +811,7 @@ class JulietScaleoutSwitch(JulietSwitch):
             "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hardware-version": None,
+        self.platform_inventory_switch_values.update({"hw-version": None,
                                                       "model": ExpectedString(regex="N5110_LD.*")})
 
     def sleep_after_system_reboot(self):
@@ -907,7 +907,7 @@ class JulietNonScaleoutSwitch(JulietScaleoutSwitch):
             "state": FansConsts.STATE_OK, "direction": None, "current-speed": None,
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
-        self.platform_inventory_switch_values.update({"hardware-version": None,
+        self.platform_inventory_switch_values.update({"hw-version": None,
                                                       "model": ExpectedString(regex="N5100_LD.*")})
 
 # -------------------------- Caiman Switch ----------------------------

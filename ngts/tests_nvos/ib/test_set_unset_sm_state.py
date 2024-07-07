@@ -15,7 +15,7 @@ logger = logging.getLogger()
 
 @pytest.mark.ib
 @pytest.mark.sm
-def test_show_ib_sm_default_values(engines):
+def test_show_ib_sm_default_values(engines, devices):
     """
     Test flow:
         1. Select all ports in state Active or initialize
@@ -32,9 +32,10 @@ def test_show_ib_sm_default_values(engines):
         12. for each port in the list set state to up (as a clean up step)
     """
     ib = Ib(None)
+    switch_type = devices.dut.switch_type.lower()
     with allure.step('get all active or initialize ports'):
         active_ports = \
-            Tools.RandomizationTool.select_random_ports(num_of_ports_to_select=0,
+            Tools.RandomizationTool.select_random_ports(requested_ports_type=switch_type, num_of_ports_to_select=0,
                                                         requested_ports_logical_state=NvosConsts.LINK_LOG_STATE_ACTIVE).get_returned_value()
 
     with allure.step('verify ib sm default values'):

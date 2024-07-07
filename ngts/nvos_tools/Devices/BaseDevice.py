@@ -356,15 +356,15 @@ class BaseSwitch(BaseDevice):
         self.fan_prop_auto = {"Fan State": "state", "Current Speed (RPM)": "current-speed",
                               "Fan Direction": "direction"}
         self.platform_inventory_items = self.fan_list + self.psu_list + [PlatformConsts.HW_COMP_SWITCH]
-        self.platform_inventory_fields = ["hardware-version", "model", "serial", "state", "type"]
+        self.platform_inventory_fields = ["hw-version", "model", "serial", "state", "type"]
         self.platform_inventory_fan_values = {
-            "hardware-version": NvosConst.NOT_AVAILABLE, "model": NvosConst.NOT_AVAILABLE,
+            "hw-version": NvosConst.NOT_AVAILABLE, "model": NvosConst.NOT_AVAILABLE,
             "serial": NvosConst.NOT_AVAILABLE, "state": FansConsts.STATE_OK, "type": PlatformConsts.ENV_FAN}
         self.platform_inventory_psu_values = {
-            "hardware-version": None, "model": None,
+            "hw-version": None, "model": None,
             "serial": None, "state": FansConsts.STATE_OK, "type": PlatformConsts.ENV_PSU}
         self.platform_inventory_switch_values = {
-            "hardware-version": "", "model": "",  # update these in subclasses
+            "hw-version": "", "model": "",  # update these in subclasses
             "serial": None, "state": FansConsts.STATE_OK, "type": PlatformConsts.HW_COMP_SWITCH.lower()}
 
     def _init_fan_direction_dir(self):
