@@ -843,7 +843,7 @@ class NtpConsts:
 
     INVALID_STATE = 'enable1'
     INVALID_AUTHENTICATION = 'disable1'
-    INVALID_LISTEN = 'eth1'
+    INVALID_LISTEN = 'invalid_eth'
     INVALID_DHCP = 'enabled1'
     INVALID_VRF = 'temp_str'
     INVALID_HIGHER_KEY = '65536'
