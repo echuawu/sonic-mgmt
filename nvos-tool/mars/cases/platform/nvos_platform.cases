@@ -121,9 +121,6 @@
     </cmd>
   </case>
 
-<<<<<<< HEAD   (cc7b96 add xfail for test_ram_usage due to RM 3956760)
-</CASEDEF>
-=======
   <case>
     <name> BMC Leakage sensor </name>
     <info> </info>
@@ -136,4 +133,3 @@
   </case>
 
 </CASEDEF>
->>>>>>> CHANGE (f47c11 added BMC leakage tests)
