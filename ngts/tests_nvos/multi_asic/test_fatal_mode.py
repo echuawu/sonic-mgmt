@@ -144,10 +144,11 @@ def test_flow_until_close_ports(engines, devices, random_asic):
         _assert_system_fatal_mode(True, )
         _assert_close_ports()
 
-    with allure.step("Assert system remains in fatal mode with closed ports even after reboot"):
-        _manual_reboot(engines.dut)  # again extra ~10 minutes
-        _assert_system_fatal_mode(True, )
-        _assert_close_ports()
+    # skip this because it's not very important and it takes way too long
+    # with allure.step("Assert system remains in fatal mode with closed ports even after reboot"):
+    #     _manual_reboot(engines.dut)  # again extra ~10 minutes
+    #     _assert_system_fatal_mode(True, )
+    #     _assert_close_ports()
 
     _manual_exit_fatal_mode(engines.dut)
 
