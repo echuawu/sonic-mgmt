@@ -685,6 +685,12 @@ class PlatformConsts:
     INSERTED = 'Inserted'
     TRANSCEIVER_CABLE_TYPE = 'cable-type'
     TRANSCEIVER_CABLE_OPTICAL_MODULE = 'Optical module'
+    TRANSCEIVER_CABLE_COPPER_CABLE = 'Copper cable'
+    CHASSIS_LOCATION_TRAY_ID = 'tray-index'
+    CHASSIS_LOCATION_SLOT_ID = 'slot-index'
+    CHASSIS_LOCATION_CHAS_ID = 'chassis-id'
+    CHASSIS_LOCATION_TOPO_ID = 'topology-id'
+    CHASSIS_LOCATION_STANDALONE_DICT = {CHASSIS_LOCATION_TRAY_ID: '0'}
 
 
 class FansConsts:

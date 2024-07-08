@@ -370,6 +370,12 @@ tests_nvos/platform/test_platform_firmware.py::test_show_platform_firmware:
       - "'gorilla' not in testbed"
       - https://redmine.mellanox.com/issues/3956092
 
+tests_nvos/platform/test_platform.py::test_show_platform_chassis_location:
+  skip:
+    reason: "Testcase skipped on non Juliet systems, Juliet feature only (as a part of Uberon)"
+    conditions:
+      - "'juliet' not in testbed"
+
 tests_nvos/interfaces/test_ib_interface_configuration.py::test_ib_interface_lanes:
   skip:
     reason: "Testcase skipped on XDR systems"
