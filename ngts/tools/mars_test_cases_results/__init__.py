@@ -130,6 +130,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
 
     json_obj = []
     report_url = config.cache.get(ALLURE_REPORT_URL, '')
+    if report_url is None:
+        report_url = ''
     session_id = config.cache.get(SESSION_ID, None)
     setup_name = config.cache.get(SETUP_NAME, '')
     mars_key_id = config.cache.get(MARS_KEY_ID, '')
