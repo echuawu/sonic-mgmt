@@ -295,9 +295,11 @@ tests/nightly/evpn_vxlan/test_evpn_vxlan_type5/test_evpn_vxlan_type5.py::TestEvp
 
 tests/nightly/auto_negotition/test_auto_neg_scale.py::TestAutoNegScale::test_scale:
   skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3518706 on MSN4410"
+    reason: "Testcase ignored due to RM issue 3518706 on MSN4410 or due to RM 3980661 on r-alligator-04"
+    conditions_logical_operator: or
     conditions:
       - "https://redmine.mellanox.com/issues/3518706 and 'msn4410' in platform"
+      - "https://redmine.mellanox.com/issues/3980661 and 'r-alligator-04' in testbed"
 
 tests/nightly/auto_negotition/test_auto_neg.py::TestAutoNeg::test_auto_neg_conf:
   skip:
