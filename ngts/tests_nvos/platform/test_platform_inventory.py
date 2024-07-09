@@ -44,10 +44,12 @@ def test_show_platform_inventory(engines, devices, test_api):
     with allure.step("Determining random sample"):
         random_fan_name = random.choice(devices.dut.fan_list)
         psu_list = list(devices.dut.psu_list)
-        random_psu_name = random.choice(psu_list)
-        if output.get(random_psu_name).get('state') == 'bad':
-            psu_list.remove(random_psu_name)
+        random_psu_name = None
+        if psu_list:
             random_psu_name = random.choice(psu_list)
+            if output.get(random_psu_name).get('state') == 'bad':
+                psu_list.remove(random_psu_name)
+                random_psu_name = random.choice(psu_list)
         switch_name = PlatformConsts.HW_COMP_SWITCH
 
     with allure.step("Checking field values"):
@@ -59,12 +61,13 @@ def test_show_platform_inventory(engines, devices, test_api):
             errors = True
             logger.error(e)
 
-        try:
-            with allure.step(f"For psu {random_psu_name} (chosen randomly)"):
-                _test_show_platform_inventory_psu(output[random_psu_name], devices.dut)
-        except Exception as e:
-            errors = True
-            logger.error(e)
+        if random_psu_name:
+            try:
+                with allure.step(f"For psu {random_psu_name} (chosen randomly)"):
+                    _test_show_platform_inventory_psu(output[random_psu_name], devices.dut)
+            except Exception as e:
+                errors = True
+                logger.error(e)
 
         try:
             with allure.step(f"For switch"):
@@ -113,21 +116,22 @@ def test_show_platform_inventory_psu(engines, devices, test_api):
 
     with allure.step("Running command and parsing output"):
         psu_list = list(devices.dut.psu_list)
-        random_psu = random.choice(psu_list)
-        output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
-        output = OutputParsingTool.parse_show_output_to_dict(
-            platform.inventory.show(random_psu, output_format=output_format),
-            output_format=output_format, field_name_dict={'HW version': 'hardware-version'}).get_returned_value()
-        if output.get('state') == 'bad':
-            psu_list.remove(random_psu)
+        if psu_list:
             random_psu = random.choice(psu_list)
-        logger.info(f"Random PSU chosen: {random_psu}")
-        output = OutputParsingTool.parse_show_output_to_dict(
-            platform.inventory.show(random_psu, output_format=output_format),
-            output_format=output_format, field_name_dict={'HW version': 'hardware-version'}).get_returned_value()
+            output_format = OutputFormat.auto if test_api == ApiType.NVUE else OutputFormat.json
+            output = OutputParsingTool.parse_show_output_to_dict(
+                platform.inventory.show(random_psu, output_format=output_format),
+                output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
+            if output.get('state') == 'bad':
+                psu_list.remove(random_psu)
+                random_psu = random.choice(psu_list)
+            logger.info(f"Random PSU chosen: {random_psu}")
+            output = OutputParsingTool.parse_show_output_to_dict(
+                platform.inventory.show(random_psu, output_format=output_format),
+                output_format=output_format, field_name_dict={'HW Version': 'hardware-version'}).get_returned_value()
 
-    with allure.step("Asserting values"):
-        _test_show_platform_inventory_psu(output, devices.dut)
+        with allure.step("Asserting values"):
+            _test_show_platform_inventory_psu(output, devices.dut)
 
 
 @pytest.mark.platform

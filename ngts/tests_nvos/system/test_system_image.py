@@ -30,11 +30,15 @@ PATH_TO_IMAGE_TEMPLATE = "{}/amd64/"
 # BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}-001.bin"
 # BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}-001/amd64/{base_image}"
 
-# will be removed ones merged to develop
 base_version = "/auto/sw_system_release/nos/nvos/25.01.4000/amd64/dev/nvos-amd64-25.01.4000.bin"
 xdr_base_version = "/auto/sw_system_release/nos/nvos/25.02.0914-003/amd64/dev/nvos-amd64-25.02.0914-003.bin"
+nvl5_base_version = "/auto/sw_system_release/nos/nvos/25.02.0506/amd64/dev/nvos-amd64-25.02.0506.bin"
 BASE_IMAGE_VERSION_TO_INSTALL = "nvos-amd64-{pre_release_name}.bin"
 BASE_IMAGE_VERSION_TO_INSTALL_PATH = "/auto/sw_system_release/nos/nvos/{pre_release_name}/amd64/{base_image}"
+
+# will be removed ones merged to develop
+base_versions = {'QTM3': xdr_base_version,
+                 'NVLink-5 switch': nvl5_base_version}
 
 
 @pytest.mark.checklist
@@ -490,7 +494,7 @@ def system_image_install_reject_with_prompt(engines, system, prompt_response, or
             # Increment action-job-id for latest command status
             action_job_id_str = str(action_job_id + 1)
             # extract last command execution status
-            output = OutputParsingTool.parse_json_str_to_dictionary(action.show(action_job_id_str)).\
+            output = OutputParsingTool.parse_json_str_to_dictionary(action.show(action_job_id_str)). \
                 get_returned_value()
             assert output['detail'] == 'Image install aborted by user' and \
                 output['http_status'] == 200 and \
@@ -636,8 +640,7 @@ def verify_current_version(original_version, system, device):
     global base_version
     with allure.step("Set base image according to device type"):
         logging.info(f"Device type: {device.asic_type}")
-        if device.asic_type == NvosConst.QTM3:
-            base_version = xdr_base_version
+        base_version = base_versions.get(device.asic_type, base_version)
 
 
 def create_images_output_dictionary(original_images, next_image, current_image, partition_id):
