@@ -523,7 +523,7 @@
       <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet92" StartDevice="r-leopard-58" StartPort="Ethernet92"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet96" StartDevice="r-leopard-58" StartPort="Ethernet96"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet104" StartDevice="r-leopard-58" StartPort="Ethernet104"/>
-      <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet112" StartDevice="r-leopard-58" StartPort="Ethernet112"/>
+      <DeviceInterfaceLink BandWidth="100000" EndDevice="r-leopard-59" EndPort="Ethernet112" StartDevice="r-leopard-58" StartPort="Ethernet112"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet120" StartDevice="r-leopard-58" StartPort="Ethernet120"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet128" StartDevice="r-leopard-58" StartPort="Ethernet128"/>
       <DeviceInterfaceLink BandWidth="400000" EndDevice="r-leopard-59" EndPort="Ethernet136" StartDevice="r-leopard-58" StartPort="Ethernet136"/>

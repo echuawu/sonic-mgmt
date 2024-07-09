@@ -45,7 +45,9 @@
                 <Speed>200000</Speed>
             {%- endif %}
         {%- elif inventory_hostname == "r-leopard-58" %}:
-            {%- if index == 17 or index == 18 %}
+            {%- if index == 15 %}
+                <Speed>100000</Speed>
+            {%- elif index == 17 or index == 18 %}
                 <Speed>400000</Speed>
             {%- endif %}
         {%- elif (inventory_hostname == "r-moose-01" or inventory_hostname == "mtvr-moose-02" or inventory_hostname == "mtvr-moose-03" or inventory_hostname == "mtvr-moose-04") and index >= 62 %}
