@@ -1196,7 +1196,7 @@ class MarsConstants:
     EXTRA_PACKAGE_PATH_LIST = ["/usr/lib64/python2.7/site-packages"]
 
     TOPO_ARRAY = ("t0-56-po2vlan", "t0", "t1-lag", "t1-28-lag", "ptf32",
-                  "t0-64", "t1-64-lag", "t0-56", "t0-56-o8v48", "t0-120", "t1-56-lag")
+                  "t0-64", "t1-64-lag", "t0-56", "t0-56-o8v48", "t0-120", "t1-56-lag", "t0-28")
     TOPO_ARRAY_DUALTOR = ("dualtor", "dualtor-64", "dualtor-aa")
     REBOOT_TYPES = {
         "reboot": "reboot",
@@ -1208,7 +1208,7 @@ class MarsConstants:
 
     DUT_LOG_BACKUP_PATH = "/.autodirect/sw_system_project/sonic/dut_logs"
 
-    BRANCH_PTF_MAPPING = {'master': 'latest',
+    BRANCH_PTF_MAPPING = {'master': '558858',
                           '202012': '42007',
                           '202106': '42007'
                           }

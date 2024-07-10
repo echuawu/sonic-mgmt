@@ -389,6 +389,10 @@ r-panther-16 ansible_host=r-panther-16  sonic_version=v2  sonic_hwsku=Mellanox-S
 r-bulldog-02-ptf-any ansible_host=r-bulldog-02  sonic_version=v2  sonic_hwsku=ACS-MSN2100             serial_console="ssh  -l rcon:7023 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23 base_mac=24:8A:07:83:0E:80 serial=MT1651X07589 model=MSN2100-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0012-rc8-9600', '0x22': u'MSN2100-CB2FO', '0x23': u'MT1651X07589', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'24:8A:07:83:0E:80', '0x25': u'11/23/2020 11:18:02', '0xfe': u'0x679F8C78', '0x2b': u'Mellanox', '0x2a': u'128'}"
 r-bulldog-02 ansible_host=r-bulldog-02  sonic_version=v2  sonic_hwsku=ACS-MSN2100             serial_console="ssh  -l rcon:7023 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-23 base_mac=24:8A:07:83:0E:80 serial=MT1651X07589 model=MSN2100-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0012-rc8-9600', '0x22': u'MSN2100-CB2FO', '0x23': u'MT1651X07589', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'24:8A:07:83:0E:80', '0x25': u'11/23/2020 11:18:02', '0xfe': u'0x679F8C78', '0x2b': u'Mellanox', '0x2a': u'128'}"
 
+# MTR canonical testbed r-bobcat-bu topologies
+r-bobcat-bu-ptf-any ansible_host=10.209.51.219  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28             serial_console="ssh -l rcon:7048 10.209.48.103" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208- base_mac=24:8A:07:83:0E:80 serial=MT1651X07589 model=MSN2100-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2100-CB2FO', '0x23': u'MT1651X07589', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'24:8A:07:83:0E:80', '0x25': u'11/23/2020 11:18:02', '0xfe': u'0x679F8C78', '0x2b': u'Mellanox', '0x2a': u'128'}"
+r-bobcat-bu ansible_host=10.209.51.219  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28             serial_console="ssh -l rcon:7048 10.209.48.103" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208 base_mac=24:8A:07:83:0E:80 serial=MT1651X07589 model=MSN2100-CB2FO syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2100-CB2FO', '0x23': u'MT1651X07589', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'24:8A:07:83:0E:80', '0x25': u'11/23/2020 11:18:02', '0xfe': u'0x679F8C78', '0x2b': u'Mellanox', '0x2a': u'128'}"
+
 # MTR canonical testbed r-bulldog-04 topologies
 r-bulldog-04-ptf-any ansible_host=r-bulldog-04  sonic_version=v2  sonic_hwsku=ACS-MSN2100             serial_console="ssh -l rcon:7019 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-22 base_mac=EC:0D:9A:60:3A:00 serial=MT1752X06332 model=MSN2100-CB2F syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2100-CB2F', '0x23': u'MT1752X06332', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'EC:0D:9A:60:3A:00', '0x25': u'12/28/2017 23:58:38', '0xfe': u'0x7C9AF996', '0x2b': u'Mellanox', '0x2a': u'128'}"
 r-bulldog-04 ansible_host=r-bulldog-04  sonic_version=v2  sonic_hwsku=ACS-MSN2100             serial_console="ssh -l rcon:7019 10.208.0.47" ptf_host=ptf-dummy ptf_portmap="" pdu_host=pdu-10-208-0-22 base_mac=EC:0D:9A:60:3A:00 serial=MT1752X06332 model=MSN2100-CB2F syseeprom_info="{'0x28': u'x86_64-mlnx_x86-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN2100-CB2F', '0x23': u'MT1752X06332', '0x21': u'MSN2100', '0x26': u'16', '0x24': u'EC:0D:9A:60:3A:00', '0x25': u'12/28/2017 23:58:38', '0xfe': u'0x7C9AF996', '0x2b': u'Mellanox', '0x2a': u'128'}"
@@ -797,15 +801,27 @@ mtvr-leopard-01-t1-28-lag  ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsk
 mtvr-leopard-01-ptf32   ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-245-2-49,pdu-10-245-2-25" base_mac=9C:05:91:23:3A:00 serial=MT2247XZ0588 model=MSN4700-WS2F syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2F', '0x23': u'MT2247XZ0588', '0x21': u'MSN4700', '0x26': u'17', '0x24': u'9C:05:91:23:3A:00', '0x25': u'12/18/2022 23:59:43', '0xfe': u'0x90D171AB', '0x2b': u'Mellanox', '0x2a': u'254'}"
 mtvr-leopard-01-ptf-any   ansible_host=10.245.20.49 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7045 10.245.2.8" ptf_host=ptf-mtvr-leopard-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-245-2-49,pdu-10-245-2-25" base_mac=9C:05:91:23:3A:00 serial=MT2247XZ0588 model=MSN4700-WS2F syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2F', '0x23': u'MT2247XZ0588', '0x21': u'MSN4700', '0x26': u'17', '0x24': u'9C:05:91:23:3A:00', '0x25': u'12/18/2022 23:59:43', '0xfe': u'0x90D171AB', '0x2b': u'Mellanox', '0x2a': u'254'}"
 
-# MTR testbed r-leopard-79 topologies
-r-leopard-79  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-t0  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-t0-64-32  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-t1  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-t1-lag  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-t1-28-lag  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-ptf32   ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
-r-leopard-79-ptf-any   ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-leopard-79 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=mtvr-leopard-02 dut_mac="94:6d:ae:04:1f:58" pdu_host="pdu-10-208-0-191" base_mac=9C:05:91:48:88:00 serial=MT2318XZ03NT model=MSN4700-WS2FO syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FO', '0x23': u'MT2318XZ03NT', '0x21': u'MSN4700', '0x26': u'18', '0x24': u'9C:05:91:48:88:00', '0x25': u'05/07/2023 13:19:09', '0xfe': u'0x79EF66D1', '0x2b': u'Mellanox', '0x2a': u'254'}"
+# MTR testbed r-bobcat-03 topologies
+r-bobcat-03  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t0  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t0-28  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t0-64-32  ansible_host=10.210.25.4  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t1  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t1-lag  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-t1-28-lag  ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-ptf32   ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-03-ptf-any   ansible_host=10.210.25.4 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7009 10.208.0.80" ptf_host=ptf-r-bobcat-03 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-80 dut_mac="9c:63:c0:97:cd:ac" pdu_host="pdu-10-208-0-191" base_mac=B0:CF:0E:0E:33:00 serial=MT2419XZ07VB model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VB', '0x21': u'SN4280', '0x26': u'0', '0x24': u'B0:CF:0E:0E:33:00', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xB46E28D6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+
+# MTR testbed r-bobcat-01 topologies
+r-bobcat-01  ansible_host=10.210.26.177  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t0  ansible_host=10.210.26.177  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t0-28  ansible_host=10.210.26.177  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t0-64-32  ansible_host=10.210.26.177  sonic_version=v2  sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t1  ansible_host=10.210.26.177 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t1-lag  ansible_host=10.210.26.177 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-t1-28-lag  ansible_host=10.210.26.177 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-ptf32   ansible_host=10.210.26.177 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
+r-bobcat-01-ptf-any   ansible_host=10.210.26.177 sonic_version=v2 sonic_hwsku=Mellanox-SN4280-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="9C:63:C3:97:D4:E4" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:63:C3:97:D4:E4 serial=MT2419XZ07VM model=MSN4280-WS2RXO-NS syseeprom_info="{'0x28': u'x86_64-nvidia_sn4280-r0', '0x29': u'2023.11-5.3.0012-rc6-9600', '0x22': u'MSN4280-WS2RXO-NS', '0x23': u'MT2419XZ07VM', '0x21': u'SN4280', '0x26': u'0', '0x24': u'9C:63:C3:97:D4:E4', '0x25': u'05/12/2024 12:29:03', '0xfe': u'0xFCCADFE6', '0x2b': u'Nvidia', '0x2a': u'254'}"
 
 # MTR testbed r-bobcat-01 topologies
 r-bobcat-01  ansible_host=10.210.26.177  sonic_version=v2  sonic_hwsku=Mellanox-SN4700-O28 switch_type="switch" iface_speed=200000 serial_console="ssh -l rcon:7002 0.208.0.85" ptf_host=ptf-r-bobcat-01 ptf_portmap="roles/test/files/mlnx/default_interface_to_front_map.ini" fanout_switch=r-leopard-82 dut_mac="b8:3f:d2:de:c9:90" pdu_host="pdu-10-208-0-181,pdu-10-208-2-14" base_mac=9C:05:91:22:C8:00 serial=MT2247XZ054T model=MSN4700-WS2FC syseeprom_info="{'0x28': u'x86_64-mlnx_msn4700-r0', '0x29': u'2023.11-5.3.0011-9600', '0x22': u'MSN4700-WS2FC', '0x23': u'MT2247XZ054T', '0x21': u'MSN4700', '0x26': u'17', '0x24': u'9C:05:91:22:C8:00', '0x25': u'12/08/2022 09:45:36', '0xfe': u'0x68B1AB95', '0x2b': u'Mellanox', '0x2a': u'254'}"
@@ -1325,15 +1341,27 @@ r-leopard-72-t1-lag
 r-leopard-72-ptf32
 r-leopard-72-ptf-any
 
-# MTR r-leopard-79 topologies
-r-leopard-79
-r-leopard-79-t0
-r-leopard-79-t0-64-32
-r-leopard-79-t1
-r-leopard-79-t1-lag
-r-leopard-79-t1-28-lag
-r-leopard-79-ptf32
-r-leopard-79-ptf-any
+# MTR r-bobcat-03 topologies
+r-bobcat-03
+r-bobcat-03-t0
+r-bobcat-03-t0-28
+r-bobcat-03-t0-64-32
+r-bobcat-03-t1
+r-bobcat-03-t1-lag
+r-bobcat-03-t1-28-lag
+r-bobcat-03-ptf32
+r-bobcat-03-ptf-any
+
+# MTR r-bobcat-01 topologies
+r-bobcat-01
+r-bobcat-01-t0
+r-bobcat-01-t0-28
+r-bobcat-01-t0-64-32
+r-bobcat-01-t1
+r-bobcat-01-t1-lag
+r-bobcat-01-t1-28-lag
+r-bobcat-01-ptf32
+r-bobcat-01-ptf-any
 
 # MTR r-bobcat-01 topologies
 r-bobcat-01
@@ -1891,6 +1919,9 @@ r-leopard-simx-33
 r-bobcat-simx-87-ptf-any
 r-bobcat-simx-87
 
+r-bobcat-bu-ptf-any
+r-bobcat-bu
+
 r-bobcat-simx-144-ptf-any
 r-bobcat-simx-144
 
@@ -2117,15 +2148,25 @@ r-leopard-72-t1-lag
 r-leopard-72-ptf32
 r-leopard-72-ptf-any
 
-# MTR r-leopard-79 topologies
-r-leopard-79
-r-leopard-79-t0
-r-leopard-79-t0-64-32
-r-leopard-79-t1
-r-leopard-79-t1-lag
-r-leopard-79-t1-28-lag
-r-leopard-79-ptf32
-r-leopard-79-ptf-any
+# MTR r-bobcat-03 topologies
+r-bobcat-03
+r-bobcat-03-t0
+r-bobcat-03-t0-64-32
+r-bobcat-03-t1
+r-bobcat-03-t1-lag
+r-bobcat-03-t1-28-lag
+r-bobcat-03-ptf32
+r-bobcat-03-ptf-any
+
+# MTR r-bobcat-01 topologies
+r-bobcat-01
+r-bobcat-01-t0
+r-bobcat-01-t0-64-32
+r-bobcat-01-t1
+r-bobcat-01-t1-lag
+r-bobcat-01-t1-28-lag
+r-bobcat-01-ptf32
+r-bobcat-01-ptf-any
 
 # MTR r-bobcat-01 topologies
 r-bobcat-01
@@ -2799,8 +2840,8 @@ ptf-r-tigris-25 ansible_host=10.213.84.41 ansible_ssh_user="{{ lookup('env','PTF
 ptf-r-leopard-01 ansible_host=10.215.22.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.22.61 ansible_host=10.215.22.61 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
-# MTR r-leopard-79 PTF host
-ptf-r-leopard-79 ansible_host=10.215.28.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
+# MTR r-bobcat-03 PTF host
+ptf-r-bobcat-03 ansible_host=10.215.28.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 10.215.28.182 ansible_host=10.215.28.182 ansible_ssh_user="{{ lookup('env','PTF_USER') }}" ansible_ssh_pass="{{ lookup('env','PTF_PASSWORD') }}"
 
 # MTR r-bobcat-01 PTF host
