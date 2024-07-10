@@ -855,7 +855,13 @@ class JulietScaleoutSwitch(JulietSwitch):
             "min-speed": ExpectedString(range_min=2000, range_max=10000),
             "max-speed": ExpectedString(range_min=20000, range_max=40000)}
         self.platform_inventory_switch_values.update({"hardware-version": None,
-                                                      "model": ExpectedString(regex="N5110_LD.*")})
+                                                      "model": "692-9K36F-00MV-JS0"})
+        self.platform_inventory_items.extend([PlatformConsts.FW_BMC])
+        self.platform_inventory_items_dict.update({'bmc': [PlatformConsts.FW_BMC]})
+        platform_inventory_bmc_values = {
+            "hardware-version": NvosConst.NOT_AVAILABLE, "model": NvosConst.NOT_AVAILABLE,
+            "serial": NvosConst.NOT_AVAILABLE, "state": FansConsts.STATE_OK, "type": PlatformConsts.FW_BMC.lower()}
+        self.platform_inventory_values.update({'bmc': platform_inventory_bmc_values})
 
     def sleep_after_system_reboot(self):
         logger.info("Sleeping for 80 seconds - Reboot takes longer on juliet for now")

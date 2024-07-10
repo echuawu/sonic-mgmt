@@ -113,6 +113,10 @@ def _install_image(fae, image_filename, switch, platform):
             current_version = _get_bmc_firmware_actual_version(platform)
             assert current_version == image_filename, (
                 f"Expected BMC FW version to be {image_filename} but actual version is {current_version}")
+        with allure.step("Assert BMC status is ok"):
+            inventory_output = OutputParsingTool.parse_json_str_to_dictionary(
+                platform.inventory.show(PlatformConsts.FW_BMC)).get_returned_value()
+            assert inventory_output[PlatformConsts.INV_STATE] == PlatformConsts.INV_OK
 
 
 def _fetch_image(expected_version_path, fae, image_filename, initial_files):

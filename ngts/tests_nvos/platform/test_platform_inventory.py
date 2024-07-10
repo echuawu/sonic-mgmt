@@ -21,7 +21,8 @@ class InventoryItemBaseTest(ABC):
 
     @classmethod
     def skip_if_needed(cls, devices):
-        return
+        if not devices.dut.platform_inventory_items_dict.get(cls.ITEM_TYPE):
+            pytest.skip(f"Skipping test because DUT has no {cls.ITEM_TYPE}")
 
     @classmethod
     def choose_item(cls, engines, devices, test_api) -> str:
@@ -59,11 +60,6 @@ class InventoryPsuTest(InventoryItemBaseTest):
     ITEM_TYPE = 'psu'
 
     @classmethod
-    def skip_if_needed(cls, devices):
-        if not devices.dut.psu_list:
-            pytest.skip("Skipping test because DUT has no PSUs")
-
-    @classmethod
     def choose_item(cls, engines, devices, test_api) -> str:
         platform = Platform()
         psu_list = list(devices.dut.psu_list)
@@ -86,6 +82,10 @@ class InventorySwitchTest(InventoryItemBaseTest):
     ITEM_TYPE = 'switch'
 
 
+class InventoryBmcTest(InventoryItemBaseTest):
+    ITEM_TYPE = 'bmc'
+
+
 @pytest.mark.platform
 @pytest.mark.cumulus
 @pytest.mark.nvos_ci
@@ -94,7 +94,9 @@ class InventorySwitchTest(InventoryItemBaseTest):
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_inventory(engines, devices, test_api):
     """nv show platform inventory"""
-    TEST_CLASSES = InventoryItemBaseTest.__subclasses__()
+    test_classes = [cls for cls in InventoryItemBaseTest.__subclasses__()
+                    if devices.dut.platform_inventory_items_dict.get(cls.ITEM_TYPE)
+                    ]  # e.g. if the switch has no BMC then don't test for one
     TestToolkit.tested_api = test_api
 
     with allure.step("Create System object"):
@@ -115,7 +117,7 @@ def test_show_platform_inventory(engines, devices, test_api):
 
     with allure.step("Determining random sample"):
         sample_items = {test_class: test_class.choose_item(engines, devices, test_api)
-                        for test_class in TEST_CLASSES}
+                        for test_class in test_classes}
         with allure.step(f"Chosen items: {list(sample_items.values())}"):
             pass  # Shows the list of random samples in allure report
 
@@ -129,7 +131,7 @@ def test_show_platform_inventory(engines, devices, test_api):
                 errors = True
                 logger.error(e)
 
-        assert not errors, f"Errors encountered"
+        assert not errors, f"Errors encountered, search for failed steps above"
 
 
 @pytest.mark.platform
@@ -151,3 +153,10 @@ def test_show_platform_inventory_psu(engines, devices, test_api):
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
 def test_show_platform_inventory_switch(engines, devices, test_api):
     InventorySwitchTest.test_show_item(engines, devices, test_api)
+
+
+@pytest.mark.platform
+@pytest.mark.cumulus
+@pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
+def test_show_platform_inventory_bmc(engines, devices, test_api):
+    InventoryBmcTest.test_show_item(engines, devices, test_api)

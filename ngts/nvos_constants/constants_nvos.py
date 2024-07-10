@@ -692,6 +692,9 @@ class PlatformConsts:
     CHASSIS_LOCATION_TOPO_ID = 'topology-id'
     CHASSIS_LOCATION_STANDALONE_DICT = {CHASSIS_LOCATION_TRAY_ID: '0'}
 
+    INV_STATE = 'state'
+    INV_OK = 'ok'
+
 
 class FansConsts:
     FORWARD_DIRECTION = 'B2F'
