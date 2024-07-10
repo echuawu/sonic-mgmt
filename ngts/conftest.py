@@ -131,6 +131,12 @@ def pytest_addoption(parser):
                      help="Whether to skip (True) log analyzer bug handler actions when loganalyzer is enabled, or not (False)")
     parser.addoption('--fail_install_if_secure_boot_off', action='store', default='yes',
                      help='Whether to fail NVOS installation due to disabled Secure-Boot')
+    parser.addoption('--skip_weekend_cases', required=False, action='store', default="",
+                     help='Parameter used to decide which kind of test case to run.'
+                          'when it is "yes", it will only run "Daily" test case, '
+                          'when it is "no", it will only run weekend test cases, '
+                          'when it is other value, it will run both daily and weekend test cases,'
+                          'user need to define which is daily and weekend test case')
 
 
 def pytest_runtest_call(item):
@@ -236,6 +242,16 @@ def setup_name(request):
     :return: setup name
     """
     return request.config.getoption('--setup_name')
+
+
+@pytest.fixture(scope="session")
+def skip_weekend_cases(request):
+    """
+    Method for getting base version from pytest arguments
+    :param request: pytest builtin
+    :return: base_version argument value
+    """
+    return request.config.getoption('--skip_weekend_cases')
 
 
 @pytest.fixture(scope='session', autouse=True)
