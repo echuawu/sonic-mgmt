@@ -1006,6 +1006,15 @@ class SyslogConsts:
     SYSLOG_LOG_PATH = "/var/log/syslog"
 
 
+class ClusterAppsLogLevels:
+    CRITICAL = 'critical'
+    ERROR = 'error'
+    WARNING = 'warning'
+    NOTICE = 'notice'
+    INFO = 'info'
+    DEBUG = 'debug'
+
+
 class SyslogSeverityLevels:
     NONE = 'none'
     CRIT = 'crit'
@@ -1083,7 +1092,8 @@ class OperationTimeConsts:
                   'reboot with new user FW': 450,
                   'set hostname': 12,
                   'generate tech-support': 75,
-                  'julietscaleout generate_tech_support': 100}
+                  'julietscaleout generate_tech_support': 100,
+                  'start stop cluster app': 50}
 
 
 class StatsConsts:

@@ -665,6 +665,8 @@ class JulietSwitch(NvLinkSwitch):
         super()._init_constants()
         self.bmc_image_info = self.FaeImagesTestConsts(current_image_version='bmc_1.pkg', alternate_image_version='bmc_2.pkg')
         self.fpga_image_info = self.FaeImagesTestConsts(current_image_version='fpga_1.pkg', alternate_image_version='fpga_2.pkg')
+        cluster_files = ['conf', 'nmx-controller', 'nmx-telemetry']
+        self.constants = self.constants._replace(cluster_files=cluster_files)
 
     def _init_fan_list(self):
         super()._init_fan_list()
@@ -682,8 +684,8 @@ class JulietScaleoutSwitch(JulietSwitch):
     def _init_constants(self):
         super()._init_constants()
         self.asic_type = NvosConst.NVL5
-        self.cluster_app_nmx_controller = {'app-id': 'nmx-c-nvos', 'app-ver': '0.4', 'capabilities': 'sm, gfm, fib, gw-api', 'components-ver': 'sm:5.19.0_ccc158a, gfm:560.00.03-bringup-j, fib-fe:0.4.1'}
-        self.cluster_app_nmx_telemetry = {'app-id': 'nmx-telemetry', 'app-ver': '0.4.1', 'capabilities': 'ib-telemetry', 'components-ver': 'nmx-telemetry:0.4.1, nmx-connector:0.4.1'}
+        self.cluster_app_nmx_controller = {'app-id': 'nmx-c-nvos', 'app-ver': '0.6.0', 'capabilities': 'sm, gfm, fib, gw-api', 'components-ver': 'sm:5.19.0_d28564d, gfm:565.00-chips-a, fib-fe:0.4.1'}
+        self.cluster_app_nmx_telemetry = {'app-id': 'nmx-telemetry', 'app-ver': '0.4.4', 'capabilities': 'ib-telemetry', 'components-ver': 'ib-telemetry:collectx/build/collectx, nmx-connector:0.4.4'}
         self.cluster_app = {'nmx-controller': self.cluster_app_nmx_controller, 'nmx-telemetry': self.cluster_app_nmx_telemetry}
         self.reboot_type = 'julietscaleout_reboot'
         self.reset_factory = 'julietscaleout reset factory'
