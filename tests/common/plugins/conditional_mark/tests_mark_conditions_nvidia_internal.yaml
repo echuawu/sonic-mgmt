@@ -1244,12 +1244,6 @@ hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC-IN_PORT:
     conditions:
     - "https://redmine.mellanox.com/issues/3872427"
 
-hash/test_generic_hash.py::test_ecmp_and_lag_hash[CRC_CCITT-IN_PORT:
-  skip:
-    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3963150"
-    conditions:
-    - "https://redmine.mellanox.com/issues/3963150"
-
 hash/test_generic_hash.py::test_lag_member_remove_add:
   skip:
     reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3647677"
