@@ -1518,7 +1518,7 @@ class CableComplianceConst:
     UNSUPPORTED_SPECIFICATION_COMPLIANCE = {
         SPEC_COMPLIANCE_PREFIX: ["active_cable_media_interface", "sm_media_interface",
                                  "nm_850_media_interface"],
-        EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC"]}
+        EXTENDED_SPEC_COMPLIANCE_PREFIX: [r"\d+GBASE-DR", r"\d+GBASE-SR", r"AOC", r"Active Optical Cable"]}
 
 
 class IndependentModuleConst:
