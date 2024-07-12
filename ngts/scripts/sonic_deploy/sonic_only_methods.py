@@ -13,7 +13,7 @@ from ngts.scripts.sonic_deploy.community_only_methods import get_generate_minigr
     reboot_validation, execute_script, is_bf_topo, is_dualtor_topo, is_dualtor_aa_topo, generate_minigraph, \
     config_y_cable_simulator, add_host_for_y_cable_simulator
 from retry.api import retry_call
-from ngts.helpers.run_process_on_host import run_background_process_on_host
+from ngts.helpers.run_process_on_host import run_background_process_on_host, wait_until_background_procs_done
 from infra.tools.redmine.redmine_api import is_redmine_issue_active
 
 logger = logging.getLogger()
@@ -23,7 +23,8 @@ class SonicInstallationSteps:
 
     @staticmethod
     def pre_installation_steps(
-            sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx, threads_dict):
+            sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx, threads_dict,
+            destination_hwsku):
         """
         Pre-installation steps for SONIC
         :param sonic_topo: the topo for SONiC testing, for example: t0, t1, t1-lag, ptf32
@@ -34,12 +35,14 @@ class SonicInstallationSteps:
         :param port_number: number of DUT ports
         :param is_simx: fixture, True if setup is SIMX, else False
         :param threads_dict: dict, contain threads which will run in background
+        :param destination_hwsku: the destination hwsku value
         """
         setup_name = setup_info['setup_name']
         dut_name = setup_info['duts'][0]['dut_name']
         SonicInstallationSteps.verify_sonic_branch_supported(setup_info, base_version)
         if is_community(sonic_topo):
             ansible_path = setup_info['ansible_path']
+            SonicInstallationSteps.override_hwsku_files(setup_info, destination_hwsku)
             # Get ptf docker tag
             ptf_tag = SonicInstallationSteps.get_ptf_tag_sonic(base_version, target_version)
             dut_names = []
@@ -79,6 +82,43 @@ class SonicInstallationSteps:
             gen_mg_cmd = get_generate_minigraph_cmd(setup_info, dut_name, sonic_topo, port_number)
             run_background_process_on_host(threads_dict, 'generate_minigraph', gen_mg_cmd, timeout=300,
                                            exec_path=ansible_path)
+
+    @staticmethod
+    def copy_csv_inventory_lab(setup_name, destination_hwsku):
+        base_path = os.path.dirname(os.path.realpath(__file__))
+        common_csv_file_path = os.path.join(base_path, "../../../ansible/files/")
+        setup_csv_file_path = os.path.join(common_csv_file_path, f"hwsku_vars/{setup_name}/*.csv")
+        setup_hwsku_csv_file_path = os.path.join(common_csv_file_path,
+                                                 f"hwsku_vars/{setup_name}/{destination_hwsku}/*.csv")
+
+        common_inventory_lab_path = os.path.join(base_path, "../../../ansible/")
+        setup_hwsku_inventory_path = os.path.join(common_csv_file_path,
+                                                  f"hwsku_vars/{setup_name}/{destination_hwsku}/inventory")
+        setup_hwsku_lab_path = os.path.join(common_csv_file_path,
+                                            f"hwsku_vars/{setup_name}/{destination_hwsku}/lab")
+
+        logger.info(f"Common csv files path: {common_csv_file_path}")
+        logger.info(f"Copy {setup_name} - {destination_hwsku} related csv files to override the common csv files")
+        os.system(f"cp -f {setup_hwsku_csv_file_path} {common_csv_file_path}")
+        os.system(f"cp -f {setup_csv_file_path} {common_csv_file_path}")
+
+        logger.info(f"Common inventory and lab files path: {common_inventory_lab_path}")
+        logger.info(f"Copy {setup_name} - {destination_hwsku} related inventory and lab files to override the "
+                    f"common inventory and lab files")
+        os.system(f"cp -f {setup_hwsku_inventory_path} {common_inventory_lab_path}")
+        os.system(f"cp -f {setup_hwsku_lab_path} {common_inventory_lab_path}")
+
+    @staticmethod
+    def override_hwsku_files(setup_info, destination_hwsku):
+        """
+        Copy the csv/inventory/lab files under folder setup_name and folder hwsku to override the common files
+        """
+        setup_name = setup_info['setup_name']
+        if 'dual-tor' in setup_name:
+            SonicInstallationSteps.copy_csv_inventory_lab(setup_info['duts'][0]['dut_name'] + '_setup',
+                                                          destination_hwsku)
+        else:
+            SonicInstallationSteps.copy_csv_inventory_lab(setup_name, destination_hwsku)
 
     @staticmethod
     def start_canonical_background_threads(threads_dict, setup_name, dut_name, is_simx):
@@ -554,7 +594,8 @@ class SonicInstallationSteps:
 
     @staticmethod
     def deploy_image(cli, topology_obj, setup_name, platform_params, image_url, deploy_type,
-                     apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path):
+                     apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path,
+                     destination_hwsku=None, setup_info=None, dut_alias=None, fanout_deploy_threads=None):
         """
         This method will deploy sonic image on the dut.
         :param topology_obj: topology object
@@ -567,6 +608,10 @@ class SonicInstallationSteps:
         :param is_shutdown_bgp: shutdown bgp flag, True or False
         :param fw_pkg_path: fw_pkg_path
         :param cli : SONIC cli object
+        :param destination_hwsku: the destination hwsku value
+        :param setup_info: setup information
+        :param dut_alias: dut alias, such as 'dut-b'
+        :param fanout_deploy_threads: dict contains fanout deploy background threads
         :return: raise assertion error in case of script failure
         """
         dut_engine = None
@@ -594,7 +639,9 @@ class SonicInstallationSteps:
                                  setup_name=setup_name, platform_params=platform_params,
                                  deploy_type=deploy_type,
                                  reboot_after_install=reboot_after_install, fw_pkg_path=fw_pkg_path,
-                                 disable_ztp=disable_ztp, configure_dns=True)
+                                 disable_ztp=disable_ztp, configure_dns=True, destination_hwsku=destination_hwsku,
+                                 setup_info=setup_info, dut_alias=dut_alias,
+                                 deploy_fanout_threads=fanout_deploy_threads)
 
             if 'r-leopard-72' in setup_name and is_redmine_issue_active(3646924):
                 with allure.step('Change CABLE_LENGTH/AZURE for r-leopard-72 as it has ports 2-3 with optic cables'):
@@ -712,7 +759,8 @@ class SonicInstallationSteps:
 
 
 def is_community(sonic_topo):
-    return sonic_topo != 'ptf-any'
+    if sonic_topo:
+        return sonic_topo != 'ptf-any'
 
 
 def get_cached_topology(dut_name):

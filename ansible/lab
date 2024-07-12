@@ -8,18 +8,12 @@ r-ocelot-07      ansible_host=10.210.24.11 ansible_hostv6="fe80::e42:a1ff:fe44:4
 r-tigris-22      ansible_host=10.210.24.108 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN3800" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-spider-05      ansible_host=10.210.24.178 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2410" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 moose-42      ansible_host=10.7.148.42 ansible_hostv6="fe80::966d:aeff:fe54:4c7a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-moose-01      ansible_host=10.210.24.105 ansible_hostv6="fe80::966d:aeff:fe54:4f1a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM2501
-mtvr-moose-02      ansible_host=10.245.20.40 ansible_hostv6="fe80::966d:aeff:feab:2d2" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM2801
-mtvr-moose-03      ansible_host=10.245.20.41 ansible_hostv6="fe80::966d:aeff:feab:a" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM2901
-mtvr-moose-04      ansible_host=10.245.20.42 ansible_hostv6="fe80::966d:aeff:feab:aa" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM3001
 r-moose-02      ansible_host=10.210.24.236 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 mtvr-moose-01      ansible_host=10.245.20.39 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 mtvr-moose-05      ansible_host=10.245.20.46 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 mtvr-moose-06      ansible_host=10.245.20.47 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 mtvr-moose-07      ansible_host=10.245.20.48 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 mtvr-moose-08      ansible_host=10.245.20.51 ansible_hostv6="fe80::966d:aeff:fe8e:3cdc" sonic_version=v2 hwsku="ACS-SN5600" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
-mtvr-leopard-01      ansible_host=10.245.20.49 ansible_hostv6="fe80::966d:aeff:fe04:1f58" sonic_version=v2 hwsku="Mellanox-SN4700-O28" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
-mtvr-hippo-01      ansible_host=10.245.20.56 ansible_hostv6="fe80::966d:aeff:fe88:2f0e" sonic_version=v2 hwsku="ACS-SN5400" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-18      ansible_host=10.215.14.18 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-22      ansible_host=10.215.14.22 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-moose-simx-26      ansible_host=10.215.14.26 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN5600" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
@@ -103,42 +97,9 @@ r-bulldog-02      ansible_host=10.210.25.44 ansible_hostv6="fe80::e42:a1ff:fe44:
 r-bulldog-04      ansible_host=10.209.1.3 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2100" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-bulldog-03      ansible_host=10.209.1.2 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN2100" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
 arc-switch1038     ansible_host=10.210.25.41 ansible_hostv6="fe80::9a03:9bff:fe94:628c" sonic_version=v2 hwsku="ACS-MSN3700" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0101
-mts-sonic-dut      ansible_host=10.9.74.46 ansible_hostv6="fe80::268a:7ff:fe27:149a" sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=100000 mgmt_subnet_mask_length=24 vm_base=VM0201
-r-anaconda-81      ansible_host=10.210.24.109 ansible_hostv6="fe80::268a:7ff:feb5:8280" sonic_version=v2 hwsku="ACS-MSN3700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM0301
 r-panther-02      ansible_host=10.210.26.20 ansible_hostv6="fe80::a288:c2ff:fe86:5c40" sonic_version=v2 hwsku="Mellanox-SN2700-A1" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM3201
-r-panther-42      ansible_host=10.210.25.56 ansible_hostv6="fe80::a288:c2ff:fe86:3edc" sonic_version=v2 hwsku="Mellanox-SN2700-A1" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM3501
-r-panther-40      ansible_host=10.210.25.49 ansible_hostv6="fe80::a288:c2ff:fe86:3ebc" sonic_version=v2 hwsku="Mellanox-SN2700-A1-D48C8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM3601
-r-panther-45      ansible_host=10.210.24.143 ansible_hostv6="fe80::966d:aeff:fe6f:65c8" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4001
-r-panther-23      ansible_host=10.210.25.147 ansible_hostv6="fe80::9a03:9bff:fe1b:9208" sonic_version=v2 hwsku="Mellanox-SN2700-D40C8S8" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM3901
-r-panther-47      ansible_host=10.210.24.37 ansible_hostv6="fe80::bace:f6ff:fea6:1934" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4501
-r-panther-48      ansible_host=10.210.24.87 ansible_hostv6="fe80::268a:7ff:fe53:3b2e" sonic_version=v2 hwsku="Mellanox-SN2700-D40C8S8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4401
-mtvr-panther-02      ansible_host=10.245.21.2 ansible_hostv6="fe80::5aa2:e1ff:fefe:5550" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4701
-mtvr-panther-03      ansible_host=10.245.21.3 ansible_hostv6="fe80::5aa2:e1ff:fefe:5578" sonic_version=v2 hwsku="Mellanox-SN2700-D40C8S8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4801
-mtvr-hippo-03      ansible_host=10.245.20.245 ansible_hostv6="fe80::5aa2:e1ff:feea:5e86" sonic_version=v2 hwsku="ACS-SN5400" iface_speed=200000 mgmt_subnet_mask_length=22 vm_base=VM3801
 mtvr-hippo-02      ansible_host=10.245.20.246 ansible_hostv6="fe80::5aa2:e1ff:feea:5e76" sonic_version=v2 hwsku="ACS-SN5400" iface_speed=200000 mgmt_subnet_mask_length=22 vm_base=VM4601
-c-panther-01      ansible_host=10.75.71.81 ansible_hostv6="fe80::268a:7ff:fe32:784e" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=24 vm_base=VM0801
-r-panther-01      ansible_host=10.210.25.27 ansible_hostv6="fe80::a288:c2ff:fe86:3e8c" sonic_version=v2 hwsku="Mellanox-SN2700-A1-D48C8" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM3301
-arc-switch1025     ansible_host=10.210.25.45 ansible_hostv6="fe80::526b:4bff:fecd:2e74" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM0601
-arc-switch1004     ansible_host=10.210.24.176 ansible_hostv6="fe80::526b:4bff:fecd:30cc" sonic_version=v2 hwsku="Mellanox-SN2700-D40C8S8" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0701
-r-leopard-58      ansible_host=10.210.25.116 ansible_hostv6="fe80::9a03:9bff:fe98:cf46" sonic_version=v2 hwsku="Mellanox-SN4700-O8C48" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM1101
-r-bobcat-03      ansible_host=10.210.25.4 ansible_hostv6="fe80::966d:aeff:fe04:1f58" sonic_version=v2 hwsku="Mellanox-SN4280-O28" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-bobcat-01      ansible_host=10.210.26.177 ansible_hostv6="fe80::966d:aeff:fe04:1f58" sonic_version=v2 hwsku="Mellanox-SN4280-O28" iface_speed=200000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-leopard-70      ansible_host=10.210.24.88 ansible_hostv6="fe80::966d:aeff:fe14:2d7c" sonic_version=v2 hwsku="Mellanox-SN4700-O8V48" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM2601
-r-leopard-72      ansible_host=10.210.24.196 ansible_hostv6="fe80::966d:aeff:fe1e:6350" sonic_version=v2 hwsku="Mellanox-SN4700-O8V48" iface_speed=100000  mgmt_subnet_mask_length=22 vm_base=VM2701
 r-leopard-50      ansible_host=10.210.25.201 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="ACS-MSN4700" iface_speed=25000  mgmt_subnet_mask_length=22 vm_base=VM0000
-r-tigris-04        ansible_host=10.210.25.93 ansible_hostv6="fe80::ba59:9fff:fe44:8c3c" sonic_version=v2 hwsku="Mellanox-SN3800-D112C8" iface_speed=50000 mgmt_subnet_mask_length=22 vm_base=VM1201
-r-tigris-13        ansible_host=10.210.24.22 ansible_hostv6="fe80::ba59:9fff:febd:a6b2" sonic_version=v2 hwsku="Mellanox-SN3800-D112C8" iface_speed=50000 mgmt_subnet_mask_length=22 vm_base=VM1301
-r-tigris-25        ansible_host=10.210.24.181 ansible_hostv6="fe80::ac0:ebff:feb9:a7a0" sonic_version=v2 hwsku="Mellanox-SN3800-D112C8" iface_speed=50000 mgmt_subnet_mask_length=22 vm_base=VM0101
-r-leopard-01       ansible_host=10.210.24.44 ansible_hostv6="fe80::e42:a1ff:febd:84e4" sonic_version=v2 hwsku="Mellanox-SN4700-O8C48" iface_speed=400000 mgmt_subnet_mask_length=22 vm_base=VM1501
-r-tigon-04         ansible_host=10.210.25.123 ansible_hostv6="fe80::e42:a1ff:fe60:65d8" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM0401
-r-tigon-11         ansible_host=10.210.25.10 ansible_hostv6="fe80::e42:a1ff:fe60:65d8" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM1601
-r-tigon-20         ansible_host=10.210.24.183 ansible_hostv6="fe80::bace:f6ff:fedc:bd4c" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM1701
-r-tigon-21         ansible_host=10.210.24.193 ansible_hostv6="fe80::ac0:ebff:fe2c:2d08" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM1801
-mtvr-tigon-02      ansible_host=10.245.20.251 ansible_hostv6="fe80::966d:aeff:fe5a:7774" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4101
-mtvr-tigon-04      ansible_host=10.245.20.253 ansible_hostv6="fe80::ba3f:d2ff:fec4:98d4" sonic_version=v2 hwsku="Mellanox-SN4600C-C64" iface_speed=100000 mgmt_subnet_mask_length=22 vm_base=VM4201
-r-tigris-26        ansible_host=10.210.24.128 ansible_hostv6="fe80::ac0:ebff:feb1:bc7e" sonic_version=v2 hwsku="Mellanox-SN3800-D112C8" iface_speed=50000 mgmt_subnet_mask_length=22 vm_base=VM1901
-mtbc-sonic-01-2410 ansible_host=10.75.71.4 ansible_hostv6="fe80::9a03:9bff:fe82:f226" sonic_version=v2 hwsku="ACS-MSN2410" iface_speed=25000 mgmt_subnet_mask_length=24 vm_base=VM0501
-mtbc-sonic-03-2700 ansible_host=10.75.71.251 ansible_hostv6="fe80::9a03:9bff:fe6e:8cd2" sonic_version=v2 hwsku="Mellanox-SN2700" iface_speed=100000 mgmt_subnet_mask_length=24 vm_base=VM1001
 mtbc-3700c-01      ansible_host=10.75.67.50 ansible_hostv6="fe80::ba59:9fff:febd:791e" sonic_version=v2 hwsku="ACS-MSN3700C" iface_speed=100000 mgmt_subnet_mask_length=25 vm_base=VM1301
 dev-r-vrt-232-010  ansible_host=10.212.232.10 ansible_hostv6="" type=simx sonic_version=v2 hwsku="ACS-MSN3700" iface_speed=40000 mgmt_subnet_mask_length=16 vm_base=VM5001
 dev-r-vrt-233-010  ansible_host=10.212.233.10 ansible_hostv6="" type=simx sonic_version=v2 hwsku="ACS-MSN2700" iface_speed=40000 mgmt_subnet_mask_length=16 vm_base=VM5201
@@ -172,14 +133,9 @@ bm-bu-nos      ansible_host=10.7.144.191 ansible_hostv6="" sonic_version=v2 hwsk
 r-bsp-qm3400      ansible_host=10.209.48.158 ansible_hostv6="" sonic_version=v2 hwsku="ACS-QM3400" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-come-bf3-01      ansible_host=10.209.48.67 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 r-r740-07-bf2-sonic-01         ansible_host=10.215.20.238 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2001
-r-r740-07-bf3-sonic-01         ansible_host=10.215.20.237 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA-C1" iface_speed=200000 mgmt_subnet_mask_length=16 vm_base=VM2003
 r-r740-05-bf2-sonic-01         ansible_host=10.215.11.59 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2101
-r-r740-05-bf3-sonic-01         ansible_host=10.215.11.55 ansible_hostv6="fe80::ac0:ebff:fee1:4ba2" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA-C1" iface_speed=100000 mgmt_subnet_mask_length=16 vm_base=VM2103
 r-r740-03-bf2-sonic-01      ansible_host=10.215.19.39 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2201
-r-r740-03-bf3-sonic-01      ansible_host=10.215.19.35 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA-C1" iface_speed=200000  mgmt_subnet_mask_length=16 vm_base=VM2203
-r-r740-08-bf3-sonic-01      ansible_host=10.215.22.177 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA-C1" iface_speed=200000  mgmt_subnet_mask_length=16 vm_base=VM2301
 r-r740-08-bf2-sonic-01      ansible_host=10.215.22.179 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2303
-r-r740-09-bf3-sonic-01      ansible_host=10.215.5.17 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-9009d3b600CVAA-C1" iface_speed=200000  mgmt_subnet_mask_length=16 vm_base=VM2401
 r-r740-09-bf2-sonic-01      ansible_host=10.215.5.19 ansible_hostv6="fe80::e42:a1ff:fe44:44c0" sonic_version=v2 hwsku="Nvidia-MBF2H536C" iface_speed=100000  mgmt_subnet_mask_length=16 vm_base=VM2403
 gorilla-simx-84      ansible_host=10.237.6.84 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
 gorilla-simx-85      ansible_host=10.237.6.85 ansible_hostv6="" sonic_version=v2 hwsku="ACS-MQM9700" iface_speed=40000  mgmt_subnet_mask_length=22 vm_base=VM0000
@@ -241,46 +197,8 @@ sonic_sn2700_40
 ptf_ptf1    ansible_host=10.255.0.188 ansible_ssh_user=root ansible_ssh_pass=root
 ptf_vms1-1  ansible_host=10.255.0.178 ansible_ssh_user=root ansible_ssh_pass=root
 ptf_vms6-1  ansible_host=10.250.0.102 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-anaconda-81    ansible_host=10.213.86.93 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-1038    ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-1025    ansible_host=10.213.84.213 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-1004    ansible_host=10.213.80.153 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-r-panther-02 ansible_host=10.215.32.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-42 ansible_host=10.215.34.121 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-40 ansible_host=10.215.30.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-45 ansible_host=10.215.34.249 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-23 ansible_host=10.215.34.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-47 ansible_host=10.215.32.3 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-48 ansible_host=10.215.32.36 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-panther-02 ansible_host=10.245.40.3 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-panther-03 ansible_host=10.245.40.36 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-hippo-03 ansible_host=10.245.34.122 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-leopard-58  ansible_host=10.213.103.5 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-leopard-70  ansible_host=10.215.26.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-leopard-72  ansible_host=10.215.34.62 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-bobcat-03   ansible_host=10.215.28.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-bobcat-01   ansible_host=10.215.6.123 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigris-04    ansible_host=10.213.104.5 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigris-13    ansible_host=10.215.0.61 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigris-25    ansible_host=10.213.84.41 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-leopard-01   ansible_host=10.215.22.61 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigon-04   ansible_host=10.213.84.61 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigon-20   ansible_host=10.215.18.183 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigon-21   ansible_host=10.215.20.122 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-tigon-11   ansible_host=10.213.14.62 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-panther-01   ansible_host=10.215.28.122 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-r-moose-01   ansible_host=10.215.22.3 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-tigon-02   ansible_host=10.245.36.3 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-tigon-04   ansible_host=10.245.36.37 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-moose-02   ansible_host=10.245.20.122 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-moose-03   ansible_host=10.245.20.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-moose-04   ansible_host=10.245.20.62 ansible_ssh_usr=root ansible_ssh_pass=root
-ptf-mtvr-hippo-02 ansible_host=10.245.34.182 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtvr-leopard-01   ansible_host=10.245.32.122 ansible_ssh_user=root ansible_ssh_pass=root
-mts-ptf     ansible_host=10.9.78.237 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtbc02  ansible_host=10.75.206.220 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-c-panther-01  ansible_host=10.75.207.41 ansible_ssh_user=root ansible_ssh_pass=root
-ptf-mtbc03  ansible_host=10.75.207.38 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-mtbc04  ansible_host=10.75.205.201 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-232-010 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=root
 ptf-233-010 ansible_host=10.212.232.9 ansible_ssh_user=root ansible_ssh_pass=root
@@ -305,46 +223,10 @@ str-7260-10         ansible_host=10.251.0.13
 str-7260-11         ansible_host=10.251.0.234
 str-msn2700-02      ansible_host=10.251.0.235 os=sonic
 arc-switch1007      ansible_host=10.210.25.42 os=mellanox
-arc-switch1005      ansible_host=10.210.24.23 os=mellanox
 r-panther-08        ansible_host=10.210.25.122 os=mellanox
-r-panther-43        ansible_host=10.210.25.55 os=mellanox
-r-panther-41        ansible_host=10.210.25.35 os=mellanox
-r-panther-46        ansible_host=10.210.24.149 os=mellanox
-r-panther-44        ansible_host=10.210.24.129 os=mellanox
-r-leopard-59        ansible_host=10.210.25.3 os=sonic
-r-leopard-71        ansible_host=10.210.24.133 os=sonic
-r-leopard-73        ansible_host=10.210.24.210 os=sonic
 r-leopard-80        ansible_host=10.210.24.166 os=mellanox
-r-leopard-82        ansible_host=10.210.26.108 os=mellanox
 r-panther-07        ansible_host=10.210.24.177 os=mellanox
-mtvr-liger-01       ansible_host=10.245.20.43 os=mellanox
-mtvr-liger-02       ansible_host=10.245.20.44 os=mellanox
-mtvr-liger-03       ansible_host=10.245.20.45 os=mellanox
-mtvr-leopard-02     ansible_host=10.245.20.50 os=mellanox
-mtvr-leopard-04     ansible_host=10.245.21.9 os=sonic
-mtvr-leopard-05     ansible_host=10.245.20.247 os=sonic
-mtvr-tigon-01       ansible_host=10.245.20.249 os=sonic
-mtvr-tigon-03       ansible_host=10.245.20.252 os=sonic
-arc-switch1035      ansible_host=10.210.25.46 os=mellanox
-mts-sonic-fanout    ansible_host=10.9.74.64 os=mellanox
-arc-switch1039      ansible_host=10.210.25.47 os=mellanox
-r-tigon-14          ansible_host=10.210.25.188 os=sonic
 c-panther-02        ansible_host=10.75.67.34 os=mellanox
-arc-switchmtbc02    ansible_host=10.75.67.41 os=mellanox
-r-tigris-17         ansible_host=10.210.25.57 os=mellanox
-r-tigon-30         ansible_host=10.210.24.81 os=sonic
-r-liger-12          ansible_host=10.210.24.76 os=sonic
-r-tigris-28         ansible_host=10.210.24.175 os=mellanox
-r-tigon-19          ansible_host=10.210.24.182 os=sonic
-r-tigon-22          ansible_host=10.210.24.194 os=sonic
-r-tigris-27         ansible_host=10.210.24.174 os=mellanox
-r-liger-05          ansible_host=10.210.24.104 os=mellanox
-r-leopard-20        ansible_host=10.210.25.114 os=sonic
-mtbc-sonic-02-2700  ansible_host=10.75.67.45 os=mellanox
 mtbc-3700c-02       ansible_host=10.75.67.51 os=mellanox
-r-anaconda-68       ansible_host=10.210.24.157 os=mellanox
-r-anaconda-69       ansible_host=10.210.24.150 os=mellanox
 r-anaconda-86       ansible_host=10.210.24.190 os=mellanox
-mtvr-anaconda-01    ansible_host=10.245.21.5 os=mellanox
-mtvr-panther-04     ansible_host=10.245.21.4 os=mellanox
 dummy-fanout        ansible_host=1.1.1.1 os=mellanox

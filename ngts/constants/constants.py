@@ -106,6 +106,14 @@ class CliType:
     SKYNET = 'skynet'
 
 
+class FanoutConfigFile:
+    SONIC = 'config_db.json'
+    SONIC_CONFIG_PATH = '/etc/sonic/'
+    ONYX = 'initial'
+    ONYX_CONFIG_PATH = '/config/db/'
+    TEMP_PATH = '/tmp/'
+
+
 class DbConstants:
     METADATA_PATH = "/.autodirect/sw_regression/system/SONIC/MARS/metadata/"
     METADATA_PATH_NVOS = "/auto/sw_system_project/MLNX_OS_INFRA/NVOS-SONIC/MARS/metadata/"
@@ -1245,6 +1253,13 @@ class BluefieldConstants:
                              "Nvidia-9009d3b600SVAA-C1",
                              "Nvidia-9009d3b600SVAA-C2"]
     BLUEFIELD_PORTS_LIST = ['Ethernet0', 'Ethernet4']
+    DPU_SETUP_LIST = [
+        "r-r740-03-bf3-sonic-01_setup",
+        "r-r740-05-bf3-sonic-01_setup",
+        "r-r740-07-bf3-sonic-01_setup",
+        "r-r740-08-bf3-sonic-01_setup",
+        "CI_sonic_BF3_1",
+    ]
 
 
 class PerformanceSetupConstants:
@@ -1253,6 +1268,7 @@ class PerformanceSetupConstants:
 
 class SonicDeployConstants:
     UN_SUPPORT_BRANCH_MAP = {"r-alligator-04": ["201911", "202012"]}
+    DEFAULT_HWSKU_FILE_PATH = 'ansible/files/hwsku_vars/default_hwsku.json'
 
 
 class RebootTestConstants:

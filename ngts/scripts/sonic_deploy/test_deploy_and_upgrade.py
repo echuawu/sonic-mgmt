@@ -4,6 +4,7 @@ import logging
 import os
 import shutil
 import time
+import json
 
 import allure
 import pytest
@@ -11,7 +12,7 @@ import pytest
 from ngts.cli_wrappers.nvue.cumulus.cumulus_general_cli import CumulusGeneralCli
 from ngts.cli_wrappers.nvue.nvue_general_clis import NvueGeneralCli
 from ngts.cli_wrappers.sonic.sonic_cli import SonicCli
-from ngts.constants.constants import PlayersAliases, MarsConstants
+from ngts.constants.constants import PlayersAliases, SonicDeployConstants, MarsConstants
 from ngts.helpers.run_process_on_host import wait_until_background_procs_done
 from ngts.nvos_constants.constants_nvos import NvosConst
 from ngts.nvos_tools.Devices.DeviceFactory import DeviceFactory
@@ -19,7 +20,7 @@ from ngts.nvos_tools.Devices.IbDevice import BlackMambaSwitch, CrocodileSwitch
 from ngts.scripts.sonic_deploy.cumulus_only_methods import CumulusInstallationSteps
 from ngts.scripts.sonic_deploy.image_preparetion_methods import get_real_paths, prepare_images
 from ngts.scripts.sonic_deploy.nvos_only_methods import NvosInstallationSteps
-from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps
+from ngts.scripts.sonic_deploy.sonic_only_methods import SonicInstallationSteps, is_community
 from ngts.tools.infra import get_platform_info
 
 logger = logging.getLogger()
@@ -27,11 +28,11 @@ logger = logging.getLogger()
 
 @pytest.mark.disable_loganalyzer
 @allure.title('Deploy and upgrade image')
-def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version, base_version_dpu, target_version, serve_files,
-                            sonic_topo, neighbor_type, deploy_only_target, port_number, setup_name, platform_params, deploy_dpu,
-                            deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
-                            fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path, wjh_deb_url,
-                            verify_secure_boot, chip_type):
+def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version, base_version_dpu, target_version,
+                            serve_files, sonic_topo, neighbor_type, deploy_only_target, port_number, setup_name,
+                            platform_params, deploy_dpu, deploy_type, apply_base_config, reboot_after_install,
+                            is_shutdown_bgp, fw_pkg_path, recover_by_reboot, reboot, additional_apps, workspace_path,
+                            wjh_deb_url, verify_secure_boot, chip_type, destination_hwsku):
     """
         Deploy SONiC/NVOS testing topology and upgrade switch
 
@@ -84,6 +85,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
 
         setup_info = get_info_from_topology(topology_obj, workspace_path)
         setup_info['setup_name'] = setup_name
+        destination_hwsku = get_hwsku(sonic_topo, destination_hwsku, setup_name)
 
         base_version, target_version = get_real_paths(base_version, target_version)
         image_urls = prepare_images_to_install(base_version, target_version, serve_files)
@@ -111,7 +113,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         pre_install_threads = {}
         pre_installation_steps(
             sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
-            pre_install_threads)
+            pre_install_threads, destination_hwsku)
         install_threads = []
         install_dpu_threads = []
         executor = concurrent.futures.ThreadPoolExecutor()
@@ -128,7 +130,10 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
                                                         deploy_type=deploy_type, apply_base_config=apply_base_config,
                                                         reboot_after_install=reboot_after_install,
                                                         is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path=fw_pkg_path,
-                                                        cli_type=dut['cli_obj'], target_image_url=target_version_url)))
+                                                        cli_type=dut['cli_obj'], target_image_url=target_version_url,
+                                                        destination_hwsku=destination_hwsku, setup_info=setup_info,
+                                                        dut_alias=dut['dut_alias'],
+                                                        fanout_deploy_threads=pre_install_threads)))
         wait_until_deploy_background_process(install_threads, timeout=1500)
 
         if "bobcat" in setup_name and base_version_dpu:
@@ -169,7 +174,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         except AssertionError:
             # Give it another try if the background processes in the pre-installation steps fail
             pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
-                                   is_simx, pre_install_threads)
+                                   is_simx, pre_install_threads, destination_hwsku)
             wait_until_background_procs_done(pre_install_threads)
         logger.info("Pre-installation background processes are done")
 
@@ -192,7 +197,7 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
 
 
 def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number, is_simx,
-                           threads_dict):
+                           threads_dict, destination_hwsku):
     """
     Pre-installation steps
     :param sonic_topo: sonic_topo fixture
@@ -203,6 +208,7 @@ def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_versi
     :param port_number: number of DUT ports
     :param is_simx: is_simx fixture, True in case when setup is SIMX
     :param threads_dict: dict, contain threads which will run in background
+    :param destination_hwsku: the destination hwsku value
     """
     cli_type = setup_info['duts'][0]['cli_obj']
     if isinstance(cli_type, CumulusGeneralCli):
@@ -211,7 +217,7 @@ def pre_installation_steps(sonic_topo, neighbor_type, base_version, target_versi
         NvosInstallationSteps.pre_installation_steps(setup_info, base_version, target_version)
     else:
         SonicInstallationSteps.pre_installation_steps(sonic_topo, neighbor_type, base_version, target_version, setup_info, port_number,
-                                                      is_simx, threads_dict)
+                                                      is_simx, threads_dict, destination_hwsku)
 
 
 def post_installation_steps(topology_obj, sonic_topo, recover_by_reboot, deploy_dpu,
@@ -366,7 +372,8 @@ def get_target_version_url(image_urls):
 
 
 def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_type,
-                 apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, cli_type, target_image_url=''):
+                 apply_base_config, reboot_after_install, is_shutdown_bgp, fw_pkg_path, cli_type, target_image_url='',
+                 destination_hwsku=None, setup_info=None, dut_alias=None, fanout_deploy_threads=None):
     """
     This method will deploy sonic image on the dut.
     :param topology_obj: topology object
@@ -379,6 +386,10 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
     :param is_shutdown_bgp: shutdown bgp flag, True or False
     :param fw_pkg_path: fw_pkg_path
     :param cli_type: NVUE or SONIC cli object
+    :param destination_hwsku: the destination hwsku value
+    :param setup_info: setup information
+    :param dut_alias: dut alias, such as 'dut-b'
+    :param fanout_deploy_threads: dict, contain threads which will run in background
     :return: raise assertion error in case of script failure
     """
 
@@ -393,5 +404,26 @@ def deploy_image(topology_obj, setup_name, platform_params, image_url, deploy_ty
     else:
         SonicInstallationSteps.deploy_image(cli_type, topology_obj, setup_name, platform_params, image_url,
                                             deploy_type, apply_base_config, reboot_after_install, is_shutdown_bgp,
-                                            fw_pkg_path)
+                                            fw_pkg_path, destination_hwsku, setup_info, dut_alias,
+                                            fanout_deploy_threads)
     time.sleep(30)
+
+
+def get_hwsku(sonic_topo, dest_hwsku, setup_name):
+    if is_community(sonic_topo):
+        base_path = os.path.dirname(os.path.realpath(__file__))
+        default_hwsku_file_path = os.path.join(base_path, f"../../../{SonicDeployConstants.DEFAULT_HWSKU_FILE_PATH}")
+        logger.info(f"Reading {SonicDeployConstants.DEFAULT_HWSKU_FILE_PATH}")
+        with open(default_hwsku_file_path, 'r') as hwsku_json:
+            hwsku_data = json.load(hwsku_json)
+        if dest_hwsku:
+            if dest_hwsku in hwsku_data[setup_name]['support_hwsku']:
+                return dest_hwsku
+            else:
+                raise Exception(f"Un supported hwsku provided: {dest_hwsku}, "
+                                f"the supported hwsku: {hwsku_data[setup_name]['support_hwsku']}")
+
+        else:
+            logger.warning(f"No hwsku assigned, will use the default value: "
+                           f"{hwsku_data[setup_name]['default_hwsku']}")
+            return hwsku_data[setup_name]['default_hwsku']

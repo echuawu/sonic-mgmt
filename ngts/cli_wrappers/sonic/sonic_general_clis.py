@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 from ngts.cli_util.cli_constants import SonicConstant
 from ngts.cli_wrappers.common.general_clis_common import GeneralCliCommon
 from ngts.cli_wrappers.linux.linux_general_clis import LinuxGeneralCli
-from ngts.helpers.run_process_on_host import run_process_on_host
+from ngts.helpers.run_process_on_host import run_process_on_host, run_background_process_on_host
 from infra.tools.validations.traffic_validations.port_check.port_checker import check_port_status_till_alive
 from infra.tools.connection_tools.linux_ssh_engine import LinuxSshEngine
 from ngts.constants.constants import SonicConst, InfraConst, ConfigDbJsonConst, PerformanceSetupConstants, \
@@ -38,6 +38,7 @@ from infra.tools.redmine.redmine_api import is_redmine_issue_active
 from infra.tools.topology_tools.nogaq import get_noga_entire_resource_data
 from ngts.tools.infra import update_platform_info_files
 from ngts.helpers.secure_boot_helper import SecureBootHelper
+from ngts.constants.constants import CliType, FanoutConfigFile
 
 logger = logging.getLogger()
 DUMMY_COMMAND = 'echo dummy_command'
@@ -394,10 +395,14 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
     def deploy_image(self, topology_obj, image_path, apply_base_config=False, setup_name=None,
                      platform_params=None, deploy_type='sonic', reboot_after_install=None, fw_pkg_path=None,
-                     set_timezone='Israel', disable_ztp=False, configure_dns=False):
+                     set_timezone='Israel', disable_ztp=False, configure_dns=False, destination_hwsku=None,
+                     setup_info=None, dut_alias=None, deploy_fanout_threads=None):
 
         if image_path.startswith('http'):
             image_path = '/auto/' + image_path.split('/auto/')[1]
+
+        if setup_info and dut_alias and self.is_fanout_deploy_needed(setup_name):
+            self.deploy_fanout(topology_obj, destination_hwsku, setup_info, dut_alias, deploy_fanout_threads)
 
         try:
             with allure.step("Trying to install sonic image"):
@@ -413,6 +418,9 @@ class SonicGeneralCliDefault(GeneralCliCommon):
 
         with allure.step('Verify dockers are up'):
             self.verify_dockers_are_up()
+
+        if setup_info and dut_alias and self.is_fanout_deploy_needed(setup_name):
+            self.disable_ipv6_sonic_fanout(topology_obj, dut_alias)
 
         # Break if it's installing the Bobcat DPUs
         if deploy_type == 'bfb' and 'sn4280' in platform_params.platform:
@@ -706,6 +714,79 @@ class SonicGeneralCliDefault(GeneralCliCommon):
             check_port_status_till_alive(should_be_alive=True, destination_host=ip, destination_port=port)
         else:
             raise Exception('Remote reboot rc is other then 0')
+
+    def is_onyx_deploy_needed(self, onyx_engine, onyx_name, onyx_config_path):
+        """
+        Check if deploy is needed for onyx fanout switch
+        """
+        logger.info(f"Get into ONYX shell of {onyx_name}")
+        dst_md5 = onyx_engine.run_cmd(f"md5sum {FanoutConfigFile.ONYX_CONFIG_PATH + FanoutConfigFile.ONYX}",
+                                      run_in_shell=True).strip().split()[0]
+        logger.info(f"Current MD5 value of configuration file at {onyx_name} is {dst_md5}")
+        src_md5 = os.popen(f"sudo md5sum {onyx_config_path}").read().strip().split()[0]
+        logger.info(f"Current MD5 value of configuration file at ngts docker is {src_md5}")
+
+        if dst_md5 and src_md5 == dst_md5:
+            logger.info("No need to deploy ONYX switch")
+            return False
+        logger.info("Shall deploy ONYX switch")
+        return True
+
+    def is_fanout_deploy_needed(self, setup_name):
+        # skip deploy fanout for DPU setup
+        if setup_name in BluefieldConstants.DPU_SETUP_LIST:
+            return False
+        return True
+
+    def deploy_fanout(self, topology_obj, destination_hwsku, setup_info, dut_alias, threads_dict):
+        """
+        Copy the specific configuration file to fanout switch and load it
+        """
+        fanout_alias = 'fanout'
+        if dut_alias == 'dut-b':
+            fanout_alias = 'fanout-b'
+        if topology_obj.players.get(fanout_alias):
+            fanout_engine = topology_obj.players[fanout_alias]['engine']
+            base_path = os.path.dirname(os.path.realpath(__file__))
+            fanout_engine_type = topology_obj.players[fanout_alias]['attributes'].noga_query_data['attributes'][
+                'Topology Conn.']['CLI_TYPE']
+            fanout_name = topology_obj.players[fanout_alias]['attributes'].noga_query_data['attributes'][
+                'Common']['Name']
+
+            if fanout_engine_type == CliType.SONIC:
+                logger.info('Deploy SONiC fanout switch')
+                ansible_cmd = f"ansible-playbook -i lab fanout.yml -l {fanout_name}"
+                logger.info(f"Running CMD: {ansible_cmd}")
+                run_background_process_on_host(threads_dict, 'deploy_sonic_fanout', ansible_cmd, timeout=600,
+                                               exec_path=setup_info['ansible_path'])
+            else:
+                fanout_config_path = os.path.join(base_path,
+                                                  f"../../../ansible/files/hwsku_vars/{setup_info['setup_name']}/"
+                                                  f"{destination_hwsku}/{FanoutConfigFile.ONYX}")
+                if self.is_onyx_deploy_needed(fanout_engine, fanout_name, fanout_config_path):
+                    logger.info(f"Copy fanout configuration file to ONYX fanout switch {fanout_name}")
+                    fanout_engine.copy_file(source_file=fanout_config_path, dest_file=FanoutConfigFile.ONYX,
+                                            file_system=FanoutConfigFile.ONYX_CONFIG_PATH, overwrite_file=True,
+                                            verify_file=False)
+                    logger.info(f"Load fanout config file {FanoutConfigFile.ONYX}")
+                    fanout_engine.run_cmd(f"configuration switch-to {FanoutConfigFile.ONYX} no-reboot")
+                    fanout_engine.run_cmd("reload")
+
+    def disable_ipv6_sonic_fanout(self, topology_obj, dut_alias=None):
+        """
+        For sonic fanout, after fanout deployment or system reboot, it should disable ipv6 function to make sure
+        no icmpv6 packets generated
+        """
+        if topology_obj.players.get('fanout') or topology_obj.players.get('fanout-b'):
+            fanout_alias = 'fanout'
+            if dut_alias == 'dut-b':
+                fanout_alias = 'fanout-b'
+            if topology_obj.players.get(fanout_alias):
+                fanout_engine_type = topology_obj.players[fanout_alias]['attributes'].noga_query_data['attributes'][
+                    'Topology Conn.']['CLI_TYPE']
+                if fanout_engine_type == CliType.SONIC:
+                    fanout_engine = topology_obj.players.get(fanout_alias)['engine']
+                    fanout_engine.run_cmd('sudo sysctl -p')
 
     def boot_into_onie_by_serial_on_remote_reboot(self, topology_obj):
         serial_engine = SecureBootHelper.get_serial_engine_instance(topology_obj)
