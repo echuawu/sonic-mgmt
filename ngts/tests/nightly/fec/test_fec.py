@@ -61,8 +61,6 @@ class TestFec(TestAutoFecBase):
             dut_lb_conf = self.check_all_speeds_with_fec(self.tested_lb_dict, cleanup_list)
 
         tested_ports = list(dut_lb_conf.keys())
-        if sw_control_ports and is_redmine_issue_active([3886748]):
-            tested_ports = [port for port in tested_ports if port not in sw_control_ports]
 
         reboot_reload_random(self.topology_obj, self.engines.dut, self.cli_objects.dut,
                              tested_ports, cleanup_list, simx=self.is_simx)
@@ -171,11 +169,6 @@ class TestFec(TestAutoFecBase):
         tested_ports = get_tested_lb_dict_tested_ports(self.tested_lb_dict_for_bug_2705016_flow)
         ports_for_toggle_flow, ports_for_disable_enable_flow = \
             self.get_ports_for_test_flow(self.tested_lb_dict_for_bug_2705016_flow)
-        if sw_control_ports and is_redmine_issue_active([3886748]):
-            tested_ports = [port for port in tested_ports if port not in sw_control_ports]
-            ports_for_toggle_flow = [port for port in ports_for_toggle_flow if port not in sw_control_ports]
-            ports_for_disable_enable_flow = [port for port in ports_for_disable_enable_flow if port not in
-                                             sw_control_ports]
         logger.info("Ports to be disabled before warm-reboot and then enabled: {}"
                     .format(ports_for_disable_enable_flow))
         logger.info("Ports to be toggled after warm-reboot: {}"

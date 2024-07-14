@@ -66,21 +66,23 @@ def fec_capability_for_dut_ports(topology_obj, engines, cli_objects, interfaces,
 
 
 @pytest.fixture(autouse=True, scope='session')
-def tested_lb_dict(topology_obj, split_mode_supported_speeds):
+def tested_lb_dict(topology_obj, split_mode_supported_speeds, sw_control_ports):
     """
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: fixture, dictionary with available breakout options
+    :param sw_control_ports: sw_control_ports fixture
     :return: a dictionary of loopback list for each split mode on the dut
     {1: [('Ethernet52', 'Ethernet56')],
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
-    lb_ports = get_dut_loopbacks(topology_obj)
-    if len(lb_ports) < 3:
-        pytest.skip(f'Test expected at least 3 loopback ports, but found next ports only: {lb_ports}')
-    lb_list_in_split_mode_1 = random.sample(lb_ports, k=3)
-    split_2_lb = get_split_loopbacks_set(topology_obj, split_mode=2)
-    split_4_lb = get_split_loopbacks_set(topology_obj, split_mode=4)
+    dut_lbs = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=1)
+    if len(dut_lbs) < 3:
+        pytest.skip(
+            f'Test expected at least 3 loopback ports, but found next ports only: {dut_lbs}')
+    lb_list_in_split_mode_1 = random.sample(dut_lbs, k=3)
+    split_2_lb = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=2)
+    split_4_lb = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=4)
 
     tested_lb_dict = {
         1: {
@@ -100,19 +102,21 @@ def tested_lb_dict(topology_obj, split_mode_supported_speeds):
 
 
 @pytest.fixture(autouse=True, scope='session')
-def tested_lb_dict_for_bug_2705016_flow(topology_obj, split_mode_supported_speeds):
+def tested_lb_dict_for_bug_2705016_flow(topology_obj, split_mode_supported_speeds, sw_control_ports):
     """
     :param topology_obj: topology object fixture
     :param split_mode_supported_speeds: fixture, dictionary with available breakout options
+    :param sw_control_ports: sw_control_ports fixture
     :return: a dictionary of loopback list for each split mode on the dut
     {1: [('Ethernet52', 'Ethernet56')],
     2: [('Ethernet12', 'Ethernet16')],
     4: [('Ethernet20', 'Ethernet24')]}
     """
     modes_checked_in_bug_2705016_flow = [SonicConst.FEC_RS_MODE, SonicConst.FEC_NONE_MODE]
-    lb_list_in_split_mode_1 = random.sample(get_dut_loopbacks(topology_obj), k=4)
-    split_2_lb = get_split_loopbacks_set(topology_obj, split_mode=2)
-    split_4_lb = get_split_loopbacks_set(topology_obj, split_mode=4)
+    dut_lbs = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=1)
+    lb_list_in_split_mode_1 = random.sample(dut_lbs, k=4)
+    split_2_lb = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=2)
+    split_4_lb = dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode=4)
 
     tested_lb_dict = {
         1: {
@@ -142,6 +146,23 @@ def get_split_loopbacks_set(topology_obj, split_mode):
     if topology_obj.ports.get(f'dut-lb-splt{split_mode}-p1-1'):
         split_lb = (topology_obj.ports[f'dut-lb-splt{split_mode}-p1-1'],
                     topology_obj.ports[f'dut-lb-splt{split_mode}-p2-1'])
+    return split_lb
+
+
+def dut_split_lbs_no_sw_control(topology_obj, sw_control_ports, split_mode):
+    """
+    Return the dut-lbs for a given split.
+    Get set with loopbacks which have split by split_mode, for lbs that have no sw_control_ports
+    :param topology_obj: topology_obj fixture
+    :param sw_control_ports: sw_control_ports fixture
+    :param split_mode: split mode, could be 2, 4, 8
+    :return: example: ('Ethernet0', 'Ethernet1')
+    """
+    if split_mode == 1:
+        return split_1_dut_lbs_no_sw_control(topology_obj, sw_control_ports)
+    split_lb = get_split_loopbacks_set(topology_obj, split_mode)
+    if sw_control_ports and is_redmine_issue_active([3886748]):
+        split_lb = split_lb if not lb_has_sw_control_ports(split_lb, sw_control_ports) else ()
     return split_lb
 
 
@@ -366,3 +387,26 @@ def ports_support_autoneg(topology_obj, ports_spec_compliance, is_simx):
         if is_auto_neg_supported_port(port, ports_spec_compliance, used_in_auto_neg_tests=False):
             ports_supporting_autoneg.add(port)
     return ports_supporting_autoneg
+
+
+def split_1_dut_lbs_no_sw_control(topology_obj, sw_control_ports):
+    """
+    The function returns the dut split_1 loop-backs, without lbs with sw_control_ports
+    :param: topology_obj: topology_obj fixture
+    :param: sw_control_ports: sw_control_ports fixture
+    :returns: A list of dut loop-backs, without sw_control_ports, i.e. [('Ethernet136', 'Ethernet144'), ...]
+    """
+    lb_ports = get_dut_loopbacks(topology_obj)
+    if sw_control_ports and is_redmine_issue_active([3886748]):
+        lb_ports = [lb for lb in lb_ports if not lb_has_sw_control_ports(lb, sw_control_ports)]
+    return lb_ports
+
+
+def lb_has_sw_control_ports(lb, sw_control_ports):
+    """
+    The function returns whether the lb has a sw_control port
+    :param: lb: a dut loop-back
+    :param: sw_control_ports: sw_control_ports fixture
+    :returns: A boolean stating whether the lb contain a sw_control port
+    """
+    return lb[0] in sw_control_ports or lb[1] in sw_control_ports
