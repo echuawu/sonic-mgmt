@@ -365,6 +365,7 @@ def test_platform_environment_events_performance(engines, devices):
             _set_platform_environment_fan_direction(engines, devices, platform, fan_to_check, def_dir, def_dir)
 
 
+@pytest.mark.cumulus
 @pytest.mark.platform
 @pytest.mark.simx
 def test_platform_environment_fan_direction_mismatch(engines, devices):
