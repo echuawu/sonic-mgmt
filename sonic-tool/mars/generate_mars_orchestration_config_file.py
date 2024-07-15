@@ -41,7 +41,7 @@ community_develop_set_2_dbs = [
     'ip_neigh.db',
     'resources.db',
     'tunnel.db',
-    'generic_hash.db'
+    'generic_hash.db',
     'techsupport.db',
     'interfaces.db',
     'sub_port_interfaces.db',
@@ -59,9 +59,6 @@ community_develop_set_2_dbs = [
 community_develop_generic_dbs = [
     'system.db',
     'mgmtvrf.db',
-    'tacacs.db',
-    'ssh.db',
-    'scp.db'
 ]
 
 community_develop_as_dbs = [
@@ -71,7 +68,7 @@ community_develop_as_dbs = [
     'dhcp.db',
     'pfcwd.db',
     'layer2.db',
-    'layer3.db'
+    'layer3.db',
     'link.db',
     'span.db',
     'bfd.db',
@@ -86,7 +83,7 @@ community_develop_as_dbs = [
     'interfaces.db',
     'bgp.db',
     'autorestart.db',
-    'sflow.db,'
+    'sflow.db',
     'dualtor.db',
     'dualtor_io.db',
     'pre_rpc.db',
@@ -112,7 +109,7 @@ canonical_develop_dbs = [
     'dynamic_buffer.db',
     'techsupport_any_topo.db',
     'platform_fwutil.db',
-    'secure_boot.db'
+    'canonical/secure_boot.db'
 ]
 
 
@@ -209,7 +206,7 @@ def gen_canonical_config(mars_branch, dbs, upgrade):
     }
     if upgrade:
         caonical_config["target_version"] = caonical_config["base_version"]
-        caonical_config["base_version"] = f"{mars_branch}_verification_pointer-base.db.1.tgz"
+        caonical_config["base_version"] = f"/auto/sw_system_release/sonic/{mars_branch}_verification_pointer-base.bin"
 
     execution_block_generator = []
     for db in dbs:
