@@ -20,8 +20,7 @@ community_develop_set_1_dbs = [
     'wjh.db',
     'fast_reboot.db',
     'warm_reboot.db',
-    'span.db',
-    'dualtor.db',
+    'span.db'
 ]
 
 community_develop_rpc_dbs = [
@@ -52,6 +51,7 @@ community_develop_set_2_dbs = [
     'generic_config_updater.db',
     'cold_reboot.db',
     'autorestart.db',
+    'dualtor.db',
     'link.db',
     'upgrade_related.db'
 ]
@@ -236,7 +236,7 @@ def print_dualtor_as_configs(f, dbs):
 def print_dualtor_aa_configs(f, dbs):
     if dbs:
         mars_config_dict = gen_dualtor_aa_config(dbs)
-        print_configs(f, dualtor_as_keys, mars_config_dict)
+        print_configs(f, dualtor_aa_keys, mars_config_dict)
 
 
 def print_cononical_configs(f, mars_branch, dbs, upgrade):
@@ -288,7 +288,7 @@ def print_mars_configs(branch):
         f.write("\n\n")
 
         f.write("*******************************Dualtor AA***********************************************\n")
-        print_dualtor_as_configs(f, community_develop_aa_dbs)
+        print_dualtor_aa_configs(f, community_develop_aa_dbs)
         f.write("\n\n")
 
         f.write("*******************************Canonical***********************************************\n")
