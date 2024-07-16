@@ -356,6 +356,18 @@ tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire:
     conditions:
     - "https://redmine.mellanox.com/issues/3976522"
 
+tests/nightly/route/test_async_route.py::test_adding_routes[ipv6-static_routes_ipv6]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3982807 on SPC1"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3982807 and 'sn2' in platform"
+
+tests/nightly/route/test_async_route.py::test_removing_routes[ipv6-static_routes_ipv6]:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3982807 on SPC1"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3982807 and 'sn2' in platform"
+
 ########################## NGTS IGNORE END ##########################
 
 
