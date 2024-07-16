@@ -185,6 +185,7 @@ def test_show_system_reboot(test_api, engines, devices):
         assert reboot_output['reason'], "reason field is missing"
 
 
+@pytest.mark.cumulus
 @pytest.mark.system
 @pytest.mark.simx
 @pytest.mark.parametrize('test_api', ApiType.ALL_TYPES)
