@@ -2904,6 +2904,12 @@
       Platform:
         - sn4280
 
+- Errors_list:
+    - '.*ERR swss#orchagent: :- isPathTracingSupported: Failed to get a list of supported switch capabilities. Error.*'
+  Conditions:
+    - Redmine:
+      - 3992737
+
 
 # NVOS
 - Errors_list:
