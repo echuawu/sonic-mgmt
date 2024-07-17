@@ -360,6 +360,12 @@ tests/nightly/fdb/test_fdb_basic.py::TestFdbBasic::test_fdb_aging_time_expire:
 
 
 ########################## NVIDIA INTERNAL COMMUNITY IGNORE START ##########################
+clock/test_clock.py:
+  skip:
+    reason: "Testcase ignored due to RM issue: https://redmine.mellanox.com/issues/3994124"
+    conditions:
+    - "https://redmine.mellanox.com/issues/3994124"
+
 sflow/test_sflow.py:
   skip:
     reason: "Testcase ignored due to community sflow test had not been adapted to the dualtor setup"
