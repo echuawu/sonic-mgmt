@@ -117,15 +117,14 @@ def test_deploy_and_upgrade(topology_obj, is_simx, is_performance, base_version,
         executor = concurrent.futures.ThreadPoolExecutor()
         player_dut = topology_obj.players['dut']
         for dut in switch_or_standalone_dpu_duts:
-            if not is_dut_supports_image(base_version_url, dut['dut_name']):
-                continue
+            related_base_version_url = get_related_image_to_switch(base_version_url, dut['dut_name'])
             with allure.step('Install image on dut: {}'.format(dut['dut_name'])):
                 # Disconnect ssh connection, prevent "Socket is closed" in case when pre step took more than 15 min
                 topology_obj.players[dut['dut_alias']]['engine'].disconnect()
                 platform_params_copy = copy.deepcopy(platform_params)
                 install_threads.append((dut['dut_name'],
                                         executor.submit(deploy_image, topology_obj=topology_obj, setup_name=setup_name,
-                                                        image_url=base_version_url, platform_params=platform_params_copy,
+                                                        image_url=related_base_version_url, platform_params=platform_params_copy,
                                                         deploy_type=deploy_type, apply_base_config=apply_base_config,
                                                         reboot_after_install=reboot_after_install,
                                                         is_shutdown_bgp=is_shutdown_bgp, fw_pkg_path=fw_pkg_path,
@@ -271,15 +270,16 @@ def get_cli_obj(topology_obj, cli_type, switch_type, engine, host, dut_alias):
     return cli_obj
 
 
-def is_dut_supports_image(base_version_url, dut_name):
-    image_supports = True
+def get_related_image_to_switch(base_version, dut_name):
     # device mtvr-moose-01 is production and supports only prod versions of ONIE and SONiC
-    if dut_name == 'mtvr-moose-01' and "prod" not in base_version_url:
-        image_supports = False
-    # when executed deploy of production image, skip the flow on not production devices
-    if dut_name != 'mtvr-moose-01' and 'prod' in base_version_url:
-        image_supports = False
-    return image_supports
+    if dut_name == 'mtvr-moose-01':
+        prod_base_version = base_version.replace('/dev/', '/prod/')
+        if prod_base_version.startswith('http'):
+            prod_base_version = '/auto/' + prod_base_version.split('/auto/')[1]
+        assert os.path.exists(prod_base_version), (f"The required prod image path"
+                                                   f" doesn't exists. {prod_base_version}")
+        return prod_base_version
+    return base_version
 
 
 def wait_until_deploy_background_process(install_threads, timeout=1200):

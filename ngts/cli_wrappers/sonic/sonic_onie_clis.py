@@ -59,7 +59,7 @@ class SonicOnieCli:
         stdout = ""
         pexpect_entry = ""
         for cmd in cmd_list:
-            logger.info(f'Executing command: {cmd}')
+            logger.info(f'Executing command on {self.ip}: {cmd}')
             self.engine.sendline(cmd)
             pexpect_entry = self.get_pexpect_entry(prompts)
             stdout = self.get_stdout(stdout)
@@ -201,9 +201,9 @@ class SonicOnieCli:
 
     def update_onie(self):
         if self.required_onie_installation():
-            with allure.step(f"Install required ONIE version {self.latest_onie_version}"):
+            with allure.step(f"Install on {self.ip} required ONIE version {self.latest_onie_version}"):
                 logger.info(
-                    f'Switch have not required ONIE version {self.latest_onie_version}, ONIE will be updated')
+                    f'Switch {self.ip} have not required ONIE version {self.latest_onie_version}, ONIE will be updated')
                 self.confirm_onie_boot_mode_update()
                 # restore engine after reboot
                 self.create_engine(True)
@@ -217,11 +217,12 @@ class SonicOnieCli:
                 logger.info(f'onie-self-update command output:\n{cmd_output}')
                 self.post_reboot_delay()
         else:
-            with allure.step(f"Doesn't required ONIE installation"):
-                logger.info(f"Doesn't required ONIE installation")
+            with allure.step(f"Switch {self.ip} doesn't required ONIE installation"):
+                logger.info(f"Switch {self.ip} doesn't required ONIE installation")
 
     def required_onie_installation(self):
         # right after reboot, we can get the empty output from cmd run.
+        install_required = True
         for _ in range(3):
             onie_version_output, _ = self.run_cmd_set(['onie-sysinfo -v'])
             if '9600' in onie_version_output or '115200' in onie_version_output:
@@ -229,7 +230,10 @@ class SonicOnieCli:
             time.sleep(1)
         self.latest_onie_version, self.latest_onie_url = get_latest_onie_version(self.fw_pkg_path,
                                                                                  self.platform_params)
-        return self.latest_onie_version not in onie_version_output
+        # switch 10.245.20.39 is prod device, can't be updated by regular ONIE
+        if self.latest_onie_version in onie_version_output or self.ip == '10.245.20.39':
+            install_required = False
+        return install_required
 
 
 def get_latest_onie_version(fw_pkg_path, platform_params):
