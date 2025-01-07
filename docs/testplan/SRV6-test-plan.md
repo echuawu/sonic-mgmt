@@ -43,7 +43,7 @@ The test will be supported on t0 and t1 topology.
   a. Including IPv6 packets with reduced SRH(no SRH header) for uN action <br>
   b. Including IPv6 packets with 1 uSID container in SRH for uN action <br>
   c. Including IPv6 packets with 2 uSID container in SRH for uN action <br>
-  d. Including IPinIPv6 packets with uSIDs container in SRH for uDT46 action <br>
+  d. Including IPinIPv6 packets with uSID container in SRH for uDT46 action <br>
   e. Including IPv6inIPv6 packets with uSID container in SRH for uDT46 action <br>
 4. All types of IPv6 packets should be handled correctly <br>
   a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
@@ -62,7 +62,7 @@ The test will be supported on t0 and t1 topology.
   a. Including IPv6 packets with reduced SRH(no SRH header) for uN action <br>
   b. Including IPv6 packets with 1 uSID container in SRH for uN action <br>
   c. Including IPv6 packets with 2 uSID container in SRH for uN action <br>
-  d. Including IPinIPv6 packets with uSIDs container in SRH for uDT46 action <br>
+  d. Including IPinIPv6 packets with uSID container in SRH for uDT46 action <br>
   e. Including IPv6inIPv6 packets with uSID container in SRH for uDT46 action <br>
 4. All types of IPv6 packets should be handled correctly <br>
   a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
