@@ -2,16 +2,13 @@
 Segment Routing IPv6 (SRv6) is a next-generation IP bearer protocol that combines Segment Routing (SR) and IPv6. 
 Utilizing existing IPv6 forwarding technology, SRv6 implements network programming through flexible IPv6 extension 
 headers. SRv6 reduces the number of required protocol types, offers great extensibility and programmability, 
-and meets the diversified requirements of more new services. It also provides high reliability and offers exciting 
-cloud service application potential.
+and meets the diversified requirements of more new services.
 
-In SRv6 networks the packet format is a standard IPv6 packet format with additional options inside. SRv6 networks have 4 different types of the nodes:\
-__originating node__ - a node that converts standard IP packet to SRv6 packet by doing IPinIP encapsulation when external IP is according SRv6 format \
-__consumption node__ - last node in SRv6 chain. This node decapsulates the packet and forwards decapsulated packet as a standard IP packet or consumes it locally \
-__SRv6 aware node__ - a node that identifies external IP encapsulation as SRv6 encapsulation and can process it according SRv6 rules \
-__traditional IPv6 node__ - a node that identifies SRv6 encapsulated packet as a standard IPv6 packet and does standard LPM based IPv6 routing
-
-The Segment ID (SID) list shall be created by NIC and in most of cases a switch should only implement the Endpoint / Transient role.
+In SRv6 networks the packet format is a standard IPv6 packet format with additional options inside. SRv6 networks have 4 different types of the nodes: <br>
+__originating node__ - a node that converts standard IP packet to SRv6 packet by doing IPinIP encapsulation when external IP is according SRv6 format <br>
+__consumption node__ - last node in SRv6 chain. This node decapsulates the packet and forwards decapsulated packet as a standard IP packet or consumes it locally <br>
+__SRv6 aware node__ - a node that identifies external IP encapsulation as SRv6 encapsulation and can process it according SRv6 rules <br>
+__traditional IPv6 node__ - a node that identifies SRv6 encapsulated packet as a standard IPv6 packet and does standard LPM based IPv6 routing <br>
 
 ## Definition/Abbreviation
 ### Table 1: Abbreviations
@@ -86,4 +83,4 @@ The test will be supported on t0 and t1 topology.
   a. Configure half of SRV6_MY_SIDS for uDT46 as __uniform__ mode <br>
   b. Configure the other half of SRV6_MY_SIDS for uDT46 as __pipe__ mode <br>
 2. Collect techsupport dump files
-3. SRv6 related configuration should be in dump files
+3. SRv6 related configuration should be revealed in dump files
