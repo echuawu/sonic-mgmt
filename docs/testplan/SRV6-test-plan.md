@@ -20,67 +20,57 @@ __traditional IPv6 node__ - a node that identifies SRv6 encapsulated packet as a
 | SRH  | Segment Routing Header  |
 | uSID | Micro Segment |
 | uN   | SRv6 instantiation of a prefix SID |
-| uDT46 | Endpoint decapsulation and specific IP lookup |
+| USD | Ultimate Segment Decapsulation |
+
 
 ### Scope
-The test is to verify the functions in SRv6 phase I.
+The test is to verify the functions in SRv6 phase I and II.
 
 ### Scale
 Max number of MY_SID entries is 10, it would be covered in this test plan.
 
 ### CLI command
-No SRv6 CLI command involved in this test plan.
+No SRv6 configure CLI command involved in this test plan. The SRv6 static configuration method had been described in https://github.com/sonic-net/SONiC/pull/1860. <br>
+There are SRv6 counter and CRM check commands supported.
+| ****Command**** | ****Detail**** |
+| -------- | ----------------------------------------- |
+| counterpoll srv6 enable | Enable SRv6 counter query |
+| counterpoll srv6 disable | Disable SRv6 counter query |
+| counterpoll srv6 interval 100 ~ 30000 | Set SRv6 counter query interval, the unit is milliseconds |
+| sonic-clear srv6counters | Clear srv6 counter |
+| show srv6 stats | show srv6 counter |
+| crm show resources srv6-my-sid-entry | show srv6 used and avaiable sid resource |
+| crm show resources srv6-nexthop | show srv6 used and avaiable nexthop resource, currently not supported |
 
 ### Supported Topology
 The test will be supported on t0 and t1 topology.
 
 ## Test Cases
 ### Test Case # 1 SRv6 function test
-1. Configure SRV6_MY_SIDS with uN and uDT46 action at the same time for different SIDs <br>
-  a. Configure half of SRV6_MY_SIDS for uDT46 as __uniform__ mode <br>
-  b. Configure the other half of SRV6_MY_SIDS for uDT46 as __pipe__ mode <br>
+1. Configure SRV6_MY_SIDS with uN action at the same time for different SIDs <br>
+  a. Configure all of the SRV6_MY_SIDS as __pipe__ mode <br>
+2. Validate correct SRv6 CRM resource items had been used
 3. Send IPv6 packets from downstream to upstream neighbors <br>
   a. Including IPv6 packets with reduced SRH(no SRH header) for uN action <br>
   b. Including IPv6 packets with 1 uSID container in SRH for uN action <br>
   c. Including IPv6 packets with 2 uSID container in SRH for uN action <br>
-  d. Including IPinIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for uDT46 action<br>
-  e. Including IPv6inIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for uDT46 action <br>
+  d. Including IPinIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for USD flavor<br>
+  e. Including IPv6inIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for USD flavor <br>
 4. All types of IPv6 packets should be handled correctly <br>
   a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
-  b. For uDT46 action, IP tunnel decap should happen <br>
-6. Randomly choose one action from warm-reboot/fast-reboot/cold reboot/config reload and do it
+  b. For uN action USD flavor, IP tunnel decap should happen <br>
+  c. For each SID, the SRv6 counter for packet number and size should be updated correctly
+6. Randomly choose one action from cold reboot/config reload and do it
 7. Resend the all types of IPv6 packets
 8. All types of IPv6 packets should be handled correctly <br>
   a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
-  b. For uDT46 action, IP tunnel decap should happen <br>
+  b. For uN action USD flavor, IP tunnel decap should happen <br>
+  c. For each SID, the SRv6 counter for packet number and size should be updated correctly
+9. Remove all the configured SRV6_MY_SIDS <br>
+10. Check all the SRv6 CRM resource had been released <br>
 
-### Test Case # 2 SRv6 function with lag member operation
-1. Configure SRV6_MY_SIDS with uN and uDT46 action at the same time for different SIDs <br>
-  a. Configure half of SRV6_MY_SIDS for uDT46 as __uniform__ mode <br>
-  b. Configure the other half of SRV6_MY_SIDS for uDT46 as __pipe__ mode <br>
-2. Send IPv6 packets from downstream to upstream neighbors <br>
-  a. Including IPv6 packets with reduced SRH(no SRH header) for uN action <br>
-  b. Including IPv6 packets with 1 uSID container in SRH for uN action <br>
-  c. Including IPv6 packets with 2 uSID container in SRH for uN action <br>
-  d. Including IPinIPv6 packets with reduced SRH(no SRH header) and  uSID container in SRH for uDT46 action <br>
-  e. Including IPv6inIPv6 packets with reduced SRH(no SRH header) and  uSID container in SRH for uDT46 action <br>
-4. All types of IPv6 packets should be handled correctly <br>
-  a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
-  b. For uDT46 action, IP tunnel decap should happen <br>
-5. Delete lag member and add lag member back
-6. Resend the all types of IPv6 packets
-7. All types of IPv6 packets should be handled correctly <br>
-  a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
-  b. For uDT46 action, IP tunnel decap should happen <br>
-8. Flap lag member
-9. Resend the all types of IPv6 packets
-10. All types of IPv6 packets should be handled correctly <br>
-  a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
-  b. For uDT46 action, IP tunnel decap should happen <br>
-
-### Test Case # 3 SRv6 configuration in techsupport
-1. Configure SRV6_MY_SIDS with uN and uDT46 action at the same time for different SIDs <br>
-  a. Configure half of SRV6_MY_SIDS for uDT46 as __uniform__ mode <br>
-  b. Configure the other half of SRV6_MY_SIDS for uDT46 as __pipe__ mode <br>
+### Test Case # 2 SRv6 configuration in techsupport
+1. Configure SRV6_MY_SIDS with uN action at the same time for different SIDs <br>
+  a. Configure all of the SRV6_MY_SIDS as __pipe__ mode <br>
 2. Collect techsupport dump files
 3. SRv6 related configuration should be revealed in dump files
