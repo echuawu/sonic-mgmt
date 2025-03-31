@@ -50,13 +50,14 @@ The test will be supported on t0 and t1 topology.
 1. Configure SRV6_MY_SIDS with uN action at the same time for different SIDs <br>
   a. Configure all of the SRV6_MY_SIDS as __pipe__ mode <br>
 2. Validate correct SRv6 CRM resource items had been used
-3. Send IPv6 packets from downstream to upstream neighbors <br>
+3. Clear srv6 counter <br>
+4. Send IPv6 packets from downstream to upstream neighbors <br>
   a. Including IPv6 packets with reduced SRH(no SRH header) for uN action <br>
   b. Including IPv6 packets with 1 uSID container in SRH for uN action <br>
   c. Including IPv6 packets with 2 uSID container in SRH for uN action <br>
   d. Including IPinIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for USD flavor<br>
   e. Including IPv6inIPv6 packets with reduced SRH(no SRH header) and uSID container in SRH for USD flavor <br>
-4. All types of IPv6 packets should be handled correctly <br>
+5. All types of IPv6 packets should be handled correctly <br>
   a. For uN action, DIP shift/ uSID container copy to DIP/ segment left decrement should happen <br>
   b. For uN action USD flavor, IP tunnel decap should happen <br>
   c. For each SID, the SRv6 counter for packet number and size should be updated correctly
