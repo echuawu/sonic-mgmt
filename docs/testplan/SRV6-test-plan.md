@@ -31,7 +31,7 @@ Max number of MY_SID entries is 10, it would be covered in this test plan.
 
 ### CLI command
 No SRv6 configure CLI command involved in this test plan. The SRv6 static configuration method had been described in https://github.com/sonic-net/SONiC/pull/1860. <br>
-There are SRv6 counter and CRM check commands supported.
+There are SRv6 counter and CRM commands supported.
 | ****Command**** | ****Detail**** |
 | -------- | ----------------------------------------- |
 | counterpoll srv6 enable | Enable SRv6 counter query |
