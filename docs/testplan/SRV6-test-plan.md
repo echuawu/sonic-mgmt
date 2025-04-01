@@ -40,7 +40,6 @@ There are SRv6 counter and CRM commands supported.
 | sonic-clear srv6counters | Clear srv6 counter |
 | show srv6 stats | show srv6 counter |
 | crm show resources srv6-my-sid-entry | show srv6 used and avaiable sid resource |
-| crm show resources srv6-nexthop | show srv6 used and avaiable nexthop resource, currently not supported |
 
 ### Supported Topology
 The test will be supported on t0 and t1 topology.
