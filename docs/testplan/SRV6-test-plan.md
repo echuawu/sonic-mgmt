@@ -46,7 +46,7 @@ There are SRv6 counter and CRM check commands supported.
 The test will be supported on t0 and t1 topology.
 
 ## Test Cases
-### Test Case # 1 SRv6 dataplane function test
+### Test Case # 1 SRv6 dataplane full function test
 1. Configure SRV6_MY_SIDS with uN action at the same time for different SIDs <br>
   a. Configure all of the SRV6_MY_SIDS as __pipe__ mode <br>
 2. Validate correct SRv6 CRM resource items had been used
