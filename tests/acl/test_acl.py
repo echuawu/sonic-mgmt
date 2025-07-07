@@ -591,6 +591,79 @@ def stage(request, duthosts, rand_one_dut_hostname, tbinfo, is_macsec_enabled_fo
     return request.param
 
 
+@pytest.fixture(scope="class")
+def setup_standby_ports_on_rand_unselected_tor_class_scope(duthosts, rand_selected_dut, rand_unselected_dut,
+                                                           active_active_ports, tbinfo):     # noqa: F811
+    """Config the active-active dualtor that one ToR as active and the other as standby."""
+    if not ('dualtor-aa' in tbinfo['topo']['name'] and active_active_ports):
+        return
+
+    def check_active_active_port_status(duthost, ports, status):
+        logging.debug(f"Check mux status for ports {ports} is {status}")
+        show_mux_status_ret = show_muxcable_status(duthost)
+        logging.debug("show_mux_status_ret: {}".format(
+            json.dumps(show_mux_status_ret, indent=4)))
+        for port in ports:
+            if port not in show_mux_status_ret:
+                return False
+            elif show_mux_status_ret[port]['status'] != status:
+                return False
+        return True
+
+    def _config_the_active_active_dualtor(active_tor, standby_tor, ports, unconditionally=False):
+        active_side_commands = []
+        standby_side_commands = []
+        logging.info(f"Configuring {active_tor.hostname} as active")
+        logging.info(f"Configuring {standby_tor.hostname} as standby")
+        for port in ports:
+            active_side_commands.append(f"config mux mode active {port}")
+            standby_side_commands.append(f"config mux mode standby {port}")
+
+        if not check_active_active_port_status(active_tor, ports, 'active') or unconditionally:
+            active_tor.shell_cmds(cmds=active_side_commands)
+        standby_tor.shell_cmds(cmds=standby_side_commands)
+
+        pytest_assert(wait_until(30, 5, 0, check_active_active_port_status, active_tor, ports, 'active'),
+                      f"Could not config ports {ports} to active on {active_tor.hostname}")
+        pytest_assert(wait_until(30, 5, 0, check_active_active_port_status, standby_tor, ports, 'standby'),
+                      f"Could not config ports {ports} to standby on {standby_tor.hostname}")
+
+        ports_to_restore.extend(ports)
+
+    ports_to_restore = []
+    _config_the_active_active_dualtor(
+        rand_selected_dut, rand_unselected_dut, active_active_ports)
+
+    yield
+
+    if ports_to_restore:
+        restore_cmds = []
+        for port in ports_to_restore:
+            restore_cmds.append(f"config mux mode auto {port}")
+
+        for duthost in duthosts:
+            duthost.shell_cmds(cmds=restore_cmds)
+
+
+def create_custom_acl_table_type(duthost):
+    duthost.copy(src=MULTI_BINDING_ACL_TABLE_TYPE_SRC_FILE, dest=MULTI_BINDING_ACL_TABLE_TYPE_DST_FILE)
+    duthost.command(f"sonic-cfggen -j {MULTI_BINDING_ACL_TABLE_TYPE_DST_FILE} -w")
+
+
+def remove_custom_acl_table_type(duthost):
+    duthost.shell("sonic-db-cli CONFIG_DB del \'ACL_TABLE_TYPE|MULTI_BINDING_ACL\'")
+
+
+@pytest.fixture(scope="class", autouse=True)
+def multi_binding_acl_table_type(duthosts, rand_selected_dut):
+    if is_multi_binding_acl():
+        create_custom_acl_table_type(rand_selected_dut)
+        yield
+        remove_custom_acl_table_type(rand_selected_dut)
+    else:
+        yield
+
+
 def create_or_remove_acl_table(duthost, acl_table_config, setup, op, topo):
     for sonic_host_or_asic_inst in duthost.get_sonic_host_and_frontend_asic_instance():
         namespace = sonic_host_or_asic_inst.namespace if hasattr(sonic_host_or_asic_inst, 'namespace') else ''
@@ -636,7 +709,16 @@ def acl_table(duthosts, rand_one_dut_hostname, setup, stage, ip_version, tbinfo,
         The ACL table configuration.
 
     """
-    table_name = "DATA_{}_{}_TEST".format(stage.upper(), ip_version.upper())
+    if is_multi_binding_acl():
+        if stage == "egress":
+            pytest.skip("Not applicable for multi binding ACL")
+        table_name = f"MULTI_BINDING_{stage.upper()}_{ip_version.upper()}_TEST"
+        table_type = "MULTI_BINDING_ACL"
+        duthosts = [rand_selected_dut]
+    else:
+        table_name = f"DATA_{stage.upper()}_{ip_version.upper()}_TEST"
+        table_type = "L3" if ip_version == "ipv4" else "L3V6"
+
     topo = tbinfo["topo"]["type"]
 
     acl_table_config = {
@@ -1550,7 +1632,56 @@ class TestAclWithPortToggle(TestBasicAcl):
         # Suspect it's because the route is not programmed into hardware
         # Add external sleep to make sure route is in hardware
         if dut.get_facts().get("modular_chassis"):
-            port_toggle(dut, tbinfo, wait_after_ports_up=180)
-        else:
-            port_toggle(dut, tbinfo)
+            route_convergence_delay = 180
+
+        port_toggle(dut, tbinfo, wait_after_ports_up=route_convergence_delay)
         populate_vlan_arp_entries()
+
+
+@pytest.mark.multi_binding_acl
+@pytest.mark.usefixtures("setup_standby_ports_on_rand_unselected_tor_class_scope",
+                         "restore_duthosts", "is_multi_binding_acl_enabled")
+class TestMultiBindingAcl(TestBasicAcl):
+    """Test ACL rule functionality with multi-binding ACL table."""
+
+    def setup_rules(self, dut, acl_table, ip_version, tbinfo, gnmi_connection):
+        """Setup ACL rules for multi-binding ACL testing."""
+        if 'dualtor' not in tbinfo['topo']['name']:
+            pytest.skip("Not a dual-tor testbed")
+
+        dut.host.options["variable_manager"].extra_vars.update(
+            {"dualtor": True})
+
+        sonichost = dut.get_asic_or_sonic_host(None)
+        config_facts = sonichost.get_running_config_facts()
+
+        tor_ipv4_address = [_ for _ in config_facts["LOOPBACK_INTERFACE"]["Loopback2"]
+                            if is_ipv4_address(_.split("/")[0])][0]
+        tor_ipv4_address = tor_ipv4_address.split("/")[0]
+        dut.host.options["variable_manager"].extra_vars.update(
+            {"Loopback2": tor_ipv4_address})
+
+        tor_ipv4_address = [_ for _ in config_facts["LOOPBACK_INTERFACE"]["Loopback3"]
+                            if is_ipv4_address(_.split("/")[0])][0]
+        tor_ipv4_address = tor_ipv4_address.split("/")[0]
+        dut.host.options["variable_manager"].extra_vars.update(
+            {"Loopback3": tor_ipv4_address})
+
+        table_name = acl_table["table_name"]
+        loopback_ip = acl_table["loopback_ip"]
+        dut.host.options["variable_manager"].extra_vars.update({
+            "acl_table_name": table_name,
+            "loopback_ip": loopback_ip
+        })
+
+        dut_conf_file_path = os.path.join(
+            DUT_TMP_DIR, "acl_rules_{}.json".format(table_name))
+        dut.template(src=os.path.join(TEMPLATE_DIR, ACL_RULES_FULL_TEMPLATE[ip_version]),
+                     dest=dut_conf_file_path)
+        dut.command(
+            f"config mirror_session add everflow_session {SRC_IP} {DST_IP} {DSCP} {TTL} {GRE_TYPE}")
+        dut.command(f"acl-loader update full {dut_conf_file_path} --table_name {table_name} \
+                    --session_name everflow_session")
+
+    def test_ingress_unmatched_blocked(self, setup, direction, ptfadapter, ip_version, stage):
+        pytest.skip("Not applicable for multi binding ACL")
