@@ -4180,6 +4180,12 @@ platform_tests/api/test_sfp.py::TestSfpApi::test_get_transceiver_info:
     conditions:
     - "https://github.com/sonic-net/sonic-buildimage/issues/23426 and ('sn4700' in platform or 'sn4280' in platform)"
 
+platform_tests/sfp/test_sfputil.py::test_check_sfputil_reset:
+  xfail:
+    reason: "Testcase xfailed due to https://github.com/sonic-net/sonic-buildimage/issues/21603 on sn4700 platform"
+    conditions:
+    - "https://github.com/sonic-net/sonic-buildimage/issues/21603 and 'sn4700' in platform"
+
 platform_tests/test_reboot.py:
   skip:
     reason: "Found regression issues on multi-asic topology, temperarily skip this test case until the issues are addressed."
@@ -4229,6 +4235,12 @@ platform_tests/test_reload_config.py::test_reload_configuration_checks:
     conditions:
       - "'t0-isolated-d256u256s2' in topo_name and platform in ['x86_64-nvidia_sn5640-r0']"
       - "https://github.com/sonic-net/sonic-buildimage/issues/24543 and asic_type in ['mellanox'] and 'sn4280' in platform"
+
+platform_tests/test_sequential_restart.py::test_restart_swss:
+  xfail:
+    reason: "Xfail due to https://github.com/sonic-net/sonic-buildimage/issues/21603 on sn4700 platform"
+    conditions:
+    - "https://github.com/sonic-net/sonic-buildimage/issues/21603 and 'sn4700' in platform"
 
 portstat/test_portstat.py:
   skip:
